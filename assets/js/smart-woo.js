@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-
 jQuery(document).ready(function($) {
     $('#billing_cycle').on('change', function() {
         var billingCycle = $(this).val();
@@ -301,21 +300,21 @@ function loadMyDetails() {
 function confirmEditAccount() {
     var confirmAccount = confirm("Are you sure you want to edit your information?");
     if (confirmAccount) {
-        window.location.href = "http://localhost/callismart/my-account/edit-account/";
+        window.location.href = smart_woo_vars.woo_my_account_edit;
     }
 }
 
 function confirmPaymentMethods() {
     var confirmPayment = confirm("Are you sure you want to view your payment methods?");
     if (confirmPayment) {
-        window.location.href = "http://localhost/callismart/my-account/payment-methods/";
+        window.location.href = smart_woo_vars.woo_payment_method_edit;
     }
 }
 
 function confirmEditBilling() {
     var confirmBilling = confirm("Are you sure you want to edit your billing address?");
     if (confirmBilling) {
-        window.location.href = "http://localhost/callismart/my-accont/edit-address/billing/";
+        window.location.href = smart_woo_vars.woo_billing_eddress_edit;
     }
 }
 

@@ -288,33 +288,31 @@ function count_suspended_services($user_id = null) {
 add_action('wp_ajax_load_billing_details', 'load_billing_details_callback');
 function load_billing_details_callback() {
     // Check if the user is logged in
-    if (is_user_logged_in()) {
+    if ( is_user_logged_in() ) {
         // Get the current user ID
         $user_id = get_current_user_id();
 
         
         // Get additional customer details
-        $billingFirstName = get_user_meta($user_id, 'billing_first_name', true);
-        $billingLastName = get_user_meta($user_id, 'billing_last_name', true);
-        $company_name = get_user_meta($user_id, 'billing_company', true);
-        $email = get_user_meta($user_id, 'billing_email', true);
-        $phone = get_user_meta($user_id, 'billing_phone', true);
-        $website = get_user_meta($user_id, 'billing_website', true);
-        $nationality = get_user_meta($user_id, 'billing_country', true);
-
-         // Get the user's billing information using WooCommerce functions
-        $billingAddress = sw_get_user_billing_address($user_id);
+        $billingFirstName   = get_user_meta( $user_id, 'billing_first_name', true );
+        $billingLastName    = get_user_meta( $user_id, 'billing_last_name', true );
+        $company_name       = get_user_meta( $user_id, 'billing_company', true );
+        $email              = get_user_meta( $user_id, 'billing_email', true );
+        $phone              = get_user_meta( $user_id, 'billing_phone', true );
+        $website            = get_user_meta( $user_id, 'billing_website', true );
+        $nationality        = get_user_meta( $user_id, 'billing_country', true );
+        $billingAddress     = sw_get_user_billing_address( $user_id );
         
         // Construct the HTML for billing details
         $html = '<div class="billing-details-container">';
         $html .= '<h3>Billing Details</h3>';
-        $html .= '<p><strong>Name:</strong> ' . esc_html($billingFirstName . ' ' . $billingLastName) . '</p>';
-        $html .= '<p><strong>Company Name:</strong> ' . esc_html($company_name) . '</p>';
-        $html .= '<p><strong>Email Address:</strong> ' . esc_html($email) . '</p>';
-        $html .= '<p><strong>Phone:</strong> ' . esc_html($phone) . '</p>';
-        $html .= '<p><strong>Website:</strong> ' . esc_html($website) . '</p>';
-        $html .= '<p><strong>Address:</strong> ' . esc_html($billingAddress) .'</p>';
-        $html .= '<p><strong>Nationality:</strong> ' . esc_html($nationality) . '</p>';
+        $html .= '<p><strong>Name:</strong> ' . esc_html( $billingFirstName . ' ' . $billingLastName ) . '</p>';
+        $html .= '<p><strong>Company Name:</strong> ' . esc_html( $company_name ) . '</p>';
+        $html .= '<p><strong>Email Address:</strong> ' . esc_html( $email ) . '</p>';
+        $html .= '<p><strong>Phone:</strong> ' . esc_html( $phone ) . '</p>';
+        $html .= '<p><strong>Website:</strong> ' . esc_html( $website ) . '</p>';
+        $html .= '<p><strong>Address:</strong> ' . esc_html( $billingAddress ) .'</p>';
+        $html .= '<p><strong>Nationality:</strong> ' . esc_html( $nationality ) . '</p>';
         $html .= '<button class="account-button" onclick="confirmEditBilling()">Edit My Billing Address</button>';
         $html .= '</div>';
         
@@ -325,7 +323,7 @@ function load_billing_details_callback() {
         echo 'User not logged in';
     }
 
-    // Always die in functions echoing AJAX content
+    // prevent further outputing
     die();
 }
 
@@ -364,7 +362,7 @@ function load_my_details_callback() {
         echo 'User not logged in';
     }
 
-    // Always die in functions echoing AJAX content
+    // prevent further outputing
     die();
 }
 
@@ -452,7 +450,7 @@ function load_account_logs_callback() {
         echo '<p>Please log in to view user activity information.</p>';
     }
 
-    // Always die in functions echoing AJAX content
+    // prevent further outputing
     die();
 }
 function get_total_spent_by_user($user_id) {
@@ -501,7 +499,7 @@ function load_transaction_history_callback() {
         echo '<p>Please log in to view transaction history.</p>';
     }
 
-    // Always die in functions echoing AJAX content
+    // prevent further outputing
     die();
 }
 

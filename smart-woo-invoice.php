@@ -25,7 +25,7 @@ along with Smart Woo Service and Invoice. If not, see http://www.gnu.org/license
  * Plugin Name: Smart Woo Service and Invoice
  * Description: Revolutionise your WooCommerce experience with Smart Woo Service and Invoicing Plugin! Seamlessly integrate powerful service subscriptions and invoicing directly into your online store.
  * Version: 1.0.2
- * Author: Callismart Tech
+ * Author: Callistus Nwachukwu
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo
  * Requires at least: 6.3.2
@@ -55,8 +55,27 @@ if ( defined( 'SW_PLUGIN_NAME' )  ) {
     $plugin_url = plugin_dir_url( $main_plugin_file );
     define( 'SW_DIR_URL', $plugin_url );
 
-    require_once SW_ABSPATH . '/admin/include/src.php';
+    /**
+     * Load woocommerce before loading plugin dependencies
+     */
 
+    add_action( 'woocommerce_loaded', 'sw_initialization' );
+    $func_name = 'wp_mail';
+    if ( ! function_exists( 'sw_initialization' ) ) {
+
+        function sw_initialization(){
+            if ( class_exists( 'woocommerce' ) ) {
+                /**
+                 * WooComerce is active, action hook to load plugin files
+                 */
+
+                do_action( 'smart_woo_init' );
+                
+            }
+        }
+    }
+
+    require_once SW_ABSPATH . '/admin/include/src.php';
     
     // Activation hook for the plugin
     register_activation_hook( __FILE__, 'sw_plugin_db_schema' );

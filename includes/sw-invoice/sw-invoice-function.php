@@ -403,14 +403,14 @@ function calculate_migration_order_total_and_get_remaining_balance( $product_pri
 
 
 
-function sw_get_user_billing_address($user_id){
+function sw_get_user_billing_address( $user_id ){ 
    
     // Get user's billing address details
-    $billing_address_1 = get_user_meta($user_id, 'billing_address_1', true);
-    $billing_address_2 = get_user_meta($user_id, 'billing_address_2', true);
-    $billing_city = get_user_meta($user_id, 'billing_city', true);
-    $billing_state = get_user_meta($user_id, 'billing_state', true);
-    $billing_country = get_user_meta($user_id, 'billing_country', true);
+    $billing_address_1 = get_user_meta( $user_id, 'billing_address_1', true );
+    $billing_address_2 = get_user_meta( $user_id, 'billing_address_2', true );
+    $billing_city      = get_user_meta( $user_id, 'billing_city', true );
+    $billing_state     = get_user_meta( $user_id, 'billing_state', true );
+    $billing_country   = get_user_meta( $user_id, 'billing_country', true );
 
     $address_parts = array_filter(array(
         $billing_address_1,
@@ -421,7 +421,7 @@ function sw_get_user_billing_address($user_id){
     ));
 
     if (!empty($address_parts)) {
-        $customer_billing_address = implode(', ', $address_parts);
+        $customer_billing_address = implode( ', ', $address_parts );
         return $customer_billing_address;
     }
     

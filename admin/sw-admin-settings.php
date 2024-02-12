@@ -1,14 +1,133 @@
 <?php
 /**
- * File name    :   sw-admin-settings.php
- * @author      :   Callistus
- * Description  :   settings page for admin submenu
+* File name    :   sw-admin-settings.php
+* @author      :   Callistus
+* Description  :   settings page for admin submenu
+*/
+
+/**
+* Handles email settings options when form is submitted
+* called directly within the HTML page redering
+*/
+ function sw_handle_email_options() {
+    if (isset($_POST['sw_save_email_options'])) {
+
+        // Update billing email
+        if (isset($_POST['sw_billing_email'])) {
+            update_option('sw_billing_email', sanitize_email($_POST['sw_billing_email']));
+        }
+
+        // Update sender name
+        if (isset($_POST['sw_sender_name'])) {
+            update_option('sw_sender_name', sanitize_text_field($_POST['sw_sender_name']));
+        }
+
+        // Define an array of checkbox names
+        $checkboxes = array(
+            'sw_cancellation_mail_to_user',
+            'sw_service_opt_out_mail',
+            'sw_payment_reminder_to_client',
+            'sw_service_expiration_mail',
+            'sw_new_invoice_mail',
+            'sw_send_renewal_mail',
+            'sw_reactivation_mail',
+            'sw_invoice_paid_mail',
+            'sw_service_cancellation_mail_to_admin',
+            'sw_service_expiration_mail_to_admin',
+        );
+
+        // Update checkbox options
+        foreach ($checkboxes as $checkbox_name) {
+            if (isset($_POST[$checkbox_name])) {
+                update_option($checkbox_name, 1); // Use 1 to represent checked
+            } else {
+                update_option($checkbox_name, 0); // Use 0 to represent unchecked
+            }
+        }
+        echo '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>';
+
+    }
+}
+
+/**
+ * Handles the settings options when the form is submitted
+ * called directly within the HTML page rendering
  */
+function sw_handle_options_submission() {
+    // Handle form submission for all settings
+    if ( isset( $_POST['sw_save_options'] ) ) {
+        // Handle form submission for existing settings
+        if ( isset( $_POST['sw_invoice_page'] ) ) {
+            update_option( 'sw_invoice_page', intval( $_POST['sw_invoice_page'] ) );
+        }
+
+        if ( isset( $_POST['sw_invoice_logo_url'] ) ) {
+            update_option( 'sw_invoice_logo_url', sanitize_text_field( $_POST['sw_invoice_logo_url'] ) );
+        }
+
+        if ( isset( $_POST['sw_invoice_watermark_url'] ) ) {
+            update_option( 'sw_invoice_watermark_url', sanitize_text_field( $_POST['sw_invoice_watermark_url'] ) );
+        }
+
+        if ( isset( $_POST['sw_business_name'] ) ) {
+            $business_name = sanitize_text_field($_POST['sw_business_name']) ? sanitize_text_field($_POST['sw_business_name']) : get_bloginfo( 'name' );
+            update_option('sw_business_name', $business_name );
+        }
+
+        if ( isset( $_POST['sw_admin_phone_numbers'] ) ) {
+            update_option( 'sw_admin_phone_numbers', sanitize_text_field( $_POST['sw_admin_phone_numbers'] ) );
+        }
+
+
+        if ( isset( $_POST['sw_service_page'] ) ) {
+            update_option( 'sw_service_page', intval( $_POST['sw_service_page'] ) );
+        }
+
+
+        if ( isset( $_POST['sw_prorate'] ) ) {
+            $sw_prorate_value = sanitize_text_field( $_POST['sw_prorate'] );
+            update_option( 'sw_prorate', $sw_prorate_value );
+        }
+
+        if ( isset( $_POST['sw_invoice_id_prefix'] ) ) {
+            $invoice_number_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', $_POST['sw_invoice_id_prefix'] );
+            update_option('sw_invoice_id_prefix', $invoice_number_prefix);
+        }
+
+        if ( isset( $_POST['sw_service_id_prefix'] ) ) {
+            $service_id_prefix = preg_replace('/[^a-zA-Z0-9]/', '', $_POST['sw_service_id_prefix'] );
+            update_option( 'sw_service_id_prefix', $service_id_prefix );
+        }
+        
+
+        // Handle form submission for existing settings
+        if ( isset( $_POST['sw_allow_migration'] ) ) {
+            $sw_allow_migration = sanitize_text_field( $_POST['sw_allow_migration'] );
+            update_option( 'sw_allow_migration', $sw_allow_migration );
+        }
+       // Handle form submission for existing settings
+        if ( isset( $_POST['sw_upgrade_product_cat'] ) ) {
+            $selected_upgrade_category = sanitize_text_field( $_POST['sw_upgrade_product_cat'] );
+            update_option('sw_upgrade_product_cat', $selected_upgrade_category);
+        }
+
+        if (isset($_POST['sw_downgrade_product_cat'])) {
+            $selected_downgrade_category = sanitize_text_field( $_POST['sw_downgrade_product_cat'] );
+            update_option( 'sw_downgrade_product_cat', $selected_downgrade_category );
+        }
+
+
+
+    
+        echo '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>';
+    }
+}
+
 
  function sw_options_dash_page() {
     echo '<div class="wrap">';
     
-    echo '<h2>Smart Woo Settings and Documentations</h2>';
+    echo '<h2>Smart Woo Settings and Knowledgebase</h2>';
 
     echo '<div class="sw-container">';
 
@@ -270,3 +389,5 @@ function sw_render_email_options_page() {
     </div>
     <?php
 }
+
+

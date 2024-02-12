@@ -1,22 +1,45 @@
 <?php
 
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-    die;
-}
+defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-function delete(){
-    $invoice_number_prefix = delete_option('sw_invoice_id_prefix', 'CINV');
-    $invoice_preview_page = delete_option('invoice_preview_page', 0);
-    $invoice_logo_url = delete_option('invoice_logo_url', '');
-    $invoice_watermark_url = delete_option('invoice_watermark_url', '');
-    $business_name = delete_option('business_name', '');
-    $admin_phone_numbers = delete_option('admin_phone_numbers', '');
-    $selected_categories = delete_option('selected_categories', []);
-    $service_page = delete_option('sw_invoice_servise_page', 0);
-    $billing_email = delete_option('sw_billing_email', '');
-    $sender_name = delete_option('sender_name', '');
-    $selected_upgrade_category = delete_option('selected_upgrade_category', '0');
-    $selected_downgrade_category = delete_option('selected_downgrade_category', '0');
-    $sw_prorate = delete_option('sw_prorate', 'Select option');
-    $sw_allow_migration = delete_option('sw_allow_migration', 'Disable');
-}
+
+/**
+ * Delete pluigin settings during uninstall
+ */
+delete_option( 'sw_invoice_id_prefix' );
+delete_option( 'invoice_preview_page' );
+delete_option( 'sw_invoice_logo_url' );
+delete_option( 'sw_invoice_watermark_url' );
+delete_option( 'sw_business_name');
+delete_option( 'sw_admin_phone_numbers' );
+delete_option( 'sw_service_page', 0 );
+delete_option( 'sw_billing_email' );
+delete_option( 'sender_name');
+delete_option( 'sw_upgrade_product_cat' );
+delete_option( 'sw_downgrade_product_cat' );
+delete_option( 'sw_prorate' );
+delete_option( 'sw_allow_migration', 'Disable' );
+delete_option( 'sw_service_id_prefix' );
+delete_option( 'sw_cancellation_mail_to_user' );
+delete_option( 'sw_service_opt_out_mail' );
+delete_option( 'sw_payment_reminder_to_client' );
+delete_option( 'sw_service_expiration_mail' );
+delete_option( 'sw_new_invoice_mail' );
+delete_option( 'sw_send_renewal_mail' );
+delete_option( 'sw_reactivation_mail' );
+delete_option( 'sw_invoice_paid_mail' );
+delete_option( 'sw_service_cancellation_mail_to_admin' );
+delete_option( 'sw_service_expiration_mail_to_admin' );
+
+/**
+ * Clear scheduled events
+ */
+
+ wp_clear_scheduled_hook( 'auto_renew_services_event' );
+ wp_clear_scheduled_hook( 'auto_update_paid_services' );
+ wp_clear_scheduled_hook( 'smart_woo_daily_task' );
+ wp_clear_scheduled_hook( 'sw_once_in_two_days_task' );
+ wp_clear_scheduled_hook( 'move_old_renewal_orders_to_trash_event' );
+ wp_clear_scheduled_hook( 'process_service_renewals_event' );
+ wp_clear_scheduled_hook( 'process_pending_refund_event' );
+ wp_clear_scheduled_hook( 'deactivate_expired_service' );

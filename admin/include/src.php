@@ -2,40 +2,31 @@
 /**
  * File name    :   scrc.php
  * @author      :   Callistus
- * Description  :   Here I defined the linking order for the plugin
+ * Description  :   Here I defined the order for the plugin to load other files and dependencies
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-
 /**
- * Load woocommerce before loading plugin dependencies
+ * Throw error when WooCommerce is not active
  */
 function sw_check_woocommerce() {
-    if ( !class_exists( 'WooCommerce' ) ) {
+    if ( ! class_exists( 'WooCommerce' ) ) {
         // Throw error
         $woo_plugin_url = 'https://wordpress.org/plugins/woocommerce/';
         $notice = sprintf(
             'Smart Woo Service and Invoice requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a>. or deactive plugin to avoid fatal error',
             $woo_plugin_url
         );
-        add_action('admin_notices', function () use ( $notice ) {
+        add_action( 'admin_notices', function () use ( $notice ) {
             echo '<div class="notice notice-error is-dismissible">' . $notice . '</div>';
 
         });
     }
 }
 add_action( 'admin_init', 'sw_check_woocommerce' );
-
-add_action( 'woocommerce_loaded', 'sw_initialization' );
-
-function sw_initialization(){
-    if ( class_exists( 'woocommerce' ) ) {
-        do_action( 'smart_woo_init' );
-    }
-}
 
 
 function enqueue_smart_woo_scripts() {
@@ -57,12 +48,15 @@ function enqueue_smart_woo_scripts() {
 
     // Localize the script with your data
     wp_localize_script('smart-woo-script', 'smart_woo_vars', array(
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'admin_invoice_page' => $invoice_admin_dashboard_url,
-        'sw_admin_page'      => $service_admin_dashboard_url,
-        'security' => wp_create_nonce( 'smart_woo_nonce' ),
-        'home_url' => esc_url(home_url('/')),
-        'never_expire_value' => '',
+        'ajax_url'                  => admin_url('admin-ajax.php'),
+        'woo_my_account_edit'       => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) .'edit-account/',
+        'woo_payment_method_edit'   => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) .'payment-methods/',
+        'woo_billing_eddress_edit'  => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) .'edit-address/billing',
+        'admin_invoice_page'        => $invoice_admin_dashboard_url,
+        'sw_admin_page'             => $service_admin_dashboard_url,
+        'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
+        'home_url'                  => esc_url( home_url( '/' ) ),
+        'never_expire_value'        => '',
     ));
 
 }
@@ -72,7 +66,11 @@ add_action('admin_enqueue_scripts', 'enqueue_smart_woo_scripts');
 add_action('wp_enqueue_scripts', 'enqueue_smart_woo_scripts');
 
 
-
+/**
+ * Hook into 'smart_woo_init' to load the plugin files
+ * this hook is only fired when WooCommerce is active
+ */
+add_action( 'smart_woo_init', 'sw_load_dependencies' ); 
 
 function sw_load_dependencies(){
     require_once SW_ABSPATH . 'admin/include/cron-schedule.php';
@@ -117,7 +115,3 @@ function sw_load_dependencies(){
     // Do actual action after loading plugin files
     do_action( 'smart_woo_loaded' );
 }
-
-
-
-add_action( 'smart_woo_init', 'sw_load_dependencies' ); 

@@ -9,16 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-
-
-
-    
-
-
-
-
-
-
 /**
  * Shortcode for Invoice table
  */
@@ -119,12 +109,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     // Return the table HTML
     return $table_html;
 }
-
-
-
-
-
-
 
 /**
  * Function for Pending Transaction Count
