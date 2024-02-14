@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
     exit; // Exist if accessed directly
 }
 
+require_once SW_ABSPATH . 'admin/include/sw-db-update.php';
 
 
 function sw_plugin_db_schema() {

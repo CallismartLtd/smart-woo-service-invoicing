@@ -479,7 +479,7 @@ function sw_invoice_admin_status_nav_button() {
     // Display buttons for each invoice status
     foreach ($invoice_statuses as $label => $status) {
         // Generate the URL for the Invoice by Status page with the current status
-        $url = admin_url('admin.php?page=manage-invoices&action=invoice-by-status&payment_status=' . $status);
+        $url = admin_url('admin.php?page=sw-invoices&action=invoice-by-status&payment_status=' . $status);
 
         // Determine the button style based on the current status
         $button_style = ($status === $current_status) ? 'background-color: #C21E56; color: #fff;' : 'background-color: #0000ff; color: #fff;';

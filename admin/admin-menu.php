@@ -1,8 +1,20 @@
 <?php
+/**
+ * File name    :   admin-menu.php
+ * @author      :   Callistus
+ * Description  :   Function definition file for admin menus
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-require_once ( SW_ABSPATH .'/admin/sw-admin-settings.php');
+require_once    SW_ABSPATH . 'admin/callback.php';
+require_once    SW_ABSPATH . 'includes/sw-service/sw-service-admin-temp.php';
+require_once    SW_ABSPATH . 'includes/sw-service/sw-new-service-processing.php';
+require_once    SW_ABSPATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
+require_once    SW_ABSPATH . 'includes/sw-product/sw-product-admin-temp.php';
+require_once    SW_ABSPATH . 'admin/sw-admin-settings.php';
+
+
 
 // Add a separate admin menu for Smart Invoice
 function smart_invoice_admin_menu() {

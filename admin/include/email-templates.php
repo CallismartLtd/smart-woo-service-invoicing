@@ -412,9 +412,9 @@ function sw_send_expiry_mail_to_admin() {
         $subject = "End Date Notification for Services Due Tomorrow";
         //Get all Services
         $services      = Sw_Service_Database::get_all_services();
-        $tomorrow_date = date( 'Y-m-d', strtotime('+1 day') );
+        $tomorrow_date = date( 'Y-m-d', strtotime( '+1 day' ) );
 
-        if (!empty( $services ) ) {
+        if ( ! empty( $services ) ) {
             
 
             // Prepare the email message
@@ -430,9 +430,6 @@ function sw_send_expiry_mail_to_admin() {
             $message .= "<p>This is to notify you that the following services are due to end tomorrow:</p>";
             foreach ( $services as $service ) {
                 $expiration_date   = sw_get_service_expiration_date( $service );
-                if ( $expiration_date !== $tomorrow_date ) {
-                    continue; // Move to the next iteration
-                }
 
                 $user_id = $service->getUserId();
                 $service_name = $service->getServiceName();
@@ -460,9 +457,11 @@ function sw_send_expiry_mail_to_admin() {
                 'Content-Type: text/html; charset=UTF-8',
                 'From: ' . $sender_name . ' <' . $sender_email . '>',
             );
+            if ( $expiration_date === $tomorrow_date ) {
 
-            // Send the email to site admin
-            wp_mail( get_option( 'admin_email' ), $subject, $message, $headers );
+                // Send the email to site admin
+                wp_mail( get_option( 'admin_email' ), $subject, $message, $headers );
+            }
         }
         
     }

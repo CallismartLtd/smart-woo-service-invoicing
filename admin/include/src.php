@@ -79,11 +79,8 @@ function sw_load_dependencies(){
     require_once SW_ABSPATH . 'admin/include/service-remote.php';
     require_once SW_ABSPATH . 'admin/include/smart-renewal.php';
     include_once SW_ABSPATH . 'admin/include/status-api.php';
-    require_once SW_ABSPATH . 'admin/include/sw-db-update.php';
-    require_once SW_ABSPATH . 'admin/include/sw-db.php';
     require_once SW_ABSPATH . 'admin/include/wallet-debit.php';
     require_once SW_ABSPATH . 'admin/admin-menu.php';
-    require_once SW_ABSPATH . 'admin/callback.php';
     require_once SW_ABSPATH . 'admin/helper-function.php';
     require_once SW_ABSPATH . 'frontend/invoice/contr.php';
     require_once SW_ABSPATH . 'frontend/invoice/template.php';
@@ -96,19 +93,15 @@ function sw_load_dependencies(){
     require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice.php';
     require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice-database.php';
     require_once SW_ABSPATH . 'includes/sw-invoice/contr.php';
-    require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
     require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-function.php';
     require_once SW_ABSPATH . 'includes/sw-service/class-sw-service.php';
     require_once SW_ABSPATH . 'includes/sw-service/class-sw-service-database.php';
     require_once SW_ABSPATH . 'includes/sw-service/contr.php';
     require_once SW_ABSPATH . 'includes/sw-service/sw-service-functions.php';
-    require_once SW_ABSPATH . 'includes/sw-service/sw-service-admin-temp.php';
     require_once SW_ABSPATH . 'includes/sw-product/class-sw-product.php';
     require_once SW_ABSPATH . 'includes/sw-product/contr.php';
-    require_once SW_ABSPATH . 'includes/sw-product/sw-product-admin-temp.php';
     require_once SW_ABSPATH . 'includes/sw-product/sw-product-functions.php';
     require_once SW_ABSPATH . 'includes/sw-product/sw-product-configure-temp.php';
-    require_once SW_ABSPATH . 'woocommerce/smart-woo-product.php';
     require_once SW_ABSPATH . 'woocommerce/woocommerce.php';
     require_once SW_ABSPATH . 'index.php';
 
