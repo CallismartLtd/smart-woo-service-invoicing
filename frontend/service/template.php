@@ -422,7 +422,7 @@ function handle_service_by_status( $current_user_id ) {
  * Function Code For Service Mini Card
  */
 
- function service_mini_card_shortcode() {
+ function sw_service_mini_card_loader() {
     // Check if the user is logged in
     if (!is_user_logged_in()) {
         return 'Hello! It looks like you\'re not logged in.';
@@ -475,15 +475,15 @@ function handle_service_by_status( $current_user_id ) {
 
 
 
-function service_count_shortcode() {
+function sw_active_service_count_shortcode() {
     // Check if the user is logged in
-    if (is_user_logged_in()) {
+    if ( is_user_logged_in() ) {
         // Get the current user's ID
         $current_user = wp_get_current_user();
         $user_id = $current_user->ID;
 
         // Execute the query
-        $count = count_active_services($user_id);
+        $count = count_active_services( $user_id );
 
         // Output the count and "Services" text with inline CSS for centering
         $output = "<div style='text-align: center;'>";

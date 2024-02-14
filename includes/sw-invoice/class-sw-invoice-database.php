@@ -90,7 +90,7 @@ class Sw_Invoice_Database {
     }
 
     private static function convert_results_to_invoices( $results ) {
-        if (!is_array($results)) {
+        if ( ! is_array($results)) {
             // Handle the case when $results is not an array (e.g., single result)
             $results = [$results];
         }

@@ -317,5 +317,13 @@ function sw_options_page() {
     // Register the service page shortcode
     add_shortcode('sw_service_page', 'sw_service_shortcode');
 
+    // Add shortcodes for displaying counts
+    add_shortcode('sw_active_service_count', 'sw_active_service_count_shortcode');
+    add_shortcode('unpaid_invoices_count', 'get_unpaid_invoices_count');
+
+    
+    // minicard shortcodes
+    add_shortcode('sw_service_mini_card', 'sw_service_mini_card_loader');
+
  }
  add_action( 'init', 'sw_shortcode_init' );

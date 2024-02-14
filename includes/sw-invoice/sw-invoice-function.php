@@ -65,12 +65,12 @@ function sw_evaluate_user_invoices( $user_id, $invoice_type, $payment_status ) {
  *
  * @since 1.0.0
  */
-function sw_evaluate_service_invoices($service_id, $invoice_type, $payment_status) {
+function sw_evaluate_service_invoices( $service_id, $invoice_type, $payment_status ) {
     // Retrieve invoices based on criteria
-    $invoices = Sw_Invoice_Database::get_invoices_by_criteria('service_id', $service_id);
+    $invoices = Sw_Invoice_Database::get_invoices_by_criteria( 'service_id', $service_id );
 
     // Check if the user has an invoice with the specified attributes
-    foreach ($invoices as $invoice) {
+    foreach ( $invoices as $invoice ) {
         if (
             $invoice->getInvoiceType() === $invoice_type &&
             $invoice->getPaymentStatus() === $payment_status
@@ -91,16 +91,16 @@ function sw_evaluate_service_invoices($service_id, $invoice_type, $payment_statu
  *
  * @return bool True on success, false on failure.
  */
-function update_invoice_fields($invoice_id, $fields) {
+function sw_update_invoice_fields( $invoice_id, $fields ) {
     // Check if the invoice exists
-    $existing_invoice = Sw_Invoice_Database::get_invoice_by_id($invoice_id);
+    $existing_invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-    if (!$existing_invoice) {
+    if ( ! $existing_invoice ) {
         return false; // Invoice not found
     }
 
     // Update the specified fields
-    return Sw_Invoice_Database::update_invoice_fields($invoice_id, $fields);
+    return Sw_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
 }
 
 /**
@@ -135,13 +135,13 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
     ));
     $order->add_item( $fee );
 
-    // Add a line item with pseudo product name and price to prevent SKU deduction
+    // Use line item with pseudo product name and price to prevent SKU deduction
     $product_name         = wc_get_product( $invoice->getProductId() )->get_name();
     $pseudo_product_name  = $product_name;
     $pseudo_product_price = $invoice->getAmount();
 
     $product = new WC_Order_Item_Product();
-    $product->set_props(array(
+    $product->set_props( array(
         'name'      => $pseudo_product_name,
         'quantity'  => 1,
         'subtotal'  => $pseudo_product_price,
@@ -241,7 +241,7 @@ function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoi
         $fields = array(
             'order_id' => $order_id,
         );
-        update_invoice_fields($invoice_id, $fields) ;
+        sw_update_invoice_fields($invoice_id, $fields) ;
     }
 
     return $invoice_id;
@@ -318,7 +318,7 @@ function sw_generate_service_migration_invoice() {
             $fields = array(
                 'order_id' => $order_id,
             );
-            update_invoice_fields($invoice_id, $fields) ;
+            sw_update_invoice_fields($invoice_id, $fields) ;
         }
         if(strtolower($payment_status) === 'paid'){
              // Set the order ID for the new invoice

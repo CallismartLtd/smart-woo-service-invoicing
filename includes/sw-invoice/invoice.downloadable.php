@@ -73,7 +73,7 @@ add_action('wp_loaded', 'sw_invoice_download');
             
 
 
-            $product = wc_get_product($invoice->getProductId());
+            $product = wc_get_product( $invoice->getProductId() );
             $product_name = $product ? $product->get_name() : 'Product Not Found';
             
             //Invoice Creation Date and Payment Gateway 
@@ -82,19 +82,16 @@ add_action('wp_loaded', 'sw_invoice_download');
             $Invoice_due_date = $invoice->getDateDue();
 
             //format the dates
-            $formattedInvoiceDate = sw_check_and_format($invoice_date);
-            $formattedInvoiceDueDate = sw_check_and_format($Invoice_due_date);
-            $formattedPaidDate = sw_check_and_format($transaction_date);
+            $formattedInvoiceDate = sw_check_and_format( $invoice_date );
+            $formattedInvoiceDueDate = sw_check_and_format( $Invoice_due_date );
+            $formattedPaidDate = sw_check_and_format( $transaction_date );
 
             $payment_gateway = $invoice->getPaymentGateway();
             // Check if $payment_gateway is not empty or null
-            $invoice_payment_gateway = !empty($payment_gateway) ? $payment_gateway : 'Not Available';
-            $invoice_status = esc_html($invoice->getPaymentStatus());
+            $invoice_payment_gateway = ! empty( $payment_gateway ) ? $payment_gateway : 'Not Available';
+            $invoice_status = esc_html( $invoice->getPaymentStatus() );
             $transactionId = $invoice->getTransactionId();
-            $transaction_id = !empty($transactionId) ? $transactionId :'Not Available';
-            
-            
- 
+            $transaction_id = ! empty( $transactionId ) ? $transactionId :'Not Available';
             $invoice_total = $invoice->getTotal();
 
 
@@ -118,28 +115,28 @@ add_action('wp_loaded', 'sw_invoice_download');
             
             <!-- Business Information Section -->
             <div class="business-info" style="text-align: right; font-size: 12px;">
-                <p style="font-weight: bold;">' . esc_html($business_name) . '</p>
-                <p>' . esc_html($store_address) . '</p>
-                <p>' . esc_html($store_city) . ', ' . esc_html(get_option('woocommerce_store_state')) . ' ' . esc_html(get_option('woocommerce_store_postcode')) . '</p>
-                <p>' . esc_html($default_country) . '</p>
-                <p>' . esc_html($admin_phone_number) . '</p>
+                <p style="font-weight: bold;">' . esc_html( $business_name ) . '</p>
+                <p>' . esc_html( $store_address ) . '</p>
+                <p>' . esc_html( $store_city ) . ', ' . esc_html( get_option('woocommerce_store_state')) . ' ' . esc_html( get_option('woocommerce_store_postcode') ) . '</p>
+                <p>' . esc_html( $default_country ) . '</p>
+                <p>' . esc_html( $admin_phone_number ) . '</p>
             </div>
             
             <!-- Invoice Number and Date Section -->
             <div class="invoice-number-container" style="background-color: #f2f2f2; padding: 10px; text-align: center; margin: 10px;">
                 <div class="invoice-number" style="font-size: 12px; font-weight: bold;">Invoice ' . esc_html( $invoice_id ) . ( ! empty( $service_name ) ? ' for ' . esc_html( $service_name ) : '') .'</div>
-                <div class="invoice-date" style="font-size: 9px;">Invoice Date: ' . esc_html($formattedInvoiceDate) . '</div>
-                <div class="invoice-date" style="font-size: 9px;">Due Date: ' . esc_html($formattedInvoiceDueDate) . '</div>
+                <div class="invoice-date" style="font-size: 9px;">Invoice Date: ' . esc_html( $formattedInvoiceDate ) . '</div>
+                <div class="invoice-date" style="font-size: 9px;">Due Date: ' . esc_html( $formattedInvoiceDueDate ) . '</div>
             </div>
             
             <!-- Invoiced To Section -->
             <div class="invoiced-to" style="text-align: left; font-size: 12px;">
                 <h4>Invoiced To:</h4>
-                <p style="font-weight: bold;">' . esc_html($customer_company_name) . '</p>
-                <p>' . esc_html($first_name) . ' ' . esc_html($last_name) . '</p>
-                <p>Email: ' . esc_html($billing_email) . '</p>
-                <p>Phone: ' . esc_html($billing_phone) . '</p>
-                <p>' . esc_html($customer_billing_address) . '</p>
+                <p style="font-weight: bold;">' . esc_html( $customer_company_name ) . '</p>
+                <p>' . esc_html($first_name) . ' ' . esc_html( $last_name ) . '</p>
+                <p>Email: ' . esc_html( $billing_email ) . '</p>
+                <p>Phone: ' . esc_html( $billing_phone ) . '</p>
+                <p>' . esc_html( $customer_billing_address ) . '</p>
             </div>
             
             <div class="invoice-card" style="padding: 3px; margin: 0 auto; max-width: 70%; background-color: #fff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
@@ -162,7 +159,7 @@ add_action('wp_loaded', 'sw_invoice_download');
                 <!-- Fee -->
                 <div class="pdf-invoice-item" style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ccc;">
                     <p class="pdf-description" style="flex: 1; text-align: left;">Fee</p>
-                    <p class="pdf-amount" style="flex: 1; text-align: right;">' . wc_price($invoice->getFee()) . '</p>
+                    <p class="pdf-amount" style="flex: 1; text-align: right;">' . wc_price( $invoice->getFee() ) . '</p>
                 </div>';
         
                 // Append Total section
@@ -181,7 +178,7 @@ add_action('wp_loaded', 'sw_invoice_download');
             // Include mPDF library using the WordPress ABSPATH
             include_once SW_ABSPATH . 'vendor/autoload.php';
 
-            $invoice_Number =   esc_html($invoice->getInvoiceId());
+            $invoice_id =   esc_html( $invoice->getInvoiceId() );
           // Create a new mPDF instance
           $pdf = new \Mpdf\Mpdf();
           // Add a page
@@ -189,11 +186,11 @@ add_action('wp_loaded', 'sw_invoice_download');
           $pdf->SetWatermarkImage( $invoice_watermark_url );
           $pdf->showWatermarkImage = true;
           // Load the HTML content into mPDF
-          $pdf->WriteHTML($invoice_html);
+          $pdf->WriteHTML( $invoice_html );
 
           // Output the PDF as a download with a custom file name
-          $file_name = $invoice_Number . '.pdf';
-          $pdf->Output($file_name, 'D');
+          $file_name = $invoice_id . '.pdf';
+          $pdf->Output( $file_name, 'D' );
           exit;
 
         }

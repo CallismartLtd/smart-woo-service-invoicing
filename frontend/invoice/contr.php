@@ -9,7 +9,7 @@
 // Define the shortcode function
 function sw_invoice_shortcode() {
     // Check if the user is logged in
-    if (!is_user_logged_in()) {
+    if ( ! is_user_logged_in() ) {
         return 'You must be logged in to view this page.';
     }
 

@@ -12,9 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This line is for services
  */
 
-// Add shortcodes for displaying counts
-add_shortcode('service_count', 'service_count_shortcode');
-add_shortcode('service_mini_card', 'service_mini_card_shortcode');
+
 
 /**
  * This line is for Invoices
@@ -23,7 +21,6 @@ add_shortcode('service_mini_card', 'service_mini_card_shortcode');
 add_shortcode('invoices', 'display_invoices_table');
 // Add a shortcode for displaying invoice status counts
 add_shortcode('invoice_status_counts', 'get_invoice_status_counts');
-add_shortcode('unpaid_invoices_count', 'get_unpaid_invoices_count');
 
 /**
  * This line is for All transactions shortcodes

@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-function sw_invoice_type_dropdown($invoice_type = null) {
+function sw_invoice_type_dropdown( $invoice_type = null ) {
     // Default options
     $options = array(
         '' => 'Select Invoice Type',
@@ -21,16 +21,21 @@ function sw_invoice_type_dropdown($invoice_type = null) {
         'Service Downgrade Invoice' => 'Service Downgrade Invoice',
     );
 
-    // Allow developers to add custom options
-    $custom_options = apply_filters('sw_invoice_type_options', array());
+    /**
+     * Option to allow others add their invoice type using filter
+     * 
+     * @param string sw_invoice_type_options        The target filter name
+     * @param array  add an assosciative array of the custom invoice type 
+     */
+    $custom_options = apply_filters( 'sw_invoice_type_options', array() );
 
     // Merge default and custom options
-    $options = array_merge($options, $custom_options);
+    $options = array_merge( $options, $custom_options );
 
     // Output the dropdown HTML
     echo '<select class="sw-form-input" name="invoice_type">';
-    foreach ($options as $value => $label) {
-        $is_selected = ($value === $invoice_type) ? 'selected="selected"' : '';
+    foreach ( $options as $value => $label ) {
+        $is_selected = ( $value === $invoice_type ) ? 'selected="selected"' : '';
         echo "<option value='$value' $is_selected>$label</option>";
     }
     echo '</select>';
@@ -45,7 +50,7 @@ function sw_invoice_type_dropdown($invoice_type = null) {
  *
  * @since 1.0.0
  */
-function sw_invoice_payment_payment_status_dropdown($payment_status = null) {
+function sw_invoice_payment_payment_status_dropdown( $payment_status = null ) {
     // Default options
     $options = array(
         'select_invoice_payment_status' => 'Select Payment Status',
@@ -55,16 +60,21 @@ function sw_invoice_payment_payment_status_dropdown($payment_status = null) {
         'cancelled' => 'Cancel',
     );
 
-    // Allow developers to add custom options
+    /**
+     * Option to allow others add their invoice payment status using filter
+     * 
+     * @param string sw_invoice_payment_status        The target filter name
+     * @param array  add an assosciative array of the custom invoice payment status
+     */
     $custom_options = apply_filters( 'sw_invoice_payment_status', array() );
 
     // Merge default and custom options
-    $options = array_merge($options, $custom_options);
+    $options = array_merge( $options, $custom_options );
 
     // Output the dropdown HTML
     echo '<select class="sw-form-input" name="payment_status">';
-    foreach ($options as $value => $label) {
-        $is_selected = ($value === $payment_status) ? 'selected="selected"' : '';
+    foreach ( $options as $value => $label ) {
+        $is_selected = ( $value === $payment_status ) ? 'selected="selected"' : '';
         echo "<option value='$value' $is_selected>$label</option>";
     }
     echo '</select>';
@@ -78,7 +88,7 @@ function sw_invoice_payment_payment_status_dropdown($payment_status = null) {
  * @since 1.0.0
  */
 
- function sw_product_dropdown($selected_product_id = null, $required = false) {
+ function sw_product_dropdown( $selected_product_id = null, $required = false ) {
     // Fetch all products of type "sw_service"
     $products = wc_get_products(array(
         'type'   => 'sw_product',
@@ -86,22 +96,22 @@ function sw_invoice_payment_payment_status_dropdown($payment_status = null) {
     ));
 
     // Initialize the dropdown HTML
-    $dropdown_html = '<select class="sw-form-input" name="product_id" ' . ($required ? 'required' : '') . '>'; 
+    $dropdown_html = '<select class="sw-form-input" name="product_id" ' . ( $required ? 'required' : '' ) . '>'; 
 
     // Add the default selection option
     $dropdown_html .= '<option value="">Select Service Product</option>';
 
     // Loop through each product
-    foreach ($products as $product) {
+    foreach ( $products as $product ) {
         // Get the product ID and name
         $product_id = $product->get_id();
         $product_name = $product->get_name();
 
         // Check if the current product is selected
-        $selected = ($product_id == $selected_product_id) ? 'selected' : '';
+        $selected = ( $product_id == $selected_product_id ) ? 'selected' : '';
 
         // Add the option to the dropdown
-        $dropdown_html .= '<option value="' . esc_attr($product_id) . '" ' . $selected . '>' . esc_html($product_name) . '</option>';
+        $dropdown_html .= '<option value="' . esc_attr( $product_id ) . '" ' . $selected . '>' . esc_html($product_name) . '</option>';
     }
 
     // Close the dropdown HTML
@@ -225,7 +235,7 @@ function sw_render_create_invoice_form(){
         <span class="sw-field-description" title="Edit product. This product price and fees will be used to create next invoice. Only Service Products will appear here.">?</span>
         <?php
         // Custom Function: Dropdown for Service Products
-        echo sw_product_dropdown($existingInvoice->getProductId());
+        echo sw_product_dropdown( $existingInvoice->getProductId() );
         ?>
         </div>
       <!-- Service Type -->
@@ -233,7 +243,7 @@ function sw_render_create_invoice_form(){
             <label for="service_type" class="sw-form-label">Invoice Type</label>
             <span class="sw-field-description" title="Enter the service type (optional)">?</span>
         <?php
-        sw_invoice_type_dropdown($existingInvoice->getInvoiceType());
+        sw_invoice_type_dropdown( $existingInvoice->getInvoiceType() );
         ?>
         </div>
 
@@ -241,14 +251,14 @@ function sw_render_create_invoice_form(){
         <div class="sw-form-row">
             <label for="service_id" class="sw-form-label">Service ID (optional)</label>
             <span class="sw-field-description" title="associate this invoice with service.">?</span>
-            <input type="text" name="service_id" class="sw-form-input" id="service_id" value="<?php echo esc_attr($existingInvoice->getServiceId()); ?>">
+            <input type="text" name="service_id" class="sw-form-input" id="service_id" value="<?php echo esc_attr( $existingInvoice->getServiceId() ); ?>">
         </div>
 
         <!-- Fee -->
         <div class="sw-form-row">
             <label for="fee" class="sw-form-label">Fee</label>
             <span class="sw-field-description" title="charge a fee for the invoice">?</span>
-            <input type="number" name="fee" class="sw-form-input" id="fee" step="0.01" value="<?php echo esc_attr($existingInvoice->getFee()); ?>">
+            <input type="number" name="fee" class="sw-form-input" id="fee" step="0.01" value="<?php echo esc_attr( $existingInvoice->getFee() ); ?>">
         </div>
 
         <!-- Payment status -->
@@ -256,7 +266,7 @@ function sw_render_create_invoice_form(){
             <label for="payment_status" class="sw-form-label">Payment Status</label>
             <span class="sw-field-description" title="Choose a payment status. If the status is unpaid, a new order will be created.">?</span>
             <?php
-            sw_invoice_payment_payment_status_dropdown($existingInvoice->getPaymentStatus());
+            sw_invoice_payment_payment_status_dropdown( $existingInvoice->getPaymentStatus() );
             ?>
         </div>
 
@@ -290,8 +300,8 @@ function sw_invoice_id_dropdown($selected_invoice_id = null) {
 
     foreach ($invoices as $invoice) {
         // Check if the method to get the invoice ID exists
-        if (method_exists($invoice, 'getInvoiceId')) {
-            $invoice_id = $invoice->getInvoiceId(); // Replace with the actual method to get the invoice ID
+        if ( method_exists( $invoice, 'getInvoiceId' ) ) {
+            $invoice_id = $invoice->getInvoiceId();
             $is_selected = ($invoice_id === $selected_invoice_id) ? 'selected="selected"' : '';
             echo "<option value='$invoice_id' $is_selected>$invoice_id</option>";
         }
@@ -309,23 +319,24 @@ function sw_invoice_id_dropdown($selected_invoice_id = null) {
 function sw_invoice_dash() {
     echo '<h2>Invoice Dashboard</h2>';
 
-    // Display the simplified table of all invoices
-    echo get_simple_invoices_table();
+    // Display thed table of all invoices
+    echo get_invoices_table();
 }
 
 // Function to generate the simplified HTML table for all invoices
-function get_simple_invoices_table() {
+function get_invoices_table() {
     // Retrieve all invoices from the database
     $all_invoices = Sw_Invoice_Database::get_all_invoices();
 
-    //Output the count of invoices
+    // Render the invoice by status navigation bar
     echo '<div style="display: flex; justify-content: space-between; align-items: right;">';
-    echo '<div>' . esc_html(sw_invoice_admin_status_nav_button()) . '</div>';
+    echo '<div>' . esc_html( sw_invoice_admin_status_nav_button() ) . '</div>';
     echo '</div>';
 
     // Check if there are any invoices
-    if (empty($all_invoices)) {
-        return '<p>No invoices found.</p>';
+    if ( empty( $all_invoices ) ) {
+        return sw_notice( 'All invoices will appear here');
+        
     }
 
     // Start building the simplified HTML table
@@ -358,7 +369,7 @@ function get_simple_invoices_table() {
     $table_html .= '</table>';
 
     echo $table_html;
-    echo '<p style="text-align: right;">' . count($all_invoices) . ' items</p>';
+    echo '<p style="text-align: right;">' . count( $all_invoices ) . ' items</p>';
 
 }
 
@@ -376,50 +387,49 @@ function sw_view_invoice_page() {
     echo '<div class="invoice-details">';
 
     // Assuming the invoice ID is passed in the URL as 'invoice_id'
-    $invoice_id = isset($_GET['invoice_id']) ? sanitize_text_field($_GET['invoice_id']) : null;
+    $invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( $_GET['invoice_id'] ) : null;
 
     // Fetch the invoice data based on the provided invoice_id
-    $invoice = Sw_Invoice_Database::get_invoice_by_id($invoice_id);
+    $invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
     if ($invoice) {
         // Get user's full name using WordPress function
-        $user_full_name = get_user_meta($invoice->getUserId(), 'first_name', true) . ' ' . get_user_meta($invoice->getUserId(), 'last_name', true);
-
-        // Get product name using WooCommerce function
-        $product_name = wc_get_product($invoice->getProductId())->get_name();
-        $paymentStatus = esc_html($invoice->getPaymentStatus());
+        $user_full_name        = get_user_meta( $invoice->getUserId(), 'first_name', true ) . ' ' . get_user_meta( $invoice->getUserId(), 'last_name', true );
+        $product_name          = wc_get_product( $invoice->getProductId() )->get_name();
+        $paymentStatus         = esc_html( $invoice->getPaymentStatus() );
        // Assuming these properties return date strings or null, replace them with the actual properties or methods from your Invoice class.
-        $dateCreated = $invoice->getDateCreated();
-        $datePaid = $invoice->getDatePaid();
-        $dateDue = $invoice->getDateDue();
+        $dateCreated           = $invoice->getDateCreated();
+        $datePaid              = $invoice->getDatePaid();
+        $dateDue               = $invoice->getDateDue();
         // Format the dates or display 'Not Available'
-        $formattedDateCreated = sw_check_and_format($dateCreated);
-        $formattedDatePaid = sw_check_and_format($datePaid);
-        $formattedDateDue = sw_check_and_format($dateDue);
+        $formattedDateCreated  = sw_check_and_format( $dateCreated );
+        $formattedDatePaid     = sw_check_and_format( $datePaid );
+        $formattedDateDue      = sw_check_and_format( $dateDue );
         echo '<h2>' . esc_html($invoice->getInvoiceType()) . '</h2>';
         // Display detailed information about the invoice
         echo '<p class="invoice-details-item"><span>Payment Status:</span> <span style="background-color: red; color: white; font-weight: bold; padding: 4px; border-radius: 4px;">' . ucfirst( $paymentStatus ) . '</span></p>';
-        echo '<p class="invoice-details-item"><span>Invoice ID:</span>' . esc_html($invoice->getInvoiceId()) . '</p>';
-        echo '<p class="invoice-details-item"><span>User Name:</span>' . esc_html($user_full_name) . '</p>';
-        echo '<p class="invoice-details-item"><span>Product Name:</span>' . esc_html($product_name) . '</p>';
-        echo '<p class="invoice-details-item"><span>Amount:</span>' . wc_price($invoice->getAmount()) . '</p>';
-        echo '<p class="invoice-details-item"><span>Invoice Type:</span>' . esc_html($invoice->getInvoiceType()) . '</p>';
-        echo '<p class="invoice-details-item"><span>Service ID:</span>' . esc_html($invoice->getServiceId()) . '</p>';
-        echo '<p class="invoice-details-item"><span>Fee:</span>' . wc_price($invoice->getFee()) . '</p>';
-        echo '<p class="invoice-details-item"><span>Order ID:</span>' . esc_html($invoice->getOrderId()) . '</p>';
-        echo '<p class="invoice-details-item"><span>Payment Gateway:</span>' . esc_html($invoice->getPaymentGateway()) . '</p>';
-        echo '<p class="invoice-details-item"><span>Transaction ID:</span>' . esc_html($invoice->getTransactionId()) . '</p>';
+        echo '<p class="invoice-details-item"><span>Invoice ID:</span>' . esc_html( $invoice->getInvoiceId() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>User Name:</span>' . esc_html( $user_full_name ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Product Name:</span>' . esc_html( $product_name ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Amount:</span>' . wc_price( $invoice->getAmount() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Invoice Type:</span>' . esc_html( $invoice->getInvoiceType() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Service ID:</span>' . esc_html( $invoice->getServiceId() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Fee:</span>' . wc_price( $invoice->getFee() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Order ID:</span>' . esc_html( $invoice->getOrderId() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Payment Gateway:</span>' . esc_html( $invoice->getPaymentGateway() ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Transaction ID:</span>' . esc_html( $invoice->getTransactionId() ) . '</p>';
         // Display the formatted dates
-        echo '<p class="invoice-details-item"><span>Date Created:</span>' . esc_html($formattedDateCreated) . '</p>';
-        echo '<p class="invoice-details-item"><span>Date Paid:</span>' . esc_html($formattedDatePaid) . '</p>';
-        echo '<p class="invoice-details-item"><span>Date Due:</span>' . esc_html($formattedDateDue) . '</p>';
-        echo '<p class="invoice-details-item"><span>Total:</span>' . wc_price($invoice->getTotal()) . '</p>';
+        echo '<p class="invoice-details-item"><span>Date Created:</span>' . esc_html( $formattedDateCreated ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Date Paid:</span>' . esc_html( $formattedDatePaid ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Date Due:</span>' . esc_html( $formattedDateDue ) . '</p>';
+        echo '<p class="invoice-details-item"><span>Total:</span>' . wc_price( $invoice->getTotal() ) . '</p>';
 
         // Show billing address
-        echo '<p class="invoice-details-item"><span>Billing Address:</span>' . esc_html($invoice->getBillingAddress()) . '</p>';
+        echo '<p class="invoice-details-item"><span>Billing Address:</span>' . esc_html( $invoice->getBillingAddress() ) . '</p>';
 
         // Display an "Edit Invoice" button with a link to the edit page
         echo '<a class="button" href="?page=sw-invoices&action=edit-invoice&invoice_id=' . $invoice_id . '">Edit Invoice</a>';
+        // display the delete invoice button
         echo sw_delete_invoice_button( $invoice_id );
  
     } else {
@@ -432,20 +442,20 @@ function sw_view_invoice_page() {
     // Check if there is a service ID associated with the invoice
     if ( $invoice->getServiceId() ) {
         // Get additional details about the service using sw_get_service function
-        $service_details = sw_get_service(null, $service_id = $invoice->getServiceId());
+        $service_details = Sw_Service_Database::get_service_by_id( $invoice->getServiceId() );
 
         // Display service details
-        if ($service_details) {
-            $service_name = $service_details->service_name;
-            $billing_cycle = $service_details->billing_cycle;
-            $end_date = date('l, F jS Y', strtotime($service_details->end_date));
+        if ( $service_details ) {
+            $service_name = $service_details->getServiceName();
+            $billing_cycle = $service_details->getBillingCycle();
+            $end_date = date('l, F jS Y', strtotime( $service_details->getEndDate() ) );
             $service_id = $invoice->getServiceId();
             echo '<div class="serv-details-card">';
 
             echo '<h3> Related Service Details</h3>';
-            echo '<p class="invoice-details-item"><span> Service Name:</span>' . esc_html($service_name) . '</p>';
-            echo '<p class="invoice-details-item"><span>Billing Cycle:</span>' . esc_html($billing_cycle) . '</p>';
-            echo '<p class="invoice-details-item"><span>End Date:</span>' . esc_html($end_date) . '</p>';
+            echo '<p class="invoice-details-item"><span> Service Name:</span>' . esc_html( $service_name ) . '</p>';
+            echo '<p class="invoice-details-item"><span>Billing Cycle:</span>' . esc_html( $billing_cycle ) . '</p>';
+            echo '<p class="invoice-details-item"><span>End Date:</span>' . esc_html( $end_date ) . '</p>';
             echo '<a class="button" href="admin.php?page=sw-admin&action=service_details&service_id=' . $service_id . '">More about Service</a>';
 
          
@@ -474,15 +484,15 @@ function sw_invoice_admin_status_nav_button() {
     echo '<h2>Filter by Invoice Status:</h2>';
 
     // Get the current status (payment_status)
-    $current_status = isset($_GET['payment_status']) ? sanitize_text_field($_GET['payment_status']) : '';
+    $current_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( $_GET['payment_status'] ) : '';
 
     // Display buttons for each invoice status
-    foreach ($invoice_statuses as $label => $status) {
+    foreach ( $invoice_statuses as $label => $status ) {
         // Generate the URL for the Invoice by Status page with the current status
-        $url = admin_url('admin.php?page=sw-invoices&action=invoice-by-status&payment_status=' . $status);
+        $url = admin_url( 'admin.php?page=sw-invoices&action=invoice-by-status&payment_status=' . $status );
 
         // Determine the button style based on the current status
-        $button_style = ($status === $current_status) ? 'background-color: #C21E56; color: #fff;' : 'background-color: #0000ff; color: #fff;';
+        $button_style = ( $status === $current_status ) ? 'background-color: #C21E56; color: #fff;' : 'background-color: #0000ff; color: #fff;';
 
         // Output the button with inline styles
         echo '<a href="' . esc_url($url) . '" class="button" style="' . esc_attr($button_style) . '">' . esc_html($label) . '</a>';
@@ -498,18 +508,18 @@ function sw_invoice_admin_status_nav_button() {
 
  // Function to handle displaying invoices based on payment status
 function sw_handle_admin_invoice_by_status() {
-    $payment_status = isset($_GET['payment_status']) ? sanitize_text_field($_GET['payment_status']) : 'pending';
+    $payment_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( $_GET['payment_status'] ) : 'pending';
 
     // Get invoices based on payment status
-    $invoices = Sw_Invoice_Database::get_invoices_by_payment_status($payment_status);
+    $invoices = Sw_Invoice_Database::get_invoices_by_payment_status( $payment_status );
 
     echo '<div class="wrap"><h1>Invoices by Payment Status</h1>';
 
     // Display the selected payment status
-    echo '<h2>Payment Status: ' . esc_html($payment_status) . '</h2>';
+    echo '<h2>Payment Status: ' . esc_html( $payment_status ) . '</h2>';
     sw_invoice_admin_status_nav_button();
     // Check if there are any invoices
-    if (!empty($invoices)) {
+    if ( ! empty( $invoices ) ) {
         // Display the table of invoices
         echo '<table class="widefat fixed striped">';
         echo '<thead>';
@@ -529,20 +539,20 @@ function sw_handle_admin_invoice_by_status() {
         // Loop through each invoice and add a row to the table
         foreach ($invoices as $invoice) {
             echo '<tr>';
-            echo '<td>' . esc_html($invoice->getInvoiceId()) . '</td>';
-            echo '<td>' . esc_html($invoice->getInvoiceType()) . '</td>';
-            echo '<td>' . esc_html($invoice->getServiceId()) . '</td>';
-            echo '<td>' . esc_html($invoice->getAmount()) . '</td>';
-            echo '<td>' . wc_price($invoice->getFee()) . '</td>';
-            echo '<td>' . wc_price($invoice->getTotal()) . '</td>';
-            echo '<td><a href="?page=sw-invoices&action=view-invoice&invoice_id=' . esc_attr($invoice->getInvoiceId()) . '">View</a></td>';
+            echo '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
+            echo '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
+            echo '<td>' . esc_html( $invoice->getServiceId() ) . '</td>';
+            echo '<td>' . esc_html( $invoice->getAmount() ) . '</td>';
+            echo '<td>' . wc_price( $invoice->getFee() ) . '</td>';
+            echo '<td>' . wc_price( $invoice->getTotal() ) . '</td>';
+            echo '<td><a href="?page=sw-invoices&action=view-invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '">View</a></td>';
 
             echo '</tr>';
         }
 
         echo '</tbody>';
         echo '</table>';
-        echo '<p style="text-align: right;">' . count($invoices) . ' items</p>';
+        echo '<p style="text-align: right;">' . count( $invoices ) . ' items</p>';
 
     } else {
         echo '<p>No invoices found for the selected payment status.</p>';

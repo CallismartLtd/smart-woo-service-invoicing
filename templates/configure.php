@@ -2,33 +2,34 @@
 /* Template Name: Product Configuration */
 
 global $wp_query;
-$product_id = isset($wp_query->query_vars['sw_product_id']) ? absint($wp_query->query_vars['sw_product_id']) : 0;
-$product = wc_get_product($product_id);
+$product_id = isset( $wp_query->query_vars['sw_product_id'] ) ? absint( $wp_query->query_vars['sw_product_id'] ) : 0;
+$product = wc_get_product( $product_id );
 $product_name = $product ? $product->get_name() : '';
 
-function sw_configure_page_title($title_parts) {
+function sw_configure_page_title( $title_parts ) {
     $title_parts['title'] = 'Product Configuration';
     return $title_parts;
 }
-add_filter('document_title_parts', 'sw_configure_page_title');
+add_filter( 'document_title_parts', 'sw_configure_page_title' );
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sw_add_configured_product_to_cart'])) {
+if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['sw_add_configured_product_to_cart'] ) ) {
     
     // Sanitize and validate form data
-    $service_name = isset($_POST['service_name']) ? sanitize_text_field($_POST['service_name']) : '';
-    $service_url = isset($_POST['service_url']) ? esc_url_raw($_POST['service_url']) : '';
-    // Validation
-    $validation_errors = array();
+    $service_name       = isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
+    $service_url        = isset( $_POST['service_url'] ) ? esc_url_raw( $_POST['service_url'] ) : '';
 
-    if ( !preg_match( '/^[A-Za-z0-9\s]+$/', $service_name ) ) {
+    // Validation
+    $validation_errors  = array();
+
+    if ( ! preg_match( '/^[A-Za-z0-9\s]+$/', $service_name ) ) {
         $validation_errors[] = 'Service name should only contain letters, and numbers.';
     }
 
-    if ( !empty( $service_url ) && filter_var($service_url, FILTER_VALIDATE_URL) === false) {
+    if ( ! empty( $service_url ) && filter_var( $service_url, FILTER_VALIDATE_URL ) === false) {
         $validation_errors[] = 'Invalid service URL format.';
     }
 
-    if ( !empty( $validation_errors ) ) {
+    if ( ! empty( $validation_errors ) ) {
         sw_error_notice( $validation_errors );
     }
 
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sw_add_configured_pro
             'service_url'  => $service_url,
         );
 
-        WC()->cart->add_to_cart($product_id, 1, 0, array(), $cart_item_data);
+        WC()->cart->add_to_cart( $product_id, 1, 0, array(), $cart_item_data );
 
         // Redirect to the cart page or any other page as needed
         wp_safe_redirect( wc_get_cart_url() );

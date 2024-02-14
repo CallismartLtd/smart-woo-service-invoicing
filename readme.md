@@ -1,4 +1,4 @@
-# Smart Woo Service and Invoicing Plugin
+# Smart Woo Service and Invoice
 
 Revolutionise your WooCommerce experience with the Smart Woo Service and Invoicing Plugin! This plugin is born out of the need for a robust, cost-effective billing solution tailored for freelencers offering diverse services.
 
@@ -27,6 +27,22 @@ As a web developer, I struggled to find an affordable and comprehensive billing 
 ![Screenshot 1](assets/image/smart-woo-img.png)
 ![Screenshot 2](assets/image/service-page.png)
 ![Screenshot 3](assets/image/invoice-sample.png)
+
+## Prerequisites
+
+- **WooCommerce**: This plugin requires WooCommerce to be installed and activated on your WordPress website. Make sure you have WooCommerce version 8.0.0 or later.
+
+- **WordPress**: Ensure that your WordPress installation is version 6.3.2 or later.
+
+- **PHP**: This plugin requires PHP version 7.0 or later. Verify that your hosting environment meets this requirement.
+
+- **SQL**: Ensure that your database supports at least MySQL version 5.6 or MariaDB version 10.0.
+
+
+## Installation
+
+1. Upload the `smart-woo-service-and-invoice` directory to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
 
 
 ## Installation

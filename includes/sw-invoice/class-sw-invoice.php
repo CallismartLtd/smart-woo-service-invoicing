@@ -54,7 +54,7 @@ class Sw_Invoice {
         $this->amount = $amount;
         $this->total = $total;
         $this->payment_status = $payment_status;
-        $this->date_created = $date_created ?? current_time('Y-m-d H:i:s');
+        $this->date_created = $date_created ?? current_time( 'Y-m-d H:i:s' );
         $this->user_id = $user_id;
         $this->billing_address = $billing_address ?? null;
         $this->invoice_type = $invoice_type ?? null;
@@ -68,67 +68,67 @@ class Sw_Invoice {
     }
 
     // Setter methods
-    public function setServiceId(string $service_id) {
+    public function setServiceId( string $service_id ) {
         $this->service_id = $service_id;
     }
 
-    public function setUserId(int $user_id) {
+    public function setUserId( int $user_id ) {
         $this->user_id = $user_id;
     }
 
-    public function setBillingAddress(string $billing_address) {
+    public function setBillingAddress( string $billing_address ) {
         $this->billing_address = $billing_address;
     }
 
-    public function setInvoiceId(string $invoice_id) {
+    public function setInvoiceId( string $invoice_id ) {
         $this->invoice_id = $invoice_id;
     }
 
-    public function setInvoiceType(string $invoice_type) {
+    public function setInvoiceType( string $invoice_type ) {
         $this->invoice_type = $invoice_type;
     }
 
-    public function setProductId(int $product_id) {
+    public function setProductId( int $product_id ) {
         $this->product_id = $product_id;
     }
 
-    public function setOrderId(int $order_id) {
+    public function setOrderId( int $order_id ) {
         $this->order_id = $order_id;
     }
 
-    public function setAmount(float $amount) {
+    public function setAmount( float $amount ) {
         $this->amount = $amount;
     }
 
-    public function setFee(float $fee) {
+    public function setFee( float $fee ) {
         $this->fee = $fee;
     }
 
-    public function setPaymentStatus(string $payment_status) {
+    public function setPaymentStatus( string $payment_status ) {
         $this->payment_status = $payment_status;
     }
 
-    public function setPaymentGateway(string $payment_gateway) {
+    public function setPaymentGateway( string $payment_gateway ) {
         $this->payment_gateway = $payment_gateway;
     }
 
-    public function setTransactionId(string $transaction_id) {
+    public function setTransactionId( string $transaction_id ) {
         $this->transaction_id = $transaction_id;
     }
 
-    public function setDateCreated(string $date_created) {
+    public function setDateCreated( string $date_created ) {
         $this->date_created = $date_created;
     }
 
-    public function setDatePaid(string $date_paid) {
+    public function setDatePaid( string $date_paid ) {
         $this->date_paid = $date_paid;
     }
 
-    public function setDateDue(string $date_due) {
+    public function setDateDue( string $date_due ) {
         $this->date_due = $date_due;
     }
 
-    public function setTotal(float $total) {
+    public function setTotal( float $total ) {
         $this->total = $total;
     }
 
@@ -198,26 +198,25 @@ class Sw_Invoice {
     }    
 
     // Helper method to convert database results to Sw_Invoice objects
-public static function convert_array_to_invoice($data) {
-    return new Sw_Invoice(
-        $data['invoice_id'],
-        $data['product_id'],
-        $data['amount'],
-        $data['total'],
-        $data['payment_status'],
-        $data['date_created'],
-        $data['user_id'],
-        $data['billing_address'],
-        $data['invoice_type'],
-        $data['service_id'],
-        $data['fee'],
-        $data['order_id'],
-        $data['payment_gateway'],
-        $data['transaction_id'],
-        $data['date_paid'],
-        $data['date_due']
-    );
-}
-
+    public static function convert_array_to_invoice( $data ) {
+        return new Sw_Invoice(
+            $data['invoice_id'],
+            $data['product_id'],
+            $data['amount'],
+            $data['total'],
+            $data['payment_status'],
+            $data['date_created'],
+            $data['user_id'],
+            $data['billing_address'],
+            $data['invoice_type'],
+            $data['service_id'],
+            $data['fee'],
+            $data['order_id'],
+            $data['payment_gateway'],
+            $data['transaction_id'],
+            $data['date_paid'],
+            $data['date_due']
+        );
+    }
 
 }
