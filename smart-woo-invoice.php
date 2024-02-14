@@ -60,15 +60,17 @@ if ( defined( 'SW_PLUGIN_NAME' )  ) {
      */
 
     add_action( 'woocommerce_loaded', 'sw_initialization' );
-    $func_name = 'wp_mail';
+
     if ( ! function_exists( 'sw_initialization' ) ) {
 
         function sw_initialization(){
-            
+
             if ( class_exists( 'woocommerce' ) ) {
                 /**
                  * WooComerce is active, action hook to load plugin files
                  */
+                
+                 require_once SW_ABSPATH . '/admin/include/src.php';
 
                 do_action( 'smart_woo_init' );
                 
