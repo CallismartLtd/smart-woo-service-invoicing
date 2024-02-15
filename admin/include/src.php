@@ -101,10 +101,10 @@ function sw_load_dependencies(){
     require_once SW_ABSPATH . 'includes/sw-product/class-sw-product.php';
     require_once SW_ABSPATH . 'includes/sw-product/contr.php';
     require_once SW_ABSPATH . 'includes/sw-product/sw-product-functions.php';
-    require_once SW_ABSPATH . 'includes/sw-product/sw-product-configure-temp.php';
+    require_once SW_ABSPATH . 'includes/sw-product/sw-order-config.php';
     require_once SW_ABSPATH . 'woocommerce/woocommerce.php';
     require_once SW_ABSPATH . 'index.php';
 
-    // Do actual action after loading plugin files
+    // Do action after loading plugin files
     do_action( 'smart_woo_loaded' );
 }

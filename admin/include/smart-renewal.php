@@ -683,7 +683,7 @@ function sw_manual_service_renewal() {
                 $existing_invoice_id = sw_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid');
                 if ( $existing_invoice_id ) {
                     
-                    redirect_to_invoice_preview( $existing_invoice_id );
+                    sw_redirect_to_invoice_preview( $existing_invoice_id );
         
                 } else{
                     //New Invoice Data

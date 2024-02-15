@@ -43,7 +43,7 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['sw_add_configured_p
         WC()->cart->add_to_cart( $product_id, 1, 0, array(), $cart_item_data );
 
         // Redirect to the cart page or any other page as needed
-        wp_safe_redirect( wc_get_cart_url() );
+        wp_safe_redirect( wc_get_checkout_url() );
         exit;
     }
 }

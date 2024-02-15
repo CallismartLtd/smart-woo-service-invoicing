@@ -21,7 +21,7 @@ function is_service_invoice( $invoice_id ) {
     $service_id = $the_invoice ? $the_invoice->getServiceId() : null;
 
     // Return true if the service ID is not null, indicating it's a service invoice; otherwise, return false
-    return !is_null( $service_id );
+    return ! is_null( $service_id );
 }
 
 
@@ -117,7 +117,7 @@ function sw_update_invoice_fields( $invoice_id, $fields ) {
 function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
     $invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-    if ( !$invoice ) {
+    if ( ! $invoice ) {
         return false; // Return false if the invoice is not found
     }
 
@@ -231,17 +231,17 @@ function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoi
     }
 
     // Call the sw_create_invoice method to save the invoice to the database
-    $invoice_id = Sw_Invoice_Database::sw_create_invoice($newInvoice);
+    $invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
 
     // Check if payment status is 'unpaid' and generate a pending order
     if (strtolower($payment_status) === 'unpaid') {
-        $order_id = sw_generate_pending_order($user_id, $invoice_id);
+        $order_id = sw_generate_pending_order( $user_id, $invoice_id );
 
         // Set the order ID for the new invoice
         $fields = array(
             'order_id' => $order_id,
         );
-        sw_update_invoice_fields($invoice_id, $fields) ;
+        sw_update_invoice_fields( $invoice_id, $fields ) ;
     }
 
     return $invoice_id;
@@ -251,42 +251,45 @@ function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoi
 /**
  * Generates a service migration invoice based on form submission.
  */
+
+add_action( 'template_redirect', 'sw_generate_service_migration_invoice' );
+
 function sw_generate_service_migration_invoice() {
 
-    if ( isset($_POST['sw_migrate_service']) && ($_POST['sw_migrate_service'] === 'smart_woo_upgrade' || $_POST['sw_migrate_service'] === 'smart_woo_downgrade') ) {
+    if ( isset($_POST['sw_migrate_service']) && ( $_POST['sw_migrate_service'] === 'smart_woo_upgrade' || $_POST['sw_migrate_service'] === 'smart_woo_downgrade' ) ) {
         // Get and sanitize form data
-        $user_id                = sanitize_text_field($_POST['user_id']);
-        $service_id             = sanitize_text_field($_POST['service_id']);
-        $new_service_product_id = sanitize_text_field($_POST['new_service_product_id']);
-        $amount                 = sanitize_text_field($_POST['amount']);
-        $order_total            = sanitize_text_field($_POST['order_total']);
-        $refund_amount          = sanitize_text_field($_POST['refund_amount']);
-        $payment_status         = (max(0, $order_total) === 0) ? 'paid' : 'unpaid';
-        $fee                    = sanitize_text_field($_POST['fee']);
-        $date_due               =  current_time('Y-m-d H:i:s');
+        $user_id                = sanitize_text_field( $_POST['user_id'] );
+        $service_id             = sanitize_text_field( $_POST['service_id'] );
+        $new_service_product_id = sanitize_text_field( $_POST['new_service_product_id'] );
+        $amount                 = sanitize_text_field( $_POST['amount'] );
+        $order_total            = sanitize_text_field( $_POST['order_total'] );
+        $refund_amount          = sanitize_text_field( $_POST['refund_amount'] );
+        $payment_status         = ( max( 0, $order_total ) === 0) ? 'paid' : 'unpaid';
+        $fee                    = sanitize_text_field( $_POST['fee'] );
+        $date_due               =  current_time( 'mysql' );
 
         $invoice_type = null;
 
-        if ($_POST['sw_migrate_service'] === 'smart_woo_upgrade') {
+        if ( $_POST[ 'sw_migrate_service'] === 'smart_woo_upgrade' ) {
             $invoice_type = 'Service Upgrade Invoice';
-        } elseif ($_POST['sw_migrate_service'] === 'smart_woo_downgrade') {
+        } elseif ( $_POST['sw_migrate_service'] === 'smart_woo_downgrade' ) {
             $invoice_type = 'Service Downgrade Invoice';
         }
 
         // Check if there is Service Upgrade or Downgrade Invoice for the service
-        $existing_invoice_id = sw_evaluate_service_invoices($service_id, $invoice_type, 'unpaid');
+        $existing_invoice_id = sw_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
         if ( $existing_invoice_id ) {
             //Get the invoice for payment instead of creating another
-            redirect_to_invoice_preview($existing_invoice_id);
+            sw_redirect_to_invoice_preview( $existing_invoice_id );
         }
 
         // Generate a unique invoice ID
         $invoice_id             = sw_get_invoice_number_prefix() . '-' . uniqid();
         // Get the user's billing address
-        $billing_address        = sw_get_user_billing_address($user_id);
+        $billing_address        = sw_get_user_billing_address( $user_id );
         // Calculate the total by adding the fee (if provided)
-        $new_order_total = $order_total + ($fee ?? 0);
-        $invoice_total = $amount + ($fee ?? 0);
+        $new_order_total = $order_total + ( $fee ?? 0 );
+        $invoice_total = $amount + ( $fee ?? 0 );
 
         // Create a new Sw_Invoice instance
         $newInvoice = new Sw_Invoice(
@@ -304,45 +307,42 @@ function sw_generate_service_migration_invoice() {
         );
         // Set the due date if provided
         if ($date_due) {
-            $newInvoice->setDateDue($date_due);
+            $newInvoice->setDateDue( $date_due );
         }
 
         // Call the sw_create_invoice method to save the invoice to the database
-        $invoice_id = Sw_Invoice_Database::sw_create_invoice($newInvoice);
+        $invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
 
         // Check if payment status is 'unpaid' and generate a pending order
-        if (strtolower($payment_status) === 'unpaid') {
+        if ( strtolower( $payment_status ) === 'unpaid' ) {
             $order_id = sw_generate_pending_order( $user_id, $invoice_id, $order_total );
 
             // Set the order ID for the new invoice
             $fields = array(
                 'order_id' => $order_id,
             );
-            sw_update_invoice_fields($invoice_id, $fields) ;
+            sw_update_invoice_fields( $invoice_id, $fields ) ;
         }
-        if(strtolower($payment_status) === 'paid'){
+        if(strtolower( $payment_status ) === 'paid'){
              // Set the order ID for the new invoice
              $fields = array(
                 'product_id' => $new_service_product_id,
             );
-            $migrated_service = Sw_Service_Database::update_service_fields($service_id, $fields);
+            $migrated_service = Sw_Service_Database::update_service_fields( $service_id, $fields );
             do_action( 'sw_service_migrated', $migrated_service );
         }
         
-        if(sw_Is_prorate() === 'Enabled'){
-            smart_woo_log($user_id, $service_id, $refund_amount, 'Pending Refund', 'Migration balance for ' . $invoice_id . '.');
+        if( sw_Is_prorate() === 'Enabled' ){
+            smart_woo_log( $user_id, $service_id, $refund_amount, 'Pending Refund', 'Migration balance for ' . $invoice_id . '.' );
         }
 
         if ( $newInvoice ){
-            redirect_to_invoice_preview($newInvoice->getInvoiceId());
+            sw_redirect_to_invoice_preview( $newInvoice->getInvoiceId() );
         }
 
         
     }
 }
-
-// Hook the function to the WordPress action
-add_action('init', 'sw_generate_service_migration_invoice');
 
 
 
@@ -351,41 +351,41 @@ add_action('init', 'sw_generate_service_migration_invoice');
  *
  * @param int $invoice_id The ID of the invoice.
  */
-function redirect_to_invoice_preview($invoice_id) {
+function sw_redirect_to_invoice_preview( $invoice_id ) {
     $invoice_page = get_option( 'sw_invoice_page', 0 );
     $redirect_url = get_permalink($invoice_page) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
-    wp_safe_redirect($redirect_url);
+    wp_safe_redirect( $redirect_url );
     exit();
 }
 
 
 
 /**
- * Calculate the upgrade order total and log refund details based on the given parameters.
+ * Calculate the migration order total.
  *
  * @param float $product_price      The price of the selected product.
  * @param float $unused_service_price The unused amount for the selected service.
- * @param string $prorate_status    The pro-rata status ('Enabled' or 'Disabled').
- * @param int $user_id              The user ID.
- * @param string $service_id        The service ID.
  *
  * @return float The calculated order total.
  */
-function calculate_migration_order_total_and_get_remaining_balance( $product_price, $unused_service_price ) {
+function sw_calculate_migration_order_total( $product_price, $unused_service_price ) {
 
     // Check if pro-rata refunds are enabled
     $prorate_status = sw_Is_prorate();
-    if ($prorate_status === 'Enabled') {
+    if ( $prorate_status === 'Enabled' ) {
         // If the unused service amount can cover the entire product price
-        if ($unused_service_price >= $product_price) {
+        if ( $unused_service_price >= $product_price ) {
             // Calculate the remaining unused balance
             $remaining_unused_balance = $unused_service_price - $product_price;
 
             // Set the order total to 0
             return ['order_total' => 0, 'remaining_unused_balance' => $remaining_unused_balance];
         } else {
-            // If the unused service amount is less than the product price
-            // Set the remaining unused balance to 0
+            /**
+             * If the unused service amount is less than the product price, 
+             * this means the service balance cannot fully cover the purchase.
+             *  Set the remaining unused balance to 0.
+             */
             $remaining_unused_balance = 0;
 
             // Subtract the unused service amount from the product price
@@ -401,7 +401,13 @@ function calculate_migration_order_total_and_get_remaining_balance( $product_pri
 
 
 
-
+/**
+ * Retrieves a user's WooCommerce billing address parts and compile them
+ * into a readable address.
+ * 
+ * @param int $user_id  The ID of the user
+ * @return string readable address format.
+ */
 
 function sw_get_user_billing_address( $user_id ){ 
    
@@ -412,7 +418,7 @@ function sw_get_user_billing_address( $user_id ){
     $billing_state     = get_user_meta( $user_id, 'billing_state', true );
     $billing_country   = get_user_meta( $user_id, 'billing_country', true );
 
-    $address_parts = array_filter(array(
+    $address_parts = array_filter( array(
         $billing_address_1,
         $billing_address_2,
         $billing_city,
@@ -420,7 +426,7 @@ function sw_get_user_billing_address( $user_id ){
         $billing_country,
     ));
 
-    if (!empty($address_parts)) {
+    if ( ! empty( $address_parts ) ) {
         $customer_billing_address = implode( ', ', $address_parts );
         return $customer_billing_address;
     }
@@ -431,34 +437,21 @@ function sw_get_user_billing_address( $user_id ){
 
 
 /**
- * Retrieve billing details for the Smart Woo Service and Invoicing plugin.
+ * Retrieve billing Address from the store and options
  *
- * This function retrieves business-related details such as business name,
- * invoice logo URL, admin phone number, store address, store city, and default country.
- * It returns these details as an object.
- *
- * @return stdClass An object containing billing details:
- *   - business_name (string): The business name.
- *   - invoice_logo_url (string): The URL of the invoice logo.
- *   - admin_phone_number (string): The admin phone number.
- *   - store_address (string): The store address.
- *   - store_city (string): The store city.
- *   - default_country (string): The default country.
+ * @return stdClass Object with billing details.
  */
-
 function sw_biller_details() {
-    // Get Business Name and Logo URL from invoice settings
-    $business_name = get_option('sw_business_name', '');
-    $invoice_logo_url = get_option('sw_invoice_logo_url');
-    $admin_phone_numbers = get_option('sw_admin_phone_numbers', '');
-    $store_address = get_option('woocommerce_store_address');
-    $store_city = get_option('woocommerce_store_city');
-    $default_country = get_option('woocommerce_default_country');
+    // Retrieve plugin and WooCommerce settings
+    $business_name       = get_option( 'sw_business_name', '' );
+    $invoice_logo_url    = get_option( 'sw_invoice_logo_url' );
+    $admin_phone_numbers = get_option( 'sw_admin_phone_numbers', '' );
+    $store_address       = get_option( 'woocommerce_store_address' );
+    $store_city          = get_option( 'woocommerce_store_city' );
+    $default_country     = get_option( 'woocommerce_default_country' );
 
-    // Create an object to hold the billing details
+    // Create and populate object with billing details
     $biller_details = new stdClass();
-    
-    // Assign values to the object properties
     $biller_details->business_name = $business_name;
     $biller_details->invoice_logo_url = $invoice_logo_url;
     $biller_details->admin_phone_number = $admin_phone_numbers;
@@ -466,42 +459,43 @@ function sw_biller_details() {
     $biller_details->store_city = $store_city;
     $biller_details->default_country = $default_country;
 
-    // Return the object with billing details
+    // Return the object
     return $biller_details;
 }
 
 
-function sw_delete_invoice_button($invoice_id) {
+
+function sw_delete_invoice_button( $invoice_id ) {
     // Output the delete button with data-invoice-id attribute
     return '<button class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '">Delete Invoice</button>';
 }
 
 // Add Ajax actions
-add_action('wp_ajax_delete_invoice', 'sw_delete_invoice_callback');
-add_action('wp_ajax_nopriv_delete_invoice', 'sw_delete_invoice_callback');
+add_action( 'wp_ajax_delete_invoice', 'sw_delete_invoice_callback' );
+add_action( 'wp_ajax_nopriv_delete_invoice', 'sw_delete_invoice_callback' );
 
 function sw_delete_invoice_callback() {
     // Verify the nonce for security
     check_ajax_referer('smart_woo_nonce', 'security');
 
     // Get the invoice ID from the Ajax request
-    $invoice_id = isset($_POST['invoice_id']) ? sanitize_text_field($_POST['invoice_id']) : '';
+    $invoice_id = isset($_POST['invoice_id']) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
 
     // Validate the invoice ID
-    if (empty($invoice_id)) {
-        wp_send_json_error('Invalid invoice ID.');
+    if ( empty( $invoice_id ) ) {
+        wp_send_json_error( 'Invalid invoice ID.' );
     }
 
     // Attempt to delete the invoice
-    $delete_result = Sw_Invoice_Database::delete_invoice($invoice_id);
+    $delete_result = Sw_Invoice_Database::delete_invoice( $invoice_id );
 
     // Check the result and send appropriate response
-    if (is_string($delete_result)) {
+    if ( is_string( $delete_result ) ) {
         // An error occurred
-        wp_send_json_error($delete_result);
+        wp_send_json_error( $delete_result );
     } else {
         // Success
-        wp_send_json_success($delete_result);
+        wp_send_json_success( $delete_result );
         exit();
     }
 }

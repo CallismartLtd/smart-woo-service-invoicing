@@ -506,10 +506,12 @@ function sw_active_service_count_shortcode() {
  * @return string Output or result of the upgrade service operation.
  */
 function handle_upgrade_service($current_user_id) {
+
     // Validate URL structure
-    if (!isset($_GET['service_page']) || $_GET['service_page'] !== 'service_upgrade') {
+    if ( ! isset( $_GET['service_page']) || $_GET['service_page'] !== 'service_upgrade' ) {
         return 'Invalid URL structure for service upgrade.';
     }
+
     // Retrieve user's services using sw_get_service function
     $services = Sw_Service_Database::get_services_by_user($current_user_id);
     // Check if form is submitted
@@ -542,7 +544,7 @@ function handle_upgrade_service($current_user_id) {
 
         // Check if the service is 'Due for Renewal'
         if ( $service_status !== 'Active' ) {
-            return 'Only Active Services can be Upgraded, Contact us if you need further assistance.';
+            return sw_error_notice('Only Active Services can be Upgraded, Contact us if you need further assistance.');
         }
     
 
@@ -569,7 +571,7 @@ function handle_upgrade_service($current_user_id) {
         $usage_metrics = sw_check_service_usage( $selected_service_id);
 
         // Determine the order total price based on prorate status using the new function
-        $order_total_data = calculate_migration_order_total_and_get_remaining_balance( $new_service_price, $usage_metrics['unused_amount'] );
+        $order_total_data = sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
         sw_get_navbar($current_user_id);
 
         // Display detailed upgrade order summary with PHP form button
@@ -790,7 +792,7 @@ function handle_downgrade_service($current_user_id) {
         $usage_metrics = sw_check_service_usage( $selected_service_id);
 
         // Determine the order total price based on prorate status using the new function
-        $order_total_data = calculate_migration_order_total_and_get_remaining_balance( $new_service_price, $usage_metrics['unused_amount'] );
+        $order_total_data = sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
         sw_get_navbar($current_user_id);
 
         // Display detailed upgrade order summary with PHP form button

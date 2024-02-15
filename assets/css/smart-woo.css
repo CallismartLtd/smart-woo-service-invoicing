@@ -132,74 +132,19 @@
 /* Service Product form goes here*/
 
 /* Apply styles to form labels */
-.label-class {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
 
-.textarea-class{
-  width: 70%;
+.sw-textarea{
+  width: 400px;
   padding: 8px;
   margin-bottom: 10px;
   height:250px;
 }
 
-/* Apply styles to form input fields */
-.input-class,
-.select-class,
-.button-class {
-  width: 70%;
-  padding: 8px;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Apply styles to the submit button */
-.submit-button-class {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.submit-button-class:hover {
-  background-color: #45a049;
-}
-
 /* Apply styles to the image preview container */
-.image-preview-class {
+.sw-form-image-preview {
   margin-top: 10px;
-}
-
-/* Apply styles to form descriptions or additional information */
-.description-class {
-  margin-top: -10px;
-  margin-bottom: 15px;
-  font-style: italic;
-  color: #666;
-}
-
-
-  /* Style for Grace Period label */
-  .grace-period-label {
-    font-weight: bold;
-    margin-right: 5px;
-}
-
-/* Style for the container of side-by-side elements */
-.grace-period-container {
-    display: flex;
-    align-items: center;
-}
-
-/* Style for the description text before the input and select */
-.description-class {
-    margin-right: 5px;
+  width: 100%;
+  max-width: 250px;
 }
 
 /* Style for the Grace Period number input */
@@ -213,12 +158,6 @@
 .select-grace-period-unit {
     max-width: 20px;
     padding: 6px; /* Adjust the padding as needed */
-}
-
-/* Style for the additional description below the input and select */
-.description-grace-period {
-    margin-top: 5px;
-    font-style: italic;
 }
 
 /* Service Product form ends here*/

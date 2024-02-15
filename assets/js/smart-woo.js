@@ -1,55 +1,6 @@
 
 
 /**
- * Order Paid Date fetch
- */
-
-jQuery(document).ready(function($) {
-    // Add change event handler for order dropdown
-    $('#order_id').on('change', function() {
-        var order_id = $(this).val();
-        var startDateField = $('#start_date');
-        var loadingMessage = $('#loading-message'); // Add a loading message element
-
-        // Check if an order is selected
-        if (order_id !== '') {
-            // Display the loading message
-            loadingMessage.text('Fetching date...').show();
-
-            // AJAX request to get order date
-            $.ajax({
-                type: 'POST',
-                url: smart_woo_vars.ajax_url, // Use the localized AJAX URL
-                data: {
-                    action: 'get_order_date', // Action name to trigger the server-side function
-                    order_id: order_id,
-                    security: smart_woo_vars.security // Use the localized security nonce
-                },
-                success: function(response) {
-                    if (response.success && response.data.date) {
-                        // Set the retrieved date in the start date field
-                        startDateField.val(response.data.date);
-                    } else {
-                        startDateField.val(''); // Clear the field
-                        alert('Error: Unable to retrieve order date.');
-                    }
-
-                    // Hide the loading message
-                    loadingMessage.hide();
-                },
-                error: function() {
-                    startDateField.val(''); // Clear the field
-                    alert('Error: Unable to retrieve order date.');
-
-                    // Hide the loading message
-                    loadingMessage.hide();
-                }
-            });
-        }
-    });
-});
-
-/**
  * JavaScript to toggle visibility on click for settings and documentation
  */
 document.addEventListener("DOMContentLoaded", function() {

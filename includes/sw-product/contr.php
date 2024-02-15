@@ -25,11 +25,11 @@ function sw_handle_new_product_form(){
             $validation_errors[] = 'Product Name is required';
         }
 
-        if ( !preg_match( '/^[A-Za-z0-9\s]+$/', $product_name ) ) {
+        if ( ! preg_match( '/^[A-Za-z0-9\s]+$/', $product_name ) ) {
             $validation_errors[] = 'Product name should only contain letters, and numbers.';
         }
 
-        if (!empty( $validation_errors ) ) {
+        if ( ! empty( $validation_errors ) ) {
             // Display validation errors using the custom error notice function
             sw_error_notice( $validation_errors );
         

@@ -495,7 +495,7 @@ function sw_invoice_admin_status_nav_button() {
         $button_style = ( $status === $current_status ) ? 'background-color: #C21E56; color: #fff;' : 'background-color: #0000ff; color: #fff;';
 
         // Output the button with inline styles
-        echo '<a href="' . esc_url($url) . '" class="button" style="' . esc_attr($button_style) . '">' . esc_html($label) . '</a>';
+        echo '<a href="' . esc_url($url) . '" class="button" style="' . esc_attr( $button_style ) . '">' . esc_html( $label ) . '</a>';
     }
 
     echo '</div>';

@@ -315,7 +315,7 @@ if ( ! function_exists( 'sw_error_notice' ) ) {
         echo '<div class="sw-error-notice notice notice-error is-dismissible">';
 
         if ( is_array( $messages ) ) {
-            echo sw_notice( 'Errors!!' );
+            echo sw_notice( 'Errors !!' );
 
             $error_number = 1;
 
@@ -324,7 +324,7 @@ if ( ! function_exists( 'sw_error_notice' ) ) {
                 $error_number++;
             }
         } else {
-            echo sw_notice( 'Error!!' );
+            echo sw_notice( 'Error !!' );
             echo '<p>' . esc_html( $messages ) . '</p>';
         }
 

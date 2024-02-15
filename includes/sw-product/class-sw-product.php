@@ -3,7 +3,8 @@
 /**
  * Register the 'sw_product' product type.
  */
-add_action( 'init', 'register_sw_service_product_type' );
+
+add_action( 'woocommerce_init', 'register_sw_service_product_type' );
 
 function register_sw_service_product_type() {
     class Sw_Product extends WC_Product {
@@ -165,6 +166,3 @@ function register_sw_service_product_type() {
         }
     }
 }
-
-// Hook to register the product type
-add_action( 'init', 'register_sw_service_product_type' );

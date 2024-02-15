@@ -65,7 +65,7 @@ function sw_edit_invoice_page() {
                 $updated = Sw_Invoice_Database::update_invoice( $existingInvoice );
 
                 // Check the result
-                if ($updated) {
+                if ( $updated ) {
                     echo "Invoice updated successfully! ID: $invoice_id";
                 } else {
                     echo "Failed to update the invoice.";
@@ -94,14 +94,13 @@ function sw_create_new_invoice_form() {
     // Handle form submission
     if ( $_SERVER[ 'REQUEST_METHOD' ] === 'POST' && isset($_POST[ 'create_invoice' ] ) ) {
         // Sanitize and validate inputs
-        $user_id = isset( $_POST[ 'user_id' ] ) ? absint( $_POST[ 'user_id' ] ) : 0;
-        $product_id = isset( $_POST['product_id']) ? absint($_POST['product_id']) : 0;
-        $invoice_type = isset( $_POST['invoice_type'] ) ? sanitize_text_field( $_POST['invoice_type'] ) : '';
-        $service_id = isset($_POST['service_id']) ? sanitize_text_field($_POST['service_id']) : '';
-        $due_date = isset($_POST['due_date']) ? sanitize_text_field($_POST['due_date']) : '';
-
-        $fee = isset($_POST['fee']) ? floatval($_POST['fee']) : 0.0;
-        $payment_status = isset($_POST['payment_status']) ? sanitize_text_field($_POST['payment_status']) : 'unpaid';
+        $user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
+        $product_id     = isset( $_POST['product_id']) ? absint( $_POST['product_id'] ) : 0;
+        $invoice_type   = isset( $_POST['invoice_type'] ) ? sanitize_text_field( $_POST['invoice_type'] ) : '';
+        $service_id     = isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id'] ) : '';
+        $due_date       = isset( $_POST['due_date'] ) ? sanitize_text_field( $_POST['due_date']) : '';
+        $fee            = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0.0;
+        $payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( $_POST['payment_status'] ) : 'unpaid';
         
         //Check for a duplicate unpaid invoice for a service
         $existing_invoice_type_for_a_service = sw_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
@@ -109,16 +108,16 @@ function sw_create_new_invoice_form() {
 
         // Validate inputs
         $errors = array();
-        if ($existing_invoice_type_for_a_service) {
+        if ( $existing_invoice_type_for_a_service ) {
             $errors[] = 'This Service has "' .$invoice_type . '" That is ' .$payment_status;
         }
-        if (empty($user_id)) {
+        if ( empty( $user_id ) ) {
             $errors[] = 'User ID is required.';
         }
-        if (empty($product_id)) {
+        if ( empty( $product_id ) ) {
             $errors[] = 'Service Product is required.';
         }
-        if (empty($invoice_type) || $invoice_type === 'select_invoice_type') {
+        if ( empty($invoice_type) || $invoice_type === 'select_invoice_type' ) {
             $errors[] = 'Please select a valid Invoice Type.';
         }
         if ( empty( $due_date ) ) {
@@ -132,7 +131,7 @@ function sw_create_new_invoice_form() {
 
             // Check the result
             if ($createdInvoiceID !== false) {
-                $detailsPageURL = admin_url("admin.php?page=sw-invoices&action=view-invoice&invoice_id=$createdInvoiceID");
+                $detailsPageURL = admin_url("admin.php?page=sw-invoices&action=view-invoice&invoice_id=$createdInvoiceID" );
                 echo "Invoice created successfully! <a href='$detailsPageURL'>View Invoice Details</a>";
             } else {
                 sw_error_notice( 'Failed to create the invoice.' );
