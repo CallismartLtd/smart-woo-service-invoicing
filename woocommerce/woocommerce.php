@@ -25,9 +25,9 @@ add_action( 'init', 'sw_register_url_endpoints' );
 // Invoice Page Content
 function invoice_page_content() {
     echo '<h2>Invoices</h2>';
-    sw_get_navbar(  get_current_user_id() );
+    sw_get_navbar( get_current_user_id() );
     echo do_shortcode( '[unpaid_invoices_count]' );
-    echo do_shortcode( '[invoices]' );
+    echo do_shortcode( '[sw_invoice_mini_card]' );
 }
 add_action( 'woocommerce_account_invoice_endpoint', 'invoice_page_content' );
 

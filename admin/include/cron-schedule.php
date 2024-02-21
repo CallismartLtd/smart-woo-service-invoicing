@@ -108,7 +108,7 @@ add_action('wp', 'schedule_move_old_renewal_orders_to_trash');
 
 // Schedule the process_service_renewals function to run once per day
 function schedule_service_renewals_cron() {
-    if (!wp_next_scheduled('process_service_renewals_event')) {
+    if ( ! wp_next_scheduled( 'process_service_renewals_event' ) && function_exists( 'woo_wallet' ) ) {
         wp_schedule_event(current_time('timestamp'), 'sw_once_per_day', 'process_service_renewals_event');
     }
 }

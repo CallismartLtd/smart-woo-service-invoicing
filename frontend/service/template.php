@@ -5,20 +5,18 @@
  * @author      :   Callistus
  * Description  :   View File for frontend service
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined ( 'ABSPATH' ) || exit;
 
 
 /**
- * Handles service details based on URL parameters.
+ * Handles service details page
  *
  * @param int    $current_user_id    Current user ID.
  * @param string $current_user_email Current user email.
  *
  * @return string Error message or service details.
  */
-function handle_service_details( $current_user_id, $current_user_email ) {
+function sw_handle_service_details( $current_user_id, $current_user_email ) {
     // Check if the 'service_page' parameter is in the URL
     if ( ! isset( $_GET['service_page'] ) ) {
         return esc_html( 'Invalid request. Service page is missing.' );
@@ -64,7 +62,7 @@ function handle_service_details( $current_user_id, $current_user_email ) {
         $billing_cycle      = esc_html( $service->getBillingCycle() ? $service->getBillingCycle() :'Not Available' );
         $start_date         = date( 'l, F jS Y', strtotime( esc_html( $service->getStartDate() ? $service->getStartDate() :'Not Available')) );
         $next_payment_date  = date( 'l, F jS Y', strtotime( esc_html( $service->getNextPaymentDate() ? $service->getNextPaymentDate() :'Not Available')) );
-        $end_date = date('l, F jS Y', strtotime(esc_html($service->getEndDate() ? $service->getEndDate() :'Not Available')) );
+        $end_date           = date('l, F jS Y', strtotime(esc_html($service->getEndDate() ? $service->getEndDate() :'Not Available')) );
 
         $service_url = esc_url($service->getServiceUrl() ? $service->getServiceUrl() : 'Not Available'); 
         $service_button = sw_client_service_url_button( $service );
@@ -74,7 +72,7 @@ function handle_service_details( $current_user_id, $current_user_email ) {
         $usage_metrics = sw_get_usage_metrics( $service_id );
         $expiry_date   = sw_get_service_expiration_date( $service );
 
-        if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) )){
+        if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) ) ) {
             echo sw_notice('Expiring Today');
         } elseif ( $expiry_date ===  date( 'Y-m-d', strtotime('+1 day') ) ) {
             echo sw_notice('Expiring Tomorrow');
@@ -114,12 +112,12 @@ function handle_service_details( $current_user_id, $current_user_email ) {
     $renew_button_text = ( $status === 'Due for Renewal' || $status === 'Grace Period' ) ? 'Renew':'Reactivate';
    
     // "Renew" button when the service is due for renewal or expired
-    if ($status === 'Due for Renewal' || $status === 'Expired' || $status === 'Grace Period') {
+    if ( $status === 'Due for Renewal' || $status === 'Expired' || $status === 'Grace Period' ) {
         // Generate a nonce for the renew action
-        $renew_nonce = wp_create_nonce('renew_service_nonce');
+        $renew_nonce = wp_create_nonce( 'renew_service_nonce' );
 
         // Add the nonce to the URL
-        $renew_link = esc_url(wp_nonce_url(add_query_arg(array('service_id' => $service_id, 'action' => 'renew-service'), get_permalink()), 'renew_service_nonce', 'renew_nonce'));
+        $renew_link = esc_url( wp_nonce_url( add_query_arg( array( 'service_id' => $service_id, 'action' => 'renew-service' ), get_permalink() ), 'renew_service_nonce', 'renew_nonce' ) );
 
         // Output the "Renew" button with the nonce
         $output .= '<a href="' . $renew_link . '" class="renew-button">'. $renew_button_text . '</a>';
@@ -146,7 +144,7 @@ function handle_service_details( $current_user_id, $current_user_email ) {
  */
 
 
-function handle_main_page( $current_user_id ) {
+function sw_handle_main_page( $current_user_id ) {
     
     // Output the service navigation bar
     sw_get_navbar( $current_user_id );
@@ -205,11 +203,11 @@ function handle_main_page( $current_user_id ) {
 
 
             // Add the status tag to the service name
-            $service_name_with_status = $service_name . ' ( ' . $status . ' )';
+            $service_name_with_status = $service_name . ' (' . $status . ')';
 
             $output .= '<div class="main-page-card">';
             $output .= '<h3>' . $service_name_with_status . '</h3>';
-            if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) )){
+            if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) ) ){
                 $output .= sw_notice( 'Expiring Today' );
             } elseif ( $expiry_date ===  date( 'Y-m-d', strtotime('+1 day') ) ) {
                 $output .= sw_notice( 'Expiring Tomorrow' );
@@ -233,6 +231,8 @@ function handle_main_page( $current_user_id ) {
     $output .= '<h2>Settings and Tools</h2>';
     $output .= '<div class="minibox-buttons">';
 
+    // Hidden loading element
+    $output .= '<div id="swloader">Loading...</div>';
     // Button 1: Billing Details
     $output .= '<div class="minibox">';
     $output .= '<button class="minibox-button" onclick="loadBillingDetails()">Billing Details</button>';
@@ -256,8 +256,6 @@ function handle_main_page( $current_user_id ) {
 
     $output .= '</div>'; // Close minibox-buttons
     $output .= '<div id="ajax-content-container"></div>'; // Container for AJAX content
-    // Hidden loading element
-    $output .= '<div id="swloader">Loading</div>';
 
     $output .= '</div>'; // Close settings-tools-section
 
@@ -305,7 +303,7 @@ function sw_user_unprocessed_service( $user_id ) {
             $order_id       = $order->get_id();
             $service_status = 'Pending';
 
-            $service_name_with_status = $service_name . ' ( ' . $service_status . ' )';
+            $service_name_with_status = $service_name . ' (' . $service_status . ')';
 
             // Concatenate the HTML content for each order
             $output .= '<div class="main-page-card">';
@@ -318,14 +316,13 @@ function sw_user_unprocessed_service( $user_id ) {
     return $output;
 }
 
+/**
+ * Render Services filtered by status
+ * 
+ * @param $current_user_id  The user associated with the service
+ */
 
-
-
-
-
-
-
-function handle_service_by_status( $current_user_id ) {
+function sw_handle_service_by_status( $current_user_id ) {
     // Validate the 'service_page' parameter against a list of allowed values
     $allowed_actions = array( 'service_details', 'another_action', 'active', 'renewal_due', 'expired', 'grace_period' );
 
@@ -394,7 +391,7 @@ function handle_service_by_status( $current_user_id ) {
             $output .= '<td>' . esc_html( $service->getServiceName() ) . '</td>';
             $output .= '<td>' . esc_html( $service->getServiceId() ) . '</td>';
             $output .= '<td>' . esc_html( $service->getBillingCycle() ) . '</td>';
-            $output .= '<td>' . esc_html($service->getEndDate() ) . '</td>';
+            $output .= '<td>' . esc_html( $service->getEndDate() ) . '</td>';
 
             // Add a common action link based on the current 'service_page'
             $output .= '<td><a href="' . $view_link . '" class="sw-blue-button">View Details</a></td>';
@@ -407,7 +404,7 @@ function handle_service_by_status( $current_user_id ) {
     $output .= '</table>';
 
     if (!$found_services) {
-        $output .= '<p>No ' . esc_html($status_label) . ' services found.</p>';
+        $output .= '<p>No ' . esc_html( $status_label ) . ' services found.</p>';
     }
 
     return $output;
@@ -424,7 +421,7 @@ function handle_service_by_status( $current_user_id ) {
 
  function sw_service_mini_card_loader() {
     // Check if the user is logged in
-    if (!is_user_logged_in()) {
+    if ( ! is_user_logged_in() ) {
         return 'Hello! It looks like you\'re not logged in.';
     }
 
@@ -473,7 +470,12 @@ function handle_service_by_status( $current_user_id ) {
     return $output;
 }
 
-
+/**
+ * Render the count for active Service, usefull if you want to
+ *  just show active service count for the logged user
+ * 
+ * @return int $output incremented number of active service(s) or 0 if there is none
+ */
 
 function sw_active_service_count_shortcode() {
     // Check if the user is logged in
@@ -505,37 +507,37 @@ function sw_active_service_count_shortcode() {
  * @param int $current_user_id Current user ID.
  * @return string Output or result of the upgrade service operation.
  */
-function handle_upgrade_service($current_user_id) {
+function sw_handle_upgrade_service( $current_user_id ) {
 
     // Validate URL structure
-    if ( ! isset( $_GET['service_page']) || $_GET['service_page'] !== 'service_upgrade' ) {
+    if ( ! isset( $_GET['service_page'] ) || $_GET['service_page'] !== 'service_upgrade' ) {
         return 'Invalid URL structure for service upgrade.';
     }
 
-    // Retrieve user's services using sw_get_service function
-    $services = Sw_Service_Database::get_services_by_user($current_user_id);
+    // Retrieve user's services
+    $services = Sw_Service_Database::get_services_by_user( $current_user_id );
     // Check if form is submitted
-    if (isset($_POST['upgrade_service_submit'])) {
+    if ( isset( $_POST['upgrade_service_submit'] ) ) {
         // Nonce verification
-        if (!isset($_POST['upgrade_service_nonce']) || !wp_verify_nonce($_POST['upgrade_service_nonce'], 'upgrade_service_nonce')) {
+        if ( ! isset( $_POST['upgrade_service_nonce'] ) || ! wp_verify_nonce( $_POST['upgrade_service_nonce'], 'upgrade_service_nonce' ) ) {
             return 'Nonce verification failed.';
         }
 
         // Retrieve selected service and product
-        $selected_service_id = sanitize_text_field($_POST['selected_service']);
-        $selected_product_id = sanitize_text_field($_POST['selected_product']);
+        $selected_service_id = sanitize_text_field( $_POST['selected_service'] );
+        $selected_product_id = sanitize_text_field( $_POST['selected_product'] );
 
         // Find the selected service in the user's services
         $service_to_upgrade = null;
-        foreach ($services as $service) {
-            if ($service->getServiceId() === $selected_service_id) {
+        foreach ( $services as $service ) {
+            if ( $service->getServiceId() === $selected_service_id ) {
                 $service_to_upgrade = $service;
                 break;
             }
         }
 
         // Check if the selected service exists
-        if (!$service_to_upgrade) {
+        if ( ! $service_to_upgrade ) {
             return 'Selected service not found.';
         }
 
@@ -544,31 +546,31 @@ function handle_upgrade_service($current_user_id) {
 
         // Check if the service is 'Due for Renewal'
         if ( $service_status !== 'Active' ) {
-            return sw_error_notice('Only Active Services can be Upgraded, Contact us if you need further assistance.');
+            return sw_error_notice( 'Only Active Services can be Upgraded, Contact us if you need further assistance.' );
         }
     
 
         // Retrieve product details for the selected product
-        $selected_product = wc_get_product($selected_product_id);
+        $selected_product = wc_get_product( $selected_product_id );
 
         // Check if the selected product exists
-        if (!$selected_product || !$selected_product->is_purchasable()) {
+        if ( ! $selected_product || ! $selected_product->is_purchasable() ) {
             return 'Selected product not found or not purchasable.';
         }
 
         // Get the prices for the selected service and product
-        $service_price = sw_get_service_price($service_to_upgrade);
+        $service_price = sw_get_service_price( $service_to_upgrade );
         $product_price = $selected_product->get_price();
-        $service_product_name = wc_get_product( $service_to_upgrade->getProductId())->get_name();
+        $service_product_name = wc_get_product( $service_to_upgrade->getProductId() )->get_name();
 
-        $fee = floatval(get_sw_service_product($selected_product_id)['sign_up_fee'] ?? 0);
+        $fee = floatval( get_sw_service_product( $selected_product_id )['sign_up_fee'] ?? 0 );
         $new_service_price = $product_price + $fee;
 
         $prorate_status = sw_Is_prorate();
 
 
         // Calculate usage metrics using the new function
-        $usage_metrics = sw_check_service_usage( $selected_service_id);
+        $usage_metrics = sw_check_service_usage( $selected_service_id );
 
         // Determine the order total price based on prorate status using the new function
         $order_total_data = sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
@@ -577,33 +579,33 @@ function handle_upgrade_service($current_user_id) {
         // Display detailed upgrade order summary with PHP form button
         $output = '<div class="migration-order-container">'; // Add a container
         // Check if there is Service Renewal Invoice for the service
-        $existing_invoice_id = sw_evaluate_service_invoices($service_to_upgrade->getServiceId() , 'Service Upgrade Invoice', 'unpaid');
+        $existing_invoice_id = sw_evaluate_service_invoices( $service_to_upgrade->getServiceId() , 'Service Upgrade Invoice', 'unpaid' );
         $output .= '<div class="migrate-order-details">';
         $output .= '<p class="upgrade-section-title">Service Upgrade Order</p>';
-        if ($existing_invoice_id) {
+        if ( $existing_invoice_id ) {
             $output .= sw_notice( 'This service has an outstanding invoice. If you proceed, you will be redirected to make the payment instead.' );
 
         }
         
 
         $output .= '<p><strong>Current service Details</strong></p>';
-        $output .= '<p><strong>Current Service:</strong> ' . esc_html($service_to_upgrade->getServiceName()) . ' - ' . esc_html($service_to_upgrade->getServiceId() ) . '</p>';
+        $output .= '<p><strong>Current Service:</strong> ' . esc_html( $service_to_upgrade->getServiceName() ) . ' - ' . esc_html( $service_to_upgrade->getServiceId() ) . '</p>';
         $output .= '<p><strong>Product Name:</strong> ' . $service_product_name . '</p>';
-        $output .= '<p><strong>SPricing:</strong> ' . wc_price($service_price) . '</p>';
+        $output .= '<p><strong>Pricing:</strong> ' . wc_price( $service_price ) . '</p>';
         if ($prorate_status === 'Enabled'){
-        $output .= '<p><strong>Amount Used:</strong> ' . wc_price($usage_metrics['used_amount']) . '</p>';
-        $output .= '<p><strong> Balance:</strong> ' . wc_price($usage_metrics['unused_amount']) . '</p>';
+        $output .= '<p><strong>Amount Used:</strong> ' . wc_price( $usage_metrics['used_amount'] ) . '</p>';
+        $output .= '<p><strong> Balance:</strong> ' . wc_price( $usage_metrics['unused_amount'] ) . '</p>';
         }
         $output .= '<p><strong>New Upgrade Details</strong></p>';
-        $output .= '<p><strong>Product:</strong> ' . esc_html($selected_product->get_name()) . '</p>';
-        $output .= '<p><strong>Pricing:</strong> ' . wc_price($product_price) . '</p>';
-        $output .= '<p><strong>Sign-up Fee:</strong> ' . wc_price(get_sw_service_product($selected_product_id)['sign_up_fee']) . '</p>';
+        $output .= '<p><strong>Product:</strong> ' . esc_html( $selected_product->get_name() ) . '</p>';
+        $output .= '<p><strong>Pricing:</strong> ' . wc_price( $product_price ) . '</p>';
+        $output .= '<p><strong>Sign-up Fee:</strong> ' . wc_price( get_sw_service_product( $selected_product_id )['sign_up_fee'] ) . '</p>';
 
         $output .= '<p class="migrate-summary-tittle"><strong>Summary:</strong></p>';
         if ($prorate_status === 'Enabled'){
-            $output .= '<p><strong>Refund Amount:</strong> ' . wc_price($order_total_data['remaining_unused_balance']) . '</p>';
+            $output .= '<p><strong>Refund Amount:</strong> ' . wc_price( $order_total_data['remaining_unused_balance'] ) . '</p>';
         }
-        $output .= '<p><strong>New Order Total:</strong> ' . wc_price($order_total_data['order_total']) . '</p>';
+        $output .= '<p><strong>New Order Total:</strong> ' . wc_price( $order_total_data['order_total'] ) . '</p>';
 
 
         // Hidden form to Post migration data
@@ -626,25 +628,25 @@ function handle_upgrade_service($current_user_id) {
         return $output;
     }
     
-    sw_get_navbar($current_user_id);
-    if (is_update_allowed()) {
+    sw_get_navbar( $current_user_id );
+    if ( sw_Is_migration() ) {
         
 
         // Check if user has any services to upgrade
-        if (empty($services)) {
+        if ( empty( $services ) ) {
             return 'No services found for upgrade.';
         }
 
         // Open the form tag with nonce and form button name
         $output = '<form method="post" action="">';
-        $output .= wp_nonce_field('upgrade_service_nonce', 'upgrade_service_nonce', true, false);
+        $output .= wp_nonce_field( 'upgrade_service_nonce', 'upgrade_service_nonce', true, false );
 
         // Create a select input with the user's services
         $select_options = '<select name="selected_service" required>';
-        $select_options .= '<option value="" selected disabled>' . esc_html__('Select a Service', 'smart-woo') . '</option>';
+        $select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo' ) . '</option>';
 
-        foreach ($services as $service) {
-            $select_options .= '<option value="' . esc_attr($service->getServiceId()) . '">' . esc_html($service->getServiceName()) . '</option>';
+        foreach ( $services as $service ) {
+            $select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
         }
 
         $select_options .= '</select>';
@@ -674,23 +676,23 @@ function handle_upgrade_service($current_user_id) {
                 ),
             ),
         );
-        $products_query = new WP_Query($products_args);
+        $products_query = new WP_Query( $products_args );
 
-        if ($products_query->have_posts()) {
-            while ($products_query->have_posts()) {
+        if ( $products_query->have_posts() ) {
+            while ( $products_query->have_posts() ) {
                 $products_query->the_post();
 
                 // Get product data
-                $product_id = get_the_ID();
-                $product_name = get_the_title();
-                $product_price = get_post_meta($product_id, '_regular_price', true);
-                $product_excerpt = get_post_field('post_excerpt', $product_id);
+                $product_id         = get_the_ID();
+                $product_name       = get_the_title();
+                $product_price      = get_post_meta( $product_id, '_regular_price', true );
+                $product_excerpt    = get_post_field( 'post_excerpt', $product_id );
 
                 // Display each product in a container with a radio button (exclusive selection)
                 $output .= '<div class="product-container">';
                 $output .= '<label>';
-                $output .= '<input type="radio" name="selected_product" value="' . esc_attr($product_id) . '" required>';
-                $output .= '<strong>' . esc_html($product_name) . '</strong><br>';
+                $output .= '<input type="radio" name="selected_product" value="' . esc_attr( $product_id ) . '" required>';
+                $output .= '<strong>' . esc_html( $product_name ) . '</strong><br>';
                 $output .= 'Price: ' . wc_price($product_price) . '<br>';
                 $output .= 'Description: ' . esc_html($product_excerpt);
                 $output .= '</label>';
@@ -728,37 +730,37 @@ function handle_upgrade_service($current_user_id) {
  * @param int $current_user_id Current user ID.
  * @return string Output or result of the downgrade service operation.
  */
-function handle_downgrade_service($current_user_id) {
+function sw_handle_downgrade_service( $current_user_id ) {
     // Validate URL structure
-    if (!isset($_GET['service_page']) || $_GET['service_page'] !== 'service_downgrade') {
+    if ( ! isset( $_GET['service_page'] ) || $_GET['service_page'] !== 'service_downgrade' ) {
         return 'Invalid URL structure for service downgrade.';
     }
 
-    // Retrieve user's services using sw_get_service function
+    // Retrieve user's services
     $services = Sw_Service_Database::get_services_by_user( $current_user_id );
 
     // Check if form is submitted
-    if (isset($_POST['downgrade_service_submit'])) {
+    if ( isset( $_POST['downgrade_service_submit'] ) ) {
         // Nonce verification
-        if (!isset($_POST['downgrade_service_nonce']) || !wp_verify_nonce($_POST['downgrade_service_nonce'], 'downgrade_service_nonce')) {
+        if ( ! isset( $_POST['downgrade_service_nonce'] ) || ! wp_verify_nonce( $_POST['downgrade_service_nonce'], 'downgrade_service_nonce' ) ) {
             return 'Nonce verification failed.';
         }
 
         // Retrieve selected service and product
-        $selected_service_id = sanitize_text_field($_POST['selected_service']);
-        $selected_product_id = sanitize_text_field($_POST['selected_downgrade_product']);
+        $selected_service_id = sanitize_text_field( $_POST['selected_service'] );
+        $selected_product_id = sanitize_text_field( $_POST['selected_downgrade_product'] );
 
         // Find the selected service in the user's services
         $service_to_downgrade = null;
-        foreach ($services as $service) {
-            if ($service->getServiceId() === $selected_service_id) {
+        foreach ( $services as $service ) {
+            if ( $service->getServiceId() === $selected_service_id ) {
                 $service_to_downgrade = $service;
                 break;
             }
         }
 
         // Check if the selected service exists
-        if (!$service_to_downgrade) {
+        if ( ! $service_to_downgrade ) {
             return 'Selected service not found.';
         }
 
@@ -772,19 +774,19 @@ function handle_downgrade_service($current_user_id) {
     
 
         // Retrieve product details for the selected product
-        $selected_product = wc_get_product($selected_product_id);
+        $selected_product = wc_get_product( $selected_product_id );
 
         // Check if the selected product exists
-        if (!$selected_product || !$selected_product->is_purchasable()) {
+        if ( ! $selected_product || ! $selected_product->is_purchasable() ) {
             return 'Selected product not found or not purchasable.';
         }
 
         // Get the prices for the selected service and product
-        $service_price = sw_get_service_price($service_to_downgrade);
-        $service_product_name = wc_get_product( $service_to_downgrade->getProductId())->get_name();
-        $product_price = $selected_product->get_price();
-        $fee = floatval(get_sw_service_product($selected_product_id)['sign_up_fee'] ?? 0);
-        $new_service_price = $product_price + $fee;
+        $service_price        = sw_get_service_price( $service_to_downgrade );
+        $service_product_name = wc_get_product( $service_to_downgrade->getProductId() )->get_name();
+        $product_price        = $selected_product->get_price();
+        $fee                  = floatval(get_sw_service_product( $selected_product_id )['sign_up_fee'] ?? 0 );
+        $new_service_price    = $product_price + $fee;
 
         $prorate_status = sw_Is_prorate();
 
@@ -798,7 +800,7 @@ function handle_downgrade_service($current_user_id) {
         // Display detailed upgrade order summary with PHP form button
         $output = '<div class="migration-order-container">';
         // Check if there is Service Downgrade Invoice for the service
-        $existing_invoice_id = sw_evaluate_service_invoices($service_to_downgrade->getServiceId() , 'Service Downgrade Invoice', 'unpaid');
+        $existing_invoice_id = sw_evaluate_service_invoices( $service_to_downgrade->getServiceId() , 'Service Downgrade Invoice', 'unpaid' );
         $output .= '<div class="migrate-order-details">';
         $output .= '<p class="upgrade-section-title">Service Downgrade Order</p>';
         if ($existing_invoice_id) {
@@ -807,23 +809,23 @@ function handle_downgrade_service($current_user_id) {
         
 
         $output .= '<p><strong>Current Service Details</strong></p>';
-        $output .= '<p><strong>Current Service:</strong> ' . esc_html($service_to_downgrade->getServiceName()) . ' - ' . esc_html($service_to_downgrade->getServiceId() ) . '</p>';
+        $output .= '<p><strong>Current Service:</strong> ' . esc_html( $service_to_downgrade->getServiceName() ) . ' - ' . esc_html($service_to_downgrade->getServiceId() ) . '</p>';
         $output .= '<p><strong>Product Name:</strong> ' . $service_product_name . '</p>';
-        $output .= '<p><strong>Pricing:</strong> ' . wc_price($service_price) . '</p>';
-        if ($prorate_status === 'Enabled'){
-        $output .= '<p><strong>Amount Used:</strong> ' . wc_price($usage_metrics['used_amount']) . '</p>';
-        $output .= '<p><strong> Balance:</strong> ' . wc_price($usage_metrics['unused_amount']) . '</p>';
+        $output .= '<p><strong>Pricing:</strong> ' . wc_price( $service_price ) . '</p>';
+        if ( $prorate_status === 'Enabled' ){
+        $output .= '<p><strong>Amount Used:</strong> ' . wc_price( $usage_metrics['used_amount'] ) . '</p>';
+        $output .= '<p><strong> Balance:</strong> ' . wc_price( $usage_metrics['unused_amount'] ) . '</p>';
         }
         $output .= '<p><strong>Substitute Service Details</strong></p>';
-        $output .= '<p><strong>Product:</strong> ' . esc_html($selected_product->get_name()) . '</p>';
+        $output .= '<p><strong>Product:</strong> ' . esc_html( $selected_product->get_name() ) . '</p>';
         $output .= '<p><strong>Pricing:</strong> ' . wc_price($product_price) . '</p>';
-        $output .= '<p><strong>Sign-up Fee:</strong> ' . wc_price(get_sw_service_product($selected_product_id)['sign_up_fee']) . '</p>';
+        $output .= '<p><strong>Sign-up Fee:</strong> ' . wc_price( get_sw_service_product( $selected_product_id )['sign_up_fee'] ) . '</p>';
 
         $output .= '<p class="migrate-summary-tittle"><strong>Summary:</strong></p>';
-        if ($prorate_status === 'Enabled'){
-            $output .= '<p><strong>Refund Amount:</strong> ' . wc_price($order_total_data['remaining_unused_balance']) . '</p>';
+        if ( $prorate_status === 'Enabled' ){
+            $output .= '<p><strong>Refund Amount:</strong> ' . wc_price( $order_total_data['remaining_unused_balance'] ) . '</p>';
         }
-        $output .= '<p><strong>New Order Total:</strong> ' . wc_price($order_total_data['order_total']) . '</p>';
+        $output .= '<p><strong>New Order Total:</strong> ' . wc_price( $order_total_data['order_total'] ) . '</p>';
 
 
         // Hidden form to Post migration data
@@ -846,24 +848,24 @@ function handle_downgrade_service($current_user_id) {
         return $output;
     }
  
-    sw_get_navbar($current_user_id);
-    if (is_update_allowed()) {
+    sw_get_navbar( $current_user_id );
+    if  ( sw_Is_migration() ) {
 
         // Check if user has any services to downgrade
-        if (empty($services)) {
+        if ( empty( $services ) ) {
             return 'No services found for downgrade.';
         }
 
         // Open the form tag with nonce and form button name
         $output = '<form method="post" action="">';
-        $output .= wp_nonce_field('downgrade_service_nonce', 'downgrade_service_nonce', true, false);
+        $output .= wp_nonce_field( 'downgrade_service_nonce', 'downgrade_service_nonce', true, false );
 
         // Create a select input with the user's services
         $select_options = '<select name="selected_service" required>';
-        $select_options .= '<option value="" selected disabled>' . esc_html__('Select a Service', 'smart-woo') . '</option>';
+        $select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo' ) . '</option>';
 
-        foreach ($services as $service) {
-            $select_options .= '<option value="' . esc_attr($service->getServiceId()) . '">' . esc_html($service->getServiceName()) . '</option>';
+        foreach ( $services as $service ) {
+            $select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
         }
         $select_options .= '</select>';
 
@@ -876,7 +878,7 @@ function handle_downgrade_service($current_user_id) {
         $output .= '<div class="products-to-use-container">';
 
         // Retrieve selected downgrade categories from options
-        $selected_downgrade_category = gget_option( 'sw_downgrade_product_cat', '0' );
+        $selected_downgrade_category = get_option( 'sw_downgrade_product_cat', '0' );
 
         // Get products from selected downgrade categories
         $downgrade_args = array(
@@ -890,25 +892,25 @@ function handle_downgrade_service($current_user_id) {
                 ),
             ),
         );
-        $downgrade_query = new WP_Query($downgrade_args);
+        $downgrade_query = new WP_Query( $downgrade_args );
 
-        if ($downgrade_query->have_posts()) {
-            while ($downgrade_query->have_posts()) {
+        if ( $downgrade_query->have_posts() ) {
+            while ( $downgrade_query->have_posts() ) {
                 $downgrade_query->the_post();
 
                 // Get product data
                 $product_id = get_the_ID();
                 $product_name = get_the_title();
-                $product_price = get_post_meta($product_id, '_price', true);
+                $product_price = get_post_meta( $product_id, '_price', true );
                 $product_excerpt = get_the_excerpt();
 
                 // Display each product in a container with a radio button (exclusive selection)
                 $output .= '<div class="product-container">';
                 $output .= '<label>';
-                $output .= '<input type="radio" name="selected_downgrade_product" value="' . esc_attr($product_id) . '" required>';
-                $output .= '<strong>' . esc_html($product_name) . '</strong><br>';
-                $output .= 'Price: ' . esc_html($product_price) . '<br>';
-                $output .= 'Description: ' . esc_html($product_excerpt);
+                $output .= '<input type="radio" name="selected_downgrade_product" value="' . esc_attr( $product_id ) . '" required>';
+                $output .= '<strong>' . esc_html( $product_name ) . '</strong><br>';
+                $output .= 'Price: ' . esc_html( $product_price ) . '<br>';
+                $output .= 'Description: ' . esc_html( $product_excerpt );
                 $output .= '</label>';
                 $output .= '</div>';
             }
@@ -934,18 +936,20 @@ function handle_downgrade_service($current_user_id) {
     }
 }
 
-
-function handle_buy_new_service() {
+/**
+ * Handle new service product pruchase
+ */
+function sw_handle_buy_new_service() {
     
     // Get Smart Woo Products
     $sw_service_products = Sw_Product::get_sw_service_products();
-    sw_get_navbar(get_current_user_id());
+    sw_get_navbar( get_current_user_id() );
 
     $output = '';
 
-    if (!empty($sw_service_products)) {
+    if ( ! empty( $sw_service_products ) ) {
         
-        foreach ($sw_service_products as $product) {
+        foreach ( $sw_service_products as $product ) {
             $product_id      = $product->get_id();
             $product_name    = $product->get_name();
             $product_price   = $product->get_price();
@@ -954,22 +958,22 @@ function handle_buy_new_service() {
             $product_excerpt = $product->get_short_description();
         
             $output .= '<div class="sw-product-container">';
-            $output .= '<h3>' . esc_html($product_name) . '</h3>';
-            $output .= '<p>Price: ' . wc_price($product_price) . '</p>';
+            $output .= '<h3>' . esc_html( $product_name ) . '</h3>';
+            $output .= '<p>Price: ' . wc_price( $product_price ) . '</p>';
             $output .= '<p>Sign-Up Fee: ' . $sign_up_fee . '</p>';
-            $output .= '<p><strong>' . esc_html($billing_cycle) . '</strong> Billing Cycle</p>';
-            $output .= '<p>' . esc_html($product_excerpt) . '</p>';
-            $output .= '<a href="' . home_url('/configure/' . $product_id) . '" class="sw-blue-button" >' . esc_html__('Configure Product', 'smart-woo') . '</a>';
+            $output .= '<p><strong>' . esc_html( $billing_cycle ) . '</strong> Billing Cycle</p>';
+            $output .= '<p>' . esc_html( $product_excerpt ) . '</p>';
+            $output .= '<a href="' . home_url( '/configure/' . $product_id ) . '" class="sw-blue-button" >' . esc_html__( 'Configure Product', 'smart-woo' ) . '</a>';
             $output .= '</div>';
         }
         
         return $output;
     } else {
-        $shop_page_url = get_permalink(wc_get_page_id('shop'));
+        $shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
         $output .= '<div class="main-page-card">';
         $output .= '<p>We do not have service products for purchase yet!</p>';
-        $output .= '<a href="' . $shop_page_url .'" class="sw-blue-button">' . esc_html__('Shop Page','smart-woo') .'</a>';
-        $output .= '<a href="' . get_permalink() .'" class="sw-blue-button">' . esc_html__('Dashboard','smart-woo') .'</a>';
+        $output .= '<a href="' . $shop_page_url .'" class="sw-blue-button">' . esc_html__( 'Shop Page','smart-woo' ) .'</a>';
+        $output .= '<a href="' . get_permalink() .'" class="sw-blue-button">' . esc_html__( 'Dashboard','smart-woo' ) .'</a>';
 
         $output .= '</div>';
         return $output;

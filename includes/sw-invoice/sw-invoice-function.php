@@ -268,12 +268,12 @@ function sw_generate_service_migration_invoice() {
         $fee                    = sanitize_text_field( $_POST['fee'] );
         $date_due               =  current_time( 'mysql' );
 
-        $invoice_type = null;
+        $invoice_type           = null;
 
         if ( $_POST[ 'sw_migrate_service'] === 'smart_woo_upgrade' ) {
-            $invoice_type = 'Service Upgrade Invoice';
+            $invoice_type       = 'Service Upgrade Invoice';
         } elseif ( $_POST['sw_migrate_service'] === 'smart_woo_downgrade' ) {
-            $invoice_type = 'Service Downgrade Invoice';
+            $invoice_type       = 'Service Downgrade Invoice';
         }
 
         // Check if there is Service Upgrade or Downgrade Invoice for the service
@@ -306,7 +306,7 @@ function sw_generate_service_migration_invoice() {
             $fee
         );
         // Set the due date if provided
-        if ($date_due) {
+        if ( $date_due ) {
             $newInvoice->setDateDue( $date_due );
         }
 
@@ -323,8 +323,8 @@ function sw_generate_service_migration_invoice() {
             );
             sw_update_invoice_fields( $invoice_id, $fields ) ;
         }
-        if(strtolower( $payment_status ) === 'paid'){
-             // Set the order ID for the new invoice
+        if( strtolower( $payment_status ) === 'paid' ){
+             // Perform immidiate migration
              $fields = array(
                 'product_id' => $new_service_product_id,
             );
@@ -353,7 +353,7 @@ function sw_generate_service_migration_invoice() {
  */
 function sw_redirect_to_invoice_preview( $invoice_id ) {
     $invoice_page = get_option( 'sw_invoice_page', 0 );
-    $redirect_url = get_permalink($invoice_page) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
+    $redirect_url = get_permalink( $invoice_page ) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
     wp_safe_redirect( $redirect_url );
     exit();
 }

@@ -27,10 +27,8 @@ function sw_invoice_shortcode() {
         case 'view_invoice':
             // Check if an invoice ID is provided in the URL
             $invoice_id = isset($_GET['invoice_id']) ? sanitize_text_field($_GET['invoice_id']) : '';
-            if (!empty($invoice_id)) {
+            if ( ! empty($invoice_id ) ) {
                 echo view_invoice_details($invoice_id);
-            } else {
-                echo 'Invalid invoice ID.';
             }
             break;
         case 'invoices_by_status':

@@ -5,9 +5,8 @@
  * Description  :   Here I defined the order for the plugin to load other files and dependencies
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+ defined ( 'ABSPATH' ) || exit;
+
 
 /**
  * Throw error when WooCommerce is not active
@@ -79,16 +78,17 @@ function sw_load_dependencies(){
     require_once SW_ABSPATH . 'admin/include/service-remote.php';
     require_once SW_ABSPATH . 'admin/include/smart-renewal.php';
     include_once SW_ABSPATH . 'admin/include/status-api.php';
-    require_once SW_ABSPATH . 'admin/include/wallet-debit.php';
+    // Only load this file when TeraWallet plugin is installed
+    if ( function_exists( 'woo_wallet' ) ) {
+        require_once SW_ABSPATH . 'admin/include/tera-wallet-int.php';
+    }
     require_once SW_ABSPATH . 'admin/admin-menu.php';
-    require_once SW_ABSPATH . 'admin/helper-function.php';
+    require_once SW_ABSPATH . 'admin/sw-functions.php';
     require_once SW_ABSPATH . 'frontend/invoice/contr.php';
     require_once SW_ABSPATH . 'frontend/invoice/template.php';
-    require_once SW_ABSPATH . 'frontend/service/contr.php';
-    require_once SW_ABSPATH . 'frontend/service/mod.php';
     require_once SW_ABSPATH . 'frontend/service/template.php';
-    require_once SW_ABSPATH . 'frontend/client-portal.php';
     require_once SW_ABSPATH . 'frontend/shortcode.php';
+    require_once SW_ABSPATH . 'frontend/service/contr.php';
     require_once SW_ABSPATH . 'includes/sw-invoice/invoice.downloadable.php';
     require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice.php';
     require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice-database.php';
@@ -103,7 +103,6 @@ function sw_load_dependencies(){
     require_once SW_ABSPATH . 'includes/sw-product/sw-product-functions.php';
     require_once SW_ABSPATH . 'includes/sw-product/sw-order-config.php';
     require_once SW_ABSPATH . 'woocommerce/woocommerce.php';
-    require_once SW_ABSPATH . 'index.php';
 
     // Do action after loading plugin files
     do_action( 'smart_woo_loaded' );

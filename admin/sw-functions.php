@@ -1,16 +1,20 @@
 <?php
+/**
+ * File name    :   sw-functions.php
+ * @author      :   Callistus
+ * Description  :   Functions file
+ */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit; // exit if eccessed directly
+
 
 
 /**
- * Function to format date or show 'Not Available' if empty or null
+ * Function to format date to a human readable format or show 'Not Available' if empty or null
  * @param string $dateString  Date String
  */
-function sw_check_and_format($dateString) {
-    return !empty($dateString) ? date('l jS F Y \a\t h:i:s A', strtotime($dateString)) : 'Not Available';
+function sw_check_and_format( $dateString ) {
+    return ! empty( $dateString ) ? date( 'l jS F Y \a\t h:i:s A', strtotime( $dateString ) ) : 'Not Available';
 }
 
 
@@ -21,13 +25,17 @@ function sw_check_and_format($dateString) {
  * @param string $dateTimeString The date and time string.
  * @return string The extracted date in 'Y-m-d' format.
  */
-function sw_extract_date_only($dateTimeString) {
+function sw_extract_date_only( $datetimestring ) {
+    // Explicitly cast $datetimestring to a string
+    $datetimestring = (string) $datetimestring;
+
     // Use strtotime to convert the date and time string to a Unix timestamp
-    $timestamp = strtotime($dateTimeString);
+    $timestamp = strtotime( $datetimestring );
 
     // Use date to format the timestamp to the desired 'Y-m-d' format
-    return date('Y-m-d', $timestamp);
+    return date( 'Y-m-d', $timestamp );
 }
+
 
 /**
  * Check if the "sw_prorate" option is enabled or disabled.
@@ -35,11 +43,11 @@ function sw_extract_date_only($dateTimeString) {
  * @return string Returns "Enabled" if sw_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
  */
 function sw_Is_prorate() {
-    $sw_prorate = get_option('sw_prorate', 'Select option'); // Get the value of sw_prorate with a default of 'Select option'
+    $sw_prorate = get_option( 'sw_prorate', 'Disable' ); // Get the value of sw_prorate with a default of 'Select option'
 
-    if ($sw_prorate === 'Enable') {
+    if ( $sw_prorate === 'Enable' ) {
         return 'Enabled';
-    } elseif ($sw_prorate === 'Disable') {
+    } elseif ( $sw_prorate === 'Disable' ) {
         return 'Disabled';
     } else {
         return 'Not Configured';
@@ -62,7 +70,7 @@ function sw_Is_prorate() {
  *               of updated records when updating records based on the provided parameters.
  */
 
- function sw_REFUND_handler($user_id = null, $service_id = null, $amount = null, $newstatus = null, $details = null) {
+ function sw_REFUND_handler( $user_id = null, $service_id = null, $amount = null, $newstatus = null, $details = null ) {
     global $wpdb;
     $service_logs_table_name = $wpdb->prefix . 'sw_service_logs';
 
@@ -77,17 +85,17 @@ function sw_Is_prorate() {
         return $results;
     } else {
         $where = array('transaction_status' => 'Pending Refund');
-        if ($user_id !== null) {
+        if ( $user_id !== null ) {
             $where['user_id'] = $user_id;
         }
-        if ($service_id !== null) {
+        if ( $service_id !== null ) {
             $where['service_id'] = $service_id;
         }
-        if ($amount !== null) {
+        if ( $amount !== null ) {
             $where['amount'] = $amount;
         }
 
-        $updated = $wpdb->update($service_logs_table_name, array('transaction_status' => $newstatus, 'details' => $details), $where);
+        $updated = $wpdb->update( $service_logs_table_name, array( 'transaction_status' => $newstatus, 'details' => $details ), $where );
 
         return $updated;
     }
@@ -111,7 +119,7 @@ function sw_Is_prorate() {
  * @global wpdb $wpdb WordPress database object for executing database queries.
  */
 
- function smart_woo_log($user_id, $service_id, $amount, $transaction_status, $details = null) {
+ function smart_woo_log( $user_id, $service_id, $amount, $transaction_status, $details = null ) {
     global $wpdb;
     
     $table_name = $wpdb->prefix . 'sw_service_logs';
@@ -123,11 +131,11 @@ function sw_Is_prorate() {
         'amount' => $amount,
         'transaction_status' => $transaction_status,
         'details' => $details,
-        'created_at' => current_time('mysql'), // Use the current timestamp as 'created_at'
+        'created_at' => current_time( 'mysql' ), // Use the current timestamp as 'created_at'
     );
 
     // Insert the data into the table
-    $wpdb->insert($table_name, $data);
+    $wpdb->insert( $table_name, $data );
 }
 
 /**
@@ -146,46 +154,46 @@ function sw_Is_prorate() {
  *                           or null if no records match the criteria.
  */
 
- function sw_get_service_log($user_id = null, $service_id = null, $amount = null, $newstatus = null, $details = null) {
+ function sw_get_service_log( $user_id = null, $service_id = null, $amount = null, $newstatus = null, $details = null ) {
     global $wpdb;
     $service_logs_table_name = $wpdb->prefix . 'sw_service_logs';
 
     $where_conditions = array();
     $params = array();
 
-    if ($user_id !== null) {
+    if ( $user_id !== null ) {
         $where_conditions[] = "user_id = %d";
         $params[] = $user_id;
     }
 
-    if ($service_id !== null) {
+    if ( $service_id !== null ) {
         $where_conditions[] = "service_id = %s";
         $params[] = $service_id;
     }
 
-    if ($amount !== null) {
+    if ( $amount !== null ) {
         $where_conditions[] = "amount = %f";
-        $params[] = floatval($amount);
+        $params[] = floatval( $amount );
     }
 
-    if ($newstatus !== null) {
+    if ( $newstatus !== null ) {
         $where_conditions[] = "transaction_status = %s";
         $params[] = $newstatus;
     }
 
-    if ($details !== null) {
+    if ( $details !== null ) {
         $where_conditions[] = "details = %s";
         $params[] = $details;
     }
 
-    $where_clause = implode(' AND ', $where_conditions);
+    $where_clause = implode( ' AND ', $where_conditions );
 
     $query = $wpdb->prepare(
         "SELECT * FROM $service_logs_table_name WHERE $where_clause",
         $params
     );
 
-    $results = $wpdb->get_results($query);
+    $results = $wpdb->get_results( $query );
 
     return $results;
 }
@@ -196,7 +204,7 @@ function sw_Is_prorate() {
  * @return string The configured Invoice Number Prefix.
  */
 function sw_get_invoice_number_prefix() {
-    $invoice_number_prefix = get_option('sw_invoice_id_prefix', 'CINV');
+    $invoice_number_prefix = get_option( 'sw_invoice_id_prefix', 'CINV' );
     return $invoice_number_prefix;
 }
 
@@ -207,7 +215,7 @@ function sw_get_invoice_number_prefix() {
  * @return string Random 32-character hexadecimal token
  */
 function sw_generate_unique_token() {
-    return bin2hex(random_bytes(16));
+    return bin2hex( random_bytes( 16 ) );
 }
 
 /**
@@ -279,8 +287,8 @@ function swsi_verify_token( $token ) {
 
 
 
-function is_update_allowed() {
-    $sw_allow_migration = get_option('sw_allow_migration', 'Disable');
+function sw_Is_migration() {
+    $sw_allow_migration = get_option( 'sw_allow_migration', 'Disable' );
 
     // Check if service upgrade is enabled
     return $sw_allow_migration === 'Enable';
@@ -297,7 +305,7 @@ function sw_notice( $message ) {
     // HTML and styles for the notice message
     $output = '<div style="background-color: #ffe9a7; padding: 10px; border: 1px solid #f3c100; border-radius: 5px; margin: 10px 0; display: flex; align-items: center;">';
     $output .= '<span style="font-size: 20px; margin-right: 10px;">⚠</span>';
-    $output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold;">' . esc_html($message) . '</p>';
+    $output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold;">' . esc_html( $message ) . '</p>';
     $output .= '<span style="font-size: 20px; margin-right: 10px;">⚠</span>';
     $output .= '</div>';
 

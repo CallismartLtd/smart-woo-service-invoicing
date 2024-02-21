@@ -89,6 +89,42 @@ class Sw_Invoice_Database {
         return self::get_invoices_by_criteria( 'date_due', $date_due );
     }
 
+    /**
+     * Get the count of invoices by payment status.
+     *
+     * @param string $payment_status The payment status to filter by.
+     *
+     * @return int The count of invoices with the specified payment status.
+     */
+    public static function get_invoice_count_by_payment_status( $payment_status ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sw_invoice';
+
+        $query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE payment_status = %s", $payment_status );
+        $count = $wpdb->get_var( $query );
+
+        return intval( $count );
+    }
+
+    /**
+     * Get the count of invoices by payment status for the current user.
+     *
+     * @param int    $user_id        The user ID to filter by.
+     * @param string $payment_status The payment status to filter by.
+     *
+     * @return int The count of invoices with the specified payment status for the current user.
+     */
+    public static function get_invoice_count_by_payment_status_for_user( $user_id, $payment_status ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sw_invoice';
+
+        $query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE user_id = %d AND payment_status = %s", $user_id, $payment_status );
+        $count = $wpdb->get_var( $query );
+
+        return intval( $count );
+    }
+
+    
     private static function convert_results_to_invoices( $results ) {
         if ( ! is_array($results)) {
             // Handle the case when $results is not an array (e.g., single result)

@@ -16,16 +16,16 @@ function sw_plugin_db_schema() {
     global $wpdb;
 
     // Define our database table names as constants
-    define('SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service');
-    define('SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice');
-    define('SW_AUTO_RENEW_TABLE', $wpdb->prefix . 'sw_invoice_auto_renew');
-    define('SW_SERVICE_LOGS_TABLE', $wpdb->prefix . 'sw_service_logs');
+    define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
+    define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
+    define( 'SW_AUTO_RENEW_TABLE', $wpdb->prefix . 'sw_invoice_auto_renew' );
+    define( 'SW_SERVICE_LOGS_TABLE', $wpdb->prefix . 'sw_service_logs' );
 
     // Define the current database version
     $sw_db_version = '1.0'; // Update the version when making schema changes.
 
     // Check the stored version
-    $stored_version = get_option( 'sw_db_version', '');
+    $stored_version = get_option( 'sw_db_version', '' );
 
     if ( $sw_db_version !== $stored_version ) {
 
@@ -140,6 +140,15 @@ function sw_create_database_table( $table_name, $table_structure ) {
     }
 }
 
+/**
+ * Retrieve the database charset and collate settings.
+ *
+ * This function generates a string that includes the default character set and collate
+ * settings for the WordPress database, based on the global $wpdb object.
+ *
+ * @global wpdb $wpdb The WordPress database object.
+ * @return string The generated charset and collate settings string.
+ */
 function sw_get_charset_collate() {
     global $wpdb;
     $charset_collate = '';

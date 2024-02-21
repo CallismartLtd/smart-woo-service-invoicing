@@ -34,7 +34,7 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
         // Get the current date and time
         $cancellation_date = current_time( 'l, F j, Y @ g:i a', 0 );
 
-        // Get service details using sw_get_service function
+        // Get service details
         $service_details   = Sw_Service_Database::get_service_by_id( $service_id );
 
         // Extract relevant service details
@@ -346,7 +346,7 @@ function sw_send_service_expiration_email( $service ) {
 
         $user_id        = $service->getUserId();
         $service_name   = $service->getServiceName();
-        $service_id     = $service->getServiceID();
+        $service_id     = $service->getServiceId();
         $billing_cycle  = $service->getBillingCycle();
         
         $user           = get_userdata( $user_id );

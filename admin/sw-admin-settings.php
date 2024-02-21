@@ -10,16 +10,16 @@
 * called directly within the HTML page redering
 */
  function sw_handle_email_options() {
-    if (isset($_POST['sw_save_email_options'])) {
+    if ( isset( $_POST['sw_save_email_options'] ) ) {
 
         // Update billing email
-        if (isset($_POST['sw_billing_email'])) {
-            update_option('sw_billing_email', sanitize_email($_POST['sw_billing_email']));
+        if ( isset( $_POST['sw_billing_email'] ) ) {
+            update_option( 'sw_billing_email', sanitize_email( $_POST['sw_billing_email'] ) );
         }
 
         // Update sender name
-        if (isset($_POST['sw_sender_name'])) {
-            update_option('sw_sender_name', sanitize_text_field($_POST['sw_sender_name']));
+        if ( isset( $_POST['sw_sender_name'] ) ) {
+            update_option( 'sw_sender_name', sanitize_text_field( $_POST['sw_sender_name'] ) );
         }
 
         // Define an array of checkbox names
@@ -37,9 +37,9 @@
         );
 
         // Update checkbox options
-        foreach ($checkboxes as $checkbox_name) {
-            if (isset($_POST[$checkbox_name])) {
-                update_option($checkbox_name, 1); // Use 1 to represent checked
+        foreach ( $checkboxes as $checkbox_name ) {
+            if ( isset( $_POST[$checkbox_name] ) ) {
+                update_option( $checkbox_name, 1 ); // Use 1 to represent checked
             } else {
                 update_option($checkbox_name, 0); // Use 0 to represent unchecked
             }
@@ -70,7 +70,7 @@ function sw_handle_options_submission() {
         }
 
         if ( isset( $_POST['sw_business_name'] ) ) {
-            $business_name = sanitize_text_field($_POST['sw_business_name']) ? sanitize_text_field($_POST['sw_business_name']) : get_bloginfo( 'name' );
+            $business_name = sanitize_text_field( $_POST['sw_business_name']) ? sanitize_text_field( $_POST['sw_business_name'] ) : get_bloginfo( 'name' );
             update_option('sw_business_name', $business_name );
         }
 
@@ -91,7 +91,7 @@ function sw_handle_options_submission() {
 
         if ( isset( $_POST['sw_invoice_id_prefix'] ) ) {
             $invoice_number_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', $_POST['sw_invoice_id_prefix'] );
-            update_option('sw_invoice_id_prefix', $invoice_number_prefix);
+            update_option( 'sw_invoice_id_prefix', $invoice_number_prefix );
         }
 
         if ( isset( $_POST['sw_service_id_prefix'] ) ) {
@@ -108,17 +108,14 @@ function sw_handle_options_submission() {
        // Handle form submission for existing settings
         if ( isset( $_POST['sw_upgrade_product_cat'] ) ) {
             $selected_upgrade_category = sanitize_text_field( $_POST['sw_upgrade_product_cat'] );
-            update_option('sw_upgrade_product_cat', $selected_upgrade_category);
+            update_option( 'sw_upgrade_product_cat', $selected_upgrade_category );
         }
 
-        if (isset($_POST['sw_downgrade_product_cat'])) {
+        if ( isset( $_POST['sw_downgrade_product_cat'] ) ) {
             $selected_downgrade_category = sanitize_text_field( $_POST['sw_downgrade_product_cat'] );
             update_option( 'sw_downgrade_product_cat', $selected_downgrade_category );
         }
 
-
-
-    
         echo '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>';
     }
 }
@@ -231,6 +228,15 @@ function sw_render_service_options_page() {
         <input class="sw-form-input" type="text" name="sw_service_id_prefix" id="sw_service_id_prefix" value="<?php echo esc_attr( $service_id_prefix ); ?>" placeholder="eg, SMWSI">
         </div>
  
+        <!-- Form field for Proration -->
+        <div class="sw-form-row">
+        <label for="sw_prorate" class="sw-form-label">Allow Proration</label>
+        <span class="sw-field-description" title="Choose to allow users switch from their current service to another">?</span>
+        <select name="sw_prorate" id="sw_prorate" class="sw-form-input">
+        <option value="Enable" <?php  selected( 'Enable', $sw_prorate ); ?>>Yes</option>
+        <option value="Disable" <?php  selected( 'Disable', $sw_prorate ); ?>>No</option>
+        </select>
+        </div>
 
         <!-- Form field for service migration -->
         <div class="sw-form-row">
@@ -283,11 +289,11 @@ function sw_render_service_options_page() {
 function sw_render_invoice_options_page() {
 
     sw_handle_options_submission();
-    $invoice_prefix  = get_option('sw_invoice_id_prefix', 'CINV');
-    $invoice_page   = get_option('sw_invoice_page', 0);
+    $invoice_prefix         = get_option( 'sw_invoice_id_prefix', 'CINV' );
+    $invoice_page           = get_option( 'sw_invoice_page', 0 );
     $pages                  = get_pages();
-    $invoice_logo_url       = get_option('sw_invoice_logo_url', '');
-    $invoice_watermark_url  = get_option('sw_invoice_watermark_url', '');
+    $invoice_logo_url       = get_option( 'sw_invoice_logo_url' );
+    $invoice_watermark_url  = get_option( 'sw_invoice_watermark_url' );
     echo '<h1> Invoice</h1>';
     ?>
         <div class="wrap">
@@ -302,8 +308,8 @@ function sw_render_invoice_options_page() {
         <select name="sw_invoice_page" id="sw_invoice_page" class="sw-form-input">
         <option value="0">Select an invoice page</option>
         <?php
-        foreach ($pages as $page) {
-            $selected = ($invoice_page == $page->ID) ? 'selected' : '';
+        foreach ( $pages as $page ) {
+            $selected = ( $invoice_page == $page->ID ) ? 'selected' : '';
             echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
         }
         ?>
@@ -364,22 +370,22 @@ function sw_render_email_options_page() {
             <!-- Sender Name -->
             <div class="sw-form-row">
                 <label for="sw_sender_name" class="sw-form-label">Sender Name</label>
-                <input type="text" name="sw_sender_name" id="sw_sender_name" value="<?php echo esc_attr($sender_name); ?>" placeholder="eg, Billing Team" class="sw-form-input">
+                <input type="text" name="sw_sender_name" id="sw_sender_name" value="<?php echo esc_attr( $sender_name ); ?>" placeholder="eg, Billing Team" class="sw-form-input">
             </div>
 
             <!-- Billing Email -->
             <div class="sw-form-row">
                 <label for="sw_billing_email" class="sw-form-label">Billing Email</label>
-                <input type="email" name="sw_billing_email" id="sw_billing_email" value="<?php echo esc_attr($billing_email); ?>" placeholder="eg, billing@domain.com" class="sw-form-input">
+                <input type="email" name="sw_billing_email" id="sw_billing_email" value="<?php echo esc_attr( $billing_email ); ?>" placeholder="eg, billing@domain.com" class="sw-form-input">
             </div>
 
             <!-- Checkboxes -->
             <?php foreach ($checkboxes as $checkbox_name) : ?>
                 <div class="sw-form-row">
-                    <label for="<?php echo esc_attr($checkbox_name); ?>" class="sw-form-checkbox">
-                        <?php echo esc_html(ucwords(str_replace (array('_', 'sw'), ' ', $checkbox_name))); ?>
+                    <label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
+                        <?php echo esc_html( ucwords( str_replace ( array( '_', 'sw'), ' ', $checkbox_name ) ) ); ?>
                     </label>
-                    <input type="checkbox" id="<?php echo esc_attr($checkbox_name); ?>" name="<?php echo esc_attr($checkbox_name); ?>" class="sw-form-input" <?php checked(get_option($checkbox_name, 0), 1); ?>>
+                    <input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
                 </div>
                 <hr>
             <?php endforeach; ?>

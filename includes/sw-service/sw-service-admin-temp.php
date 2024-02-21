@@ -4,24 +4,27 @@
  * @author      :   Callistus
  * Description  :   Template file for admin Service management
  */
-
+/**
+ * Admin Service Details page
+ */
 function sw_admin_view_service_details() {
-    $service_id = isset($_GET['service_id']) ? sanitize_text_field($_GET['service_id']) : '';
-    $service = Sw_Service_Database::get_service_by_id($service_id);
+    $service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : '';
+    $service = Sw_Service_Database::get_service_by_id( $service_id );
 
-    if ($service) {
+    if ( $service ) {
 
         echo '<div class="serv-wrap">';
         echo '<h1>Service Informations</h1>';
 
-        // Retrieve service usage metrics
-        echo sw_get_usage_metrics ( $service_id);
-        // Display customer details
-        display_customer_details($service);
-        $access_client_service_url = sw_client_service_url_button( $service );
+        // Client Details
+        sw_display_customer_details( $service );
 
         // Display service details
-        display_service_details($service);
+        sw_display_service_details( $service );
+
+        // Retrieve service usage metrics
+        echo sw_get_usage_metrics ( $service_id );
+
         echo '</div>';
 
     } else {
@@ -33,16 +36,16 @@ function sw_admin_view_service_details() {
 }
 
 
-function display_customer_details($service) {
+function sw_display_customer_details( $service ) {
     // Fetch customer details
     $user_id = $service->getUserId();
-    $user_info = get_userdata($user_id);
+    $user_info = get_userdata( $user_id );
 
     // Set default values using null coalescing operator
     $customer_name = $user_info->first_name . ' ' . $user_info->last_name ?? 'Customer Name Not Found';
     $customer_email = $user_info->user_email ?? 'Email Not Found';
-    $customer_billing_address = sw_get_user_billing_address($user_id) ?? 'Billing Address Not Found';
-    $customer_phone = get_user_meta($user_id, 'billing_phone', true) ?? 'Phone Number Not Found';
+    $customer_billing_address = sw_get_user_billing_address( $user_id ) ?? 'Billing Address Not Found';
+    $customer_phone = get_user_meta( $user_id, 'billing_phone', true ) ?? 'Phone Number Not Found';
 
     // Display the customer details in a separate container
     echo '<div class="serv-details-card">';
@@ -56,18 +59,14 @@ function display_customer_details($service) {
     echo '</div>';
 }
 
-function display_service_details($service) {
-    // Helper Function to format the date
-    function format_readable_date($date) {
-        return date('l jS F Y', strtotime($date));
-    }
+function sw_display_service_details( $service ) {
 
     $main_service_status = sw_service_status( $service->getServiceId() );
 
     $product_id = $service->getProductId();
 
     // Get product details from WooCommerce
-    $product = wc_get_product($product_id);
+    $product = wc_get_product( $product_id );
 
     // Set default values using null coalescing operator
     $product_name = $product ? $product->get_name() : 'Product Name Not Found';
@@ -80,16 +79,17 @@ function display_service_details($service) {
     echo '<div class="de-service-details-card">';
     echo '<span style="display: inline-block; text-align: right; color: white; background-color: red; padding: 10px; border-radius: 5px; font-weight: bold;">' . $main_service_status . '</span>';
     echo '<h2>Service Details</h2>';
-    echo '<h3>' . esc_html($service->getServiceName()) . '</h3>';
-    echo '<p>Service ID: ' . esc_html($service->getServiceId()) . '</p>';
-    echo '<p>Service Type: ' . esc_html($service->getServiceType()) . '</p>';
-    echo '<p>Service URL: ' . esc_html($service->getServiceUrl()) . '</p>';
-    echo '<p>Amount: '. esc_html($price_with_currency) .'</p>';
-    echo '<p>Billing Cycle: ' . esc_html($service->getBillingCycle()) . '</p>';
-    echo '<p>Start Date: ' . format_readable_date($service->getStartDate()) . '</p>';
-    echo '<p>Next Payment Date: ' . format_readable_date($service->getNextPaymentDate()) . '</p>';
-    echo '<p>End Date: ' . format_readable_date($service->getEndDate()) . '</p>';
-    echo '<a href="' . admin_url('admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId()) . '" class="sw-blue-button">Edit this Service</a>';
+    echo '<h3>' . esc_html( $service->getServiceName() ) . '</h3>';
+    echo '<p>Service ID: ' . esc_html( $service->getServiceId() ) . '</p>';
+    echo '<p>Service Type: ' . esc_html( $service->getServiceType() ) . '</p>';
+    echo '<p>Service URL: ' . esc_html( $service->getServiceUrl() ) . '</p>';
+    echo '<p>Amount: ' . esc_html( $price_with_currency ) .'</p>';
+    echo '<p>Billing Cycle: ' . esc_html( $service->getBillingCycle() ) . '</p>';
+    echo '<p>Start Date: ' . sw_check_and_format( $service->getStartDate() ) . '</p>';
+    echo '<p>Next Payment Date: ' . sw_check_and_format( $service->getNextPaymentDate() ) . '</p>';
+    echo '<p>End Date: ' . sw_check_and_format( $service->getEndDate() ) . '</p>';
+    echo sw_client_service_url_button( $service );
+    echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) . '" class="sw-blue-button">Edit this Service</a>';
     echo sw_delete_service_button( $service->getServiceId() );
     echo '</div>';
     echo '</div>'; // Close wrap
@@ -100,11 +100,7 @@ function display_service_details($service) {
  */
 
 function sw_main_page(){
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'sw_service';
-    $auto_renew_table_name = $wpdb->prefix . 'sw_invoice_auto_renew';
 
-      
     // Get service counts by name
     $all_services = Sw_Service_Database::get_all_services();
 
@@ -122,15 +118,8 @@ function sw_main_page(){
     // Get suspended service count
     $suspended_service_acount = count_suspended_services();
 
-    // Get renewed services count
-    $renewed_services_count = get_renewed_services_count();
-
     //Get Active but No Renewal Services count
     $nr_services = count_nr_services();
-
-    // Get user's full name and service IDs for renewed services
-    $renewed_services_info = get_renewed_services_info();
-
 
        
 
@@ -139,9 +128,8 @@ function sw_main_page(){
     echo '<div class="serv-wrap">';
     echo '<h1>Smart Woo Service & Invoice Dashboard</h1>';
     echo '<div class="sw-button">';
-    echo '<a href="' . admin_url('admin.php?page=sw-admin&action=add-new-service') . '" class="sw-blue-button">Add New</a>';
-    echo '<a href="' . admin_url('admin.php?page=sw-mail') . '" class="sw-blue-button">Send Mail</a>';
-    echo '<a href="' . admin_url('admin.php?page=sw-options') . '" class="sw-blue-button">Settings</a>';
+    echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=add-new-service' ) . '" class="sw-blue-button">Add New Service</a>';
+    echo '<a href="' . admin_url( 'admin.php?page=sw-options' ) . '" class="sw-blue-button">Settings</a>';
     echo '</div>';
 
     echo '<div class="dashboard-container">';
@@ -201,21 +189,21 @@ function sw_main_page(){
     $users_with_services = Sw_Service_Database::get_all_services();
     $active_services_found = false; // Initialize a flag
 
-    if (!empty( $users_with_services ) ) {
+    if ( ! empty( $users_with_services ) ) {
         foreach ( $users_with_services as $user ) {
             // Check if the user's service is Active
             $service_status = sw_service_status( $user->getServiceId() );
 
-            if ($service_status == 'Active') {
+            if ( $service_status == 'Active' ) {
                 // Create the link with the service name's ID as a parameter
                 $service_link = admin_url( 'admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() );
-                echo '<li><a href="' . esc_url( $service_link ) . '">' . esc_html($user->getServiceName() ) . ' - ' . esc_html( $user->getServiceId() ) . '</a></li>';
+                echo '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $user->getServiceName() ) . ' - ' . esc_html( $user->getServiceId() ) . '</a></li>';
                 $active_services_found = true; // Set the flag to true
             }
         }
     }
      
-    if (!$active_services_found) {
+    if ( ! $active_services_found ) {
         echo '<p>No service is active.</p>';
     }
     echo '</ul>';
@@ -231,25 +219,25 @@ function sw_main_page(){
    echo '<p>Active but will not renew when they expire</p>';
    echo '<ul>';
 
-   $users_with_services = sw_get_service();
+   $users_with_services = Sw_Service_Database::get_all_services();
     $nr_services_found = false; // Initialize a flag
 
-    if (!empty($users_with_services)) {
-        foreach ($users_with_services as $user) {
+    if ( ! empty( $users_with_services ) ) {
+        foreach ( $users_with_services as $user ) {
             // Check if the user's service is Active (NR)
-            $service_status = sw_service_status( $user->service_id);
+            $service_status = sw_service_status( $user->getServiceId() );
 
-            if ($service_status == 'Active (NR)') {
+            if ( $service_status == 'Active (NR)') {
                 // Create the link with the service name's ID as a parameter
-                $service_link = admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $user->service_id);
-                echo '<li><a href="' . esc_url($service_link) . '">' . esc_html($user->service_name) . ' - ' . esc_html($user->service_id) . '</a></li>';
+                $service_link = admin_url( 'admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() );
+                echo '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $user->getServiceName() ) . ' - ' . esc_html($user->getServiceId() ) . '</a></li>';
                 $nr_services_found = true; // Set the flag to true
             }
         }
     }
      
     if (!$nr_services_found) {
-        echo '<p>No service is suspended.</p>';
+        echo '<p>No Service with "No Renewal" status was found.</p>';
     }
     echo '</ul>';
     echo '</div>';
@@ -262,18 +250,18 @@ function sw_main_page(){
     echo '<h2>Services Due</h2>';
     echo '<ul>';
 
-    $users_with_services = sw_get_service();
+    $users_with_services = Sw_Service_Database::get_all_services();
     $due_services_found = false; // Initialize a flag
 
-    if (!empty($users_with_services)) {
-        foreach ($users_with_services as $user) {
+    if ( ! empty( $users_with_services ) ) {
+        foreach ( $users_with_services as $user ) {
             // Check if the user's service is expired
-            $service_status = sw_service_status( $user->service_id );
+            $service_status = sw_service_status( $user->getServiceId() );
 
-            if ($service_status == 'Due for Renewal') {
+            if ( $service_status == 'Due for Renewal' ) {
                 // Create the link with the service name's ID as a parameter
-                $service_link = admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $user->service_id);
-                echo '<li><a href="' . esc_url($service_link) . '">' . esc_html($user->service_name) . ' - ' . esc_html($user->service_id) . '</a></li>';
+                $service_link = admin_url( 'admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() );
+                echo '<li><a href="' . esc_url($service_link) . '">' . esc_html( $user->getServiceName() ) . ' - ' . esc_html( $user->getServiceId() ) . '</a></li>';
                 $due_services_found = true; // Set the flag to true
             }
         }
@@ -325,18 +313,18 @@ function sw_main_page(){
     echo '<h2>Cancelled Services</h2>';
     echo '<ul>';
 
-    $users_with_services = sw_get_service();
+    $users_with_services = Sw_Service_Database::get_all_services();
     $cancelled_services_found = false; // Initialize a flag
 
     if (!empty($users_with_services)) {
         foreach ($users_with_services as $user) {
             // Check if the user's service is cancelled
-            $service_status = sw_service_status( $user->service_id );
+            $service_status = sw_service_status( $user->getServiceId() );
 
             if ($service_status == 'Cancelled') {
                 // Append '=cancelled' to the service link URL using the new structure
-                $service_link = admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $user->service_id . '&servicetype=cancelled');
-                echo '<li><a href="' . esc_url($service_link) . '">' . esc_html($user->service_name) . ' - ' . esc_html($user->service_id) . '</a></li>';
+                $service_link = admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() . '&servicetype=cancelled');
+                echo '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $user->getServiceName() ) . ' - ' . esc_html( $user->getServiceId() ) . '</a></li>';
                 $cancelled_services_found = true; // Set the flag to true
             }
         }
@@ -358,24 +346,24 @@ function sw_main_page(){
     echo '<h2>Expired Services</h2>';
     echo '<ul>';
 
-    $users_with_services = sw_get_service();
+    $users_with_services = Sw_Service_Database::get_all_services();
     $expired_services_found = false; // Initialize a flag
 
-    if (!empty($users_with_services)) {
-        foreach ($users_with_services as $user) {
+    if (! empty( $users_with_services ) ) {
+        foreach ( $users_with_services as $user ) {
             // Check if the user's service is expired
-            $service_status = sw_service_status( $user->service_id );
+            $service_status = sw_service_status( $user->getServiceId() );
 
-            if ($service_status == 'Expired') {
+            if ( $service_status == 'Expired' ) {
                 // Create the link with the service name's ID as a parameter
-                $service_link = admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $user->service_id);
-                echo '<li><a href="' . esc_url($service_link) . '">' . esc_html($user->service_name) . ' - ' . esc_html($user->service_id) . '</a></li>';
+                $service_link = admin_url( 'admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() );
+                echo '<li><a href="' . esc_url($service_link) . '">' . esc_html($user->getServiceName() ) . ' - ' . esc_html($user->getServiceId() ) . '</a></li>';
                 $expired_services_found = true; // Set the flag to true
             }
         }
     }
      
-    if (!$expired_services_found) {
+    if ( ! $expired_services_found ) {
         echo '<p>No services have expired.</p>';
     }
     echo '</ul>';
@@ -405,7 +393,7 @@ function sw_main_page(){
         }
     }
      
-    if (!$active_services_found) {
+    if ( ! $active_services_found ) {
         echo '<p>No service is suspended.</p>';
     }
     echo '</ul>';
@@ -419,12 +407,14 @@ function sw_main_page(){
 
 
 /**
- * Outputs the form fields for adding a new service.
+ * Outputs the form fields for manually adding a new service.
  *
  * @since 1.0.0
  */
 function sw_render_add_new_service_form() {
+    
     ?>    
+    <div class="sw-form-container">
     <form action="" method="post">
 
 
@@ -669,7 +659,7 @@ function sw_render_edit_service_form(){
                 <option value="Active" <?php selected('Active', $status); ?>>Active</option>
                 <option value="Active (NR)" <?php selected('Active (NR)', $status); ?>>Disable Renewal</option>
                 <option value="Suspended" <?php selected('Suspended', $status); ?>>Suspend Service</option>
-                <option value="Suspended" <?php selected('Cancelled', $status); ?>>Cancel Service</option>
+                <option value="Cancelled" <?php selected('Cancelled', $status); ?>>Cancel Service</option>
                 <option value="Due for Renewal" <?php selected('Due for Renewal', $status); ?>>Due for Renewal</option>
                 <option value="Expired" <?php selected('Expired', $status); ?>>Expired</option>
             </select>
@@ -717,7 +707,135 @@ function sw_render_service_id_generator_input($service_name = null, $editing = f
     <?php
 }
 
+/**
+ * Helper Function to render the new service order form
+ * 
+ * @param int       $user_id           The User's ID
+ * @param int       $order_id          The ID of the order to be processed
+ * @param string    $service_name      The Configured service name in the order item
+ * @param string    $service_url       The Configured service url
+ * @param string    $user_full_name    Full name of the user associated with the order
+ * @param string    $start_date        The start Date of the service
+ * @param string    $billing_cycle     The Billing Cycle
+ * @param string    $next_payment_date The start date of the service
+ * @param string    $end_date          The end date of the service
+ * @param string    $status            The status (Default 'pending')
+ */
+function sw_render_new_service_order_form( $user_id, $order_id, $service_name, $service_url, $user_full_name, $start_date, $billing_cycle, $next_payment_date, $end_date, $status ) {
 
+    echo '<h1>Process New Service Order</h1>';
+    echo '<p>After processing, this order will be marked as completed.</p>';
+    // Handle form submission for new service order processing
+    sw_process_new_service_order();
+
+    echo '<div class="sw-form-container">';
+
+    echo '<form method="post" action="">';
+
+    // Add a nonce field for security
+    wp_nonce_field( 'sw_process_new_service_nonce', 'sw_process_new_service_nonce' );
+
+    // Add a hidden input for the action
+    echo '<input type="hidden" name="action" value="sw_process_new_service">';
+
+
+
+    $product_id = 0;
+    $order = wc_get_order( $order_id );
+    if ( ! empty( $order ) ) {
+        $items = $order->get_items();
+        if (! empty($items)) {
+            $first_item = reset( $items );
+            $product_id = $first_item->get_product_id();
+        }
+    }
+    $product_name = wc_get_product( $product_id )->get_name();
+    echo '<div class="sw-form-row">'; 
+    echo '<label for="order_id" class="sw-form-label">Order:</label>';
+    echo '<span class="sw-field-description" title="The order ID and Product Name, to be used to set up new service subscription.">?</span>';
+    echo '<input type="text" name="order_id" id="order_id" class="sw-form-input" value="' . esc_attr($order_id) .' - '. esc_html($product_name) . '" readonly>';
+    echo '</div>';
+
+    // Include the service ID generator input
+    sw_render_service_id_generator_input( $service_name );
+    echo '<input type="hidden" name="product_id" value="' . esc_attr( $product_id ) . '">';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="service_url" class="sw-form-label">Service URL:</label>';
+    echo  '<span class="sw-field-description" title="Enter the service URL e.g., https:// (optional)">?</span>';
+    echo '<input type="url" name="service_url" class="sw-form-input" id="service_url" value="' .esc_url( $service_url ) .'" >';
+    echo '</div>';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="service_type" class="sw-form-label">Service Type</label>';
+    echo '<span class="sw-field-description" title="Enter the service type (optional)">?</span>';
+    echo '<input type="text" name="service_type" class="sw-form-input" id="service_type">';
+    echo'</div>';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="user_id" class="sw-form-label">Client\'s Name </label>';
+    echo '<span class="sw-field-description" title="The user whose ID is associated with the order">?</span>';
+    echo '<input type="text"  class="sw-form-input" name="user_id" id="user_id" value="' . esc_attr( $user_full_name ) . '" readonly>';
+    echo '</div>';
+
+    echo '<input type="hidden" name="user_id" value="' . esc_attr( $user_id ) . '">';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="start_date" class="sw-form-label">Start Date:</label>';
+    echo '<span class="sw-field-description" title="Choose the start date for the service subscription, service was ordered on this date.">?</span>';
+    echo '<input type="date" name="start_date" class="sw-form-input" id="start_date" value="' . esc_attr($start_date).'" required>';
+    echo '</div>';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="billing_cycle" class="sw-form-label">Billing Cycle</label>';
+    echo '<span class="sw-field-description" title="This billing cycle was set from the product, you may edit it, invoices are created toward to the end of the billing cycle">?</span>';
+    echo '<select name="billing_cycle" id="billing_cycle" class="sw-form-input" required>';
+    echo '<option value="" selected disabled>Select billing cycle</option>';
+    echo '<option value="Monthly" ' . selected( 'Monthly', $billing_cycle, false ) . '>Monthly</option>';
+    echo '<option value="Quarterly" ' . selected( 'Quarterly', $billing_cycle, false ) . '>Quarterly</option>';
+    echo '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle, false ) . '>6 Months</option>';
+    echo '<option value="Yearly" ' . selected( 'Yearly', $billing_cycle, false ) . '>Yearly</option>';
+    echo '</select>';
+    echo '</div>';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="next_payment_date" class="sw-form-label">Next Payment Date</label>';
+    echo '<span class="sw-field-description" title="Choose the next payment date, services wil be due and invoice is created on this day.">?</span>';
+    echo '<input type="date" class="sw-form-input" name="next_payment_date" id="next_payment_date" value="' . esc_attr( $next_payment_date ) . '" required>';
+    echo '</div>';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="end_date" class="sw-form-label">End Date</label>';
+    echo '<span class="sw-field-description" title="Choose the end date for the service. This service will expire on this day if the product does not have a grace period set up.">?</span>';
+    echo '<input type="date" class="sw-form-input" name="end_date" id="end_date" value="' . esc_attr( $end_date ) . '" required>';
+    echo '</div>';
+
+    echo '<div class="sw-form-row">';
+    echo '<label for="status" class="sw-form-label">Set Service Status:</label>';
+    echo '<span class="sw-field-description" title="Set the status for the service. Status should be automatically calculated, choose another option to override the status. Please Note: invoice will be created if the status is set to Due for Renewal">?</span>';
+    echo '<select name="status" class="sw-form-input" id="status">';
+    $status_options = array(
+        '' => 'Auto Calculate',
+        'Pending' => 'Pending',
+        'Active (NR)' => 'Active (NR)',
+        'Suspended' => 'Suspended',
+        'Due for Renewal' => 'Due for Renewal',
+        'Expired' => 'Expired',
+    );
+
+    foreach ($status_options as $value => $label) {
+        echo '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $status, false ) . '>' . esc_html( $label ) . '</option>';
+    }
+    echo '</select>';
+    echo '</div>';
+
+    // Button to submit the form
+    echo '<button type="submit" name="sw_process_new_service" class="sw-blue-button" id="create_new_service">Process</button>';
+
+    echo '</form>';
+    echo '</div>';
+
+}
 
 
 /**

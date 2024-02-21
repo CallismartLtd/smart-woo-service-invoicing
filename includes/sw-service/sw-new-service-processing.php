@@ -17,7 +17,7 @@
 
     $order_ids = sw_get_orders_for_configured_products();
 
-    if ( !empty( $order_ids ) ) {
+    if ( ! empty( $order_ids ) ) {
         echo '<table class="wp-list-table widefat fixed striped">';
         echo '<thead>';
         echo '<tr>';
@@ -35,7 +35,7 @@
             // Get order details
             $order = wc_get_order( $order_id );
 
-            if (!$order) {
+            if ( ! $order ) {
                 continue; // Skip invalid orders
             }
 
@@ -56,7 +56,7 @@
 
             foreach ( $items as $item_id => $item ) {
                 // Get the service name from order item meta
-                $service_name = wc_get_order_item_meta($item_id, 'Service Name', true);
+                $service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
 
                 // Break the loop once the service name is found
                 if ( $service_name ) {
@@ -73,7 +73,7 @@
             echo '<td>' . esc_html( $user_full_name ) . '</td>';
 
             // Check if the order is in a state where it can be processed
-            if ( $order_status === 'processing') {
+            if ( $order_status === 'processing' ) {
                 $process_url = '<a href="' . esc_url( admin_url( "admin.php?page=sw-admin&action=process-new-service&order_id={$order_id}") ) . '" class="sw-red-button">Process This Order</a>';
             } elseif( $order_status === 'pending' ){
                 $process_url = 'This Order is Unpaid';
@@ -109,10 +109,85 @@
     echo '<p style="text-align: right;">' . count( $order_ids ) . ' items</p>';
 }
 
- /**
-  * Handle the processing of new service orders
-  */
- function sw_process_new_service() {
+/**
+ * Conversion of WooCommerce Order to Smart Woo Service subscription.
+ * 
+ * IMPORTANT NOTE: Before calling this function, ensure that the order is of the 'sw_product' type.
+ * Failure to verify the order type may lead to unexpected behavior.
+ * 
+ * Helper Function: has_sw_configured_products( $order )
+ * This function can be used to check if the order contains configured 'sw_product' types.
+ * 
+ * @param int $order_id Order ID of the new service order.
+ */
+
+ function sw_convert_WC_order_to_SW_service( $order_id ) {
+
+    // Get order details and user data
+    $order            = wc_get_order( $order_id );
+    $user_id          = $order->get_user_id();
+    $user_info        = get_userdata( $user_id );
+    $user_full_name   = $order ? $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() : 'Not Found';
+
+    // Get the configured data from order item meta data
+    $items            = $order->get_items();
+    foreach ( $items as $item_id => $item ) {
+        $service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
+        $service_url  = wc_get_order_item_meta( $item_id, 'Service URL', true );
+    }
+
+    // Convert order paid date to Service subscription start date
+    $start_date = $order->get_date_paid() ? date( 'Y-m-d', strtotime( $order->get_date_paid() ) ) : date( 'Y-m-d' );
+    // Instantiate the form variables
+    $billing_cycle = '';
+    $next_payment_date = '';
+    $end_date = '';
+    $status = 'Pending';  // Set the initial service status to pending
+
+    // Check if there are items in the order
+    $items = $order->get_items();
+    if ( ! empty( $items ) ) {
+        // Retrieve billing_cycle from the product in the order
+        $first_item = reset( $items ); // Get the first item
+        $product_id = $first_item->get_product_id();
+
+        // Fetch the billing cycle from product metadata
+        $billing_cycle = get_post_meta( $product_id, 'billing_cycle', true );
+
+        // Set next payment date and end date based on billing cycle
+        switch ($billing_cycle) {
+            case 'Monthly':
+                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +1 month' ) );
+                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                break;
+            case 'Quarterly':
+                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +3 months' ) );
+                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                break;
+            case 'Six Monthly':
+                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +6 months' ) );
+                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                break;
+            case 'Yearly':
+                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +1 year' ) );
+                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                break;
+            // Add additional cases as needed
+            default:
+                break;
+        }
+    }
+
+    // Display the form
+    sw_render_new_service_order_form( $user_id, $order_id, $service_name, $service_url, $user_full_name, $start_date, $billing_cycle, $next_payment_date, $end_date, $status );
+}
+
+
+
+/**
+* Handle the processing of new service orders
+*/
+function sw_process_new_service_order() {
     if ( isset($_POST['action']) && $_POST['action'] === 'sw_process_new_service') {
         // Check if the nonce is set and valid
         if (isset($_POST['sw_process_new_service_nonce'] ) && wp_verify_nonce($_POST['sw_process_new_service_nonce'], 'sw_process_new_service_nonce')) {
@@ -185,7 +260,7 @@
             }
 
             // Check if the service was saved successfully
-            if (!empty( $saved_service_id ) ) {
+            if ( ! empty( $saved_service_id ) ) {
                 // Update the Order and perform necessary tasks after processing 
                 $order = wc_get_order( $order_id );
                 if ( $order->get_status() === 'processing' ) {
@@ -193,7 +268,7 @@
                 }
                 do_action( 'sw_new_service_is_processed' . $saved_service_id );
 
-                wp_safe_redirect(admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $saved_service_id));
+                wp_safe_redirect( admin_url('admin.php?page=sw-admin&action=service_details&service_id=' . $saved_service_id));
                 exit;
             }
             

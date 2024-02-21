@@ -83,7 +83,7 @@ class Sw_Service {
      *
      * @param int $id Unique identifier for the service.
      */
-    public function setId(int $id): void {
+    public function setId( int $id ): void {
         $this->id = $id;
     }
 
@@ -92,7 +92,7 @@ class Sw_Service {
      *
      * @param int $user_id User ID associated with the service.
      */
-    public function setUserId(int $user_id): void {
+    public function setUserId( int $user_id ): void {
         $this->user_id = $user_id;
     }
 
@@ -112,7 +112,7 @@ class Sw_Service {
      *
      * @param string $service_name Name of the service.
      */
-    public function setServiceName(string $service_name): void {
+    public function setServiceName( string $service_name ): void {
         $this->service_name = $service_name;
     }
 
@@ -121,7 +121,7 @@ class Sw_Service {
      *
      * @param string $service_url URL associated with the service.
      */
-    public function setServiceUrl(string $service_url): void {
+    public function setServiceUrl( string $service_url ): void {
         $this->service_url = $service_url;
     }
 
@@ -130,7 +130,7 @@ class Sw_Service {
      *
      * @param string $service_type Type or category of the service.
      */
-    public function setServiceType(string $service_type): void {
+    public function setServiceType( string $service_type ): void {
         $this->service_type = $service_type;
     }
 
@@ -139,7 +139,7 @@ class Sw_Service {
      *
      * @param string $service_id Unique identifier for the service.
      */
-    public function setServiceId(string $service_id): void {
+    public function setServiceId( string $service_id ): void {
         $this->service_id = $service_id;
     }
 
@@ -148,7 +148,7 @@ class Sw_Service {
      *
      * @param string $invoice_id Invoice ID associated with the service.
      */
-    public function setInvoiceId(string $invoice_id): void {
+    public function setInvoiceId( string $invoice_id ): void {
         $this->invoice_id = $invoice_id;
     }
 
@@ -157,7 +157,7 @@ class Sw_Service {
      *
      * @param string $start_date Start date of the service.
      */
-    public function setStartDate(string $start_date): void {
+    public function setStartDate( string $start_date ): void {
         $this->start_date = $start_date;
     }
 
@@ -166,7 +166,7 @@ class Sw_Service {
      *
      * @param string $end_date End date of the service.
      */
-    public function setEndDate(string $end_date): void {
+    public function setEndDate( string $end_date ): void {
         $this->end_date = $end_date;
     }
 
@@ -175,7 +175,7 @@ class Sw_Service {
      *
      * @param string $next_payment_date Date of the next payment for the service.
      */
-    public function setNextPaymentDate(string $next_payment_date): void {
+    public function setNextPaymentDate( string $next_payment_date ): void {
         $this->next_payment_date = $next_payment_date;
     }
 
@@ -184,7 +184,7 @@ class Sw_Service {
      *
      * @param string $billing_cycle Billing cycle for the service.
      */
-    public function setBillingCycle(string $billing_cycle): void {
+    public function setBillingCycle( string $billing_cycle ): void {
         $this->billing_cycle = $billing_cycle;
     }
 
@@ -193,7 +193,7 @@ class Sw_Service {
      *
      * @param string|null $status Status of the service. Use null to clear the status.
      */
-    public function setStatus(?string $status): void {
+    public function setStatus( ?string $status ): void {
         $this->status = $status;
     }
 
@@ -319,7 +319,7 @@ class Sw_Service {
   
 
     // Helper method to convert database results to Sw_Service objects
-    public static function convert_array_to_service($data) {
+    public static function convert_array_to_service( $data ) {
         // Create a new Sw_Service instance with the provided data
         return new Sw_Service(
             $data['user_id'],

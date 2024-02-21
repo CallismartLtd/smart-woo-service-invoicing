@@ -80,17 +80,24 @@ function sw_generate_service(
 
 function sw_client_service_url_button( $service ){
     $user_id = $service->getUserId();
-    $user_info = get_userdata($user_id);
+    $user_info = get_userdata( $user_id );
     $service_status = sw_service_status( $service->getServiceId() );
-    if ($service_status === 'Active' && $service->getServiceType() === 'Web Service'){
+    if ( $service_status === 'Active' && $service->getServiceType() === 'Web Service'){
 
-        if ($user_info) {
+        if ( $user_info ) {
             $user_email = $user_info->user_email;
             // Construct the service URL with specified parameters
-            $access_client_service_url = esc_url($service->getServiceUrl()) . '?auth=1&email=' . urlencode($user_email) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
+            $access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
 
-            return '<a href="' . esc_url($access_client_service_url) . '" class="sw-red-button" target="_blank">Access Client Service</a>';
+            return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service</a>';
         }
+    } elseif ( is_admin() ) {
+        $user_email = $user_info->user_email;
+        // Construct the service URL with specified parameters
+        $access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
+
+        return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service</a>';
+
     }
 }
 
@@ -115,27 +122,27 @@ function sw_get_service( $user_id = null, $service_id = null, $invoice_id = null
     $query = "SELECT * FROM $table_name WHERE 1";
 
     // Add conditions based on provided parameters
-    if ($user_id !== null) {
-        $query .= $wpdb->prepare(" AND user_id = %d", $user_id);
+    if ( $user_id !== null ) {
+        $query .= $wpdb->prepare( " AND user_id = %d", $user_id );
     }
-    if ($service_id !== null) {
-        $query .= $wpdb->prepare(" AND service_id = %s", $service_id);
+    if ( $service_id !== null ) {
+        $query .= $wpdb->prepare( " AND service_id = %s", $service_id );
     }
-    if ($invoice_id !== null) {
-        $query .= $wpdb->prepare(" AND invoice_id = %d", $invoice_id);
+    if ( $invoice_id !== null ) {
+        $query .= $wpdb->prepare( " AND invoice_id = %d", $invoice_id );
     }    
-    if ($service_name !== null) {
-        $query .= $wpdb->prepare(" AND service_name = %s", $service_name);
+    if ( $service_name !== null ) {
+        $query .= $wpdb->prepare( " AND service_name = %s", $service_name );
     }
-    if ($billing_cycle !== null) {
-        $query .= $wpdb->prepare(" AND billing_cycle = %s", $billing_cycle);
+    if ( $billing_cycle !== null ) {
+        $query .= $wpdb->prepare( " AND billing_cycle = %s", $billing_cycle );
     }
 
     // Execute the query
-    if ($service_id !== null) {
-        return $wpdb->get_row($query);
+    if ( $service_id !== null ) {
+        return $wpdb->get_row( $query );
     } else {
-        return $wpdb->get_results($query);
+        return $wpdb->get_results( $query );
     }
 }
 
@@ -183,7 +190,7 @@ function sw_log_old_renewed_services_info(
             'renewed_next_payment_date' => $next_payment_date,
             'renewed_billing_cycle' => $billing_cycle,
         ),
-        array('%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s')
+        array( '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
     );
 }
 
@@ -245,42 +252,42 @@ function sw_update_old_renewed_services_info(
  *
  * @return bool Whether the move was successful.
  */
-function sw_move_service_to_log($service_id) {
-    
+function sw_move_service_to_log( $service_id ) {
 
-            // Fetch service information from sw_service table
-        $service_data = sw_get_service(null, $service_id);
 
-        // Check if the service was found
-        if ($service_data) {
-            // Extract data into variables
-            $user_id = $service_data->user_id;
-            $service_name = $service_data->service_name;
-            $service_url = $service_data->service_url;
-            $service_id = $service_data->service_id;
-            $invoice_id = $service_data->invoice_id;
-            $start_date = $service_data->start_date;
-            $end_date = $service_data->end_date;
-            $next_payment_date = $service_data->next_payment_date;
-            $billing_cycle = $service_data->billing_cycle;
+    // Fetch service information from sw_service table
+    $service = Sw_Service_Database::get_service_by_id( $service_id );
 
-            // Call function to log the old renewed service info
-            sw_log_old_renewed_services_info(
-                $user_id,
-                $service_name,
-                $service_url,
-                $service_id,
-                $invoice_id,
-                $start_date,
-                $end_date,
-                $next_payment_date,
-                $billing_cycle
-            );
+    // Check if the service was found
+    if ( $service ) {
+    // Extract data into variables
+    $user_id            = $service->getUserId();
+    $service_name       = $service->getServiceName();
+    $service_url        = $service->getServiceUrl();
+    $service_id         = $service->getServiceId();
+    $invoice_id         = $service->getInvoiceId();
+    $start_date         = $service->getStartDate();
+    $end_date           = $service->getEndDate();
+    $next_payment_date  = $service->getNextPaymentDate();
+    $billing_cycle      = $service->getBillingCycle();
 
-        } else {
-            // Handle the case where the service is not found
-            error_log("Service not found.");
-        }
+    // Call function to log the old renewed service info
+    sw_log_old_renewed_services_info(
+        $user_id,
+        $service_name,
+        $service_url,
+        $service_id,
+        $invoice_id,
+        $start_date,
+        $end_date,
+        $next_payment_date,
+        $billing_cycle
+    );
+
+    } else {
+    // Handle the case where the service is not found
+    error_log( "Service not found." );
+    }
 }
 
 
@@ -291,21 +298,21 @@ function sw_move_service_to_log($service_id) {
  * @param string $service_id The service ID to filter by (optional).
  * @return int The count of renewed services.
  */
-function get_renewed_services_count($user_id = null, $service_id = null) {
+function get_renewed_services_count( $user_id = null, $service_id = null ) {
     global $wpdb;
     $auto_renew_table_name = $wpdb->prefix . 'sw_invoice_auto_renew';
 
     $query = "SELECT COUNT(*) FROM $auto_renew_table_name";
 
-    if ($user_id !== null) {
-        $query .= " WHERE renewed_user_id = " . intval($user_id);
+    if ( $user_id !== null ) {
+        $query .= " WHERE renewed_user_id = " . intval( $user_id );
     }
 
     if ($service_id !== null) {
-        $query .= " AND renewed_service_id = '" . esc_sql($service_id) . "'";
+        $query .= " AND renewed_service_id = '" . esc_sql( $service_id ) . "'";
     }
 
-    return $wpdb->get_var($query);
+    return $wpdb->get_var( $query );
 }
 
 /**
@@ -314,23 +321,23 @@ function get_renewed_services_count($user_id = null, $service_id = null) {
  * @param string $service_id The service ID to filter by (optional).
  * @return array An array of user's full name and service IDs for renewed services.
  */
-function get_renewed_services_info($user_id = null, $service_id = null) {
+function get_renewed_services_info( $user_id = null, $service_id = null ) {
     global $wpdb;
     $auto_renew_table_name = $wpdb->prefix . 'sw_invoice_auto_renew';
 
     $query = "SELECT renewed_user_id, GROUP_CONCAT(renewed_service_id) AS service_ids FROM $auto_renew_table_name";
 
     if ($user_id !== null) {
-        $query .= " WHERE renewed_user_id = " . intval($user_id);
+        $query .= " WHERE renewed_user_id = " . intval( $user_id );
     }
 
     if ($service_id !== null) {
-        $query .= " AND renewed_service_id = '" . esc_sql($service_id) . "'";
+        $query .= " AND renewed_service_id = '" . esc_sql( $service_id ) . "'";
     }
 
     $query .= " GROUP BY renewed_user_id";
 
-    return $wpdb->get_results($query, ARRAY_A);
+    return $wpdb->get_results( $query, ARRAY_A );
 }
 
 
@@ -368,7 +375,7 @@ function sw_is_service_due( $service ) {
     $end_date          = sw_extract_date_only( $service->getEndDate() );
     $next_payment_date = sw_extract_date_only( $service->getNextPaymentDate() );
     $current_date      = sw_extract_date_only( current_time( 'mysql' ) );
-    if( $next_payment_date <= $current_date && $end_date >= $current_date ) {
+    if( $next_payment_date <= $current_date && $end_date > $current_date ) {
         return true;
     
     } else {
@@ -393,10 +400,10 @@ function sw_is_service_on_grace( $service ){
         $product_id = $service->getProductId();
 
         // Get the grace period end date using the end date as the reference
-        $grace_period_date = get_grace_period_end_date( $product_id, $end_date );
+        $grace_period_date = sw_get_grace_period_end_date( $product_id, $end_date );
 
         // Check if there is a valid grace period and if the current date is within the grace period
-        if (!empty( $grace_period_date ) && $current_date <= sw_extract_date_only( $grace_period_date ) ) {
+        if ( ! empty( $grace_period_date ) && $current_date <= sw_extract_date_only( $grace_period_date ) ) {
             return true;
         }
     }
@@ -419,13 +426,13 @@ function sw_has_service_expired( $service ){
     $current_date = sw_extract_date_only( current_time( 'mysql') );
 
     // Get the grace period end date using the end date as the reference
-    $grace_period_date = get_grace_period_end_date( $product_id, $end_date );
+    $grace_period_date = sw_get_grace_period_end_date( $product_id, $end_date );
 
     // Determine the expiration date (either grace period end date or end date)
-    $expiration_date = sw_extract_date_only($grace_period_date) ?? $end_date;
+    $expiration_date = sw_extract_date_only( $grace_period_date ) ?? $end_date;
 
     // Check if the current date has passed the expiration date
-    if ($current_date > $expiration_date) {
+    if ( $current_date > $expiration_date ) {
         return true; // Service has expired
     }
 
@@ -455,7 +462,7 @@ function sw_service_status( $service_id ){
     $expired        = sw_has_service_expired( $service );
 
     // Check overriding status first
-    if ( !empty( $overriding_status ) ) {
+    if ( ! empty( $overriding_status ) ) {
         return $overriding_status;
     }
 
@@ -491,7 +498,7 @@ function sw_regulate_service_status() {
         $field = array( 
             'status' => null,
         );
-        Sw_Service_Database::update_service_fields( $service->getServiceID(), $field );
+        Sw_Service_Database::update_service_fields( $service->getServiceId(), $field );
 
         }
     }
@@ -512,31 +519,31 @@ function sw_generate_service_id( $service_name ) {
 
     // Extract the first alphabet of each word in the service name
     $first_alphabets = array_map( function ( $word ) {
-        return strtolower( substr( $word, 0, 1 ) );
+        return strtoupper( substr( $word, 0, 1 ) );
     }, explode( ' ', $service_name ) );
 
     // Combine the first alphabets with a hyphen and a unique ID
     $unique_id = uniqid();
 
     // Final service ID structure: SID-each_first_alphabet_in_service_nameunique_id
-    $generated_service_id = $service_id_prefix . '-' . implode('', $first_alphabets) . $unique_id;
+    $generated_service_id = $service_id_prefix . '-' . implode( '', $first_alphabets ) . $unique_id;
 
     return $generated_service_id;
 }
 
 
 // AJAX action to generate service ID
-add_action('wp_ajax_generate_service_id', 'generate_service_id_callback');
+add_action( 'wp_ajax_generate_service_id', 'generate_service_id_callback' );
 
 function generate_service_id_callback() {
     // Get the service name from AJAX request
-    $service_name = sanitize_text_field($_POST['service_name']);
+    $service_name = sanitize_text_field( $_POST['service_name'] );
 
     // Call your existing function to generate service ID
-    $generated_service_id = sw_generate_service_id($service_name);
+    $generated_service_id = sw_generate_service_id( $service_name );
 
     // Return the generated service ID
-    echo esc_html($generated_service_id);
+    echo esc_html( $generated_service_id );
    // avoid extra output
     wp_die();
 }
@@ -554,7 +561,7 @@ function sw_get_service_expiration_date( $service ) {
     $product_id   = $service->getProductId();
 
     // Get the grace period end date using the end date as the reference
-    $grace_period_date = sw_extract_date_only( get_grace_period_end_date( $product_id, $end_date ) );
+    $grace_period_date = sw_extract_date_only( sw_get_grace_period_end_date( $product_id, $end_date ) );
 
     // Determine the expiration date (either grace period end date or end date)
     $expiration_date = $grace_period_date ?? $end_date;
@@ -611,7 +618,7 @@ function sw_check_service_usage( $service_id ) {
     // Get service details 
     $service_details = Sw_Service_Database::get_service_by_id( $service_id );
 
-    if (!$service_details) {
+    if ( ! $service_details) {
         // Service not found
         return false;
     }
@@ -709,18 +716,18 @@ function sw_check_service_usage( $service_id ) {
 function sw_get_service_price( $service ) {
 
     // Check if the service is found
-    if ($service !== false) {
+    if ( $service !== false ) {
         // Retrieve the Product ID from the service
         $product_id = $service->getProductId();
         $product = wc_get_product( $product_id );
 
         // Check if products were retrieved successfully
-        if ($product !== false && !empty( $product ) ) {
-            // Assuming the price is stored in the first product, you can modify this based on your data structure
+        if ( $product !== false && ! empty( $product ) ) {
+           
             $product_price = $product->get_price();
 
             // Check if the product price is available
-            if ($product_price !== false) {
+            if ( $product_price !== false ) {
                 return floatval( $product_price );
             }
         }
@@ -739,7 +746,7 @@ function sw_get_service_price( $service ) {
  * @param string $reference_date Reference date for calculating the grace period end date.
  * @return int|null Numeric representation of the grace period in hours, or null if not applicable.
  */
-function get_grace_period_end_date( $product_id, $reference_date ) {
+function sw_get_grace_period_end_date( $product_id, $reference_date ) {
     // Default grace period values
     $grace_period = array('number' => 0, 'unit' => '');
 
@@ -776,7 +783,7 @@ function get_grace_period_end_date( $product_id, $reference_date ) {
 
 
 
-function sw_delete_service_button($service_id) {
+function sw_delete_service_button( $service_id ) {
     // Output the delete button with data-invoice-id attribute
     return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">Delete Service</button>';
 }
@@ -787,26 +794,26 @@ add_action('wp_ajax_nopriv_delete_service', 'sw_delete_service_callback');
 
 function sw_delete_service_callback() {
     // Verify the nonce for security
-    check_ajax_referer('smart_woo_nonce', 'security');
+    check_ajax_referer( 'smart_woo_nonce', 'security' );
 
     // Get the invoice ID from the Ajax request
-    $service_id = isset($_POST['service_id']) ? sanitize_text_field($_POST['service_id']) : '';
+    $service_id = isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id']) : '' ;
 
     // Validate the service ID
-    if (empty($service_id)) {
-        wp_send_json_error('Invalid Service ID.');
+    if ( empty( $service_id ) ) {
+        wp_send_json_error( 'Invalid Service ID.' );
     }
 
     // Attempt to delete the invoice
-    $delete_result = Sw_Service_Database::delete_service($service_id);
+    $delete_result = Sw_Service_Database::delete_service( $service_id );
 
     // Check the result and send appropriate response
-    if (is_string($delete_result)) {
+    if ( is_string( $delete_result ) ) {
         // An error occurred
-        wp_send_json_error($delete_result);
+        wp_send_json_error( $delete_result );
     } else {
         // Success
-        wp_send_json_success($delete_result);
+        wp_send_json_success( $delete_result );
         exit();
     }
 }

@@ -4,9 +4,7 @@
  * @author      :   Callistus
  * Description  :   Handles Service Renewal
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined ( 'ABSPATH' ) || exit;
 
 add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler');
 function sw_new_service_invoice_handler( $invoice_id ) {
@@ -82,7 +80,7 @@ function sw_paid_invoice_order_manager( $order_id ) {
     $user_id = $order->get_user_id();
 
     // Check if both service ID and user ID are available
-    if ( !empty( $service_id ) && !empty( $user_id ) ) {
+    if ( ! empty( $service_id ) && ! empty( $user_id ) ) {
 
         // Fetch the service status
         $service_status = sw_service_status( $service_id );
@@ -348,7 +346,7 @@ function auto_update_paid_services_callback() {
             continue; // Move to the next iteration if the meta fields are not found 
         }
         $order_id = $order->get_id();
-        //We need to get the invoice associated witht the order
+        //We need to get the invoice associated with the order
         $invoices = Sw_Invoice_Database::get_invoices_by_order_id( $order_id );
         if ( !empty( $invoices ) ){
             // loop through all invoices and complete the order

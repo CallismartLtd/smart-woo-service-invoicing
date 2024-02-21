@@ -328,10 +328,7 @@ function get_invoices_table() {
     // Retrieve all invoices from the database
     $all_invoices = Sw_Invoice_Database::get_all_invoices();
 
-    // Render the invoice by status navigation bar
-    echo '<div style="display: flex; justify-content: space-between; align-items: right;">';
-    echo '<div>' . esc_html( sw_invoice_admin_status_nav_button() ) . '</div>';
-    echo '</div>';
+    echo sw_count_all_invoices_by_status();
 
     // Check if there are any invoices
     if ( empty( $all_invoices ) ) {
@@ -441,7 +438,7 @@ function sw_view_invoice_page() {
 
     // Check if there is a service ID associated with the invoice
     if ( $invoice->getServiceId() ) {
-        // Get additional details about the service using sw_get_service function
+        // Get additional details about the service
         $service_details = Sw_Service_Database::get_service_by_id( $invoice->getServiceId() );
 
         // Display service details
@@ -464,41 +461,6 @@ function sw_view_invoice_page() {
         }
      echo '</div>';
     }
-}
-
-
-
-
-// Function to display buttons for different invoice statuses
-function sw_invoice_admin_status_nav_button() {
-    // Define an array of invoice statuses
-    $invoice_statuses = array(
-        'Paid' => 'paid',
-        'Unpaid' => 'unpaid',
-        'Due'=> 'Due',
-        'Cancelled' => 'cancelled',
-        // Change 'future_status' to the desired value for future inclusions
-    );
-
-    echo '<div class="invoice-status-buttons" style="margin-top: 10px; margin-bottom: 10px;">';
-    echo '<h2>Filter by Invoice Status:</h2>';
-
-    // Get the current status (payment_status)
-    $current_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( $_GET['payment_status'] ) : '';
-
-    // Display buttons for each invoice status
-    foreach ( $invoice_statuses as $label => $status ) {
-        // Generate the URL for the Invoice by Status page with the current status
-        $url = admin_url( 'admin.php?page=sw-invoices&action=invoice-by-status&payment_status=' . $status );
-
-        // Determine the button style based on the current status
-        $button_style = ( $status === $current_status ) ? 'background-color: #C21E56; color: #fff;' : 'background-color: #0000ff; color: #fff;';
-
-        // Output the button with inline styles
-        echo '<a href="' . esc_url($url) . '" class="button" style="' . esc_attr( $button_style ) . '">' . esc_html( $label ) . '</a>';
-    }
-
-    echo '</div>';
 }
 
 
@@ -560,3 +522,38 @@ function sw_handle_admin_invoice_by_status() {
 
     echo '</div>';
 }
+
+
+/**
+ * Invoice Status Counts for the Currently Logged in user
+ */
+function sw_count_all_invoices_by_status() {
+    // Check if the user is logged in
+    if ( ! is_user_logged_in() ) {
+        return "Hello! It looks like you're not logged in.";
+    }
+
+    // Get the current logged-in user's ID
+    $current_user_id = get_current_user_id();
+
+    // Get counts for each payment status
+    $status_counts = array(
+        'paid'      => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'paid' ),
+        'unpaid'    => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'unpaid' ),
+        'cancelled' => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'cancelled' ),
+        'due'       => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'due' ),
+    );
+
+    // Generate the HTML with links
+    $output = '<div class="invoice-status-counts">';
+    foreach ( $status_counts as $status => $count ) {
+        $url = admin_url( 'admin.php?page=sw-invoices&action=invoice-by-status&payment_status=' . $status );
+        $output .= '<div class="status-item">';
+        $output .= '<h2><a href="' . esc_url( $url ) . '">' . ucfirst( $status ) . ' (' . $count . ')</a></h2>';
+        $output .= '</div>';
+    }
+    $output .= '</div>';
+
+    return $output;
+}
+

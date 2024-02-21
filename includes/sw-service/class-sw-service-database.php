@@ -20,14 +20,14 @@ class Sw_Service_Database {
      *
      * @since 1.0.0
      */
-    public static function get_services_by_criteria($criteria, $value) {
+    public static function get_services_by_criteria( $criteria, $value ) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'sw_service'; 
 
-        $query = $wpdb->prepare("SELECT * FROM $table_name WHERE $criteria = %s", $value);
-        $results = $wpdb->get_results($query, ARRAY_A);
+        $query = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
+        $results = $wpdb->get_results( $query, ARRAY_A );
 
-        return self::convert_results_to_services($results);
+        return self::convert_results_to_services( $results );
     }
 
     /**
@@ -42,9 +42,9 @@ class Sw_Service_Database {
         $table_name = $wpdb->prefix . 'sw_service';
 
         $query = "SELECT * FROM $table_name";
-        $results = $wpdb->get_results($query, ARRAY_A);
+        $results = $wpdb->get_results( $query, ARRAY_A );
 
-        return self::convert_results_to_services($results);
+        return self::convert_results_to_services( $results );
     }
 
     /**
@@ -61,11 +61,11 @@ class Sw_Service_Database {
         $table_name = $wpdb->prefix . 'sw_service';
 
         $query = $wpdb->prepare( "SELECT * FROM $table_name WHERE service_id = %s", $service_id );
-        $result = $wpdb->get_row($query, ARRAY_A);
+        $result = $wpdb->get_row( $query, ARRAY_A );
 
-        if ($result) {
+        if ( $result ) {
             // Convert the array result to Sw_Service object
-            return Sw_Service::convert_array_to_service($result);
+            return Sw_Service::convert_array_to_service( $result );
         }
 
         return false;
@@ -82,7 +82,7 @@ class Sw_Service_Database {
      */
 
     public static function get_services_by_user( $user_id ) {
-        return self::get_services_by_criteria( 'user_id', $user_id);
+        return self::get_services_by_criteria( 'user_id', $user_id );
     }
 
 
@@ -96,7 +96,7 @@ class Sw_Service_Database {
      *
      * @since 1.0.0
      */
-    public static function sw_create_service(Sw_Service $service) {
+    public static function sw_create_service( Sw_Service $service ) {
         global $wpdb;
 
         // Our table name
@@ -104,18 +104,18 @@ class Sw_Service_Database {
  
         // Data to be inserted 
         $data = array(
-            'user_id'            => absint($service->getUserId()),
-            'product_id'         => absint($service->getProductId()),
-            'service_name'       => sanitize_text_field($service->getServiceName()),
-            'service_url'        => esc_url_raw($service->getServiceUrl()),
-            'service_type'       => sanitize_text_field($service->getServiceType()),
-            'service_id'         => sanitize_text_field($service->getServiceId()),
-            'invoice_id'         => sanitize_text_field($service->getInvoiceId()),
-            'start_date'         => sanitize_text_field($service->getStartDate()),
-            'end_date'           => sanitize_text_field($service->getEndDate()),
-            'next_payment_date'  => sanitize_text_field($service->getNextPaymentDate()),
-            'billing_cycle'      => sanitize_text_field($service->getBillingCycle()),
-            'status'             => sanitize_text_field($service->getStatus()),
+            'user_id'            => absint( $service->getUserId() ),
+            'product_id'         => absint( $service->getProductId() ),
+            'service_name'       => sanitize_text_field( $service->getServiceName() ),
+            'service_url'        => esc_url_raw( $service->getServiceUrl() ),
+            'service_type'       => sanitize_text_field( $service->getServiceType() ),
+            'service_id'         => sanitize_text_field( $service->getServiceId() ),
+            'invoice_id'         => sanitize_text_field( $service->getInvoiceId() ),
+            'start_date'         => sanitize_text_field( $service->getStartDate() ),
+            'end_date'           => sanitize_text_field( $service->getEndDate() ),
+            'next_payment_date'  => sanitize_text_field( $service->getNextPaymentDate() ),
+            'billing_cycle'      => sanitize_text_field( $service->getBillingCycle() ),
+            'status'             => sanitize_text_field( $service->getStatus() ),
         );
 
         // Data format (for %s, %d, etc.)
@@ -135,7 +135,7 @@ class Sw_Service_Database {
         );
 
         // Insert data into the database
-        $wpdb->insert($table_name, $data, $data_format);
+        $wpdb->insert( $table_name, $data, $data_format );
 
         // Return the ID of the newly inserted service or false on failure
         return $service->getServiceId();
@@ -150,7 +150,7 @@ class Sw_Service_Database {
      *
      * @since 1.0.0
      */
-    public static function update_service(Sw_Service $service) {
+    public static function update_service( Sw_Service $service ) {
         global $wpdb;
 
         // Our table name
@@ -158,17 +158,17 @@ class Sw_Service_Database {
 
         // Data to be updated 
         $data = array(
-            'user_id'            => absint($service->getUserId()),
-            'product_id'         => absint($service->getProductID()),
-            'service_name'       => sanitize_text_field($service->getServiceName()),
-            'service_url'        => esc_url_raw($service->getServiceUrl()),
-            'service_type'       => sanitize_text_field($service->getServiceType()),
-            'invoice_id'         => sanitize_text_field($service->getInvoiceId()),
-            'start_date'         => sanitize_text_field($service->getStartDate()),
-            'end_date'           => sanitize_text_field($service->getEndDate()),
-            'next_payment_date'  => sanitize_text_field($service->getNextPaymentDate()),
-            'billing_cycle'      => sanitize_text_field($service->getBillingCycle()),
-            'status'             => is_null($service->getStatus()) ? null: sanitize_text_field( $service->getStatus()),
+            'user_id'            => absint( $service->getUserId() ),
+            'product_id'         => absint( $service->getProductID() ),
+            'service_name'       => sanitize_text_field( $service->getServiceName() ),
+            'service_url'        => esc_url_raw( $service->getServiceUrl() ),
+            'service_type'       => sanitize_text_field( $service->getServiceType() ),
+            'invoice_id'         => sanitize_text_field( $service->getInvoiceId() ),
+            'start_date'         => sanitize_text_field( $service->getStartDate() ),
+            'end_date'           => sanitize_text_field( $service->getEndDate() ),
+            'next_payment_date'  => sanitize_text_field( $service->getNextPaymentDate() ),
+            'billing_cycle'      => sanitize_text_field( $service->getBillingCycle() ),
+            'status'             => is_null( $service->getStatus() ) ? null: sanitize_text_field( $service->getStatus() ),
         );
 
         // Data format (for %s, %d, etc.)
@@ -188,7 +188,7 @@ class Sw_Service_Database {
 
         // Where condition
         $where = array(
-            'service_id' => sanitize_text_field($service->getServiceId()),
+            'service_id' => sanitize_text_field( $service->getServiceId() ),
         );
 
         // Where format
@@ -197,7 +197,7 @@ class Sw_Service_Database {
         );
 
         // Update data in the database
-        $updated = $wpdb->update($table_name, $data, $where, $data_format, $where_format);
+        $updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
 
         // Return true on success, false on failure
         return $updated !== false;
@@ -211,15 +211,15 @@ class Sw_Service_Database {
      *
      * @return string The data format.
      */
-    private static function get_data_format($value) {
-        if (is_numeric($value)) {
-            return is_float($value) ? '%f' : '%d';
-        } elseif (is_bool($value)) {
+    private static function get_data_format( $value ) {
+        if ( is_numeric( $value ) ) {
+            return is_float( $value ) ? '%f' : '%d';
+        } elseif ( is_bool( $value ) ) {
             return '%d'; // Assuming boolean values are stored as integers (0 or 1)
-        } elseif ($value instanceof DateTime) {
+        } elseif ( $value instanceof DateTime ) {
             return '%s'; // Assuming DateTime values are stored as strings
         } else {
-            return is_string($value) ? '%s' : '%s'; // Default to string if the type is unknown
+            return is_string( $value ) ? '%s' : '%s'; // Default to string if the type is unknown
         }
     }
 
@@ -233,7 +233,7 @@ class Sw_Service_Database {
      *
      * @since 1.0.0
      */
-    public static function update_service_fields($service_id, $fields) {
+    public static function update_service_fields( $service_id, $fields ) {
         global $wpdb;
 
         // Our table name
@@ -244,13 +244,13 @@ class Sw_Service_Database {
         $data_format = array();
 
         foreach ($fields as $field => $value) {
-            $data[$field] = sanitize_text_field($value);
-            $data_format[] = self::get_data_format($value);
+            $data[$field] = sanitize_text_field( $value );
+            $data_format[] = self::get_data_format( $value );
         }
 
         // Where condition
         $where = array(
-            'service_id' => sanitize_text_field($service_id),
+            'service_id' => sanitize_text_field( $service_id ),
         );
 
         // Where format
@@ -259,7 +259,7 @@ class Sw_Service_Database {
         );
 
         // Update data in the database
-        $updated = $wpdb->update($table_name, $data, $where, $data_format, $where_format);
+        $updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
 
         // Return true on success, false on failure
         return $updated !== false;
@@ -275,12 +275,12 @@ class Sw_Service_Database {
      *
      * @since 1.0.0
      */
-    private static function convert_results_to_services($results) {
+    private static function convert_results_to_services( $results ) {
         $services = array();
 
-        foreach ($results as $result) {
+        foreach ( $results as $result ) {
             // Convert the array result to Sw_Service object
-            $services[] = Sw_Service::convert_array_to_service($result);
+            $services[] = Sw_Service::convert_array_to_service( $result );
         }
 
         return $services;

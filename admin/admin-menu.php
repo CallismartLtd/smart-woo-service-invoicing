@@ -57,16 +57,6 @@ function smart_invoice_admin_menu() {
         'sw_products_page'
     );
 
-    // Add submenu "Send Mail"
-    add_submenu_page(
-        'sw-admin',
-        'Send Mail',
-        'Send Mail',
-        'manage_options',
-        'sw-mail',
-        'send_mail_page'
-    );
-
     // Add submenu "Settings"
     add_submenu_page(
         'sw-admin',
@@ -79,7 +69,7 @@ function smart_invoice_admin_menu() {
 
 }
 
-add_action('admin_menu', 'smart_invoice_admin_menu');
+add_action( 'admin_menu', 'smart_invoice_admin_menu' );
 
 
 /**
@@ -91,7 +81,7 @@ add_action('admin_menu', 'smart_invoice_admin_menu');
  * @param string $current_tab  The current tab parameter for the submenu page.
  * @param string $query_var    The query variable
  */
-function sw_sub_menu_nav($tabs, $title, $page_slug, $current_tab, $query_var ) {
+function sw_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) {
     $output = '<div class="wrap">';
     $output .= '<h1 class="wp-heading-inline">' . esc_html($title) . '</h1>';
     $output .= '<nav class="nav-tab-wrapper">';

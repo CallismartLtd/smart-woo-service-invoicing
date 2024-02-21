@@ -1,16 +1,2 @@
-            $data['service_id'],
-            $data['user_id'],
-            $data['billing_address'],
-            $data['invoice_id'],
-            $data['invoice_type'],
-            $data['product_id'],
-            $data['order_id'],
-            $data['amount'],
-            $data['fee'],
-            $data['payment_status'],
-            $data['payment_gateway'],
-            $data['transaction_id'],
-            $data['date_created'],
-            $data['date_paid'],
-            $data['date_due'],
-            $data['total']
+<?php
+// They say silence is golden, we all believe that.
