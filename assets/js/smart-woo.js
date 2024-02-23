@@ -1,5 +1,3 @@
-
-
 /**
  * JavaScript to toggle visibility on click for settings and documentation
  */
