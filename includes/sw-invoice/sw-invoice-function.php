@@ -157,7 +157,7 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
     $order->update_status( 'pending' );
     $order->update_meta_data( 'Order Type', 'Invoice Payment' );
     $order->update_meta_data( 'Invoice ID', $invoice_id );
-    $order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service and Invoice' );
+    $order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service Invoicing' );
 
     // Save order
     $order->save();

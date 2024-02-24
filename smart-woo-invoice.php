@@ -1,28 +1,28 @@
 <?php
 /*
-Smart Woo Service and Invoice is free software: you can redistribute it and/or modify
+Smart Woo Service Invoicing is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
 any later version.
 
-Smart Woo Service and Invoice is distributed in the hope that it will be useful,
+Smart Woo Service Invoicing is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smart Woo Service and Invoice. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
+along with Smart Woo Service Invoicing. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
 
 */
 /**
- * Smart Woo Service and Invoice
+ * Smart Woo Service Invoicing
  * @package     PluginPackage
  * @author      Callistus Nwachukwu
  * @copyright   2023 Callismart Tech
  * @license     GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name: Smart Woo Service and Invoice
+ * Plugin Name: Smart Woo Service Invoicing
  * Description: Integrate powerful service subscriptions and invoicing directly into your online store.
  * Version: 1.0.0
  * Author: Callistus Nwachukwu
@@ -43,7 +43,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 // Plugin name as constant
-define( 'SW_PLUGIN_NAME', 'Smart Woo Service and Invoice' );
+define( 'SW_PLUGIN_NAME', 'Smart Woo Service Invoicing' );
 
 if ( defined( 'SW_PLUGIN_NAME' )  ) {
     

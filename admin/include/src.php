@@ -16,7 +16,7 @@ function sw_check_woocommerce() {
         // Throw error
         $woo_plugin_url = 'https://wordpress.org/plugins/woocommerce/';
         $notice = sprintf(
-            'Smart Woo Service and Invoice requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a>. or deactive plugin to avoid fatal error',
+            'Smart Woo Service Invoicing requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a>. or deactive plugin to avoid fatal error',
             $woo_plugin_url
         );
         add_action( 'admin_notices', function () use ( $notice ) {

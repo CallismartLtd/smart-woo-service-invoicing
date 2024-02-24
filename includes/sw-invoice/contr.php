@@ -227,7 +227,7 @@ function sw_create_invoice_for_new_order( $order ) {
                 if ( $new_invoice_id ){
                     $order->update_meta_data( 'Order Type', 'Invoice Payment' );
                     $order->update_meta_data( 'Invoice ID', $new_invoice_id ); 
-                    $order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service and Invoice' );
+                    $order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service Invoicing' );
 
 
                     // Save the order to persist the changes
