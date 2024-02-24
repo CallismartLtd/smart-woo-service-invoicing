@@ -1,101 +1,144 @@
 <?php
+/**
+ * File name    :   sw-http.php
+ * @author      :   Callistus
+ * Description  :   The functions in this file performs a remote GET & POST request to the 
+ * URL assoiciated with a service, this is useful in situations where you want to take certain actions
+ * based on the status of a user's service subscription.
+ * In subsequent updates, there will be lot's of improvements and customizations to allow for custom webhooks.
+ */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined ( 'ABSPATH' ) || exit;
 
+/**
+ * Notify Service URL about the service deactivation.
+ * Please note: The API endpoint in this HTTP request is handled by our service manager must use plugin.
+ * Find out more about our Service Manager Must use plugin https://callismart.com.ng/service-manager
+ *
+ * @param object $service SW_Service object
+ */
+function sw_deactivate_this_service( Sw_Service $service ) {
 
-function check_and_disable_expired_services() {
-    // Get the services with end_date due today
-    $services = sw_get_service(null, null, null, null, null);
+    // Check if the function is called correctly and service type
+    if ( ! empty( $service ) && $service->getServiceType() === 'Web Service' ) {
 
-    foreach ($services as $service) {
-        // Check if the service status is 'Expired' or 'Suspended'
-        $service_status = sw_service_status( $service->service_id);
+        // Construct the URL to disable the website
+        $service_url = $service->getServiceUrl();
+        $service_id  = $service->getServiceId();
+        $status      = sw_service_status( $service_id );
 
-        if ($service_status === 'Expired' || $service_status === 'Suspended'|| $service_status === 'Cancelled') {
-            // Construct the URL to disable the website
-            $service_url = $service->service_url; 
-            $service_id = $service->service_id;
+        // We need to confirm that Service is truly Not active
+        if ( $status !== 'Active' || $status !== 'Due for Renewal' || $status !== 'Grace Period'  ) {
 
             // Construct the remote URL
-            $remote_url = $service_url . '?serviceid=' . urlencode($service_id) . '&status=Expired';
+            $remote_url = $service_url . '?serviceid=' . urlencode( $service_id ) . '&status=Expired';
+            // Use WordPress HTTP API to perform the GET request
+            $response = wp_remote_get( $remote_url );
 
-            // Example using cURL to remotely visit the URL and disable the website
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $remote_url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            // Log the response or perform other actions based on the result
-            // For example, check if the remote operation was successful and update your records accordingly.
+            // Log the HTTP status code
+            $http_status = wp_remote_retrieve_response_code( $response );
+            error_log( 'HTTP Status Code when deactivating ' . $service_id .'= ' . $http_status );
+            
+            // Check for errors in the response
+            if ( is_wp_error( $response ) ) {
+                // Handle error by logging to the error log
+                error_log( 'Failed to notify service URL: ' . $response->get_error_message() );
+            }
         }
+
     }
 }
-add_action('deactivate_expired_service', 'check_and_disable_expired_services');
+// Hook into service cancellation action
+add_action( 'sw_service_deactivated', 'sw_deactivate_this_service' );
 
 
+ /**
+ * Check and Notify All Expired Service's URL about the service expiration.
+ * Please note: The API endpoint in this HTTP request is handled by our service manager must use plugin.
+ * Find out more about our Service Manager Must use plugin https://callismart.com.ng/service-manager
+ *
+ */
 
+function check_and_disable_all_expired_services() {
+    // Get all services
+    $services = Sw_Service_Database::get_all_services();
 
+    foreach ( $services as $service ) {
+        // Check if the service status is 'Expired' or 'Suspended'
+        $service_status = sw_service_status( $service->getServiceId() );
 
+        if ( $service_status === 'Expired' || $service_status === 'Suspended' || $service_status === 'Cancelled' ) {
+            // Construct the URL to disable the website
+            $service_url = $service->getServiceUrl();
+            $service_id  = $service->getServiceId();
 
+            // Construct the remote URL
+            $remote_url = $service_url . '?serviceid=' . urlencode( $service_id ) . '&status=Expired';
 
-// Hook the function to execute after service activation
-add_action('sw_expired_service_activated', 'check_and_activate_paid_service');
+            // Use WordPress HTTP API to perform the GET request
+            $response = wp_remote_get( $remote_url );
 
-function check_and_activate_paid_service() {
-    // Get the services with start_date matching today
-    $services = sw_get_service(null, null, null, null);
-
-    foreach ($services as $service) {
-        // Check if the service status is 'Active'
-        $service_status = sw_service_status( $service->service_id);
-
-        if ($service_status === 'Active') {
-            // Get the user's billing email using the user ID
-            $user_id = $service->user_id;
-            $user_info = get_userdata($user_id);
-
-            if ($user_info) {
-                $user_email = $user_info->user_email;
-
-                // Construct the URL to activate the service
-                $service_url = $service->service_url;
-                $service_id = $service->service_id;
-
-                // Construct the remote URL with user_email
-                $remote_url = $service_url . '/access.php?email=' . urlencode($user_email) . '&serviceid=' . urlencode($service_id) . '&status=Active';
-
-                // Initialize cURL session
-                $ch = curl_init();
-
-                // Set cURL options
-                curl_setopt($ch, CURLOPT_URL, $remote_url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-                // Execute cURL request
-                $response = curl_exec($ch);
-
-                // Check for cURL errors
-                if (curl_errno($ch)) {
-                    // Handle cURL error
-                    error_log('cURL Error: ' . curl_error($ch));
-                }
-
-                // Close cURL session
-                curl_close($ch);
-
-                if ($response === false) {
-                    // Handle the case where the request failed
-                    error_log('cURL Request Failed');
-                } else {
-                    // Process the response from the remote URL, if needed
-                    // You can handle the response data here
-                }
+            // Check for errors in the response
+            if ( is_wp_error( $response ) ) {
+                // Handle error by logging to the error log
+                error_log( 'Failed to notify service URL: ' . $response->get_error_message() );
             }
         }
     }
 }
+// Hook to run twice daily
+add_action( 'sw_twice_daily_task', 'check_and_disable_all_expired_services' );
+
+
+
+// Hook the function to execute after service activation
+add_action( 'sw_expired_service_activated', 'check_and_activate_paid_service' );
+
+
+/**
+ * Notify Service URL about the service Activation.
+ * Please note: The API endpoint in this HTTP request is handled by our service manager must use plugin.
+ * Find out more about our Service Manager Must use plugin https://callismart.com.ng/service-manager
+ *
+ * @param object $service SW_Service object
+ */
+
+function check_and_activate_paid_service( Sw_Service $service ) {
+    if ( ! empty( $service ) && $service->getServiceType() === 'Web Service' ) {
+        // Get service status
+        $service_status = sw_service_status( $service->getServiceId() );
+
+        // Make sure service is active
+        if ( $service_status === 'Active' ){
+            // Prepare remote get variable
+            $user_id    = $service->getUserId();
+            $user_email = get_userdata( $user_id )->user_email;
+            $service_id = $service->getServiceId();
+            $service_url = $service->getServiceUrl();
+
+            $remote_url = $service_url . '/access.php?email=' . urlencode( $user_email ) . '&serviceid=' . urlencode( $service_id ) . '&status='. urlencode( $service_status );
+            
+            // Use WordPress HTTP API to perform the GET request
+            $response = wp_remote_get( $remote_url );
+
+            // Log the HTTP status code
+            $http_status = wp_remote_retrieve_response_code( $response );
+            error_log( 'HTTP Status Code when Activating ' . $service_id .'= ' . $http_status );
+
+            // Check for errors in the response
+            if ( is_wp_error( $response ) ) {
+                // Handle error by logging to the error log
+                error_log( 'Failed to notify service URL: ' . $response->get_error_message() );
+            }
+        }
+    }
+}
+// Hook to run when edit to active in admin page
+add_action( 'sw_service_active', 'check_and_activate_paid_service' );
+// Hook to run when renewed Due service
+add_action( 'sw_service_renewed', 'check_and_activate_paid_service' );
+// Hook to run when reactivated
+add_action( 'sw_expired_service_activated', 'check_and_activate_paid_service' );
+
 
 

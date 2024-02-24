@@ -5,7 +5,6 @@
  *
  * Provides database-related functionality for retrieving and managing Sw_Invoice objects.
  *
- * @package Your_Plugin_Package
  * @since   1.0.0
 */
 
@@ -14,7 +13,6 @@ class Sw_Invoice_Database {
  /**
      * Retrieves invoices from the database based on various criteria.
      *
-     * @package Your_Plugin_Package
      * @since   1.0.0
      */
 

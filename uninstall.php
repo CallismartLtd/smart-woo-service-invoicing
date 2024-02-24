@@ -37,10 +37,9 @@ delete_option( 'sw_db_version' );
  */
 
 wp_clear_scheduled_hook( 'auto_renew_services_event' );
-wp_clear_scheduled_hook( 'auto_update_paid_services' );
+wp_clear_scheduled_hook( 'smart_woo_5_minutes_task' );
 wp_clear_scheduled_hook( 'smart_woo_daily_task' );
 wp_clear_scheduled_hook( 'sw_once_in_two_days_task' );
 wp_clear_scheduled_hook( 'move_old_renewal_orders_to_trash_event' );
 wp_clear_scheduled_hook( 'process_service_renewals_event' );
 wp_clear_scheduled_hook( 'process_pending_refund_event' );
-wp_clear_scheduled_hook( 'deactivate_expired_service' );

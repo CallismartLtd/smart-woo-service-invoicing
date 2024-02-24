@@ -5,9 +5,7 @@
  * Description  :   All emails files
  */
 
- if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined ( 'ABSPATH' ) || exit;
 
 
 /**

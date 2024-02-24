@@ -7,7 +7,11 @@
  */
 
 
-
+/**
+ * Handles add-new service page.
+ * This function is responsible for handling the manual creation of a 
+ * service subscription in the admin area
+ */
  function sw_handle_new_service_page() {
     echo '<h2>Add New Service</h2>';
     
@@ -45,16 +49,14 @@
             if ( ! empty( $service_url ) && filter_var( $service_url, FILTER_VALIDATE_URL ) === false ) {
                 $validation_errors[] = 'Invalid service URL format.';
             }
+
             if ( empty( $product_id ) ) {
                 $validation_errors[] = 'A product is required to set up a service.';
             }
 
-
             if ( empty ( $start_date ) || empty ( $end_date ) || empty( $next_payment_date ) || empty( $billing_cycle )  ) {
                 $validation_errors[] = 'All Dates must correspond to the billing circle';
             }
-
-
 
             if ( ! empty( $validation_errors ) ) {
                 // Display validation errors
@@ -90,7 +92,9 @@
     sw_render_add_new_service_form();
 }
 
-
+/**
+ * Handle edit service page
+ */
 
 function sw_handle_edit_service_page() {
     echo '<h2>Edit Service</h2>';
@@ -155,6 +159,11 @@ function sw_handle_edit_service_page() {
 
                         // Perform the update
                         $updated = Sw_Service_Database::update_service( $service );
+                        if ( $status === 'Cancelled' || $status ==='Suspended' || $status ==='Expired' && $service_type ==='Web Service' ) {
+                            do_action( 'sw_service_deactivated', $service );
+                        } else {
+                            do_action( 'sw_service_active', $service );
+                        }
 
                         if ( $updated ) {
                             echo '<p class="success notice success is-dismissible">Service successfully updated.</p>';
@@ -194,6 +203,7 @@ function sw_process_new_service_order_page() {
     $is_configured_order = sw_get_orders_for_configured_products( $order_id );
 
     if ( $order_id > 0 && $order_id === $is_configured_order ) {
+        
         // Prepare New Service order Page for form prefill
         sw_convert_WC_order_to_SW_service( $order_id );
 

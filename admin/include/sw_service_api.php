@@ -1,4 +1,10 @@
 <?php
+/**
+ * File name    :   sw_service_api.php
+ * @author      :   Callistus
+ * Description  :   Service API autheticator functions
+ */
+
 defined( 'ABSPATH' ) || exit;
 
 /**

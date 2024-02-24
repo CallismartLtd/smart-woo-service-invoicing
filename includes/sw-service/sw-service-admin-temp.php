@@ -685,7 +685,7 @@ function sw_render_edit_service_form(){
  * @param bool        $required     Optional. Whether the input is required. Default is true.
  */
 function sw_render_service_id_generator_input($service_name = null, $editing = false, $required = true) {
-    ?>
+    ?> 
     <div class="sw-form-row">
         <label for="service-name" class="sw-form-label">Service Name:</label>
         <span class="sw-field-description" title="Service name here">?</span>

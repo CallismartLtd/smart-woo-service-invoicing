@@ -291,7 +291,7 @@ function sw_render_create_invoice_form(){
  * @since 1.0.0
  */
 function sw_invoice_id_dropdown($selected_invoice_id = null) {
-    // Fetch invoice IDs from your database or any other source
+    // Fetch invoice IDs from database
     $invoices = Sw_Invoice_Database::get_all_invoices();
 
     // Output the dropdown HTML
@@ -394,7 +394,6 @@ function sw_view_invoice_page() {
         $user_full_name        = get_user_meta( $invoice->getUserId(), 'first_name', true ) . ' ' . get_user_meta( $invoice->getUserId(), 'last_name', true );
         $product_name          = wc_get_product( $invoice->getProductId() )->get_name();
         $paymentStatus         = esc_html( $invoice->getPaymentStatus() );
-       // Assuming these properties return date strings or null, replace them with the actual properties or methods from your Invoice class.
         $dateCreated           = $invoice->getDateCreated();
         $datePaid              = $invoice->getDatePaid();
         $dateDue               = $invoice->getDateDue();

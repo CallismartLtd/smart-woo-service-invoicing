@@ -45,7 +45,7 @@ function enqueue_smart_woo_scripts() {
     $invoice_admin_dashboard_url = esc_url( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) );
     $service_admin_dashboard_url = esc_url( admin_url ( 'admin.php?page=sw-admin' ) );
 
-    // Localize the script with your data
+    // Localize the script
     wp_localize_script('smart-woo-script', 'smart_woo_vars', array(
         'ajax_url'                  => admin_url('admin-ajax.php'),
         'woo_my_account_edit'       => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) .'edit-account/',
@@ -76,8 +76,8 @@ function sw_load_dependencies(){
     require_once SW_ABSPATH . 'admin/include/email-templates.php';
     require_once SW_ABSPATH . 'admin/include/hooks.php';
     require_once SW_ABSPATH . 'admin/include/service-remote.php';
-    require_once SW_ABSPATH . 'admin/include/smart-renewal.php';
-    include_once SW_ABSPATH . 'admin/include/status-api.php';
+    require_once SW_ABSPATH . 'admin/include/smart-woo-manager.php';
+    include_once SW_ABSPATH . 'admin/include/sw_service_api.php';
     // Only load this file when TeraWallet plugin is installed
     if ( function_exists( 'woo_wallet' ) ) {
         require_once SW_ABSPATH . 'admin/include/tera-wallet-int.php';

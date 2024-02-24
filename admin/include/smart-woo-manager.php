@@ -1,60 +1,37 @@
 <?php
 /**
- * File name    :   smart-renewal.php
+ * File name    :   smart-woo-manager.php
  * @author      :   Callistus
- * Description  :   Handles Service Renewal
+ * Description  :   Service and Invoice management file and functions
  */
 defined ( 'ABSPATH' ) || exit;
 
-add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler');
+/**
+ * Perform action when a new service purchase is complete
+ * 
+ * @param string $invoice_id The invoice ID
+ */
+
+
 function sw_new_service_invoice_handler( $invoice_id ) {
-    //update the invoice
-    sw_update_invoice_on_payment( $invoice_id );
-
+    // Mark invoice as paid
+    sw_mark_invoice_as_paid( $invoice_id );
 }
+ // Hook into action that indicates New Service Purchase is complete
+ add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler');
 
 
 /**
- * Update the invoice payment status
- * @param  string   $invoice_id   The ID of the invoice to be updated
- * @do_action @param object $invoice  Triggers "sw_invoice_is_paid" action with the invoice instance
- * @return bool     false if the invoice is already 'Paid' | true if update is successful
+ * Handling of Service subscription and Invoice based on WooCommerce order payment or status,
+ * Essentially perform an action based on the order, or invoice type.
+ * 
+ * @param int $order_id    The paid invoice order
  */
-function sw_update_invoice_on_payment( $invoice_id ) {
-    // Get the invoice associated with the service
-    $invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
-
-    // Check if the invoice is valid and payment_status is not 'paid'
-    if ( $invoice && $invoice->getPaymentStatus() !== 'paid' ) {
-        // Get the order associated with the invoice
-        $order = wc_get_order( $invoice->getOrderId() );
-
-        // Update additional fields in the invoice
-        $fields = array(
-            'payment_status'   => 'paid',
-            'date_paid'        => current_time( 'Y-m-d H:i:s' ),
-            'transaction_id'   => $order->get_transaction_id(), // Use order transaction id
-            'payment_gateway'  => $order->get_payment_method(), // Use payment gateway used for the order
-        );
-        $updated_invoice  = Sw_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
-        do_action( 'sw_invoice_is_paid', $updated_invoice );
-
-        return true;
-
-    } else {
-        // Invoice is already paid, terminate further execution
-        return false;
-    }
-}
-
-
-/**
- * Determine invoice payment order, Determine which invoice type is paid
- * @param int       $order_id                The paid invoice order
- */
+// First action hook is when an order is marked as completed
 add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 10, 3 );
-add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 10, 4 );
 
+// Second action hook is when payment is processed by either the payment provider
+add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 10, 4 );
 
 function sw_paid_invoice_order_manager( $order_id ) {
 
@@ -63,39 +40,68 @@ function sw_paid_invoice_order_manager( $order_id ) {
 
     // Get the invoice ID from the order metadata
     $invoice_id = $order->get_meta( 'Invoice ID' );
+
+    // Early termination if the order is not related to our plugin
     if ( empty( $invoice_id ) ) {
         return;
     }
 
     // Get all datas associated with the invoice
     $invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
+    
+    // Terminate if no invoice is gotten with the ID, which indicates invalid invoice ID 
+    if ( empty( $invoice ) ){
+        // Error log
+        error_log( 'The invoice ID "' . $invoice_id .'" associated with order ID "' . $order_id .'" is invalid' );
+        return;
+    }
+    // Access invoice properties
     $service_id = $invoice->getServiceId();
     $invoice_type = $invoice->getInvoiceType();
 
     if ( $invoice_type === 'New Service Invoice' ) {
+        // This is a new service invoice
         do_action( 'sw_new_service_purchase_complete', $invoice_id );
+        // terminate execution
+        return;
     }
 
-    // Get the user ID of the user who owns the order
+    // Get the ID of the user who owns the order
     $user_id = $order->get_user_id();
 
-    // Check if both service ID and user ID are available
+    // If Service ID is available, this indicates an invoice for existing service
     if ( ! empty( $service_id ) && ! empty( $user_id ) ) {
 
         // Fetch the service status
         $service_status = sw_service_status( $service_id );
-        // Perform actions based on the service status and type of invoice
+        /**
+         * Determine if the invoice is for the renewal of a Due service.
+         * Only invoices for services on this status are considered to be for renewal.
+         */
         if ( $service_status === 'Due for Renewal' || $service_status === 'Grace Period' && $invoice_type === 'Service Renewal Invoice') {
 
             // Call the function to renew the service
             sw_renew_service( $user_id, $service_id, $invoice_id );
 
+        /**
+         * Determine if the invoice is for the reactivation of an Expired service.
+         * Only invoices for services on this status are considered to be for reactivation.
+         */
         } elseif ( $service_status === 'Expired' && $invoice_type === 'Service Renewal Invoice' ) {
-            // Call the function to activate the expired service
+            // Call the function to reactivate the service
             sw_activate_expired_service( $user_id, $service_id, $invoice_id );
-        } elseif ( $service_status === 'Active' && $invoice_type === 'Service Upgrade Invoice' || $invoice_type === 'Service Downgrade Invoice') {
-            $service = Sw_Service_Database::get_service_by_id( $service_id );
 
+        /**
+         * Determine if the invoice is for the Migration of a service.
+         * Only This invoice types for active services  are considered to be for reactivation.
+         */
+
+        } elseif ( $service_status === 'Active' && $invoice_type === 'Service Upgrade Invoice' || $invoice_type === 'Service Downgrade Invoice') {
+            
+            // Fetch the service
+
+            $service = Sw_Service_Database::get_service_by_id( $service_id );
+            // Call the function to handle the migration process
             sw_migrate_service( $service, $invoice_id );
 
         } else {
@@ -106,7 +112,15 @@ function sw_paid_invoice_order_manager( $order_id ) {
 }
 
 /**
- * Renew  Due Services
+ * Renew a service based on the provided parameters.
+ *
+ * This function performs service renewal, relying on the confirmation that
+ * the invoice ID provided in the third parameter is paid. If the invoice is
+ * not paid, the function will return early.
+ *
+ * @param int $user_id User ID associated with the service.
+ * @param int $service_id ID of the service to be renewed.
+ * @param int $invoice_id ID of the invoice related to the service renewal.
  */
 
 function sw_renew_service( $user_id, $service_id, $invoice_id ) {
@@ -118,15 +132,15 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
     // 2. Add Action Hook Before Updating Service Information
     do_action( 'sw_before_service_renew', $service );
 
-    //Check and update invoice status before service update
-    $invoice_status = sw_update_invoice_on_payment( $invoice_id );
+    // Mark the invoice as paid before renewing the service
+    $invoice_is_paid = sw_mark_invoice_as_paid( $invoice_id );
 
-    if (  $invoice_status === false) {
+    if (  $invoice_is_paid === false) {
         // Invoice is already paid, or something went wrong
         return; // Terminate further execution 
     }
 
-    if ($service) {
+    if ( $service ) {
         // 3. Move (Copy) Old Service Information to Log
         sw_move_service_to_log( $service_id );
 
@@ -176,7 +190,15 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
 
 
 /**
- * Activate Expired Services
+ * Activate an expired service.
+ *
+ * This function performs service renewal, relying on the confirmation that
+ * the invoice ID provided in the third parameter is paid. If the invoice is
+ * not paid, the function will return early.
+ *
+ * @param int $user_id User ID associated with the service.
+ * @param int $service_id ID of the service to be renewed.
+ * @param int $invoice_id ID of the invoice related to the service renewal.
  */
 
 function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
@@ -185,9 +207,9 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
     $invoice         = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
     //Check and update invoice status before service update
-    $invoice_status  = sw_update_invoice_on_payment( $invoice_id );
+    $invoice_is_paid  = sw_mark_invoice_as_paid( $invoice_id );
 
-    if ( $invoice_status === false ) {
+    if ( $invoice_is_paid === false ) {
         // Invoice is already paid or something went wrong
         return; // Terminate further execution if needed
     }
@@ -224,7 +246,7 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
 
         // Calculate new dates
         $new_start_date = $order_paid_date;
-        $new_end_date = date( 'Y-m-d', strtotime( $interval, strtotime($new_start_date ) ) );
+        $new_end_date = date( 'Y-m-d', strtotime( $interval, strtotime( $new_start_date ) ) );
         $new_next_payment_date = date( 'Y-m-d', strtotime('-7 days', strtotime( $new_end_date ) ) );
 
         // 5. Add Action Hook Before Updating Service Information
@@ -257,10 +279,10 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
 
 
 /**
- * Helper function to handle customer billing details
+ * Helper function to handle customer billing details when invoice orders are created
  */
 
-function invoice_billing_details() {
+function sw_order_billing_helper() {
     // Get all orders that don't have a billing address.
     $args = array(
         'post_type'      => 'shop_order',
@@ -323,14 +345,15 @@ function invoice_billing_details() {
     }
     wp_reset_postdata();
 }
- add_action( 'new_invoice_order', 'invoice_billing_details' );
+ add_action( 'new_invoice_order', 'sw_order_billing_helper' );
 
 
 
 /**
  * Paid Invoice order status is updated to completed
  */
-function auto_update_paid_services_callback() {
+
+function sw_complete_processing_invoice_orders() {
     // Get processing orders with 'Invoice Payment' in custom field 'Order Type'
     $args   = array(
         'status' => 'processing',
@@ -348,11 +371,11 @@ function auto_update_paid_services_callback() {
         $order_id = $order->get_id();
         //We need to get the invoice associated with the order
         $invoices = Sw_Invoice_Database::get_invoices_by_order_id( $order_id );
-        if ( !empty( $invoices ) ){
+        if ( ! empty( $invoices ) ){
             // loop through all invoices and complete the order
             foreach ( $invoices as $invoice ) {
                 $invoice_type = $invoice->getInvoiceType();
-                if ( $invoice_type === 'Service Renewal Invoice' || $invoice_type === 'Service Downgrade Invoice' || $invoice_type === 'Service Upgrade Invoice') {
+                if ( $invoice_type === 'Service Renewal Invoice' || $invoice_type === 'Service Downgrade Invoice' || $invoice_type === 'Service Upgrade Invoice' ) {
                     // Update the order status to 'completed'
                     $order->update_status( 'completed' );
                 }
@@ -360,156 +383,101 @@ function auto_update_paid_services_callback() {
         }
     }
 }
-
-add_action( 'auto_update_paid_services', 'auto_update_paid_services_callback' );
-
-
-
-// Hook the move_old_renewal_orders_to_trash function to the scheduled event
-add_action('move_old_renewal_orders_to_trash_event', 'move_old_renewal_orders_to_trash');
-
-// Function to move old Service Renewals to trash
-function move_old_renewal_orders_to_trash() {
-    $two_weeks_ago = strtotime('-2 weeks', current_time('timestamp'));
-
-    // Get Service Renewals that were created 2 weeks ago
-    $args = array(
-        'post_type' => 'shop_order',
-        'post_status' => 'wc-pending',
-        'posts_per_page' => -1,
-        'date_query' => array(
-            array(
-                'before' => date('Y-m-d H:i:s', $two_weeks_ago),
-                'inclusive' => true,
-            ),
-        ),
-        'meta_query' => array(
-            'relation' => 'AND',
-            array(
-                'key' => 'Order Type',
-                'value' => 'Service Renewal',
-                'compare' => '=',
-            ),
-        ),
-    );
-
-    $renewal_orders = get_posts($args);
-
-    foreach ($renewal_orders as $order) {
-        // Move the order to trash
-        wp_trash_post($order->ID);
-    }
-}
-
+// Run every five minutes
+add_action( 'smart_woo_5_minutes_task', 'sw_complete_processing_invoice_orders' );
 
 
 /**
- * Handle Quick Action button on Service Details page(frontend)
+ * Handle Quick Action button on the Service Details page (frontend).
+ *
+ * This function is hooked into WordPress template redirection to handle actions related
+ * to service cancellation or billing cancellation based on the 'action' parameter in the URL.
  */
+add_action( 'template_redirect', 'sw_service_OptOut_or_Cancellation' );
 
-function handleCancelOrSuspendService() {
-    // Check if the 'action' parameter is in the URL
-    if (isset($_GET['action'])) {
-        $action = sanitize_text_field($_GET['action']);
+function sw_service_OptOut_or_Cancellation() {
+    // Check if the 'action' parameter is set and is one of the allowed actions
+    if ( isset( $_GET['action'] ) && in_array( $_GET['action'], [ 'sw_cancel_service', 'sw_cancel_billing' ], true ) ) {
+        $action     = sanitize_text_field( $_GET['action'] );
+        $user_id    = get_current_user_id();
+        $service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : '';
 
-        if ($action === 'sw_cancel_service' || $action === 'sw_cancel_billing') {
-            // Get the current user's ID and service ID
-            $user_id = get_current_user_id();
-            $service_id = isset($_GET['service_id']) ? sanitize_text_field($_GET['service_id']) : '';
+        // Check if the service_id is provided and the service is currently 'Active'
+        if ( ! empty( $service_id ) && sw_service_status( $service_id ) === 'Active' ) {
+            // Determine the next service status based on the action
+            $next_service_status = ( $action === 'sw_cancel_service' ) ? 'Cancelled' : 'Active (NR)';
+            // Update the service status
+            Sw_Service_Database::update_service_fields( $service_id, [ 'status' => $next_service_status ] );
 
-            // Check if the service_id is valid
-            if (!empty($service_id)) {
-                // Get the service status
-                $service_status = sw_service_status( $service_id );
+            // Perform additional actions based on the action
+            if ( $action === 'sw_cancel_service' ) {
+                // Notify user and admin about service cancellation
+                sw_user_service_cancelled_mail( $user_id, $service_id );
+                sw_service_cancelled_mail_to_admin( $service_id );
+                // Trigger action with service object as argument
+                do_action( 'sw_service_deactivated', Sw_Service_Database::get_service_by_id( $service_id ) );
 
-                // Check if the service is active
-                if ($service_status === 'Active') {
-                    // Define the status based on the action
-                    $status = ($action === 'sw_cancel_service') ? 'Cancelled' : 'Active (NR)';
-                        // Update the service with the new product ID.
-                    $field = array(
-                        'status' => $status,
-                    );
-
-                    //Change the Service Status
-                    Sw_Service_Database::update_service_fields( $service_id, $field );
-
-                    // Perform additional actions based on the action
-                    if ($action === 'sw_cancel_service') {
-                        // Send a service cancellation email
-                        sw_user_service_cancelled_mail($user_id, $service_id);
-                        sw_service_cancelled_mail_to_admin( $service_id );
-                        
-                        // Check if pro-rata refunds are enabled
-                        $prorate_status = sw_Is_prorate();
-
-                        if ($prorate_status === 'Enabled') {
-                            // Perform pro-rata refund
-                            performProRataRefund($user_id, $service_id);
-                        }
-                    } elseif ($action === 'sw_cancel_billing') {
-                        // Send a billing automation cancellation email
-                        sw_user_service_optout($user_id, $service_id);
-                    }
-
-                   // Redirect to the service details page
-                    $service_details_url = add_query_arg(array('service_page' => 'service_details', 'service_id' => $service_id), get_permalink());
-                    wp_redirect($service_details_url);
-                    exit();
-
-                } else {
-                    // The service is not 'Active', do not proceed with cancellation or suspension
-                    $service_details_url = add_query_arg(array('service_page' => 'service_details', 'service_id' => $service_id), get_permalink());
-                    wp_redirect($service_details_url);
-                    exit();
+                // Check if pro-rata refunds are enabled
+                if ( sw_Is_prorate() === 'Enabled' ) {
+                    // Perform pro-rata refund
+                    sw_create_prorata_refund( $service_id );
                 }
+            } elseif ( $action === 'sw_cancel_billing' ) {
+                // Notify user about billing cancellation
+                sw_user_service_optout( $user_id, $service_id );
             }
+
+            // Redirect to the service details page
+            $service_details_url = add_query_arg( [ 'service_page' => 'service_details', 'service_id' => $service_id ], get_permalink() );
+            wp_safe_redirect( $service_details_url );
+            exit();
+        } else {
+            // Redirect to the service details page even if the service is not 'Active'
+            $service_details_url = add_query_arg( [ 'service_page' => 'service_details', 'service_id' => $service_id ], get_permalink() );
+            wp_safe_redirect( $service_details_url );
+            exit();
         }
     }
 }
 
-// Hook into WordPress to handle the action
-add_action('template_redirect', 'handleCancelOrSuspendService');
+
+
 
 /**
  * Perform Prorata Refund for unused service due to cancellation
- * @param int      $user_id        ID of the user to refund
+ * 
+ * @param int         $user_id        ID of the user to refund
  * @param string      $service_id     ID of the cancelled service
  */
-function performProRataRefund( $user_id, $service_id ) {
+function sw_create_prorata_refund( $service_id ) {
     // Check if pro-rata refunds are enabled
-    $prorate_status = sw_Is_prorate();
 
-    if ( $prorate_status !== 'Enabled' ) {
+    if ( sw_Is_prorate() !== 'Enabled' ) {
         // Pro-rata refunds are disabled, do not proceed with the refund
         return false;
     }
 
     // Get service details using sw_get_service function
-    $service_details = sw_get_service( $user_id, $service_id );
+    $service = Sw_Service_Database::get_service_by_id( $service_id );
 
-    if ( !$service_details ) {
+    if ( ! $service ) {
         // Service not found
         return false;
     }
 
     $usage_metrics = sw_check_service_usage( $service_id );
+
     if ( $usage_metrics !== false ) {
         // Calculate the refund amount based on the order amount and percentage
         $refund_amount =  $usage_metrics['unused_amount'];
 
-        // Log the refund details into your database
+        // Log the refund details
         $transaction_status = 'Pending Refund';
         $details = 'This service is cancelled, and a Refund has been scheduled';
-        smart_woo_log( $user_id, $service_id, $refund_amount, $transaction_status, $details );
+        smart_woo_log( $service->getUserId(), $service_id, $refund_amount, $transaction_status, $details );
         return $refund_amount;
     }
 }
-
-
-
-
-
 
 
 /**
@@ -592,9 +560,8 @@ function swsi_handle_payment_link() {
 
 
 
-
 /**
- * Automatic invoice creation for services on due date
+ * Initiates an automatic service renewal process by creating renewal invoice on due date
  * 
  * @Do_action "sw_auto_invoice_created" triggers after successful invoice creation
  * @action @param object $newInvoice  The instance of the newly created invoice
@@ -602,7 +569,9 @@ function swsi_handle_payment_link() {
  * @return bool False if no service is due | True otherwise
  */
 
-// Function to check and renew services with due next payment dates
+// Hook to  scheduled event
+add_action( 'auto_renew_services_event', 'sw_auto_renew_services' );
+
 function sw_auto_renew_services() {
     // Get all services
     $all_services = SW_Service_Database::get_all_services();
@@ -643,13 +612,11 @@ function sw_auto_renew_services() {
         }
     }
 }                
-            
-// Hook to  scheduled event
-add_action( 'auto_renew_services_event', 'sw_auto_renew_services' );
 
 
 /**
- * Manual invoice creation
+ * Handles service renewal when the client clicks the renew button on 
+ * Service Details page
  */
 add_action( 'init', 'sw_manual_service_renewal' );
 
@@ -659,14 +626,14 @@ function sw_manual_service_renewal() {
 
         // Verify the nonce
         $nonce_action = 'renew_service_nonce';
-        if (isset($_GET['renew_nonce']) && wp_verify_nonce($_GET['renew_nonce'], $nonce_action ) ) {
+        if ( isset($_GET['renew_nonce']) && wp_verify_nonce($_GET['renew_nonce'], $nonce_action ) ) {
         
             // Get and sanitize the service ID
             $service_id = sanitize_text_field( $_GET['service_id'] );
-            $service  = Sw_Service_Database::get_service_by_id( $service_id );
+            $service    = Sw_Service_Database::get_service_by_id( $service_id );
             $product_id = $service->getProductId();
 
-            if ( !$service ) {
+            if ( ! $service ) {
                 wp_die( 'Error: Service does not exist.' );
             }
             
@@ -678,7 +645,7 @@ function sw_manual_service_renewal() {
 
 
                 // Check if there is Service Renewal Invoice for the service
-                $existing_invoice_id = sw_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid');
+                $existing_invoice_id = sw_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
                 if ( $existing_invoice_id ) {
                     
                     sw_redirect_to_invoice_preview( $existing_invoice_id );
@@ -693,10 +660,10 @@ function sw_manual_service_renewal() {
                     $NewInvoiceID = sw_generate_new_invoice( get_current_user_id(), $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
 
                     if ( $NewInvoiceID ) {
-                        $NewInvoice = Sw_Invoice_Database::get_invoice_by_id( $NewInvoiceID );
-                        $new_order_id = $NewInvoice->getOrderId();
-                        $new_order    = wc_get_order( $new_order_id );
-                        $order_key = $new_order->get_order_key();
+                        $NewInvoice     = Sw_Invoice_Database::get_invoice_by_id( $NewInvoiceID );
+                        $new_order_id   = $NewInvoice->getOrderId();
+                        $new_order      = wc_get_order( $new_order_id );
+                        $order_key      = $new_order->get_order_key();
                         sw_send_user_generated_invoice_mail( $NewInvoice, $service );
                         $checkout_url = wc_get_checkout_url() . 'order-pay/' . $new_order_id . '/?pay_for_order=true&key=' . $order_key;
                         wp_safe_redirect( $checkout_url );
@@ -724,11 +691,11 @@ function sw_manual_service_renewal() {
 function sw_migrate_service( $service, $invoice_id ) {
     $service_id = $service->getServiceId();
     $product_id = Sw_Invoice_Database::get_invoice_by_id( $invoice_id )->getProductId();
-    $invoice_status = sw_update_invoice_on_payment( $invoice_id );
+    $invoice_status = sw_mark_invoice_as_paid( $invoice_id );
 
     if ( $invoice_status === false ) {
         // Invoice is already paid, or something went wrong.
-        error_log( 'Service migration failed for service ID: ' . $service_id .', Invoice Check returned false. Invoice ID: ' . $invoice_id );
+        error_log( 'Service migration failed for service ID: ' . $service_id .', Invoice Check returned false, which may indicate invoice has already been paid. Invoice ID: ' . $invoice_id );
 
         return false; // Indicate failure.
     }
@@ -748,6 +715,3 @@ function sw_migrate_service( $service, $invoice_id ) {
     return $migrated; // Return the result of the migration.
 }
 
-
-
-          

@@ -125,7 +125,7 @@
 .dashboard-card .count {
   font-size: 24px;
   font-weight: bold;
-  color: #0073e6; /* Change the color to your preference */
+  color: #0073e6; /* Change the color to  preference */
 }
 
 
@@ -303,7 +303,7 @@
 
 
 
-/* Add this to your CSS file or style tag */
+/* Add this to  CSS file or style tag */
 .sw-error-notice {
   margin: 10px 0;
   padding: 10px;
@@ -1336,7 +1336,7 @@
 
 /* Style for each product container within the products to use container */
 .product-container {
-  width: 30%; /* Adjust the width based on your layout */
+  width: 30%; /* Adjust the width based on  layout */
   padding: 15px;
   margin: 10px;
   border: 1px solid #ccc;
@@ -1370,7 +1370,7 @@
 .product-container strong {
   display: block; /* Ensure line break after the product name */
   font-weight: bold;
-  font-size: 18px; /* Adjust the font size based on your preference */
+  font-size: 18px; /* Adjust the font size based on  preference */
   margin-bottom: 8px; /* Add spacing between product name and other details */
 }
 

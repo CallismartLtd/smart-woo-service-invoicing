@@ -23,7 +23,7 @@ along with Smart Woo Service and Invoice. If not, see http://www.gnu.org/license
  *
  * @wordpress-plugin
  * Plugin Name: Smart Woo Service and Invoice
- * Description: Revolutionise your WooCommerce experience with Smart Woo Service and Invoice! Seamlessly integrate powerful service subscriptions and invoicing directly into your online store.
+ * Description: Integrate powerful service subscriptions and invoicing directly into your online store.
  * Version: 1.0.0
  * Author: Callistus Nwachukwu
  * Author URI: https://callismart.com.ng/callistus

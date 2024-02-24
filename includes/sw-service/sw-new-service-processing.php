@@ -3,13 +3,13 @@
 /**
  * File name    :   sw-new-service-processing.php
  * @author      :   Callistus
- * Description  :   Handles new service processing
+ * Description  :   Handles new service processing from the admin area
  */
 
  Defined ( 'ABSPATH' ) || exit;
 
 /**
- * Call back function for new service order page
+ * Call back function for new service order admin page
  */
 
  function sw_render_order_for_sw_products() {
@@ -256,7 +256,7 @@ function sw_process_new_service_order() {
                 );
 
                 // Save the new service to the database
-                $saved_service_id = Sw_Service_Database::sw_create_service($new_service);
+                $saved_service_id = Sw_Service_Database::sw_create_service( $new_service );
             }
 
             // Check if the service was saved successfully

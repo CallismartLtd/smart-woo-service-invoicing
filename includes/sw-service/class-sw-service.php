@@ -1,12 +1,8 @@
 <?php
-
 /**
- * Class Sw_Invoice
- *
- * Represents an invoice for the Smart Woo Service and Invoicing plugin.
- *
- * @package Your_Plugin_Package
- * @since   1.0.0
+ * File name    :   class-sw-invoice.php
+ * @author      :   Callistus
+ * Description  :   Invoice class definition file
  */
 
 /**
@@ -14,7 +10,6 @@
  *
  * Represents a service within the Smart Woo Service and Invoicing plugin for WooCommerce.
  *
- * @package Your_Plugin_Namespace
  */
 class Sw_Service {
 

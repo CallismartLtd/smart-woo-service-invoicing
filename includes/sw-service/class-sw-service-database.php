@@ -5,7 +5,6 @@
  *
  * Provides database-related functionality for retrieving and managing Sw_Service objects.
  *
- * @package Your_Plugin_Package
  * @since   1.0.0
  */
 class Sw_Service_Database {

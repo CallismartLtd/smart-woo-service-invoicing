@@ -6,6 +6,74 @@
  */
 
 /**
+ * Configure button 
+ */
+
+ // Hook to display the "Configure Product" button under the main product price
+ add_action( 'woocommerce_single_product_summary', 'sw_configure_button_on_single_product', 15 );
+
+ function sw_configure_button_on_single_product() {
+     global $product;
+ 
+     // Check if the product is of type 'sw_product'
+     if ( $product && $product->get_type() === 'sw_product' ) {
+         // Remove default "Read more" button
+         remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
+ 
+         // Display the "Configure Product" button
+         echo '<div class="configure-product-button">';
+         echo '<a href="' . home_url( '/configure/' . $product->get_id() ) . '" class="sw-blue-button alt">' . esc_html__( 'Configure Product', 'woocommerce' ) . '</a>';
+         echo '</div>';
+     }
+ }
+
+/**
+ * Register the configure page URL rules
+ */
+function sw_service_rewrite_rule() {
+    add_rewrite_rule('^configure/([^/]+)/?', 'index.php?pagename=configure&sw_product_id=$matches[1]', 'top');
+}
+add_action('init', 'sw_service_rewrite_rule');
+
+/**
+ * Register a query variable for the configuration page
+ * 
+ * @param string $vars  The query variable
+ */
+add_filter('query_vars', 'sw_service_query_vars');
+
+ function sw_service_query_vars( $vars ) {
+    // Add 'sw_product_id' to the list of recognized query variables
+    $vars[] = 'sw_product_id';
+    return $vars;
+}
+
+/**
+ * Set up the configuration page template file.
+ *
+ * This function is a callback for the 'template_include' filter and returns
+ * the template file path for the configure page or the original template.
+ *
+ * @param string $template The original template file path.
+ * @return string The template file path for the configure page or the original template.
+ */
+add_filter( 'template_include', 'sw_template_for_configure_page' );
+
+function sw_template_for_configure_page( $template ) {
+    // Check if the current page is the configure page
+    if ( get_query_var( 'pagename' ) === 'configure' ) {
+        // Return the template file path for the configure page
+        return SW_ABSPATH . '/templates/configure.php';
+    }
+
+    // Return the original template file path
+    return $template;
+}
+
+
+
+
+/**
  * Add configured product data to cart item session.
  *
  * This function is hooked into 'woocommerce_add_cart_item_data' to include additional data
@@ -25,7 +93,7 @@ function sw_add_configured_product_to_cart( $cart_item_data, $product_id, $varia
     }
 
     // Check if 'service_url' is set in the POST data and add it to cart item data
-    if (isset( $_POST['service_url'] ) ) {
+    if ( isset( $_POST['service_url'] ) ) {
         $cart_item_data['sw_service_url'] = esc_url_raw( $_POST['service_url'] );
     }
 
@@ -112,11 +180,11 @@ function sw_display_configured_product_data_in_cart( $cart_data, $cart_item ) {
  * @param array $values The session data for the cart item.
  * @param WC_Order $order The order object.
  */
-add_action('woocommerce_checkout_create_order_line_item', 'sw_save_configured_product_data_to_order_item_meta', 10, 4);
+add_action( 'woocommerce_checkout_create_order_line_item', 'sw_save_configured_product_data_to_order_item_meta', 10, 4 );
 
 function sw_save_configured_product_data_to_order_item_meta( $item, $cart_item_key, $values, $order ) {
     // Check if 'sw_service_name' is set in the cart item data and add it to order item meta
-    if (isset($values['sw_service_name'])) {
+    if ( isset( $values['sw_service_name'] ) ) {
         $item->add_meta_data( 'Service Name', $values['sw_service_name'], true );
     }
 

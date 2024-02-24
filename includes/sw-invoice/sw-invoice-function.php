@@ -157,6 +157,7 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
     $order->update_status( 'pending' );
     $order->update_meta_data( 'Order Type', 'Invoice Payment' );
     $order->update_meta_data( 'Invoice ID', $invoice_id );
+    $order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service and Invoice' );
 
     // Save order
     $order->save();
@@ -345,21 +346,6 @@ function sw_generate_service_migration_invoice() {
 }
 
 
-
-/**
- * Redirects to the invoice preview page based on the provided invoice ID.
- *
- * @param int $invoice_id The ID of the invoice.
- */
-function sw_redirect_to_invoice_preview( $invoice_id ) {
-    $invoice_page = get_option( 'sw_invoice_page', 0 );
-    $redirect_url = get_permalink( $invoice_page ) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
-    wp_safe_redirect( $redirect_url );
-    exit();
-}
-
-
-
 /**
  * Calculate the migration order total.
  *
@@ -499,3 +485,5 @@ function sw_delete_invoice_callback() {
         exit();
     }
 }
+
+

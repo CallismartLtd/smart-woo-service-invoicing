@@ -86,6 +86,34 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 
         // Add the heading
         $output = '<h3 style="text-align: center;">' . $service_name_with_status . '</h3>';
+            // Container for buttons
+        $output .= '<div class="inv-button-container" style="text-align: center;">';
+
+        // "Back to Services" button
+        $output .= '<a href="' . get_permalink() . '" class="back-button">Back to Services</a>';
+
+        $renew_button_text = ( $status === 'Due for Renewal' || $status === 'Grace Period' ) ? 'Renew':'Reactivate';
+    
+        // "Renew" button when the service is due for renewal or expired
+        if ( $status === 'Due for Renewal' || $status === 'Expired' || $status === 'Grace Period' ) {
+            // Generate a nonce for the renew action
+            $renew_nonce = wp_create_nonce( 'renew_service_nonce' );
+
+            // Add the nonce to the URL
+            $renew_link = esc_url( wp_nonce_url( add_query_arg( array( 'service_id' => $service_id, 'action' => 'renew-service' ), get_permalink() ), 'renew_service_nonce', 'renew_nonce' ) );
+
+            // Output the "Renew" button with the nonce
+            $output .= '<a href="' . $renew_link . '" class="renew-button">'. $renew_button_text . '</a>';
+        }
+
+        // "Quick Action" button when the service status is 'Active' 
+        if ($status === 'Active') {
+            $current_url = esc_url(add_query_arg(array('action' => 'cancel')));
+            $cancel_service_link = esc_url(add_query_arg(array('action' => 'cancel'), get_permalink()));
+            $output .= '<a href="#" class="sw-red-button" onclick="return openCancelServiceDialog(\'' . $service_name . '\');">Quick Action</a>';
+        }
+        $output .= '' . $service_button;
+        
         if ( $status === 'Active' ){
         $output .= ''. $usage_metrics .'';
         }
@@ -100,38 +128,6 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
         $output .= '<p>End Date: ' . $end_date . '</p>';
         $output .= '<p>Expiry Date: ' . sw_check_and_format( $expiry_date ) . '</p>';
         $output .= '</div>';
-
-
-
-    // Container for buttons
-    $output .= '<div class="inv-button-container" style="text-align: center;">';
-
-    // "Back to Services" button
-    $output .= '<a href="' . get_permalink() . '" class="back-button">Back to Services</a>';
-
-    $renew_button_text = ( $status === 'Due for Renewal' || $status === 'Grace Period' ) ? 'Renew':'Reactivate';
-   
-    // "Renew" button when the service is due for renewal or expired
-    if ( $status === 'Due for Renewal' || $status === 'Expired' || $status === 'Grace Period' ) {
-        // Generate a nonce for the renew action
-        $renew_nonce = wp_create_nonce( 'renew_service_nonce' );
-
-        // Add the nonce to the URL
-        $renew_link = esc_url( wp_nonce_url( add_query_arg( array( 'service_id' => $service_id, 'action' => 'renew-service' ), get_permalink() ), 'renew_service_nonce', 'renew_nonce' ) );
-
-        // Output the "Renew" button with the nonce
-        $output .= '<a href="' . $renew_link . '" class="renew-button">'. $renew_button_text . '</a>';
-    }
-
-    // "Quick Action" button when the service status is 'Active' 
-    if ($status === 'Active') {
-        $current_url = esc_url(add_query_arg(array('action' => 'cancel')));
-        $cancel_service_link = esc_url(add_query_arg(array('action' => 'cancel'), get_permalink()));
-        $output .= '<a href="#" class="sw-red-button" onclick="return openCancelServiceDialog(\'' . $service_name . '\');">Quick Action</a>';
-    }
-    $output .= '' . $service_button . '';
-
-
         $output .= '</div>';
 
         return $output;

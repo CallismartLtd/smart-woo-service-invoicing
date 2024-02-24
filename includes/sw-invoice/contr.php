@@ -225,8 +225,10 @@ function sw_create_invoice_for_new_order( $order ) {
 
 
                 if ( $new_invoice_id ){
-                    $order->update_meta_data('Order Type', 'Invoice Payment');
-                    $order->update_meta_data('Invoice ID', $new_invoice_id ); 
+                    $order->update_meta_data( 'Order Type', 'Invoice Payment' );
+                    $order->update_meta_data( 'Invoice ID', $new_invoice_id ); 
+                    $order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service and Invoice' );
+
 
                     // Save the order to persist the changes
                     $order->save();
@@ -234,5 +236,39 @@ function sw_create_invoice_for_new_order( $order ) {
             }
         }
 
+    }
+}
+
+/**
+ * Marks invoice as paid.
+ * 
+ * @param  string   $invoice_id   The ID of the invoice to be updated
+ * @do_action @param object $invoice  Triggers "sw_invoice_is_paid" action with the invoice instance
+ * @return bool     false if the invoice is already 'Paid' | true if update is successful
+ */
+function sw_mark_invoice_as_paid( $invoice_id ) {
+    // Get the invoice associated with the service
+    $invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
+
+    // Check if the invoice is valid and payment_status is not 'paid'
+    if ( $invoice && $invoice->getPaymentStatus() !== 'paid' ) {
+        // Get the order associated with the invoice
+        $order = wc_get_order( $invoice->getOrderId() );
+
+        // Update additional fields in the invoice
+        $fields = array(
+            'payment_status'   => 'paid',
+            'date_paid'        => current_time( 'Y-m-d H:i:s' ),
+            'transaction_id'   => $order->get_transaction_id(), // Use order transaction id
+            'payment_gateway'  => $order->get_payment_method(), // Use payment gateway used for the order
+        );
+        $updated_invoice  = Sw_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
+        do_action( 'sw_invoice_is_paid', $updated_invoice );
+
+        return true;
+
+    } else {
+        // Invoice is already paid, terminate further execution
+        return false;
     }
 }

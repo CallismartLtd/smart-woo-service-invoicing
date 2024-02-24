@@ -5,7 +5,6 @@
  *
  * Represents an invoice for the Smart Woo Service and Invoicing plugin.
  *
- * @package Your_Plugin_Package
  * @since   1.0.0
  */
 

@@ -175,7 +175,7 @@ add_action('wp_loaded', 'sw_invoice_download');
             </body>
             </html>';
 
-            // Include mPDF library using the WordPress ABSPATH
+            // Include mPDF library
             include_once SW_ABSPATH . 'vendor/autoload.php';
 
             $invoice_id =   esc_html( $invoice->getInvoiceId() );

@@ -539,7 +539,7 @@ function generate_service_id_callback() {
     // Get the service name from AJAX request
     $service_name = sanitize_text_field( $_POST['service_name'] );
 
-    // Call your existing function to generate service ID
+    // generate service ID
     $generated_service_id = sw_generate_service_id( $service_name );
 
     // Return the generated service ID
@@ -624,16 +624,15 @@ function sw_check_service_usage( $service_id ) {
     }
 
     // Extract relevant service details
-    $start_date = strtotime( esc_html( $service_details->getStartDate() ) );
-    $end_date = strtotime( esc_html( $service_details->getEndDate() ) );
+    $start_date   = strtotime( esc_html( $service_details->getStartDate() ) );
+    $end_date     = strtotime( esc_html( $service_details->getEndDate() ) );
     $current_date = current_time( 'timestamp', 0 );
-
-    $product_id = $service_details->getProductId();
+    $product_id   = $service_details->getProductId();
 
     // Get product details from WooCommerce
     $product = wc_get_product( $product_id );
 
-    if (!$product) {
+    if ( ! $product ) {
         // Product not found
         return false;
     }
@@ -645,11 +644,11 @@ function sw_check_service_usage( $service_id ) {
     $service_cost = max( 0, $service_cost );
 
     // Calculate the total days and days passed
-    $total_days = max( 1, ( $end_date - $start_date ) / 86400 ); // 86400 seconds in a day
+    $total_days  = max( 1, ( $end_date - $start_date ) / 86400 ); // 86400 seconds in a day
     $days_passed = max( 0, min( $total_days, (int) ( ( $current_date - $start_date ) / 86400 ) ) );
 
     // Calculate the unused amount based on the daily rate
-    $daily_rate = $total_days > 0 ? $service_cost / $total_days : 0;
+    $daily_rate    = $total_days > 0 ? $service_cost / $total_days : 0;
     $unused_amount = $service_cost - ( $daily_rate * $days_passed );
 
     // Calculate used amount
@@ -672,10 +671,10 @@ function sw_check_service_usage( $service_id ) {
 
     // Days Remaining
     $days_remaining_seconds = max( 0, $total_days - $days_passed ) * 86400;
-    $days_remaining = floor( $days_remaining_seconds / 86400 );
-    $hours_remaining = floor( ( $days_remaining_seconds % 86400 ) / 3600 );
-    $minutes_remaining = floor( ( $days_remaining_seconds % 3600 ) / 60 );
-    $seconds_remaining = $days_remaining_seconds % 60;
+    $days_remaining         = floor( $days_remaining_seconds / 86400 );
+    $hours_remaining        = floor( ( $days_remaining_seconds % 86400 ) / 3600 );
+    $minutes_remaining      = floor( ( $days_remaining_seconds % 3600 ) / 60 );
+    $seconds_remaining      = $days_remaining_seconds % 60;
 
     // Average Hourly Usage
     $average_hourly_usage = ( $total_days > 0 ) ? ( $used_amount / $total_days ) / 24 : 0;
@@ -684,27 +683,21 @@ function sw_check_service_usage( $service_id ) {
     $readable_remaining = sprintf( '%d days %02d:%02d:%02d', $days_remaining, $hours_remaining, $minutes_remaining, $seconds_remaining );
 
     return array(
-        'used_amount' => max( 0, $used_amount ), // Ensure non-negative value
-        'unused_amount' => max( 0, $unused_amount ), // Ensure non-negative value
-        'service_cost' => max( 0, $total_service_cost ), // Ensure non-negative value
-        'average_daily_cost' => max( 0, $average_daily_cost ), // Ensure non-negative value
-        'product_costs' => $product_costs,
-        'percentage_used' => max( 0, $percentage_used ), // Ensure non-negative value
-        'percentage_unused' => max( 0, $percentage_unused ), // Ensure non-negative value
-        'days_remaining' => $readable_remaining,
-        'total_days' => max( 1, $total_days ), // Ensure non-zero value
-        'total_used_days' => max( 0, $days_passed ),
-        'remaining_days' => max( 0, $total_days - $days_passed ),
-        'current_date_time' => date( 'Y-m-d g:i a', $current_date ),
-        'average_hourly_usage' => max( 0, $average_hourly_usage ), // Ensure non-negative value
+        'used_amount'           => max( 0, $used_amount ), // Ensure non-negative value
+        'unused_amount'         => max( 0, $unused_amount ), // Ensure non-negative value
+        'service_cost'          => max( 0, $total_service_cost ), // Ensure non-negative value
+        'average_daily_cost'    => max( 0, $average_daily_cost ), // Ensure non-negative value
+        'product_costs'         => $product_costs,
+        'percentage_used'       => max( 0, $percentage_used ), // Ensure non-negative value
+        'percentage_unused'     => max( 0, $percentage_unused ), // Ensure non-negative value
+        'days_remaining'        => $readable_remaining,
+        'total_days'            => max( 1, $total_days ), // Ensure non-zero value
+        'total_used_days'       => max( 0, $days_passed ),
+        'remaining_days'        => max( 0, $total_days - $days_passed ),
+        'current_date_time'     => date( 'Y-m-d g:i a', $current_date ),
+        'average_hourly_usage'  => max( 0, $average_hourly_usage ), // Ensure non-negative value
     );
 }
-
-
-
-
-
-
 
 /**
  * Get the price of a service

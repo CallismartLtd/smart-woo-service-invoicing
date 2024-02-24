@@ -27,7 +27,7 @@ function register_sw_service_product_type() {
             // Set the product type
             wp_set_object_terms( $product_id, $this->type, 'product_type' );
 
-            // Set additional properties specific to your product type
+            // Set additional properties specific to the product type
             $this->set_sign_up_fee( get_post_meta( $product_id, 'sign_up_fee', true ) );
             $this->set_billing_cycle( get_post_meta( $product_id, 'billing_cycle', true ) );
             $this->set_grace_period_number( get_post_meta( $product_id, 'grace_period_number', true ) );
@@ -95,7 +95,7 @@ function register_sw_service_product_type() {
                 // Instantiate Sw_Service_Product and set properties
                 $sw_service_product = new self( $product->get_id() );
 
-                // Set additional properties specific to your product type
+                // Set additional properties specific to the product type
                 $sw_service_product->set_sign_up_fee( get_post_meta( $product->get_id(), 'sign_up_fee', true ) );
                 $sw_service_product->set_billing_cycle( get_post_meta( $product->get_id(), 'billing_cycle', true ) );
                 $sw_service_product->set_grace_period_number( get_post_meta( $product->get_id(), 'grace_period_number', true ) );

@@ -342,4 +342,155 @@ if ( ! function_exists( 'sw_error_notice' ) ) {
 
 
 
+/**
+ * Redirects to the invoice preview page based on the provided invoice ID.
+ *
+ * @param int $invoice_id The ID of the invoice.
+ */
+function sw_redirect_to_invoice_preview( $invoice_id ) {
+    $invoice_page = get_option( 'sw_invoice_page', 0 );
+    $redirect_url = get_permalink( $invoice_page ) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
+    wp_safe_redirect( $redirect_url );
+    exit();
+}
 
+
+/**
+ * Get all orders for the configured service or check if a specific order is configured.
+ * @param int|null $order_id_to_get Optional. If provided, returns the ID of the specified order.
+ * @return int|array The ID of the specified order if $order_id_to_get is provided and is configured, or an array of order IDs for configured orders.
+ */
+function sw_get_orders_for_configured_products( $order_id_to_get = null ) {
+    // If $order_id_to_get is provided, return the ID of the specified order
+    if ( $order_id_to_get !== null ) {
+        $order = wc_get_order( $order_id_to_get );
+        if ( $order && has_sw_configured_products( $order ) ) {
+            return $order_id_to_get;
+        } else {
+            return 0; // Return 0 to indicate that the specified order is not configured
+        }
+    }
+
+    // Initialize an empty array to store order IDs
+    $order_ids = array();
+
+    // Query WooCommerce orders
+    $orders = wc_get_orders( array(
+        'limit' => -1,  // Retrieve all orders
+    ));
+
+    // Loop through the orders
+    foreach ( $orders as $order ) {
+        // Check if the order has configured products
+        if ( $order && has_sw_configured_products( $order ) ) {
+            $order_ids[] = $order->get_id();
+        }
+    }
+
+    // If $order_id_to_get is not provided, return the array of order IDs
+    return $order_ids;
+}
+
+/**
+ * Check if an order has configured products.
+ * @param WC_Order $order The WooCommerce order object.
+ * @return bool True if the order has configured products, false otherwise.
+ */
+function has_sw_configured_products( $order ) {
+    $items = $order->get_items();
+
+    foreach ( $items as $item_id => $item ) {
+        $service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
+        if ( ! empty( $service_name ) ) {
+            return true; // Configured product found
+        }
+    }
+
+    return false; // No configured products found
+}
+
+
+/**
+ * Service and Invoice pages navigation bar
+ * 
+ * @param int $user_id   The current user's ID
+ */
+function sw_get_navbar( $current_user_id ) {
+
+    // Get the URL of the service page from the plugin options
+    $service_page_id = get_option( 'sw_service_page', 0 );
+    $service_page_url = get_permalink( $service_page_id );
+
+    // Get the URL of the invoice preview page from the plugin options
+    $invoice_preview_page_id = get_option( 'sw_invoice_page', 0 );
+    $invoice_preview_page_url = get_permalink( $invoice_preview_page_id );
+
+    // Determine the current page
+    $current_page_slug = '';
+    $navbar_title = '';
+
+    if ( is_page( $service_page_id ) ) {
+        $current_page_slug = 'services';
+        $navbar_title = 'My Services';
+    } elseif ( is_page( $invoice_preview_page_id ) ) {
+        $current_page_slug = 'invoices';
+        $navbar_title = 'My Invoices';
+    }
+
+    // Set the default page title
+    $page_title = $navbar_title;
+
+    // If the current page is 'services' and a service action is selected
+    if ( $current_page_slug === 'services' && isset($_GET['service_action'] ) ) {
+        $service_action = sanitize_key( $_GET['service_action'] );
+
+        // Customize the page title based on the selected service action
+        switch ( $service_action ) {
+            case 'upgrade':
+                $page_title = 'Upgrade Service';
+                break;
+            case 'downgrade':
+                $page_title = 'Downgrade Service';
+                break;
+            case 'buy_new':
+                $page_title = 'Buy New Service';
+                break;
+        }
+    }
+
+    echo '<div class="service-navbar">';
+    
+    // Container for the title (aligned to the left)
+    echo '<div class="navbar-title-container">';
+    echo '<h3>' . esc_html( $page_title ) . '</h3>';
+    echo '</div>';
+    
+    // Container for the links (aligned to the right)
+    echo '<div class="navbar-links-container">';
+    echo '<ul>';
+
+    // Add link to the service page
+    echo '<li><a href="' . esc_url( $service_page_url ) . '" class="' . ( $current_page_slug === 'services' ? 'current-page' : '' ) . '">Services</a></li>';
+
+    // Add link to the invoice preview page
+    echo '<li><a href="' . esc_url( $invoice_preview_page_url ) . '" class="' . ( $current_page_slug === 'invoices' ? 'current-page' : '' ) . '">Invoices</a></li>';
+
+    // Add dropdown for service actions only on the service page
+    if ( $current_page_slug === 'services' ) {
+        // Dropdown for service actions
+        echo '<li class="service-actions-dropdown">';
+        echo '<select onchange="redirectBasedOnServiceAction(this.value)">';
+        echo '<option value="" selected>Select Action</option>';
+        echo '<option value="upgrade">Upgrade Service</option>';
+        echo '<option value="downgrade">Downgrade Service</option>';
+        echo '<option value="buy_new">Buy New Service</option>';
+        // Add more options as needed
+        echo '</select>';
+        echo '</li>';
+    }
+
+    echo '</ul>';
+    echo '</div>';
+    
+    echo '</div>';
+}
