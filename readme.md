@@ -1,6 +1,6 @@
 # Smart Woo Service and Invoice
 
-Revolutionise your WooCommerce experience with the Smart Woo Service and Invoicing Plugin! This plugin is born out of the need for a robust, cost-effective billing solution tailored for freelencers offering diverse services.
+Integrate powerful service subscriptions and invoicing directly into your online store! This plugin is born out of the need for a robust, cost-effective billing solution tailored for freelencers offering diverse services.
 
 ## Introduction
 
