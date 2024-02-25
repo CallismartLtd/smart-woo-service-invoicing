@@ -74,7 +74,6 @@ add_action( 'smart_woo_init', 'sw_load_dependencies' );
 function sw_load_dependencies(){
     require_once SW_ABSPATH . 'admin/include/cron-schedule.php';
     require_once SW_ABSPATH . 'admin/include/email-templates.php';
-    require_once SW_ABSPATH . 'admin/include/hooks.php';
     require_once SW_ABSPATH . 'admin/include/service-remote.php';
     require_once SW_ABSPATH . 'admin/include/smart-woo-manager.php';
     include_once SW_ABSPATH . 'admin/include/sw_service_api.php';
@@ -107,3 +106,4 @@ function sw_load_dependencies(){
     // Do action after loading plugin files
     do_action( 'smart_woo_loaded' );
 }
+

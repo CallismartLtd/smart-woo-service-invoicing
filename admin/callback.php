@@ -164,3 +164,28 @@ function sw_options_page() {
      }
 }
 
+
+/**
+ * Register custom post states for specific pages.
+ *
+ * This function adds custom post states to pages based on their IDs.
+ * It is hooked into the 'display_post_states' filter.
+ *
+ * @param array   $post_states An array of post states.
+ * @param WP_Post $post        The current post object.
+ *
+ * @return array Modified array of post states.
+ */
+function sw_register_post_states( $post_states, $post ) {
+    $service_details_page_id = get_option( 'sw_service_page' );
+    $invoice_details_page_id = get_option( 'sw_invoice_page' );
+
+    if ( $post->ID == $service_details_page_id ) {
+        $post_states[] = 'Service Subscription Page';
+    } elseif ($post->ID == $invoice_details_page_id ) {
+        $post_states[] = 'Invoice Management Page';
+    }
+
+    return $post_states;
+}
+add_filter('display_post_states', 'sw_register_post_states', 10, 2);

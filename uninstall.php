@@ -7,7 +7,7 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
  * Delete pluigin settings during uninstall
  */
 delete_option( 'sw_invoice_id_prefix' );
-delete_option( 'invoice_preview_page' );
+delete_option( 'sw_invoice_page' );
 delete_option( 'sw_invoice_logo_url' );
 delete_option( 'sw_invoice_watermark_url' );
 delete_option( 'sw_business_name');

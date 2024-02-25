@@ -130,36 +130,47 @@ function sw_handle_options_submission() {
 
     // Left column (Topics)
     echo '<div class="sw-left-column">';
-    echo '<h3>Quick Guides</h3>';
+    echo '<h3>Quick Set-up Guides</h3>';
     echo '<ul>';
-    echo '<li><a href="#topic1">Topic 1</a></li>';
-    echo '<li><a href="#topic2">Topic 2</a></li>';
-    echo '<li><a href="#topic3">Topic 3</a></li>';
-    // Add more topics as needed
+    // Heading for general concept
+    echo '<h4><a href="#general-concept">General Concept</a></h4>';
+    // Step one
+    echo '<h4><a href="#step1">Step 1</a></h4>';
+    echo '<h4><a href="#step2">Step 2</a></h4>';
+    echo '<h4><a href="#step3">Step 3</a></h4>';
     echo '</ul>';
     echo '</div>';
 
     // Right column (Instructions)
     echo '<div class="sw-right-column">';
-    echo '<h3>Instructions</h3>';
-
-    // Instruction for Topic 1
-    echo '<div id="topic1" class="instruction">';
-    echo '<p>Instructions for Topic 1 go here.</p>';
+    // Instruction for general concept
+    echo '<div id="general-concept" class="instruction">';
+    echo '<h3>Introduction</h3>';
+    echo '<p><strong>The concept behind this plugin is to allow admins(store owners) to issue service-subscription based invoices and accept
+    payments through them. For you to achieve this you need to carefully folow the outlined steps in this quick guide.</strong></p>';
     echo '</div>';
 
-    // Instruction for Topic 2
-    echo '<div id="topic2" class="instruction">';
-    echo '<p>Instructions for Topic 2 go here.</p>';
+    // Instruction for step one
+    echo '<div id="step1" class="instruction">';
+    echo '<h3>Basic Set-up</h3>';
+    echo '<p><strong>Set up your business details in the <a href="' . esc_url( admin_url( 'admin.php?page=sw-options&tab=business' ) ) . '" target="_blank">business settings page</a>,';
+    echo 'and Invoicing preferences in the <a href="' . esc_url( admin_url( 'admin.php?page=sw-options&tab=invoicing' ) ) .'" target="_blank">invoicing settings page</a></strong></p>';
     echo '</div>';
 
-    // Instruction for Topic 3
-    echo '<div id="topic3" class="instruction">';
-    echo '<p>Instructions for Topic 3 go here.</p>';
+
+    // Instruction for step two
+    echo '<div id="step2" class="instruction">';
+    echo '<h3>Create Product</h3>';
+    echo '<p><strong>Create a <a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ).'" target="_blank">Service Product</a> specially dedicated to service subscription, set up the necessary fields.</strong></p>';
     echo '</div>';
 
-    // Add more instructions as needed
-
+    // Instruction for step three
+    echo '<div id="step3" class="instruction">';
+    echo '<h3>All Done 🎉🎉</h3>';
+    echo '<p><strong>Your product is now listed in the WooCommerce product page, you can sale your service subscription from there or via a custom made tables.<br>
+    When a user configures the product to their choice, they can add it to cart and checkout. All orders are in the <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Service Orders</a> page, from there you can process them.</p>';
+    echo '<p>For help, Support or Bug report please visit our dedicated <a href="https://callismart.com.ng/smart-woo">Smart Woo</a> page</strong></p>';
+    echo '</div>';
     echo '</div>';
 
     echo '</div>';
@@ -183,7 +194,7 @@ function sw_render_service_options_page() {
     $sw_prorate             = get_option( 'sw_prorate', 'Select option' );
     $migration_option       = get_option( 'sw_allow_migration', 'Disable' );
     $service_id_prefix      = get_option( 'sw_service_id_prefix', 'SID' );
-    echo '<h1>Business Info</h1>';
+    echo '<h1>Business Info 🧊</h1>';
 
     
     ?>
@@ -294,7 +305,7 @@ function sw_render_invoice_options_page() {
     $pages                  = get_pages();
     $invoice_logo_url       = get_option( 'sw_invoice_logo_url' );
     $invoice_watermark_url  = get_option( 'sw_invoice_watermark_url' );
-    echo '<h1> Invoice</h1>';
+    echo '<h1> Invoice 🧾</h1>';
     ?>
         <div class="wrap">
         <form method="post" class="inv-settings-form">
@@ -365,22 +376,26 @@ function sw_render_email_options_page() {
     ?>
     <div class="wrap">
         <h1>Emails</h1>
+        <p>If you notice emails are not being sent, consider setting up SMTP for your site.</p>
         <form method="post" class="inv-settings-form">
 
             <!-- Sender Name -->
             <div class="sw-form-row">
                 <label for="sw_sender_name" class="sw-form-label">Sender Name</label>
+                <span class="sw-field-description" title="This will be the sender name in the email">?</span>
                 <input type="text" name="sw_sender_name" id="sw_sender_name" value="<?php echo esc_attr( $sender_name ); ?>" placeholder="eg, Billing Team" class="sw-form-input">
             </div>
 
             <!-- Billing Email -->
             <div class="sw-form-row">
                 <label for="sw_billing_email" class="sw-form-label">Billing Email</label>
+                <span class="sw-field-description" title="This email will be used to send emails to the client">?</span>
                 <input type="email" name="sw_billing_email" id="sw_billing_email" value="<?php echo esc_attr( $billing_email ); ?>" placeholder="eg, billing@domain.com" class="sw-form-input">
             </div>
 
+            <h3 style="text-align: center;"> Choose which mail is sent by checking the boxes</h3>
             <!-- Checkboxes -->
-            <?php foreach ($checkboxes as $checkbox_name) : ?>
+            <?php foreach ( $checkboxes as $checkbox_name ) : ?>
                 <div class="sw-form-row">
                     <label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
                         <?php echo esc_html( ucwords( str_replace ( array( '_', 'sw'), ' ', $checkbox_name ) ) ); ?>
