@@ -3,7 +3,7 @@
 /**
  * Class Sw_Invoice
  *
- * Represents an invoice for the Smart Woo Service and Invoicing plugin.
+ * Represents an invoice for the Smart Woo Service Invoicing.
  *
  * @since   1.0.0
  */

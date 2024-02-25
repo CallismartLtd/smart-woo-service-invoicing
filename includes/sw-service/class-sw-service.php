@@ -8,7 +8,7 @@
 /**
  * Class Sw_Service
  *
- * Represents a service within the Smart Woo Service and Invoicing plugin for WooCommerce.
+ * Represents a service within the Smart Woo Service Invoicing for WooCommerce.
  *
  */
 class Sw_Service {

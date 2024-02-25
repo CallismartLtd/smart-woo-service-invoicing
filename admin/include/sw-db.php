@@ -2,7 +2,7 @@
 /**
  * File name    :   sw-db.php
  * @author      :   Callistus
- * Description  :   Database schema for smart woo service and invoicing plugin
+ * Description  :   Database schema for Smart Woo Service Invoicing
  */
 
 if (!defined('ABSPATH')) {
