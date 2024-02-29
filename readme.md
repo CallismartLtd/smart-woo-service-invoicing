@@ -84,7 +84,7 @@ For support, please visit the [support portal](https://callismart.com.ng/support
 
 ## License
 
-This project is licensed under the GPL-2.0+ License.
+This project is licensed under the GPL- v3.0+ License.
 
 ## Financial Support
 
@@ -96,4 +96,4 @@ To make a donation, please visit our [donation page](https://paystack.com/pay/su
 
 Thank you for considering supporting Smart Woo Service and Invoicing Plugin! Your generosity is crucial to the sustainability and improvement of this project.
 
-**Tags:** Invoice,Invoicing, Subscription,WHM, WordPress invoicing plugin,#
+**Tags:** Invoice,Invoicing, Subscription,WHM, WordPress invoicing plugin,
