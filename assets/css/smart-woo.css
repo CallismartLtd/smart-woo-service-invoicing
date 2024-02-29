@@ -535,9 +535,7 @@ use inline CSS to overide some styles
 	text-align: center;
 }
 
-.invoice-preview{
-	width: 100%;
-}
+
 .invoice-header {
 	display: flex;
 	justify-content: space-between;
@@ -562,16 +560,6 @@ use inline CSS to overide some styles
 	margin-right: 10px;
 }
 
-/* Media query for screens smaller than 768 pixels */
-@media (max-width: 425px) {
-	.logo img {
-	width: 100%;
-	float: left;
-	margin-right: 0;
-	max-width: 250px;
-	}
-}
-
 
 /* Style the status to be at the top right with a red background */
 .invoice-status {
@@ -592,15 +580,25 @@ use inline CSS to overide some styles
 }
 
 /* Add media query for responsiveness */
-@media screen and (max-width: 768px) {
+@media only screen and (min-width: 320px) and (max-width: 768px){
 	/* Adjust styles for smaller screens here */
 	.invoice-container {
-	width: 21cm;
+	width: 90%;
 	margin: 10px auto 20px auto; /* Adjust margin as needed */
 	}
 	.logo {
-		max-width: 50%; /* Adjust max-width for smaller screens */
+		max-width: 30%; /* Adjust max-width for smaller screens */
 	}
+	.mini-card-container{
+		font-size: 12px;
+	}
+	.invoice-number {
+		font-size: 14px;
+	}
+	.invoice-header {
+		width: 100%;
+	}
+
 }
 
 /* Ensure both sections are displayed as blocks */
@@ -714,7 +712,11 @@ use inline CSS to overide some styles
 	font-weight: bold; /* Make the total item text bold */
 }
 
-
+.mini-card-container {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+}
 
 /* Style the thank you message */
 .thank-you-message {

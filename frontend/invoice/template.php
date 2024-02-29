@@ -142,6 +142,7 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 		echo '<br>';
 		echo '<div class="inv-button-container" style="text-align: left;">';
 		echo '<a href="' . esc_url( get_permalink() ) . '" class="back-button">Back to invoices</a>';
+		echo '</div>';
 
 		// Generate the invoice content
 		$invoice_content  = '<div class="invoice-container">';
