@@ -1,5 +1,6 @@
 # Smart Woo Service Invoicing
 **Tags:** Invoice, Invoicing, Subscription, WHMC.
+
 **Requires at least:** 6.2  
 **Tested up to:** 6.4  
 **Requires PHP:** 5.4  
