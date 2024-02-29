@@ -12,7 +12,7 @@ As a freelancer, automating service management and billings can be hectic, there
 
 - **Flexible Billing Cycles:** Charge Monthly, Quarterly, Six Monthly and Yearly service subscription periods.
 
-- ** Empower customers to set their service name, billing cycle and other relevant data during the purchase (sign-up) process.
+- **User Friendly Interface:** Empower customers to set their service name, billing cycle and other relevant data during the purchase (sign-up) process.
 
 - **Easy Service Order Management:** All orders for this product type are considered New Service Orders, allowing easy processing via the Service Orders page in the admin.
 
