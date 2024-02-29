@@ -1,10 +1,4 @@
-# Smart Woo Service Invoicing.
-
-**Requires at least:** 6.2  
-**Tested up to:** 6.4  
-**Requires PHP:** 7.0
-**License:** GPLv3  
-**License URI:** https://www.gnu.org/licenses/gpl-3.0.en.html  
+# Smart Woo Service Invoicing. 
 
 Integrate powerful service subscriptions and invoicing directly into your online store! This plugin is born out of the need for a robust, cost-effective billing solution tailored for freelencers offering diverse services.
 
