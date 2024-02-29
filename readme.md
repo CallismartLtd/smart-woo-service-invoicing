@@ -89,9 +89,12 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 See [changelog.md](changelog.md) for details on updates and changes.
 
-## Support
+## Technical Support
+
+We are dedicated to providing an excellent user experience, investing significant effort to ensure our product is safe and free of bugs. However, we understand that issues may arise, and we are committed to addressing them promptly.
 
 For support, please visit the [support portal](https://callismart.com.ng/support-portal).
+
 
 ## Financial Support
 
