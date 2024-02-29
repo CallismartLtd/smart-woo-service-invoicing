@@ -1,3 +1,3 @@
 <?php
 
-//Must Silence be golden?
+// Must Silence be golden?

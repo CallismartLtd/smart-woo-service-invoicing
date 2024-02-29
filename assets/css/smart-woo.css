@@ -1,7 +1,6 @@
-
 /**
  * This file contains all the CSS File for this plugin although there are some point where it was neccessary for us to
- use inline CSS to overide some styles
+use inline CSS to overide some styles
  */
 
 /************************************************************************************/
@@ -11,41 +10,41 @@
 /************** Button CSS******************/
 
 .sw-red-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #db5534;
-  color: #ffffff;
-  font-weight: bold;
-  text-decoration: none;
-  border-radius: 5px;
-  border: 2px solid #fafafa;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #db5534;
+	color: #ffffff;
+	font-weight: bold;
+	text-decoration: none;
+	border-radius: 5px;
+	border: 2px solid #fafafa;
 
-  margin-right: 10px;
+	margin-right: 10px;
 }
 
 /* Style for the primary buttons on hover */
 .sw-red-button:hover {
-  background-color: #2980b9;
-  color: rgb(250, 250, 9);
+	background-color: #2980b9;
+	color: rgb(250, 250, 9);
 }
 
 .sw-blue-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #0073e6; /* Button background color */
-  color: #fff; /* Text color */
-  text-decoration: none;
-  border: 2px solid #fafafa;
-  border-radius: 5px;
-  margin: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s, color 0.3s;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #0073e6; /* Button background color */
+	color: #fff; /* Text color */
+	text-decoration: none;
+	border: 2px solid #fafafa;
+	border-radius: 5px;
+	margin: 5px;
+	font-weight: bold;
+	transition: background-color 0.3s, color 0.3s;
 }
 
 .sw-blue-button:hover {
-  background-color: #3f8fe6; /* Hover background color */
-  border: 1px solid #01060a; /* Hover border color */
-  color: rgb(236, 236, 13);
+	background-color: #3f8fe6; /* Hover background color */
+	border: 1px solid #01060a; /* Hover border color */
+	color: rgb(236, 236, 13);
 }
 
 
@@ -55,77 +54,77 @@
 
 /* Style for the dashboard container */
 .dashboard-container {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin: 20px 0;
-  background-color: #ffffff;
-  border: 1px solid #918d8d;
-  padding: 20px;
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-  text-align: center;
-  margin-bottom: 20px; 
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	margin: 20px 0;
+	background-color: #ffffff;
+	border: 1px solid #918d8d;
+	padding: 20px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	text-align: center;
+	margin-bottom: 20px;
 }
 
 
 /* Style the container for each list */
 .dashboard-list-container {
-  display: inline-block;
-  vertical-align: top;
-  width: calc(33.33% - 20px); /* Adjust width and consider margin */
-  margin: 0 10px; /* Add horizontal margin for spacing */
-  padding: 20px; /* Add padding to create space within the boxes */
-  
-  box-sizing: border-box; /* Include padding and borders in width calculation */
+	display: inline-block;
+	vertical-align: top;
+	width: calc(33.33% - 20px); /* Adjust width and consider margin */
+	margin: 0 10px; /* Add horizontal margin for spacing */
+	padding: 20px; /* Add padding to create space within the boxes */
+
+	box-sizing: border-box; /* Include padding and borders in width calculation */
 }
 
 .dashboard-list-card {
-  background-color: #ffffff;
-  border: 1px solid #918d8d;
-  text-align: center;
-  min-height: 200px;
-  width: 100%;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	background-color: #ffffff;
+	border: 1px solid #918d8d;
+	text-align: center;
+	min-height: 200px;
+	width: 100%;
+	margin-bottom: 20px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
 
 .dashboard-list-card:hover {
-  box-shadow: none; /* Remove shadow on hover */
-  transform: translateY(5px); /* Move container slightly down */
+	box-shadow: none; /* Remove shadow on hover */
+	transform: translateY(5px); /* Move container slightly down */
 }
 
 /* Style the list items */
 .dashboard-list-card ul {
-  list-style: none;
-  padding: 0;
+	list-style: none;
+	padding: 0;
 }
 
 .dashboard-list-card li {
-  margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .dashboard-list-card a {
-  text-decoration: none;
-  color: #2271b1;
-  transition: color 0.2s;
-  font-size: 16px;
+	text-decoration: none;
+	color: #2271b1;
+	transition: color 0.2s;
+	font-size: 16px;
 }
 
 .dashboard-list-card a:hover {
-  color: #000000;
+	color: #000000;
 }
 
 /* Style for the title in each card */
 .dashboard-card h2 {
-  font-size: 18px;
-  margin: 10px 0;
+	font-size: 18px;
+	margin: 10px 0;
 }
 
 /* Style for the count in each card */
 .dashboard-card .count {
-  font-size: 24px;
-  font-weight: bold;
-  color: #0073e6; /* Change the color to  preference */
+	font-size: 24px;
+	font-weight: bold;
+	color: #0073e6; /* Change the color to  preference */
 }
 
 
@@ -134,30 +133,30 @@
 /* Apply styles to form labels */
 
 .sw-textarea{
-  width: 400px;
-  padding: 8px;
-  margin-bottom: 10px;
-  height:250px;
+	width: 400px;
+	padding: 8px;
+	margin-bottom: 10px;
+	height:250px;
 }
 
 /* Apply styles to the image preview container */
 .sw-form-image-preview {
-  margin-top: 10px;
-  width: 100%;
-  max-width: 250px;
+	margin-top: 10px;
+	width: 100%;
+	max-width: 250px;
 }
 
 /* Style for the Grace Period number input */
 .grace-period-number {
-    width: 80px; 
-    margin-right: 5px;
-    padding: 5px;
+	width: 80px;
+	margin-right: 5px;
+	padding: 5px;
 }
 
 /* Style for the Grace Period unit select */
 .select-grace-period-unit {
-    max-width: 20px;
-    padding: 6px; /* Adjust the padding as needed */
+	max-width: 20px;
+	padding: 6px; /* Adjust the padding as needed */
 }
 
 /* Service Product form ends here*/
@@ -165,97 +164,97 @@
 /************************************All form CSS starts here****************************************/
 
 .sw-form-container {
-  max-width: 90%;
-  justify-content: space-around;
-  margin: 20px 0;
-  padding: 20px;
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-  margin-bottom: 20px;
-  }
-  
-  /* Custom CSS for the product configuration container */
-  
-  .sw-configure-container {
-    max-width: 1000px; 
-    margin: 10px auto 60px; 
-    padding: 20px; 
-    height: 300px;
-    background-color: #fff;
-    border: 2px solid #faefef; /* Add a border */
-    box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-  }
-  
-  /* Styles for inv-settings-form */
+	max-width: 90%;
+	justify-content: space-around;
+	margin: 20px 0;
+	padding: 20px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	margin-bottom: 20px;
+	}
+
+	/* Custom CSS for the product configuration container */
+
+	.sw-configure-container {
+	max-width: 1000px;
+	margin: 10px auto 60px;
+	padding: 20px;
+	height: 300px;
+	background-color: #fff;
+	border: 2px solid #faefef; /* Add a border */
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	}
+
+	/* Styles for inv-settings-form */
 .inv-settings-form {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+	max-width: 100%;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-  
-  
-  .sw-form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px; /* Add some spacing between rows */
-  }
-  
-  .sw-form-label {
-    flex: 1; 
-    font-size: 14px;
-    font-weight: bold;
-    margin-right: 10px; 
-    
-  }
 
-  .sw-form-checkbox {
-    flex: 0.7;
-    font-size: 14px;
-    font-weight: bold;
-    margin-right: 10px; 
-    
-  }
-  
-  .sw-field-description {
-    background-color: black;
-    color: rgb(255, 255, 255);
-    border-radius: 50%;
-    padding: 2px;
-    font-weight: bold;
-    font-size: 11px;
-    text-align: center;
-  
-  }
-  
-  /* Style for form descriptions (visible on hover) */
-  .sw-field-description {
-    margin-left: 5px; /* Add some space between the label and the question mark */
-    cursor: help;
-    position: relative;
-  }
-  
 
-  
-  .sw-cart-form {
-    width: 100%;
-  }
-  
-  
-  .sw-form-input {
-    max-width: 400px;
-    padding: 8px;
-    margin-bottom: 10px;
-    width: 100%;
-  
-    border: 2px solid #fffefe;
-    box-sizing: border-box;
-  
-    border-radius: 5px;
-  }
+	.sw-form-row {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px; /* Add some spacing between rows */
+	}
+
+	.sw-form-label {
+	flex: 1;
+	font-size: 14px;
+	font-weight: bold;
+	margin-right: 10px;
+
+	}
+
+	.sw-form-checkbox {
+	flex: 0.7;
+	font-size: 14px;
+	font-weight: bold;
+	margin-right: 10px;
+
+	}
+
+	.sw-field-description {
+	background-color: black;
+	color: rgb(255, 255, 255);
+	border-radius: 50%;
+	padding: 2px;
+	font-weight: bold;
+	font-size: 11px;
+	text-align: center;
+
+	}
+
+	/* Style for form descriptions (visible on hover) */
+	.sw-field-description {
+	margin-left: 5px; /* Add some space between the label and the question mark */
+	cursor: help;
+	position: relative;
+	}
+
+
+
+	.sw-cart-form {
+	width: 100%;
+	}
+
+
+	.sw-form-input {
+	max-width: 400px;
+	padding: 8px;
+	margin-bottom: 10px;
+	width: 100%;
+
+	border: 2px solid #fffefe;
+	box-sizing: border-box;
+
+	border-radius: 5px;
+	}
 
 /************************************All form CSS ends here****************************************/
 
@@ -264,90 +263,90 @@
 /*Invoice Details page*/
 /* Style for the main container */
 .invoice-details {
-  width: 70%;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+	width: 70%;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #ffffff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
 }
 
 /* Style for the heading */
 .invoice-details h2 {
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-  text-align: center;
+	color: #333;
+	font-size: 24px;
+	margin-bottom: 20px;
+	text-align: center;
 }
 
 /* Style for each invoice detail item */
 .invoice-details-item {
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	margin-bottom: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .invoice-details-item span {
-  font-weight: bold;
-  margin-right: 10px;
-  font-size: 16px;
+	font-weight: bold;
+	margin-right: 10px;
+	font-size: 16px;
 }
 
 
 /* Style for the "Invoice not found" message */
 .invoice-details-item.not-found {
-  color: red;
-  font-style: italic;
+	color: red;
+	font-style: italic;
 }
 
 
 
 /* Add this to  CSS file or style tag */
 .sw-error-notice {
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #1764f5;
-  background-color: #ffffff;
-  color: #000000;
-  width: 50%;
-  text-align: center;
+	margin: 10px 0;
+	padding: 10px;
+	border: 1px solid #1764f5;
+	background-color: #ffffff;
+	color: #000000;
+	width: 50%;
+	text-align: center;
 }
 
 
 
 /* Settings and Documentation CSS */
 .sw-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 
 }
 
 .sw-left-column {
-  background-color: #fff;
-  padding: 20px;
-  width: 20%;
+	background-color: #fff;
+	padding: 20px;
+	width: 20%;
 }
 .sw-right-column {
-  background-color: #fff;
-  padding: 20px;
-  width: 70%;
+	background-color: #fff;
+	padding: 20px;
+	width: 70%;
 }
 .sw-left-column ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
 
 .sw-left-column li {
-  margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .instruction {
-  display: none;
+	display: none;
 }
 
 
@@ -369,76 +368,76 @@
 
 /* Style for the service navigation bar */
 .service-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ccc;
-  padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #ccc;
+	padding: 1rem;
 }
 
 .navbar-title-container {
-  flex: 1;
+	flex: 1;
 }
 
 .navbar-links-container {
-  flex: 1;
-  text-align: right;
+	flex: 1;
+	text-align: right;
 }
 
 .navbar-title-container h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: bold;
+	margin: 0;
+	font-size: 1.2rem;
+	font-weight: bold;
 }
 
 .navbar-links-container ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
 
 .navbar-links-container li {
-  display: inline-block;
-  padding: 5px 10px;
+	display: inline-block;
+	padding: 5px 10px;
 }
 
 .navbar-links-container a {
-  color: #333;
-  text-decoration: none;
+	color: #333;
+	text-decoration: none;
 }
 
 .navbar-links-container a:hover {
-  text-decoration: underline;
+	text-decoration: underline;
 }
 
 .current-page {
-  font-weight: bold;
+	font-weight: bold;
 }
 
 
 /* Add some basic styling to the container */
 .status-counts {
-  display: flex;
-  justify-content: space-around;
-  background-color: #333;
-  padding: 10px;
+	display: flex;
+	justify-content: space-around;
+	background-color: #333;
+	padding: 10px;
 }
 
 /* Style each status count link */
 .status-counts p {
-  margin: 0;
+	margin: 0;
 }
 
 .status-counts a {
-  text-decoration: none;
-  color: #fff;
-  padding: 10px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+	text-decoration: none;
+	color: #fff;
+	padding: 10px;
+	border-radius: 5px;
+	transition: background-color 0.3s;
 }
 
 .status-counts a:hover {
-  background-color: #0056b3;
+	background-color: #0056b3;
 }
 
 
@@ -449,223 +448,223 @@
 /* Style the invoice container to resemble A4 paper */
 /* Increase the minimum height for the container and add space at the bottom */
 .invoice-container {
-  width: 21cm;
-  min-height: 35cm; /* Minimum height to fit initial content */
-  margin: 20px auto 80px auto; /* Add more space at the bottom */
-  background: white;
-  padding: 2cm;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+	width: 21cm;
+	min-height: 35cm; /* Minimum height to fit initial content */
+	margin: 20px auto 80px auto; /* Add more space at the bottom */
+	background: white;
+	padding: 2cm;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	text-align: center;
 }
 
 .invoice-preview{
-  width: 100%;
+	width: 100%;
 }
 .invoice-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: -70px;
-  margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: -70px;
+	margin-bottom: 20px;
 }
 
 /* Style the header section to align the logo and status */
 .invoice-preview header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px; /* Add space below the header */
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px; /* Add space below the header */
 }
 
 /* Style the logo to be at the top left */
 .logo {
-  max-width: 150px;
-  width: 80%;
-  float: left;
-  margin-right: 10px;
+	max-width: 150px;
+	width: 80%;
+	float: left;
+	margin-right: 10px;
 }
 
 /* Media query for screens smaller than 768 pixels */
 @media (max-width: 425px) {
-  .logo img {
-    width: 100%;
-    float: left;
-    margin-right: 0;
-    max-width: 250px;
-  }
+	.logo img {
+	width: 100%;
+	float: left;
+	margin-right: 0;
+	max-width: 250px;
+	}
 }
 
 
 /* Style the status to be at the top right with a red background */
 .invoice-status {
-  background-color: red;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-weight: bold;
+	background-color: red;
+	color: white;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
 }
 
 /* Style the invoice number to be centered and bold */
 .invoice-number {
-  text-align: center;
-  font-weight: bold;
-  font-size: 25px;
-  margin-top: 10px; /* Add spacing above the invoice number */
-  border-bottom: 1px solid #000;
+	text-align: center;
+	font-weight: bold;
+	font-size: 25px;
+	margin-top: 10px; /* Add spacing above the invoice number */
+	border-bottom: 1px solid #000;
 }
 
 /* Add media query for responsiveness */
 @media screen and (max-width: 768px) {
-  /* Adjust styles for smaller screens here */
-  .invoice-container {
-    width: 21cm;
-    margin: 10px auto 20px auto; /* Adjust margin as needed */
-  }
-  .logo {
-      max-width: 50%; /* Adjust max-width for smaller screens */
-  }
+	/* Adjust styles for smaller screens here */
+	.invoice-container {
+	width: 21cm;
+	margin: 10px auto 20px auto; /* Adjust margin as needed */
+	}
+	.logo {
+		max-width: 50%; /* Adjust max-width for smaller screens */
+	}
 }
 
 /* Ensure both sections are displayed as blocks */
 .invoice-reference,
 .invoice-pay-to {
-  display: block;
+	display: block;
 }
 
 /* Style the container for both sections */
 .invoice-details-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px; /* Adjust the margin as needed */
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px; /* Adjust the margin as needed */
 }
 
 /* Style the left section (Client Details) */
 .invoice-details-left {
-  width: 50%; /* Adjust the width as needed */
-  float: left;
-  font-size: 16px; /* Adjust the font size as needed */
-  text-align: left;
+	width: 50%; /* Adjust the width as needed */
+	float: left;
+	font-size: 16px; /* Adjust the font size as needed */
+	text-align: left;
 }
 
 /* Style the right section (Business Details) */
 .invoice-details-right {
-  width: 50%; /* Adjust the width as needed */
-  float: right;
-  font-size: 16px; /* Adjust the font size as needed */
-  text-align: right;
+	width: 50%; /* Adjust the width as needed */
+	float: right;
+	font-size: 16px; /* Adjust the font size as needed */
+	text-align: right;
 }
 
 /* Style the headings */
 .invoice-details-container h3 {
-  font-weight: bold;
-  font-size: 15px;
+	font-weight: bold;
+	font-size: 15px;
 }
 
 /* Style the individual paragraphs within each section */
 .invoice-details-container p {
-  margin: 5px 0; /* Adjust the margin as needed */
+	margin: 5px 0; /* Adjust the margin as needed */
 }
 
 /* CSS for Invoice Date and Payment Method sections */
 .invoice-date-payment {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
 }
 
 .invoice-date, .payment-method {
-  flex: 1;
-  text-align: left;
+	flex: 1;
+	text-align: left;
 }
 
 .payment-method {
-  text-align: right;
+	text-align: right;
 }
 
 /* CSS for centering the watermark image and making it more transparent */
 .invoice-watermark {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Allows interaction with content beneath the watermark */
- 
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none; /* Allows interaction with content beneath the watermark */
+
 }
 
 
 
 .watermark-image {
-  opacity: 0.02; /* Adjust the opacity value as needed (0.0 to 1.0) */
+	opacity: 0.02; /* Adjust the opacity value as needed (0.0 to 1.0) */
 }
 /* Style the invoice items section */
 .invoice-items {
-  margin-top: 20px; /* Add some top margin to separate it from the previous section */
+	margin-top: 20px; /* Add some top margin to separate it from the previous section */
 }
 
- /* Style the invoice card */
- .invoice-card {
-  background-color: #ffffff; /* White background */
-  border: 1px solid #c0a7a7; /* Gray border */
-  padding: 10px; /* Add padding to the card */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+/* Style the invoice card */
+.invoice-card {
+	background-color: #ffffff; /* White background */
+	border: 1px solid #c0a7a7; /* Gray border */
+	padding: 10px; /* Add padding to the card */
+	border-radius: 5px; /* Rounded corners */
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
 }
 
 /* Style the card header with Description and Amount */
 .invoice-card-header {
-  display: flex;
-  justify-content: space-between;
-  background-color: #f0f0f0;
-  padding: 5px 10px;
-  font-weight: bold; 
+	display: flex;
+	justify-content: space-between;
+	background-color: #f0f0f0;
+	padding: 5px 10px;
+	font-weight: bold;
 }
 
 /* Style the individual items within the card */
 .invoice-item {
-  display: flex; /* Display items in a row */
-  justify-content: space-between; /* Space them evenly */
-  padding: 5px 10px; /* Add padding to each item */
+	display: flex; /* Display items in a row */
+	justify-content: space-between; /* Space them evenly */
+	padding: 5px 10px; /* Add padding to each item */
 }
 
 /* Style the total item differently */
 .invoice-item.total {
-  background-color: #f0f0f0; /* Gray background for the total item */
-  font-weight: bold; /* Make the total item text bold */
+	background-color: #f0f0f0; /* Gray background for the total item */
+	font-weight: bold; /* Make the total item text bold */
 }
 
 
 
 /* Style the thank you message */
 .thank-you-message {
-  margin-top: 5%; /* Add top margin to separate it from the mini cards */
+	margin-top: 5%; /* Add top margin to separate it from the mini cards */
 }
 
 /* Style the "Kind Regards" message */
 .regards {
-  font-weight: bold; /* Make it bold */
+	font-weight: bold; /* Make it bold */
 }
 
 
 .download-button-container {
-  text-align: center;
-  margin-top: 20px;
+	text-align: center;
+	margin-top: 20px;
 }
 
 .download-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #0073e6;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #0073e6;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
 }
 
 .download-button:hover {
-  background-color: #0055a4;
+	background-color: #0055a4;
 }
 
 
@@ -675,41 +674,41 @@
 
 /* service-cards.css */
 .service-card {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 20px;
-  background-color: #f9f9f9;
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin-bottom: 20px;
+	background-color: #f9f9f9;
 }
 
 /* Style for the mini service cards */
 .service-mini-card {
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 20px;
-  background-color: #f9f9f9;
+	border: 1px solid #ddd;
+	padding: 10px;
+	margin-bottom: 20px;
+	background-color: #f9f9f9;
 }
 
 .service-mini-card p {
-  margin: 0;
-  font-size: 16px;
+	margin: 0;
+	font-size: 16px;
 }
 
 .service-mini-card a.button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #0073e6;
-  color: #fff;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
+	display: inline-block;
+	margin-top: 10px;
+	padding: 8px 16px;
+	background-color: #0073e6;
+	color: #fff;
+	text-decoration: none;
+	border: none;
+	cursor: pointer;
+	border-radius: 4px;
+	font-weight: bold;
+	transition: background-color 0.3s ease;
 }
 
 .service-mini-card a.button:hover {
-  background-color: #005bbd;
+	background-color: #005bbd;
 }
 
 
@@ -717,234 +716,234 @@
 
 /* Style for the main page heading */
 .serv-main {
-  text-align: center;
-  margin-top: 20px;
-  
+	text-align: center;
+	margin-top: 20px;
+
 }
 
 /* Style for the outer container of service cards on the main page */
 .client-services {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
 }
 
 /* Style for each individual service card on the main page */
 .main-page-card {
-  border: 1px solid #ccc;
-  padding: 20px;
-  margin: 10px;
-  width: calc(50% - 20px); /* Two cards per row on larger screens */
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  text-align: center;
-  transition: transform 0.2s ease-in-out;
+	border: 1px solid #ccc;
+	padding: 20px;
+	margin: 10px;
+	width: calc(50% - 20px); /* Two cards per row on larger screens */
+	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+	background-color: #fff;
+	text-align: center;
+	transition: transform 0.2s ease-in-out;
 }
 
 .main-page-card:hover {
-  transform: translateY(-5px);
+	transform: translateY(-5px);
 }
 
 .main-page-card h3 {
-  font-size: 20px;
-  margin: 0;
-  padding-bottom: 10px; /* Space between service name and other details */
-  border-bottom: 1px solid #ccc; /* Horizontal line below the service name */
-  color: #333;
+	font-size: 20px;
+	margin: 0;
+	padding-bottom: 10px; /* Space between service name and other details */
+	border-bottom: 1px solid #ccc; /* Horizontal line below the service name */
+	color: #333;
 }
 
 .main-page-card p {
-  font-size: 14px;
-  color: #666;
-  margin: 10px 0;
+	font-size: 14px;
+	color: #666;
+	margin: 10px 0;
 }
 
 /* Style for the "View Details" button on the main page */
 .main-page-card .view-details-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #0073e6;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background-color 0.2s ease-in-out;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #0073e6;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	transition: background-color 0.2s ease-in-out;
 }
 
 .main-page-card .view-details-button:hover {
-  background-color: #0056b3;
+	background-color: #0056b3;
 }
 
 /* Media query for smaller screens */
 @media (max-width: 768px) {
-  .client-services {
-    flex-direction: column; /* Stack cards vertically on smaller screens */
-  }
+	.client-services {
+	flex-direction: column; /* Stack cards vertically on smaller screens */
+	}
 
-  .main-page-card {
-    width: 100%; /* Full width for cards on smaller screens */
-  }
+	.main-page-card {
+	width: 100%; /* Full width for cards on smaller screens */
+	}
 }
 
 /* Style for the service details card */
 .serv-details-card {
-  border: 2px solid #000000;
-  padding: 20px;
-  margin: 10px;
-  width: 70%; 
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-  background-color: #ffffff;
-  text-align: left;
-  transition: transform 0.2s ease-in-out;
+	border: 2px solid #000000;
+	padding: 20px;
+	margin: 10px;
+	width: 70%;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	background-color: #ffffff;
+	text-align: left;
+	transition: transform 0.2s ease-in-out;
 }
 
 .serv-details-card:hover {
-  transform: translateY(-5px);
+	transform: translateY(-5px);
 }
 
 .serv-details-card h3 {
-  font-size: 20px;
-  margin: 0;
-  padding-bottom: 10px; /* Space between service name and other details */
-  border-bottom: 1px solid #ccc; /* Horizontal line below the service name */
-  font-weight: bold;
-  text-align: center;
+	font-size: 20px;
+	margin: 0;
+	padding-bottom: 10px; /* Space between service name and other details */
+	border-bottom: 1px solid #ccc; /* Horizontal line below the service name */
+	font-weight: bold;
+	text-align: center;
 }
 
 .serv-details-card p {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 10px 0;
+	font-size: 16px;
+	font-weight: bold;
+	margin: 10px 0;
 }
 
 /* Style for the "Open Service" button on the service details card */
 .serv-details-card .open-service-button {
-  display: block; /* Display as block element to center */
-  margin: 0 auto; /* Center horizontally */
-  padding: 10px 20px;
-  background-color: #e66f00;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background-color 0.2s ease-in-out;
-  text-align: center;
-  
+	display: block; /* Display as block element to center */
+	margin: 0 auto; /* Center horizontally */
+	padding: 10px 20px;
+	background-color: #e66f00;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	transition: background-color 0.2s ease-in-out;
+	text-align: center;
+
 }
 
 .serv-details-card .open-service-button:hover {
-  background-color: #0056b3;
-  color: white;
+	background-color: #0056b3;
+	color: white;
 }
 
 /* Style for the "Back to Services" button */
 .back-button-container {
-  text-align: center; /* Center-align the button */
-  margin-top: 20px; /* Add some top margin for spacing */
+	text-align: center; /* Center-align the button */
+	margin-top: 20px; /* Add some top margin for spacing */
 }
 
 .back-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #0073e6;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background-color 0.2s ease-in-out;
-  border: 2px solid #fafafa;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #0073e6;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	transition: background-color 0.2s ease-in-out;
+	border: 2px solid #fafafa;
 }
 
 .back-button:hover {
-  background-color: #0056b3;
-  color: rgb(239, 245, 248);
+	background-color: #0056b3;
+	color: rgb(239, 245, 248);
 }
 
 
 
 /* Style for the "My Services" heading */
 .mini-card h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
-  border-bottom: 1px solid #1707f5; /* Add a border below the heading */
-  padding-bottom: 5px; /* Add some space between the heading and the border */
+	font-size: 24px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	text-align: center;
+	border-bottom: 1px solid #1707f5; /* Add a border below the heading */
+	padding-bottom: 5px; /* Add some space between the heading and the border */
 }
 
 /* Style for the mini-card container */
 .mini-card {
-  background-color: rgb(255, 255, 255);
-  max-width: 600px;
-  width: 50%;
-  justify-content: space-around;
-  margin: 20px auto;
-  padding: 20px;
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-  margin-bottom: 20px;
+	background-color: rgb(255, 255, 255);
+	max-width: 600px;
+	width: 50%;
+	justify-content: space-around;
+	margin: 20px auto;
+	padding: 20px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	margin-bottom: 20px;
 }
 
 
 /* Style for each service name link and status */
 .mini-card p {
-  margin: 0; 
-  padding: 0;
-  color: #000000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center; 
+	margin: 0;
+	padding: 0;
+	color: #000000;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .mini-card a {
-  text-decoration: none;
-  font-weight: bold;
+	text-decoration: none;
+	font-weight: bold;
 }
 
 .mini-card a:hover {
-  text-decoration:double;
+	text-decoration:double;
 }
 
 /* Style for the horizontal line */
 .mini-card hr {
-  margin: 5px 0;
-  border: 1px solid #13003f;
+	margin: 5px 0;
+	border: 1px solid #13003f;
 }
 
 
 
 /* Style for the "Renew" button */
 .renew-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #4caf50; /* Green color */
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  margin-top: 10px;
-  margin-left: 10px; /* Add margin to separate from the "Back to Services" button */
-  transition: background-color 0.2s ease-in-out;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #4caf50; /* Green color */
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	margin-top: 10px;
+	margin-left: 10px; /* Add margin to separate from the "Back to Services" button */
+	transition: background-color 0.2s ease-in-out;
 }
 
 .renew-button:hover {
-  background-color: #45a049; /* Darker green color on hover */
+	background-color: #45a049; /* Darker green color on hover */
 }
 
 
 .invoice-pay-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #f4511e;
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #f4511e;
+	color: #ffffff;
+	text-decoration: none;
+	border-radius: 5px;
+	font-weight: bold;
 }
 
 .invoice-preview-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #5c06e6;
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #5c06e6;
+	color: #ffffff;
+	text-decoration: none;
+	border-radius: 5px;
+	font-weight: bold;
 }
 
 
@@ -952,319 +951,319 @@
 
 /* Two-column card container */
 .trans-card {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 70%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 20px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	width: 70%;
 }
 
 /* Left column (table headings) */
 .trans-card-left {
-  flex: 1; /* Left column takes up 50% of the width */
-  padding-right: 20px; /* Add some spacing between columns */
+	flex: 1; /* Left column takes up 50% of the width */
+	padding-right: 20px; /* Add some spacing between columns */
 }
 
 .trans-card-heading {
-  font-size: 24px;
-  margin-bottom: 10px;
+	font-size: 24px;
+	margin-bottom: 10px;
 }
 
 .trans-card-table {
-  width: 100%;
-  border-collapse: collapse;
+	width: 100%;
+	border-collapse: collapse;
 }
 
 .trans-card-th {
-  text-align: left;
-  background-color: #ffffff;
-  padding: 10px;
-  font-weight: bold;
-  border-bottom: 1px solid #ccc;
+	text-align: left;
+	background-color: #ffffff;
+	padding: 10px;
+	font-weight: bold;
+	border-bottom: 1px solid #ccc;
 }
 
 /* Right column (table data) */
 .trans-card-right {
-  flex: 1; /* Right column takes up 50% of the width */
-  padding-left: 20px; /* Add some spacing between columns */
+	flex: 1; /* Right column takes up 50% of the width */
+	padding-left: 20px; /* Add some spacing between columns */
 }
 
 .trans-card-td {
-  text-align: left; /* Align the data to the left */
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+	text-align: left; /* Align the data to the left */
+	padding: 10px;
+	border-bottom: 1px solid #ccc;
 }
 
 /* Button styles */
 .trans-card-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #0073e6;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  margin-top: 10px;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #0073e6;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	margin-top: 10px;
 }
 
 .trans-card-button:hover {
-  background-color: #005aa6;
+	background-color: #005aa6;
 }
 
 
 .invoice-status-counts {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin: 20px 0;
-  background-color: #ffffff;
-  border: 1px solid #918d8d;
-  padding: 20px;
-  box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-  text-align: center;
-  margin-bottom: 20px; 
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	margin: 20px 0;
+	background-color: #ffffff;
+	border: 1px solid #918d8d;
+	padding: 20px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	text-align: center;
+	margin-bottom: 20px;
 }
 
 .status-item {
-  flex-basis: calc(50% - 10px);
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-  color: #000;
-  background-color: #ffffff;
+	flex-basis: calc(50% - 10px);
+	padding: 10px;
+	text-align: center;
+	font-weight: bold;
+	color: #000;
+	background-color: #ffffff;
 }
 
 .transaction-status-list {
-  list-style-type: none;
-  padding: 0;
+	list-style-type: none;
+	padding: 0;
 }
 
 .transaction-status-list li {
-  margin: 10px 0; /* Add margin at the bottom of each list item */
-  font-weight: bold;
-  color: #000;
+	margin: 10px 0; /* Add margin at the bottom of each list item */
+	font-weight: bold;
+	color: #000;
 }
 
 
 /* CSS */
 .checkbox-container {
-  margin: 10px 0;
+	margin: 10px 0;
 }
 
 /* Style the label */
 .checkbox-container label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+	display: block;
+	margin-bottom: 5px;
+	font-weight: bold;
 }
 
 /* Style the dropdown button */
 .dropdown .btn-default {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  color: #333;
-  font-size: 14px;
-  padding: 10px;
-  width: 100%;
-  text-align: left;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	color: #333;
+	font-size: 14px;
+	padding: 10px;
+	width: 100%;
+	text-align: left;
 }
 
 /* Style the dropdown caret icon */
 .dropdown .btn-default .caret {
-  float: right;
-  margin-top: 5px;
+	float: right;
+	margin-top: 5px;
 }
 
 /* Initially hide the dropdown menu */
 .dropdown .dropdown-menu {
-  display: none;
+	display: none;
 }
 
 /* Style the dropdown menu items */
 .dropdown .dropdown-menu li {
-  list-style: none;
-  margin: 5px 0;
+	list-style: none;
+	margin: 5px 0;
 }
 
 
 .settings-tools-section {
-  padding: 20px;
-  border-bottom: 1px solid #ccc;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add box shadow */
-  width: 100%; /* Make the container full width */
+	padding: 20px;
+	border-bottom: 1px solid #ccc;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add box shadow */
+	width: 100%; /* Make the container full width */
 }
 
 .settings-tools-section h2 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 15px;
+	font-size: 1.8rem;
+	font-weight: bold;
+	margin-bottom: 15px;
 }
 
 .settings-tools-section .minibox-buttons {
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid #ddd; /* Add top border */
+	display: flex;
+	justify-content: space-between;
+	border-top: 1px solid #ddd; /* Add top border */
 }
 
 .settings-tools-section .minibox-buttons button {
-  background-color: #f5f5f5; /* Light background for tabs */
-  border: 1px solid #ddd; /* Add border around each tab */
-  border-bottom: none; /* Remove bottom border for active tab */
-  outline: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  color: #0b2438;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+	background-color: #f5f5f5; /* Light background for tabs */
+	border: 1px solid #ddd; /* Add border around each tab */
+	border-bottom: none; /* Remove bottom border for active tab */
+	outline: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	color: #0b2438;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
 }
 
 .settings-tools-section .minibox-buttons button.active {
-  background-color: #e9dddd; /* White background for active tab */
+	background-color: #e9dddd; /* White background for active tab */
 }
 
 .settings-tools-section .minibox-buttons button:hover {
-  background-color: #c08585;
+	background-color: #c08585;
 }
 
 .settings-tools-section .minibox-buttons button::after {
-  content: ""; /* Empty content for charging icon container */
-  display: block;
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: transparent;
-  animation: loading 1s infinite; /* Add charging icon animation (define in separate rule) */
+	content: ""; /* Empty content for charging icon container */
+	display: block;
+	position: absolute;
+	top: 5px;
+	right: 10px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background-color: transparent;
+	animation: loading 1s infinite; /* Add charging icon animation (define in separate rule) */
 }
 
 @keyframes loading {
-  0% {
-    transform: scale(0.5);
-  }
-  50% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0.5);
-  }
+	0% {
+	transform: scale(0.5);
+	}
+	50% {
+	transform: scale(1);
+	}
+	100% {
+	transform: scale(0.5);
+	}
 }
 
 
 
 .account-button {
-  margin: 0 10px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  font-size: 14px;
-  background-color: red;
-  color: white;
-  border-radius: 9px;
+	margin: 0 10px;
+	margin-bottom: 10px;
+	padding: 10px 15px;
+	font-size: 14px;
+	background-color: red;
+	color: white;
+	border-radius: 9px;
 }
 
 
 /* Style for the dropdown container */
 .service-navbar .service-actions-dropdown {
-  margin-left: 10px;
+	margin-left: 10px;
 }
 
 /* Style for the dropdown select element */
 .service-navbar select {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
+	padding: 8px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	outline: none;
+	cursor: pointer;
 }
 
 /* Style for the selected option in the dropdown */
 .service-navbar select option:checked {
-  background-color: #3498db;
-  color: #fff;
+	background-color: #3498db;
+	color: #fff;
 }
 
 /* Style for the dropdown arrow */
 .service-navbar select::after {
-  content: '\25BC'; /* Unicode character for down arrow */
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  pointer-events: none;
+	content: '\25BC'; /* Unicode character for down arrow */
+	position: absolute;
+	top: 50%;
+	right: 10px;
+	transform: translateY(-50%);
+	pointer-events: none;
 }
 
 
 /* Add styling to the billing details container */
 .billing-details-container {
-  border: 1px solid #ccc;
-  border-radius: 8px; /* Add rounded corners for a card-like appearance */
-  overflow: hidden; /* Ensure rounded corners are applied */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow for depth */
-  padding: 20px;
-  margin: 20px auto; /* Center the container and control left/right margin */
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 400px; /* Set a maximum width for the container */
+	border: 1px solid #ccc;
+	border-radius: 8px; /* Add rounded corners for a card-like appearance */
+	overflow: hidden; /* Ensure rounded corners are applied */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow for depth */
+	padding: 20px;
+	margin: 20px auto; /* Center the container and control left/right margin */
+	background-color: #fff;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: 400px; /* Set a maximum width for the container */
 }
 
 /* Style the heading within the container */
 .billing-details-container h3 {
-  margin: 0 10px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  font-size: 18px;
-  background-color: red;
-  color: white;
-  border-radius: 9px;
+	margin: 0 10px;
+	margin-bottom: 10px;
+	padding: 10px 15px;
+	font-size: 18px;
+	background-color: red;
+	color: white;
+	border-radius: 9px;
 }
 
 /* Style individual details within the container */
 .billing-details-container p {
-  margin: 10px 0;
+	margin: 10px 0;
 }
 
 /* Style the user details container */
 .user-details-container {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 20px auto;
-  background-color: #fff;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center items horizontally */
-  text-align: center; /* Center text within the container */
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	margin: 20px auto;
+	background-color: #fff;
+	max-width: 400px;
+	display: flex;
+	flex-direction: column;
+	align-items: center; /* Center items horizontally */
+	text-align: center; /* Center text within the container */
 }
 
 /* Style the heading within the container */
 .user-details-container h3 {
-  margin: 0 10px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  font-size: 18px;
-  background-color: red;
-  color: white;
-  border-radius: 9px;
+	margin: 0 10px;
+	margin-bottom: 10px;
+	padding: 10px 15px;
+	font-size: 18px;
+	background-color: red;
+	color: white;
+	border-radius: 9px;
 }
 
 /* Style individual details within the container */
 .user-details {
-  margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .user-details p {
-  margin: 10px 0;
+	margin: 10px 0;
 }
 
 
@@ -1272,162 +1271,162 @@
 
 /* Style for the select service container */
 .select-service-container {
-  margin-bottom: 20px;
-  background-color: #f4f4f4;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	margin-bottom: 20px;
+	background-color: #f4f4f4;
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Style for the select service container */
 .select-service-container {
-  background-color: #f4f4f4;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  margin-bottom: 20px;
+	background-color: #f4f4f4;
+	border-radius: 8px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	padding: 15px;
+	margin-bottom: 20px;
 }
 
 /* Style for the "Choose a service to upgrade" text */
 .select-service-container p {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
 }
 
 /* Style for the select options */
 .select-service-container select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+	font-size: 16px;
 }
 
 /* Style for the upgrade button container */
 .upgrade-button-container {
-  margin-top: 20px;
-  text-align: center; /* Center the button within the container */
+	margin-top: 20px;
+	text-align: center; /* Center the button within the container */
 }
 
 /* Style for the upgrade button */
 .upgrade-button-container button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+	padding: 10px 20px;
+	background-color: #4CAF50;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 /* Style for the upgrade button on hover */
 .upgrade-button-container button:hover {
-  background-color: #45a049;
+	background-color: #45a049;
 }
 
 
 
 /* Style for the products to use container */
 .products-to-use-container {
-  display: flex;
-  flex-wrap: wrap;
+	display: flex;
+	flex-wrap: wrap;
 }
 
 /* Style for each product container within the products to use container */
 .product-container {
-  width: 30%; /* Adjust the width based on  layout */
-  padding: 15px;
-  margin: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #ade0f5;
+	width: 30%; /* Adjust the width based on  layout */
+	padding: 15px;
+	margin: 10px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	background-color: #ade0f5;
 }
 
 /* Style for the upgrade button container */
 .upgrade-button-container {
-  margin-top: 20px;
-  text-align: center; /* Center the button within the container */
+	margin-top: 20px;
+	text-align: center; /* Center the button within the container */
 }
 
 /* Style for the upgrade button */
 .upgrade-button-container button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+	padding: 10px 20px;
+	background-color: #4CAF50;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 /* Style for the upgrade button on hover */
 .upgrade-button-container button:hover {
-  background-color: #45a049;
+	background-color: #45a049;
 }
 
 /* Style for the product name within each product container */
 .product-container strong {
-  display: block; /* Ensure line break after the product name */
-  font-weight: bold;
-  font-size: 18px; /* Adjust the font size based on  preference */
-  margin-bottom: 8px; /* Add spacing between product name and other details */
+	display: block; /* Ensure line break after the product name */
+	font-weight: bold;
+	font-size: 18px; /* Adjust the font size based on  preference */
+	margin-bottom: 8px; /* Add spacing between product name and other details */
 }
 
 /* Base styles for larger screens */
 .migration-order-container {
-  border: 2px solid #d30f0f;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 20px auto; /* Auto margin for centering */
-  background-color: #ffffff;
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  width: 60%;
-  box-shadow: 0 4px 8px rgba(9, 0, 0, 0.1);
+	border: 2px solid #d30f0f;
+	border-radius: 8px;
+	padding: 20px;
+	margin: 20px auto; /* Auto margin for centering */
+	background-color: #ffffff;
+	display: flex;
+	justify-content: space-between;
+	align-items: stretch;
+	width: 60%;
+	box-shadow: 0 4px 8px rgba(9, 0, 0, 0.1);
 }
 
 .migrate-order-details {
-  font-family: 'Arial', sans-serif;
-  font-size: 18px;
-  text-align: left;
-  color: #333;
-  flex-grow: 1;
+	font-family: 'Arial', sans-serif;
+	font-size: 18px;
+	text-align: left;
+	color: #333;
+	flex-grow: 1;
 }
 
 .upgrade-section-title,
 .migrate-summary-tittle {
-  font-size: 24px;
-  font-weight: bold;
-  color: #000;
-  text-align: center;
+	font-size: 24px;
+	font-weight: bold;
+	color: #000;
+	text-align: center;
 }
 
 .migrate-summary-tittle {
-  margin-top: 10px;
+	margin-top: 10px;
 }
 
 .migrate-order-details p {
-  margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 /* Media query for smaller screens (e.g., mobile devices) */
 @media screen and (max-width: 600px) {
-  .migration-order-container {
-    flex-direction: column; /* Stack items vertically on smaller screens */
-    width: 90%; /* Adjust width for smaller screens */
-  }
+	.migration-order-container {
+	flex-direction: column; /* Stack items vertically on smaller screens */
+	width: 90%; /* Adjust width for smaller screens */
+	}
 
-  .migrate-order-details {
-    width: 100%; /* Full width for inner content on smaller screens */
-  }
+	.migrate-order-details {
+	width: 100%; /* Full width for inner content on smaller screens */
+	}
 }
 
 
 /* Form Containers and Input fields*/
 .sw-cart-form {
-  width: 100%;
+	width: 100%;
 }
 
 
@@ -1435,55 +1434,55 @@
 
 /** Product CSS **/
 .sw-product-container {
-  width: calc(33.33% - 20px);
-  /* Subtracting 20px for margin and padding */
-  float: left;
-  margin: 10px;
-  background-color: #f5fcff;
-  box-sizing: border-box;
-  min-height: 450px; /* Adjust the height as needed */
-  border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	width: calc(33.33% - 20px);
+	/* Subtracting 20px for margin and padding */
+	float: left;
+	margin: 10px;
+	background-color: #f5fcff;
+	box-sizing: border-box;
+	min-height: 450px; /* Adjust the height as needed */
+	border: 1px solid #ddd;
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .sw-product-container h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
+	font-size: 18px;
+	margin-bottom: 10px;
 }
 
 .sw-product-container p {
-  margin-bottom: 8px;
+	margin-bottom: 8px;
 }
 
 
 
 /* Clearfix to prevent float issues */
 .clearfix::after {
-  content: "";
-  clear: both;
-  display: table;
+	content: "";
+	clear: both;
+	display: table;
 }
 
 /* Responsive styling */
 @media (max-width: 768px) {
-  .sw-product-container {
-      width: calc(50% - 20px);
-      /* Two columns on smaller screens */
-  }
+	.sw-product-container {
+		width: calc(50% - 20px);
+		/* Two columns on smaller screens */
+	}
 }
 
 @media (max-width: 480px) {
-  .sw-product-container {
-      width: 100%;
-      /* One column on even smaller screens */
-  }
+	.sw-product-container {
+		width: 100%;
+		/* One column on even smaller screens */
+	}
 }
 
 .sw-configured-product-container {
-  display: inline-block;
-  margin-right: 10px; /* Adjust margin as needed */
+	display: inline-block;
+	margin-right: 10px; /* Adjust margin as needed */
 }
 
 .sw-configured-product {
@@ -1499,27 +1498,26 @@ font-weight: 100;
 /************************************************************************************/
 
 #swloader {
-  display: none;
-  width: 150px;
-  height: 20px;
-  background-color: #eb0d0d;
-  color: rgb(255, 255, 255);
-  position: fixed; /* Change to fixed for top positioning */
-  top: 40px; /* Adjust the top value as needed */
-  left: 50%; 
-  transform: translate(-50%, 0); /* Adjust translation for top positioning */
-  border-radius: 50%;
-  font-weight: bold;
-  text-align: center;
-  animation: pulse 1.5s infinite ease-in-out;
+	display: none;
+	width: 150px;
+	height: 20px;
+	background-color: #eb0d0d;
+	color: rgb(255, 255, 255);
+	position: fixed; /* Change to fixed for top positioning */
+	top: 40px; /* Adjust the top value as needed */
+	left: 50%;
+	transform: translate(-50%, 0); /* Adjust translation for top positioning */
+	border-radius: 50%;
+	font-weight: bold;
+	text-align: center;
+	animation: pulse 1.5s infinite ease-in-out;
 }
 
 @keyframes pulse {
-  0%, 100% {
-      transform: scale(1);
-  }
-  50% {
-      transform: scale(1.2);
-  }
+	0%, 100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.2);
+	}
 }
-
