@@ -55,7 +55,7 @@ get_header();
 
 <h2>Configure</h2>
 	<div class="sw-configure-container">
-		<p>Configure your desired options for <strong>"<?php echo $product_name; ?>"</strong> and continue checkout.</p>
+		<p>Configure your desired options for <strong>"<?php echo esc_html( $product_name ); ?>"</strong> and continue checkout.</p>
 
 		<form method="post" enctype="multipart/form-data">
 

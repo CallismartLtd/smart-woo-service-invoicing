@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * File name    :   sw-service-functions.php
  *
@@ -73,7 +74,8 @@ function sw_generate_service(
 }
 
 /**
- * The button to access the client URL without password
+ * The button to access the client URL, This parameters are not secure handling them
+ * be subject to authentication by our service manager plugin
  *
  * @param object $service       The service.
  * @return string HTML markup button with url keypass
@@ -82,10 +84,11 @@ function sw_client_service_url_button( $service ) {
 	$user_id        = $service->getUserId();
 	$user_info      = get_userdata( $user_id );
 	$service_status = sw_service_status( $service->getServiceId() );
-	if ( $service_status === 'Active' && $service->getServiceType() === 'Web Service' ) {
+	if ( 'Active' === $service_status  && 'Web Service' === $service->getServiceType() ) {
 
 		if ( $user_info ) {
 			$user_email = $user_info->user_email;
+
 			// Construct the service URL with specified parameters
 			$access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
 

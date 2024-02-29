@@ -9,60 +9,62 @@ defined( 'ABSPATH' ) || exit;
 
 
 function view_all_invoices() {
-	// Get the current user ID
-	$current_user_id = get_current_user_id();
+    // Get the current user ID
+    $current_user_id = get_current_user_id();
 
-	// Get all invoices for the current user
-	$invoices = Sw_Invoice_Database::get_invoices_by_user( $current_user_id );
-	// Output the service navigation bar
-	sw_get_navbar( $current_user_id );
+    // Get all invoices for the current user
+    $invoices = Sw_Invoice_Database::get_invoices_by_user( $current_user_id );
+    // Output the service navigation bar
+    sw_get_navbar( $current_user_id );
 
-	echo do_shortcode( '[sw_invoice_status_counts]' );
+    echo do_shortcode( '[sw_invoice_status_counts]' );
 
-	if ( $invoices ) {
+    if ( $invoices ) {
 
-		// Display the invoices in a table
-		echo '<table class="sw-invoices-table">';
-		echo '<thead>';
-		echo '<tr>';
-		echo '<th>Invoice</th>';
-		echo '<th>Invoice Date</th>';
-		echo '<th>Date Due</th>';
-		echo '<th>Total</th>';
-		echo '<th>Status</th>';
-		echo '<th></th>';
-		echo '</tr>';
-		echo '</thead>';
-		echo '<tbody>';
+        // Display the invoices in a table
+        echo '<div class="sw-invoices-table-wrapper">';
+        echo '<table class="sw-invoices-table">';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th>Invoice</th>';
+        echo '<th>Invoice Date</th>';
+        echo '<th>Date Due</th>';
+        echo '<th>Total</th>';
+        echo '<th>Status</th>';
+        echo '<th></th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
 
-		foreach ( $invoices as $invoice ) {
+        foreach ( $invoices as $invoice ) {
 
-			$dateCreated = $invoice->getDateCreated();
-			$datePaid    = $invoice->getDatePaid();
-			$dateDue     = $invoice->getDateDue();
+            $dateCreated = $invoice->getDateCreated();
+            $datePaid    = $invoice->getDatePaid();
+            $dateDue     = $invoice->getDateDue();
 
-			// Format the dates or display 'Not Available'
-			$formattedDateCreated = sw_check_and_format( $dateCreated );
-			$formattedDateDue     = sw_check_and_format( $dateDue );
+            // Format the dates or display 'Not Available'
+            $formattedDateCreated = sw_check_and_format( $dateCreated, false );
+            $formattedDateDue     = sw_check_and_format( $dateDue, false );
 
-			echo '<tr>';
-			echo '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
-			echo '<td>' . esc_html( $formattedDateCreated ) . '</td>';
-			echo '<td>' . esc_html( $formattedDateDue ) . '</td>';
-			echo '<td>' . esc_html( $invoice->getTotal() ) . '</td>';
-			echo '<td style="border: 1px solid #000; padding: 9px; text-align: center;">' . esc_html( ucwords( $invoice->getPaymentStatus() ) ) . '</td>';
+            echo '<tr>';
+            echo '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
+            echo '<td>' . esc_html( $formattedDateCreated ) . '</td>';
+            echo '<td>' . esc_html( $formattedDateDue ) . '</td>';
+            echo '<td>' . esc_html( $invoice->getTotal() ) . '</td>';
+            echo '<td class="payment-status">' . esc_html( ucwords( $invoice->getPaymentStatus() ) ) . '</td>';
 
-			echo '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '" class="sw-blue-button">View Details</a></td>';
-			echo '</tr>';
-		}
+            echo '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '" class="invoice-preview-button">View Details</a></td>';
+            echo '</tr>';
+        }
 
-		echo '</tbody>';
-		echo '</table>';
-		echo '<p style="text-align: right; font-weight: bold;">Number of Invoices: ' . count( $invoices ) . '</p>';
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '<p class="invoice-count">Number of Invoices: ' . count( $invoices ) . '</p>';
 
-	} else {
-		echo '<p>All your invoices will appear here.</p>';
-	}
+    } else {
+        echo '<p>All your invoices will appear here.</p>';
+    }
 }
 
 
@@ -342,81 +344,77 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 
 
 
-/**
- * Function for Invoice mini card shortcode, useful if
- * you want to display all current user's invoices in a mini card.
- */
 function sw_invoice_mini_card_shortcode() {
-	// Check if the user is logged in
-	if ( ! is_user_logged_in() ) {
-		return "Hello! It looks like you're not logged in.";
-	}
+    // Check if the user is logged in
+    if ( ! is_user_logged_in() ) {
+        return esc_html("Hello! It looks like you're not logged in.");
+    }
 
-	// Get the current logged-in user's ID
-	$current_user_id = get_current_user_id();
-	$table_html      = "<div class='mini-card'>";
-	$table_html     .= '<h2>My Invoices</h2>';
-	// Start the table markup
-	$table_html .= '<table>';
+    // Get the current logged-in user's ID
+    $current_user_id = get_current_user_id();
+    $table_html      = "<div class='mini-card'>";
+    $table_html     .= '<h2>' . esc_html('My Invoices') . '</h2>';
+    // Start the table markup
+    $table_html .= '<table>';
 
-	// Get the invoice page URL
-	$invoice_preview_page = get_option( 'sw_invoice_page', 0 );
-	$invoice_page_url     = get_permalink( $invoice_preview_page );
-	// Get all invoices for the current user
-	$all_invoices = SW_Invoice_Database::get_invoices_by_user( $current_user_id );
+    // Get the invoice page URL
+    $invoice_preview_page = get_option( 'sw_invoice_page', 0 );
+    $invoice_page_url     = esc_url( get_permalink( $invoice_preview_page ) );
+    // Get all invoices for the current user
+    $all_invoices = SW_Invoice_Database::get_invoices_by_user( $current_user_id );
 
-	if ( $all_invoices ) {
-		foreach ( $all_invoices as $invoice ) {
-			$invoice_id     = $invoice->getInvoiceId();
-			$generated_date = sw_check_and_format( $invoice->getDateCreated() );
-			$order_id       = $invoice->getOrderId();
-			$order_key      = get_post_meta( $order_id, '_order_key', true );
+    if ( $all_invoices ) {
+        foreach ( $all_invoices as $invoice ) {
+            $invoice_id     = esc_html( $invoice->getInvoiceId() );
+            $generated_date = esc_html( sw_check_and_format( $invoice->getDateCreated() ) );
+            $order_id       = esc_html( $invoice->getOrderId() );
+            $order_key      = esc_attr( get_post_meta( $order_id, '_order_key', true ) );
 
-			// Add a table row for each order
-			$table_html .= "<tr>
-                <td class='invoice-table-heading'>Invoice ID:</td>
+            // Add a table row for each order
+            $table_html .= "<tr>
+                <td class='invoice-table-heading'>" . esc_html('Invoice ID:') . "</td>
                 <td class='invoice-table-value'>$invoice_id</td>
             </tr>";
 
-			$table_html .= "<tr>
-                <td class='invoice-table-heading'>Date:</td>
-                <td class='invoice-table-value'>Generated on - $generated_date</td>
+            $table_html .= "<tr>
+                <td class='invoice-table-heading'>" . esc_html('Date:') . "</td>
+                <td class='invoice-table-value'>" . esc_html("Generated on - $generated_date") . "</td>
             </tr>";
 
-			$preview_invoice_url = get_permalink( $invoice_preview_page ) . '?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() );
+            $preview_invoice_url = esc_url( get_permalink( $invoice_preview_page ) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id );
 
-			$table_html .= "<tr>
-                <td class='invoice-table-heading'>Action:</td>
-                <td class='invoice-table-value'><a href='$preview_invoice_url' class='invoice-preview-button'>View</a>";
+            $table_html .= "<tr>
+                <td class='invoice-table-heading'>" . esc_html('Action:') . "</td>
+                <td class='invoice-table-value'><a href='$preview_invoice_url' class='invoice-preview-button'>" . esc_html('View') . "</a>";
 
-			// Show the "Pay" button beside the "View" button only if the order is pending
-			if ( $invoice->getPaymentStatus() === 'unpaid' ) {
-				$checkout_url  = wc_get_checkout_url();
-				$order_pay_url = $checkout_url . 'order-pay/' . $order_id . '/?pay_for_order=true&key=' . $order_key;
-				$table_html   .= "<a href='$order_pay_url' class='invoice-pay-button'>Pay</a>";
-			}
+            // Show the "Pay" button beside the "View" button only if the order is pending
+            if ( $invoice->getPaymentStatus() === 'unpaid' ) {
+                $checkout_url  = esc_url( wc_get_checkout_url() );
+                $order_pay_url = esc_url( $checkout_url . 'order-pay/' . $order_id . '/?pay_for_order=true&key=' . $order_key );
+                $table_html   .= "<a href='$order_pay_url' class='invoice-pay-button'>" . esc_html('Pay') . "</a>";
+            }
 
-			$table_html .= '</td></tr>';
+            $table_html .= '</td></tr>';
 
-			// Add an empty row for spacing
-			$table_html .= "<tr><td colspan='2'></td></tr>";
-		}
-	} else {
-		// Add a message if no invoice is found
-		$table_html .= "<tr><td colspan='2'>All your invoices will appear here.</td></tr>";
-	}
+            // Add an empty row for spacing
+            $table_html .= "<tr><td colspan='2'></td></tr>";
+        }
+    } else {
+        // Add a message if no invoice is found
+        $table_html .= "<tr><td colspan='2'>" . esc_html('All your invoices will appear here.') . "</td></tr>";
+    }
 
-	// Close the table markup
-	$table_html .= '</table>';
+    // Close the table markup
+    $table_html .= '</table>';
 
-	$table_html .= '</div>'; // Close mini card
+    $table_html .= '</div>'; // Close mini card
 
-	$table_html .= "<div style='text-align: center;'>";
-	$table_html .= "<p><a href='$invoice_page_url' class='sw-blue-button'>View All Invoices</a></p>";
-	$table_html .= '</div>';
+    $table_html .= "<div style='text-align: center;'>";
+    $table_html .= "<p><a href='$invoice_page_url' class='sw-blue-button'>" . esc_html('View All Invoices') . "</a></p>";
+    $table_html .= '</div>';
 
-	// Return the table HTML
-	return $table_html;
+    // Return the table HTML
+    return $table_html;
 }
 
 /**

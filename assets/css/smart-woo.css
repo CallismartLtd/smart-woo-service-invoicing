@@ -443,7 +443,85 @@ use inline CSS to overide some styles
 
 
 
-/* CSS for the Invoice page */
+/***************************************************************************************************
+////////////////////////////////////////////CSS for the Invoice page ///////////////////////////////
+/***************************************************************************************************
+/* Table Styles */
+.sw-invoices-table-wrapper {
+    overflow-x: auto;
+}
+
+.sw-invoices-table {
+    width: 100%;
+    border-collapse: collapse;
+	border-radius: 9px;
+    margin: 20px 0;
+    background-color: #fff;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+    overflow: hidden;
+}
+
+.sw-invoices-table th, .sw-invoices-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.sw-invoices-table th {
+    background-color: #ffe1f5;
+    color: #0e0101;
+	font-weight: bold;
+}
+
+.sw-invoices-table:hover {
+    background-color: #ffffff;
+	box-shadow: none;
+
+}
+
+
+
+/* Responsive Styles for mobile devices */
+@media only screen and (min-width: 320px) and (max-width: 720px) {
+
+    .sw-invoices-table {
+        width: 90%;
+        max-width: 100%; /* Adjusted to take full width on small screens */
+        box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+        overflow-x: auto; /* Added to enable horizontal scrolling if needed */
+    }
+
+    .sw-invoices-table thead,
+    .sw-invoices-table tbody,
+    .sw-invoices-table th,
+    .sw-invoices-table td,
+    .sw-invoices-table tr {
+        display: block;
+    }
+
+    .sw-invoices-table tbody tr {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .sw-invoices-table tbody td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        width: 100%; /* Make the cells take full width */
+    }
+
+    .invoice-count {
+        text-align: left;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+}
+
+
 
 /* Style the invoice container to resemble A4 paper */
 /* Increase the minimum height for the container and add space at the bottom */
@@ -667,7 +745,9 @@ use inline CSS to overide some styles
 	background-color: #0055a4;
 }
 
-
+/********************************************************************************************************
+//////////////////////////////////////// Invoice page CSS ends here /////////////////////////////////////
+/********************************************************************************************************
 
 
 
@@ -1020,10 +1100,13 @@ use inline CSS to overide some styles
 	margin: 20px 0;
 	background-color: #ffffff;
 	border: 1px solid #918d8d;
+	border-radius: 7px;
 	padding: 20px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 	text-align: center;
 	margin-bottom: 20px;
+	max-width: 800px;
+	width: 70%;
 }
 
 .status-item {
@@ -1047,112 +1130,55 @@ use inline CSS to overide some styles
 }
 
 
-/* CSS */
-.checkbox-container {
-	margin: 10px 0;
-}
-
-/* Style the label */
-.checkbox-container label {
-	display: block;
-	margin-bottom: 5px;
-	font-weight: bold;
-}
-
-/* Style the dropdown button */
-.dropdown .btn-default {
-	background-color: #fff;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	color: #333;
-	font-size: 14px;
-	padding: 10px;
-	width: 100%;
-	text-align: left;
-}
-
-/* Style the dropdown caret icon */
-.dropdown .btn-default .caret {
-	float: right;
-	margin-top: 5px;
-}
-
-/* Initially hide the dropdown menu */
-.dropdown .dropdown-menu {
-	display: none;
-}
-
-/* Style the dropdown menu items */
-.dropdown .dropdown-menu li {
-	list-style: none;
-	margin: 5px 0;
-}
-
-
+/* Container for Settings and Tools Section */
 .settings-tools-section {
-	padding: 20px;
-	border-bottom: 1px solid #ccc;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add box shadow */
-	width: 100%; /* Make the container full width */
+	align-items: center;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+    margin-top: 20px;
+	margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+	width: 70%;
 }
 
+/* Header Style */
 .settings-tools-section h2 {
-	font-size: 1.8rem;
-	font-weight: bold;
-	margin-bottom: 15px;
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
 }
 
-.settings-tools-section .minibox-buttons {
-	display: flex;
-	justify-content: space-between;
-	border-top: 1px solid #ddd; /* Add top border */
+/* Button Container Style */
+.sw-button-container {
+    display: flex;
+    gap: 15px;
 }
 
-.settings-tools-section .minibox-buttons button {
-	background-color: #f5f5f5; /* Light background for tabs */
-	border: 1px solid #ddd; /* Add border around each tab */
-	border-bottom: none; /* Remove bottom border for active tab */
-	outline: none;
-	padding: 10px 20px;
-	font-size: 16px;
-	color: #0b2438;
-	font-weight: bold;
-	cursor: pointer;
-	transition: background-color 0.2s ease-in-out;
+/* Minibox Button Style */
+.minibox-button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.settings-tools-section .minibox-buttons button.active {
-	background-color: #e9dddd; /* White background for active tab */
+.minibox-button:hover {
+    background-color: #2980b9;
 }
 
-.settings-tools-section .minibox-buttons button:hover {
-	background-color: #c08585;
+/* AJAX Content Container Style */
+#ajax-content-container {
+    margin-top: 20px;
+    /* Add more styles as needed for the AJAX content container */
 }
 
-.settings-tools-section .minibox-buttons button::after {
-	content: ""; /* Empty content for charging icon container */
-	display: block;
-	position: absolute;
-	top: 5px;
-	right: 10px;
-	width: 16px;
-	height: 16px;
-	border-radius: 50%;
-	background-color: transparent;
-	animation: loading 1s infinite; /* Add charging icon animation (define in separate rule) */
-}
-
-@keyframes loading {
-	0% {
-	transform: scale(0.5);
-	}
-	50% {
-	transform: scale(1);
-	}
-	100% {
-	transform: scale(0.5);
-	}
-}
 
 
 

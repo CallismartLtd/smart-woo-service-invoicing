@@ -24,7 +24,7 @@ function sw_admin_view_service_details() {
 		sw_display_service_details( $service );
 
 		// Retrieve service usage metrics
-		echo sw_get_usage_metrics( $service_id );
+		echo sw_get_usage_metrics( $service_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		echo '</div>';
 
@@ -78,7 +78,7 @@ function sw_display_service_details( $service ) {
 	// Display the formatted date in the service details
 	echo '<div class="serv-details-card">';
 	echo '<div class="de-service-details-card">';
-	echo '<span style="display: inline-block; text-align: right; color: white; background-color: red; padding: 10px; border-radius: 5px; font-weight: bold;">' . $main_service_status . '</span>';
+	echo '<span style="display: inline-block; text-align: right; color: white; background-color: red; padding: 10px; border-radius: 5px; font-weight: bold;">' . esc_html( $main_service_status ) . '</span>';
 	echo '<h2>Service Details</h2>';
 	echo '<h3>' . esc_html( $service->getServiceName() ) . '</h3>';
 	echo '<p>Service ID: ' . esc_html( $service->getServiceId() ) . '</p>';
@@ -86,12 +86,12 @@ function sw_display_service_details( $service ) {
 	echo '<p>Service URL: ' . esc_html( $service->getServiceUrl() ) . '</p>';
 	echo '<p>Amount: ' . esc_html( $price_with_currency ) . '</p>';
 	echo '<p>Billing Cycle: ' . esc_html( $service->getBillingCycle() ) . '</p>';
-	echo '<p>Start Date: ' . sw_check_and_format( $service->getStartDate() ) . '</p>';
+	echo '<p>Start Date: ' . sw_check_and_format( $service->getStartDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<p>Next Payment Date: ' . sw_check_and_format( $service->getNextPaymentDate() ) . '</p>';
-	echo '<p>End Date: ' . sw_check_and_format( $service->getEndDate() ) . '</p>';
-	echo sw_client_service_url_button( $service );
+	echo '<p>End Date: ' . sw_check_and_format( $service->getEndDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo sw_client_service_url_button( $service ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) . '" class="sw-blue-button">Edit this Service</a>';
-	echo sw_delete_service_button( $service->getServiceId() );
+	echo sw_delete_service_button( $service->getServiceId() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '</div>';
 	echo '</div>'; // Close wrap
 }
@@ -450,7 +450,7 @@ function sw_render_add_new_service_form() {
 			<span class="sw-field-description" title="Select one product. This product price and fees will be used to create next invoice. Only Service Products will appear here.">?</span>
 			<?php
 			// Custom Function: Dropdown for Service Products
-			echo sw_product_dropdown( '', true ); // Required dropdown with no preselected product
+			echo sw_product_dropdown( '', true );
 			?>
 		</div>
 

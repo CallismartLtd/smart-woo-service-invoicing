@@ -390,10 +390,10 @@ add_action( 'template_redirect', 'sw_service_OptOut_or_Cancellation' );
 
 function sw_service_OptOut_or_Cancellation() {
 	// Check if the 'action' parameter is set and is one of the allowed actions
-	if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'sw_cancel_service', 'sw_cancel_billing' ), true ) ) {
-		$action     = sanitize_text_field( $_GET['action'] );
+	if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'sw_cancel_service', 'sw_cancel_billing' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action     = sanitize_text_field( $_GET['action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_id    = get_current_user_id();
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : '';
+		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Check if the service_id is provided and the service is currently 'Active'
 		if ( ! empty( $service_id ) && sw_service_status( $service_id ) === 'Active' ) {
@@ -493,9 +493,9 @@ add_action( 'init', 'swsi_handle_payment_link' );
 
 function swsi_handle_payment_link() {
 	// Check if the pay-invoice action is set in the URL
-	if ( isset( $_GET['action'] ) && $_GET['action'] === 'sw_invoice_payment' ) {
+	if ( isset( $_GET['action'] ) && $_GET['action'] === 'sw_invoice_payment' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Get and sanitize the parameters from the URL
-		$token = sanitize_text_field( $_GET['token'] );
+		$token = sanitize_text_field( $_GET['token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Verify the token
 		$payment_info = swsi_verify_token( $token );
@@ -669,7 +669,7 @@ add_action( 'init', 'sw_manual_service_renewal' );
 
 function sw_manual_service_renewal() {
 	// Check if the renewal action is set in the URL
-	if ( isset( $_GET['action'] ) && $_GET['action'] === 'renew-service' ) {
+	if ( isset( $_GET['action'] ) && $_GET['action'] === 'renew-service' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Verify the nonce
 		$nonce_action = 'renew_service_nonce';

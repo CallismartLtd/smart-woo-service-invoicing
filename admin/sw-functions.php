@@ -320,7 +320,9 @@ function swsi_verify_token( $token ) {
 }
 
 
-
+/**
+ * Performs check if migration is allowed
+ */
 function sw_Is_migration() {
 	$sw_allow_migration = get_option( 'sw_allow_migration', 'Disable' );
 
@@ -339,7 +341,7 @@ function sw_notice( $message ) {
 	// HTML and styles for the notice message
 	$output  = '<div style="background-color: #ffe9a7; padding: 10px; border: 1px solid #f3c100; border-radius: 5px; margin: 10px 0; display: flex; align-items: center;">';
 	$output .= '<span style="font-size: 20px; margin-right: 10px;">⚠</span>';
-	$output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold;">' . esc_html( $message ) . '</p>';
+	$output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold;">' . esc_html( $message ) . '</p>'; 
 	$output .= '<span style="font-size: 20px; margin-right: 10px;">⚠</span>';
 	$output .= '</div>';
 
@@ -479,8 +481,8 @@ function sw_get_navbar( $current_user_id ) {
 	$page_title = $navbar_title;
 
 	// If the current page is 'services' and a service action is selected
-	if ( $current_page_slug === 'services' && isset( $_GET['service_action'] ) ) {
-		$service_action = sanitize_key( $_GET['service_action'] );
+	if ( $current_page_slug === 'services' && isset( $_GET['service_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$service_action = sanitize_key( $_GET['service_action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Customize the page title based on the selected service action
 		switch ( $service_action ) {

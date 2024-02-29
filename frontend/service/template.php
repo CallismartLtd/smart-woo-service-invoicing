@@ -152,6 +152,7 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
  * @param int $current_user_id The current user's id
  */
 function sw_handle_main_page( $current_user_id ) {
+	$output = '<div class="wrap">';
 
 	// Output the service navigation bar
 	sw_get_navbar( $current_user_id );
@@ -218,9 +219,9 @@ function sw_handle_main_page( $current_user_id ) {
 	$pending_services = sw_user_unprocessed_service( $current_user_id );
 
 	// Output services as cards
-	$output = '<div class="client-services">';
+	$output .= '<div class="client-services">';
 
-	if ( ! empty( $services || ! empy( $pending_services ) ) ) {
+	if ( ! empty( $services || ! empty( $pending_services ) ) ) {
 
 		echo $pending_services;
 
@@ -251,9 +252,9 @@ function sw_handle_main_page( $current_user_id ) {
 			$output .= '<h3>' . $service_name_with_status . '</h3>';
 			if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) ) ) {
 				$output .= sw_notice( 'Expiring Today' );
-			} elseif ( $expiry_date === date( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+			} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
 				$output .= sw_notice( 'Expiring Tomorrow' );
-			} elseif ( $expiry_date === date( 'Y-m-d', strtotime( '-1 day' ) ) ) {
+			} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
 				$output .= sw_notice( 'Expired Yesterday' );
 			}
 			$output .= '<p>Service ID: ' . $service_id . '</p>';
@@ -265,41 +266,38 @@ function sw_handle_main_page( $current_user_id ) {
 		$output .= '<p style="color: black;">All your services will appear here.</p>';
 		$output .= '</div>';
 	}
+	$output .= '</div>'; // Close the client-services div
 
-	// Setting and tools Section
-
-	$output .= '<div class="settings-tools-section">';
-	$output .= '<h2>Settings and Tools</h2>';
-	$output .= '<div class="minibox-buttons">';
 
 	// Hidden loading element
 	$output .= '<div id="swloader">Loading...</div>';
+
+	// Setting and tools Section
+	$output .= '<div class="settings-tools-section">';
+	$output .= '<h2>Settings and Tools</h2>';
+	// Button container
+	$output .= '<div class="sw-button-container">';
+	
 	// Button 1: Billing Details
-	$output .= '<div class="minibox">';
 	$output .= '<button class="minibox-button" onclick="loadBillingDetails()">Billing Details</button>';
-	$output .= '</div>';
 
 	// Button 2: My Details
-	$output .= '<div class="minibox">';
 	$output .= '<button class="minibox-button" onclick="loadMyDetails()">My Details</button>';
-	$output .= '</div>';
 
 	// Button 3: Account Logs
-	$output .= '<div class="minibox">';
 	$output .= '<button class="minibox-button" onclick="loadAccountLogs()">Account Logs</button>';
-	$output .= '</div>';
 
 	// Button 4: Transaction History
-	$output .= '<div class="minibox">';
 	$output .= '<button class="minibox-button" onclick="loadTransactionHistory()">Transaction History</button>';
-	$output .= '</div>';
 
-	$output .= '</div>'; // Close minibox-buttons
+	$output .= '</div>'; // Close buttons div
+	
+	//Respone container
 	$output .= '<div id="ajax-content-container"></div>'; // Container for AJAX content
 
 	$output .= '</div>'; // Close settings-tools-section
-
-	$output .= '</div>'; // Close the client-services div
+	$output .= '</div>'; // Close main wrap
+	
 
 	echo $output;
 }

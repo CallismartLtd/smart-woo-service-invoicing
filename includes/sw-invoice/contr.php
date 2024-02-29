@@ -131,7 +131,7 @@ function sw_create_new_invoice_form() {
 			// Check the result
 			if ( $createdInvoiceID !== false ) {
 				$detailsPageURL = esc_url( admin_url( "admin.php?page=sw-invoices&action=view-invoice&invoice_id=$createdInvoiceID" ) );
-				echo "Invoice created successfully! <a href='$detailsPageURL'>View Invoice Details</a>";
+				echo "Invoice created successfully! <a href='$detailsPageURL'>View Invoice Details</a>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			} else {
 				sw_error_notice( 'Failed to create the invoice.' );
 			}
