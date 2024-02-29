@@ -2,8 +2,7 @@
 
 **Requires at least:** 6.2  
 **Tested up to:** 6.4  
-**Requires PHP:** 5.4  
-**Stable tag:** trunk  
+**Requires PHP:** 7.0
 **License:** GPLv3  
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.en.html  
 
