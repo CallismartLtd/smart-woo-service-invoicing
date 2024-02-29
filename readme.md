@@ -1,5 +1,4 @@
-# Smart Woo Service Invoicing
-**Tags:** Invoice, Invoicing, Subscription, WHMC.
+# Smart Woo Service Invoicing.
 
 **Requires at least:** 6.2  
 **Tested up to:** 6.4  
@@ -111,3 +110,4 @@ To make a donation, please visit our [donation page](https://paystack.com/pay/su
 
 Thank you for considering supporting Smart Woo Service and Invoicing Plugin! Your generosity is crucial to the sustainability and improvement of this project.
 
+**Tags:** Invoice,Invoicing, Subscription,WHM, WordPress invoicing plugin,#
