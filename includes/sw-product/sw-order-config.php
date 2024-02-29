@@ -88,7 +88,7 @@ add_filter( 'woocommerce_add_cart_item_data', 'sw_add_configured_product_to_cart
 
 function sw_add_configured_product_to_cart( $cart_item_data, $product_id, $variation_id ) {
     // Check if 'service_name' is set in the POST data and add it to cart item data
-    if ( isset( $_POST['service_name'] ) ) {
+    if ( isset( $_POST['service_name'] ) && wp_verify_nonce( $_POST['sw_product_configuration_nonce'] , 'sw_product_configuration_nonce' ) ) {
         $cart_item_data['sw_service_name'] = wc_clean( $_POST['service_name'] );
     }
 

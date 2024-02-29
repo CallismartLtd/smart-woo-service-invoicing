@@ -12,8 +12,9 @@ defined( 'ABSPATH' ) || exit; // exit if eccessed directly
 function smart_woo_service() {
     // Check if the current user has the required capability to access this page
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die(__( 'You do not have sufficient permissions to access this page.' ) );
+        wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo' ) );
     }
+
 
     // Determin which URL path to display content
     $action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : '';

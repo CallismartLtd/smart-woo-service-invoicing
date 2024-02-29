@@ -167,9 +167,9 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
         }
 
         // Calculate new dates
-        $new_start_date     =    date( 'Y-m-d', $old_end_date );
-        $new_end_date       =    date( 'Y-m-d', strtotime($interval, $old_end_date ) );
-        $new_next_payment_date = date( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
+        $new_start_date     =    date_i18n( 'Y-m-d', $old_end_date );
+        $new_end_date       =    date_i18n( 'Y-m-d', strtotime($interval, $old_end_date ) );
+        $new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
 
         // 6.  Update the service using the update_service method
         $service->setStartDate( $new_start_date );

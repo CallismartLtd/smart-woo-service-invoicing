@@ -12,7 +12,7 @@ function sw_configure_page_title( $title_parts ) {
 }
 add_filter( 'document_title_parts', 'sw_configure_page_title' );
 
-if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['sw_add_configured_product_to_cart'] ) ) {
+if ( isset( $_POST['sw_add_configured_product_to_cart'] ) && wp_verify_nonce( $_POST['sw_product_configuration_nonce'] , 'sw_product_configuration_nonce' ) ) {
     
     // Sanitize and validate form data
     $service_name       = isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
@@ -58,6 +58,8 @@ get_header();
         <p>Configure your desired options for <strong>"<?php echo $product_name; ?>"</strong> and continue checkout.</p>
 
         <form method="post" enctype="multipart/form-data">
+
+        <?php wp_nonce_field( 'sw_product_configuration_nonce', 'sw_product_configuration_nonce' );?>
 
             <!-- Service Name -->
             <div class="sw-form-row">

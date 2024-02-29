@@ -1,8 +1,11 @@
 <?php
+/**
+ * File name    :   sw-invoice-admin-temp.php
+ * @author      :   Callistus
+ * Description  :   Functions file for invoice admin page templates
+ */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Dropdown for Invoice Type with filter for custom options.
@@ -22,10 +25,10 @@ function sw_invoice_type_dropdown( $invoice_type = null ) {
     );
 
     /**
-     * Option to allow others add their invoice type using filter
+     * Option to allow others to add their invoice type using filter
      * 
      * @param string sw_invoice_type_options        The target filter name
-     * @param array  add an assosciative array of the custom invoice type 
+     * @param array  add an associative array of the custom invoice type 
      */
     $custom_options = apply_filters( 'sw_invoice_type_options', array() );
 
@@ -36,10 +39,11 @@ function sw_invoice_type_dropdown( $invoice_type = null ) {
     echo '<select class="sw-form-input" name="invoice_type">';
     foreach ( $options as $value => $label ) {
         $is_selected = ( $value === $invoice_type ) ? 'selected="selected"' : '';
-        echo "<option value='$value' $is_selected>$label</option>";
+        echo '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
     }
     echo '</select>';
 }
+
 
 
 
@@ -61,10 +65,10 @@ function sw_invoice_payment_payment_status_dropdown( $payment_status = null ) {
     );
 
     /**
-     * Option to allow others add their invoice payment status using filter
+     * Option to allow others to add their invoice payment status using filter
      * 
      * @param string sw_invoice_payment_status        The target filter name
-     * @param array  add an assosciative array of the custom invoice payment status
+     * @param array  add an associative array of the custom invoice payment status
      */
     $custom_options = apply_filters( 'sw_invoice_payment_status', array() );
 
@@ -75,10 +79,11 @@ function sw_invoice_payment_payment_status_dropdown( $payment_status = null ) {
     echo '<select class="sw-form-input" name="payment_status">';
     foreach ( $options as $value => $label ) {
         $is_selected = ( $value === $payment_status ) ? 'selected="selected"' : '';
-        echo "<option value='$value' $is_selected>$label</option>";
+        echo '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
     }
     echo '</select>';
 }
+
 
 /**
  * Dropdown for Smart Woo Product with filter for custom options.
@@ -130,6 +135,11 @@ function sw_render_create_invoice_form(){
     ?>
     <div class="sw-form-container">
     <form method="post" action="">
+
+        <?php
+        // Add nonce for added security
+        wp_nonce_field('sw_create_invoice_nonce', 'sw_create_invoice_nonce');
+        ?>
         <!-- Choose a Client -->
         <div class="sw-form-row">
         <label for="user_id" class="sw-form-label">Choose a Client *</label>
@@ -211,6 +221,10 @@ function sw_render_create_invoice_form(){
     <div class="sw-form-container">
 
     <form method="post" action="">
+        <?php
+        // Add nonce for added security
+        wp_nonce_field( 'sw_edit_invoice_nonce', 'sw_edit_invoice_nonce' );
+        ?>
         <!-- Populate existing data in the form -->
         <input type="hidden" name="invoice_id" value="<?php echo esc_attr( $existingInvoice->getInvoiceId() ); ?>">
                 
@@ -392,7 +406,7 @@ function sw_view_invoice_page() {
     if ($invoice) {
         // Get user's full name using WordPress function
         $user_full_name        = get_user_meta( $invoice->getUserId(), 'first_name', true ) . ' ' . get_user_meta( $invoice->getUserId(), 'last_name', true );
-        $product_name          = wc_get_product( $invoice->getProductId() )->get_name();
+        $product_name          = wc_get_product( $invoice->getProductId() ) ? wc_get_product( $invoice->getProductId() )->get_name() : 'Not Available';
         $paymentStatus         = esc_html( $invoice->getPaymentStatus() );
         $dateCreated           = $invoice->getDateCreated();
         $datePaid              = $invoice->getDatePaid();
@@ -444,7 +458,7 @@ function sw_view_invoice_page() {
         if ( $service_details ) {
             $service_name = $service_details->getServiceName();
             $billing_cycle = $service_details->getBillingCycle();
-            $end_date = date('l, F jS Y', strtotime( $service_details->getEndDate() ) );
+            $end_date = date_i18n('l, F jS Y', strtotime( $service_details->getEndDate() ) );
             $service_id = $invoice->getServiceId();
             echo '<div class="serv-details-card">';
 
@@ -478,7 +492,7 @@ function sw_handle_admin_invoice_by_status() {
 
     // Display the selected payment status
     echo '<h2>Payment Status: ' . esc_html( $payment_status ) . '</h2>';
-    sw_invoice_admin_status_nav_button();
+    echo sw_count_all_invoices_by_status();
     // Check if there are any invoices
     if ( ! empty( $invoices ) ) {
         // Display the table of invoices

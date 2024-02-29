@@ -17,6 +17,9 @@ function sw_render_new_product_form() {
     echo '<div class="sw-form-container">';
     echo '<form method="post" action="" enctype="multipart/form-data" class="sw-product-form-class">';
 
+    // Add nonce for added security
+    wp_nonce_field( 'sw_add_new_product_nonce', 'sw_add_new_product_nonce' );
+
     // Product Name
     echo '<div class="sw-form-row">';
     echo '<label for="product_name" class="sw-form-label">Product Name</label>';
@@ -53,7 +56,7 @@ function sw_render_new_product_form() {
                 'textarea_rows' => 5,
                 'teeny'         => true,
                 'media_buttons' => true,
-                'quicktags'     => array('buttons' => 'strong,em,link,block,del,ins,img,ul,ol,li,code,close'),
+                'quicktags'     => array( 'buttons' => 'strong,em,link,block,del,ins,img,ul,ol,li,code,close' ),
                 'tinymce'       => array(
                     'resize'           => true,
                     'browser_spellcheck' => true,
@@ -159,18 +162,9 @@ function display_edit_form() {
 
     // Check if a valid product ID is provided
     if ( $product_id ) {
-        // Handle form submission for updating the product
-        if ( $_SERVER["REQUEST_METHOD"] == "POST" && isset( $_POST['update_service_product'] ) ) {
-            // Update the product
-            $updated = update_sw_service_product( $product_id );
 
-            // Display success or error message
-            if ( $updated ) {
-                echo '<div class="updated"><p>Product updated successfully!</p></div>';
-            } else {
-                echo '<div class="error"><p>Error updating the product. Please try again.</p></div>';
-            }
-        }
+        // Handle form submission
+        sw_handle_product_edit_form( $product_id );
         // Get the product details
         $product_data = get_sw_service_product( $product_id, 'name', 'price', 'sign_up_fee', 'short_description', 'billing_cycle', 'grace_period_number', 'grace_period_unit', 'long_description', 'product_image_id' );
 
@@ -178,10 +172,12 @@ function display_edit_form() {
         if ( $product_data ) {
             echo '<div class="wrap"><h2>Edit Service Product</h2>';
 
-            echo '<a href="' . admin_url('admin.php?page=sw-products&action=add-new') . '" class="sw-blue-button">Add Products</a>';
 
             echo '<div class="sw-form-container">';
             echo '<form method="post" action="" enctype="multipart/form-data">';
+            echo '<input type="submit" name="update_service_product" class="sw-blue-button" value="Update Product">';
+
+            wp_nonce_field( 'sw_edit_product_nonce', 'sw_edit_product_nonce' );
 
             // Product Name
             echo '<div class="sw-form-row">';
@@ -333,7 +329,7 @@ function display_product_details_table() {
     if ( ! $products_data ) {
         echo '<div class="wrap"><h2>Service Products</h2>';
         echo '<a href="' . admin_url('admin.php?page=sw-products&action=add-new') . '" class="sw-blue-button">Add Product</a>';
-        echo '<div class="notice notice-info"><p>No sw_service products found.</p></div>';
+        echo '<div class="notice notice-info"><p>No Service product found.</p></div>';
         return;
     }
 
@@ -359,7 +355,7 @@ function display_product_details_table() {
         echo '<td>' . wc_price( $product_data['sign_up_fee']) . '</td>';
         echo '<td>' . esc_html( $product_data['billing_cycle']) . '</td>';
         echo '<td>';
-        echo '<a href="' . esc_url(admin_url('admin.php?page=sw-products&action=edit&product_id=' . $product_id)) . '" class="button">Edit</a>';
+        echo '<a href="' . esc_url( admin_url('admin.php?page=sw-products&action=edit&product_id=' . $product_id ) ) . '" class="button">Edit</a>';
         echo '<button class="button" onclick="deleteProduct(' . esc_js( $product_id ) . ')">Delete</button>';
         echo '</td>';
         echo '</tr>';

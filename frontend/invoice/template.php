@@ -141,7 +141,7 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
         //The back button
         echo '<br>';
         echo  '<div class="inv-button-container" style="text-align: left;">';
-        echo'<a href="' . get_permalink() . '" class="back-button">Back to invoices</a>';
+        echo'<a href="' . esc_url( get_permalink() ) . '" class="back-button">Back to invoices</a>';
 
         // Generate the invoice content
         $invoice_content = '<div class="invoice-container">';
@@ -307,12 +307,12 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 
 
         // Output the generated invoice content
-        echo $invoice_content;
+        echo   $invoice_content;
 
         $download_url = add_query_arg( ['download_invoice' => 'true', 'invoice_id' => $invoice_id, 'user_id' => $user_id], get_permalink() );
 
         // Add nonce to the URL
-        $download_url = wp_nonce_url($download_url, 'download_invoice_nonce');
+        $download_url = wp_nonce_url( $download_url, 'download_invoice_nonce' );
 
         $download_button = '<div class="download-button-container">';
         $download_button .= '<a href="' . esc_url($download_url) . '" class="download-button">Download as PDF</a>';
@@ -333,7 +333,7 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
         echo $download_button;
 
     } else {
-        echo '<p>Invalid invoice ID or you do not have permission to view this invoice. "' . $invoice_id . '"</p>';
+        echo '<p>Invalid invoice ID or you do not have permission to view this invoice. "' . esc_attr( $invoice_id ) . '"</p>';
     }
 }
 

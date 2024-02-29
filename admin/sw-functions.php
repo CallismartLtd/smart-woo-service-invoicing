@@ -10,13 +10,17 @@ defined( 'ABSPATH' ) || exit; // exit if eccessed directly
 
 
 /**
- * Function to format date to a human readable format or show 'Not Available' if empty or null
- * @param string $dateString  Date String
+ * Function to format date to a human-readable format or show 'Not Available'.
+ *
+ * @param string $dateString Date String.
+ * @param bool   $includeTime Whether to include the time aspect. Default is true.
+ * @return string Formatted date or 'Not Available'.
  */
-function sw_check_and_format( $dateString ) {
-    return ! empty( $dateString ) ? date( 'l jS F Y \a\t h:i:s A', strtotime( $dateString ) ) : 'Not Available';
-}
+function sw_check_and_format( $dateString, $includeTime = true ) {
+    $format = $includeTime ? 'l jS F Y \a\t h:i:s A' : 'l jS F Y';
 
+    return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
+}
 
 
 /**
@@ -33,7 +37,7 @@ function sw_extract_date_only( $datetimestring ) {
     $timestamp = strtotime( $datetimestring );
 
     // Use date to format the timestamp to the desired 'Y-m-d' format
-    return date( 'Y-m-d', $timestamp );
+    return date_i18n( 'Y-m-d', $timestamp );
 }
 
 

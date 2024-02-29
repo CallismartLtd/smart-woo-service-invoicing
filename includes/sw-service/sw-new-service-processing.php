@@ -137,7 +137,7 @@
     }
 
     // Convert order paid date to Service subscription start date
-    $start_date = $order->get_date_paid() ? date( 'Y-m-d', strtotime( $order->get_date_paid() ) ) : date( 'Y-m-d' );
+    $start_date = $order->get_date_paid() ? date_i18n( 'Y-m-d', strtotime( $order->get_date_paid() ) ) : date( 'Y-m-d' );
     // Instantiate the form variables
     $billing_cycle = '';
     $next_payment_date = '';
@@ -157,20 +157,20 @@
         // Set next payment date and end date based on billing cycle
         switch ($billing_cycle) {
             case 'Monthly':
-                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +1 month' ) );
-                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +1 month' ) );
+                $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
                 break;
             case 'Quarterly':
-                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +3 months' ) );
-                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +3 months' ) );
+                $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
                 break;
             case 'Six Monthly':
-                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +6 months' ) );
-                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +6 months' ) );
+                $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
                 break;
             case 'Yearly':
-                $end_date          = date( 'Y-m-d', strtotime( $start_date . ' +1 year' ) );
-                $next_payment_date = date( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
+                $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +1 year' ) );
+                $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
                 break;
             // Add additional cases as needed
             default:

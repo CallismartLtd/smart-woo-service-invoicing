@@ -83,12 +83,12 @@ add_action( 'admin_menu', 'smart_invoice_admin_menu' );
  */
 function sw_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) {
     $output = '<div class="wrap">';
-    $output .= '<h1 class="wp-heading-inline">' . esc_html($title) . '</h1>';
+    $output .= '<h1 class="wp-heading-inline">' . esc_html( $title ) . '</h1>';
     $output .= '<nav class="nav-tab-wrapper">';
 
     foreach ($tabs as $tab_slug => $tab_title) {
         $active_class = ($current_tab === $tab_slug) ? 'nav-tab-active' : '';
-        $output .= "<a href='admin.php?page=$page_slug&$query_var=$tab_slug' class='nav-tab $active_class'>$tab_title</a>";
+        $output .= "<a href='" . esc_url( add_query_arg( $query_var, $tab_slug, admin_url( 'admin.php?page=' . $page_slug ) ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
     }
 
     $output .= '</nav>';

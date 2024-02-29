@@ -428,11 +428,11 @@ function sw_load_account_logs_callback() {
                 $user_continent            = $location_data->continent;
 
 
-                $html .= '<li class="account-log-item">Continent: ' . $user_continent . '</li>';
-                $html .= '<li class="account-log-item">Location: ' . $user_location . '</li>';
-                $html .= '<li class="account-log-item">Internet Service Provider: ' . $internet_service_provider . '</li>';
+                $html .= '<li class="account-log-item">Continent: ' . esc_attr( $user_continent ) . '</li>';
+                $html .= '<li class="account-log-item">Location: ' . esc_attr( $user_location ) . '</li>';
+                $html .= '<li class="account-log-item">Internet Service Provider: ' . esc_attr( $internet_service_provider ) . '</li>';
             } else {
-                $html .= '<li class="account-log-item">Location: Unknown</li>';
+                $html .= '<li class="account-log-item">Location: ' . esc_attr( 'Unknown' ) . '</li>';
             }
 
 

@@ -239,19 +239,19 @@ function get_sw_service_product( $product_id = null, $get_name = null, $get_pric
         $product_data['billing_cycle'] = get_post_meta( $product_id, 'billing_cycle', true );
     }
 
-    if ($get_grace_period_number !== null) {
+    if ( $get_grace_period_number !== null ) {
         $product_data['grace_period_number'] = get_post_meta( $product_id, 'grace_period_number', true );
     }
 
-    if ($get_grace_period_unit !== null) {
+    if ( $get_grace_period_unit !== null ) {
         $product_data['grace_period_unit'] = get_post_meta( $product_id, 'grace_period_unit', true );
     }
 
-    if ($get_long_description !== null) {
+    if ( $get_long_description !== null ) {
         $product_data['long_description'] = $product->get_description();
     }
 
-    if ($get_product_image !== null) {
+    if ( $get_product_image !== null ) {
         $product_data['product_image_id'] = get_post_thumbnail_id($product_id);
         $product_data['product_image_url'] = $product_data['product_image_id'] ? wp_get_attachment_url( $product_data['product_image_id'] ) : '';
     }
@@ -289,6 +289,7 @@ function update_sw_service_product( $product_id ) {
     $updated = wp_update_post( array(
         'ID'           => $product_id,
         'post_title'   => sanitize_text_field( $_POST['product_name'] ),
+        'post_status'  => 'publish',
         'post_content' => sanitize_textarea_field( $_POST['long_description'] ),
         'post_excerpt' => sanitize_text_field( $_POST['short_description'] ),
     ));
@@ -301,7 +302,7 @@ function update_sw_service_product( $product_id ) {
         update_post_meta( $product_id, '_price', floatval( $_POST['product_price']));
         update_post_meta( $product_id, 'sign_up_fee', floatval( $_POST['sign_up_fee']));
         update_post_meta( $product_id, 'billing_cycle', sanitize_text_field( $_POST['billing_cycle'] ) );
-        update_post_meta( $product_id, 'grace_period_number', intval( $_POST['grace_period_number'] ) );
+        update_post_meta( $product_id, 'grace_period_number', absint( $_POST['grace_period_number'] ) );
         update_post_meta( $product_id, 'grace_period_unit', sanitize_text_field( $_POST['grace_period_unit'] ) );
 
         // Update the featured image

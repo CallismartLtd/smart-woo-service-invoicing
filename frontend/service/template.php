@@ -60,11 +60,10 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
         $product_price  = $product_info ? $product_info->get_price() : 0;
 
         $billing_cycle      = esc_html( $service->getBillingCycle() ? $service->getBillingCycle() :'Not Available' );
-        $start_date         = date( 'l, F jS Y', strtotime( esc_html( $service->getStartDate() ? $service->getStartDate() :'Not Available')) );
-        $next_payment_date  = date( 'l, F jS Y', strtotime( esc_html( $service->getNextPaymentDate() ? $service->getNextPaymentDate() :'Not Available')) );
-        $end_date           = date('l, F jS Y', strtotime(esc_html($service->getEndDate() ? $service->getEndDate() :'Not Available')) );
-
-        $service_url = esc_url($service->getServiceUrl() ? $service->getServiceUrl() : 'Not Available'); 
+        $start_date         = sw_check_and_format( $service->getStartDate(), false );
+        $next_payment_date  = sw_check_and_format( $service->getNextPaymentDate(), false );
+        $end_date           = sw_check_and_format( $service->getEndDate(), false );
+        $service_url        = esc_url( $service->getServiceUrl() ? $service->getServiceUrl() : 'Not Available'); 
         $service_button = sw_client_service_url_button( $service );
 
         // Use sw_service_status to get the service status
@@ -74,15 +73,15 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 
         if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) ) ) {
             echo sw_notice('Expiring Today');
-        } elseif ( $expiry_date ===  date( 'Y-m-d', strtotime('+1 day') ) ) {
+        } elseif ( $expiry_date ===  date_i18n( 'Y-m-d', strtotime('+1 day') ) ) {
             echo sw_notice('Expiring Tomorrow');
-        }elseif ( $expiry_date ===  date( 'Y-m-d', strtotime('-1 day') ) ) {
+        }elseif ( $expiry_date ===  date_i18n( 'Y-m-d', strtotime('-1 day') ) ) {
             echo sw_notice('Expired Yesterday');
         }
+        
         // Add the status tag to the service name
-
         $service_name_with_status = $service_name . ' (' . $status . ')';
-        sw_get_navbar($current_user_id);
+        sw_get_navbar( $current_user_id );
 
         // Add the heading
         $output = '<h3 style="text-align: center;">' . $service_name_with_status . '</h3>';
@@ -165,10 +164,10 @@ function sw_handle_main_page( $current_user_id ) {
     $current_page_url = esc_url(add_query_arg('service_page', $url_param, get_permalink()));
 
     echo '<div class="status-counts">';
-    echo '<p class="active-count"><a href="' . esc_url( add_query_arg(array('service_page' => 'active', 'action' => 'active'), get_permalink())) . '">Active: ' . $active_count . '</a></p>';
-    echo '<p class="due-for-renewal-count"><a href="' . esc_url(add_query_arg(array('service_page' => 'renewal_due', 'action' => 'renewal_due'), get_permalink())) . '">Due: ' . $due_for_renewal_count . '</a></p>';
-    echo '<p class="expired-count"><a href="' . esc_url(add_query_arg(array('service_page' => 'expired', 'action' => 'expired'), get_permalink())) . '">Expired: ' . $expired_count . '</a></p>';
-    echo '<p class="grace-period-count"><a href="' . esc_url(add_query_arg(array('service_page' => 'grace_period', 'action' => 'grace_period'), get_permalink())) . '">Grace Period: ' . $grace_period_count . '</a></p>';
+    echo '<p class="active-count"><a href="' . esc_url( add_query_arg(array('service_page' => 'active', 'action' => 'active'), get_permalink() ) ) . '">Active: ' . esc_attr( $active_count ) . '</a></p>';
+    echo '<p class="due-for-renewal-count"><a href="' . esc_url(add_query_arg(array('service_page' => 'renewal_due', 'action' => 'renewal_due'), get_permalink() ) ) . '">Due: ' . esc_attr( $due_for_renewal_count ) . '</a></p>';
+    echo '<p class="expired-count"><a href="' . esc_url( add_query_arg(array('service_page' => 'expired', 'action' => 'expired'), get_permalink())) . '">Expired: ' . esc_attr( $expired_count ) . '</a></p>';
+    echo '<p class="grace-period-count"><a href="' . esc_url( add_query_arg(array('service_page' => 'grace_period', 'action' => 'grace_period'), get_permalink())) . '">Grace Period: ' . esc_attr( $grace_period_count ) . '</a></p>';
     echo '</div>';
 
 
@@ -180,21 +179,21 @@ function sw_handle_main_page( $current_user_id ) {
     // Output services as cards
     $output = '<div class="client-services">';
 
-    if (!empty( $services || !empty($pending_services ) ) ) {
+    if ( ! empty( $services || ! empy( $pending_services ) ) ) {
 
         echo $pending_services;
 
         foreach ($services as $service) {
-            $service_name = esc_html( $service->getServiceName() );
-            $service_id = esc_html( $service->getServiceId() );
+            $service_name    = esc_html( $service->getServiceName() );
+            $service_id      = esc_html( $service->getServiceId() );
 
             // Create a link to view service details with the service_id as a URL parameter
             $service_page_id = get_option( 'sw_service_page', 0 );
-            $page_url = get_permalink( $service_page_id );
-            $view_link = esc_url( add_query_arg( array('service_page' => 'service_details', 'service_id' => $service_id ), $page_url ) );
+            $page_url        = get_permalink( $service_page_id );
+            $view_link       = esc_url( add_query_arg( array( 'service_page' => 'service_details', 'service_id' => $service_id ), $page_url ) );
             // Use sw_service_status to get the service status
-            $status = sw_service_status( $service_id );
-            $expiry_date   = sw_get_service_expiration_date( $service );
+            $status          = sw_service_status( $service_id );
+            $expiry_date     = sw_get_service_expiration_date( $service );
 
 
 
@@ -205,9 +204,9 @@ function sw_handle_main_page( $current_user_id ) {
             $output .= '<h3>' . $service_name_with_status . '</h3>';
             if ( $expiry_date === sw_extract_date_only( current_time( 'mysql' ) ) ){
                 $output .= sw_notice( 'Expiring Today' );
-            } elseif ( $expiry_date ===  date( 'Y-m-d', strtotime('+1 day') ) ) {
+            } elseif ( $expiry_date ===  date( 'Y-m-d', strtotime( '+1 day' ) ) ) {
                 $output .= sw_notice( 'Expiring Tomorrow' );
-            }elseif ( $expiry_date ===  date( 'Y-m-d', strtotime('-1 day') ) ) {
+            }elseif ( $expiry_date ===  date( 'Y-m-d', strtotime( '-1 day' ) ) ) {
                 $output .= sw_notice( 'Expired Yesterday' );
             }
             $output .= '<p>Service ID: ' . $service_id . '</p>';
@@ -303,7 +302,7 @@ function sw_user_unprocessed_service( $user_id ) {
 
             // Concatenate the HTML content for each order
             $output .= '<div class="main-page-card">';
-            $output .= '<h3>' . $service_name_with_status . '</h3>';
+            $output .= '<h3>' . esc_attr( $service_name_with_status ) . '</h3>';
             $output .= sw_notice( 'We are currently processing this service. It will be active as soon as we are done processing it.' );
             $output .= '</div>';
         }
@@ -605,8 +604,8 @@ function sw_handle_upgrade_service( $current_user_id ) {
 
 
         // Hidden form to Post migration data
-        $output .= '<form method="post" name="migrate_service">';
-        $output .= '<input type="hidden" name="sw_migrate_service" value="smart_woo_upgrade">';
+        $output .= '<form method="post" action="">';
+        $output .= wp_nonce_field( 'migration_nonce', 'migration_nonce' );
         $output .= '<input type="hidden" name="user_id" value="' . esc_attr( $current_user_id ) . '">';
         $output .= '<input type="hidden" name="service_id" value="' . esc_attr( $service_to_upgrade->getServiceId() ) . '">';
         $output .= '<input type="hidden" name="new_service_product_id" value="' . esc_attr( $selected_product_id ) . '">';
@@ -687,7 +686,7 @@ function sw_handle_upgrade_service( $current_user_id ) {
                 // Display each product in a container with a radio button (exclusive selection)
                 $output .= '<div class="product-container">';
                 $output .= '<label>';
-                $output .= '<input type="radio" name="selected_product" value="' . esc_attr( $product_id ) . '" required>';
+                $output .= '<input type="checkbox" name="selected_product" value="' . esc_attr( $product_id ) . '" required>';
                 $output .= '<strong>' . esc_html( $product_name ) . '</strong><br>';
                 $output .= 'Price: ' . wc_price($product_price) . '<br>';
                 $output .= 'Description: ' . esc_html($product_excerpt);
@@ -695,16 +694,15 @@ function sw_handle_upgrade_service( $current_user_id ) {
                 $output .= '</div>';
             }
             wp_reset_postdata(); // Reset the post data to the main loop
+            $output .= '</div>';
+
+            // Upgrade button
+            $output .= '<div class="upgrade-button-container">';
+            $output .= '<button type="submit" name="upgrade_service_submit">Upgrade</button>';
+            $output .= '</div>';
         } else {
             $output .= 'No products found.';
         }
-
-        $output .= '</div>';
-
-        // Upgrade button
-        $output .= '<div class="upgrade-button-container">';
-        $output .= '<button type="submit" name="upgrade_service_submit">Upgrade</button>';
-        $output .= '</div>';
 
         // Close the form tag
         $output .= '</form>';
@@ -826,7 +824,7 @@ function sw_handle_downgrade_service( $current_user_id ) {
 
         // Hidden form to Post migration data
         $output .= '<form method="post" name="migrate_service">';
-        $output .= '<input type="hidden" name="sw_migrate_service" value="smart_woo_downgrade">';
+        $output .= wp_nonce_field( 'migration_nonce', 'migration_nonce' );
         $output .= '<input type="hidden" name="user_id" value="' . esc_attr( $current_user_id ) . '">';
         $output .= '<input type="hidden" name="service_id" value="' . esc_attr( $service_to_downgrade->getServiceId() ) . '">';
         $output .= '<input type="hidden" name="new_service_product_id" value="' . esc_attr( $selected_product_id ) . '">';
@@ -903,24 +901,24 @@ function sw_handle_downgrade_service( $current_user_id ) {
                 // Display each product in a container with a radio button (exclusive selection)
                 $output .= '<div class="product-container">';
                 $output .= '<label>';
-                $output .= '<input type="radio" name="selected_downgrade_product" value="' . esc_attr( $product_id ) . '" required>';
+                $output .= '<input type="checkbox" name="selected_downgrade_product" value="' . esc_attr( $product_id ) . '" required>';
                 $output .= '<strong>' . esc_html( $product_name ) . '</strong><br>';
                 $output .= 'Price: ' . esc_html( $product_price ) . '<br>';
                 $output .= 'Description: ' . esc_html( $product_excerpt );
                 $output .= '</label>';
                 $output .= '</div>';
             }
-            wp_reset_postdata(); // Reset the post data to the main loop
+            wp_reset_postdata(); 
+            $output .= '</div>';
+
+            // Downgrade button
+            $output .= '<div style="text-align:center;">';
+            $output .= '<button type="submit" class="sw-blue-button" name="downgrade_service_submit">Downgrade</button>';
+            $output .= '</div>';
+
         } else {
             $output .= 'No products found for downgrade.';
         }
-
-        $output .= '</div>';
-
-        // Downgrade button
-        $output .= '<div class="downgrade-button-container">';
-        $output .= '<button type="submit" class="sw-blue-button" name="downgrade_service_submit">Downgrade</button>';
-        $output .= '</div>';
 
         // Close the form tag
         $output .= '</form>';

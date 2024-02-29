@@ -18,7 +18,7 @@
     echo '<p> Publish new service subscription and setup billing systems</p>';
 
     // Check if the form is submitted
-    if ( isset( $_POST['add_new_service_submit'] ) ) {
+    if ( isset( $_POST['add_new_service_submit'] ) ) { 
         // Verify nonce for added security
         if ( isset( $_POST['sw_add_new_service_nonce']) && wp_verify_nonce( $_POST['sw_add_new_service_nonce'], 'sw_add_new_service_nonce' ) ) {
             // Form data validation and processing

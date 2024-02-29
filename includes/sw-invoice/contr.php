@@ -21,7 +21,7 @@ function sw_edit_invoice_page() {
 
     if ( $existingInvoice ) {
         // Handle form submission
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['sw_update_invoice'] ) ) {
+        if ( isset( $_POST['sw_update_invoice'] ) && wp_verify_nonce( $_POST['sw_edit_invoice_nonce'], 'sw_edit_invoice_nonce' ) ) {
             // Sanitize and validate inputs
             $user_id = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : $existingInvoice->getUserId();
             $product_id = isset( $_POST['product_id']) ? absint( $_POST['product_id'] ) : $existingInvoice->getProductId();
@@ -42,7 +42,7 @@ function sw_edit_invoice_page() {
             }
 
             // If there are no errors, update the invoice
-            if (empty($errors)) {
+            if ( empty( $errors ) ) {
 
                 // Get the product price dynamically from WooCommerce
                 $amount = wc_get_product( $product_id )->get_price();
@@ -66,7 +66,7 @@ function sw_edit_invoice_page() {
 
                 // Check the result
                 if ( $updated ) {
-                    echo "Invoice updated successfully! ID: $invoice_id";
+                    echo esc_html( "Invoice updated successfully! ID: $invoice_id" );
                 } else {
                     echo "Failed to update the invoice.";
                 }
@@ -92,7 +92,7 @@ function sw_edit_invoice_page() {
 function sw_create_new_invoice_form() {
     echo '<h2>Create New Invoice 📄</h2>';
     // Handle form submission
-    if ( $_SERVER[ 'REQUEST_METHOD' ] === 'POST' && isset($_POST[ 'create_invoice' ] ) ) {
+    if ( isset( $_POST[ 'create_invoice' ] ) && wp_verify_nonce( $_POST['sw_create_invoice_nonce'], 'sw_create_invoice_nonce' ) ) {
         // Sanitize and validate inputs
         $user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
         $product_id     = isset( $_POST['product_id']) ? absint( $_POST['product_id'] ) : 0;
@@ -125,13 +125,13 @@ function sw_create_new_invoice_form() {
         }
 
         // If there are no errors, create the invoice
-        if (empty($errors)) {
+        if ( empty( $errors ) ) {
             // Call the function to create a new invoice
             $createdInvoiceID = sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, $fee, $due_date );
 
             // Check the result
-            if ($createdInvoiceID !== false) {
-                $detailsPageURL = admin_url("admin.php?page=sw-invoices&action=view-invoice&invoice_id=$createdInvoiceID" );
+            if ( $createdInvoiceID !== false ) {
+                $detailsPageURL = esc_url( admin_url("admin.php?page=sw-invoices&action=view-invoice&invoice_id=$createdInvoiceID" ) );
                 echo "Invoice created successfully! <a href='$detailsPageURL'>View Invoice Details</a>";
             } else {
                 sw_error_notice( 'Failed to create the invoice.' );

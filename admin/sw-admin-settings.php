@@ -41,7 +41,7 @@
             if ( isset( $_POST[$checkbox_name] ) ) {
                 update_option( $checkbox_name, 1 ); // Use 1 to represent checked
             } else {
-                update_option($checkbox_name, 0); // Use 0 to represent unchecked
+                update_option( $checkbox_name, 0 ); // Use 0 to represent unchecked
             }
         }
         echo '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>';
@@ -161,14 +161,14 @@ function sw_handle_options_submission() {
     // Instruction for step two
     echo '<div id="step2" class="instruction">';
     echo '<h3>Create Product</h3>';
-    echo '<p><strong>Create a <a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ).'" target="_blank">Service Product</a> specially dedicated to service subscription, set up the necessary fields.</strong></p>';
+    echo '<p><strong>Create a <a href="' . esc_url( admin_url( 'admin.php?page=sw-products&action=add-new' ) ) .'" target="_blank">Service Product</a> specially dedicated to service subscription, set up the necessary fields.</strong></p>';
     echo '</div>';
 
     // Instruction for step three
     echo '<div id="step3" class="instruction">';
     echo '<h3>All Done 🎉🎉</h3>';
     echo '<p><strong>Your product is now listed in the WooCommerce product page, you can sale your service subscription from there or via a custom made tables.<br>
-    When a user configures the product to their choice, they can add it to cart and checkout. All orders are in the <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Service Orders</a> page, from there you can process them.</p>';
+    When a user configures the product to their choice, they can add it to cart and checkout. All orders are in the <a href="' . esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ) .'">Service Orders</a> page, from there you can process them.</p>';
     echo '<p>For help, Support or Bug report please visit our dedicated <a href="https://callismart.com.ng/smart-woo">Smart Woo</a> page</strong></p>';
     echo '</div>';
     echo '</div>';
@@ -224,9 +224,9 @@ function sw_render_service_options_page() {
         <select name="sw_service_page" id="sw_service_page" class="sw-form-input">
         <option value="0">Select a service page</option>
         <?php
-        foreach ($pages as $page) {
-            $selected = ($service_page == $page->ID) ? 'selected' : '';
-            echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
+        foreach ( $pages as $page ) {
+            $selected = ( $service_page == $page->ID ) ? 'selected' : '';
+            echo '<option value="' . $page->ID . '" ' . esc_attr( $selected ). '>' . esc_attr( $page->post_title ) . '</option>';
         }
         ?>
         </select>
@@ -266,9 +266,9 @@ function sw_render_service_options_page() {
         <select name="sw_upgrade_product_cat" class="sw-form-input" id="sw_upgrade_product_cat">
         <option value="0" <?php selected( '0', $upgrade_product_cat ); ?>>None</option>
         <?php
-        foreach ($product_categories as $category) {
+        foreach ( $product_categories as $category ) {
             $selected = ( $category->term_id == $upgrade_product_cat ) ? 'selected' : '';
-            echo '<option value="' . $category->term_id . '" ' . $selected . '>' . $category->name . '</option>';
+            echo '<option value="' . $category->term_id . '" ' . esc_attr( $selected ) . '>' . esc_attr( $category->name ) . '</option>';
         }
         ?>
         </select>
@@ -283,7 +283,7 @@ function sw_render_service_options_page() {
         <?php
         foreach ( $product_categories as $category ) {
             $selected = ( $category->term_id == $downgrade_product_cat ) ? 'selected' : '';
-            echo '<option value="' . $category->term_id . '" ' . $selected . '>' . $category->name . '</option>';
+            echo '<option value="' . $category->term_id . '" ' . esc_attr( $selected ) . '>' . esc_attr( $category->name ) . '</option>';
         }
         ?>
         </select>
@@ -321,7 +321,7 @@ function sw_render_invoice_options_page() {
         <?php
         foreach ( $pages as $page ) {
             $selected = ( $invoice_page == $page->ID ) ? 'selected' : '';
-            echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
+            echo '<option value="' . $page->ID . '" ' . esc_attr( $selected ) . '>' . esc_attr( $page->post_title ) . '</option>';
         }
         ?>
         </select>

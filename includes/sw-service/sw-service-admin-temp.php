@@ -283,12 +283,12 @@ function sw_main_page(){
     $users_with_services = Sw_Service_Database::get_all_services();
     $active_services_found = false; // Initialize a flag
 
-    if (!empty( $users_with_services ) ) {
+    if (! empty( $users_with_services ) ) {
         foreach ( $users_with_services as $user ) {
             // Check if the user's service is Active
             $service_status = sw_service_status( $user->getServiceId() );
 
-            if ($service_status == 'Grace Period') {
+            if ( $service_status == 'Grace Period' ) {
                 // Create the link with the service name's ID as a parameter
                 $service_link = admin_url( 'admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() );
                 echo '<li><a href="' . esc_url( $service_link ) . '">' . esc_html($user->getServiceName() ) . ' - ' . esc_html( $user->getServiceId() ) . '</a></li>';
@@ -420,7 +420,7 @@ function sw_render_add_new_service_form() {
 
         <?php
         // Add nonce for added security
-        wp_nonce_field('sw_add_new_service_nonce', 'sw_add_new_service_nonce');
+        wp_nonce_field( 'sw_add_new_service_nonce', 'sw_add_new_service_nonce' );
         ?>
 
         <!-- Service Name -->
@@ -565,21 +565,21 @@ function sw_render_edit_service_form(){
             <div class="sw-form-row">
                 <label for="service_name" class="sw-form-label">Service Name *</label>
                 <span class="sw-field-description" title="Enter the service name (required)">?</span>
-                <input type="text" name="service_name" class="sw-form-input" id="service_name" value="<?php echo esc_attr($service_name); ?>" required>
+                <input type="text" name="service_name" class="sw-form-input" id="service_name" value="<?php echo esc_attr( $service_name ); ?>" required>
             </div>
     
             <!-- Service Type -->
             <div class="sw-form-row">
                 <label for="service_type" class="sw-form-label">Service Type</label>
                 <span class="sw-field-description" title="Enter the service type (optional)">?</span>
-                <input type="text" name="service_type" class="sw-form-input" id="service_type" value="<?php echo esc_attr($service_type);?>">
+                <input type="text" name="service_type" class="sw-form-input" id="service_type" value="<?php echo esc_attr( $service_type );?>">
             </div>
     
              <!-- Service URL -->
              <div class="sw-form-row">
                 <label for="service_url" class="sw-form-label">Service URL</label>
                 <span class="sw-field-description" title="Enter the service URL e.g., https:// (optional)">?</span>
-                <input type="url" name="service_url" class="sw-form-input" id="service_url" value="<?php echo esc_url($service_url); ?>" >
+                <input type="url" name="service_url" class="sw-form-input" id="service_url" value="<?php echo esc_url( $service_url ); ?>" >
             </div>
     
             <!-- Choose a Client -->
@@ -587,8 +587,8 @@ function sw_render_edit_service_form(){
                 <label for="user_id" class="sw-form-label">Choose a Client</label>
                 <span class="sw-field-description" title="Choose a user from WordPress.(required)">?</span>
                 <?php
-                $selected_user = ($user_id) ? get_user_by('ID', $user_id) : false;
-                wp_dropdown_users(array(
+                $selected_user = ( $user_id ) ? get_user_by( 'ID', $user_id ) : false;
+                wp_dropdown_users( array(
                     'name' => 'user_id',
                     'selected' => $selected_user ? $selected_user->ID : '',
                     'show_option_none' => 'Select a user',
@@ -605,7 +605,7 @@ function sw_render_edit_service_form(){
 
                 <?php
                 // Custom Function: Dropdown for Service Products
-                echo sw_product_dropdown($product_id, true);
+                echo sw_product_dropdown( $product_id, true );
                 ?>
             </div>
     
@@ -613,14 +613,14 @@ function sw_render_edit_service_form(){
         <div class="sw-form-row">
             <label for="invoice_id" class="sw-form-label">Invoice ID (optional)</label>
             <span class="sw-field-description" title="associate this service with already created invoice.">?</span>
-            <?php echo sw_invoice_id_dropdown($invoice_id); ?>
+            <?php echo sw_invoice_id_dropdown( $invoice_id ); ?>
         </div>
     
         <!-- Start Date -->
         <div class="sw-form-row">
             <label for="start_date" class="sw-form-label">Start Date</label>
             <span class="sw-field-description" title="Choose the start date for the service subscription.">?</span>
-            <input type="date" name="start_date" class="sw-form-input" id="start_date" value="<?php echo esc_attr($start_date);?>" required>
+            <input type="date" name="start_date" class="sw-form-input" id="start_date" value="<?php echo esc_attr( $start_date );?>" required>
         </div>
     
         <!-- Billing Cycle -->
@@ -783,7 +783,7 @@ function sw_render_new_service_order_form( $user_id, $order_id, $service_name, $
     echo '<div class="sw-form-row">';
     echo '<label for="start_date" class="sw-form-label">Start Date:</label>';
     echo '<span class="sw-field-description" title="Choose the start date for the service subscription, service was ordered on this date.">?</span>';
-    echo '<input type="date" name="start_date" class="sw-form-input" id="start_date" value="' . esc_attr($start_date).'" required>';
+    echo '<input type="date" name="start_date" class="sw-form-input" id="start_date" value="' . esc_attr( $start_date ).'" required>';
     echo '</div>';
 
     echo '<div class="sw-form-row">';
@@ -823,7 +823,7 @@ function sw_render_new_service_order_form( $user_id, $order_id, $service_name, $
         'Expired' => 'Expired',
     );
 
-    foreach ($status_options as $value => $label) {
+    foreach ( $status_options as $value => $label ) {
         echo '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $status, false ) . '>' . esc_html( $label ) . '</option>';
     }
     echo '</select>';

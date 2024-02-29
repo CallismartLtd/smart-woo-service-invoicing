@@ -1,19 +1,5 @@
 <?php
-/*
-Smart Woo Service Invoicing is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-any later version.
 
-Smart Woo Service Invoicing is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Smart Woo Service Invoicing. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
-
-*/
 /**
  * Smart Woo Service Invoicing
  * @package     PluginPackage
@@ -31,8 +17,8 @@ along with Smart Woo Service Invoicing. If not, see http://www.gnu.org/licenses/
  * Requires at least: 6.3.2
  * Requires PHP: 7.0
  * Tested up to: 6.4.3
- * License: GPL v2 or later
- * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: smart-woo
  */
 
@@ -47,13 +33,18 @@ define( 'SW_PLUGIN_NAME', 'Smart Woo Service Invoicing' );
 
 if ( defined( 'SW_PLUGIN_NAME' )  ) {
     
-    // Define plugin path
+    // SW_ABSPATH definition
     define( 'SW_ABSPATH', dirname( __FILE__ ) . '/' );
     
-    // Define the plugin url
-    $main_plugin_file = SW_ABSPATH . 'smart-woo-invoice.php';
-    $plugin_url = plugin_dir_url( $main_plugin_file );
+    // SW_DIR_URL definition
+    $this_file  = SW_ABSPATH . 'smart-woo-invoice.php';
+    $plugin_url = plugin_dir_url( $this_file );
     define( 'SW_DIR_URL', $plugin_url );
+
+    //Load scource file
+    require_once SW_ABSPATH . '/admin/include/src.php';
+    add_action( 'admin_init', 'sw_check_woocommerce' );
+
 
     /**
      * Load woocommerce before loading plugin dependencies
@@ -70,8 +61,6 @@ if ( defined( 'SW_PLUGIN_NAME' )  ) {
                  * WooComerce is active, action hook to load plugin files
                  */
                 
-                 require_once SW_ABSPATH . '/admin/include/src.php';
-
                 do_action( 'smart_woo_init' );
                 
             }
@@ -81,6 +70,9 @@ if ( defined( 'SW_PLUGIN_NAME' )  ) {
     if ( ! function_exists( 'sw_activation' ) ) {
 
         function sw_activation(){
+            // Flush permalink structure to load ours
+            flush_rewrite_rules();
+
             // Load the db table file to have access to the properties
             include_once SW_ABSPATH . '/admin/include/sw-db.php';
             sw_plugin_db_schema();
@@ -90,6 +82,7 @@ if ( defined( 'SW_PLUGIN_NAME' )  ) {
     // Activation hook for the plugin
     register_activation_hook( __FILE__, 'sw_activation' );
 }
+
 
 
 

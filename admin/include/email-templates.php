@@ -39,10 +39,10 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
         $service_name      = esc_html( $service_details->getServiceName() );
         $service_id        = esc_html( $service_details->getServiceId() );
         $billing_cycle     = esc_html( $service_details->getBillingCycle() );
-        $start_date        = date( 'F j, Y', strtotime( esc_html( $service_details->getStartDate() ) ) );
-        $end_date          = date( 'F j, Y', strtotime( esc_html( $service_details->getEndDate() ) ) );
+        $start_date        = sw_check_and_format( $service_details->getStartDate(), false );
+        $end_date          = sw_check_and_format( $service_details->getEndDate(), false );
         $product_id        = esc_html( $service_details->getProductId() );
-        $product      = wc_get_product( $product_id );
+        $product           = wc_get_product( $product_id );
 
         if ( $product ) {
             $product_name  = $product->get_name();
@@ -79,8 +79,7 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $sender_name . ' <' . $sender_email . '>',
-            'From: ' . $business_name . ' <' . $sender_email . '>', 
+            'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
         );
 
         // Send the email
@@ -117,8 +116,8 @@ function sw_user_service_optout( $user_id, $service_id ) {
 
         // Extract relevant service details
         $service_name    = esc_html( $service_details->service_name );
-        $start_date      = date( 'l, F jS Y', strtotime( esc_html( $service_details->start_date ) ) );
-        $end_date        = date( 'l, F jS Y', strtotime( esc_html( $service_details->end_date ) ) );
+        $start_date      = date_i18n( 'l, F jS Y', strtotime( esc_html( $service_details->start_date ) ) );
+        $end_date        = date_i18n( 'l, F jS Y', strtotime( esc_html( $service_details->end_date ) ) );
 
         // Email subject
         $subject = 'Auto Renewal Disabled';
@@ -181,13 +180,13 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 
 
         // Extract relevant service details
-        $service_name    = esc_html( $service_details->getServiceName() );
-        $service_id      = esc_html( $service_details->getServiceId() );
-        $billing_cycle   = esc_html( $service_details->getBillingCycle() );
-        $start_date      = date( 'F j, Y', strtotime( esc_html( $service_details->getStartDate() ) ) );
-        $next_payment_date = date('F j, Y', strtotime( esc_html( $service_details->getNextPaymentDate() ) ) );
-        $end_date        = date('F j, Y', strtotime(esc_html($service_details->getEndDate())));
-        $sw_prorate      = get_option( 'sw_prorate', 'Not Set' );
+        $service_name       = esc_html( $service_details->getServiceName() );
+        $service_id         = esc_html( $service_details->getServiceId() );
+        $billing_cycle      = esc_html( $service_details->getBillingCycle() );
+        $start_date         = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getStartDate() ) ) );
+        $next_payment_date  = date_i18n('F j, Y', strtotime( esc_html( $service_details->getNextPaymentDate() ) ) );
+        $end_date           = date_i18n('F j, Y', strtotime(esc_html($service_details->getEndDate())));
+        $sw_prorate         = get_option( 'sw_prorate', 'Not Set' );
 
         // Refund status
         $refund_status = ( $sw_prorate === 'Enable' ) ? 'enabled' : ( ( $sw_prorate === 'Disable' ) ? 'disabled' : 'not configured');
@@ -310,7 +309,7 @@ function sw_payment_reminder() {
             // Email headers
             $headers = array(
                 'Content-Type: text/html; charset=UTF-8',
-                'From: ' . $sender_name . ' <' . $sender_email . '>',
+                'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
             );
 
             // Use the wp_mail function to send the email
@@ -379,7 +378,7 @@ function sw_send_service_expiration_email( $service ) {
             // Email headers
             $headers = array(
                 'Content-Type: text/html; charset=UTF-8',
-                'From: ' . $sender_name . ' <' . $sender_email . '>',
+                'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
             );
 
             // Send the email
@@ -410,7 +409,7 @@ function sw_send_expiry_mail_to_admin() {
         $subject = "End Date Notification for Services Due Tomorrow";
         //Get all Services
         $services      = Sw_Service_Database::get_all_services();
-        $tomorrow_date = date( 'Y-m-d', strtotime( '+1 day' ) );
+        $tomorrow_date = date_i18n( 'Y-m-d', strtotime( '+1 day' ) );
 
         if ( ! empty( $services ) ) {
             
@@ -536,7 +535,7 @@ function sw_renewal_sucess_email( $service ) {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $sender_name . ' <' . $sender_email . '>',
+            'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
         );
 
         // Send auto renewal mail
@@ -608,7 +607,7 @@ function sw_send_auto_renewal_email( $invoice, $service ) {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $sender_name . ' <' . $sender_email . '>',
+            'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
         );
 
         // Send the email
@@ -686,7 +685,7 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $sender_name . ' <' . $sender_email . '>',
+            'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
         );
 
         // Send the email
@@ -760,7 +759,7 @@ function sw_invoice_paid_mail( $invoice ){
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $sender_name . ' <' . $sender_email . '>',
+            'From: ' . esc_attr( $sender_name ) . ' <' . esc_attr( $sender_email ) . '>',
         );
 
         // Send the email

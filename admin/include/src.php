@@ -25,7 +25,6 @@ function sw_check_woocommerce() {
         });
     }
 }
-add_action( 'admin_init', 'sw_check_woocommerce' );
 
 
 function enqueue_smart_woo_scripts() {

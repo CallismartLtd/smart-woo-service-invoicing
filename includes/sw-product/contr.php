@@ -6,11 +6,11 @@
  */
 
 /**
- * Controls the new product creation form submission
+ * Controls the new service product creation form submission
  */
 function sw_handle_new_product_form(){
     // Handle form submission
-    if ( $_SERVER["REQUEST_METHOD"] == "POST" && isset( $_POST['create_sw_product'] ) ) {
+    if ( isset( $_POST['create_sw_product'] ) &&  wp_verify_nonce( $_POST['sw_add_new_product_nonce'], 'sw_add_new_product_nonce' ) ) {
         //Validate the product name
         $product_name = sanitize_text_field( $_POST['product_name'] );
         
@@ -40,13 +40,13 @@ function sw_handle_new_product_form(){
                 'post_excerpt'  => sanitize_text_field( $_POST['short_description'] ),
             ));
 
-            if (!is_wp_error( $product_id ) ) {
+            if ( ! is_wp_error( $product_id ) ) {
                 // Set product type
                 wp_set_object_terms( $product_id, 'sw_product', 'product_type' );
 
                 // Set regular price (main product price)
-                update_post_meta( $product_id, '_regular_price', floatval($_POST['product_price']) );
-                update_post_meta( $product_id, '_price', floatval($_POST['product_price']) );
+                update_post_meta( $product_id, '_regular_price', floatval( $_POST['product_price'] ) );
+                update_post_meta( $product_id, '_price', floatval( $_POST['product_price'] ) );
 
                 // Set sign-up fee (product metadata)
                 $sign_up_fee         = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
@@ -57,7 +57,7 @@ function sw_handle_new_product_form(){
                 update_post_meta( $product_id, 'billing_cycle', $billing_cycle );
 
                 // Set grace period (product metadata)
-                $grace_period_number = isset( $_POST['grace_period_number'] ) ? intval( $_POST['grace_period_number'] ) : 0;
+                $grace_period_number = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
                 $grace_period_unit   = isset($_POST['grace_period_unit']) ? sanitize_text_field($_POST['grace_period_unit'] ) : '';
                 update_post_meta( $product_id, 'grace_period_number', $grace_period_number );
                 update_post_meta( $product_id, 'grace_period_unit', $grace_period_unit );
@@ -80,6 +80,17 @@ function sw_handle_new_product_form(){
     }
 }
  
+function sw_handle_product_edit_form( $product_id ){
+    // Handle form submission for updating the product
+    if ( isset( $_POST['update_service_product'] ) && wp_verify_nonce( $_POST['sw_edit_product_nonce'], 'sw_edit_product_nonce' ) ) {
+        // Update the product
+        $updated = update_sw_service_product( $product_id );
 
-
-
+        // Display success or error message
+        if ( $updated ) {
+            echo '<div class="updated"><p>Product updated successfully!</p></div>';
+        } else {
+            echo '<div class="error"><p>Error updating the product. Please try again.</p></div>';
+        }
+    }
+}
