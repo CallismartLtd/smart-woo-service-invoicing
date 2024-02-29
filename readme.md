@@ -4,23 +4,34 @@ Integrate powerful service subscriptions and invoicing directly into your online
 
 ## Introduction
 
-As a web developer, I struggled to find an affordable and comprehensive billing solution for my clients. Traditional options were often expensive and complex. This led me to develop the Smart Woo Service and Invoicing Plugin, a WooCommerce extension designed to streamline service subscriptions and invoicing within your online store.
+As a freelancer, automating service management and billings can be hectic, there are times you need to have specific clients on certain billing cycles and so on. Traditional options were often expensive and complex. This inspired me to develop the Smart Woo Service Invoicing Plugin, a WooCommerce extension designed to streamline service subscriptions and invoicing within your online store.
 
 ## Features
 
-- **Dedicated Product Type:** Introduced a new 'Service Product' type indexed on the WooCommerce product page.
-- **Flexible Billing Cycles:** Set billing cycles, sign-up fees, and grace periods on dedicated products.
-- **User Personalisation:** Empower customers to set their service names and other relevant data during the purchase (sign-up) process.
-- **Effortless Management:** All orders for this product type are considered new Service Orders, allowing easy processing via the the plugin Service Orders page.
-- **Automatic Invoice Generation:** At the end of each billing cycle, a new invoice is automatically created for service subscription renewal.
+- **Dedicated Product Type:** Has dedicated product type designed for subscription
+
+- **Flexible Billing Cycles:** Charge Monthly, Quarterly, Six Monthly and Yearly service subscription periods.
+
+- ** Empower customers to set their service name, billing cycle and other relevant data during the purchase (sign-up) process.
+
+- **Easy Service Order Management:** All orders for this product type are considered New Service Orders, allowing easy processing via the Service Orders page in the admin.
+
+- **Automatic Invoice Generation:** Auto generates new invoice(s) at the end of each billing cycle making the whole management process seamless.
+
 - **User-Friendly Pages:** Dedicated frontend pages for Service Management and Invoice Management for clients using shortcodes.
+
 - **Admin Notifications:** Get notified of service purchases, renewals, expirations, and stay informed about your subscriptions.
+
 - **Stats and Usage:** You are incharge, monitor subscription stats and usages right from the admin dashboard, your client will also be able to view same stats for transparency.
 
 - **Prorate Service Subscriptions:** You have the option to prorate your subscription and reflect same in your invoicing system.
 - **Service Subscription Migration:** Flexible options to allow clients to migrate from their current subscription to another right from their dashboard.
 
 - **Mini containers:** Show Invoices and subscriptions of the current user in mini card or containers using shortcodes.
+
+## License
+
+This project is licensed under the GPL- v3.0+ License.
 
 ## Screenshots
 
@@ -30,9 +41,9 @@ As a web developer, I struggled to find an affordable and comprehensive billing 
 
 ## Prerequisites
 
-- **WooCommerce**: This plugin requires WooCommerce to be installed and activated on your WordPress website. Make sure you have WooCommerce version 8.0.0 or later.
+- **WordPress**: Ensure that your WordPress installation is version 6.4 or later.
 
-- **WordPress**: Ensure that your WordPress installation is version 6.3.2 or later.
+- **WooCommerce**: Smart Woo Service Invoicing requires WooCommerce to be installed and activated on your WordPress website. For optimal performance, be sure to have WooCommerce version 8.0.0 or later.
 
 - **PHP**: This plugin requires PHP version 7.0 or later. Verify that your hosting environment meets this requirement.
 
@@ -81,10 +92,6 @@ See [changelog.md](changelog.md) for details on updates and changes.
 ## Support
 
 For support, please visit the [support portal](https://callismart.com.ng/support-portal).
-
-## License
-
-This project is licensed under the GPL- v3.0+ License.
 
 ## Financial Support
 
