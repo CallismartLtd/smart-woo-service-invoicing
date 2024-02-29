@@ -38,17 +38,10 @@ As a web developer, I struggled to find an affordable and comprehensive billing 
 
 - **SQL**: Ensure that your database supports at least MySQL version 5.6 or MariaDB version 10.0.
 
-
-## Installation
-
-1. Upload the `smart-woo-service-and-invoice` directory to the `/wp-content/plugins/` directory.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
-
-
 ## Installation
 
 1. Download the plugin zip file.
-2. Upload the plugin to your WordPress site.
+2. Upload the plugin to your WordPress site plugin directory.
 3. Activate the Smart Woo Service and Invoicing Plugin from the WordPress plugins page.
 
 Alternatively, you can install the plugin directly from your WordPress dashboard:
