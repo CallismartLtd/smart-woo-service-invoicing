@@ -29,18 +29,32 @@ defined( 'ABSPATH' ) || exit;
  * Define Plugin Constants
  */
 
-// Plugin name as constant
-define( 'SW_PLUGIN_NAME', 'Smart Woo Service Invoicing' );
+// Plugin name as constant.
+if ( ! defined( 'SW_PLUGIN_NAME' ) ) {
+
+	define( 'SW_PLUGIN_NAME', 'Smart Woo Service Invoicing' );
+
+}
 
 if ( defined( 'SW_PLUGIN_NAME' ) ) {
 
-	// SW_ABSPATH definition
-	define( 'SW_ABSPATH', __DIR__ . '/' );
+	// Define The Smart Woo absolute path
+	if ( ! defined( 'SW_ABSPATH' ) ) {
 
-	// SW_DIR_URL definition
-	$this_file  = SW_ABSPATH . 'smart-woo-invoice.php';
-	$plugin_url = plugin_dir_url( $this_file );
-	define( 'SW_DIR_URL', $plugin_url );
+		define( 'SW_ABSPATH', __DIR__ . '/' );
+	}
+
+	// Define the Smart Woo Directory URL
+	if ( ! defined( 'SW_DIR_URL' ) ) {
+		define( 'SW_DIR_URL', plugin_dir_url( __FILE__ ) );
+	}
+	
+	// Define our database table names as constants
+	global $wpdb;
+	define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
+	define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
+	define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_auto_renew' );
+	define( 'SW_SERVICE_LOGS_TABLE', $wpdb->prefix . 'sw_service_logs' );
 
 	// Load scource file
 	require_once SW_ABSPATH . '/admin/include/src.php';

@@ -1,36 +1,32 @@
 <?php
 /**
- * File name    :   sw-db.php
+ * File name   : sw-db.php
+ * Author      : Callistus
+ * Description : Database table definition file
  *
- * @author      :   Callistus
- * Description  :   Database schema for Smart Woo Service Invoicing
+ * @since      : 1.0.0
+ * @package    : SmartWooServiceInvoicing
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exist if accessed directly
-}
-
-require_once SW_ABSPATH . 'admin/include/sw-db-update.php';
-
-
+ defined('ABSPATH') || exit; // Exist if accessed directly
+ 	
+/**
+* All the database structures are defined here
+*/
 function sw_plugin_db_schema() {
-	global $wpdb;
-
-	// Define our database table names as constants
-	define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
-	define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
-	define( 'SW_AUTO_RENEW_TABLE', $wpdb->prefix . 'sw_invoice_auto_renew' );
-	define( 'SW_SERVICE_LOGS_TABLE', $wpdb->prefix . 'sw_service_logs' );
 
 	// Define the current database version
-	$sw_db_version = '1.0'; // Update the version when making schema changes.
+	$sw_db_version = '1.1.0'; // Update the version when making schema changes.
 
 	// Check the stored version
-	$stored_version = get_option( 'sw_db_version', '' );
+	$stored_version = get_option( 'sw_db_version' );
 
 	if ( $sw_db_version !== $stored_version ) {
 
-		// Define the structure for the 'sw_service' table
+		/**
+		 * Define the structure for the 'sw_service' table.
+		 * This table contians the main service subscription informations.
+		 */
 		$service_table_name = SW_SERVICE_TABLE;
 		$service_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
@@ -51,7 +47,10 @@ function sw_plugin_db_schema() {
 
 		sw_create_database_table( $service_table_name, $service_structure );
 
-		// The structure for the 'sw_invoice' table
+		/**
+		 * Define the structure for the 'sw_invoice' table.
+		 * This table contains the main information pertaining to invoices.
+		 */
 		$invoice_table_name = SW_INVOICE_TABLE;
 		$invoice_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
@@ -76,8 +75,11 @@ function sw_plugin_db_schema() {
 
 		sw_create_database_table( $invoice_table_name, $invoice_structure );
 
-		// Define the structure for the 'sw_invoice_auto_renew' table
-		$auto_renew_table_name = SW_AUTO_RENEW_TABLE;
+		/**
+		 * Define the structure for the 'sw_invoice_auto_renew' table.
+		 * This table is used to log renewed services informations.
+		 */
+		$auto_renew_table_name = SW_SERVICE_LOG_TABLE;
 		$auto_renew_structure  = array(
 			'id bigint(20) NOT NULL AUTO_INCREMENT',
 			'renewed_user_id mediumint(9) NOT NULL',
@@ -121,7 +123,7 @@ function sw_plugin_db_schema() {
  * @param string $table_name        The name of the table
  * @param array  $table_structure   The column names
  */
-function sw_create_database_table( $table_name, $table_structure ) {
+function sw_create_database_table( string $table_name, array $table_structure ) {
 	global $wpdb;
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 

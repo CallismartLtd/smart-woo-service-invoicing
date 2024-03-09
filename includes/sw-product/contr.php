@@ -75,7 +75,7 @@ function sw_handle_new_product_form() {
 				// Show success message with product links
 				$product_link = get_permalink( $product_id );
 				$edit_link    = admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $product_id );
-				echo '<div class="updated"><p>New product created successfully! View your product <a href="' . esc_url( $product_link ) . '">here</a>.</p>';
+				echo '<div class="updated"><p>New product created successfully! View your product <a href="' . esc_url( $product_link ) . '" target="_blank">here</a>.</p>';
 				echo '<p>Edit the product <a href="' . esc_url( $edit_link ) . '">here</a>.</p></div>';
 			}
 		}

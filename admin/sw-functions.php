@@ -8,8 +8,6 @@
 
 defined( 'ABSPATH' ) || exit; // exit if eccessed directly
 
-
-
 /**
  * Function to format date to a human-readable format or show 'Not Available'.
  *
@@ -17,7 +15,7 @@ defined( 'ABSPATH' ) || exit; // exit if eccessed directly
  * @param bool   $includeTime Whether to include the time aspect. Default is true.
  * @return string Formatted date or 'Not Available'.
  */
-function sw_check_and_format( $dateString, $includeTime = true ) {
+function sw_check_and_format( $dateString, $includeTime = false ) {
 	$format = $includeTime ? 'l jS F Y \a\t h:i:s A' : 'l jS F Y';
 
 	return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
@@ -30,7 +28,7 @@ function sw_check_and_format( $dateString, $includeTime = true ) {
  * @param string $dateTimeString The date and time string.
  * @return string The extracted date in 'Y-m-d' format.
  */
-function sw_extract_date_only( $datetimestring ) {
+function sw_extract_date_only( string $datetimestring ) {
 	// Explicitly cast $datetimestring to a string
 	$datetimestring = (string) $datetimestring;
 
@@ -41,21 +39,37 @@ function sw_extract_date_only( $datetimestring ) {
 	return date_i18n( 'Y-m-d', $timestamp );
 }
 
+/**
+ * Convert timestamp to a readable date using sw_check_and_format function.
+ *
+ * @param int  $timestamp   Unix timestamp.
+ * @param bool $includeTime Whether to include the time aspect. Default is true.
+ * @return string Formatted date or 'Not Available'.
+ */
+function sw_convert_timestamp_to_readable_date( int $timestamp, bool $includeTime = true ) {
+    // Convert the timestamp to a date string
+    $dateString = date_i18n( 'Y-m-d H:i:s', $timestamp );
+
+    // Use sw_check_and_format to format the date string
+    return sw_check_and_format( $dateString, $includeTime );
+}
+
+
 
 /**
- * Check if the "sw_prorate" option is enabled or disabled.
+ * Check if Proration is Enabled or Disabled
  *
  * @return string Returns "Enabled" if sw_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
  */
 function sw_Is_prorate() {
-	$sw_prorate = get_option( 'sw_prorate', 'Disable' ); // Get the value of sw_prorate with a default of 'Select option'
+	$sw_prorate = get_option( 'sw_prorate', 'Disable' );
 
 	if ( $sw_prorate === 'Enable' ) {
 		return 'Enabled';
 	} elseif ( $sw_prorate === 'Disable' ) {
 		return 'Disabled';
 	} else {
-		return 'Not Configured';
+		return 'Disabled';
 	}
 }
 
@@ -261,7 +275,7 @@ function swsi_generate_payment_link( $invoice_id, $user_email ) {
 	// Generate a unique token
 	$token = sw_generate_unique_token();
 
-	// Get and sanitize the parameters from the URL
+	// Get and sanitize the parameter values
 	$invoice_id = sanitize_text_field( $invoice_id );
 	$user_email = sanitize_email( $user_email );
 
@@ -533,4 +547,14 @@ function sw_get_navbar( $current_user_id ) {
 	echo '</div>';
 
 	echo '</div>';
+}
+/**
+ * Determine whether or not we are in the frontend
+ * 
+ * @since 1.0.1
+ */
+function is_smart_woo_frontend() {
+	if ( ! is_admin() || wp_doing_ajax() ) {
+		return true;
+	}
 }

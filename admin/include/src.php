@@ -2,14 +2,15 @@
 // phpcs:ignoreFile
 
 /**
- * File name    :   scrc.php
+ * File name   : src.php
+ * Author      : Callistus
+ * Description : Source Loader file
  *
- * @author      :   Callistus
- * Description  :   Here I defined the order for the plugin to load other files and dependencies
+ * @since      : 1.0.0
+ * @package    : SmartWooServiceInvoicing
  */
 
 defined( 'ABSPATH' ) || exit;
-
 
 /**
  * Throw error when WooCommerce is not active
@@ -45,10 +46,6 @@ function enqueue_smart_woo_scripts() {
 	// Enqueue the JavaScript file
 	wp_enqueue_script( 'smart-woo-script', SW_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), '1.0', true );
 
-	// Define the redirect URL for admin dashboard
-	$invoice_admin_dashboard_url = esc_url( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) );
-	$service_admin_dashboard_url = esc_url( admin_url( 'admin.php?page=sw-admin' ) );
-
 	// Localize the script
 	wp_localize_script(
 		'smart-woo-script',
@@ -58,8 +55,8 @@ function enqueue_smart_woo_scripts() {
 			'woo_my_account_edit'      => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-account/',
 			'woo_payment_method_edit'  => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'payment-methods/',
 			'woo_billing_eddress_edit' => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-address/billing',
-			'admin_invoice_page'       => $invoice_admin_dashboard_url,
-			'sw_admin_page'            => $service_admin_dashboard_url,
+			'admin_invoice_page'       => esc_url( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
+			'sw_admin_page'            => esc_url( admin_url( 'admin.php?page=sw-admin' ) ),
 			'security'                 => wp_create_nonce( 'smart_woo_nonce' ),
 			'home_url'                 => esc_url( home_url( '/' ) ),
 			'never_expire_value'       => '',
@@ -74,41 +71,59 @@ add_action( 'wp_enqueue_scripts', 'enqueue_smart_woo_scripts' );
 
 /**
  * Hook into 'smart_woo_init' to load the plugin files
- * this hook is only fired when WooCommerce is active
+ * this hook is only fired when WooCommerce is active.
  */
 add_action( 'smart_woo_init', 'sw_load_dependencies' );
 
+/**
+ * Load plugin files
+ */
 function sw_load_dependencies() {
+
+	require_once SW_ABSPATH . 'admin/sw-functions.php';
 	require_once SW_ABSPATH . 'admin/include/cron-schedule.php';
-	require_once SW_ABSPATH . 'admin/include/email-templates.php';
 	require_once SW_ABSPATH . 'admin/include/service-remote.php';
 	require_once SW_ABSPATH . 'admin/include/smart-woo-manager.php';
 	include_once SW_ABSPATH . 'admin/include/sw_service_api.php';
-	// Only load this file when TeraWallet plugin is installed
-	if ( function_exists( 'woo_wallet' ) ) {
-		require_once SW_ABSPATH . 'admin/include/tera-wallet-int.php';
-	}
-	require_once SW_ABSPATH . 'admin/admin-menu.php';
-	require_once SW_ABSPATH . 'admin/sw-functions.php';
-	require_once SW_ABSPATH . 'frontend/invoice/contr.php';
-	require_once SW_ABSPATH . 'frontend/invoice/template.php';
-	require_once SW_ABSPATH . 'frontend/service/template.php';
-	require_once SW_ABSPATH . 'frontend/shortcode.php';
-	require_once SW_ABSPATH . 'frontend/service/contr.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/invoice.downloadable.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice-database.php';
-	require_once SW_ABSPATH . 'includes/sw-invoice/contr.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-function.php';
 	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service.php';
 	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service-database.php';
-	require_once SW_ABSPATH . 'includes/sw-service/contr.php';
 	require_once SW_ABSPATH . 'includes/sw-service/sw-service-functions.php';
 	require_once SW_ABSPATH . 'includes/sw-product/class-sw-product.php';
-	require_once SW_ABSPATH . 'includes/sw-product/contr.php';
 	require_once SW_ABSPATH . 'includes/sw-product/sw-product-functions.php';
 	require_once SW_ABSPATH . 'includes/sw-product/sw-order-config.php';
-	require_once SW_ABSPATH . 'woocommerce/woocommerce.php';
+	require_once SW_ABSPATH . 'templates/email-templates.php';
+
+	// Only load compatibility file when TeraWallet plugin is installed.
+	if ( function_exists( 'woo_wallet' ) ) {
+		require_once SW_ABSPATH . 'admin/include/tera-wallet-int.php';
+	}
+	
+	// Only load admin menu and subsequent files in admin page.
+	if ( is_admin() ) {
+
+		require_once SW_ABSPATH . 'admin/admin-menu.php';
+		require_once SW_ABSPATH . 'includes/sw-service/contr.php';
+		require_once SW_ABSPATH . 'includes/sw-invoice/contr.php';
+		require_once SW_ABSPATH . 'includes/sw-product/contr.php';
+
+	}
+	// Load fontend file
+	if ( is_smart_woo_frontend() ) {
+
+		require_once SW_ABSPATH . 'frontend/woocommerce/contr.php';
+		require_once SW_ABSPATH . 'frontend/woocommerce/my-account.php';
+		require_once SW_ABSPATH . 'frontend/woocommerce/woo-forms.php';
+		require_once SW_ABSPATH . 'frontend/invoice/contr.php';
+		require_once SW_ABSPATH . 'frontend/invoice/template.php';
+		require_once SW_ABSPATH . 'frontend/shortcode.php';
+		require_once SW_ABSPATH . 'frontend/service/template.php';
+		require_once SW_ABSPATH . 'frontend/service/contr.php';
+
+	}
 
 	// Do action after loading plugin files
 	do_action( 'smart_woo_loaded' );

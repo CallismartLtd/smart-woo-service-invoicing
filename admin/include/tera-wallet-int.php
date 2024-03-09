@@ -19,7 +19,6 @@ function sw_pay_invoice_through_woo_wallet() {
 	$unpaid_invoices = Sw_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
 
 	if ( empty( $unpaid_invoices ) ) {
-		error_log( 'Nothing to pay' );
 		return;
 	}
 
@@ -36,11 +35,6 @@ function sw_pay_invoice_through_woo_wallet() {
 
 		// Get the user's wallet balance
 		$wallet_balance = woo_wallet()->wallet->get_wallet_balance( $user_id, 'edit' );
-
-		error_log( 'Invoice ID ' . $invoice_total );
-		error_log( 'Wallet Balance ' . $wallet_balance );
-		error_log( 'Invoice Total ' . $user_id );
-		error_log( 'User ID ' . $user_id );
 
 		if ( $wallet_balance >= $invoice_total && $invoice_total > 0 ) {
 			// Attempt to debit the wallet

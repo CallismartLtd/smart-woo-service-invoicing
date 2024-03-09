@@ -165,7 +165,7 @@ if ( ! function_exists( 'sw_pdf_invoice_template' ) ) {
                 </div>
             </div>
 
-            This Invoice is automatically generated on ' . sw_check_and_format( current_time( 'mysql' ) ) . '.
+            This Invoice is automatically generated on ' . sw_check_and_format( current_time( 'mysql' ), true ) . '.
 
             </body>
             </html>';

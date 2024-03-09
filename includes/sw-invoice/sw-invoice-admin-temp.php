@@ -417,9 +417,10 @@ function sw_view_invoice_page() {
 		$datePaid       = $invoice->getDatePaid();
 		$dateDue        = $invoice->getDateDue();
 		// Format the dates or display 'Not Available'
-		$formattedDateCreated = sw_check_and_format( $dateCreated );
-		$formattedDatePaid    = sw_check_and_format( $datePaid );
-		$formattedDateDue     = sw_check_and_format( $dateDue );
+		$formattedDateCreated = sw_check_and_format( $dateCreated, true );
+		$formattedDatePaid    = sw_check_and_format( $datePaid, true );
+		$formattedDateDue     = sw_check_and_format( $dateDue, true );
+		
 		echo '<h2>' . esc_html( $invoice->getInvoiceType() ) . '</h2>';
 		// Display detailed information about the invoice
 		echo '<p class="invoice-details-item"><span>Payment Status:</span> <span style="background-color: red; color: white; font-weight: bold; padding: 4px; border-radius: 4px;">' . ucfirst( $paymentStatus ) . '</span></p>';

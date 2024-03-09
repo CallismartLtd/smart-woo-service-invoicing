@@ -1,13 +1,14 @@
 <?php
 /**
- * File name    :   email-template.php
+ * File name   : email-templates.php
+ * Author      : Callistus
+ * Description : All mails templates
  *
- * @author      :   Callistus
- * Description  :   All emails files
+ * @since      : 1.0.0
+ * @package    : SmartWooServiceInvoicing
  */
 
 defined( 'ABSPATH' ) || exit;
-
 
 /**
  * Service Cancellation Email
@@ -40,8 +41,8 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
 		$service_name  = esc_html( $service_details->getServiceName() );
 		$service_id    = esc_html( $service_details->getServiceId() );
 		$billing_cycle = esc_html( $service_details->getBillingCycle() );
-		$start_date    = sw_check_and_format( $service_details->getStartDate(), false );
-		$end_date      = sw_check_and_format( $service_details->getEndDate(), false );
+		$start_date    = sw_check_and_format( $service_details->getStartDate(), true );
+		$end_date      = sw_check_and_format( $service_details->getEndDate(), true );
 		$product_id    = esc_html( $service_details->getProductId() );
 		$product       = wc_get_product( $product_id );
 
@@ -185,10 +186,7 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 		$start_date        = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getStartDate() ) ) );
 		$next_payment_date = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getNextPaymentDate() ) ) );
 		$end_date          = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getEndDate() ) ) );
-		$sw_prorate        = get_option( 'sw_prorate', 'Not Set' );
-
-		// Refund status
-		$refund_status = ( $sw_prorate === 'Enable' ) ? 'enabled' : ( ( $sw_prorate === 'Disable' ) ? 'disabled' : 'not configured' );
+		$prorate_status    = sw_Is_prorate();
 
 		// Get product name and price using WooCommerce functions
 		$product_info  = wc_get_product( $service_details->getProductId() );
@@ -221,7 +219,7 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 		$message .= "Start Date: $start_date<br>";
 		$message .= "Next Payment Date: $next_payment_date<br>";
 		$message .= "End Date: $end_date<br>";
-		$message .= "Pro rata refund is currently $refund_status <br>";
+		$message .= "Pro rata refund is currently $prorate_status <br>";
 		$message .= '</div>';
 		$message .= $billing_info;
 		$message .= '</body></html>';
@@ -260,7 +258,7 @@ function sw_payment_reminder() {
 			$date_due           = $invoice->getDateDue();
 			$user_id            = $invoice->getUserId();
 			$user_info          = get_userdata( $user_id );
-			$formatted_date_due = sw_check_and_format( $date_due );
+			$formatted_date_due = sw_check_and_format( $date_due, true );
 
 			// Get user details
 			$user_full_name = $user_info->first_name . ' ' . $user_info->last_name;

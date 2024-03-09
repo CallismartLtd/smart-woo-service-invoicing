@@ -27,10 +27,10 @@ add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler'
  * @param int $order_id    The paid invoice order
  */
 // First action hook is when an order is marked as completed
-add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 10, 3 );
+add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 20, 1 );
 
 // Second action hook is when payment is processed by either the payment provider
-add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 10, 4 );
+add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 20, 1 );
 
 function sw_paid_invoice_order_manager( $order_id ) {
 
@@ -97,8 +97,7 @@ function sw_paid_invoice_order_manager( $order_id ) {
 
 		} elseif ( $service_status === 'Active' && $invoice_type === 'Service Upgrade Invoice' || $invoice_type === 'Service Downgrade Invoice' ) {
 
-			// Fetch the service
-
+			// Fetch the service object
 			$service = Sw_Service_Database::get_service_by_id( $service_id );
 			// Call the function to handle the migration process
 			sw_migrate_service( $service, $invoice_id );
@@ -470,16 +469,17 @@ function sw_create_prorata_refund( $service_id ) {
 		return false;
 	}
 
-	$usage_metrics = sw_check_service_usage( $service_id );
+	$service_usage = sw_check_service_usage( $service_id );
 
-	if ( $usage_metrics !== false ) {
+	if ( $usage_metrics !== false && $service_usage['unused_amount'] > 0 ) {
 		// Calculate the refund amount based on the order amount and percentage
-		$refund_amount = $usage_metrics['unused_amount'];
+		$refund_amount = $service_usage['unused_amount'];
 
 		// Log the refund details
 		$transaction_status = 'Pending Refund';
 		$details            = 'This service is cancelled, and a Refund has been scheduled';
 		smart_woo_log( $service->getUserId(), $service_id, $refund_amount, $transaction_status, $details );
+		
 		return $refund_amount;
 	}
 }

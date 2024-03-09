@@ -430,8 +430,8 @@ function sw_get_user_billing_address( $user_id ) {
 	);
 
 	if ( ! empty( $address_parts ) ) {
-		$customer_billing_address = implode( ', ', $address_parts );
-		return $customer_billing_address;
+		$user_billing_address = implode( ', ', $address_parts );
+		return $user_billing_address;
 	}
 
 	// Return an empty string if there's no billing address
@@ -466,7 +466,27 @@ function sw_biller_details() {
 	return $biller_details;
 }
 
+/**
+ * Get the total amount spent by a user.
+ * 
+ * @param int $user_id		The user's ID.
+ */
+function sw_get_total_spent_by_user( $user_id ) {
+	$customer_orders = wc_get_orders(
+		array(
+			'customer_id' => $user_id,
+			'status'      => array( 'completed', 'processing' ), // Include processing orders
+		)
+	);
 
+	$total_spent = 0;
+
+	foreach ( $customer_orders as $order ) {
+		$total_spent += $order->get_total();
+	}
+
+	return wc_price( $total_spent );
+}
 
 function sw_delete_invoice_button( $invoice_id ) {
 	// Output the delete button with data-invoice-id attribute

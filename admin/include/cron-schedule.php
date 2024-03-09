@@ -1,14 +1,14 @@
 <?php
-
 /**
- * File name    :   cron-schedule.php
+ * File name   : cron-schedule.php
+ * Author      : Callistus
+ * Description : Task schedule and cron definition.
  *
- * @author      :   Callistus
- * Description  :   Task schedule and cron definition
+ * @since      : 1.0.0
+ * @package    : SmartWooServiceInvoicing
  */
 
 defined( 'ABSPATH' ) || exit;
-
 
 /**
  * Define a Smart Woo cron interval for every 5 hours.
@@ -113,7 +113,6 @@ add_filter( 'cron_schedules', 'sw_service_cron_intervals_once_per_day' );
  * Schedule daily service suspension email.
  *
  * @param array $schedules Existing array of cron schedules.
- * @return array Modified array with the 'sw_once_per_day' interval.
  */
 function sw_daily_task_schedule() {
 	if ( ! wp_next_scheduled( 'smart_woo_daily_task' ) ) {
@@ -129,7 +128,6 @@ add_action( 'wp', 'sw_daily_task_schedule' );
  * Define a cron interval for once every two days.
  *
  * @param array $schedules Existing array of cron schedules.
- * @return array Modified array with the new Smart Woo cron interval.
  */
 function sw_service_cron_intervals_once_every_two_days( $schedules ) {
 	// Add a new cron schedule interval for once every two days (48 hours).
@@ -173,9 +171,7 @@ add_action( 'wp', 'schedule_service_renewals_cron' );
  * Define a cron interval for 12 hours.
  *
  * @param array $schedules Existing array of cron schedules.
- * @return array Modified array with the new Smart Woo cron interval.
  */
-add_filter( 'cron_schedules', 'sw_service_cron_intervals_12_hours' );
 
 function sw_service_cron_intervals_12_hours( $schedules ) {
 	$schedules['sw_12_hours'] = array(
@@ -184,6 +180,7 @@ function sw_service_cron_intervals_12_hours( $schedules ) {
 	);
 	return $schedules;
 }
+add_filter( 'cron_schedules', 'sw_service_cron_intervals_12_hours' );
 
 /**
  * Schedule the task to run every 12 hours

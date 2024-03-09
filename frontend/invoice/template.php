@@ -26,7 +26,7 @@ function view_all_invoices() {
         echo '<table class="sw-invoices-table">';
         echo '<thead>';
         echo '<tr>';
-        echo '<th>Invoice</th>';
+        echo '<th>Invoice ID</th>';
         echo '<th>Invoice Date</th>';
         echo '<th>Date Due</th>';
         echo '<th>Total</th>';
@@ -43,14 +43,14 @@ function view_all_invoices() {
             $dateDue     = $invoice->getDateDue();
 
             // Format the dates or display 'Not Available'
-            $formattedDateCreated = sw_check_and_format( $dateCreated, false );
-            $formattedDateDue     = sw_check_and_format( $dateDue, false );
+            $formattedDateCreated = sw_check_and_format( $dateCreated, true );
+            $formattedDateDue     = sw_check_and_format( $dateDue, true );
 
             echo '<tr>';
             echo '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
             echo '<td>' . esc_html( $formattedDateCreated ) . '</td>';
             echo '<td>' . esc_html( $formattedDateDue ) . '</td>';
-            echo '<td>' . esc_html( $invoice->getTotal() ) . '</td>';
+            echo '<td>' . wc_price( $invoice->getTotal() ) . '</td>';
             echo '<td class="payment-status">' . esc_html( ucwords( $invoice->getPaymentStatus() ) ) . '</td>';
 
             echo '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '" class="invoice-preview-button">View Details</a></td>';
@@ -124,9 +124,9 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 		$invoice_total    = $invoice->getTotal();
 
 		// format the date
-		$formattedInvoiceDate = sw_check_and_format( $invoice_date );
-		$formattedPaidDate    = sw_check_and_format( $transaction_date );
-		$formattedDateDue     = sw_check_and_format( $invoice_due_date );
+		$formattedInvoiceDate = sw_check_and_format( $invoice_date, true );
+		$formattedPaidDate    = sw_check_and_format( $transaction_date, true );
+		$formattedDateDue     = sw_check_and_format( $invoice_due_date, true );
 
 		$payment_gateway = $invoice->getPaymentGateway();
 		// Check if $payment_gateway is not empty or null
@@ -507,7 +507,7 @@ function sw_transactions_shortcode_output() {
 				// Initialize variables
 				$amount         = $order->get_total();
 				$order_status   = $order->get_status();
-				$order_date     = sw_check_and_format( $order->get_date_created() );
+				$order_date     = sw_check_and_format( $order->get_date_created(), true );
 				$payment_method = $order->get_payment_method_title();
 				$product_names  = array();
 

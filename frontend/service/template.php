@@ -61,9 +61,9 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 		$product_price = $product_info ? $product_info->get_price() : 0;
 
 		$billing_cycle     = esc_html( $service->getBillingCycle() ? $service->getBillingCycle() : 'Not Available' );
-		$start_date        = sw_check_and_format( $service->getStartDate(), false );
-		$next_payment_date = sw_check_and_format( $service->getNextPaymentDate(), false );
-		$end_date          = sw_check_and_format( $service->getEndDate(), false );
+		$start_date        = sw_check_and_format( $service->getStartDate(), true );
+		$next_payment_date = sw_check_and_format( $service->getNextPaymentDate(), true );
+		$end_date          = sw_check_and_format( $service->getEndDate(), true );
 		$service_url       = esc_url( $service->getServiceUrl() ? $service->getServiceUrl() : 'Not Available' );
 		$service_button    = sw_client_service_url_button( $service );
 
@@ -126,7 +126,7 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 	}
 		$output .= '' . $service_button;
 
-	if ( $status === 'Active' ) {
+	if ( $status === 'Active' || $status === 'Active (NR)' || $status === 'Grace Period' ) {
 		$output .= '' . $usage_metrics . '';
 	}
 		$output .= '<div class="serv-details-card">';

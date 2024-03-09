@@ -64,10 +64,9 @@ function sw_invoices() {
 
 	);
 
-	echo sw_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $action, 'action' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	 sw_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $action, 'action' );
 
-	// Determin which action is set in the url path to display content
-
+	// Determin which action is set in the url path to display content.
 	switch ( $action ) {
 		case 'add-new-invoice':
 			sw_create_new_invoice_form();
@@ -109,7 +108,7 @@ function sw_products_page() {
 
 	);
 
-		echo sw_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' );
+	sw_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' );
 
 	// Handle different actions
 	switch ( $action ) {
@@ -143,7 +142,7 @@ function sw_options_page() {
 
 	);
 
-	echo sw_sub_menu_nav( $tabs, 'Settings', 'sw-options', $action, 'tab' );
+	 sw_sub_menu_nav( $tabs, 'Settings', 'sw-options', $action, 'tab' );
 
 	// Handle different actions
 	switch ( $action ) {

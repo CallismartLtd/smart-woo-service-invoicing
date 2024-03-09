@@ -28,7 +28,7 @@ function sw_deactivate_this_service( Sw_Service $service ) {
 		$service_id  = $service->getServiceId();
 		$status      = sw_service_status( $service_id );
 
-		// We need to confirm that Service is truly Not active
+		// Confirm that Service is truly Not active
 		if ( $status !== 'Active' || $status !== 'Due for Renewal' || $status !== 'Grace Period' ) {
 
 			// Construct the remote URL
@@ -86,11 +86,6 @@ function check_and_disable_all_expired_services() {
 }
 // Hook to run twice daily
 add_action( 'sw_twice_daily_task', 'check_and_disable_all_expired_services' );
-
-
-
-// Hook the function to execute after service activation
-add_action( 'sw_expired_service_activated', 'check_and_activate_paid_service' );
 
 
 /**

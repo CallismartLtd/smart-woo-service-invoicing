@@ -23,6 +23,7 @@ function sw_service_shortcode() {
 	if ( ! is_user_logged_in() ) {
 		return 'You must be logged in to view this page.';
 	}
+	
 	// Start output buffering
 	ob_start();
 
@@ -79,211 +80,13 @@ function sw_service_shortcode() {
 	return $output;
 }
 
-
-
-
-/**
- * Count the number of 'Active' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Active' services.
- */
-function count_active_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
-	$active_services_count = 0;
-
-	// Loop through each service to check its status
-	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
-
-		// Check if the status is 'Active'
-		if ( $status === 'Active' ) {
-			// Increment the count for 'Active' services
-			++$active_services_count;
-		}
-	}
-
-	// Return the count of 'Active' services
-	return $active_services_count;
-}
-
-
-
-
-/**
- * Count the number of 'Due for Renewal' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Due for Renewal' services.
- */
-function count_due_for_renewal_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
-	$due_services_count = 0;
-
-	// Loop through each service to check its status
-	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
-
-		// Check if the status is 'Due for Renewal'
-		if ( $status === 'Due for Renewal' ) {
-			// Increment the count for 'Active' services
-			++$due_services_count;
-		}
-	}
-
-	// Return the count of 'Due' services
-	return $due_services_count;
-}
-
-
-
-
-/**
- * Count the number of 'Active No Renewal' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Active (NR)' services.
- */
-function count_nr_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active (NR)' services
-	$nr_services_count = 0;
-
-	// Loop through each service to check its status
-	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
-
-		// Check if the status is 'Active (NR)'
-		if ( $status === 'Active (NR)' ) {
-			// Increment the count for 'Active' services
-			++$nr_services_count;
-		}
-	}
-
-	// Return the count of 'Active' services
-	return $nr_services_count;
-}
-
-
-
-
-
-/**
- * Count the number of 'Expired' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Expired' services.
- */
-function count_expired_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
-	$expired_services_count = 0;
-
-	// Loop through each service to check its status
-	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
-
-		// Check if the status is 'Expired'
-		if ( $status === 'Expired' ) {
-			// Increment the count for 'Expired' services
-			++$expired_services_count;
-		}
-	}
-
-	// Return the count of 'Active' services
-	return $expired_services_count;
-}
-
-
-
-
-
-
-
-
-/**
- * Count the number of 'Grace Period' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Grace Period' services.
- */
-function count_grace_period_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
-	$grace_period_services_count = 0;
-
-	// Loop through each service to check its status
-	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
-
-		// Check if the status is 'Grace Period'
-		if ( $status === 'Grace Period' ) {
-			// Increment the count for 'Grace Period' services
-			++$grace_period_services_count;
-		}
-	}
-
-	// Return the count of 'Active' services
-	return $grace_period_services_count;
-}
-
-/**
- * Count the number of 'Suspended' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Suspended' services.
- */
-function count_suspended_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
-	$suspended_services = 0;
-
-	// Loop through each service to check its status
-	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
-
-		// Check if the status is 'Grace Period'
-		if ( $status === 'Suspended' ) {
-			// Increment the count for 'Grace Period' services
-			++$suspended_services;
-		}
-	}
-
-	// Return the count of 'Active' services
-	return $suspended_services;
-}
-
-
-
-/**
- * The set of AJAX callback function below handles the output of the
- * buttons in the settings and tools section of the client service page
- */
-
-
-
-// AJAX handler for billing details
+// AJAX handler for billing details.
 add_action( 'wp_ajax_load_billing_details', 'sw_load_billing_details_callback' );
+
+/**
+ * Ajax callback for user billing details in frontend
+ */
+
 function sw_load_billing_details_callback() {
 	// Check if the user is logged in
 	if ( is_user_logged_in() ) {
@@ -324,10 +127,9 @@ function sw_load_billing_details_callback() {
 	die();
 }
 
-
-
-
-add_action( 'wp_ajax_load_my_details', 'sw_load_my_details_callback' );
+/**
+ * Ajax callback for user details in frontend
+ */
 function sw_load_my_details_callback() {
 	// Check if the user is logged in
 	if ( is_user_logged_in() ) {
@@ -335,19 +137,21 @@ function sw_load_my_details_callback() {
 		$current_user = wp_get_current_user();
 
 		// Get user details
-		$full_name = esc_html( $current_user->display_name );
-		$email     = esc_html( $current_user->user_email );
-		$bio       = esc_html( $current_user->description );
-		$user_role = esc_html( implode( ', ', $current_user->roles ) );
+		$full_name = $current_user->display_name ;
+		$email     = $current_user->user_email ;
+		$bio       = $current_user->description ;
+		$user_role = implode( ', ', $current_user->roles );
+		$user_url  = $current_user->user_url ;
 
 		// Construct the HTML for user details
 		$html  = '<div class="user-details-container">';
 		$html .= '<h3>My Details</h3>';
 		$html .= '<div class="user-details">';
-		$html .= '<p><strong>Full Name:</strong> ' . $full_name . '</p>';
-		$html .= '<p><strong>Email:</strong> ' . $email . '</p>';
-		$html .= '<p><strong>Bio:</strong> ' . $bio . '</p>';
-		$html .= '<p><strong>Account type:</strong> ' . $user_role . '</p>';
+		$html .= '<p><strong>Full Name:</strong> ' . esc_html( $full_name ) . '</p>';
+		$html .= '<p><strong>Email:</strong> ' . esc_html( $email ) . '</p>';
+		$html .= '<p><strong>Bio:</strong> ' . esc_html( $bio ) . '</p>';
+		$html .= '<p><strong>Website:</strong> ' . esc_html( $user_url ) . '</p>';
+		$html .= '<p><strong>Account type:</strong> ' . esc_html( ucwords( $user_role ) ) . '</p>';
 		$html .= '</div>';
 		$html .= '<button class="account-button" onclick="confirmEditAccount()">Edit My Information</button>';
 		$html .= '<button class="account-button" onclick="confirmPaymentMethods()">Payment Methods</button>';
@@ -362,39 +166,26 @@ function sw_load_my_details_callback() {
 	// prevent further outputing
 	die();
 }
-
-
-
-
-
+add_action( 'wp_ajax_load_my_details', 'sw_load_my_details_callback' );
 
 add_action( 'wp_ajax_load_account_logs', 'sw_load_account_logs_callback' );
+/**
+ * Ajax function callback for account logs in frontend
+ */
 function sw_load_account_logs_callback() {
 	// Check if the user is logged in
 	if ( is_user_logged_in() ) {
 		// Get the current user object
 		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
 
-		// Retrieve last active time from wp_wc_customer_lookup table
-		global $wpdb;
-		$last_active_query = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT date_last_active FROM {$wpdb->prefix}wc_customer_lookup WHERE user_id = %d",
-				$user_id
-			)
-		);
+		if ( $current_user ) {
 
-		if ( $last_active_query ) {
-			$last_active = strtotime( $last_active_query->date_last_active );
+			$user_id      		= $current_user->ID;
+			$current_login_time = sw_get_current_login_date( $user_id );
+			$last_active		= sw_get_last_login_date( $user_id );
 
 			// Retrieve user registration date from the database
-			$registration_date = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT user_registered FROM $wpdb->users WHERE ID = %d",
-					$user_id
-				)
-			);
+			$registration_date 	=  sw_check_and_format( $current_user->user_registered, true );
 
 			// Start constructing the HTML for account logs
 			$html  = '<div class="account-logs-container">';
@@ -403,32 +194,31 @@ function sw_load_account_logs_callback() {
 
 			// Total service renewed
 			$renewed_services_count = get_renewed_services_count( $user_id );
-			$html                  .= '<li class="account-log-item"> Total Renewed Services: ' . $renewed_services_count . '</li>';
+			$html .= '<li class="account-log-item"> Total Renewed Services: ' . esc_attr( $renewed_services_count ) . '</li>';
 
 			// Display Total Amount Spent first
 			$total_spent = sw_get_total_spent_by_user( $user_id );
-			$html       .= '<li class="account-log-item">Total Amount Spent: ' . $total_spent . '</li>';
+			$html .= '<li class="account-log-item">Total Amount Spent: ' . $total_spent . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			// Display Last Active Time
-			$html .= '<li class="account-log-item">Last Active Time: ' . date( 'F j, Y g:i a', $last_active ) . '</li>';
+			$html .= '<li class="account-log-item">Current Login Time: ' . esc_attr( $current_login_time )  . '</li>';
+			$html .= '<li class="accont-log-item">Last logged In: ' . esc_attr( $last_active ) . '</li>';
 
 			// Display user registration date
-			$html .= '<li class="account-log-item">Registration Date: ' . date( 'F j, Y g:i a', strtotime( $registration_date ) ) . '</li>';
-
-			// Display IP Address
-			$html .= '<li class="account-log-item">IP Address: ' . $_SERVER['REMOTE_ADDR'] . '</li>';
+			$html .= '<li class="account-log-item">Registration Date: ' . esc_attr( $registration_date ) . '</li>';
 
 			// Retrieve and display the user's location using ip-api.com
 			$ip_address    = filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP );
 			$location_info = file_get_contents( 'http://ip-api.com/json/' . $ip_address );
 			$location_data = json_decode( $location_info );
+			
+			// Display IP Address
+			$html .= '<li class="account-log-item">IP Address: ' . esc_attr( $ip_address ) . '</li>';
 
 			if ( $location_data && $location_data->status === 'success' ) {
 				$user_location             = $location_data->city . ', ' . $location_data->country;
 				$internet_service_provider = $location_data->isp;
-				$user_continent            = $location_data->continent;
 
-				$html .= '<li class="account-log-item">Continent: ' . esc_attr( $user_continent ) . '</li>';
 				$html .= '<li class="account-log-item">Location: ' . esc_attr( $user_location ) . '</li>';
 				$html .= '<li class="account-log-item">Internet Service Provider: ' . esc_attr( $internet_service_provider ) . '</li>';
 			} else {
@@ -452,27 +242,13 @@ function sw_load_account_logs_callback() {
 	// prevent further outputing
 	die();
 }
-function sw_get_total_spent_by_user( $user_id ) {
-	$customer_orders = wc_get_orders(
-		array(
-			'customer_id' => $user_id,
-			'status'      => array( 'completed', 'processing' ), // Include processing orders
-		)
-	);
-
-	$total_spent = 0;
-
-	foreach ( $customer_orders as $order ) {
-		$total_spent += $order->get_total();
-	}
-
-	return wc_price( $total_spent );
-}
-
 
 
 
 add_action( 'wp_ajax_load_transaction_history', 'sw_load_transaction_history_callback' );
+/**
+ * Ajax callback for user transaction history in the frontend
+ */
 function sw_load_transaction_history_callback() {
 	// Check if the user is logged in
 	if ( is_user_logged_in() ) {
@@ -499,4 +275,64 @@ function sw_load_transaction_history_callback() {
 
 	// prevent further outputing
 	die();
+}
+
+
+/**
+ * Set user's login timestamp.
+ * 
+ * @param string $user_login	User's Username.
+ * @param object $user			WordPress user object.
+ * @since      : 1.0.1 
+ */
+function sw_timestamp_user_at_login( $user_login, $user ) {
+	update_user_meta( $user->ID, 'sw_login_timestamp', current_time( 'timestamp' ) );
+}
+add_action( 'wp_login', 'sw_timestamp_user_at_login', 99, 2 );
+
+/**
+ * Set user's logout timestamp.
+ * 
+ * @param $user_id		The logged user's ID
+ */
+function sw_timestamp_user_at_logout( $user_id ){
+	update_user_meta( $user_id, 'sw_logout_timestamp', current_time( 'timestamp' ) );
+}
+add_action( 'wp_logout', 'sw_timestamp_user_at_logout' );
+
+/**
+ * Retrieve the user's current login date and time.
+ * 
+ * @param int $user_id The User's ID.
+ * @since      : 1.0.1
+ */
+function sw_get_current_login_date( $user_id ) {
+    $timestamp = get_user_meta( $user_id, 'sw_login_timestamp', true );
+
+    // Check if $timestamp is not a valid integer (may be a string)
+    if ( ! is_numeric( $timestamp ) || intval( $timestamp ) <= 0 ) {
+        // Fallback to current time if $timestamp is not a valid integer
+        $timestamp = current_time( 'timestamp' );
+    }
+
+    return sw_convert_timestamp_to_readable_date( $timestamp, true );
+}
+
+/**
+ * Retrieve the user's last login date and time
+ * 
+ * @param int $user_id  The User's ID
+ * @since	: 1.0.1
+ */
+function sw_get_last_login_date( $user_id ) {
+
+	$timestamp = get_user_meta( $user_id, 'sw_logout_timestamp', true );
+
+    // Check if $timestamp is not a valid integer (may be a string)
+    if ( ! is_numeric( $timestamp ) || intval( $timestamp ) <= 0 ) {
+        // Fallback to current time if $timestamp is not a valid integer
+        $timestamp = current_time( 'timestamp' );
+    }
+
+    return sw_convert_timestamp_to_readable_date( $timestamp, true );
 }

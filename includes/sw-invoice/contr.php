@@ -145,7 +145,7 @@ function sw_create_new_invoice_form() {
 
 
 /**
- * Create an Invoice for New configured order
+ * Create an Invoice for Newly configured order
  *
  * @param object        The WooCommerce Order Object
  */
@@ -162,7 +162,7 @@ function sw_create_invoice_for_new_order( $order ) {
 		// Get all fees associated with the order
 		$fees = $order->get_fees();
 
-		// Specify the fee name you are looking for
+		// Set target fee name
 		$target_fee_name = 'Sign-up Fee';
 
 		$fee = array_reduce(

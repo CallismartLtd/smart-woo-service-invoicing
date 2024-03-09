@@ -89,6 +89,7 @@ function sw_display_service_details( $service ) {
 	echo '<p>Start Date: ' . sw_check_and_format( $service->getStartDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<p>Next Payment Date: ' . sw_check_and_format( $service->getNextPaymentDate() ) . '</p>';
 	echo '<p>End Date: ' . sw_check_and_format( $service->getEndDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<p>Expiration Date: ' . sw_check_and_format( sw_get_service_expiration_date( $service ) ) . '</p>';
 	echo sw_client_service_url_button( $service ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) . '" class="sw-blue-button">Edit this Service</a>';
 	echo sw_delete_service_button( $service->getServiceId() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -820,81 +821,4 @@ function sw_render_new_service_order_form( $user_id, $order_id, $service_name, $
 
 	echo '</form>';
 	echo '</div>';
-}
-
-
-/**
- * Retrieve and display service usage metrics.
- *
- * @param int $user_id    User ID.
- * @param int $service_id Service ID.
- */
-function sw_get_usage_metrics( $service_id ) {
-	$service = Sw_Service_Database::get_service_by_id( $service_id );
-
-	$service_name = $service->getServiceName();
-
-	$usage_metrics = sw_check_service_usage( $service_id );
-
-	// Check if metrics are available
-	if ( $usage_metrics !== false ) {
-		// Extract metrics
-		$used_amount          = wc_price( $usage_metrics['used_amount'] );
-		$unused_amount        = wc_price( $usage_metrics['unused_amount'] );
-		$total_service_cost   = wc_price( $usage_metrics['service_cost'] );
-		$average_daily_cost   = wc_price( $usage_metrics['average_daily_cost'] );
-		$product_costs        = $usage_metrics['product_costs'];
-		$percentage_used      = $usage_metrics['percentage_used'];
-		$percentage_unused    = $usage_metrics['percentage_unused'];
-		$days_remaining       = $usage_metrics['days_remaining'];
-		$total_days           = $usage_metrics['total_days'];
-		$total_used_days      = $usage_metrics['total_used_days'];
-		$remaining_days       = $usage_metrics['remaining_days'];
-		$current_date_time    = $usage_metrics['current_date_time'];
-		$average_hourly_usage = $usage_metrics['average_hourly_usage'];
-
-		// Display metrics in HTML div with inline CSS and WordPress comments
-		$metrics = '<div class="serv-details-card">';
-
-		$metrics .= '<h3>Service Usage Metrics</h3>';
-		$metrics .= "<p class='service-name'> $service_name - $service_id</p>";
-		$metrics .= "<ul class='product-costs'>";
-		foreach ( $product_costs as $product_name => $product_cost ) {
-			$metrics .= '<li>Product: ' . $product_name . ': ' . wc_price( $product_cost ) . '</li>';
-		}
-		$metrics .= '</ul>';
-
-		// Cost details
-		$metrics .= '<h4>Cost Details:</h4>';
-
-		$metrics .= "<p class='total-service-cost'><strong>Total Service Cost:</strong> $total_service_cost</p>";
-		$metrics .= "<p class='average-daily-cost'><strong>Average Daily Cost:</strong> $average_daily_cost</p>";
-
-		// Usage breakdown
-		$metrics .= '<h4>Usage Breakdown:</h4>';
-		$metrics .= "<p class='used-amount'><strong>Used Amount:</strong> $used_amount</p>";
-		$metrics .= "<p class='unused-amount'><strong>Unused Amount:</strong> $unused_amount</p>";
-		$metrics .= "<p class='percentage-used'><strong>Percentage Used:</strong> $percentage_used%</p>";
-		$metrics .= "<p class='percentage-unused'><strong>Percentage Unused:</strong> $percentage_unused%</p>";
-
-		// Days information
-		$metrics .= '<h4>Days Information:</h4>';
-		$metrics .= "<p class='total-days'><strong>Total Days:</strong> $total_days</p>";
-		$metrics .= "<p class='total-used-days'><strong>Total Used Days:</strong> $total_used_days</p>";
-		$metrics .= "<p class='remaining-days'><strong>Remaining Days:</strong> $remaining_days</p>";
-		$metrics .= "<p class='days-remaining'><strong>Days Remaining:</strong> $days_remaining</p>";
-
-		// Additional information
-		$metrics .= '<h4>Additional Information:</h4>';
-		$metrics .= "<p class='current-date-time'><strong>Current Date and Time:</strong> $current_date_time</p>";
-		$metrics .= "<p class='average-hourly-usage'><strong>Average Hourly Usage:</strong> $average_hourly_usage</p>";
-		$metrics .= '</div>';
-
-	} else {
-		// Handle the case where service details are not available
-		$metrics .= '<div class="sw-no-service-details">';
-		$metrics .= "<p class='no-service-details'><strong>Service details not available.</strong></p>";
-		$metrics .= '</div>';
-	}
-	return $metrics;
 }

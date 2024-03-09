@@ -1,13 +1,15 @@
 <?php
 /**
- * File name    :   admin-menu.php
+ * File name   : admin-menu.php
+ * Author      : Callistus
+ * Description : Function definition file for admin menus
  *
- * @author      :   Callistus
- * Description  :   Function definition file for admin menus
+ * @since      : 1.0.0
+ * @package    : SmartWooServiceInvoicing
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+
+defined( 'ABSPATH' ) || exit;
+
 require_once SW_ABSPATH . 'admin/callback.php';
 require_once SW_ABSPATH . 'includes/sw-service/sw-service-admin-temp.php';
 require_once SW_ABSPATH . 'includes/sw-service/sw-new-service-processing.php';
@@ -15,9 +17,9 @@ require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
 require_once SW_ABSPATH . 'includes/sw-product/sw-product-admin-temp.php';
 require_once SW_ABSPATH . 'admin/sw-admin-settings.php';
 
-
-
-// Add a separate admin menu for Smart Invoice
+/**
+ * Defined function callback for admin menus.
+ */
 function smart_invoice_admin_menu() {
 	add_menu_page(
 		'Smart Invoice',
@@ -28,7 +30,7 @@ function smart_invoice_admin_menu() {
 		'dashicons-format-aside'
 	);
 
-	// Add submenu "Service Orders"
+	// Add submenu "Service Orders".
 	add_submenu_page(
 		'sw-admin',
 		'Service Orders',
@@ -38,7 +40,7 @@ function smart_invoice_admin_menu() {
 		'sw_render_order_for_sw_products'
 	);
 
-	// Add submenu "Invoices"
+	// Add submenu "Invoices".
 	add_submenu_page(
 		'sw-admin',
 		'Invoices',
@@ -48,7 +50,7 @@ function smart_invoice_admin_menu() {
 		'sw_invoices',
 	);
 
-	// Add submenu "Service Products"
+	// Add submenu "Service Products".
 	add_submenu_page(
 		'sw-admin',
 		'Service Products',
@@ -58,7 +60,7 @@ function smart_invoice_admin_menu() {
 		'sw_products_page'
 	);
 
-	// Add submenu "Settings"
+	// Add submenu "Settings".
 	add_submenu_page(
 		'sw-admin',
 		'Settings',
@@ -77,13 +79,13 @@ add_action( 'admin_menu', 'smart_invoice_admin_menu' );
  *
  * @param array  $tabs         An associative array of tabs (tab_slug => tab_title).
  * @param string $title        Title you choos to display on each page page.
- * @param string $page_slug    The url slug of the current page
+ * @param string $page_slug    The url slug of the current page.
  * @param string $current_tab  The current tab parameter for the submenu page.
- * @param string $query_var    The query variable
+ * @param string $query_var    The query variable.
  */
 function sw_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) {
 	$output  = '<div class="wrap">';
-	$output .= '<h1 class="wp-heading-inline">' . esc_html( $title ) . '</h1>';
+	$output .= '<h1 class="wp-heading-inline">' . esc_attr( $title ) . '</h1>';
 	$output .= '<nav class="nav-tab-wrapper">';
 
 	foreach ( $tabs as $tab_slug => $tab_title ) {
@@ -94,5 +96,5 @@ function sw_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) 
 	$output .= '</nav>';
 	$output .= '</div>';
 
-	return $output;
+	echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }

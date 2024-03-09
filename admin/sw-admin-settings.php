@@ -376,7 +376,7 @@ function sw_render_email_options_page() {
 
 	?>
 	<div class="wrap">
-		<h1>Emails</h1>
+		<h1>Emails 📧</h1>
 		<p>If you notice emails are not being sent, consider setting up SMTP for your site.</p>
 		<form method="post" class="inv-settings-form">
 
