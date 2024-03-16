@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Smart Woo Service Invoicing
  * Description: Integrate powerful service subscriptions and invoicing directly into your online store.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Callistus Nwachukwu
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo
@@ -49,12 +49,12 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 		define( 'SW_DIR_URL', plugin_dir_url( __FILE__ ) );
 	}
 	
-	// Define our database table names as constants
+	// Define the database table names as constants
 	global $wpdb;
 	define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
 	define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
-	define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_auto_renew' );
-	define( 'SW_SERVICE_LOGS_TABLE', $wpdb->prefix . 'sw_service_logs' );
+	define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
+	define( 'SW_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
 
 	// Load scource file
 	require_once SW_ABSPATH . '/admin/include/src.php';
@@ -85,15 +85,16 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 	if ( ! function_exists( 'sw_activation' ) ) {
 
 		function sw_activation() {
-			// Flush permalink structure to load ours
-			flush_rewrite_rules();
 
 			// Load the db table file to have access to the properties
-			include_once SW_ABSPATH . '/admin/include/sw-db.php';
+			include_once SW_ABSPATH . 'admin/include/sw-db.php';
+			do_action( 'smart_woo_activation' );
 			sw_plugin_db_schema();
+
 		}
 	}
 
 	// Activation hook for the plugin
 	register_activation_hook( __FILE__, 'sw_activation' );
+	
 }

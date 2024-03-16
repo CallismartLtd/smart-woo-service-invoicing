@@ -16,7 +16,7 @@
 function sw_plugin_db_schema() {
 
 	// Define the current database version
-	$sw_db_version = '1.1.0'; // Update the version when making schema changes.
+	$sw_db_version = '1.0.1'; // Update the version when making schema changes.
 
 	// Check the stored version
 	$stored_version = get_option( 'sw_db_version' );
@@ -76,12 +76,12 @@ function sw_plugin_db_schema() {
 		sw_create_database_table( $invoice_table_name, $invoice_structure );
 
 		/**
-		 * Define the structure for the 'sw_invoice_auto_renew' table.
+		 * Define the structure for the Service Log table.
 		 * This table is used to log renewed services informations.
 		 */
 		$auto_renew_table_name = SW_SERVICE_LOG_TABLE;
 		$auto_renew_structure  = array(
-			'id bigint(20) NOT NULL AUTO_INCREMENT',
+			'id mediumint(9) NOT NULL AUTO_INCREMENT',
 			'renewed_user_id mediumint(9) NOT NULL',
 			'renewed_service_name varchar(255) NOT NULL',
 			'renewed_service_url text NOT NULL',
@@ -96,19 +96,21 @@ function sw_plugin_db_schema() {
 
 		sw_create_database_table( $auto_renew_table_name, $auto_renew_structure );
 
-		// Define the structure for the 'sw_service_logs' table
-		$service_logs_table_name = SW_SERVICE_LOGS_TABLE;
+		// Define the structure for the Invoicing Logging table
+		$service_logs_table_name = SW_INVOICE_LOG_TABLE;
 		$service_logs_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
-			'user_id mediumint(9) DEFAULT NULL',
-			'service_id varchar(255) DEFAULT NULL',
+			'log_id varchar(255) NOT NULL',
+			'log_type varchar(60) DEFAULT NULL',
 			'amount decimal(10, 2) DEFAULT NULL',
-			'transaction_status varchar(20) DEFAULT NULL',
-			'description text DEFAULT NULL',
+			'status varchar(20) DEFAULT NULL',
 			'details text DEFAULT NULL',
+			'note varchar(255) DEFAULT NULL',
 			'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+			'updated_at datetime DEFAULT NULL',
 			'PRIMARY KEY  (id)',
 		);
+
 
 		sw_create_database_table( $service_logs_table_name, $service_logs_structure );
 

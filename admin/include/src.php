@@ -36,11 +36,14 @@ function sw_check_woocommerce() {
 function enqueue_smart_woo_scripts() {
 
 	// Enqueue styles for both admin and frontend
-	wp_enqueue_style( 'smart-woo-invoice-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0', 'all' );
+	if ( is_smart_woo_frontend() ) {
+	wp_enqueue_style( 'smart-woo-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.1', 'all' );
+	
+	}
 
 	if ( is_admin() ) {
 		// Enqueue admin-specific styles
-		wp_enqueue_style( 'smart-woo-invoice-style-admin', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0', 'all' );
+		wp_enqueue_style( 'smart-woo-admin-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.1', 'all' );
 	}
 
 	// Enqueue the JavaScript file
@@ -89,6 +92,7 @@ function sw_load_dependencies() {
 	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice-database.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-function.php';
+	require_once SW_ABSPATH . 'includes/sw-logger/class-sw-invoice-log.php';
 	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service.php';
 	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service-database.php';
 	require_once SW_ABSPATH . 'includes/sw-service/sw-service-functions.php';
@@ -128,3 +132,4 @@ function sw_load_dependencies() {
 	// Do action after loading plugin files
 	do_action( 'smart_woo_loaded' );
 }
+

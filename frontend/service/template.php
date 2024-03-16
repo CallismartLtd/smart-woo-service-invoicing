@@ -29,8 +29,8 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 	}
 
 	// Sanitize and validate the 'service_page' and 'service_id' parameters
-	$service_page = sanitize_text_field( $_GET['service_page'] );
-	$service_id   = sanitize_text_field( $_GET['service_id'] );
+	$service_page = sanitize_key( $_GET['service_page'] );
+	$service_id   = sanitize_key( $_GET['service_id'] );
 
 	// Validate the 'service_page' parameter against a list of allowed values
 	$allowed_actions = array( 'service_details', 'another_action', 'active', 'renewal_due', 'expired', 'grace_period' );
@@ -40,7 +40,7 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 	}
 
 	// Service ID is provided in the URL, fetch and display service details
-	$url_service_id = sanitize_text_field( $_GET['service_id'] );
+	$url_service_id = sanitize_key( $_GET['service_id'] );
 	if ( empty( $url_service_id ) ) {
 		return 'Invalid Service ID';
 	}
@@ -130,15 +130,15 @@ function sw_handle_service_details( $current_user_id, $current_user_email ) {
 		$output .= '' . $usage_metrics . '';
 	}
 		$output .= '<div class="serv-details-card">';
-		$output .= '<p>Service ID: ' . $service_id . '</p>';
-		$output .= '<p>Service Type: ' . $service_type . '</p>';
-		$output .= '<p>Product Name: ' . $product_name . '</p>';
-		$output .= '<p>Amount: ' . $product_price . '</p>';
-		$output .= '<p>Billing Cycle: ' . $billing_cycle . '</p>';
-		$output .= '<p>Start Date: ' . $start_date . '</p>';
-		$output .= '<p>Next Payment Date: ' . $next_payment_date . '</p>';
-		$output .= '<p>End Date: ' . $end_date . '</p>';
-		$output .= '<p>Expiry Date: ' . sw_check_and_format( $expiry_date ) . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Service Name:</span>' . $service_id . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Service Type:</span>' . $service_type . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Product Name:</span>' . $product_name . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Amount:</span>' . $product_price . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Billing Cycle:</span>' . $billing_cycle . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Start Date:</span>' . $start_date . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Next Payment Date:</span>' . $next_payment_date . '</p>';
+		$output .= '<p class="invoice-details-item"><span> End Date:</span>' . $end_date . '</p>';
+		$output .= '<p class="invoice-details-item"><span> Expiry Date:</span>' . sw_check_and_format( $expiry_date ) . '</p>';
 		$output .= '</div>';
 		$output .= '</div>';
 

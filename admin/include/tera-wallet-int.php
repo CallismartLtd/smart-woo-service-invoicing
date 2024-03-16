@@ -28,8 +28,7 @@ function sw_pay_invoice_through_woo_wallet() {
 		$user_id    = $invoice->getUserId();
 
 		// Construct payment details
-		$payment_details = 'Auto debit for the payment of ' . $invoice_id;
-
+		$details = 'Amount deducted from wallet for the payment of invoice "ID: ' . $invoice_id .'".';
 		// Get the order total price
 		$invoice_total = $invoice->getTotal();
 
@@ -38,17 +37,22 @@ function sw_pay_invoice_through_woo_wallet() {
 
 		if ( $wallet_balance >= $invoice_total && $invoice_total > 0 ) {
 			// Attempt to debit the wallet
-			woo_wallet()->wallet->debit( $user_id, $invoice_total, $payment_details );
+			$success = woo_wallet()->wallet->debit( $user_id, $invoice_total, $details );
 
+			if ( $success > 0 ) {
 			// Update the related order to complete
 			$order = wc_get_order( $invoice->getOrderId() );
 			$order->update_status( 'completed' );
+			// Invoice will be updated after the order is marked as completed.
 
 			// Log Payment successful
-			smart_woo_log( $user_id, 'No Service ID', $invoice_total, 'successful', $payment_details );
-		} else {
-			// Insufficient wallet balance
-			smart_woo_log( $user_id, $invoice_id, $invoice_total, 'failed', 'insufficient funds' );
+			 $details = 'Amount deducted from wallet for the payment of invoice "ID: ' . $invoice_id .'".';
+			 $note    = 'The invoice with this ID was paid.';
+			 smart_woo_log( $invoice_id, 'Debit', 'Completed', $details, $invoice_total, $note );
+			}
+
 		}
 	}
 }
+
+

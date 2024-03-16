@@ -16,7 +16,7 @@ if ( ! function_exists( 'sw_invoice_download' ) ) {
 		if ( isset( $_GET['download_invoice'] ) && $_GET['download_invoice'] === 'true' ) {
 
 			// Validate nonce
-			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( $_GET['_wpnonce'] ) : '';
+			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_key( $_GET['_wpnonce'] ) : '';
 			if ( ! empty( $nonce ) && wp_verify_nonce( $nonce, 'download_invoice_nonce' ) ) {
 				// Nonce is valid, proceed with download
 

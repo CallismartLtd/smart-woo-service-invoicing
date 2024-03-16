@@ -157,7 +157,7 @@ class Sw_Service_Database {
 		// Data to be updated
 		$data = array(
 			'user_id'           => absint( $service->getUserId() ),
-			'product_id'        => absint( $service->getProductID() ),
+			'product_id'        => absint( $service->getProductId() ),
 			'service_name'      => sanitize_text_field( $service->getServiceName() ),
 			'service_url'       => esc_url_raw( $service->getServiceUrl() ),
 			'service_type'      => sanitize_text_field( $service->getServiceType() ),

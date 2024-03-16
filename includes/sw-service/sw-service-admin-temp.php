@@ -9,7 +9,7 @@
  * Admin Service Details page
  */
 function sw_admin_view_service_details() {
-	$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : '';
+	$service_id = isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : '';
 	$service    = Sw_Service_Database::get_service_by_id( $service_id );
 
 	if ( $service ) {
@@ -22,6 +22,7 @@ function sw_admin_view_service_details() {
 
 		// Display service details
 		sw_display_service_details( $service );
+		echo Sw_Invoice_log::render_log_html_output( $service_id);
 
 		// Retrieve service usage metrics
 		echo sw_get_usage_metrics( $service_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -36,8 +37,12 @@ function sw_admin_view_service_details() {
 	}
 }
 
-
-function sw_display_customer_details( $service ) {
+/**
+ * Render customer details
+ * 
+ * @param object $service	Sw_Service object
+ */
+function sw_display_customer_details( Sw_Service $service ) {
 	// Fetch customer details
 	$user_id   = $service->getUserId();
 	$user_info = get_userdata( $user_id );
@@ -53,20 +58,24 @@ function sw_display_customer_details( $service ) {
 	echo '<div class="user-service-card">';
 	echo '<h2>Client Details</h2>';
 	echo '<p><h3>' . esc_html( $customer_name ) . '</h3></p>';
-	echo '<p>Email Address: ' . esc_html( $customer_email ) . '</p>';
-	echo '<p>Billing Address: ' . esc_html( $customer_billing_address ) . '</p>';
-	echo '<p>Phone Number: ' . esc_html( $customer_phone ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Email Address:</span>' . esc_html( $customer_email ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Billing Address:</span>' . esc_html( $customer_billing_address ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Phone Number:</span>' . esc_html( $customer_phone ) . '</p>';
 	echo '</div>';
 	echo '</div>';
 }
-
-function sw_display_service_details( $service ) {
+/**
+ * Render Details of a service.
+ * 
+ * @param object $service	 Sw_Service Object
+ */
+function sw_display_service_details( Sw_Service $service ) {
 
 	$main_service_status = sw_service_status( $service->getServiceId() );
 
 	$product_id = $service->getProductId();
 
-	// Get product details from WooCommerce
+	// Get product details from WooCommerce.
 	$product = wc_get_product( $product_id );
 
 	// Set default values using null coalescing operator
@@ -81,15 +90,16 @@ function sw_display_service_details( $service ) {
 	echo '<span style="display: inline-block; text-align: right; color: white; background-color: red; padding: 10px; border-radius: 5px; font-weight: bold;">' . esc_html( $main_service_status ) . '</span>';
 	echo '<h2>Service Details</h2>';
 	echo '<h3>' . esc_html( $service->getServiceName() ) . '</h3>';
-	echo '<p>Service ID: ' . esc_html( $service->getServiceId() ) . '</p>';
-	echo '<p>Service Type: ' . esc_html( $service->getServiceType() ) . '</p>';
-	echo '<p>Service URL: ' . esc_html( $service->getServiceUrl() ) . '</p>';
-	echo '<p>Amount: ' . esc_html( $price_with_currency ) . '</p>';
-	echo '<p>Billing Cycle: ' . esc_html( $service->getBillingCycle() ) . '</p>';
-	echo '<p>Start Date: ' . sw_check_and_format( $service->getStartDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo '<p>Next Payment Date: ' . sw_check_and_format( $service->getNextPaymentDate() ) . '</p>';
-	echo '<p>End Date: ' . sw_check_and_format( $service->getEndDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo '<p>Expiration Date: ' . sw_check_and_format( sw_get_service_expiration_date( $service ) ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Service ID:</span>' . esc_html( $service->getServiceId() ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Service Type:</span>' . esc_html( $service->getServiceType() ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Service URL:</span>' . esc_html( $service->getServiceUrl() ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Amount:</span>' . esc_html( $price_with_currency ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Billing Cycle:</span>' . esc_html( $service->getBillingCycle() ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Start Date:</span>' . sw_check_and_format( $service->getStartDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<p class="invoice-details-item"><span> Next Payment Date:</span>' . sw_check_and_format( $service->getNextPaymentDate() ) . '</p>';
+	echo '<p class="invoice-details-item"><span> End Date:</span>' . sw_check_and_format( $service->getEndDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<p class="invoice-details-item"><span> Expiration Date:</span>' . sw_check_and_format( sw_get_service_expiration_date( $service ) ) . '</p>';
+	// Render the service URL button
 	echo sw_client_service_url_button( $service ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) . '" class="sw-blue-button">Edit this Service</a>';
 	echo sw_delete_service_button( $service->getServiceId() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -386,6 +396,37 @@ function sw_main_page() {
 	echo '</div>';
 	echo '</div>';
 
+		// Display child card for Suspended Services List
+		echo '<div class="dashboard-list-container">';
+		echo '<div class="dashboard-list-card">';
+		echo '<h2>Pending Services</h2>';
+		echo '<ul>';
+	
+		$users_with_services   = Sw_Service_Database::get_all_services();
+		$pending_services_found = false; // Initialize a flag
+	
+		if ( ! empty( $users_with_services ) ) {
+			foreach ( $users_with_services as $user ) {
+				// Check if the user's service is Active
+				$service_status = sw_service_status( $user->getServiceId() );
+	
+				if ( $service_status === 'Pending' ) {
+					// Create the link with the service name's ID as a parameter
+					$service_link = admin_url( 'admin.php?page=sw-admin&action=service_details&service_id=' . $user->getServiceId() );
+					echo '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $user->getServiceName() ) . ' - ' . esc_html( $user->getServiceId() ) . '</a></li>';
+					$pending_services_found = true; // Set the flag to true
+				}
+			}
+		}
+	
+		if ( ! $pending_services_found ) {
+			echo '<p>No service is Pending.</p>';
+		}
+		echo '</ul>';
+		echo '</div>';
+		echo '</div>';
+	
+
 	echo '</div>'; // Close wrap
 }
 
@@ -518,7 +559,7 @@ function sw_render_edit_service_form() {
 
 	// Check if service_id is present in the URL
 	if ( isset( $_GET['service_id'] ) ) {
-		$url_service_id = sanitize_text_field( $_GET['service_id'] );
+		$url_service_id = sanitize_key( $_GET['service_id'] );
 		$service        = Sw_Service_Database::get_service_by_id( $url_service_id );
 
 		// Check if the service exists

@@ -36,24 +36,24 @@ class Sw_Invoice {
 		float $amount,
 		float $total,
 		string $payment_status,
-		?string $date_created = null,
+		?string $date_created 		= null,
 		?int $user_id = null,
-		?string $billing_address = null,
-		?string $invoice_type = null,
-		?string $service_id = null,
-		?float $fee = null,
-		?int $order_id = null,
-		?string $payment_gateway = null,
-		?string $transaction_id = null,
-		?string $date_paid = null,
-		?string $date_due = null
+		?string $billing_address 	= null,
+		?string $invoice_type 		= null,
+		?string $service_id 		= null,
+		?float $fee 				= null,
+		?int $order_id 				= null,
+		?string $payment_gateway 	= null,
+		?string $transaction_id 	= null,
+		?string $date_paid 			= null,
+		?string $date_due 			= null
 	) {
 		$this->invoice_id      = $invoice_id;
 		$this->product_id      = $product_id;
 		$this->amount          = $amount;
 		$this->total           = $total;
 		$this->payment_status  = $payment_status;
-		$this->date_created    = $date_created ?? current_time( 'Y-m-d H:i:s' );
+		$this->date_created    = $date_created ?? current_time( 'mysql' ); // Set created to the current time if not provided
 		$this->user_id         = $user_id;
 		$this->billing_address = $billing_address ?? null;
 		$this->invoice_type    = $invoice_type ?? null;

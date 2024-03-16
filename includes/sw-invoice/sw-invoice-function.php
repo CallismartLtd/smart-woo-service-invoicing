@@ -138,7 +138,7 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
 	);
 	$order->add_item( $fee );
 
-	// Use line item with pseudo product name and price to prevent SKU deduction
+	// Use line item with pseudo product name, and use real price. this prevents SKU deduction
 	$product_name         = wc_get_product( $invoice->getProductId() )->get_name();
 	$pseudo_product_name  = $product_name;
 	$pseudo_product_price = $invoice->getAmount();
@@ -160,8 +160,9 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
 
 	// Set order status to 'pending'
 	$order->update_status( 'pending' );
+	$order->update_meta_data( '_created_via', SW_PLUGIN_NAME );
 	$order->update_meta_data( 'Order Type', 'Invoice Payment' );
-	$order->update_meta_data( 'Invoice ID', $invoice_id );
+	$order->update_meta_data( '_sw_invoice_id', $invoice_id );
 	$order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service Invoicing' );
 
 	// Save order
@@ -267,14 +268,14 @@ function sw_generate_service_migration_invoice() {
 		// Verify Migration nonce
 		if ( isset( $_POST['migration_nonce'] ) && wp_verify_nonce( $_POST['migration_nonce'], 'migration_nonce' ) ) {
 			// Get and sanitize form data
-			$user_id                = sanitize_text_field( $_POST['user_id'] );
+			$user_id                = absint( $_POST['user_id'] );
 			$service_id             = sanitize_text_field( $_POST['service_id'] );
-			$new_service_product_id = sanitize_text_field( $_POST['new_service_product_id'] );
-			$amount                 = sanitize_text_field( $_POST['amount'] );
-			$order_total            = sanitize_text_field( $_POST['order_total'] );
-			$refund_amount          = sanitize_text_field( $_POST['refund_amount'] );
+			$new_service_product_id = absint( $_POST['new_service_product_id'] );
+			$amount                 = floatval( $_POST['amount'] );
+			$order_total            = floatval( $_POST['order_total'] );
+			$refund_amount          = floatval( $_POST['refund_amount'] );
 			$payment_status         = ( max( 0, $order_total ) === 0 ) ? 'paid' : 'unpaid';
-			$fee                    = sanitize_text_field( $_POST['fee'] );
+			$fee                    = floatval( $_POST['fee'] );
 			$date_due               = current_time( 'mysql' );
 
 			$invoice_type = null;
@@ -341,8 +342,12 @@ function sw_generate_service_migration_invoice() {
 				do_action( 'sw_service_migrated', $migrated_service );
 			}
 
-			if ( sw_Is_prorate() === 'Enabled' ) {
-				smart_woo_log( $user_id, $service_id, $refund_amount, 'Pending Refund', 'Migration balance for ' . $invoice_id . '.' );
+			if ( 'Enabled' === sw_Is_prorate() && $refund_amount > 0 ) {
+
+				// Log the refund data into our database from where refunds can easily be processed.
+				 $details = 'Refund for service "ID: ' . $service_id . '" balance due to migration.';
+				 $note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
+				 smart_woo_log( $invoice_id, 'Refund', 'Pending', $details, $refund_amount, $note );
 			}
 
 			if ( $newInvoice ) {
@@ -490,7 +495,7 @@ function sw_get_total_spent_by_user( $user_id ) {
 
 function sw_delete_invoice_button( $invoice_id ) {
 	// Output the delete button with data-invoice-id attribute
-	return '<button class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '">Delete Invoice</button>';
+	return '<button class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '">Delete Invoice ⌫</button>';
 }
 
 // Add Ajax actions
@@ -520,5 +525,133 @@ function sw_delete_invoice_callback() {
 		// Success
 		wp_send_json_success( $delete_result );
 		exit();
+	}
+}
+
+/**
+ * Create an Invoice for Newly configured order after checkout.
+ *
+ * @param object        The WooCommerce Order Object
+ */
+// Hook into action after the user checks out
+add_action( 'woocommerce_checkout_order_created', 'sw_create_invoice_for_direct_orders', 30, 1 );
+
+function sw_create_invoice_for_direct_orders( $order ) {
+
+	// Check if the order is configured
+	$is_configured_order = has_sw_configured_products( $order );
+
+	// Check if the new order has configured products
+	if ( $is_configured_order ) {
+		// Get all fees associated with the order
+		$fees = $order->get_fees();
+
+		// Set target fee name
+		$target_fee_name = 'Sign-up Fee';
+
+		$fee = array_reduce(
+			$fees,
+			function ( $foundFee, $currentFee ) use ( $target_fee_name, $order ) {
+				return $currentFee->get_name() === $target_fee_name ? $currentFee : $foundFee;
+			},
+			0
+		);
+
+		// Decode the JSON-encoded fee string
+		$fee_data = json_decode( $fee, true );
+
+		// Extract the fee amount
+		$fee_amount = isset( $fee_data['total'] ) ? floatval( $fee_data['total'] ) : 0;
+
+		// Get all items in the order
+		$order_items = $order->get_items();
+		// Extract the order ID
+		$order_id = $order->get_id();
+
+		foreach ( $order_items as $item_id => $item ) {
+			// Check if the product is of type 'sw_product'
+			$product = $item->get_product();
+			if ( $product && $product->get_type() === 'sw_product' ) {
+
+				/**
+				* Set up the necessary properties for new invoice
+				*/
+
+				$invoice_id      = sw_generate_invoice_id();
+				$product_id      = $product->get_id();
+				$amount          = $product->get_price();
+				$total           = $amount + ( $fee_amount ?? 0 );
+				$payment_status  = 'unpaid';
+				$user_id         = $order->get_user_id();
+				$billing_address = sw_get_user_billing_address( $user_id );
+				$service_id      = null;
+				$invoice_type    = 'New Service Invoice';
+				$service_id      = null; // Will be set when Service is processed
+				$date_due        = current_time( 'mysql' ); // New Service invoices are due same day
+
+				// generate an invoice for the order
+				$newInvoice = new Sw_Invoice(
+					$invoice_id,
+					$product_id,
+					$amount,
+					$total,
+					$payment_status,
+					null, // Date Created will be set to the current date in the constructor
+					$user_id,
+					$billing_address,
+					$invoice_type,
+					$service_id,
+					$fee_amount,
+					$order_id
+				);
+				$newInvoice->setDateDue( $date_due );
+
+				// Call the sw_create_invoice method to save the invoice to the database
+				$new_invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
+
+				if ( $new_invoice_id ) {
+					$order->update_meta_data( 'Order Type', 'Invoice Payment' );
+					$order->update_meta_data( '_sw_invoice_id', $invoice_id );
+					$order->update_meta_data( '_wc_order_attribution_source_type', SW_PLUGIN_NAME );
+
+					// Save the order to persist the changes
+					$order->save();
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Marks invoice as paid.
+ *
+ * @param  string $invoice_id   The ID of the invoice to be updated
+ * @do_action @param object $invoice  Triggers "sw_invoice_is_paid" action with the invoice instance
+ * @return bool     false if the invoice is already 'Paid' | true if update is successful
+ */
+function sw_mark_invoice_as_paid( $invoice_id ) {
+	// Get the invoice associated with the service
+	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
+
+	// Check if the invoice is valid and payment_status is not 'paid'
+	if ( $invoice && $invoice->getPaymentStatus() !== 'paid' ) {
+		// Get the order associated with the invoice
+		$order = wc_get_order( $invoice->getOrderId() );
+
+		// Update additional fields in the invoice
+		$fields          = array(
+			'payment_status'  => 'paid',
+			'date_paid'       => current_time( 'Y-m-d H:i:s' ),
+			'transaction_id'  => $order->get_transaction_id(), // Use order transaction id
+			'payment_gateway' => $order->get_payment_method(), // Use payment gateway used for the order
+		);
+		$updated_invoice = Sw_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
+		do_action( 'sw_invoice_is_paid', $updated_invoice );
+
+		return true;
+
+	} else {
+		// Invoice is already paid, terminate further execution
+		return false;
 	}
 }

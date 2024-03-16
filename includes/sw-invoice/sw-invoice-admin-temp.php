@@ -403,7 +403,7 @@ function sw_view_invoice_page() {
 	echo '<div class="invoice-details">';
 
 	// Assuming the invoice ID is passed in the URL as 'invoice_id'
-	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( $_GET['invoice_id'] ) : null;
+	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : null;
 
 	// Fetch the invoice data based on the provided invoice_id
 	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
@@ -446,7 +446,7 @@ function sw_view_invoice_page() {
 		// Display an "Edit Invoice" button with a link to the edit page
 		echo '<a class="button" href="?page=sw-invoices&action=edit-invoice&invoice_id=' . $invoice_id . '">Edit Invoice</a>';
 		// display the delete invoice button
-		echo sw_delete_invoice_button( $invoice_id );
+		echo sw_delete_invoice_button( $invoice->getInvoiceId());
 
 	} else {
 		wp_die( '<p class="invoice-details-item">Invoice not found.</p>' );
@@ -456,6 +456,8 @@ function sw_view_invoice_page() {
 
 	// Check if there is a service ID associated with the invoice
 	if ( $invoice->getServiceId() ) {
+			echo '<div class="serv-details-card">';
+
 		// Get additional details about the service
 		$service_details = Sw_Service_Database::get_service_by_id( $invoice->getServiceId() );
 
@@ -463,21 +465,22 @@ function sw_view_invoice_page() {
 		if ( $service_details ) {
 			$service_name  = $service_details->getServiceName();
 			$billing_cycle = $service_details->getBillingCycle();
-			$end_date      = date_i18n( 'l, F jS Y', strtotime( $service_details->getEndDate() ) );
+			$end_date      = sw_check_and_format( $service_details->getEndDate() ) ;
 			$service_id    = $invoice->getServiceId();
-			echo '<div class="serv-details-card">';
 
-			echo '<h3> Related Service Details</h3>';
+			echo '<h3> Related Service Details </h3>';
 			echo '<p class="invoice-details-item"><span> Service Name:</span>' . esc_html( $service_name ) . '</p>';
 			echo '<p class="invoice-details-item"><span>Billing Cycle:</span>' . esc_html( $billing_cycle ) . '</p>';
 			echo '<p class="invoice-details-item"><span>End Date:</span>' . esc_html( $end_date ) . '</p>';
-			echo '<a class="button" href="admin.php?page=sw-admin&action=service_details&service_id=' . $service_id . '">More about Service</a>';
+			echo '<a class="button" href="admin.php?page=sw-admin&action=service_details&service_id=' . $service_id . '">More about Service ➡</a>';
 
 		} else {
-			echo '<p class="invoice-detail"><span> </span>No details found for the service ID associated with this invoice.</p>';
+			echo sw_notice( 'No details found for the service ID associated with this invoice.' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		
 		}
 		echo '</div>';
 	}
+	echo Sw_Invoice_log::render_log_html_output($invoice_id );
 }
 
 
@@ -487,7 +490,7 @@ function sw_view_invoice_page() {
 
 // Function to handle displaying invoices based on payment status
 function sw_handle_admin_invoice_by_status() {
-	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( $_GET['payment_status'] ) : 'pending';
+	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_key( $_GET['payment_status'] ) : 'pending';
 
 	// Get invoices based on payment status
 	$invoices = Sw_Invoice_Database::get_invoices_by_payment_status( $payment_status );

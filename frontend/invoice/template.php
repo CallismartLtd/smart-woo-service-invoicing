@@ -84,7 +84,7 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	// Check if both invoice and billing details were successfully retrieved
-	if ( $invoice && $invoice->getUserId() === $user_id && $biller_details instanceof stdClass ) {
+	if ( $invoice && $invoice->getUserId() === $user_id ) {
 		// Access individual properties
 		$business_name         = $biller_details->business_name;
 		$invoice_logo_url      = $biller_details->invoice_logo_url;
@@ -238,12 +238,12 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 		$invoice_content .= '<p class="amount">' . wc_price( $invoice->getFee() ) . '</p>';
 		$invoice_content .= '</div>';
 
-		if ( $invoice->getInvoiceType() === 'Service Upgrade Invoice' ) {
+		if ( $invoice->getInvoiceType() === 'Service Upgrade Invoice' || $invoice->getInvoiceType() === 'Service Downgrade Invoice' ) {
 			// Previous Service Balance
-			$balance          = ( $invoice->getAmount() + $invoice->getFee() ) - ( $invoice_total ?? 0 );
+			$balance          = Sw_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true )->getAmount();
 			$invoice_content .= '<div class="invoice-item">';
 			$invoice_content .= '<p class="description">Previous Service Balance</p>';
-			$invoice_content .= '<p class="amount">- ' . max( 0, wc_price( $balance ) ) . '</p>';
+			$invoice_content .= '<p class="amount">' . max( 0, wc_price( $balance ) ) . '</p>';
 			$invoice_content .= '</div>';
 
 		}

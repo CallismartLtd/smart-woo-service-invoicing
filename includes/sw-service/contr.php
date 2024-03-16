@@ -104,7 +104,7 @@ function sw_handle_edit_service_page() {
 		if ( isset( $_POST['sw_edit_service_nonce'] ) && wp_verify_nonce( $_POST['sw_edit_service_nonce'], 'sw_edit_service_nonce' ) ) {
 			// Check if service_id is present in the URL
 			if ( isset( $_GET['service_id'] ) ) {
-				$url_service_id = sanitize_text_field( $_GET['service_id'] );
+				$url_service_id = sanitize_key( $_GET['service_id'] );
 				$service        = Sw_Service_Database::get_service_by_id( $url_service_id );
 
 				// Check if the service exists

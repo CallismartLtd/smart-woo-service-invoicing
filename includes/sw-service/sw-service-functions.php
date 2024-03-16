@@ -92,14 +92,14 @@ function sw_client_service_url_button( Sw_Service $service ) {
 			// Construct the service URL with specified parameters
 			$access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
 
-			return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service</a>';
+			return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
 		}
 	} elseif ( is_admin() ) {
 		$user_email = $user_info->user_email;
 		// Construct the service URL with specified parameters
 		$access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
 
-		return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service</a>';
+		return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
 
 	}
 }
@@ -283,10 +283,6 @@ function sw_move_service_to_log( $service_id ) {
 			$next_payment_date,
 			$billing_cycle
 		);
-
-	} else {
-		// Handle the case where the service is not found
-		error_log( 'Service not found.' );
 	}
 }
 
@@ -875,7 +871,7 @@ function sw_check_service_usage( $service_id ) {
 		'total_days'           => max( 1, $total_days ), // Ensure non-zero value
 		'total_used_days'      => max( 0, $days_passed ),
 		'remaining_days'       => max( 0, $total_days - $days_passed ),
-		'current_date_time'    => date( 'Y-m-d g:i a', $current_date ),
+		'current_date_time'    => sw_check_and_format( current_time( 'mysql' ), true ),
 		'average_hourly_usage' => max( 0, $average_hourly_usage ), // Ensure non-negative value
 	);
 }
@@ -959,10 +955,12 @@ function sw_get_grace_period_end_date( int $product_id, string $reference_date )
 
 
 
-
+/**
+ * Render the delete Service Button
+ */
 function sw_delete_service_button( string $service_id ) {
 	// Output the delete button with data-invoice-id attribute
-	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">Delete Service</button>';
+	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">Delete Service ⌫</button>';
 }
 
 // Add Ajax actions
@@ -1012,10 +1010,10 @@ function sw_get_usage_metrics( $service_id ) {
 	// Check if metrics are available
 	if ( $usage_metrics !== false ) {
 		// Extract metrics
-		$used_amount          = wc_price( $usage_metrics['used_amount'] );
-		$unused_amount        = wc_price( $usage_metrics['unused_amount'] );
-		$total_service_cost   = wc_price( $usage_metrics['service_cost'] );
-		$average_daily_cost   = wc_price( $usage_metrics['average_daily_cost'] );
+		$used_amount          = $usage_metrics['used_amount'];
+		$unused_amount        = $usage_metrics['unused_amount'];
+		$total_service_cost   = $usage_metrics['service_cost'];
+		$average_daily_cost   = $usage_metrics['average_daily_cost'];
 		$product_costs        = $usage_metrics['product_costs'];
 		$percentage_used      = $usage_metrics['percentage_used'];
 		$percentage_unused    = $usage_metrics['percentage_unused'];
@@ -1040,27 +1038,27 @@ function sw_get_usage_metrics( $service_id ) {
 		// Cost details
 		$metrics .= '<h4>Cost Details:</h4>';
 
-		$metrics .= "<p class='total-service-cost'><strong>Total Service Cost:</strong> $total_service_cost</p>";
-		$metrics .= "<p class='average-daily-cost'><strong>Average Daily Cost:</strong> $average_daily_cost</p>";
+		$metrics .= "<p class='total-service-cost'><strong>Total Service Cost:</strong> " . wc_price( $total_service_cost ) ."</p>";
+		$metrics .= "<p class='average-daily-cost'><strong>Average Daily Cost:</strong> " . wc_price( $average_daily_cost ) . "</p>";
 
 		// Usage breakdown
 		$metrics .= '<h4>Usage Breakdown:</h4>';
-		$metrics .= "<p class='used-amount'><strong>Used Amount:</strong> $used_amount</p>";
-		$metrics .= "<p class='unused-amount'><strong>Unused Amount:</strong> $unused_amount</p>";
-		$metrics .= "<p class='percentage-used'><strong>Percentage Used:</strong> $percentage_used%</p>";
-		$metrics .= "<p class='percentage-unused'><strong>Percentage Unused:</strong> $percentage_unused%</p>";
+		$metrics .= "<p class='used-amount'><strong>Used Amount:</strong> " . wc_price( $used_amount ) . "</p>";
+		$metrics .= "<p class='unused-amount'><strong>Unused Amount:</strong> " . wc_price( $unused_amount ) . "</p>";
+		$metrics .= "<p class='percentage-used'><strong>Percentage Used:</strong> " . esc_html( $percentage_used ) . "%</p>";
+		$metrics .= "<p class='percentage-unused'><strong>Percentage Unused:</strong>" . esc_html( $percentage_unused ) . "%</p>";
 
 		// Days information
 		$metrics .= '<h4>Days Information:</h4>';
-		$metrics .= "<p class='total-days'><strong>Total Days:</strong> $total_days</p>";
-		$metrics .= "<p class='total-used-days'><strong>Total Used Days:</strong> $total_used_days</p>";
-		$metrics .= "<p class='remaining-days'><strong>Remaining Days:</strong> $remaining_days</p>";
-		$metrics .= "<p class='days-remaining'><strong>Days Remaining:</strong> $days_remaining</p>";
+		$metrics .= "<p class='total-days'><strong>Total Days:</strong> " . esc_html( $total_days ) . "</p>";
+		$metrics .= "<p class='total-used-days'><strong>Total Used Days:</strong> " . esc_html( $total_used_days ) . "</p>";
+		$metrics .= "<p class='remaining-days'><strong>Remaining Days:</strong> " . esc_html( $remaining_days ) . "</p>";
+		$metrics .= "<p class='days-remaining'><strong>Days Remaining:</strong> " . esc_html( $days_remaining ) . "</p>";
 
 		// Additional information
 		$metrics .= '<h4>Additional Information:</h4>';
-		$metrics .= "<p class='current-date-time'><strong>Current Date and Time:</strong> $current_date_time</p>";
-		$metrics .= "<p class='average-hourly-usage'><strong>Average Hourly Usage:</strong> $average_hourly_usage</p>";
+		$metrics .= "<p class='current-date-time'><strong>Current Date and Time:</strong> " . esc_html( $current_date_time ) . "</p>";
+		$metrics .= "<p class='average-hourly-usage'><strong>Average Hourly Usage:</strong> " . wc_price( $average_hourly_usage ) . "</p>";
 		$metrics .= '</div>';
 
 	} else {

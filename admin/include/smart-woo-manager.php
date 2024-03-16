@@ -30,7 +30,7 @@ add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler'
 add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 20, 1 );
 
 // Second action hook is when payment is processed by either the payment provider
-add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 20, 1 );
+add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 22, 1 );
 
 function sw_paid_invoice_order_manager( $order_id ) {
 
@@ -38,14 +38,19 @@ function sw_paid_invoice_order_manager( $order_id ) {
 	$order = wc_get_order( $order_id );
 
 	// Get the invoice ID from the order metadata
-	$invoice_id = $order->get_meta( 'Invoice ID' );
+	$invoice_id = $order->get_meta( '_sw_invoice_id' );
 
 	// Early termination if the order is not related to our plugin
 	if ( empty( $invoice_id ) ) {
 		return;
 	}
 
-	// Get all datas associated with the invoice
+	/**
+	 * Get the invoice
+	 * 
+	 * @var object $invoice		Sw_Invoice object
+	 * 
+	 */
 	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	// Terminate if no invoice is gotten with the ID, which indicates invalid invoice ID
@@ -302,9 +307,6 @@ function sw_order_billing_helper() {
 			// Get the customer's data from their user profile.
 			$customer_data = get_userdata( $customer_id );
 			if ( $customer_data ) {
-				// Customer Name
-				$customer_name = $customer_data->first_name . ' ' . $customer_data->last_name;
-
 				// Billing Address
 				$billing_address = array(
 					'billing_address_1' => $customer_data->billing_address_1,
@@ -390,7 +392,7 @@ add_action( 'template_redirect', 'sw_service_OptOut_or_Cancellation' );
 function sw_service_OptOut_or_Cancellation() {
 	// Check if the 'action' parameter is set and is one of the allowed actions
 	if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'sw_cancel_service', 'sw_cancel_billing' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$action     = sanitize_text_field( $_GET['action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action     = sanitize_key( $_GET['action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_id    = get_current_user_id();
 		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -412,7 +414,8 @@ function sw_service_OptOut_or_Cancellation() {
 				// Check if pro-rata refunds are enabled
 				if ( sw_Is_prorate() === 'Enabled' ) {
 					// Perform pro-rata refund
-					sw_create_prorata_refund( $service_id );
+					$details = 'Refund for the cancellation of ' . $service_id;
+					sw_create_prorata_refund( $service_id, $details );
 				}
 			} elseif ( $action === 'sw_cancel_billing' ) {
 				// Notify user about billing cancellation
@@ -444,44 +447,42 @@ function sw_service_OptOut_or_Cancellation() {
 	}
 }
 
-
-
-
 /**
  * Perform Prorata Refund for unused service due to cancellation
  *
- * @param int    $user_id        ID of the user to refund
- * @param string $service_id     ID of the cancelled service
+ * @param string $service_id ID of the cancelled service
+ * @return float|false Refund amount if successful, false otherwise.
  */
-function sw_create_prorata_refund( $service_id ) {
-	// Check if pro-rata refunds are enabled
+function sw_create_prorata_refund( $service_id, $details ) {
+    // Check if pro-rata refunds are enabled.
+    if ( sw_Is_prorate() !== 'Enabled' ) {
+        // Pro-rata refunds are disabled, do not proceed with the refund.
+        return false;
+    }
 
-	if ( sw_Is_prorate() !== 'Enabled' ) {
-		// Pro-rata refunds are disabled, do not proceed with the refund
-		return false;
-	}
+    // Check if it's a valid service.
+    $service = Sw_Service_Database::get_service_by_id( $service_id );
+    if ( ! $service ) {
+        // Service not found.
+        return false;
+    }
 
-	// Get service details using sw_get_service function
-	$service = Sw_Service_Database::get_service_by_id( $service_id );
+    // Retrieve Service usage to determine unused balance.
+    $service_usage = sw_check_service_usage( $service_id );
 
-	if ( ! $service ) {
-		// Service not found
-		return false;
-	}
+    if ( $service_usage !== false && $service_usage['unused_amount'] > 0 ) {
+        // Get the unused amount and make it the refund amount.
+        $refund_amount = $service_usage['unused_amount'];
 
-	$service_usage = sw_check_service_usage( $service_id );
+        // Log the refund data into our database from where refunds can easily be processed.
+        $note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
+        smart_woo_log( $service_id, 'Refund', 'Pending', $details, $refund_amount, $note );
 
-	if ( $usage_metrics !== false && $service_usage['unused_amount'] > 0 ) {
-		// Calculate the refund amount based on the order amount and percentage
-		$refund_amount = $service_usage['unused_amount'];
+        return $refund_amount;
+    }
 
-		// Log the refund details
-		$transaction_status = 'Pending Refund';
-		$details            = 'This service is cancelled, and a Refund has been scheduled';
-		smart_woo_log( $service->getUserId(), $service_id, $refund_amount, $transaction_status, $details );
-		
-		return $refund_amount;
-	}
+    // No refund amount calculated.
+    return false;
 }
 
 
@@ -489,7 +490,7 @@ function sw_create_prorata_refund( $service_id ) {
  * Handle the payment link, verify the token, log in the user, and process the payment.
  */
 
-add_action( 'init', 'swsi_handle_payment_link' );
+add_action( 'template_redirect', 'swsi_handle_payment_link' );
 
 function swsi_handle_payment_link() {
 	// Check if the pay-invoice action is set in the URL
@@ -665,15 +666,14 @@ function sw_auto_renew_services() {
  * Handles service renewal when the client clicks the renew button on
  * Service Details page
  */
-add_action( 'init', 'sw_manual_service_renewal' );
+add_action( 'template_redirect', 'sw_manual_service_renewal' );
 
 function sw_manual_service_renewal() {
 	// Check if the renewal action is set in the URL
 	if ( isset( $_GET['action'] ) && $_GET['action'] === 'renew-service' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Verify the nonce
-		$nonce_action = 'renew_service_nonce';
-		if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( $_GET['renew_nonce'], $nonce_action ) ) {
+		if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( $_GET['renew_nonce'], 'renew_service_nonce' ) ) {
 
 			// Get and sanitize the service ID
 			$service_id = sanitize_text_field( $_GET['service_id'] );
@@ -755,6 +755,7 @@ function sw_migrate_service( $service, $invoice_id ) {
 	if ( ! $migrated ) {
 		error_log( 'Service migration failed for service ID: ' . $service_id );
 	}
+	do_action( 'sw_service_migrated', $migrated );
 
 	return $migrated; // Return the result of the migration.
 }

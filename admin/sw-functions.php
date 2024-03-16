@@ -21,7 +21,6 @@ function sw_check_and_format( $dateString, $includeTime = false ) {
 	return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
 }
 
-
 /**
  * Extracts the date portion from a date and time string.
  *
@@ -62,7 +61,7 @@ function sw_convert_timestamp_to_readable_date( int $timestamp, bool $includeTim
  * @return string Returns "Enabled" if sw_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
  */
 function sw_Is_prorate() {
-	$sw_prorate = get_option( 'sw_prorate', 'Disable' );
+	$sw_prorate = get_option( 'sw_prorate', 'Disabled' );
 
 	if ( $sw_prorate === 'Enable' ) {
 		return 'Enabled';
@@ -142,39 +141,33 @@ function sw_REFUND_handler( $user_id = null, $service_id = null, $amount = null,
 
 
 /**
- * Process and record a service transaction in the service logs table.
+ * Log data into the database
  *
- * @param int    $user_id           User ID associated with the transaction.
- * @param string    $service_id        Service ID involved in the transaction.
- * @param float  $amount            Transaction amount.
- * @param string $transaction_status Status of the transaction (e.g., 'Completed', 'Pending', 'Failed').
- * @param string $details           Additional details or notes related to the transaction (optional).
+ * @param string    $log_id        ID to stamp the log
+ * @param string    $log_type      The type of log
+ * @param string 	$status 	   Status of the Log.
+ * @param string    $details       Additional details or notes related to the log.
+ * @param float  	$amount        Amount to log (Defaults to 0.00)
+ * @param string	$note		   Internal Note for reference Purposes
  *
- * @global wpdb $wpdb WordPress database object for executing database queries.
  */
-function smart_woo_log( $user_id, $service_id, $amount, $transaction_status, $details = null ) {
-	global $wpdb;
+function smart_woo_log( $log_id, $log_type, $status, $details = '',  $amount = 0, $note = '' ) {
+	
+	// Instantiate an object of the class.
+	$log = new Sw_Invoice_log();
 
-	$table_name = $wpdb->prefix . 'sw_service_logs';
+	// Set data using setter methods
+	$log->setLogId( $log_id );
+	$log->setLogType( $log_type );
+	$log->setAmount( $amount );
+	$log->setStatus( $status );
+	$log->setDetails( $details );
+	$log->setNote( $note );
+	
+	// Log the data
+	$log->save( $log );
 
-	// Validate parameters
-	if ( ! is_int( $user_id ) || ! is_string( $service_id ) || ! is_numeric( $amount ) || ! is_string( $transaction_status ) ) {
-		// Handle invalid parameter types, throw an error, or return early.
-		return;
-	}
 
-	// Prepare the data to be inserted, including timestamps
-	$data = array(
-		'user_id'            => $user_id,
-		'service_id'         => $service_id,
-		'amount'             => $amount,
-		'transaction_status' => $transaction_status,
-		'details'            => $details,
-		'created_at'         => current_time( 'mysql' ), // Use the current timestamp as 'created_at'
-	);
-
-	// Insert the data into the table
-	$wpdb->insert( $table_name, $data );
 }
 
 /**

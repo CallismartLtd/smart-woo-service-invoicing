@@ -28,14 +28,14 @@ function sw_invoice_shortcode() {
 	switch ( $url_param ) {
 		case 'view_invoice':
 			// Check if an invoice ID is provided in the URL
-			$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( $_GET['invoice_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( ! empty( $invoice_id ) ) {
 				echo view_invoice_details( $invoice_id );
 			}
 			break;
 		case 'invoices_by_status':
 			// Check if a payment status is provided in the URL
-			$payment_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( $_GET['payment_status'] ) : '';
+			$payment_status = isset( $_GET['payment_status'] ) ? sanitize_key( $_GET['payment_status'] ) : '';
 			if ( ! empty( $payment_status ) ) {
 				echo view_invoices_by_status( $payment_status );
 			} else {

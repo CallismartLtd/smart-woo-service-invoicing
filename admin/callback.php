@@ -19,7 +19,7 @@ function smart_woo_service() {
 	}
 
 	// Determin which URL path to display content
-	$action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	// Call the appropriate function based on the action
 	switch ( $action ) {
@@ -55,7 +55,7 @@ function smart_woo_service() {
 function sw_invoices() {
 	// Determin which URL path to display content
 
-	$action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	// Prepare array for submenu navigation
 	$tabs = array(
@@ -99,7 +99,7 @@ function sw_invoices() {
  */
 function sw_products_page() {
 	// Check for URL parameters
-	$action     = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$action     = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$product_id = isset( $_GET['product_id'] ) ? intval( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$tabs = array(
@@ -132,7 +132,7 @@ function sw_options_page() {
 		return;
 	}
 	// Check for URL parameters
-	$action = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$action = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$tabs = array(
 		''          => 'General',
