@@ -95,7 +95,6 @@ function sw_plugin_db_schema() {
 		);
 
 		sw_create_database_table( $auto_renew_table_name, $auto_renew_structure );
-
 		// Define the structure for the Invoicing Logging table
 		$service_logs_table_name = SW_INVOICE_LOG_TABLE;
 		$service_logs_structure  = array(
@@ -109,6 +108,9 @@ function sw_plugin_db_schema() {
 			'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
 			'updated_at datetime DEFAULT NULL',
 			'PRIMARY KEY  (id)',
+			'INDEX log_id_index (log_id)', // Index for log_id column
+			'INDEX log_type_index (log_type)', // Index for log_type column
+			'INDEX status_index (status)', // Index for status column
 		);
 
 

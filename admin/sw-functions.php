@@ -171,67 +171,17 @@ function smart_woo_log( $log_id, $log_type, $status, $details = '',  $amount = 0
 }
 
 /**
- * Retrieve service logs from the 'sw_service_logs' table based on specified criteria.
+ * Procedural function to perform refund.
  *
- * This function allows you to query the 'sw_service_logs' table in the WordPress database
- * and retrieve service logs that match specific criteria.
+ * This function initiates the refund process for the specified logged data by its ID.
  *
- * @param int|null    $user_id    User ID to filter service logs by. (Optional)
- * @param string|null $service_id Service ID to filter service logs by. (Optional)
- * @param float|null  $amount     Amount to filter service logs by. (Optional)
- * @param string|null $newstatus  Transaction status to filter service logs by. (Optional)
- * @param string|null $details    Details to filter service logs by. (Optional)
- *
- * @return array|object|null An array of objects representing service log records that match the criteria,
- *                           or null if no records match the criteria.
+ * @since : 1.0.1
+ * 
+ * @param string $log_id The ID of the logged data to refund.
+ * @return bool True if the refund is successfully initiated, false otherwise.
  */
-function sw_get_service_log( $user_id = null, $service_id = null, $amount = null, $newstatus = null, $details = null ) {
-	global $wpdb;
-	$service_logs_table_name = $wpdb->prefix . 'sw_service_logs';
-
-	$where_conditions = array();
-	$params = array();
-
-	if ( $user_id !== null ) {
-		$where_conditions[] = 'user_id = %d';
-		$params[] = $user_id;
-	}
-
-	if ( $service_id !== null ) {
-		$where_conditions[] = 'service_id = %s';
-		$params[] = $service_id;
-	}
-
-	if ( $amount !== null ) {
-		$where_conditions[] = 'amount = %f';
-		$params[] = floatval( $amount );
-	}
-
-	if ( $newstatus !== null ) {
-		$where_conditions[] = 'transaction_status = %s';
-		$params[] = $newstatus;
-	}
-
-	if ( $details !== null ) {
-		$where_conditions[] = 'details = %s';
-		$params[] = $details;
-	}
-
-	$where_clause = implode( ' AND ', $where_conditions );
-
-	if ( ! empty( $where_clause ) ) {
-		$query = $wpdb->prepare(
-			"SELECT * FROM $service_logs_table_name WHERE $where_clause",
-			$params
-		);
-
-		$results = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-		return $results;
-	} else {
-		// If no conditions are provided, return all records.
-		return $wpdb->get_results( "SELECT * FROM $service_logs_table_name" );
-	}
+function sw_refund_completed( $log_id ) {
+    return Sw_Refund::refunded( $log_id );
 }
 
 
