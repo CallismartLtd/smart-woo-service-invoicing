@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit; 
+ defined( 'ABSPATH' ) || exit; // Prevent direct access 
 
 /**
  * Add User's Bio and url to WooCommerce edit-account form

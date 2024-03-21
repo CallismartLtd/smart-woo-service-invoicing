@@ -5,7 +5,7 @@
  * @author      :   Callistus
  * Description  :   Shortcode handler file
  */
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Central callback init function to load shortcodes

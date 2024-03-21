@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
- defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit; // Prevent direct access
  
  require_once SW_ABSPATH . 'includes/sw-refund/class-sw-refund.php';
 
@@ -97,7 +97,10 @@ class Sw_Invoice_log {
     }
     
 
-    protected static function convert_array_to_logs( $data ) {
+    /**
+     * Convert array to Sw_Invoice_Log
+     */
+    protected static function convert_array_to_logs( array $data ) {
         $log = new Sw_Invoice_log();
         
         if ( isset($data['log_id'] ) ) {
@@ -133,18 +136,18 @@ class Sw_Invoice_log {
      * 
      * @param object $log     Object of Sw_Invoice_log
      */
-    public function save( Sw_Invoice_log $log ) {
+    public function save() {
         global $wpdb;
         $table_name = SW_INVOICE_LOG_TABLE;
 
         // Prepare data to be inserted
         $data = array(
-            'log_id'        => sanitize_text_field( $log->getLogId() ),
-            'log_type'      => sanitize_text_field( $log->getLogType() ),
-            'amount'        => floatval( $log->getAmount() ),
-            'status'        => sanitize_text_field( $log->getStatus() ),
-            'details'       => sanitize_text_field( $log->getDetails() ),
-            'note'          => sanitize_text_field( $log->getNote() ),
+            'log_id'        => sanitize_text_field( $this->getLogId() ),
+            'log_type'      => sanitize_text_field( $this->getLogType() ),
+            'amount'        => floatval( $this->getAmount() ),
+            'status'        => sanitize_text_field( $this->getStatus() ),
+            'details'       => sanitize_text_field( $this->getDetails() ),
+            'note'          => sanitize_text_field( $this->getNote() ),
             'created_at'    => current_time( 'mysql' ),
             'updated_at'    => current_time( 'mysql' )
         );
@@ -173,7 +176,7 @@ class Sw_Invoice_log {
      * 
      * @param object $log     Object of Sw_Invoice_log
      */
-    public function update( Sw_Invoice_log $log ) {
+    public function update( self $log ) {
         global $wpdb;
         $table_name = SW_INVOICE_LOG_TABLE;
 
@@ -211,6 +214,7 @@ class Sw_Invoice_log {
         // Return the updated log data
         return $log;
     }
+    
     /**
      * Get Logged data based on given criteria
      * 

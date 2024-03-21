@@ -6,7 +6,7 @@
  * @author      :   Callistus
  * Description  :   View File for frontend service
  */
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 
 /**

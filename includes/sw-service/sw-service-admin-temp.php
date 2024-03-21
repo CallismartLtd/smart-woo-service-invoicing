@@ -134,7 +134,7 @@ function sw_main_page() {
 
 	// Output the content for the admin page
 	echo '<div class="serv-wrap">';
-	echo '<h1>Smart Woo Service & Invoice Dashboard</h1>';
+	echo '<h1>Service Subscriptions</h1>';
 	echo '<div class="sw-button">';
 	echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=add-new-service' ) . '" class="sw-blue-button">Add New Service</a>';
 	echo '<a href="' . admin_url( 'admin.php?page=sw-options' ) . '" class="sw-blue-button">Settings</a>';

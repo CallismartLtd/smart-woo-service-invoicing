@@ -160,16 +160,16 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
 
 	// Set order status to 'pending'
 	$order->update_status( 'pending' );
-	$order->update_meta_data( '_created_via', SW_PLUGIN_NAME );
-	$order->update_meta_data( 'Order Type', 'Invoice Payment' );
+	$order->set_created_via( SW_PLUGIN_NAME );
 	$order->update_meta_data( '_sw_invoice_id', $invoice_id );
-	$order->update_meta_data( '_wc_order_attribution_source_type', 'Smart Woo Service Invoicing' );
+	$order->update_meta_data( '_wc_order_attribution_utm_source', SW_PLUGIN_NAME );
+	$order->update_meta_data( '_wc_order_attribution_source_type', 'utm' );
 
 	// Save order
 	$order->save();
 
 	// Trigger an action for new invoice orders
-	do_action( 'new_invoice_order', $order->get_id() );
+	do_action( 'new_invoice_order', $order );
 
 	// Return the ID of the newly created order
 	return $order->get_id();
@@ -181,7 +181,7 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
  * @return string $invoice_id   The new Generated Invoice ID
  */
 function sw_generate_invoice_id() {
-	$invoice_id = sw_get_invoice_number_prefix() . '-' . uniqid();
+	$invoice_id = uniqid( sw_get_invoice_number_prefix() . '-' );
 	if ( $invoice_id ) {
 		return $invoice_id;
 	}
@@ -345,7 +345,7 @@ function sw_generate_service_migration_invoice() {
 			if ( 'Enabled' === sw_Is_prorate() && $refund_amount > 0 ) {
 
 				// Log the refund data into our database from where refunds can easily be processed.
-				 $details = 'Refund for service "ID: ' . $service_id . '" balance due to migration.';
+				 $details = 'Refund for service ID: "' . $service_id . '" unused service balance due to migration.';
 				 $note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
 				 smart_woo_log( $invoice_id, 'Refund', 'Pending', $details, $refund_amount, $note );
 			}
@@ -409,39 +409,51 @@ function sw_calculate_migration_order_total( $product_price, $unused_service_pri
 
 
 /**
- * Retrieves a user's WooCommerce billing address parts and compile them
+ * Retrieves a user's WooCommerce billing address parts and compiles them
  * into a readable address.
  *
  * @param int $user_id  The ID of the user
- * @return string readable address format.
+ * @return string Readable address format.
  */
 function sw_get_user_billing_address( $user_id ) {
 
-	// Get user's billing address details
-	$billing_address_1 = get_user_meta( $user_id, 'billing_address_1', true );
-	$billing_address_2 = get_user_meta( $user_id, 'billing_address_2', true );
-	$billing_city      = get_user_meta( $user_id, 'billing_city', true );
-	$billing_state     = get_user_meta( $user_id, 'billing_state', true );
-	$billing_country   = get_user_meta( $user_id, 'billing_country', true );
+    // Get user's billing address details
+    $billing_address_1 = get_user_meta( $user_id, 'billing_address_1', true );
+    $billing_address_2 = get_user_meta( $user_id, 'billing_address_2', true );
+    $billing_city      = get_user_meta( $user_id, 'billing_city', true );
+    $billing_state     = get_user_meta( $user_id, 'billing_state', true );
+    $billing_country_code = get_user_meta( $user_id, 'billing_country', true );
 
-	$address_parts = array_filter(
-		array(
-			$billing_address_1,
-			$billing_address_2,
-			$billing_city,
-			$billing_state,
-			$billing_country,
-		)
-	);
+    // Get the full country name based on the country code
+    $billing_country_name = WC()->countries->countries[$billing_country_code] ?? '';
 
-	if ( ! empty( $address_parts ) ) {
-		$user_billing_address = implode( ', ', $address_parts );
-		return $user_billing_address;
+    // Get the full state name based on the state code
+    $billing_state_name = $billing_state;
+	$states = WC()->countries->get_states( $billing_country_code );
+	if ( ! empty( $states ) && isset( $states[$billing_state] ) ) {
+		$billing_state_name = $states[$billing_state];
 	}
+    
 
-	// Return an empty string if there's no billing address
-	return '';
+    $address_parts = array_filter(
+        array(
+            $billing_address_1,
+            $billing_address_2,
+            $billing_city,
+            $billing_state_name,
+            $billing_country_name,
+        )
+    );
+
+    if ( ! empty( $address_parts ) ) {
+        $user_billing_address = implode( ', ', $address_parts );
+        return $user_billing_address;
+    }
+
+    // Return an empty string if there's no billing address
+    return '';
 }
+
 
 
 /**
@@ -534,9 +546,9 @@ function sw_delete_invoice_callback() {
  * @param object        The WooCommerce Order Object
  */
 // Hook into action after the user checks out
-add_action( 'woocommerce_checkout_order_created', 'sw_create_invoice_for_direct_orders', 30, 1 );
+add_action( 'woocommerce_checkout_order_created', 'sw_create_invoice_for_configured_orders', 30, 1 );
 
-function sw_create_invoice_for_direct_orders( $order ) {
+function sw_create_invoice_for_configured_orders( $order ) {
 
 	// Check if the order is configured
 	$is_configured_order = has_sw_configured_products( $order );
@@ -610,10 +622,8 @@ function sw_create_invoice_for_direct_orders( $order ) {
 				$new_invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
 
 				if ( $new_invoice_id ) {
-					$order->update_meta_data( 'Order Type', 'Invoice Payment' );
 					$order->update_meta_data( '_sw_invoice_id', $invoice_id );
-					$order->update_meta_data( '_wc_order_attribution_source_type', SW_PLUGIN_NAME );
-
+				
 					// Save the order to persist the changes
 					$order->save();
 				}
@@ -643,7 +653,7 @@ function sw_mark_invoice_as_paid( $invoice_id ) {
 			'payment_status'  => 'paid',
 			'date_paid'       => current_time( 'Y-m-d H:i:s' ),
 			'transaction_id'  => $order->get_transaction_id(), // Use order transaction id
-			'payment_gateway' => $order->get_payment_method(), // Use payment gateway used for the order
+			'payment_gateway' => $order->get_payment_method_title(), // Use payment gateway used for the order
 		);
 		$updated_invoice = Sw_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
 		do_action( 'sw_invoice_is_paid', $updated_invoice );

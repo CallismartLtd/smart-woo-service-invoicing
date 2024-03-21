@@ -59,14 +59,14 @@ This project is licensed under the GPL- v3.0+ License.
 
 1. Download the plugin zip file.
 2. Upload the plugin to your WordPress site plugin directory.
-3. Activate the Smart Woo Service and Invoicing Plugin from the WordPress plugins page.
+3. Activate the Smart Woo Service Invoicing Plugin from the WordPress plugins page.
 
 Alternatively, you can install the plugin directly from your WordPress dashboard:
 1. Go to 'Plugins' -> 'Add New'.
 2. Search for 'Smart Woo Service and Invoicing'.
 3. Install and activate the plugin.
 
-For more details and updates, visit the [Smart Woo Service and Invoicing Plugin page](https://callismart.com.ng/smart-woo).
+For more details and updates, visit the [Smart Woo Service Invoicing Plugin page](https://callismart.com.ng/smart-woo).
 
 
 ## Usage
@@ -104,12 +104,12 @@ For support, please visit the [support portal](https://callismart.com.ng/support
 
 ## Financial Support
 
-If you find Smart Woo Service and Invoicing Plugin valuable and would like to support our team in providing technical support, continuous improvement, and keeping the plugin free for everyone, you can contribute by making a financial donation.
+If you find Smart Woo Service Invoicing Plugin valuable and would like to support our team in providing technical support, continuous improvement, and keeping the plugin free for everyone, you can contribute by making a financial donation.
 
 Your support helps us cover development costs, server expenses, and dedicate more time to enhancing the plugin. We appreciate any amount you can contribute.
 
 To make a donation, please visit our [donation page](https://paystack.com/pay/support-smart-woo-dev).
 
-Thank you for considering supporting Smart Woo Service and Invoicing Plugin! Your generosity is crucial to the sustainability and improvement of this project.
+Thank you for considering supporting Smart Woo Service Invoicing Plugin! Your generosity is crucial to the sustainability and improvement of this project.
 
 **Tags:** Invoice,Invoicing, Subscription,WHM, WordPress invoicing plugin,

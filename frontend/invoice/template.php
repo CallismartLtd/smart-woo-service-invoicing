@@ -5,7 +5,7 @@
  * generation of the pdf invoice, we utilized the MPDF library for the generation of the pdf invoice
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 
 function view_all_invoices() {

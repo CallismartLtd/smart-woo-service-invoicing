@@ -23,7 +23,7 @@
  * Text Domain: smart-woo-invoice
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Define Plugin Constants

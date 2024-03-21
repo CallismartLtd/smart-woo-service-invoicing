@@ -6,7 +6,7 @@
  * Description  :   Integration of Tera Wallet plugin for invoice payment and refunds
  */
 
-defined( 'ABSPATH' ) || exit; // exit if eccessed directly
+ defined( 'ABSPATH' ) || exit; // Prevent direct access // exit if eccessed directly
 
 
 // Hook to run the process_service_renewals function when the cron event is triggered
@@ -56,3 +56,11 @@ function sw_pay_invoice_through_woo_wallet() {
 }
 
 
+/**
+ * Perform Rfunds through tera Wallet
+ */
+function sw_refund_through_woo_wallet() {
+	
+
+
+}

@@ -7,8 +7,8 @@
  * Description  :   Handles new service processing from the admin area
  */
 
-Defined( 'ABSPATH' ) || exit;
-
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
+ 
 /**
  * Call back function for new service order admin page
  */

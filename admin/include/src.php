@@ -10,7 +10,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Throw error when WooCommerce is not active
@@ -93,6 +93,7 @@ function sw_load_dependencies() {
 	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice-database.php';
 	require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-function.php';
 	require_once SW_ABSPATH . 'includes/sw-logger/class-sw-invoice-log.php';
+	require_once SW_ABSPATH . 'includes/sw-logger/class-sw-service-log.php';
 	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service.php';
 	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service-database.php';
 	require_once SW_ABSPATH . 'includes/sw-service/sw-service-functions.php';

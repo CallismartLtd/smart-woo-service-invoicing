@@ -9,7 +9,7 @@
  * In subsequent updates, there will be lot's of improvements and customizations to allow for custom webhooks.
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Notify Service URL about the service deactivation.

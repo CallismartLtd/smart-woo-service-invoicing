@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Save Edited bio and User URL during edit account submit

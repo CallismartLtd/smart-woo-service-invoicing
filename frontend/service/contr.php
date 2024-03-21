@@ -8,7 +8,7 @@
  * Description  :   Control File for service frontend
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * This line handles the client_services shortcode and is
@@ -336,3 +336,4 @@ function sw_get_last_login_date( $user_id ) {
 
     return sw_convert_timestamp_to_readable_date( $timestamp, true );
 }
+

@@ -8,7 +8,7 @@
  * Description  :   Functions file for invoice admin page templates
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Dropdown for Invoice Type with filter for custom options.

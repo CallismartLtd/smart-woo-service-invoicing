@@ -5,7 +5,8 @@
  * @author      :   Callistus
  * Description  :   Service and Invoice management file and functions
  */
-defined( 'ABSPATH' ) || exit;
+
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Perform action when a new service purchase is complete
@@ -27,10 +28,10 @@ add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler'
  * @param int $order_id    The paid invoice order
  */
 // First action hook is when an order is marked as completed
-add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 20, 1 );
+add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 50, 1 );
 
 // Second action hook is when payment is processed by either the payment provider
-add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 22, 1 );
+add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 55, 1 );
 
 function sw_paid_invoice_order_manager( $order_id ) {
 
@@ -55,10 +56,9 @@ function sw_paid_invoice_order_manager( $order_id ) {
 
 	// Terminate if no invoice is gotten with the ID, which indicates invalid invoice ID
 	if ( empty( $invoice ) ) {
-		// Error log
-		error_log( 'The invoice ID "' . $invoice_id . '" associated with order ID "' . $order_id . '" is invalid' );
 		return;
 	}
+
 	// Access invoice properties
 	$service_id   = $invoice->getServiceId();
 	$invoice_type = $invoice->getInvoiceType();
@@ -85,7 +85,7 @@ function sw_paid_invoice_order_manager( $order_id ) {
 		if ( $service_status === 'Due for Renewal' || $service_status === 'Grace Period' && $invoice_type === 'Service Renewal Invoice' ) {
 
 			// Call the function to renew the service
-			sw_renew_service( $user_id, $service_id, $invoice_id );
+			sw_renew_service( $service_id, $invoice_id );
 
 			/**
 			 * Determine if the invoice is for the reactivation of an Expired service.
@@ -93,7 +93,7 @@ function sw_paid_invoice_order_manager( $order_id ) {
 			 */
 		} elseif ( $service_status === 'Expired' && $invoice_type === 'Service Renewal Invoice' ) {
 			// Call the function to reactivate the service
-			sw_activate_expired_service( $user_id, $service_id, $invoice_id );
+			sw_activate_expired_service( $service_id, $invoice_id );
 
 			/**
 			 * Determine if the invoice is for the Migration of a service.
@@ -124,14 +124,12 @@ function sw_paid_invoice_order_manager( $order_id ) {
  * @param int $service_id ID of the service to be renewed.
  * @param int $invoice_id ID of the invoice related to the service renewal.
  */
-function sw_renew_service( $user_id, $service_id, $invoice_id ) {
+function sw_renew_service( $service_id, $invoice_id ) {
 
-	// 1. Identify the Service and Invoice
+	// Identify the Service and Invoice
 	$service = Sw_Service_Database::get_service_by_id( $service_id );
 	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-	// 2. Add Action Hook Before Updating Service Information
-	do_action( 'sw_before_service_renew', $service );
 
 	// Mark the invoice as paid before renewing the service
 	$invoice_is_paid = sw_mark_invoice_as_paid( $invoice_id );
@@ -142,10 +140,11 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
 	}
 
 	if ( $service ) {
-		// 3. Move (Copy) Old Service Information to Log
-		sw_move_service_to_log( $service_id );
 
-		// 4. Calculate Renewal Dates based on Billing Cycle
+		// Add Action Hook Before Updating Service Information
+		do_action( 'sw_before_service_renew', $service );
+
+		// Calculate Renewal Dates based on Billing Cycle
 		$billing_cycle = $service->getBillingCycle();
 		$old_end_date  = strtotime( $service->getEndDate() );
 
@@ -172,7 +171,7 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
 		$new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, $old_end_date ) );
 		$new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
 
-		// 6.  Update the service using the update_service method
+		// Update the service using the update_service method
 		$service->setStartDate( $new_start_date );
 		$service->setNextPaymentDate( $new_next_payment_date );
 		$service->setEndDate( $new_end_date );
@@ -182,7 +181,7 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
 		$updated = Sw_Service_Database::update_service( $service );
 		// send email notification
 		sw_renewal_sucess_email( $service );
-		// 6. Add Action Hook After Service Renewal
+		// Add Action Hook After Service Renewal
 		do_action( 'sw_service_renewed', $service );
 
 	}
@@ -201,7 +200,7 @@ function sw_renew_service( $user_id, $service_id, $invoice_id ) {
  * @param int $service_id ID of the service to be renewed.
  * @param int $invoice_id ID of the invoice related to the service renewal.
  */
-function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
+function sw_activate_expired_service( $service_id, $invoice_id ) {
 	// 1. Identify the Expired Service
 	$expired_service = Sw_Service_Database::get_service_by_id( $service_id );
 	$invoice         = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
@@ -215,8 +214,9 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
 	}
 
 	if ( $expired_service ) {
-		// 2. Move (Copy) Old Service Information to Log
-		sw_move_service_to_log( $service_id );
+
+		// Add Action Hook Before Updating Service Information
+		do_action( 'sw_before_activate_expired_service', $expired_service );
 
 		// 3. Get the Order Paid Date
 		$order_id        = $invoice->getOrderId();
@@ -249,10 +249,7 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
 		$new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, strtotime( $new_start_date ) ) );
 		$new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
 
-		// 5. Add Action Hook Before Updating Service Information
-		do_action( 'sw_before_activate_expired_service', $expired_service );
-
-		// 6.  Update the service using the update_service method
+		// Update the service using the update_service method
 		$expired_service->setStartDate( $new_start_date );
 		$expired_service->setNextPaymentDate( $new_next_payment_date );
 		$expired_service->setEndDate( $new_end_date );
@@ -264,7 +261,7 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
 		// send email notification
 		sw_renewal_sucess_email( $expired_service );
 
-		// 7. Add Action Hook After Service Activation
+		// Add Action Hook After Service Activation
 		do_action( 'sw_expired_service_activated', $expired_service );
 
 		// Return true for successful activation
@@ -279,104 +276,76 @@ function sw_activate_expired_service( $user_id, $service_id, $invoice_id ) {
 
 /**
  * Helper function to handle customer billing details when invoice orders are created
+ *
+ * @param WC_Order $order The WooCommerce order object.
  */
-function sw_order_billing_helper() {
-	// Get all orders that don't have a billing address.
-	$args = array(
-		'post_type'      => 'shop_order',
-		'posts_per_page' => -1,
-		'post_status'    => array( 'wc-pending', 'wc-processing', 'wc-on-hold', 'wc-completed' ),
-		'meta_query'     => array(
-			array(
-				'key'     => '_billing_address_1',
-				'compare' => 'NOT EXISTS',
-			),
-		),
-	);
+function sw_order_billing_helper( $order ) {
+    // Get the customer ID for the order.
+    $user_id = $order->get_user_id();
 
-	$orders = new WP_Query( $args );
+	$order->set_billing_first_name( get_user_meta( $user_id, 'billing_first_name', true ) );
+	$order->set_billing_last_name( get_user_meta( $user_id, 'billing_last_name', true ) );
+	$order->set_billing_company( get_user_meta( $user_id, 'billing_company', true ) );
+	$order->set_billing_address_1( get_user_meta( $user_id, 'billing_address_1', true ) );
+	$order->set_billing_address_2( get_user_meta( $user_id, 'billing_address_2', true ) );
+	$order->set_billing_city( get_user_meta( $user_id, 'billing_city', true ) );
+	$order->set_billing_postcode( get_user_meta( $user_id, 'billing_postcode', true ) );
+	$order->set_billing_country( get_user_meta( $user_id, 'billing_country', true ) );
+	$order->set_billing_state( get_user_meta( $user_id, 'billing_state', true ) );
+	$order->set_billing_email( get_user_meta( $user_id, 'billing_email', true ) );
+	$order->set_billing_phone( get_user_meta( $user_id, 'billing_phone', true ) );
 
-	if ( $orders->have_posts() ) {
-		while ( $orders->have_posts() ) {
-			$orders->the_post();
-			$order_id = get_the_ID();
-
-			// Get the customer ID for the order.
-			$customer_id = get_post_meta( $order_id, '_customer_user', true );
-
-			// Get the customer's data from their user profile.
-			$customer_data = get_userdata( $customer_id );
-			if ( $customer_data ) {
-				// Billing Address
-				$billing_address = array(
-					'billing_address_1' => $customer_data->billing_address_1,
-					'billing_address_2' => $customer_data->billing_address_2,
-					'billing_city'      => $customer_data->billing_city,
-					'billing_state'     => $customer_data->billing_state,
-					'billing_postcode'  => $customer_data->billing_postcode,
-					'billing_country'   => $customer_data->billing_country,
-				);
-
-				// Customer Website
-				$customer_website = $customer_data->user_url;
-
-				// Customer Phone Number
-				$customer_phone = $customer_data->billing_phone;
-
-				// Update the order with the customer's information.
-				update_post_meta( $order_id, '_billing_address_1', $billing_address['billing_address_1'] );
-				update_post_meta( $order_id, '_billing_address_2', $billing_address['billing_address_2'] );
-				update_post_meta( $order_id, '_billing_city', $billing_address['billing_city'] );
-				update_post_meta( $order_id, '_billing_state', $billing_address['billing_state'] );
-				update_post_meta( $order_id, '_billing_postcode', $billing_address['billing_postcode'] );
-				update_post_meta( $order_id, '_billing_country', $billing_address['billing_country'] );
-				update_post_meta( $order_id, '_billing_first_name', $customer_data->first_name );
-				update_post_meta( $order_id, '_billing_last_name', $customer_data->last_name );
-				update_post_meta( $order_id, '_billing_email', $customer_data->user_email );
-				update_post_meta( $order_id, '_billing_phone', $customer_phone );
-				update_post_meta( $order_id, '_billing_website', $customer_website );
-			}
-		}
-	}
-	wp_reset_postdata();
+	$order->save();
+    
 }
-add_action( 'new_invoice_order', 'sw_order_billing_helper' );
 
+add_action( 'new_invoice_order', 'sw_order_billing_helper' );
 
 
 /**
  * Paid Invoice order status is updated to completed
  */
 function sw_complete_processing_invoice_orders() {
-	// Get processing orders with 'Invoice Payment' in custom field 'Order Type'
-	$args   = array(
-		'status' => 'processing',
-	);
-	$orders = wc_get_orders( $args );
+    // Get processing orders created via this plugin
+    $args   = array(
+        'status' => 'processing',
+    );
+    $orders = wc_get_orders( $args );
 
-	// Loop through each order
-	foreach ( $orders as $order ) {
-		// Get The Order type to update
-		$order_meta_key   = $order->get_meta( 'Order Type' );
-		$order_meta_value = $order->get_meta( 'Invoice Order' );
-		if ( empty( $order_meta_key ) && empty( $order_meta_value ) ) {
-			continue; // Move to the next iteration if the meta fields are not found
-		}
-		$order_id = $order->get_id();
-		// We need to get the invoice associated with the order
-		$invoices = Sw_Invoice_Database::get_invoices_by_order_id( $order_id );
-		if ( ! empty( $invoices ) ) {
-			// loop through all invoices and complete the order
-			foreach ( $invoices as $invoice ) {
-				$invoice_type = $invoice->getInvoiceType();
-				if ( $invoice_type === 'Service Renewal Invoice' || $invoice_type === 'Service Downgrade Invoice' || $invoice_type === 'Service Upgrade Invoice' ) {
-					// Update the order status to 'completed'
-					$order->update_status( 'completed' );
-				}
-			}
-		}
-	}
+    // Loop through each order
+    foreach ( $orders as $order ) {
+        if ( ! $order->is_created_via( SW_PLUGIN_NAME ) ) {
+            continue; // Move to the next iteration if the order is not created via this plugin
+        }
+        
+        // Get the order ID
+        $order_id = $order->get_id();
+        
+        // We need to get the invoice associated with the order
+        $invoices = Sw_Invoice_Database::get_invoices_by_order_id( $order_id );
+        
+        // Initialize a flag to track whether any eligible invoices are found
+        $eligible_invoices_found = false;
+
+        if ( ! empty( $invoices ) ) {
+            // Loop through all invoices and check for eligible invoice types
+            foreach ( $invoices as $invoice ) {
+                $invoice_type = $invoice->getInvoiceType();
+                if ( in_array( $invoice_type, array( 'Service Renewal Invoice', 'Service Downgrade Invoice', 'Service Upgrade Invoice' ) ) ) {
+                    // Update the flag to indicate that an eligible invoice is found
+                    $eligible_invoices_found = true;
+                    break; // No need to continue checking invoices once an eligible one is found
+                }
+            }
+        }
+
+        // If eligible invoices are found, update the order status to 'completed'
+        if ( $eligible_invoices_found ) {
+            $order->update_status( 'completed' );
+        }
+    }
 }
+
 // Run every five minutes
 add_action( 'smart_woo_5_minutes_task', 'sw_complete_processing_invoice_orders' );
 

@@ -6,9 +6,7 @@
  * Description  :   The file for PDF invoice
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 
 if ( ! function_exists( 'sw_invoice_download' ) ) {

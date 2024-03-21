@@ -6,7 +6,7 @@
  * Description  :   Functions file
  */
 
-defined( 'ABSPATH' ) || exit; // exit if eccessed directly
+ defined( 'ABSPATH' ) || exit; // Prevent direct access // exit if eccessed directly
 
 /**
  * Function to format date to a human-readable format or show 'Not Available'.
@@ -73,74 +73,6 @@ function sw_Is_prorate() {
 }
 
 /**
- * Handle refund-related operations in the service log records.
- *
- * This function allows you to retrieve service log records with a 'Pending Refund' status or update
- * specific records based on user ID, service ID, amount, and change their transaction status and details.
- *
- * @param int|null    $user_id    User ID (optional).
- * @param int|null    $service_id Service ID (optional).
- * @param float|null  $amount     Amount (optional).
- * @param string|null $newstatus  New transaction status (optional).
- * @param string|null $details    Additional details for the updated records (optional).
- *
- * @return mixed Returns an array of service log records when no parameters are provided, or the number
- *               of updated records when updating records based on the provided parameters.
- */
-function sw_REFUND_handler( $user_id = null, $service_id = null, $amount = null, $newstatus = null, $details = null ) {
-	global $wpdb;
-
-	$service_logs_table_name = $wpdb->prefix . 'sw_service_logs';
-
-	if ( $user_id === null && $service_id === null && $amount === null ) {
-		$query = $wpdb->prepare(
-			"SELECT * FROM {$service_logs_table_name} WHERE transaction_status = %s",
-			'Pending Refund'
-		);
-
-		// $query is prepared
-		$results = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-		return $results;
-	} else {
-		$where = array( 'transaction_status' => 'Pending Refund' );
-
-		if ( $user_id !== null ) {
-			$where['user_id'] = $user_id;
-		}
-		if ( $service_id !== null ) {
-			$where['service_id'] = $service_id;
-		}
-		if ( $amount !== null ) {
-			$where['amount'] = $amount;
-		}
-
-		$updated = $wpdb->update(
-			$service_logs_table_name,
-			array(
-				'transaction_status' => $newstatus,
-				'details'            => $details,
-			),
-			$where,
-			array(
-				'%s', // Format for 'transaction_status'
-				'%s'  // Format for 'details'
-			),
-			array(
-				'%d', // Format for 'user_id'
-				'%d', // Format for 'service_id'
-				'%f'  // Format for 'amount'
-			)
-		);
-
-		return $updated;
-	}
-}
-
-
-
-
-/**
  * Log data into the database
  *
  * @param string    $log_id        ID to stamp the log
@@ -165,13 +97,13 @@ function smart_woo_log( $log_id, $log_type, $status, $details = '',  $amount = 0
 	$log->setNote( $note );
 	
 	// Log the data
-	$log->save( $log );
+	$log->save();
 
 
 }
 
 /**
- * Procedural function to perform refund.
+ * Procedural function to mark refund as completed.
  *
  * This function initiates the refund process for the specified logged data by its ID.
  *

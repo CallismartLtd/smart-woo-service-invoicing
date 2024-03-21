@@ -6,7 +6,7 @@
  * Description  :   Service API autheticator functions
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Handle API requests for Smart Woo Service.

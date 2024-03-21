@@ -8,9 +8,9 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit; // Prevent direct access // Prevent direct access // Prevent direct access
 
-require_once SW_ABSPATH . 'admin/callback.php';
+require_once SW_ABSPATH . 'admin/admin-callback-functions.php';
 require_once SW_ABSPATH . 'includes/sw-service/sw-service-admin-temp.php';
 require_once SW_ABSPATH . 'includes/sw-service/sw-new-service-processing.php';
 require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
@@ -75,10 +75,10 @@ add_action( 'admin_menu', 'smart_invoice_admin_menu' );
 
 
 /**
- * Reusable navigation function for plugin submenu pages.
+ * Submenu navigation button tab function
  *
  * @param array  $tabs         An associative array of tabs (tab_slug => tab_title).
- * @param string $title        Title you choos to display on each page page.
+ * @param string $title        The title of the current submenu page.
  * @param string $page_slug    The url slug of the current page.
  * @param string $current_tab  The current tab parameter for the submenu page.
  * @param string $query_var    The query variable.
@@ -89,6 +89,7 @@ function sw_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) 
 	$output .= '<nav class="nav-tab-wrapper">';
 
 	foreach ( $tabs as $tab_slug => $tab_title ) {
+		
 		$active_class = ( $current_tab === $tab_slug ) ? 'nav-tab-active' : '';
 		$output      .= "<a href='" . esc_url( add_query_arg( $query_var, $tab_slug, admin_url( 'admin.php?page=' . $page_slug ) ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
 	}
@@ -97,4 +98,15 @@ function sw_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) 
 	$output .= '</div>';
 
 	echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+/**
+ * Upsell Container card
+ */
+function sw_generate_upsell_card() {
+	echo '<div id="help" class="sw-accordion-container">';
+	echo sw_support_our_work_container();
+	echo sw_bug_report_container();
+	echo sw_help_container();
+	echo '</div>';
 }

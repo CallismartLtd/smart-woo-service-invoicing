@@ -119,7 +119,7 @@ function sw_client_service_url_button( Sw_Service $service ) {
  */
 function sw_get_service( $user_id = null, $service_id = null, $invoice_id = null, $service_name = null, $billing_cycle = null, $service_type = null ) {
 	global $wpdb;
-	$table_name = $wpdb->prefix . 'sw_service';
+	$table_name = SW_SERVICE_TABLE;
 
 	// Prepare the base query
 	$query = "SELECT * FROM $table_name WHERE 1";
@@ -150,142 +150,26 @@ function sw_get_service( $user_id = null, $service_id = null, $invoice_id = null
 }
 
 
-/**
- * Insert data into the 'sw_log_old_renewed_services_info' table.
- *
- * @param int    $user_id               The ID of the renewed user.
- * @param string $service_name          The name of the renewed service.
- * @param string $service_url           The URL of the renewed service.
- * @param string $service_id            The ID of the renewed service.
- * @param int    $order_id              The ID of the renewed order.
- * @param string $start_date            The start date of the renewed service.
- * @param string $end_date              The end date of the renewed service.
- * @param string $next_payment_date     The next payment date of the renewed service.
- * @param string $billing_cycle         The billing cycle of the renewed service.
- */
-function sw_log_old_renewed_services_info(
-	$user_id,
-	$service_name,
-	$service_url,
-	$service_id,
-	$order_id,
-	$start_date,
-	$end_date,
-	$next_payment_date,
-	$billing_cycle
-) {
-	global $wpdb;
-
-	$table_name = $wpdb->prefix . SW_SERVICE_LOG_TABLE;
-
-	// Insert data into the table
-	$wpdb->insert(
-		$table_name,
-		array(
-			'renewed_user_id'           => $user_id,
-			'renewed_service_name'      => $service_name,
-			'renewed_service_url'       => $service_url,
-			'renewed_service_id'        => $service_id,
-			'renewed_order_id'          => $order_id,
-			'renewed_start_date'        => $start_date,
-			'renewed_end_date'          => $end_date,
-			'renewed_next_payment_date' => $next_payment_date,
-			'renewed_billing_cycle'     => $billing_cycle,
-		),
-		array( '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
-	);
-}
-
 
 /**
- * Update data in the 'sw_update_old_renewed_services_info' table.
+ * Log service information from 'sw_service' to 'sw_invoice_auto_renew'.
  *
- * @param int    $user_id               The ID of the renewed user.
- * @param string $service_name          The name of the renewed service.
- * @param string $service_url           The URL of the renewed service.
- * @param string $service_id            The ID of the renewed service.
- * @param int    $order_id              The ID of the renewed order.
- * @param string $start_date            The start date of the renewed service.
- * @param string $end_date              The end date of the renewed service.
- * @param string $next_payment_date     The next payment date of the renewed service.
- * @param string $billing_cycle         The billing cycle of the renewed service.
- */
-function sw_update_old_renewed_services_info(
-	$user_id,
-	$service_name,
-	$service_url,
-	$service_id,
-	$order_id,
-	$start_date,
-	$end_date,
-	$next_payment_date,
-	$billing_cycle
-) {
-	global $wpdb;
-
-	$table_name = $wpdb->prefix . SW_SERVICE_LOG_TABLE;
-
-	// Update data in the table
-	$wpdb->update(
-		$table_name,
-		array(
-			'renewed_user_id'           => $user_id,
-			'renewed_service_name'      => $service_name,
-			'renewed_service_url'       => $service_url,
-			'renewed_service_id'        => $service_id,
-			'renewed_order_id'          => $order_id,
-			'renewed_start_date'        => $start_date,
-			'renewed_end_date'          => $end_date,
-			'renewed_next_payment_date' => $next_payment_date,
-			'renewed_billing_cycle'     => $billing_cycle,
-		),
-		array( '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
-	);
-}
-
-
-/**
- * Move (copy) service information from 'sw_service' to 'sw_invoice_auto_renew'.
- *
- * @param string $service_id The ID of the service to move.
- *
- * @global wpdb $wpdb WordPress database access abstraction object.
- *
+ * @param object $service	The Sw_Service object to log
  * @return bool Whether the move was successful.
  */
-function sw_move_service_to_log( $service_id ) {
+function sw_log_renewed_service( Sw_Service $service ) {
 
-	// Fetch service information from sw_service table
-	$service = Sw_Service_Database::get_service_by_id( $service_id );
+	$log_renewal 	= new Sw_Service_Log();
+	$log_renewal->setServiceId( $service->getServiceId() );
+	$log_renewal->setLogType( 'Renewal' );
+	$log_renewal->setNote( 'Successfully renewed' );
+	$log_renewal->save();
 
-	// Check if the service was found
-	if ( $service ) {
-		// Extract data into variables
-		$user_id           = $service->getUserId();
-		$service_name      = $service->getServiceName();
-		$service_url       = $service->getServiceUrl();
-		$service_id        = $service->getServiceId();
-		$invoice_id        = $service->getInvoiceId();
-		$start_date        = $service->getStartDate();
-		$end_date          = $service->getEndDate();
-		$next_payment_date = $service->getNextPaymentDate();
-		$billing_cycle     = $service->getBillingCycle();
+	return true;
 
-		// Call function to log the old renewed service info
-		sw_log_old_renewed_services_info(
-			$user_id,
-			$service_name,
-			$service_url,
-			$service_id,
-			$invoice_id,
-			$start_date,
-			$end_date,
-			$next_payment_date,
-			$billing_cycle
-		);
-	}
 }
-
+add_action( 'sw_service_renewed', 'sw_log_renewed_service', 20, 1 );
+add_action( 'sw_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
 
 
 /**
@@ -296,49 +180,9 @@ function sw_move_service_to_log( $service_id ) {
  * @return int The count of renewed services.
  */
 function get_renewed_services_count( $user_id = null, $service_id = null ) {
-	global $wpdb;
-	$auto_renew_table_name = $wpdb->prefix . SW_SERVICE_LOG_TABLE;
 
-	$query = "SELECT COUNT(*) FROM $auto_renew_table_name";
-
-	if ( $user_id !== null ) {
-		$query .= ' WHERE renewed_user_id = ' . intval( $user_id );
-	}
-
-	if ( $service_id !== null ) {
-		$query .= " AND renewed_service_id = '" . esc_sql( $service_id ) . "'";
-	}
-
-	return $wpdb->get_var( $query );
+	return 5;
 }
-
-/**
- * Get user's full name and service IDs for renewed services.
- *
- * @param int    $user_id The user ID to filter by (optional).
- * @param string $service_id The service ID to filter by (optional).
- * @return array An array of user's full name and service IDs for renewed services.
- */
-function get_renewed_services_info( $user_id = null, $service_id = null ) {
-	global $wpdb;
-	$auto_renew_table_name = $wpdb->prefix . SW_SERVICE_LOG_TABLE;
-
-	$query = "SELECT renewed_user_id, GROUP_CONCAT(renewed_service_id) AS service_ids FROM $auto_renew_table_name";
-
-	if ( $user_id !== null ) {
-		$query .= ' WHERE renewed_user_id = ' . intval( $user_id );
-	}
-
-	if ( $service_id !== null ) {
-		$query .= " AND renewed_service_id = '" . esc_sql( $service_id ) . "'";
-	}
-
-	$query .= ' GROUP BY renewed_user_id';
-
-	return $wpdb->get_results( $query, ARRAY_A );
-}
-
-
 
 /**
  * Check if a service subscription is active.
@@ -360,8 +204,6 @@ function sw_is_service_active( Sw_Service $service ) {
 		return false;
 	}
 }
-
-
 
 /**
  * Check if a service subscription is due.

@@ -8,8 +8,8 @@
  * @package    : SmartWooServiceInvoicing
  */
 
- defined('ABSPATH') || exit; // Exist if accessed directly
- 	
+defined( 'ABSPATH' ) || exit; // Prevent direct access
+
 /**
 * All the database structures are defined here
 */
@@ -82,20 +82,21 @@ function sw_plugin_db_schema() {
 		$auto_renew_table_name = SW_SERVICE_LOG_TABLE;
 		$auto_renew_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
-			'renewed_user_id mediumint(9) NOT NULL',
-			'renewed_service_name varchar(255) NOT NULL',
-			'renewed_service_url text NOT NULL',
-			'renewed_service_id varchar(255) NOT NULL',
-			'renewed_order_id mediumint(9) NOT NULL',
-			'renewed_start_date date NOT NULL',
-			'renewed_end_date date NOT NULL',
-			'renewed_next_payment_date date NOT NULL',
-			'renewed_billing_cycle varchar(20) NOT NULL',
+			'service_id varchar(255) NOT NULL',
+			'log_type varchar(255) NOT NULL',
+			'details text DEFAULT NULL',
+			'note text DEFAULT NULL',
+			'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+			'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
 			'PRIMARY KEY  (id)',
 		);
 
 		sw_create_database_table( $auto_renew_table_name, $auto_renew_structure );
-		// Define the structure for the Invoicing Logging table
+
+		/**
+		 * Defined the wp_sw_invoice_log table where 
+		 * all transaction related datas are logged
+		 */
 		$service_logs_table_name = SW_INVOICE_LOG_TABLE;
 		$service_logs_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
@@ -108,9 +109,9 @@ function sw_plugin_db_schema() {
 			'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
 			'updated_at datetime DEFAULT NULL',
 			'PRIMARY KEY  (id)',
-			'INDEX log_id_index (log_id)', // Index for log_id column
-			'INDEX log_type_index (log_type)', // Index for log_type column
-			'INDEX status_index (status)', // Index for status column
+			'INDEX log_id_index (log_id)',
+			'INDEX log_type_index (log_type)',
+			'INDEX status_index (status)',
 		);
 
 

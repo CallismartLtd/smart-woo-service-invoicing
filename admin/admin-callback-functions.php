@@ -7,7 +7,8 @@
  * @author      :   Callistus
  * Description  :   callback function file for admin menu pages
  */
-defined( 'ABSPATH' ) || exit; // exit if eccessed directly
+
+defined( 'ABSPATH' ) || exit; // Prevent direct access // Prevent direct access // Prevent direct access; // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // exit if eccessed directly
 
 /**
  * Main plugin admin page controller callback
@@ -17,6 +18,7 @@ function smart_woo_service() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo' ) );
 	}
+	echo '<div style="text-align:right;"><a href="' . admin_url( 'admin.php?page=sw-options&tab=advanced#help' ) .'">Help</a></div>';
 
 	// Determin which URL path to display content
 	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -126,7 +128,9 @@ function sw_products_page() {
 
 
 
-// Callback for Settings Page
+/**
+ * Callback controller for Settings Page
+*/
 function sw_options_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
@@ -139,6 +143,7 @@ function sw_options_page() {
 		'business'  => 'Business',
 		'invoicing' => 'Invoicing',
 		'emails'    => 'Emails',
+		'advanced'	=> 'Advanced'
 
 	);
 
@@ -155,6 +160,9 @@ function sw_options_page() {
 		case 'emails':
 			sw_render_email_options_page();
 			break;
+		case 'advanced':
+			sw_render_advanced_options_page();
+			break;
 		default:
 			sw_options_dash_page();
 			break;
@@ -163,7 +171,7 @@ function sw_options_page() {
 
 
 /**
- * Register custom post states for specific pages.
+ * Register post states for specific pages.
  *
  * This function adds custom post states to pages based on their IDs.
  * It is hooked into the 'display_post_states' filter.
@@ -174,12 +182,12 @@ function sw_options_page() {
  * @return array Modified array of post states.
  */
 function sw_register_post_states( $post_states, $post ) {
-	$service_details_page_id = get_option( 'sw_service_page' );
-	$invoice_details_page_id = get_option( 'sw_invoice_page' );
+	$service_page_id         = get_option( 'sw_service_page' );
+	$invoice_page_id = get_option( 'sw_invoice_page' );
 
-	if ( $post->ID == $service_details_page_id ) {
+	if ( $post->ID == $service_page_id ) {
 		$post_states[] = 'Service Subscription Page';
-	} elseif ( $post->ID == $invoice_details_page_id ) {
+	} elseif ( $post->ID == $invoice_page_id ) {
 		$post_states[] = 'Invoice Management Page';
 	}
 

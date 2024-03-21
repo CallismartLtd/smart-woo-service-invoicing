@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Service Cancellation Email
@@ -171,7 +171,7 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 
 	$mail_is_enabled = get_option( 'sw_service_cancellation_mail_to_admin', 0 );
 	if ( $mail_is_enabled ) {
-		// Get service details using sw_get_service function
+		// Get service details
 		$service_details = Sw_Service_Database::get_service_by_id( $service_id );
 		$user_id         = $service_details->getUserId();
 		$user_info       = get_userdata( $user_id );

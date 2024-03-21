@@ -42,9 +42,46 @@ function sw_handle_email_options() {
 		// Update checkbox options
 		foreach ( $checkboxes as $checkbox_name ) {
 			if ( isset( $_POST[ $checkbox_name ] ) ) {
-				update_option( $checkbox_name, 1 ); // Use 1 to represent checked
+				update_option( $checkbox_name, 1 ); 
 			} else {
-				update_option( $checkbox_name, 0 ); // Use 0 to represent unchecked
+				update_option( $checkbox_name, 0 ); 
+			}
+		}
+		echo '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>';
+
+	}
+}
+
+/**
+ * Handle advance option submission
+ */
+function sw_handle_advance_options_submission(){
+	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( $_POST['sw_option_nonce'], 'sw_option_nonce' ) ) {
+		
+		if ( isset( $_POST['sw_pay_pending_invoice_with_wallet'] ) ) {
+			update_option( 'sw_pay_pending_invoice_with_wallet', 1 );
+		} elseif ( ! isset( $_POST['sw_pay_pending_invoice_with_wallet'] ) && function_exists( 'woo_wallet' ) ) {
+			update_option( 'sw_pay_pending_invoice_with_wallet', 0 );
+		}
+
+		if ( isset( $_POST['sw_refund_with_wallet'] ) ) {
+			update_option( 'sw_refund_with_wallet', 1 );
+		} elseif ( ! isset( $_POST['sw_refund_with_wallet'] ) && function_exists( 'woo_wallet' ) ) {
+			update_option( 'sw_refund_with_wallet', 0 );
+		}
+
+		$checkboxes = array(
+			'sw_enable_api_feature',
+			'sw_allow_guest_invoicing',
+			'sw_remove_plugin_data_during_uninstall'	
+		);
+
+		// Update checkbox options
+		foreach ( $checkboxes as $checkbox_name ) {
+			if ( isset( $_POST[ $checkbox_name ] ) ) {
+				update_option( $checkbox_name, 1 ); 
+			} else {
+				update_option( $checkbox_name, 0 ); 
 			}
 		}
 		echo '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>';
@@ -120,7 +157,9 @@ function sw_handle_options_submission() {
 	}
 }
 
-
+/**
+ * Admin Settings Main page
+ */
 function sw_options_dash_page() {
 	echo '<div class="wrap">';
 
@@ -178,7 +217,9 @@ function sw_options_dash_page() {
 }
 
 
-
+/**
+ * Admin Service Settings Page
+ */
 function sw_render_service_options_page() {
 	sw_handle_options_submission();
 	$site_name             = get_bloginfo( 'name' );
@@ -296,6 +337,9 @@ function sw_render_service_options_page() {
 	<?php
 }
 
+/**
+ * Admin Invoice Settings page.
+ */
 function sw_render_invoice_options_page() {
 
 	sw_handle_options_submission();
@@ -355,6 +399,9 @@ function sw_render_invoice_options_page() {
 	<?php
 }
 
+/**
+ * Admin Email Settings page
+ */
 function sw_render_email_options_page() {
 	sw_handle_email_options();
 	$billing_email = get_option( 'sw_billing_email', '' );
@@ -414,4 +461,95 @@ function sw_render_email_options_page() {
 	<?php
 }
 
+function sw_render_advanced_options_page() {
+    $checkboxes = array(
+        'sw_enable_api_feature',
+        'sw_allow_guest_invoicing',
+        'sw_remove_plugin_data_during_uninstall'
+    );
+    echo '<h1>Advanced Settings ⚙</h1>';
 
+    // Handle form submission
+    sw_handle_advance_options_submission();
+
+    ?>
+    <div class="wrap">
+        <form method="post" class="inv-settings-form">
+            <!-- Submit button -->
+            <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
+            <?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
+            <?php foreach ( $checkboxes as $checkbox_name ) : ?>
+                <div class="sw-form-row">
+                    <label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
+                        <?php echo esc_html( ucwords( str_replace( array( '_', 'sw' ), ' ', $checkbox_name ) ) ); ?>
+                    </label>
+                    <input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
+                </div>
+                <hr>
+            <?php endforeach; ?>
+
+            <?php
+            // Check if the WooCommerce wallet plugin is active
+            if ( function_exists( 'woo_wallet' ) ) {
+                echo '<h3 style="text-align: center;">Tera Wallet Integration</h3>';
+                echo '<div class="sw-form-row">';
+                // Checkbox for refund through wallet
+                echo '<label for="sw_refund_with_wallet" class="sw-form-checkbox">Refund Through Wallet</label>';
+                echo '<input type="checkbox" class="sw-form-input" name="sw_refund_with_wallet" id="sw_refund_with_wallet" ' . checked( get_option( 'sw_refund_with_wallet', 0 ), 1, false ) . '>';
+                echo '</div>';
+                
+                // Checkbox for paying pending invoices with wallet
+                echo '<div class="sw-form-row">';
+                echo '<label for="sw_pay_pending_invoice_with_wallet" class="sw-form-checkbox">Pay Pending Invoices with Wallet</label>';
+                echo '<input type="checkbox" class="sw-form-input" name="sw_pay_pending_invoice_with_wallet" id="sw_pay_pending_invoice_with_wallet" ' . checked( get_option( 'sw_pay_pending_invoice_with_wallet', 0 ), 1, false ) . '>';
+                echo '</div>';
+            }
+            ?>
+            <!-- Second submit button -->
+            <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
+        </form>
+    </div>
+    <?php
+	echo sw_generate_upsell_card(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+/**
+ * Generate HTML content for upsell accordion.
+ *
+ * @return string HTML content for upsell accordion.
+ */
+function sw_support_our_work_container() {
+    $support_us = '<div class="sw-upsell-accordion">
+        <button class="sw-accordion-btn">Support Our Work ♥♥♥</button>
+        <div class="sw-upsell-panel">
+            <p>If you find Smart Woo Service Invoicing Plugin valuable and would like to support our team in providing technical support, continuous improvement, and keeping the plugin free for everyone, you can contribute by making a financial donation.</p>
+            <a href="https://paystack.com/pay/support-smart-woo-dev" target="_blank" class="sw-red-button">Donate with ♥</a>
+        </div>
+    </div>';
+
+    return $support_us;
+}
+
+function sw_bug_report_container() {
+	    // Add Bug Report section
+		$bug_report = '<div class="sw-upsell-accordion">
+        <button class="sw-accordion-btn">Report a Bug 🐞</button>
+        <div class="sw-upsell-panel">
+            <p>If you encounter any bugs or issues while using Smart Woo Service Invoicing Plugin, please report them to help us improve the plugin. Your feedback is valuable in enhancing the plugin\'s functionality and stability.</p>
+            <a href="https://wordpress.org/support/plugin/smart-woo-service-invoicing/" target="_blank" class="sw-red-button">Report a Bug</a>
+        </div>
+    </div>';
+	return $bug_report;
+}
+function sw_help_container() {
+	
+    // Add Help section
+    $help_container = '<div class="sw-upsell-accordion">
+        <button class="sw-accordion-btn">Get Help 🏷</button>
+        <div class="sw-upsell-panel">
+            <p>Need assistance with using Smart Woo Service Invoicing Plugin? Check out our documentation or contact our support team for help. We are here to assist you in getting the most out of the plugin.</p>
+            <a href="https://callismart.com.ng/smart-woo/" target="_blank" class="sw-red-button">Get Help</a>
+        </div>
+    </div>';
+	return $help_container;
+}

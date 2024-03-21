@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
- defined( 'ABSPATH' ) || exit;
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Performs all refund related operation
