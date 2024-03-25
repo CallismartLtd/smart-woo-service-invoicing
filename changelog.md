@@ -6,6 +6,12 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 
 ### Fixed
 - Security Vulnerability.
+- Terra Wallet integration updates.
+
+### Added
+- Option to set custom product text on shop
+
+### Confirmed
 - Tested up to WordPress version 6.5
 
 

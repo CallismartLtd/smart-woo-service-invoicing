@@ -70,6 +70,11 @@ function sw_handle_advance_options_submission(){
 			update_option( 'sw_refund_with_wallet', 0 );
 		}
 
+		if ( isset( $_POST['sw_product_text_on_shop'] ) ) {
+			$value =  ! empty( $_POST['sw_product_text_on_shop'] ) ?  sanitize_text_field( $_POST['sw_product_text_on_shop'] ) : 'View Product';
+			update_option( 'sw_product_text_on_shop', $value );
+		}
+
 		$checkboxes = array(
 			'sw_enable_api_feature',
 			'sw_allow_guest_invoicing',
@@ -462,6 +467,9 @@ function sw_render_email_options_page() {
 }
 
 function sw_render_advanced_options_page() {
+	// Handle form submission
+	sw_handle_advance_options_submission();
+	$product_text = get_option( 'sw_product_text_on_shop', 'View Product' );
     $checkboxes = array(
         'sw_enable_api_feature',
         'sw_allow_guest_invoicing',
@@ -469,15 +477,20 @@ function sw_render_advanced_options_page() {
     );
     echo '<h1>Advanced Settings ⚙</h1>';
 
-    // Handle form submission
-    sw_handle_advance_options_submission();
+
 
     ?>
     <div class="wrap">
         <form method="post" class="inv-settings-form">
             <!-- Submit button -->
             <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
+
             <?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
+			<div class="sw-form-row">
+				<label for="sw_product_text_on_shop" class="sw-form-label"> Product Button Text </label>
+				<span class="sw-field-description" title="Set the text that will be shown on each Smart Woo Product on shop page">?</span>
+				<input type="type" name="sw_product_text_on_shop" id="sw_product_text_on_shop" value="<?php echo esc_attr( $product_text ); ?>" placeholder="eg, View Product" class="sw-form-input">
+			</div>
             <?php foreach ( $checkboxes as $checkbox_name ) : ?>
                 <div class="sw-form-row">
                     <label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">

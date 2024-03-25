@@ -690,7 +690,7 @@ function sw_handle_upgrade_service( $current_user_id ) {
 
 		// Create a select input with the user's services
 		$select_options  = '<select name="selected_service" required>';
-		$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo' ) . '</option>';
+		$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo-invoice' ) . '</option>';
 
 		foreach ( $services as $service ) {
 			$select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
@@ -904,7 +904,7 @@ function sw_handle_downgrade_service( $current_user_id ) {
 
 		// Create a select input with the user's services
 		$select_options  = '<select name="selected_service" required>';
-		$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo' ) . '</option>';
+		$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo-invoice' ) . '</option>';
 
 		foreach ( $services as $service ) {
 			$select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
@@ -1005,7 +1005,7 @@ function sw_handle_buy_new_service() {
 			$output .= '<p>Sign-Up Fee: ' . $sign_up_fee . '</p>';
 			$output .= '<p><strong>' . esc_html( $billing_cycle ) . '</strong> Billing Cycle</p>';
 			$output .= '<p>' . esc_html( $product_excerpt ) . '</p>';
-			$output .= '<a href="' . home_url( '/configure/' . $product_id ) . '" class="sw-blue-button" >' . esc_html__( 'Configure Product', 'smart-woo' ) . '</a>';
+			$output .= '<a href="' . home_url( '/configure/' . $product_id ) . '" class="sw-blue-button" >' . esc_html__( 'Configure Product', 'smart-woo-invoice' ) . '</a>';
 			$output .= '</div>';
 		}
 
@@ -1014,8 +1014,8 @@ function sw_handle_buy_new_service() {
 		$shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
 		$output       .= '<div class="main-page-card">';
 		$output       .= '<p>We do not have service products for purchase yet!</p>';
-		$output       .= '<a href="' . $shop_page_url . '" class="sw-blue-button">' . esc_html__( 'Shop Page', 'smart-woo' ) . '</a>';
-		$output       .= '<a href="' . get_permalink() . '" class="sw-blue-button">' . esc_html__( 'Dashboard', 'smart-woo' ) . '</a>';
+		$output       .= '<a href="' . $shop_page_url . '" class="sw-blue-button">' . esc_html__( 'Shop Page', 'smart-woo-invoice' ) . '</a>';
+		$output       .= '<a href="' . get_permalink() . '" class="sw-blue-button">' . esc_html__( 'Dashboard', 'smart-woo-invoice' ) . '</a>';
 
 		$output .= '</div>';
 		return $output;

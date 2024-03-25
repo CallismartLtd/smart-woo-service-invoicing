@@ -103,7 +103,7 @@ function display_sw_service_product_details() {
  * @param object $cart the woocommerce cart object
  * @return null stops execution when cart is empty
  */
-add_action( 'woocommerce_before_calculate_totals', 'sw_calculate_sign_up_fee_cart_totals' );
+add_action( 'woocommerce_cart_calculate_fees', 'sw_calculate_sign_up_fee_cart_totals' );
 
 function sw_calculate_sign_up_fee_cart_totals( $cart ) {
 	if ( $cart->is_empty() ) {
@@ -117,7 +117,7 @@ function sw_calculate_sign_up_fee_cart_totals( $cart ) {
 		// Check if the product is of type 'sw_product'
 		$product = $cart_item['data'];
 
-		if ( $product && $product->get_type() === 'sw_product' ) {
+		if ( $product && 'sw_product' === $product->get_type() ) {
 			// Get the sign-up fee
 			$sign_up_fee = get_post_meta( $product->get_id(), 'sign_up_fee', true );
 
@@ -143,7 +143,6 @@ function make_sw_product_purchasable( $purchasable, $product ) {
 	// Check if the product type is 'sw_product'
 	if ( $product->is_type( 'sw_product' ) ) {
 		$purchasable = true; // Set the product as purchasable
-		$product->set_manage_stock( false ); // Disable stock management
 	}
 	return $purchasable;
 }
@@ -156,7 +155,8 @@ add_filter( 'woocommerce_product_add_to_cart_text', 'sw_product_text_on_shop', 1
 function sw_product_text_on_shop( $text, $product ) {
 	// Check if the product is of a specific type
 	if ( 'sw_product' === $product->get_type() ) {
-		$text = __( 'View Product', 'smart-woo' );
+		$pruduct_text = get_option( 'sw_product_text_on_shop', 'View Product' );
+		$text = __( $pruduct_text, 'smart-woo-invoice' );
 	}
 
 	return $text;

@@ -22,7 +22,7 @@ function sw_service_cron_intervals_5_hours( $schedules ) {
 	// Add a new cron schedule interval for every 5 hours.
 	$schedules['sw_5_hours'] = array(
 		'interval' => 5 * 60 * 60, // 5 hours in seconds
-		'display'  => __( 'Smart Woo Every 5 Hours', 'smart-woo' ),
+		'display'  => __( 'Smart Woo Every 5 Hours', 'smart-woo-invoice-invoice-invoice' ),
 	);
 
 	// Return the modified array of cron schedules.
@@ -61,7 +61,7 @@ function sw_service_cron_intervals_5_minutes( $schedules ) {
 	// Add a new cron schedule interval for every 5 minutes.
 	$schedules['sw_5_minutes'] = array(
 		'interval' => 5 * 60, // 5 minutes in seconds
-		'display'  => __( 'Smart Woo Every 5 Minutes', 'smart-woo' ),
+		'display'  => __( 'Smart Woo Every 5 Minutes', 'smart-woo-invoice-invoice' ),
 	);
 
 	// Return the modified array of cron schedules.
@@ -98,7 +98,7 @@ function sw_service_cron_intervals_once_per_day( $schedules ) {
 	// Add a new cron schedule interval for once a day (every 24 hours).
 	$schedules['sw_once_per_day'] = array(
 		'interval' => 24 * 60 * 60, // 24 hours in seconds
-		'display'  => __( 'Smart Woo Once Per Day', 'smart-woo' ),
+		'display'  => __( 'Smart Woo Once Per Day', 'smart-woo-invoice' ),
 	);
 
 	// Return the modified array of cron schedules.
@@ -133,7 +133,7 @@ function sw_service_cron_intervals_once_every_two_days( $schedules ) {
 	// Add a new cron schedule interval for once every two days (48 hours).
 	$schedules['sw_once_every_two_days'] = array(
 		'interval' => 2 * 24 * 60 * 60, // 48 hours in seconds
-		'display'  => __( 'Smart Woo Once Every Two Days', 'smart-woo' ),
+		'display'  => __( 'Smart Woo Once Every Two Days', 'smart-woo-invoice' ),
 	);
 
 	// Return the modified array of cron schedules.
@@ -176,7 +176,7 @@ add_action( 'wp', 'schedule_service_renewals_cron' );
 function sw_service_cron_intervals_12_hours( $schedules ) {
 	$schedules['sw_12_hours'] = array(
 		'interval' => 12 * 60 * 60, // 12 hours in seconds
-		'display'  => __( 'Smart Woo twice Daily', 'smart-woo' ),
+		'display'  => __( 'Smart Woo twice Daily', 'smart-woo-invoice' ),
 	);
 	return $schedules;
 }

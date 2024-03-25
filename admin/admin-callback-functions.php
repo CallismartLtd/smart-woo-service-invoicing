@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access // Prevent direct access 
 function smart_woo_service() {
 	// Check if the current user has the required capability to access this page
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo' ) );
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-invoice' ) );
 	}
 	echo '<div style="text-align:right;"><a href="' . admin_url( 'admin.php?page=sw-options&tab=advanced#help' ) .'">Help</a></div>';
 

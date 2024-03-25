@@ -12,9 +12,16 @@
 add_action( 'process_service_renewals_event', 'sw_pay_invoice_through_woo_wallet' );
 
 
-// The main function to process service renewals
+/**
+ * The main function to process service renewals
+ */
 function sw_pay_invoice_through_woo_wallet() {
-	// Get all unpaid nvoices
+	$enabled = get_option( 'sw_pay_pending_invoice_with_wallet', 0 );
+
+	if ( ! $enabled ) {
+		return;
+	}
+	// Get all unpaid invoices
 	$unpaid_invoices = Sw_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
 
 	if ( empty( $unpaid_invoices ) ) {
@@ -27,7 +34,7 @@ function sw_pay_invoice_through_woo_wallet() {
 		$user_id    = $invoice->getUserId();
 
 		// Construct payment details
-		$details = 'Amount deducted from wallet for the payment of invoice "ID: ' . $invoice_id .'".';
+		$details = 'Wallet debit for the payment of invoice ID: "' . $invoice_id .'".';
 		// Get the order total price
 		$invoice_total = $invoice->getTotal();
 
@@ -36,18 +43,17 @@ function sw_pay_invoice_through_woo_wallet() {
 
 		if ( $wallet_balance >= $invoice_total && $invoice_total > 0 ) {
 			// Attempt to debit the wallet
-			$success = woo_wallet()->wallet->debit( $user_id, $invoice_total, $details );
+			$transaction_id = woo_wallet()->wallet->debit( $user_id, $invoice_total, $details );
 
-			if ( $success > 0 ) {
-			// Update the related order to complete
-			$order = wc_get_order( $invoice->getOrderId() );
-			$order->update_status( 'completed' );
-			// Invoice will be updated after the order is marked as completed.
+			if ( $transaction_id ) {
+				// Get the related order and mark payment as paid
+				$order = wc_get_order( $invoice->getOrderId() );
+				$order->payment_complete( $transaction_id );
 
-			// Log Payment successful
-			 $details = 'Amount deducted from wallet for the payment of invoice "ID: ' . $invoice_id .'".';
-			 $note    = 'The invoice with this ID was paid.';
-			 smart_woo_log( $invoice_id, 'Debit', 'Completed', $details, $invoice_total, $note );
+				// Invoice will be updated after the order is paid or completed
+				// Log Payment successful
+				$note    = 'The invoice with this ID was paid via tera wallet.';
+				smart_woo_log( $invoice_id, 'Debit', 'Completed', $details, $invoice_total, $note );
 			}
 
 		}

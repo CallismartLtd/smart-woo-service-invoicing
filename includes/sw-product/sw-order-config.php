@@ -147,7 +147,7 @@ function sw_display_configured_product_data_in_cart( $cart_data, $cart_item ) {
 	// Check if 'sw_service_name' is set in the cart item data and add it to cart data for display
 	if ( isset( $cart_item['sw_service_name'] ) ) {
 		$cart_data[] = array(
-			'name'    => '<div class="sw-configured-product-container"><strong>' . __( 'Service Name', 'smart-woo' ) . '</strong>',
+			'name'    => '<div class="sw-configured-product-container"><strong>' . __( 'Service Name', 'smart-woo-invoice' ) . '</strong>',
 			'value'   => '<span class="sw-configured-product">' . esc_html( $cart_item['sw_service_name'] ) . '</span></div>',
 			'display' => '',
 		);
@@ -156,8 +156,8 @@ function sw_display_configured_product_data_in_cart( $cart_data, $cart_item ) {
 	// Check if 'sw_service_url' is set in the cart item data and add it to cart data for display
 	if ( isset( $cart_item['sw_service_url'] ) ) {
 		$cart_data[] = array(
-			'name'    => '<div class="sw-configured-product-container"><strong>' . __( 'Service URL', 'smart-woo' ) . '</strong>',
-			'value'   => '<span class="sw-configured-product">' . esc_html( $cart_item['sw_service_url'] ) . '</span></div>',
+			'name'    => '<div class="sw-configured-product-container"><strong>' . __( 'Service URL', 'smart-woo-invoice' ) . '</strong>',
+			'value'   => '<span class="sw-configured-product">' . esc_url( $cart_item['sw_service_url'] ) . '</span></div>',
 			'display' => '',
 		);
 	}
