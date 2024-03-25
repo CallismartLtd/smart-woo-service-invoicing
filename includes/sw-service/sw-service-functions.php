@@ -173,18 +173,6 @@ add_action( 'sw_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
 
 
 /**
- * Get the count of renewed services.
- *
- * @param int    $user_id The user ID to filter by (optional).
- * @param string $service_id The service ID to filter by (optional).
- * @return int The count of renewed services.
- */
-function get_renewed_services_count( $user_id = null, $service_id = null ) {
-
-	return 5;
-}
-
-/**
  * Check if a service subscription is active.
  *
  * @param object $service The service object.

@@ -16,7 +16,7 @@ if ( isset( $_POST['sw_add_configured_product_to_cart'] ) && wp_verify_nonce( $_
 
 	// Sanitize and validate form data
 	$service_name = isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
-	$service_url  = isset( $_POST['service_url'] ) ? esc_url_raw( $_POST['service_url'] ) : '';
+	$service_url  = isset( $_POST['service_url'] ) ? esc_url( $_POST['service_url'] ) : '';
 
 	// Validation
 	$validation_errors = array();

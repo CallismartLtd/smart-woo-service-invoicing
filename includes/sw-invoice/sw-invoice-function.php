@@ -157,9 +157,9 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
 	// Set the order total based on the provided parameter or use the invoice total
 	$order_total = ( $total !== null ) ? $total : $invoice->getTotal();
 	$order->set_total( $order_total );
-
-	// Set order status to 'pending'
 	$order->update_status( 'pending' );
+
+	// Set order signatures
 	$order->set_created_via( SW_PLUGIN_NAME );
 	$order->update_meta_data( '_sw_invoice_id', $invoice_id );
 	$order->update_meta_data( '_wc_order_attribution_utm_source', SW_PLUGIN_NAME );

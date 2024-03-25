@@ -110,7 +110,7 @@ function sw_load_billing_details_callback() {
 		$html .= '<p><strong>Company Name:</strong> ' . esc_html( $company_name ) . '</p>';
 		$html .= '<p><strong>Email Address:</strong> ' . esc_html( $email ) . '</p>';
 		$html .= '<p><strong>Phone:</strong> ' . esc_html( $phone ) . '</p>';
-		$html .= '<p><strong>Website:</strong> ' . esc_html( $website ) . '</p>';
+		$html .= '<p><strong>Website:</strong><a> ' . esc_url( $website ) . '</a></p>';
 		$html .= '<p><strong>Address:</strong> ' . esc_html( $billingAddress ) . '</p>';
 		$html .= '<p><strong>Nationality:</strong> ' . esc_html( $nationality ) . '</p>';
 		$html .= '<button class="account-button" onclick="confirmEditBilling()">Edit My Billing Address</button>';
@@ -191,10 +191,6 @@ function sw_load_account_logs_callback() {
 			$html  = '<div class="account-logs-container">';
 			$html .= '<h3>Account Logs</h3>';
 			$html .= '<ul class="account-logs-list">';
-
-			// Total service renewed
-			$renewed_services_count = get_renewed_services_count( $user_id );
-			$html .= '<li class="account-log-item"> Total Renewed Services: ' . esc_attr( $renewed_services_count ) . '</li>';
 
 			// Display Total Amount Spent first
 			$total_spent = sw_get_total_spent_by_user( $user_id );
