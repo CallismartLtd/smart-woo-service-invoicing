@@ -7,6 +7,8 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 ### Fixed
 - Security Vulnerability.
 - Terra Wallet integration updates.
+- Menu Name changed to "Smart Woo".
+- Menu Priority Changed
 
 ### Added
 - Option to set custom product text on shop

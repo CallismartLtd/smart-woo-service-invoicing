@@ -20,14 +20,17 @@ require_once SW_ABSPATH . 'admin/sw-admin-settings.php';
 /**
  * Defined function callback for admin menus.
  */
-function smart_invoice_admin_menu() {
+function sw_reg_admin_menu() {
+	global $menu;
+	
 	add_menu_page(
-		'Smart Invoice',
-		'Smart Invoice',
+		'Smart Woo',
+		'Dashboard',
 		'manage_options',
 		'sw-admin',
 		'smart_woo_service',
-		'dashicons-format-aside'
+		'dashicons-controls-repeat',
+		58.5
 	);
 
 	// Add submenu "Service Orders".
@@ -69,9 +72,18 @@ function smart_invoice_admin_menu() {
 		'sw-options',
 		'sw_options_page'
 	);
+
+    foreach ( $menu as $index => $data ) {
+        if ( $data[2] === 'sw-admin' ) {
+            $menu[$index][0] = 'Smart Woo';
+            break;
+        }
+    }
 }
 
-add_action( 'admin_menu', 'smart_invoice_admin_menu' );
+add_action( 'admin_menu', 'sw_reg_admin_menu' );
+
+
 
 
 /**
