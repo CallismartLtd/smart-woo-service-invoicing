@@ -6,7 +6,7 @@
  * @package     PluginPackage
  * @author      Callistus Nwachukwu
  * @copyright   2023 Callismart Tech
- * @license     GPL-2.0-or-later
+ * @license     GPL-3.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Smart Woo Service Invoicing
@@ -82,19 +82,39 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 		}
 	}
 
+	/**
+	 * The activation function
+	 */
 	if ( ! function_exists( 'sw_activation' ) ) {
 
 		function sw_activation() {
 
 			// Load the db table file to have access to the properties
 			include_once SW_ABSPATH . 'admin/include/sw-db.php';
+			
+			// Trigger action hook to allow us perform extra actions
 			do_action( 'smart_woo_activation' );
+
+			// Creates Database table
 			sw_plugin_db_schema();
+			// Reset and recreate rewrite rules
+			flush_rewrite_rules();
+			
 
 		}
 	}
 
 	// Activation hook for the plugin
 	register_activation_hook( __FILE__, 'sw_activation' );
+
+	/**
+	 * Function to run when deactivating plugin
+	 */
+	if ( ! function_exists( 'sw_deactivation' ) ) {
+		function sw_deactivation() {
+			
+		}
+	}
+	register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
 	
 }

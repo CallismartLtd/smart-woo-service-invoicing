@@ -46,6 +46,7 @@ add_filter( 'query_vars', 'sw_service_query_vars' );
 function sw_service_query_vars( $vars ) {
 	// Add 'sw_product_id' to the list of recognized query variables
 	$vars[] = 'sw_product_id';
+
 	return $vars;
 }
 
@@ -58,7 +59,6 @@ function sw_service_query_vars( $vars ) {
  * @param string $template The original template file path.
  * @return string The template file path for the configure page or the original template.
  */
-add_filter( 'template_include', 'sw_template_for_configure_page' );
 
 function sw_template_for_configure_page( $template ) {
 	// Check if the current page is the configure page
@@ -70,6 +70,7 @@ function sw_template_for_configure_page( $template ) {
 	// Return the original template file path
 	return $template;
 }
+add_filter( 'template_include', 'sw_template_for_configure_page' );
 
 
 
@@ -194,3 +195,6 @@ function sw_save_configured_product_data_to_order_item_meta( $item, $cart_item_k
 		$item->add_meta_data( 'Service URL', $values['sw_service_url'], true );
 	}
 }
+
+
+

@@ -12,6 +12,7 @@ function sw_configure_page_title( $title_parts ) {
 }
 add_filter( 'document_title_parts', 'sw_configure_page_title' );
 
+// Handle configuration submission
 if ( isset( $_POST['sw_add_configured_product_to_cart'] ) && wp_verify_nonce( $_POST['sw_product_configuration_nonce'], 'sw_product_configuration_nonce' ) ) {
 
 	// Sanitize and validate form data
