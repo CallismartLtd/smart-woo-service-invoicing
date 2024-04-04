@@ -1,6 +1,4 @@
 <?php
-// phpcs:ignoreFile
-
 /**
  * File name    :   contr.php
  *
@@ -8,11 +6,15 @@
  * Description  :   Controller file for Invoice frontend
  */
 
-// Define the shortcode function
-function sw_invoice_shortcode() {
-	// Check if the user is logged in
+ defined( 'ABSPATH' ) || exit; // Prevent direct access
+
+ /**
+  * Callback function for invoice page shortcode
+  */
+function smartwoo_invoice_shortcode() {
+
 	if ( ! is_user_logged_in() ) {
-		return 'You must be logged in to view this page.';
+		return esc_html__( 'You must be logged in to view this page.' );
 	}
 
 	// Start output buffering

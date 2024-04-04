@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Smart Woo Service Invoicing
  *

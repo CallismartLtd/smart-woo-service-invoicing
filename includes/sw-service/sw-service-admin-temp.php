@@ -95,10 +95,10 @@ function sw_display_service_details( Sw_Service $service ) {
 	echo '<p class="invoice-details-item"><span> Service URL:</span>' . esc_html( $service->getServiceUrl() ) . '</p>';
 	echo '<p class="invoice-details-item"><span> Amount:</span>' . esc_html( $price_with_currency ) . '</p>';
 	echo '<p class="invoice-details-item"><span> Billing Cycle:</span>' . esc_html( $service->getBillingCycle() ) . '</p>';
-	echo '<p class="invoice-details-item"><span> Start Date:</span>' . sw_check_and_format( $service->getStartDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo '<p class="invoice-details-item"><span> Next Payment Date:</span>' . sw_check_and_format( $service->getNextPaymentDate() ) . '</p>';
-	echo '<p class="invoice-details-item"><span> End Date:</span>' . sw_check_and_format( $service->getEndDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo '<p class="invoice-details-item"><span> Expiration Date:</span>' . sw_check_and_format( sw_get_service_expiration_date( $service ) ) . '</p>';
+	echo '<p class="invoice-details-item"><span> Start Date:</span>' . smartwoo_check_and_format( $service->getStartDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<p class="invoice-details-item"><span> Next Payment Date:</span>' . smartwoo_check_and_format( $service->getNextPaymentDate() ) . '</p>';
+	echo '<p class="invoice-details-item"><span> End Date:</span>' . smartwoo_check_and_format( $service->getEndDate() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<p class="invoice-details-item"><span> Expiration Date:</span>' . smartwoo_check_and_format( sw_get_service_expiration_date( $service ) ) . '</p>';
 	// Render the service URL button
 	echo sw_client_service_url_button( $service ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<a href="' . admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) . '" class="sw-blue-button">Edit this Service</a>';
@@ -661,7 +661,7 @@ function sw_render_edit_service_form() {
 				<option value="" <?php selected( '', $billing_cycle ); ?>>Select billing cycle</option>
 				<option value="Monthly" <?php selected( 'Monthly', ucfirst( strtolower( $billing_cycle ) ) ); ?>>Monthly</option>
 				<option value="Quarterly" <?php selected( 'Quarterly', ucfirst( strtolower( $billing_cycle ) ) ); ?>>Quarterly</option>
-				<option value="Six Monthtly" <?php selected( 'Six Monthtly', ucwords( strtolower( $billing_cycle ) ) ); ?>>Six Monthtly</option>
+				<option value="Six Monthly" <?php selected( 'Six Monthly', ucwords( strtolower( $billing_cycle ) ) ); ?>>Six Monthtly</option>
 				<option value="Yearly" <?php selected( 'Yearly', ucfirst( strtolower( $billing_cycle ) ) ); ?>>Yearly</option>
 			</select>
 		</div>

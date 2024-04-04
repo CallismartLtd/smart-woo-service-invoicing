@@ -8,12 +8,12 @@
  */
 
 /**
- * Edit invoice page controller
+ * Edit invoice page controller.
  *
- * @param string $invoice_id      The ID of the Invoice to be edited
+ * @param string $invoice_id      The ID of the Invoice to be edited.
  */
 function sw_edit_invoice_page() {
-	// Assuming the invoice ID is passed in the URL as 'invoice_id'
+	// Assuming the invoice ID is passed in the URL as 'invoice_id'.
 	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : null;
 	echo '<h2>Edit Invoice 📄</h2>';
 
@@ -21,8 +21,8 @@ function sw_edit_invoice_page() {
 	$existingInvoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( $existingInvoice ) {
-		// Handle form submission
-		if ( isset( $_POST['sw_update_invoice'] ) && wp_verify_nonce( $_POST['sw_edit_invoice_nonce'], 'sw_edit_invoice_nonce' ) ) {
+		// Handle form submission.
+		if ( isset( $_POST['sw_update_invoice'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_invoice_nonce'] ) ), 'sw_edit_invoice_nonce' ) ) {
 			// Sanitize and validate inputs
 			$user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : $existingInvoice->getUserId();
 			$product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : $existingInvoice->getProductId();
@@ -39,28 +39,29 @@ function sw_edit_invoice_page() {
 			}
 
 			if ( empty( $product_id ) ) {
-				$errors[] = 'Select a product';
+				$errors[] = 'Select a product.';
 			}
 
-			// If there are no errors, update the invoice
+			// If there are no errors, update the invoice.
 			if ( empty( $errors ) ) {
 
-				// Get the product price dynamically from WooCommerce
+				// Get the product price dynamically from WooCommerce.
 				$amount = wc_get_product( $product_id )->get_price();
 
-				// Calculate the total by adding the fee (if provided)
+				// Calculate the total by adding the fee (if provided).
 				$total = $amount + ( $fee ?? 0 );
 
-				// Update the existing invoice with the new data
-				$existingInvoice->setAmount( $amount );
-				$existingInvoice->setTotal( $total );
-				$existingInvoice->setUserId( $user_id );
-				$existingInvoice->setProductId( $product_id );
-				$existingInvoice->setInvoiceType( $invoice_type );
-				$existingInvoice->setServiceId( $service_id );
+				// Update the existing invoice with the new data.
+				// Added late escaping.
+				$existingInvoice->setAmount( floatval( $amount ) );
+				$existingInvoice->setTotal( floatval( $total ) );
+				$existingInvoice->setUserId( absint( $user_id ) );
+				$existingInvoice->setProductId( absint( $product_id ) );
+				$existingInvoice->setInvoiceType( sanitize_text_field( $invoice_type ) );
+				$existingInvoice->setServiceId( sanitize_text_field( $service_id ) );
 				$existingInvoice->setFee( $fee );
-				$existingInvoice->setPaymentStatus( $payment_status );
-				$existingInvoice->setDateDue( $due_date );
+				$existingInvoice->setPaymentStatus( sanitize_text_field( $payment_status ) );
+				$existingInvoice->setDateDue( sanitize_text_field( $due_date ) );
 
 				// Call the method to update the invoice in the database
 				$updated = Sw_Invoice_Database::update_invoice( $existingInvoice );
@@ -73,7 +74,7 @@ function sw_edit_invoice_page() {
 				}
 			} else {
 				// Display specific errors
-				sw_error_notice( $errors );
+				smartwoo_error_notice( $errors );
 			}
 		}
 
@@ -92,7 +93,7 @@ function sw_edit_invoice_page() {
 function sw_create_new_invoice_form() {
 	echo '<h2>Create New Invoice 📄</h2>';
 	// Handle form submission
-	if ( isset( $_POST['create_invoice'] ) && wp_verify_nonce( $_POST['sw_create_invoice_nonce'], 'sw_create_invoice_nonce' ) ) {
+	if ( isset( $_POST['create_invoice'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_create_invoice_nonce'] ) ), 'sw_create_invoice_nonce' ) ) {
 		// Sanitize and validate inputs
 		$user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
 		$product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
@@ -133,11 +134,11 @@ function sw_create_new_invoice_form() {
 				$detailsPageURL = esc_url( admin_url( "admin.php?page=sw-invoices&action=view-invoice&invoice_id=$createdInvoiceID" ) );
 				echo "Invoice created successfully! <a href='$detailsPageURL'>View Invoice Details</a>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			} else {
-				sw_error_notice( 'Failed to create the invoice.' );
+				smartwoo_error_notice( 'Failed to create the invoice.' );
 			}
 		} else {
 			// Display errors
-			sw_error_notice( $errors );
+			smartwoo_error_notice( $errors );
 		}
 	}
 	sw_render_create_invoice_form();

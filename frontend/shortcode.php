@@ -17,13 +17,13 @@ function sw_shortcode_init() {
 	 * the page where you choose as invoice page
 	 */
 
-	add_shortcode( 'sw_invoice_page', 'sw_invoice_shortcode' );
+	add_shortcode( 'sw_invoice_page', 'smartwoo_invoice_shortcode' );
 
 	/**
 	 * Short code for Service Subscription page, should be on
 	 * the page where you choose as Service page
 	 */
-	add_shortcode( 'sw_service_page', 'sw_service_shortcode' );
+	add_shortcode( 'sw_service_page', 'smartwoo_service_shortcode' );
 
 	/**
 	 * Display an integer value of active Services
@@ -37,7 +37,7 @@ function sw_shortcode_init() {
 	/**
 	 * Display the service subscriptions of the current user in a mini card
 	 */
-	add_shortcode( 'sw_service_mini_card', 'sw_service_mini_card_loader' );
+	add_shortcode( 'sw_service_mini_card', 'smartwoo_service_mini_card' );
 
 	/**
 	 * Display all invoices of the current user in a mini card
@@ -56,7 +56,7 @@ function sw_shortcode_init() {
 	 */
 
 	add_shortcode( 'pending_transactions_count', 'sw_get_pending_transactions_count' );
-	add_shortcode( 'sw_transactions', 'sw_transactions_shortcode_output' );
+	add_shortcode( 'sw_transactions', 'smartwoo_transactions_shortcode_output' );
 	add_shortcode( 'sw_transaction_status', 'sw_transaction_status_shortcode' );
 }
 add_action( 'init', 'sw_shortcode_init' );

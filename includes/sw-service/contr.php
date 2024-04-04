@@ -21,7 +21,7 @@ function sw_handle_new_service_page() {
 	// Check if the form is submitted
 	if ( isset( $_POST['add_new_service_submit'] ) ) {
 		// Verify nonce for added security
-		if ( isset( $_POST['sw_add_new_service_nonce'] ) && wp_verify_nonce( $_POST['sw_add_new_service_nonce'], 'sw_add_new_service_nonce' ) ) {
+		if ( isset( $_POST['sw_add_new_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_service_nonce'] ) ), 'sw_add_new_service_nonce' ) ) {
 			// Form data validation and processing
 			$user_id           = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
 			$product_id        = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
@@ -60,7 +60,7 @@ function sw_handle_new_service_page() {
 
 			if ( ! empty( $validation_errors ) ) {
 				// Display validation errors
-				sw_error_notice( $validation_errors );
+				smartwoo_error_notice( $validation_errors );
 			} else {
 				// Create a new Sw_Service object
 				$newservice = sw_generate_service(
@@ -101,7 +101,7 @@ function sw_handle_edit_service_page() {
 	// Check if the form is submitted
 	if ( isset( $_POST['edit_service_submit'] ) ) {
 		// Verify nonce for added security
-		if ( isset( $_POST['sw_edit_service_nonce'] ) && wp_verify_nonce( $_POST['sw_edit_service_nonce'], 'sw_edit_service_nonce' ) ) {
+		if ( isset( $_POST['sw_edit_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_service_nonce'] ) ), 'sw_edit_service_nonce' ) ) {
 			// Check if service_id is present in the URL
 			if ( isset( $_GET['service_id'] ) ) {
 				$url_service_id = sanitize_key( $_GET['service_id'] );
@@ -167,11 +167,11 @@ function sw_handle_edit_service_page() {
 						if ( $updated ) {
 							echo '<p class="success notice success is-dismissible">Service successfully updated.</p>';
 						} else {
-							echo sw_error_notice( 'Failed to update the service.' );
+							echo smartwoo_error_notice( 'Failed to update the service.' );
 						}
 					} else {
 						// Display validation errors
-							sw_error_notice( $errors );
+							smartwoo_error_notice( $errors );
 
 					}
 				} else {

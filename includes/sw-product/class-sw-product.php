@@ -22,10 +22,7 @@ class Sw_Product extends WC_Product {
 	public function __construct( $product_id ) {
 		parent::__construct( $product_id );
 
-		// Set the product type
 		wp_set_object_terms( $product_id, $this->type, 'product_type' );
-
-		// Set additional properties specific to the product type
 		$this->set_sign_up_fee( get_post_meta( $product_id, 'sign_up_fee', true ) );
 		$this->set_billing_cycle( get_post_meta( $product_id, 'billing_cycle', true ) );
 		$this->set_grace_period_number( get_post_meta( $product_id, 'grace_period_number', true ) );
@@ -78,14 +75,11 @@ class Sw_Product extends WC_Product {
 	 *
 	 * @return array An array of Sw_Service_Product objects.
 	 */
-	public static function get_sw_service_products() {
-		// Fetch all products of type 'sw_product'
-		$products = wc_get_products(
-			array(
-				'type'   => 'sw_product',
-				'status' => 'publish',
-			)
-		);
+	public static function get_all() {
+		// Fetch all products of type 'sw_product.
+
+		$query    = new WC_Product_Query( array( 'type' => 'sw_product', 'status' => 'publish' ) );
+		$products = $query->get_products();
 
 		// Initialize an array to store Sw_Service_Product objects
 		$sw_service_products = array();

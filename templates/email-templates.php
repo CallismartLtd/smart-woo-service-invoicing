@@ -41,8 +41,8 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
 		$service_name  = esc_html( $service_details->getServiceName() );
 		$service_id    = esc_html( $service_details->getServiceId() );
 		$billing_cycle = esc_html( $service_details->getBillingCycle() );
-		$start_date    = sw_check_and_format( $service_details->getStartDate(), true );
-		$end_date      = sw_check_and_format( $service_details->getEndDate(), true );
+		$start_date    = smartwoo_check_and_format( $service_details->getStartDate(), true );
+		$end_date      = smartwoo_check_and_format( $service_details->getEndDate(), true );
 		$product_id    = esc_html( $service_details->getProductId() );
 		$product       = wc_get_product( $product_id );
 
@@ -258,7 +258,7 @@ function sw_payment_reminder() {
 			$date_due           = $invoice->getDateDue();
 			$user_id            = $invoice->getUserId();
 			$user_info          = get_userdata( $user_id );
-			$formatted_date_due = sw_check_and_format( $date_due, true );
+			$formatted_date_due = smartwoo_check_and_format( $date_due, true );
 
 			// Get user details
 			$user_full_name = $user_info->first_name . ' ' . $user_info->last_name;
@@ -712,7 +712,7 @@ function sw_invoice_paid_mail( $invoice ) {
 
 		// Invoice Details
 		$invoice_id      = $invoice->getInvoiceId();
-		$paid_date       = sw_check_and_format( $invoice->getDatePaid() );
+		$paid_date       = smartwoo_check_and_format( $invoice->getDatePaid() );
 		$payment_gateway = $invoice->getPaymentGateway();
 		$amount          = $invoice->getAmount();
 		$fee             = $invoice->getFee();

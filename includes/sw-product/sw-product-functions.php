@@ -14,7 +14,7 @@
  * @param string $product_type The type of the product being processed.
  * @return string             The updated class name based on the product type.
  */
-add_filter( 'woocommerce_product_class', 'sw_product', 10, 2 );
+add_filter( 'woocommerce_product_class', 'sw_product', 10, 2 ); 
 
 function sw_product( $classname, $product_type ) {
 	if ( $product_type === 'sw_product' ) {
@@ -32,7 +32,7 @@ add_action( 'wp_ajax_delete_sw_product', 'delete_sw_product' );
 
 function delete_sw_product() {
 	// Verify the nonce
-	if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( $_POST['security'], 'delete_service_product_nonce' ) ) {
+	if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'delete_service_product_nonce' ) ) {
 		wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
 	}
 

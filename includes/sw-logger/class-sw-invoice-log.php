@@ -286,7 +286,7 @@ class Sw_Invoice_log {
         $output = '<div class="serv-details-card">';
 
         if ( empty( $logs ) ) {
-           $output .= sw_notice( 'No log data found.' );
+           $output .= smartwoo_notice( 'No log data found.' );
            $output .= '</div>';
 
            return $output;
@@ -302,9 +302,9 @@ class Sw_Invoice_log {
             if ( is_admin() ) {
                 $output .= '<p class="invoice-details-item"><span> Internal Note:</span>' . esc_html( $log->getNote() ) . '</p>';
             }
-            $output .= '<p class="invoice-details-item"><span> Date Created:</span>' . esc_html( sw_check_and_format( $log->getDateCreated() ) ) . '</p>';
+            $output .= '<p class="invoice-details-item"><span> Date Created:</span>' . esc_html( smartwoo_check_and_format( $log->getDateCreated() ) ) . '</p>';
             if ( ! empty( $log->getDateUpdated() ) ) {
-                $output .= '<p class="invoice-details-item"><span> Last Updated:</span>' . esc_html( sw_check_and_format( $log->getDateUpdated() ) ) . '</p>';
+                $output .= '<p class="invoice-details-item"><span> Last Updated:</span>' . esc_html( smartwoo_check_and_format( $log->getDateUpdated() ) ) . '</p>';
             }
                 $output .= '<hr>';
             $output .= '<hr>';

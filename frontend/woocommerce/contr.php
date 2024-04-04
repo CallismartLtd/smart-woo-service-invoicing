@@ -15,14 +15,14 @@
  */
 function sw_save_edited_bio_and_user_url( $user_id, $address_type = 'billing' ) {
     error_log( 'Save fired' );
-    if ( isset( $_POST['smart_woo_form_nonce'] ) && wp_verify_nonce( $_POST['smart_woo_form_nonce'], 'smart_woo_form_nonce' ) ) {
+    if ( isset( $_POST['smart_woo_form_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['smart_woo_form_nonce'] ) ), 'smart_woo_form_nonce' ) ) {
 
         if ( isset( $_POST['bio'] ) ) {
             update_user_meta ( $user_id, 'description', sanitize_textarea_field( $_POST['bio'] ) );
         }        
         
         if ( isset( $_POST['billing_website'] ) ) {
-            update_user_meta ( $user_id, 'billing_website', sanitize_textarea_field( $_POST['billing_website'] ) );
+            update_user_meta ( $user_id, 'billing_website', esc_url_raw( $_POST['billing_website'] ) );
         }
 
         if ( isset( $_POST['website'] ) ) {

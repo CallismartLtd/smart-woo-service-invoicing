@@ -5,8 +5,8 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 ## [1.0.2] - 20224-03-25
 
 ### Fixed
-- Security Vulnerability.
-- Terra Wallet integration updates.
+- Security Vulnerabilities.
+- Terra Wallet integration updated.
 - Menu Name changed to "Smart Woo".
 - Menu Priority Changed
 

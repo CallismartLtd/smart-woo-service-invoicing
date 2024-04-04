@@ -11,7 +11,7 @@
  */
 function sw_handle_new_product_form() {
 	// Handle form submission
-	if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( $_POST['sw_add_new_product_nonce'], 'sw_add_new_product_nonce' ) ) {
+	if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
 		// Validate the product name
 		$product_name = sanitize_text_field( $_POST['product_name'] );
 
@@ -28,7 +28,7 @@ function sw_handle_new_product_form() {
 
 		if ( ! empty( $validation_errors ) ) {
 			// Display validation errors using the custom error notice function
-			sw_error_notice( $validation_errors );
+			smartwoo_error_notice( $validation_errors );
 
 		} elseif ( empty( $validation_errors ) ) {
 
@@ -84,7 +84,7 @@ function sw_handle_new_product_form() {
 
 function sw_handle_product_edit_form( $product_id ) {
 	// Handle form submission for updating the product
-	if ( isset( $_POST['update_service_product'] ) && wp_verify_nonce( $_POST['sw_edit_product_nonce'], 'sw_edit_product_nonce' ) ) {
+	if ( isset( $_POST['update_service_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_product_nonce'] ) ), 'sw_edit_product_nonce' ) ) {
 		// Update the product
 		$updated = update_sw_service_product( $product_id );
 

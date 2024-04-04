@@ -266,7 +266,7 @@ function sw_generate_service_migration_invoice() {
 	if ( isset( $_POST['proceed_with_upgrade'] ) || isset( $_POST['proceed_with_downgrade'] ) ) {
 
 		// Verify Migration nonce
-		if ( isset( $_POST['migration_nonce'] ) && wp_verify_nonce( $_POST['migration_nonce'], 'migration_nonce' ) ) {
+		if ( isset( $_POST['migration_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['migration_nonce'] ) ), 'migration_nonce' ) ) {
 			// Get and sanitize form data
 			$user_id                = absint( $_POST['user_id'] );
 			$service_id             = sanitize_text_field( $_POST['service_id'] );
@@ -488,21 +488,10 @@ function sw_biller_details() {
  * 
  * @param int $user_id		The user's ID.
  */
-function sw_get_total_spent_by_user( $user_id ) {
-	$customer_orders = wc_get_orders(
-		array(
-			'customer_id' => $user_id,
-			'status'      => array( 'completed', 'processing' ), // Include processing orders
-		)
-	);
+function smartwoo_get_total_spent_by_user( $user_id ) {
+	$customer = new WC_Customer( $user_id );
 
-	$total_spent = 0;
-
-	foreach ( $customer_orders as $order ) {
-		$total_spent += $order->get_total();
-	}
-
-	return wc_price( $total_spent );
+	return  $customer->get_total_spent();
 }
 
 function sw_delete_invoice_button( $invoice_id ) {
@@ -516,7 +505,11 @@ add_action( 'wp_ajax_nopriv_delete_invoice', 'sw_delete_invoice_callback' );
 
 function sw_delete_invoice_callback() {
 	// Verify the nonce for security
-	check_ajax_referer( 'smart_woo_nonce', 'security' );
+	if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
+		wp_send_json_error( 'action did not pass security check' );
+		wp_die();
+
+	}
 
 	// Get the invoice ID from the Ajax request
 	$invoice_id = isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';

@@ -447,11 +447,11 @@ use inline CSS to overide some styles
 ////////////////////////////////////////////CSS for the Invoice page ///////////////////////////////
 /***************************************************************************************************
 /* Table Styles */
-.sw-invoices-table-wrapper {
+.sw-table-wrapper {
     overflow-x: auto;
 }
 
-.sw-invoices-table {
+.sw-table {
     width: 100%;
     border-collapse: collapse;
 	border-radius: 9px;
@@ -461,45 +461,49 @@ use inline CSS to overide some styles
     overflow: hidden;
 }
 
-.sw-invoices-table th, .sw-invoices-table td {
+.sw-table th, .sw-table td {
     padding: 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-.sw-invoices-table th {
+.sw-table th {
     background-color: #ffe1f5;
     color: #0e0101;
 	font-weight: bold;
 }
 
-.sw-invoices-table:hover {
+.sw-table:hover {
     background-color: #ffffff;
 	box-shadow: none;
 
 }
 
-
+.sw-table-count {
+	text-align: right;
+	font-weight: bold;
+	margin-top: 10px;
+}
 
 /* Responsive Styles for mobile devices */
 @media only screen and (min-width: 320px) and (max-width: 720px) {
 
-    .sw-invoices-table {
+    .sw-table {
         width: 90%;
         max-width: 100%; /* Adjusted to take full width on small screens */
         box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
         overflow-x: auto; /* Added to enable horizontal scrolling if needed */
     }
 
-    .sw-invoices-table thead,
-    .sw-invoices-table tbody,
-    .sw-invoices-table th,
-    .sw-invoices-table td,
-    .sw-invoices-table tr {
+    .sw-table thead,
+    .sw-table tbody,
+    .sw-table th,
+    .sw-table td,
+    .sw-table tr {
         display: block;
     }
 
-    .sw-invoices-table tbody tr {
+    .sw-table tbody tr {
         margin-bottom: 10px;
         border: 1px solid #ddd;
         display: flex;
@@ -507,17 +511,11 @@ use inline CSS to overide some styles
         justify-content: space-between;
     }
 
-    .sw-invoices-table tbody td {
+    .sw-table tbody td {
         text-align: left;
         padding: 15px;
         border-bottom: 1px solid #ddd;
         width: 100%; /* Make the cells take full width */
-    }
-
-    .invoice-count {
-        text-align: left;
-        font-weight: bold;
-        margin-top: 10px;
     }
 }
 

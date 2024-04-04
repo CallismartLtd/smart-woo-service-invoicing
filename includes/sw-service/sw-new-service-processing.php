@@ -170,7 +170,6 @@ function sw_convert_WC_order_to_SW_service( $order_id ) {
 				$end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +1 year' ) );
 				$next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
 				break;
-			// Add additional cases as needed
 			default:
 				break;
 		}
@@ -188,7 +187,7 @@ function sw_convert_WC_order_to_SW_service( $order_id ) {
 function sw_process_new_service_order() {
 	if ( isset( $_POST['action'] ) && $_POST['action'] === 'sw_process_new_service' ) {
 		// Check if the nonce is set and valid
-		if ( isset( $_POST['sw_process_new_service_nonce'] ) && wp_verify_nonce( $_POST['sw_process_new_service_nonce'], 'sw_process_new_service_nonce' ) ) {
+		if ( isset( $_POST['sw_process_new_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'] ) ), 'sw_process_new_service_nonce' ) ) {
 
 			// Sanitize and validate form data
 			$product_id        = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
@@ -231,7 +230,7 @@ function sw_process_new_service_order() {
 
 			if ( ! empty( $validation_errors ) ) {
 				// Display validation errors using the custom error notice function
-				sw_error_notice( $validation_errors );
+				smartwoo_error_notice( $validation_errors );
 
 			} elseif ( empty( $validation_errors ) ) {
 

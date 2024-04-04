@@ -9,7 +9,7 @@
  */
 
  defined( 'ABSPATH' ) || exit; // Prevent direct access
-
+ 
 // Add Invoice and Service Menu Items
 function sw_register_woo_my_account_menu( $items ) {
 	

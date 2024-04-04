@@ -1,7 +1,19 @@
 <?php
+/**
+ * File name   : configure.php
+ * Author      : Callistus
+ * Description : Template file for product configurstion page.
+ *
+ * @since      : 1.0.0
+ * @package    : SmartWooServiceInvoicing
+ */
+
+defined( 'ABSPATH' ) || exit; // Prevent direct access
+
 /* Template Name: Product Configuration */
 
 global $wp_query;
+
 $product_id   = isset( $wp_query->query_vars['sw_product_id'] ) ? absint( $wp_query->query_vars['sw_product_id'] ) : 0;
 $product      = wc_get_product( $product_id );
 $product_name = $product ? $product->get_name() : '';
@@ -13,7 +25,7 @@ function sw_configure_page_title( $title_parts ) {
 add_filter( 'document_title_parts', 'sw_configure_page_title' );
 
 // Handle configuration submission
-if ( isset( $_POST['sw_add_configured_product_to_cart'] ) && wp_verify_nonce( $_POST['sw_product_configuration_nonce'], 'sw_product_configuration_nonce' ) ) {
+if ( isset( $_POST['sw_add_configured_product_to_cart'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_product_configuration_nonce'] ) ), 'sw_product_configuration_nonce' ) ) {
 
 	// Sanitize and validate form data
 	$service_name = isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
@@ -31,7 +43,7 @@ if ( isset( $_POST['sw_add_configured_product_to_cart'] ) && wp_verify_nonce( $_
 	}
 
 	if ( ! empty( $validation_errors ) ) {
-		sw_error_notice( $validation_errors );
+		smartwoo_error_notice( $validation_errors );
 	}
 
 	if ( empty( $validation_errors ) ) {

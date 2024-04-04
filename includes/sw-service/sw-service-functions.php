@@ -84,7 +84,7 @@ function sw_client_service_url_button( Sw_Service $service ) {
 	$user_id        = $service->getUserId();
 	$user_info      = get_userdata( $user_id );
 	$service_status = sw_service_status( $service->getServiceId() );
-	if ( 'Active' === $service_status  && 'Web Service' === $service->getServiceType() ) {
+	if ( 'Active' === $service_status || 'Active (NR)' === $service_status  || 'Due for Renewal' === $service_status || 'Grace Period' === $service_status && 'Web Service' === $service->getServiceType() ) {
 
 		if ( $user_info ) {
 			$user_email = $user_info->user_email;
@@ -102,6 +102,7 @@ function sw_client_service_url_button( Sw_Service $service ) {
 		return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
 
 	}
+	return false;
 }
 
 
@@ -701,7 +702,7 @@ function sw_check_service_usage( $service_id ) {
 		'total_days'           => max( 1, $total_days ), // Ensure non-zero value
 		'total_used_days'      => max( 0, $days_passed ),
 		'remaining_days'       => max( 0, $total_days - $days_passed ),
-		'current_date_time'    => sw_check_and_format( current_time( 'mysql' ), true ),
+		'current_date_time'    => smartwoo_check_and_format( current_time( 'mysql' ), true ),
 		'average_hourly_usage' => max( 0, $average_hourly_usage ), // Ensure non-negative value
 	);
 }

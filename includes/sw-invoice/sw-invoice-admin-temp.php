@@ -352,7 +352,7 @@ function get_invoices_table() {
 
 	// Check if there are any invoices
 	if ( empty( $all_invoices ) ) {
-		return sw_notice( 'All invoices will appear here' );
+		return smartwoo_notice( 'All invoices will appear here' );
 
 	}
 
@@ -417,9 +417,9 @@ function sw_view_invoice_page() {
 		$datePaid       = $invoice->getDatePaid();
 		$dateDue        = $invoice->getDateDue();
 		// Format the dates or display 'Not Available'
-		$formattedDateCreated = sw_check_and_format( $dateCreated, true );
-		$formattedDatePaid    = sw_check_and_format( $datePaid, true );
-		$formattedDateDue     = sw_check_and_format( $dateDue, true );
+		$formattedDateCreated = smartwoo_check_and_format( $dateCreated, true );
+		$formattedDatePaid    = smartwoo_check_and_format( $datePaid, true );
+		$formattedDateDue     = smartwoo_check_and_format( $dateDue, true );
 		
 		echo '<h2>' . esc_html( $invoice->getInvoiceType() ) . '</h2>';
 		// Display detailed information about the invoice
@@ -465,7 +465,7 @@ function sw_view_invoice_page() {
 		if ( $service_details ) {
 			$service_name  = $service_details->getServiceName();
 			$billing_cycle = $service_details->getBillingCycle();
-			$end_date      = sw_check_and_format( $service_details->getEndDate() ) ;
+			$end_date      = smartwoo_check_and_format( $service_details->getEndDate() ) ;
 			$service_id    = $invoice->getServiceId();
 
 			echo '<h3> Related Service Details </h3>';
@@ -475,7 +475,7 @@ function sw_view_invoice_page() {
 			echo '<a class="button" href="admin.php?page=sw-admin&action=service_details&service_id=' . $service_id . '">More about Service ➡</a>';
 
 		} else {
-			echo sw_notice( 'No details found for the service ID associated with this invoice.' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo smartwoo_notice( 'No details found for the service ID associated with this invoice.' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		
 		}
 		echo '</div>';

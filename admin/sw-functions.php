@@ -15,7 +15,7 @@
  * @param bool   $includeTime Whether to include the time aspect. Default is true.
  * @return string Formatted date or 'Not Available'.
  */
-function sw_check_and_format( $dateString, $includeTime = false ) {
+function smartwoo_check_and_format( $dateString, $includeTime = false ) {
 	$format = $includeTime ? 'l jS F Y \a\t h:i:s A' : 'l jS F Y';
 
 	return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
@@ -39,18 +39,18 @@ function sw_extract_date_only( string $datetimestring ) {
 }
 
 /**
- * Convert timestamp to a readable date using sw_check_and_format function.
+ * Convert timestamp to a readable date using smartwoo_check_and_format function.
  *
  * @param int  $timestamp   Unix timestamp.
  * @param bool $includeTime Whether to include the time aspect. Default is true.
  * @return string Formatted date or 'Not Available'.
  */
-function sw_convert_timestamp_to_readable_date( int $timestamp, bool $includeTime = true ) {
+function smartwoo_convert_timestamp_to_readable_date( int $timestamp, bool $includeTime = true ) {
     // Convert the timestamp to a date string
     $dateString = date_i18n( 'Y-m-d H:i:s', $timestamp );
 
-    // Use sw_check_and_format to format the date string
-    return sw_check_and_format( $dateString, $includeTime );
+    // Use smartwoo_check_and_format to format the date string
+    return smartwoo_check_and_format( $dateString, $includeTime );
 }
 
 
@@ -226,42 +226,45 @@ function sw_Is_migration() {
  * @param string $message The notice message.
  * @return string HTML markup for the notice message.
  */
-function sw_notice( $message ) {
+function smartwoo_notice( $message ) {
 	// HTML and styles for the notice message
 	$output  = '<div style="background-color: #ffe9a7; padding: 10px; border: 1px solid #f3c100; border-radius: 5px; margin: 10px 0; display: flex; align-items: center;">';
-	$output .= '<span style="font-size: 20px; margin-right: 10px;">⚠</span>';
-	$output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold;">' . esc_html( $message ) . '</p>'; 
-	$output .= '<span style="font-size: 20px; margin-right: 10px;">⚠</span>';
+	$output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold; text-align: center; max-width: 100%;">⚠ ' . esc_html__( $message, 'smart-woo-service-invoicing' ) . ' ⚠</p>'; 
 	$output .= '</div>';
 
 	return $output;
 }
 
 
-if ( ! function_exists( 'sw_error_notice' ) ) {
+if ( ! function_exists( 'smartwoo_error_notice' ) ) {
 	/**
 	 * Display an error notice to the user.
 	 *
 	 * @param string|array $messages Error message(s) to display.
 	 */
-	function sw_error_notice( $messages ) {
-		echo '<div class="sw-error-notice notice notice-error is-dismissible">';
+	function smartwoo_error_notice( $messages ) {
+
+		if ("" === $message ) {
+			return ""; // message is required.
+		}
+		$error = '<div class="sw-error-notice notice notice-error is-dismissible">';
 
 		if ( is_array( $messages ) ) {
-			echo sw_notice( 'Errors !!' );
+			$error .= smartwoo_notice( 'Errors !!' );
 
 			$error_number = 1;
 
 			foreach ( $messages as $message ) {
-				echo '<p>' . esc_html( $error_number . '. ' . $message ) . '</p>';
+				$error .= '<p>' . esc_html( $error_number . '. ' . $message ) . '</p>';
 				++$error_number;
 			}
 		} else {
-			echo sw_notice( 'Error !!' );
-			echo '<p>' . esc_html( $messages ) . '</p>';
+			$error .= smartwoo_notice( 'Error !!' );
+			$error .= '<p>' . esc_html__( $messages ) . '</p>';
 		}
 
-		echo '</div>';
+		$error .= '</div>';
+		return $error;
 	}
 }
 
@@ -345,84 +348,119 @@ function has_sw_configured_products( $order ) {
  * @param int $user_id   The current user's ID
  */
 function sw_get_navbar( $current_user_id ) {
+    $service_page_id            = get_option( 'sw_service_page', 0 );
+    $service_page_url           = get_permalink( $service_page_id );
+    $invoice_preview_page_id    = get_option( 'sw_invoice_page', 0 );
+    $invoice_preview_page_url   = get_permalink( $invoice_preview_page_id );
 
-	// Get the URL of the service page from the plugin options
-	$service_page_id  = get_option( 'sw_service_page', 0 );
-	$service_page_url = get_permalink( $service_page_id );
+    // Determine the current page
+    $current_page_slug = '';
+    $navbar_title      = '';
 
-	// Get the URL of the invoice preview page from the plugin options
-	$invoice_preview_page_id  = get_option( 'sw_invoice_page', 0 );
-	$invoice_preview_page_url = get_permalink( $invoice_preview_page_id );
+    if ( is_page( $service_page_id ) ) {
+        $current_page_slug = 'services';
+        $navbar_title      = 'My Services';
+    } elseif ( is_page( $invoice_preview_page_id ) ) {
+        $current_page_slug = 'invoices';
+        $navbar_title      = 'My Invoices';
+    }
+    // Set the default page title
+    $page_title = $navbar_title;
 
-	// Determine the current page
-	$current_page_slug = '';
-	$navbar_title      = '';
+    // If the current page is 'services' and a service action is selected
+    if ( $current_page_slug === 'services' && isset( $_GET['service_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $service_action = sanitize_key( $_GET['service_action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	if ( is_page( $service_page_id ) ) {
-		$current_page_slug = 'services';
-		$navbar_title      = 'My Services';
-	} elseif ( is_page( $invoice_preview_page_id ) ) {
-		$current_page_slug = 'invoices';
-		$navbar_title      = 'My Invoices';
-	}
+        // Customize the page title based on the selected service action
+        switch ( $service_action ) {
+            case 'upgrade':
+                $page_title = 'Upgrade Service';
+                break;
+            case 'downgrade':
+                $page_title = 'Downgrade Service';
+                break;
+            case 'buy_new':
+                $page_title = 'Buy New Service';
+                break;
+        }
+    }
 
-	// Set the default page title
-	$page_title = $navbar_title;
+    $nav_bar  = '<div class="service-navbar">';
 
-	// If the current page is 'services' and a service action is selected
-	if ( $current_page_slug === 'services' && isset( $_GET['service_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$service_action = sanitize_key( $_GET['service_action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    // Container for the title (aligned to the left)
+    $nav_bar .= '<div class="navbar-title-container">';
+    $nav_bar .= '<h3>' . esc_attr( $page_title ) . '</h3>';
+    $nav_bar .= '</div>';
 
-		// Customize the page title based on the selected service action
-		switch ( $service_action ) {
-			case 'upgrade':
-				$page_title = 'Upgrade Service';
-				break;
-			case 'downgrade':
-				$page_title = 'Downgrade Service';
-				break;
-			case 'buy_new':
-				$page_title = 'Buy New Service';
-				break;
+    // Container for the links (aligned to the right)
+    $nav_bar .= '<div class="navbar-links-container">';
+    $nav_bar .= '<ul>';
+
+    // Add link to the service page
+    $nav_bar .= '<li><a href="' . esc_url( $service_page_url ) . '" class="' . ( $current_page_slug === 'services' ? 'current-page' : '' ) . '">Services</a></li>';
+
+    // Add link to the invoice preview page
+    $nav_bar .= '<li><a href="' . esc_url( $invoice_preview_page_url ) . '" class="' . ( $current_page_slug === 'invoices' ? 'current-page' : '' ) . '">Invoices</a></li>';
+
+    // Add dropdown for service actions only on the service page
+    if ( $current_page_slug === 'services' ) {
+        // Dropdown for service actions
+        $nav_bar .= '<li class="service-actions-dropdown">';
+        $nav_bar .= '<select id="service-action-dropdown">';
+        $nav_bar .= '<option value="" selected>Select Action</option>';
+        $nav_bar .= '<option value="upgrade">Upgrade Service</option>';
+        $nav_bar .= '<option value="downgrade">Downgrade Service</option>';
+        $nav_bar .= '<option value="buy_new">Buy New Service</option>';
+        $nav_bar .= '</select>';
+        $nav_bar .= '</li>';
+    }
+
+    $nav_bar .= '</ul>';
+    $nav_bar .= '</div>';
+
+    $nav_bar .= '</div>';
+	
+	/**
+	 * Define Helper callback function for the wp_kses_allowed_html filter
+	 * 
+	 * This function defines a callback for the wp_kses_allowed_html filter,
+	 * which is used to modify the allowed HTML tags and attributes for the
+	 * wp_kses_post() function. By adding or modifying the allowed tags and
+	 * attributes, we can ensure that specific HTML elements are retained
+	 * when using wp_kses_post(). This callback function is intended to be
+	 * used in conjunction with the sw_get_navbar() function to customize
+	 * the allowed HTML for the navigation bar output.
+	 *
+	 * @param array  $allowed_tags An array of allowed HTML tags and their attributes.
+	 * @param string $context      The context in which the HTML is being sanitized.
+	 * @return array               The modified array of allowed HTML tags and attributes.
+	 */ 
+	function smartwoo_kses_allowed( $allowed_tags, $context ) {
+		// Add or modify the allowed HTML tags and attributes as needed
+		if ( 'post' === $context ) {
+			// Define the allowed HTML tags and attributes for wp_kses_post() in the context of post content
+			$allowed_tags = array_merge( $allowed_tags, array(
+				'select' => array(
+					'id' => array(),
+				),
+				'option' => array(
+					'value' => array(),
+					'selected' => array(),
+				),
+			) );
 		}
+
+		return $allowed_tags;
 	}
 
-	echo '<div class="service-navbar">';
+    // Apply filter to modify the allowed HTML tags and attributes for wp_kses_post().
+    add_filter( 'wp_kses_allowed_html', 'smartwoo_kses_allowed', 10, 2 );
 
-	// Container for the title (aligned to the left)
-	echo '<div class="navbar-title-container">';
-	echo '<h3>' . esc_html( $page_title ) . '</h3>';
-	echo '</div>';
-
-	// Container for the links (aligned to the right)
-	echo '<div class="navbar-links-container">';
-	echo '<ul>';
-
-	// Add link to the service page
-	echo '<li><a href="' . esc_url( $service_page_url ) . '" class="' . ( $current_page_slug === 'services' ? 'current-page' : '' ) . '">Services</a></li>';
-
-	// Add link to the invoice preview page
-	echo '<li><a href="' . esc_url( $invoice_preview_page_url ) . '" class="' . ( $current_page_slug === 'invoices' ? 'current-page' : '' ) . '">Invoices</a></li>';
-
-	// Add dropdown for service actions only on the service page
-	if ( $current_page_slug === 'services' ) {
-		// Dropdown for service actions
-		echo '<li class="service-actions-dropdown">';
-		echo '<select onchange="redirectBasedOnServiceAction(this.value)">';
-		echo '<option value="" selected>Select Action</option>';
-		echo '<option value="upgrade">Upgrade Service</option>';
-		echo '<option value="downgrade">Downgrade Service</option>';
-		echo '<option value="buy_new">Buy New Service</option>';
-		// Add more options as needed
-		echo '</select>';
-		echo '</li>';
-	}
-
-	echo '</ul>';
-	echo '</div>';
-
-	echo '</div>';
+    return $nav_bar;
 }
+
+
+
 /**
  * Determine whether or not we are in the frontend
  * 
@@ -433,3 +471,17 @@ function is_smart_woo_frontend() {
 		return true;
 	}
 }
+
+/**
+ * Product configuration page.
+ * 
+ * @param int $product_id the product ID.
+ * @return string $configure page.
+ */
+function smartwoo_configure_page( $product_id ){
+	if ( empty( $product_id ) || "product" !== get_post_type( absint( $product_id ) ) ) {
+		return '#';
+	}
+	$configure_page = esc_url(  home_url( '/configure/' . absint( $product_id ) ) );
+	return $configure_page;
+} 

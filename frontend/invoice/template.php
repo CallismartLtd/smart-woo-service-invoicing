@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file contains all the code for the invoice preview page and the code for the
  * generation of the pdf invoice, we utilized the MPDF library for the generation of the pdf invoice
@@ -22,8 +21,8 @@ function view_all_invoices() {
     if ( $invoices ) {
 
         // Display the invoices in a table
-        echo '<div class="sw-invoices-table-wrapper">';
-        echo '<table class="sw-invoices-table">';
+        echo '<div class="sw-table-wrapper">';
+        echo '<table class="sw-table">';
         echo '<thead>';
         echo '<tr>';
         echo '<th>Invoice ID</th>';
@@ -31,7 +30,7 @@ function view_all_invoices() {
         echo '<th>Date Due</th>';
         echo '<th>Total</th>';
         echo '<th>Status</th>';
-        echo '<th></th>';
+        echo '<th>Action</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -43,8 +42,8 @@ function view_all_invoices() {
             $dateDue     = $invoice->getDateDue();
 
             // Format the dates or display 'Not Available'
-            $formattedDateCreated = sw_check_and_format( $dateCreated, true );
-            $formattedDateDue     = sw_check_and_format( $dateDue, true );
+            $formattedDateCreated = smartwoo_check_and_format( $dateCreated, true );
+            $formattedDateDue     = smartwoo_check_and_format( $dateDue, true );
 
             echo '<tr>';
             echo '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
@@ -60,7 +59,7 @@ function view_all_invoices() {
         echo '</tbody>';
         echo '</table>';
         echo '</div>';
-        echo '<p class="invoice-count">Number of Invoices: ' . count( $invoices ) . '</p>';
+        echo '<p class="sw-table-count">' . count( $invoices ) . ' item(s)</p>';
 
     } else {
         echo '<p>All your invoices will appear here.</p>';
@@ -124,9 +123,9 @@ function view_invoice_details( $invoice_id, $user_id = null ) {
 		$invoice_total    = $invoice->getTotal();
 
 		// format the date
-		$formattedInvoiceDate = sw_check_and_format( $invoice_date, true );
-		$formattedPaidDate    = sw_check_and_format( $transaction_date, true );
-		$formattedDateDue     = sw_check_and_format( $invoice_due_date, true );
+		$formattedInvoiceDate = smartwoo_check_and_format( $invoice_date, true );
+		$formattedPaidDate    = smartwoo_check_and_format( $transaction_date, true );
+		$formattedDateDue     = smartwoo_check_and_format( $invoice_due_date, true );
 
 		$payment_gateway = $invoice->getPaymentGateway();
 		// Check if $payment_gateway is not empty or null
@@ -367,7 +366,7 @@ function sw_invoice_mini_card_shortcode() {
     if ( $all_invoices ) {
         foreach ( $all_invoices as $invoice ) {
             $invoice_id     = esc_html( $invoice->getInvoiceId() );
-            $generated_date = esc_html( sw_check_and_format( $invoice->getDateCreated() ) );
+            $generated_date = esc_html( smartwoo_check_and_format( $invoice->getDateCreated() ) );
             $order_id       = esc_html( $invoice->getOrderId() );
             $order_key      = esc_attr( get_post_meta( $order_id, '_order_key', true ) );
 
@@ -472,7 +471,7 @@ function sw_get_unpaid_invoices_count() {
 /**
  * Render All WooCommerce Orders as transactions
  */
-function sw_transactions_shortcode_output() {
+function smartwoo_transactions_shortcode_output() {
 	// Start output buffer
 	ob_start();
 
@@ -507,7 +506,7 @@ function sw_transactions_shortcode_output() {
 				// Initialize variables
 				$amount         = $order->get_total();
 				$order_status   = $order->get_status();
-				$order_date     = sw_check_and_format( $order->get_date_created(), true );
+				$order_date     = smartwoo_check_and_format( $order->get_date_created(), true );
 				$payment_method = $order->get_payment_method_title();
 				$product_names  = array();
 

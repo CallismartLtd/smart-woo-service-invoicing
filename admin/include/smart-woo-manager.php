@@ -642,7 +642,7 @@ function sw_manual_service_renewal() {
 	if ( isset( $_GET['action'] ) && $_GET['action'] === 'renew-service' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Verify the nonce
-		if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( $_GET['renew_nonce'], 'renew_service_nonce' ) ) {
+		if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['renew_nonce'] ) ), 'renew_service_nonce' ) ) {
 
 			// Get and sanitize the service ID
 			$service_id = sanitize_text_field( $_GET['service_id'] );

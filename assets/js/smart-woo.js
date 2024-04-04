@@ -116,390 +116,507 @@ jQuery( document ).ready(
  * @returns
  */
 
-function openCancelServiceDialog(serviceName) {
-	var confirmationMessage = 'You can either opt out of automatic renewal of ' + serviceName + ' by typing cancel billing or opt out of this service by cancelling it, this action cannot be reversed. Please note: our refund and returns policy will apply either way.' +
-		'\n\nPlease enter your choice:' +
-		'\nType "cancel service" to cancel the service' +
-		'\nType "cancel billing" opt out of automatic service renewal';
+document.addEventListener( 'DOMContentLoaded', function() {
+    var quickActionButton = document.getElementById( 'sw-service-quick-action' );
 
-	var userChoice = prompt( confirmationMessage );
+    if ( quickActionButton ) {
+        quickActionButton.addEventListener( 'click', function() {
+            var serviceName = quickActionButton.dataset.serviceName;
+            openCancelServiceDialog( serviceName );
+        });
+    }
+});
 
-	if (userChoice !== null) {
-		var selectedAction = null;
+function openCancelServiceDialog( serviceName ) {
+    var confirmationMessage = 'You can either opt out of automatic renewal of ' + serviceName + ' by typing "cancel billing" or opt out of this service by typing "cancel service". This action cannot be reversed. Please note: our refund and returns policy will apply either way.' +
+        '\n\nPlease enter your choice:' +
+        '\nType "cancel service" to cancel the service' +
+        '\nType "cancel billing" to opt out of automatic service renewal';
 
-		if (userChoice.toLowerCase() === 'cancel service') {
-			selectedAction = 'sw_cancel_service';
-		} else if (userChoice.toLowerCase() === 'cancel billing') {
-			selectedAction = 'sw_cancel_billing';
-		}
+    var userChoice = prompt( confirmationMessage );
 
-		if (selectedAction !== null) {
-			// Update the URL with the selected action
-			var newUrl    = selectedAction;
-			location.href = location.href + '&action=' + newUrl;
-		} else {
-			// Show an error message
-			alert( 'Invalid choice. Please type "cancel service" or "suspend service" as instructed.' );
-		}
-	}
+    if ( userChoice !== null ) {
+        var selectedAction = null;
 
-	return false;
+        if ( userChoice.toLowerCase() === 'cancel service' ) {
+            selectedAction = 'sw_cancel_service';
+        } else if ( userChoice.toLowerCase() === 'cancel billing' ) {
+            selectedAction = 'sw_cancel_billing';
+        }
+
+        if ( selectedAction !== null ) {
+            // Update the URL with the selected action
+            var newUrl = updateQueryStringParameter( window.location.href, 'action', selectedAction );
+            window.location.href = newUrl;
+        } else {
+            // Show an error message
+            alert( 'Oops! you mis-typed it. Please type "cancel service" or "cancel billing" as instructed.' );
+        }
+    }
+
+    return false;
 }
 
 
 
-	jQuery( document ).ready(
-		function ($) {
-			var mediaUploader;
+jQuery( document ).ready(
+	function ($) {
+		var mediaUploader;
 
-			$( '#upload_image_button' ).click(
-				function (e) {
-					e.preventDefault();
+		$( '#upload_image_button' ).click(
+			function (e) {
+				e.preventDefault();
 
-					if (mediaUploader) {
-							mediaUploader.open();
-							return;
-					}
-
-					mediaUploader = wp.media.frames.file_frame = wp.media(
-						{
-							title: 'Choose Image',
-							button: {
-								text: 'Choose Image'
-							},
-							multiple: false
-						}
-					);
-
-					mediaUploader.on(
-						'select',
-						function () {
-							var attachment = mediaUploader.state().get( 'selection' ).first().toJSON();
-							$( '#product_image_id' ).val( attachment.id ); // Update the hidden input with the image ID
-							$( '#image_preview' ).html( '<img src="' + attachment.url + '" style="max-width: 100%;" />' ); // Optionally display a preview
-						}
-					);
-
-					mediaUploader.open();
+				if (mediaUploader) {
+						mediaUploader.open();
+						return;
 				}
-			);
+
+				mediaUploader = wp.media.frames.file_frame = wp.media(
+					{
+						title: 'Choose Image',
+						button: {
+							text: 'Choose Image'
+						},
+						multiple: false
+					}
+				);
+
+				mediaUploader.on(
+					'select',
+					function () {
+						var attachment = mediaUploader.state().get( 'selection' ).first().toJSON();
+						$( '#product_image_id' ).val( attachment.id ); // Update the hidden input with the image ID
+						$( '#image_preview' ).html( '<img src="' + attachment.url + '" style="max-width: 100%;" />' ); // Optionally display a preview
+					}
+				);
+
+				mediaUploader.open();
+			}
+		);
+	}
+);
+
+
+
+
+
+
+jQuery( document ).ready(
+	function ($) {
+		// When the page is loaded, check the initial value of the grace period unit
+		checkGracePeriodUnit();
+
+		// Bind a change event to the grace period unit select
+		$( 'select[name="grace_period_unit"]' ).change(
+			function () {
+				checkGracePeriodUnit();
+			}
+		);
+
+		function checkGracePeriodUnit() {
+			var selectedValue = $( 'select[name="grace_period_unit"]' ).val();
+
+			// Check if the selected value is the one for 'Never Expire'
+			if (selectedValue === smart_woo_vars.never_expire_value) {
+				// Clear the number field
+				$( 'input[name="grace_period_number"]' ).val( '' );
+				// Disable the number field to prevent user input
+				$( 'input[name="grace_period_number"]' ).prop( 'disabled', true );
+			} else {
+				// Enable the number field
+				$( 'input[name="grace_period_number"]' ).prop( 'disabled', false );
+			}
+		}
+	}
+);
+
+
+
+
+/** Js Code for Services page */
+
+/**
+ * Show the loading indicator by displaying the #swloader element.
+ * This function sets the display property to 'block', making the loader visible.
+ */
+function showLoadingIndicator() {
+		jQuery( '#swloader' ).show();
+}
+
+/**
+ * Hide the loading indicator by hiding the #swloader element.
+ * This function sets the display property to 'none', making the loader invisible.
+ */
+function hideLoadingIndicator() {
+		jQuery( '#swloader' ).hide();
+}
+
+
+function confirmEditAccount() {
+		var confirmAccount = confirm( "Are you sure you want to edit your information?" );
+	if (confirmAccount) {
+		window.location.href = smart_woo_vars.woo_my_account_edit;
+	}
+}
+
+function confirmPaymentMethods() {
+		var confirmPayment = confirm( "Are you sure you want to view your payment methods?" );
+	if (confirmPayment) {
+		window.location.href = smart_woo_vars.woo_payment_method_edit;
+	}
+}
+
+function confirmEditBilling() {
+		var confirmBilling = confirm( "Are you sure you want to edit your billing address?" );
+	if (confirmBilling) {
+		window.location.href = smart_woo_vars.woo_billing_eddress_edit;
+	}
+}
+
+/**
+ * Event listener for billing details button.
+ */
+document.addEventListener( 'DOMContentLoaded', function () {
+	var billingButton = document.getElementById( 'sw-billing-details' );
+
+	if ( billingButton ) {
+		billingButton.addEventListener( 'click', function() {
+			loadBillingDetails();
+		} );
+	}
+});
+
+/**
+ * Show modal for User's billing details
+ */
+function loadBillingDetails() {
+	// Show loading indicator
+	showLoadingIndicator();
+
+	// AJAX request to load billing details content
+	jQuery.ajax(
+		{
+			type: 'POST',
+			url: smart_woo_vars.ajax_url,
+			data: {
+				action: 'load_billing_details',
+				security: smart_woo_vars.security
+			},
+			success: function (response) {
+				jQuery( '#ajax-content-container' ).html( response );
+
+				var editBilling	  = document.getElementById( 'edit-billing-address' );
+				
+				if ( editBilling ) {
+					editBilling.addEventListener( 'click', function() {
+						confirmEditBilling();
+					});
+				}
+
+			},
+			complete: function () {
+				
+				// Hide loading indicator after AJAX request is complete
+				hideLoadingIndicator();
+			}
+			
 		}
 	);
+}
 
+/**
+ * Event Listener for my details button
+ */
+document.addEventListener('DOMContentLoaded', function() {
+	var detailsButton = document.getElementById( 'sw-load-user-details' );
 
+	if ( detailsButton ) {
+		detailsButton.addEventListener( 'click', function() {
+			loadMyDetails();
+		});
+	}
+});
+/**
+ * Show modal for User's details
+ */
+function loadMyDetails() {
+	// Show loading indicator
+	showLoadingIndicator();
+	// AJAX request to load My details content
+	jQuery.ajax(
+		{
+			type: 'POST',
+			url: smart_woo_vars.ajax_url,
+			data: {
+				action: 'load_my_details',
+				security: smart_woo_vars.security
+			},
+			success: function (response) {
+				jQuery( '#ajax-content-container' ).html( response );
 
+				var editDetailsButton = document.getElementById( 'edit-account-button' );
+				var viewPaymentButton = document.getElementById( 'view-payment-button' );
 
-
-
-	jQuery( document ).ready(
-		function ($) {
-			// When the page is loaded, check the initial value of the grace period unit
-			checkGracePeriodUnit();
-
-			// Bind a change event to the grace period unit select
-			$( 'select[name="grace_period_unit"]' ).change(
-				function () {
-					checkGracePeriodUnit();
+				if ( editDetailsButton ) {
+					editDetailsButton.addEventListener( 'click', function() {
+						confirmEditAccount();
+					});
 				}
-			);
 
-			function checkGracePeriodUnit() {
-				var selectedValue = $( 'select[name="grace_period_unit"]' ).val();
-
-				// Check if the selected value is the one for 'Never Expire'
-				if (selectedValue === smart_woo_vars.never_expire_value) {
-					// Clear the number field
-					$( 'input[name="grace_period_number"]' ).val( '' );
-					// Disable the number field to prevent user input
-					$( 'input[name="grace_period_number"]' ).prop( 'disabled', true );
-				} else {
-					// Enable the number field
-					$( 'input[name="grace_period_number"]' ).prop( 'disabled', false );
+				if ( viewPaymentButton ) {
+					viewPaymentButton.addEventListener( 'click', function(){
+						confirmPaymentMethods();
+					});
 				}
+			},
+			complete: function () {
+				// Hide loading indicator after AJAX request is complete
+				hideLoadingIndicator();
 			}
 		}
 	);
+}
 
+/**
+ * Event listener for account log button
+ */
+document.addEventListener( 'DOMContentLoaded', function() {
+    var accountLogButton = document.getElementById( 'sw-account-log' );
 
+    if ( accountLogButton ) {
+        accountLogButton.addEventListener( 'click', function() {
+            loadAccountLogs();
+        });
+    }
+});
 
+/**
+ * Show a modal for account logs.
+ * 
+ */
+function loadAccountLogs() {
+		// Show loading indicator
+		showLoadingIndicator();
 
-	/** Js Code for Services page */
-
-	/**
-	 * Show the loading indicator by displaying the #swloader element.
-	 * This function sets the display property to 'block', making the loader visible.
-	 */
-	function showLoadingIndicator() {
-			jQuery( '#swloader' ).show();
-	}
-
-	/**
-	 * Hide the loading indicator by hiding the #swloader element.
-	 * This function sets the display property to 'none', making the loader invisible.
-	 */
-	function hideLoadingIndicator() {
-			jQuery( '#swloader' ).hide();
-	}
-
-
-	function loadBillingDetails() {
-			// Show loading indicator
-			showLoadingIndicator();
-
-			// AJAX request to load billing details content
-			jQuery.ajax(
-				{
-					type: 'POST',
-					url: smart_woo_vars.ajax_url,
-					data: {
-						action: 'load_billing_details'
-					},
-					success: function (response) {
-						jQuery( '#ajax-content-container' ).html( response );
-					},
-					complete: function () {
-						// Hide loading indicator after AJAX request is complete
-						hideLoadingIndicator();
-					}
+		// AJAX request to load Account Logs content
+		jQuery.ajax(
+			{
+				type: 'POST',
+				url: smart_woo_vars.ajax_url,
+				data: {
+					action: 'load_account_logs',
+					security: smart_woo_vars.security
+				},
+				success: function (response) {
+					jQuery( '#ajax-content-container' ).html( response );
+				},
+				complete: function () {
+					// Hide loading indicator after AJAX request is complete
+					hideLoadingIndicator();
 				}
-			);
+			}
+		);
+}
+
+/**
+ * Event listener for transaction history
+ */
+document.addEventListener('DOMContentLoaded', function() {
+	var trButton = document.getElementById('sw-load-transaction-history');
+
+	if (trButton) {
+		trButton.addEventListener('click', function () {
+			loadTransactionHistory();
+		});
 	}
+});
 
-
-	function loadMyDetails() {
-			// Show loading indicator
-			showLoadingIndicator();
-			// AJAX request to load My details content
-			jQuery.ajax(
-				{
-					type: 'POST',
-					url: smart_woo_vars.ajax_url,
-					data: {
-						action: 'load_my_details'
-					},
-					success: function (response) {
-						jQuery( '#ajax-content-container' ).html( response );
-					},
-					complete: function () {
-						// Hide loading indicator after AJAX request is complete
-						hideLoadingIndicator();
-					}
+/**
+ * Show a modal for transaction history.
+ */
+function loadTransactionHistory() {
+		// Show loading indicator
+		showLoadingIndicator();
+		// AJAX request to load Transaction History content
+		jQuery.ajax(
+			{
+				type: 'POST',
+				url: smart_woo_vars.ajax_url,
+				data: {
+					action: 'load_transaction_history',
+					security: smart_woo_vars.security
+				},
+				success: function (response) {
+					jQuery( '#ajax-content-container' ).html( response );
+				},
+				complete: function () {
+					// Hide loading indicator after AJAX request is complete
+					hideLoadingIndicator();
 				}
-			);
-	}
+			}
+		);
+}
 
-	function confirmEditAccount() {
-			var confirmAccount = confirm( "Are you sure you want to edit your information?" );
-		if (confirmAccount) {
-			window.location.href = smart_woo_vars.woo_my_account_edit;
-		}
-	}
+/**
+ * Add event listener to the service action dropdown
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    var dropdown = document.getElementById('service-action-dropdown');
 
-	function confirmPaymentMethods() {
-			var confirmPayment = confirm( "Are you sure you want to view your payment methods?" );
-		if (confirmPayment) {
-			window.location.href = smart_woo_vars.woo_payment_method_edit;
-		}
-	}
+    if (dropdown) {
+        dropdown.addEventListener('change', function() {
+            var selectedAction = this.value;
+            redirectBasedOnServiceAction(selectedAction);
+        });
+    }
+});
 
-	function confirmEditBilling() {
-			var confirmBilling = confirm( "Are you sure you want to edit your billing address?" );
-		if (confirmBilling) {
-			window.location.href = smart_woo_vars.woo_billing_eddress_edit;
-		}
-	}
+/**
+ * Redirect based on the selected service action
+ *
+ * @param {*} selectedAction Selected service action
+ */
+function redirectBasedOnServiceAction(selectedAction) {
+    // Get the current URL
+    var currentUrl = window.location.href;
 
+    // Determine the selected page based on the action
+    var selectedPage;
+    switch (selectedAction) {
+        case 'upgrade':
+            selectedPage = 'service_upgrade';
+            break;
+        case 'downgrade':
+            selectedPage = 'service_downgrade';
+            break;
+        case 'buy_new':
+            selectedPage = 'buy_new_service';
+            break;
+        // Add more cases as needed
+        default:
+            selectedPage = '';
+            break;
+    }
 
+    // Update the URL with the selected action and page
+    var updatedUrl = updateQueryStringParameter(currentUrl, 'service_page', selectedPage);
+    updatedUrl = updateQueryStringParameter(updatedUrl, 'service_action', selectedAction);
 
-	function loadAccountLogs() {
-			// Show loading indicator
-			showLoadingIndicator();
+    // Redirect to the updated URL
+    window.location.href = updatedUrl;
+}
 
-			// AJAX request to load Account Logs content
-			jQuery.ajax(
-				{
-					type: 'POST',
-					url: smart_woo_vars.ajax_url,
-					data: {
-						action: 'load_account_logs'
-					},
-					success: function (response) {
-						jQuery( '#ajax-content-container' ).html( response );
-					},
-					complete: function () {
-						// Hide loading indicator after AJAX request is complete
-						hideLoadingIndicator();
-					}
-				}
-			);
-	}
+/**
+ * Function to update or add a parameter to a URL
+ *
+ * @param {string} uri   The URL
+ * @param {string} key   The parameter key
+ * @param {string} value The parameter value
+ * @returns {string}     The updated URL
+ */
+function updateQueryStringParameter(uri, key, value) {
+    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
 
-	function loadTransactionHistory() {
-			// Show loading indicator
-			showLoadingIndicator();
-			// AJAX request to load Transaction History content
-			jQuery.ajax(
-				{
-					type: 'POST',
-					url: smart_woo_vars.ajax_url,
-					data: {
-						action: 'load_transaction_history'
-					},
-					success: function (response) {
-						jQuery( '#ajax-content-container' ).html( response );
-					},
-					complete: function () {
-						// Hide loading indicator after AJAX request is complete
-						hideLoadingIndicator();
-					}
-				}
-			);
-	}
+    if (uri.match(re)) {
+        return uri.replace(re, '$1' + key + "=" + value + '$2');
+    } else {
+        return uri + separator + key + "=" + value;
+    }
+}
 
-	/**
-	 *
-	 * @param {*} selectedAction
-	 */
+// Function to delete invoice
+jQuery( document ).ready(
+	function ($) {
+		// Event listener for the delete button
+		$( document ).on(
+			'click',
+			'.delete-invoice-button',
+			function () {
+				// Get the invoice ID from the data attribute
+				var invoiceId = $( this ).data( 'invoice-id' );
 
-	function redirectBasedOnServiceAction(selectedAction) {
-			// Get the current URL
-			var currentUrl = window.location.href;
+				// Display a confirmation dialog
+				var isConfirmed = confirm( 'Are you sure you want to delete this invoice?' );
 
-			// Determine the selected page based on the action
-			var selectedPage;
-		switch (selectedAction) {
-			case 'upgrade':
-				selectedPage = 'service_upgrade';
-				break;
-			case 'downgrade':
-				selectedPage = 'service_downgrade';
-				break;
-			case 'buy_new':
-				selectedPage = 'buy_new_service';
-				break;
-			// Add more cases as needed
-			default:
-				selectedPage = '';
-				break;
-		}
+				// If the user confirms, initiate the deletion process
+				if (isConfirmed) {
+					// Perform an Ajax request to delete the invoice
+					$.ajax(
+						{
+							type: 'POST',
+							url: smart_woo_vars.ajax_url,
+							data: {
+								action: 'delete_invoice',
+								invoice_id: invoiceId,
+								security: smart_woo_vars.security
+							},
+							success: function () {
+								// Display a success message
+								alert( 'Invoice deleted successfully!' );
+								window.location.href = smart_woo_vars.admin_invoice_page;
+							},
 
-		// Update the URL with the selected action and page
-		var updatedUrl = updateQueryStringParameter( currentUrl, 'service_page', selectedPage );
-		updatedUrl     = updateQueryStringParameter( updatedUrl, 'service_action', selectedAction );
-
-		// Redirect to the updated URL
-		window.location.href = updatedUrl;
-	}
-
-	// Function to update or add a parameter to a URL
-	function updateQueryStringParameter(uri, key, value) {
-			var re        = new RegExp( "([?&])" + key + "=.*?(&|$)", "i" );
-			var separator = uri.indexOf( '?' ) !== -1 ? "&" : "?";
-
-		if (uri.match( re )) {
-			return uri.replace( re, '$1' + key + "=" + value + '$2' );
-		} else {
-			return uri + separator + key + "=" + value;
-		}
-	}
-
-
-
-
-
-
-
-	// Function to delete invoice
-	jQuery( document ).ready(
-		function ($) {
-			// Event listener for the delete button
-			$( document ).on(
-				'click',
-				'.delete-invoice-button',
-				function () {
-					// Get the invoice ID from the data attribute
-					var invoiceId = $( this ).data( 'invoice-id' );
-
-					// Display a confirmation dialog
-					var isConfirmed = confirm( 'Are you sure you want to delete this invoice?' );
-
-					// If the user confirms, initiate the deletion process
-					if (isConfirmed) {
-						// Perform an Ajax request to delete the invoice
-						$.ajax(
-							{
-								type: 'POST',
-								url: smart_woo_vars.ajax_url,
-								data: {
-									action: 'delete_invoice',
-									invoice_id: invoiceId,
-									security: smart_woo_vars.security
-								},
-								success: function () {
-									// Display a success message
-									alert( 'Invoice deleted successfully!' );
-									window.location.href = smart_woo_vars.admin_invoice_page;
-								},
-
-								error: function (error) {
-									// Handle the error
-									console.error( 'Error deleting invoice:', error );
-								}
+							error: function (error) {
+								// Handle the error
+								console.error( 'Error deleting invoice:', error );
 							}
-						);
-					}
+						}
+					);
 				}
-			);
-		}
-	);
+			}
+		);
+	}
+);
 
 
-	// Function to delete service
-	jQuery( document ).ready(
-		function ($) {
-			// Event listener for the delete button
-			$( document ).on(
-				'click',
-				'.delete-service-button',
-				function () {
-					// Get the service ID from the data attribute
-					var serviceId = $( this ).data( 'service-id' );
+// Function to delete service
+jQuery( document ).ready(
+	function ($) {
+		// Event listener for the delete button
+		$( document ).on(
+			'click',
+			'.delete-service-button',
+			function () {
+				// Get the service ID from the data attribute
+				var serviceId = $( this ).data( 'service-id' );
 
-					// Display a confirmation dialog
-					var isConfirmed = confirm( 'Are you sure you want to delete this service?' );
+				// Display a confirmation dialog
+				var isConfirmed = confirm( 'Are you sure you want to delete this service?' );
 
-					// If the user confirms, initiate the deletion process
-					if (isConfirmed) {
-						// Perform an Ajax request to delete the invoice
-						$.ajax(
-							{
-								type: 'POST',
-								url: smart_woo_vars.ajax_url,
-								data: {
-									action: 'delete_service',
-									service_id: serviceId,
-									security: smart_woo_vars.security
-								},
-								success: function () {
-									// Display a success message
-									alert( 'Service deleted successfully!' );
-									window.location.href = smart_woo_vars.sw_admin_page;
-								},
+				// If the user confirms, initiate the deletion process
+				if (isConfirmed) {
+					// Perform an Ajax request to delete the invoice
+					$.ajax(
+						{
+							type: 'POST',
+							url: smart_woo_vars.ajax_url,
+							data: {
+								action: 'delete_service',
+								service_id: serviceId,
+								security: smart_woo_vars.security
+							},
+							success: function () {
+								// Display a success message
+								alert( 'Service deleted successfully!' );
+								window.location.href = smart_woo_vars.sw_admin_page;
+							},
 
-								error: function (error) {
-									// Handle the error
-									console.error( 'Error deleting service:', error );
-								}
+							error: function (error) {
+								// Handle the error
+								console.error( 'Error deleting service:', error );
 							}
-						);
-					}
+						}
+					);
 				}
-			);
-		}
-	);
+			}
+		);
+	}
+);
 
 
-	// Add click event listener to toggle the accordion
+// Add click event listener to toggle the accordion
 document.addEventListener('DOMContentLoaded', function() {
     var acc = document.querySelectorAll('.sw-accordion-btn');
     for (var i = 0; i < acc.length; i++) {

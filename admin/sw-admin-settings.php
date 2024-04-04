@@ -1,6 +1,4 @@
 <?php
-// phpcs:ignoreFile
-
 /**
  * File name    :   sw-admin-settings.php
  *
@@ -13,7 +11,7 @@
  * called directly within the HTML page redering
  */
 function sw_handle_email_options() {
-	if ( isset( $_POST['sw_save_email_options'] ) && wp_verify_nonce( $_POST['sw_email_option_nonce'], 'sw_email_option_nonce') ) {
+	if ( isset( $_POST['sw_save_email_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['sw_email_option_nonce'] ) ), 'sw_email_option_nonce') ) {
 
 		// Update billing email
 		if ( isset( $_POST['sw_billing_email'] ) ) {
@@ -56,7 +54,7 @@ function sw_handle_email_options() {
  * Handle advance option submission
  */
 function sw_handle_advance_options_submission(){
-	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( $_POST['sw_option_nonce'], 'sw_option_nonce' ) ) {
+	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
 		
 		if ( isset( $_POST['sw_pay_pending_invoice_with_wallet'] ) ) {
 			update_option( 'sw_pay_pending_invoice_with_wallet', 1 );
@@ -100,18 +98,18 @@ function sw_handle_advance_options_submission(){
  */
 function sw_handle_options_submission() {
 	// Handle form submission for all settings
-	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( $_POST['sw_option_nonce'], 'sw_option_nonce' ) ) {
+	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
 		// Handle form submission for existing settings
 		if ( isset( $_POST['sw_invoice_page'] ) ) {
 			update_option( 'sw_invoice_page', intval( $_POST['sw_invoice_page'] ) );
 		}
 
 		if ( isset( $_POST['sw_invoice_logo_url'] ) ) {
-			update_option( 'sw_invoice_logo_url', sanitize_text_field( $_POST['sw_invoice_logo_url'] ) );
+			update_option( 'sw_invoice_logo_url', esc_url( $_POST['sw_invoice_logo_url'] ) );
 		}
 
 		if ( isset( $_POST['sw_invoice_watermark_url'] ) ) {
-			update_option( 'sw_invoice_watermark_url', sanitize_text_field( $_POST['sw_invoice_watermark_url'] ) );
+			update_option( 'sw_invoice_watermark_url', esc_url( $_POST['sw_invoice_watermark_url'] ) );
 		}
 
 		if ( isset( $_POST['sw_business_name'] ) ) {
@@ -388,7 +386,7 @@ function sw_render_invoice_options_page() {
 		<div class="sw-form-row">
 		<label for="sw_invoice_logo_url" class="sw-form-label">Logo URL</label>
 		<span class="sw-field-description" title="Paste the link to your logo url">?</span>
-		<input type="text" name="sw_invoice_logo_url" id="sw_invoice_logo_url" value="<?php echo esc_attr( $invoice_logo_url ); ?>" placeholder="eg https://pic.com/logo.png" class="sw-form-input">
+		<input type="text" name="sw_invoice_logo_url" id="sw_invoice_logo_url" value="<?php echo esc_attr( $invoice_logo_url ); ?>" placeholder=" eg. www.example/image.png" class="sw-form-input">
 		</div>        
 		
 		
@@ -396,7 +394,7 @@ function sw_render_invoice_options_page() {
 		<div class="sw-form-row">
 		<label for="sw_invoice_watermark_url" class="sw-form-label">Watermark URL </label>
 		<span class="sw-field-description" title="Enter your business name">?</span>
-		<input type="text" name="sw_invoice_watermark_url" id="sw_invoice_watermark_url" value="<?php echo esc_attr( $invoice_watermark_url ); ?>" placeholder="eg https://pic.com/img.png" class="sw-form-input">
+		<input type="text" name="sw_invoice_watermark_url" id="sw_invoice_watermark_url" value="<?php echo esc_attr( $invoice_watermark_url ); ?>" placeholder="eg www.example/image.png" class="sw-form-input">
 		</div>
 
 		</form>
