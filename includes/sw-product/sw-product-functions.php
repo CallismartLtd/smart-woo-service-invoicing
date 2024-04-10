@@ -150,12 +150,12 @@ function make_sw_product_purchasable( $purchasable, $product ) {
 /**
  * The text for SW_Product type in the shop page
  */
-add_filter( 'woocommerce_product_add_to_cart_text', 'sw_product_text_on_shop', 10, 2 );
+add_filter( 'woocommerce_product_add_to_cart_text', 'smartwoo_product_text_on_shop', 10, 2 );
 
-function sw_product_text_on_shop( $text, $product ) {
+function smartwoo_product_text_on_shop( $text, $product ) {
 	// Check if the product is of a specific type
 	if ( 'sw_product' === $product->get_type() ) {
-		$pruduct_text = get_option( 'sw_product_text_on_shop', 'View Product' );
+		$pruduct_text = get_option( 'smartwoo_product_text_on_shop', 'View Product' );
 		$text = __( $pruduct_text, 'smart-woo-invoice' );
 	}
 

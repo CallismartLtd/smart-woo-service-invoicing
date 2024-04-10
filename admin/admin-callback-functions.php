@@ -1,96 +1,83 @@
 <?php
-// phpcs:ignoreFile
-
 /**
  * File name    :   callback.php
- *
- * @author      :   Callistus
- * Description  :   callback function file for admin menu pages
+ * Description  callback function file for admin menu pages
+ * 
+ * @author Callistus.
+ * @package SmartWooAdminPages.
  */
 
-defined( 'ABSPATH' ) || exit; // Prevent direct access // Prevent direct access // Prevent direct access; // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // Prevent direct access // exit if eccessed directly
-
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 /**
- * Main plugin admin page controller callback
+ * Main plugin admin page controller callback.
  */
-function smart_woo_service() {
-	// Check if the current user has the required capability to access this page
+function smartwoo_service_admin_page() {
+
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-invoice' ) );
 	}
-	echo '<div style="text-align:right;"><a href="' . admin_url( 'admin.php?page=sw-options&tab=advanced#help' ) .'">Help</a></div>';
 
-	// Determin which URL path to display content
 	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	// Call the appropriate function based on the action
 	switch ( $action ) {
 		case 'process-new-service':
-			sw_process_new_service_order_page();
+			echo wp_kses( smartwoo_process_new_service_order_page(), smartwoo_allowed_form_html() );
 			break;
 
-		case 'service_details':
-			// Call the function for handling service details
-			sw_admin_view_service_details();
+		case 'view-service':
+			echo wp_kses_post( smartwoo_admin_view_service_details() );
 			break;
 
 		case 'add-new-service':
-			sw_handle_new_service_page();
+			echo wp_kses( smartwoo_new_service_page(), smartwoo_allowed_form_html() );
+
 			break;
 
 		case 'edit-service':
-			sw_handle_edit_service_page();
+			echo wp_kses( smartwoo_edit_service_form(), smartwoo_allowed_form_html() );
 			break;
 
 		default:
-			// Call the default function
-			sw_main_page();
+			echo wp_kses_post( smartwoo_dashboard_page() );
 			break;
 	}
 }
 
-
+/**
+ * Service order page.
+ */
+function smartwoo_service_orders() {
+	
+	$orders = smartwoo_get_configured_orders_for_service();
+	echo wp_kses_post( smartwoo_service_order_table( $orders ) );
+}
 
 /**
  * Invoice admin invoice page
  */
-function sw_invoices() {
-	// Determin which URL path to display content
+function smartwoo_invoice_admin_page() {
 
-	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	// Prepare array for submenu navigation
-	$tabs = array(
-		''                => 'Invoices',
-		'add-new-invoice' => 'Add New',
-
-	);
-
-	 sw_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $action, 'action' );
-
-	// Determin which action is set in the url path to display content.
-	switch ( $action ) {
+	switch ( $tab ) {
 		case 'add-new-invoice':
-			sw_create_new_invoice_form();
+			echo wp_kses( smartwoo_new_invoice_page(), smartwoo_allowed_form_html() );
 			break;
 
 		case 'edit-invoice':
-			sw_edit_invoice_page();
-
+			echo wp_kses( smartwoo_edit_invoice_page(), smartwoo_allowed_form_html() );
 			break;
 
 		case 'invoice-by-status':
-			sw_handle_admin_invoice_by_status();
-
+			echo wp_kses_post ( smartwoo_invoice_by_status_temp() );
 			break;
 
 		case 'view-invoice':
-			sw_view_invoice_page();
-
+			echo wp_kses_post( smartwoo_view_invoice_page() );
 			break;
 
 		default:
-			sw_invoice_dash();
+			echo wp_kses_post( smartwoo_invoice_dashboard() );
 			break;
 	}
 }
@@ -99,8 +86,8 @@ function sw_invoices() {
 /**
  * Callback function for "Product" submenu page
  */
-function sw_products_page() {
-	// Check for URL parameters
+function smartwoo_products_page() {
+
 	$action     = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$product_id = isset( $_GET['product_id'] ) ? intval( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -110,7 +97,7 @@ function sw_products_page() {
 
 	);
 
-	sw_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' );
+	smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' );
 
 	// Handle different actions
 	switch ( $action ) {
@@ -130,8 +117,8 @@ function sw_products_page() {
 
 /**
  * Callback controller for Settings Page
-*/
-function sw_options_page() {
+ */
+function smartwoo_options_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
@@ -143,28 +130,59 @@ function sw_options_page() {
 		'business'  => 'Business',
 		'invoicing' => 'Invoicing',
 		'emails'    => 'Emails',
-		'advanced'	=> 'Advanced'
+		'advanced'  => 'Advanced',
 
 	);
 
-	 sw_sub_menu_nav( $tabs, 'Settings', 'sw-options', $action, 'tab' );
+	echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Settings', 'sw-options', $action, 'tab' ) );
 
-	// Handle different actions
 	switch ( $action ) {
 		case 'business':
-			sw_render_service_options_page();
+			/**
+			 * Renders Settings page for Business
+			 *
+			 * NB: All html returned by the output
+			 * function are properly escaped.
+			 */
+			$output = smartwoo_service_options();
+			echo wp_kses( $output, smartwoo_allowed_form_html() );
 			break;
+
 		case 'invoicing':
-			sw_render_invoice_options_page();
+			/**
+			 * Renders Settings page for Invoice
+			 *
+			 * NB: All html returned by the output
+			 * function are properly escaped.
+			 */
+			$output = smartwoo_invoice_options();
+			echo wp_kses( $output, smartwoo_allowed_form_html() );
 			break;
+
 		case 'emails':
-			sw_render_email_options_page();
+			/**
+			 * Renders Settings page for Emails
+			 *
+			 * NB: All html returned by the output
+			 * function are properly escaped.
+			 */
+			$output = smartwoo_email_options();
+			echo wp_kses( $output, smartwoo_allowed_form_html() );
 			break;
+
 		case 'advanced':
-			sw_render_advanced_options_page();
+			/**
+			 * Renders Settings page for Advanced
+			 *
+			 * NB: All html returned by the output
+			 * function are properly escaped.
+			 */
+			$output = smartwoo_advanced_options();
+			echo wp_kses( $output, smartwoo_allowed_form_html() );
 			break;
+
 		default:
-			sw_options_dash_page();
+			smartwoo_options_main_page();
 			break;
 	}
 }
@@ -181,16 +199,18 @@ function sw_options_page() {
  *
  * @return array Modified array of post states.
  */
-function sw_register_post_states( $post_states, $post ) {
-	$service_page_id         = get_option( 'sw_service_page' );
-	$invoice_page_id = get_option( 'sw_invoice_page' );
+function smartwoo_register_page_states( $post_states, $post ) {
+	$service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
+	$invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
 
-	if ( $post->ID == $service_page_id ) {
+	if ( $post->ID === $service_page_id ) {
 		$post_states[] = 'Service Subscription Page';
-	} elseif ( $post->ID == $invoice_page_id ) {
+	}
+
+	if ( $post->ID === $invoice_page_id ) {
 		$post_states[] = 'Invoice Management Page';
 	}
 
 	return $post_states;
 }
-add_filter( 'display_post_states', 'sw_register_post_states', 10, 2 );
+add_filter( 'display_post_states', 'smartwoo_register_page_states', 10, 2 );

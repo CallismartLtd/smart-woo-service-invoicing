@@ -20,13 +20,18 @@ function sw_check_woocommerce() {
 		// Throw error
 		$woo_plugin_url = 'https://wordpress.org/plugins/woocommerce/';
 		$notice         = sprintf(
-			'Smart Woo Service Invoicing requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a>. or deactive plugin to avoid fatal error',
-			$woo_plugin_url
+			'Smart Woo Service Invoicing requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a> or deactivate the plugin to avoid a fatal error.',
+			esc_url( $woo_plugin_url )
 		);
 		add_action(
 			'admin_notices',
 			function () use ( $notice ) {
-				echo '<div class="notice notice-error is-dismissible">' . $notice . '</div>';
+				echo '<div class="notice notice-error"><p>' . wp_kses( $notice, array(
+					 'a' => array(
+					 	'href' => array(),
+					 	'class' => array()
+					 )
+					) ) . '</p></div>';
 			}
 		);
 	}
@@ -36,18 +41,18 @@ function sw_check_woocommerce() {
 function enqueue_smart_woo_scripts() {
 
 	// Enqueue styles for both admin and frontend
-	if ( is_smart_woo_frontend() ) {
-	wp_enqueue_style( 'smart-woo-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.1', 'all' );
+	if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
+	wp_enqueue_style( 'smart-woo-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.2', 'all' );
 	
 	}
 
 	if ( is_admin() ) {
 		// Enqueue admin-specific styles
-		wp_enqueue_style( 'smart-woo-admin-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.1', 'all' );
+		wp_enqueue_style( 'smart-woo-admin-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.2', 'all' );
 	}
 
 	// Enqueue the JavaScript file
-	wp_enqueue_script( 'smart-woo-script', SW_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), '1.0', true );
+	wp_enqueue_script( 'smart-woo-script', SW_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), '1.0.2', true );
 
 	// Localize the script
 	wp_localize_script(
@@ -117,7 +122,7 @@ function sw_load_dependencies() {
 
 	}
 	// Load fontend file
-	if ( is_smart_woo_frontend() ) {
+	if ( smartwoo_is_frontend() ) {
 
 		require_once SW_ABSPATH . 'frontend/woocommerce/contr.php';
 		require_once SW_ABSPATH . 'frontend/woocommerce/my-account.php';

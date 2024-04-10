@@ -16,12 +16,12 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access
 function sw_plugin_db_schema() {
 
 	// Define the current database version
-	$sw_db_version = '1.0.1'; // Update the version when making schema changes.
+	$smartwoo_db_version = '1.0.1'; // Update the version when making schema changes.
 
 	// Check the stored version
-	$stored_version = get_option( 'sw_db_version' );
+	$stored_version = get_option( 'smartwoo_db_version' );
 
-	if ( $sw_db_version !== $stored_version ) {
+	if ( $smartwoo_db_version !== $stored_version ) {
 
 		/**
 		 * Define the structure for the 'sw_service' table.
@@ -118,7 +118,7 @@ function sw_plugin_db_schema() {
 		sw_create_database_table( $service_logs_table_name, $service_logs_structure );
 
 		// Update the stored version
-		update_option( 'sw_db_version', $sw_db_version );
+		update_option( 'smartwoo_db_version', $smartwoo_db_version );
 	}
 }
 

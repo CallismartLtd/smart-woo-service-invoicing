@@ -24,7 +24,7 @@
      * @param array $args Arguments to filter refund data.
      * @return array|object Depending on whether log_id is provided, returns an array of refund data or a single refund object.
      */
-    public static function get_refund( array $args ) {
+    public static function get_refund( array $args = array() ) {
         global $wpdb;
 
         $default_args = array(
@@ -36,9 +36,7 @@
         $merged_args = wp_parse_args( $args, $default_args );
 
         $table_name = SW_INVOICE_LOG_TABLE;
-
-        // Construct the base SQL query
-        $query = "SELECT * FROM $table_name WHERE log_type = 'Refund'";
+        $query = $wpdb->prepare( "SELECT * FROM $table_name WHERE log_type = %s", 'Refund' );
 
         // If log_id is provided, fetch only that particular row
         if ( ! empty( $merged_args['log_id'] ) ) {

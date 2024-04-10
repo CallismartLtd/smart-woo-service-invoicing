@@ -18,13 +18,13 @@
  */
 function sw_user_service_cancelled_mail( $user_id, $service_id ) {
 
-	$mail_is_enabled = get_option( 'sw_cancellation_mail_to_user', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_cancellation_mail_to_user', 0 );
 	if ( $mail_is_enabled ) {
 		// Get sender details
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Get user information
 		$user_info      = get_userdata( $user_id );
@@ -60,7 +60,7 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
 		$message .= '.card { border: 1px solid #ccc; padding: 10px; margin-top: 20px; }';
 		$message .= '</style></head><body>';
 		$message .= '<div class="container">';
-		$message .= '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
+		$message .= '<img src="' . esc_url( $image_header ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
 		$message .= '<h1>Service Cancellation Confirmation</h1>';
 		$message .= '<p>Dear ' . $user_firstname . ',</p>';
 		$message .= '<p>We regret to inform you that your service with ' . esc_html( $business_name ) . ' has been cancelled as requested. We appreciate your past support and patronage.</p>';
@@ -100,13 +100,13 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
  */
 function sw_user_service_optout( $user_id, $service_id ) {
 
-	$mail_is_enabled = get_option( 'sw_service_opt_out_mail', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_service_opt_out_mail', 0 );
 	if ( $mail_is_enabled ) {
 
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Get user information
 		$user_info      = get_userdata( $user_id );
@@ -134,7 +134,7 @@ function sw_user_service_optout( $user_id, $service_id ) {
 		$message .= '.button:hover { background-color: #005bbf; }';
 		$message .= '</style></head><body>';
 		$message .= '<div class="container">';
-		$message .= '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
+		$message .= '<img src="' . esc_url( $image_header ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
 		$message .= '<h1>Auto Renewal for "' . esc_html( $service_name ) . '" has been disabled</h1>';
 		$message .= '<p>Dear ' . esc_html( $user_firstname ) . ',</p>';
 		$message .= '<p>You have successfully opted out of renewal for the service "' . esc_html( $service_name ) . '". The service is currently active but will not renew at the end of the billing cycle.</p>';
@@ -169,7 +169,7 @@ function sw_user_service_optout( $user_id, $service_id ) {
  */
 function sw_service_cancelled_mail_to_admin( $service_id ) {
 
-	$mail_is_enabled = get_option( 'sw_service_cancellation_mail_to_admin', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_service_cancellation_mail_to_admin', 0 );
 	if ( $mail_is_enabled ) {
 		// Get service details
 		$service_details = Sw_Service_Database::get_service_by_id( $service_id );
@@ -177,7 +177,7 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 		$user_info       = get_userdata( $user_id );
 		$user_email      = $user_info->user_email;
 		$user_full_name  = $user_info->display_name;
-		$billing_address = sw_get_user_billing_address( $user_id );
+		$billing_address = smartwoo_get_user_billing_address( $user_id );
 
 		// Extract relevant service details
 		$service_name      = esc_html( $service_details->getServiceName() );
@@ -186,7 +186,7 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 		$start_date        = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getStartDate() ) ) );
 		$next_payment_date = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getNextPaymentDate() ) ) );
 		$end_date          = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getEndDate() ) ) );
-		$prorate_status    = sw_Is_prorate();
+		$prorate_status    = smartwoo_is_prorate_();
 
 		// Get product name and price using WooCommerce functions
 		$product_info  = wc_get_product( $service_details->getProductId() );
@@ -238,13 +238,13 @@ add_action( 'sw_once_in_two_days_task', 'sw_payment_reminder' );
 // Function to send payment reminder email for Service Renewals
 function sw_payment_reminder() {
 
-	$mail_is_enabled = get_option( 'sw_payment_reminder_to_client', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_payment_reminder_to_client', 0 );
 	if ( $mail_is_enabled ) {
 		// Get sender details from options
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Retrieve Unpaid Invoices
 		$unapaid_invoices = Sw_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
@@ -265,7 +265,7 @@ function sw_payment_reminder() {
 			$user_email     = $user_info->user_email;
 
 			// Generate the payment link using the order ID, service ID, and user's email
-			$payment_link = swsi_generate_payment_link( $invoice_id, $user_email );
+			$payment_link = smartwoo_generate_invoice_payment_url( $invoice_id, $user_email );
 
 			// Prepare the email subject
 			$subject = 'Urgent: Unpaid Invoice Notification for ' . $invoice_id;
@@ -280,10 +280,10 @@ function sw_payment_reminder() {
 			$message .= '.button:hover { background-color: #005bbf; }';
 			$message .= '</style></head><body>';
 			$message .= "<div class='container'>";
-			$message .= "<img src='" . esc_url( $logo_url ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 500px;'><br><br>";
+			$message .= "<img src='" . esc_url( $image_header ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 500px;'><br><br>";
 			$message .= '<h1>A Soft Reminder</h1>';
 			$message .= "<p>Dear $user_full_name,</p>";
-			$message .= '<p>We hope this email finds you well. We wanted to bring to your attention that there is an outstanding invoice associated with your account.</p>';
+			$message .= '<p>We hope this email finds you well. We want to bring to your attention about an outstanding invoice associated with your account.</p>';
 			$message .= '<p>Below are the details of the invoice:</p>';
 			$message .= '<ul>';
 			$message .= "<li>Invoice Number: $invoice_id</li>";
@@ -329,13 +329,13 @@ add_action( 'sw_service_expired', 'sw_send_service_expiration_email' );
 
 function sw_send_service_expiration_email( $service ) {
 
-	$mail_is_enabled = get_option( 'sw_service_expiration_mail', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_service_expiration_mail', 0 );
 	if ( $mail_is_enabled ) {
 
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		$user_id       = $service->getUserId();
 		$service_name  = $service->getServiceName();
@@ -361,7 +361,7 @@ function sw_send_service_expiration_email( $service ) {
 			$message .= '.button:hover { background-color: #005bbf; }';
 			$message .= '</style></head><body>';
 			$message .= "<div class='container'>";
-			$message .= "<img src='" . esc_url( $logo_url ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 500px;'><br><br>";
+			$message .= "<img src='" . esc_url( $image_header ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 500px;'><br><br>";
 			$message .= '<h1>Service Expiration Notification</h1>';
 			$message .= "<p>Dear $user_fullname,</p>";
 			$message .= "<p>Your service '$service_name' with Service ID '$service_id' has expired due to the end of the service period with a '$billing_cycle' billing cycle. Unfortunately, no renewal action was taken in time.</p>";
@@ -391,15 +391,15 @@ add_action( 'smart_woo_daily_task', 'sw_send_expiry_mail_to_admin' );
 
 function sw_send_expiry_mail_to_admin() {
 
-	$mail_is_enabled = get_option( 'sw_service_expiration_mail_to_admin', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_service_expiration_mail_to_admin', 0 );
 
 	if ( $mail_is_enabled ) {
 
 		// Get sender details from options
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 		// Prepare the email subject
 		$subject = 'End Date Notification for Services Due Tomorrow';
 		// Get all Services
@@ -415,7 +415,7 @@ function sw_send_expiry_mail_to_admin() {
 			$message .= '.container { max-width: 600px; margin: 0 auto; padding: 20px; }';
 			$message .= '</style></head><body>';
 			$message .= "<div class='container'>";
-			$message .= "<img src='" . esc_url( $logo_url ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 200px;'><br><br>";
+			$message .= "<img src='" . esc_url( $image_header ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 200px;'><br><br>";
 			$message .= '<h1>End Date Notification for Services Due Tomorrow</h1>';
 			$message .= '<p>Dear Site Admin,</p>';
 			$message .= '<p>This is to notify you that the following services are due to end tomorrow:</p>';
@@ -469,7 +469,7 @@ function sw_send_expiry_mail_to_admin() {
 // Define a function to send mail when renewed service has been paid for
 function sw_renewal_sucess_email( $service ) {
 
-	$mail_is_enabled = get_option( 'sw_send_renewal_mail', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_renewal_mail', 0 );
 	if ( $mail_is_enabled ) {
 		// Get the renewed service information
 		$service_name          = $service->getServiceName();
@@ -488,10 +488,10 @@ function sw_renewal_sucess_email( $service ) {
 		$service_pricing       = $product->get_price() ?? 0;
 
 		// Get sender details from options
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Email subject
 		$subject = $service_name . ' has been renewed';
@@ -506,7 +506,7 @@ function sw_renewal_sucess_email( $service ) {
 		$message .= '.button:hover { background-color: #005bbf; }';
 		$message .= '</style></head><body>';
 		$message .= '<div class="container">';
-		$message .= '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
+		$message .= '<img src="' . esc_url( $image_header ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
 		$message .= '<h1>' . $service_name . ' has been renewed</h1>';
 		$message .= '<p>Dear ' . $user_full_name . ',</p>';
 		$message .= '<p>Your service "' . $service_name . '"  with us has successfully been renewed.</p>';
@@ -547,21 +547,21 @@ add_action( 'sw_auto_invoice_created', 'sw_send_auto_renewal_email', 10, 2 );
 // Function to send an auto-renewal email when the Service Renewal is created
 function sw_send_auto_renewal_email( $invoice, $service ) {
 
-	$mail_is_enabled = get_option( 'sw_new_invoice_mail', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_new_invoice_mail', 0 );
 
 	if ( $mail_is_enabled ) {
 		// Get the user object
 		$user_info = get_userdata( $invoice->getUserId() );
 
 		// Generate the payment link using the Invoice ID, and user's email
-		$payment_link = swsi_generate_payment_link( $invoice->getInvoiceId(), $user_info->user_email );
+		$payment_link = smartwoo_generate_invoice_payment_url( $invoice->getInvoiceId(), $user_info->user_email );
 
 		$user_full_name = $user_info->first_name . ' ' . $user_info->last_name;
 		$user_email     = $user_info->user_email;
-		$sender_name    = get_option( 'sw_sender_name' );
-		$sender_email   = get_option( 'sw_billing_email' );
-		$business_name  = get_option( 'sw_business_name' );
-		$logo_url       = get_option( 'sw_invoice_logo_url' );
+		$sender_name    = get_option( 'smartwoo_email_sender_name' );
+		$sender_email   = get_option( 'smartwoo_billing_email' );
+		$business_name  = get_option( 'smartwoo_business_name' );
+		$image_header   = get_option( 'smartwoo_email_image_header' );
 
 		// Get Service Name and Service ID from order custom fields
 		$service_name = $service->getServiceName();
@@ -580,7 +580,7 @@ function sw_send_auto_renewal_email( $invoice, $service ) {
 		$message .= '.button:hover { background-color: #005bbf; }';
 		$message .= '</style></head><body>';
 		$message .= '<div class="container">';
-		$message .= '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
+		$message .= '<img src="' . esc_url( $image_header ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
 		$message .= '<h1>New invoice "' . $invoice->getInvoiceId() . '" for ' . $service_name . '</h1>';
 		$message .= '<p>Dear ' . $user_full_name . ',</p>';
 		$message .= '<p>An invoice for the renewal of "' . $service_name . '" with Service ID "' . $service_id . '" has been generated and is pending payment.</p>';
@@ -623,7 +623,7 @@ function sw_send_auto_renewal_email( $invoice, $service ) {
  */
 function sw_send_user_generated_invoice_mail( $invoice, $service ) {
 
-	$mail_is_enabled = get_option( 'sw_reactivation_mail', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_reactivation_mail', 0 );
 
 	if ( $mail_is_enabled ) {
 		// User Details
@@ -632,10 +632,10 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
 		$user_full_name = $user_info->first_name . ' ' . $user_info->last_name; // Get user's full name
 		$user_email     = $user_info->user_email;
 		// Sender Details
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Service Details
 		$service_name        = $service->getServiceName();
@@ -644,7 +644,7 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
 		$service_action_text = ( $status === 'Due for Renewal' || $status === 'Grace Period' ) ? 'renewal' : 'reactivation';
 
 		// Generate the payment link
-		$payment_link = swsi_generate_payment_link( $invoice->getInvoiceId(), $user_email );
+		$payment_link = smartwoo_generate_invoice_payment_url( $invoice->getInvoiceId(), $user_email );
 
 		// Email subject
 		$subject = 'Reactivation for ' . $service_name . ' has been initiated';
@@ -658,7 +658,7 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
 		$message .= '.button:hover { background-color: #005bbf; }';
 		$message .= '</style></head><body>';
 		$message .= '<div class="container">';
-		$message .= '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
+		$message .= '<img src="' . esc_url( $image_header ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
 		$message .= '<h1>New invoice "' . $invoice->getInvoiceId() . '" for ' . $service_name . '</h1>';
 		$message .= '<p>Dear ' . $user_full_name . ',</p>';
 		$message .= '<p>You have generated an invoice for the ' . $service_action_text . ' of your service "' . $service_name . '" with Service number "' . $service_id . '". If you are yet to pay, please proceed to complete the payments now.</p>';
@@ -691,11 +691,11 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
  * @param object $invoice   The paid invoice
  */
 // Hook into the payment confirmation action
-add_action( 'sw_invoice_is_paid', 'sw_invoice_paid_mail' );
+add_action( 'sw_invoice_is_paid', 'smartwoo_invoice_paid_mail' );
 
-function sw_invoice_paid_mail( $invoice ) {
+function smartwoo_invoice_paid_mail( $invoice ) {
 
-	$mail_is_enabled = get_option( 'sw_invoice_paid_mail', 0 );
+	$mail_is_enabled = get_option( 'smartwoo_invoice_paid_mail', 0 );
 
 	if ( $mail_is_enabled ) {
 
@@ -705,10 +705,10 @@ function sw_invoice_paid_mail( $invoice ) {
 		$user_full_name = $user_info->first_name . ' ' . $user_info->last_name; // Get user's full name
 		$user_email     = $user_info->user_email;
 		// Sender Details
-		$sender_name   = get_option( 'sw_sender_name' );
-		$sender_email  = get_option( 'sw_billing_email' );
-		$business_name = get_option( 'sw_business_name' );
-		$logo_url      = get_option( 'sw_invoice_logo_url' );
+		$sender_name   = get_option( 'smartwoo_email_sender_name' );
+		$sender_email  = get_option( 'smartwoo_billing_email' );
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Invoice Details
 		$invoice_id      = $invoice->getInvoiceId();
@@ -732,7 +732,7 @@ function sw_invoice_paid_mail( $invoice ) {
 		$message .= '.button:hover { background-color: #005bbf; }';
 		$message .= '</style></head><body>';
 		$message .= '<div class="container">';
-		$message .= '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
+		$message .= '<img src="' . esc_url( $image_header ) . '" alt="' . esc_attr( $business_name ) . ' Logo" style="max-width: 200px;"><br><br>';
 		$message .= '<p>Dear ' . $user_full_name . ',</p>';
 		$message .= '<p>This is a payment receipt for invoice ' . $invoice_id . ' paid on ' . $paid_date . '.</p>';
 		$message .= '<ul>';

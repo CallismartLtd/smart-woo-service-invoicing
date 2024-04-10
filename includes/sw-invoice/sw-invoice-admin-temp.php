@@ -1,6 +1,4 @@
 <?php
-// phpcs:ignoreFile
-
 /**
  * File name    :   sw-invoice-admin-temp.php
  *
@@ -8,23 +6,24 @@
  * Description  :   Functions file for invoice admin page templates
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Dropdown for Invoice Type with filter for custom options.
  *
- * @param string $invoice_type The selected invoice type (optional).
+ * @param string $selected The selected invoice type (optional).
+ * @param bool $echo Whether to print or return output.
  *
  * @since 1.0.0
  */
-function sw_invoice_type_dropdown( $invoice_type = null ) {
+function smartwoo_invoice_type_dropdown( $selected = null, $echo = true ) {
 	// Default options
 	$options = array(
-		''                          => 'Select Invoice Type',
-		'New Service Invoice'       => 'New Service Invoice',
-		'Service Renewal Invoice'   => 'Service Renewal Invoice',
-		'Service Upgrade Invoice'   => 'Service Upgrade Invoice',
-		'Service Downgrade Invoice' => 'Service Downgrade Invoice',
+		''                          => __( 'Select Invoice Type', 'smart-woo-service-invoicing' ),
+		'New Service Invoice'       => __( 'New Service Invoice', 'smart-woo-service-invoicing' ),
+		'Service Renewal Invoice'   => __( 'Service Renewal Invoice', 'smart-woo-service-invoicing' ),
+		'Service Upgrade Invoice'   => __( 'Service Upgrade Invoice', 'smart-woo-service-invoicing' ),
+		'Service Downgrade Invoice' => __( 'Service Downgrade Invoice', 'smart-woo-service-invoicing' ),
 	);
 
 	/**
@@ -33,18 +32,19 @@ function sw_invoice_type_dropdown( $invoice_type = null ) {
 	 * @param string sw_invoice_type_options        The target filter name
 	 * @param array  add an associative array of the custom invoice type
 	 */
-	$custom_options = apply_filters( 'sw_invoice_type_options', array() );
+	$custom_options = apply_filters( 'smartwoo_invoice_type', array() );
+	$options 		= array_merge( $options, $custom_options );
 
-	// Merge default and custom options
-	$options = array_merge( $options, $custom_options );
-
-	// Output the dropdown HTML
-	echo '<select class="sw-form-input" name="invoice_type">';
+	$dropdown = '<select class="sw-form-input" name="invoice_type">';
 	foreach ( $options as $value => $label ) {
-		$is_selected = ( $value === $invoice_type ) ? 'selected="selected"' : '';
-		echo '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
+		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
+		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
 	}
-	echo '</select>';
+	$dropdown .= '</select>';
+	if ( true === $echo ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+	}
+	return $dropdown;
 }
 
 
@@ -53,38 +53,43 @@ function sw_invoice_type_dropdown( $invoice_type = null ) {
 /**
  * Dropdown for Invoice Payment Status with filter for custom options.
  *
- * @param string $payment_status The selected invoice status (optional).
+ * @param string $selected The selected invoice status (optional).
+ * @param bool 	$echo		Whether or not to print to screen (Defaults to true).
  *
  * @since 1.0.0
  */
-function sw_invoice_payment_payment_status_dropdown( $payment_status = null ) {
-	// Default options
+function smartwoo_invoice_payment_status_dropdown( $selected = null, $echo = true ) {
+	// Default options.
 	$options = array(
-		'select_invoice_payment_status' => 'Select Payment Status',
-		'paid'                          => 'Paid',
-		'unpaid'                        => 'Unpaid',
-		'due'                           => 'Due',
-		'cancelled'                     => 'Cancel',
+		''			=> __( 'Select Payment Status', 'smart-woo-service-invoicing' ),
+		'paid'		=> __( 'Paid', 'smart-woo-service-invoicing' ),
+		'unpaid'	=> __( 'Unpaid', 'smart-woo-service-invoicing' ),
+		'due'		=> __( 'Due', 'smart-woo-service-invoicing' ),
+		'cancelled'	=> __( 'Cancel', 'smart-woo-service-invoicing' ),
 	);
 
 	/**
-	 * Option to allow others to add their invoice payment status using filter
+	 * Option to allow others to add their invoice payment status using filter.
 	 *
-	 * @param string sw_invoice_payment_status        The target filter name
-	 * @param array  add an associative array of the custom invoice payment status
+	 * @param string sw_invoice_payment_status        The target filter name.
+	 * @param array  add an associative array of the custom invoice payment status.
 	 */
-	$custom_options = apply_filters( 'sw_invoice_payment_status', array() );
+	$custom_options = apply_filters( 'smartwoo_payment_status', array() );
 
 	// Merge default and custom options
 	$options = array_merge( $options, $custom_options );
 
 	// Output the dropdown HTML
-	echo '<select class="sw-form-input" name="payment_status">';
+	$dropdown = '<select class="sw-form-input" name="payment_status">';
 	foreach ( $options as $value => $label ) {
-		$is_selected = ( $value === $payment_status ) ? 'selected="selected"' : '';
-		echo '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
+		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
+		$dropdown .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
 	}
-	echo '</select>';
+	$dropdown .= '</select>';
+	if ( true === $echo ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+	}
+	return $dropdown;
 }
 
 
@@ -95,8 +100,8 @@ function sw_invoice_payment_payment_status_dropdown( $payment_status = null ) {
  *
  * @since 1.0.0
  */
-function sw_product_dropdown( $selected_product_id = null, $required = false ) {
-	// Fetch all products of type "sw_service"
+function smartwoo_product_dropdown( $selected_product_id = null, $required = false, $echo = true ) {
+	// Fetch all products of type "sw_service".
 	$products = wc_get_products(
 		array(
 			'type'   => 'sw_product',
@@ -104,13 +109,10 @@ function sw_product_dropdown( $selected_product_id = null, $required = false ) {
 		)
 	);
 
-	// Initialize the dropdown HTML
+	// Initialize the dropdown HTML.
 	$dropdown_html = '<select class="sw-form-input" name="product_id" ' . ( $required ? 'required' : '' ) . '>';
-
-	// Add the default selection option
 	$dropdown_html .= '<option value="">Select Service Product</option>';
 
-	// Loop through each product
 	foreach ( $products as $product ) {
 			// Get the product ID and name
 			$product_id   = $product->get_id();
@@ -123,19 +125,25 @@ function sw_product_dropdown( $selected_product_id = null, $required = false ) {
 			$dropdown_html .= '<option value="' . esc_attr( $product_id ) . '" ' . $selected . '>' . esc_html( $product_name ) . '</option>';
 	}
 
-	// Close the dropdown HTML
 	$dropdown_html .= '</select>';
 
-	// Output the dropdown HTML
+	if ( true === $echo ) {
+		echo $dropdown_html;
+	} 
 	return $dropdown_html;
+
 }
 
 
 /**
  * Invoice creation form
  */
-function sw_render_create_invoice_form() {
+function smartwoo_new_invoice_form() {
 
+	/**
+	 * Capture output buffer and return appropraitely.
+	 */
+	ob_start();
 	?>
 	<div class="sw-form-container">
 	<form method="post" action="">
@@ -166,16 +174,16 @@ function sw_render_create_invoice_form() {
 			<span class="sw-field-description" title="Select one product. This product price and fees will be used to create next invoice. Only Service Products will appear here.">?</span>
 			<?php
 			// Custom Function: Dropdown for Service Products
-			echo sw_product_dropdown();
+			smartwoo_product_dropdown();
 			?>
 		</div>
 
-		<!-- Service Type -->
+		<!-- Invoice Type -->
 		<div class="sw-form-row">
 			<label for="service_type" class="sw-form-label">Invoice Type *</label>
 			<span class="sw-field-description" title="Enter the service type (optional)">?</span>
 			<?php
-			sw_invoice_type_dropdown();
+			smartwoo_invoice_type_dropdown();
 			?>
 		</div>
 
@@ -198,7 +206,7 @@ function sw_render_create_invoice_form() {
 			<label for="payment_status" class="sw-form-label">Payment Status *</label>
 			<span class="sw-field-description" title="Choose a payment status. If the status is unpaid, a new order will be created.">?</span>
 			<?php
-			sw_invoice_payment_payment_status_dropdown();
+			smartwoo_invoice_payment_status_dropdown();
 			?>
 		</div>
 
@@ -213,17 +221,21 @@ function sw_render_create_invoice_form() {
 	</form>
 	</div>
 	<?php
+	return ob_get_clean();
 }
 
 
 /**
  * Invoice Edit form
  */
-function sw_render_edit_invoice_form( $existingInvoice ) {
+function smartwoo_edit_invoice_form( $existingInvoice ) {
 
+	/**
+	 * Capture output buffer and return appropraitely.
+	 */
+	ob_start();
 	?>
-		<div class="sw-form-container">
-
+	<div class="sw-form-container">
 	<form method="post" action="">
 		<?php
 		// Add nonce for added security
@@ -231,17 +243,17 @@ function sw_render_edit_invoice_form( $existingInvoice ) {
 		?>
 		<!-- Populate existing data in the form -->
 		<input type="hidden" name="invoice_id" value="<?php echo esc_attr( $existingInvoice->getInvoiceId() ); ?>">
-				
+					
 		<!-- Choose a Client -->
 		<div class="sw-form-row">
-		<label for="user_id" class="sw-form-label">Choose a Client:</label>
-		<span class="sw-field-description" title="Choose a user from WordPress.(required)">?</span>
+		<label for="user_id" class="sw-form-label"><?php esc_html_e( 'Choose a Client:', 'smart-woo-service-invoicing' ); ?></label>
+		<span class="sw-field-description" title="<?php esc_attr_e( 'Choose a user from WordPress.(required)', 'smart-woo-service-invoicing' ); ?>">?</span>
 		<?php
 		// WordPress User Dropdown
 		wp_dropdown_users(
 			array(
 				'name'             => 'user_id',
-				'show_option_none' => 'Select User',
+				'show_option_none' => esc_html__( 'Select User', 'smart-woo-service-invoicing' ),
 				'selected'         => $existingInvoice->getUserId(),
 				'class'            => 'sw-form-input',
 			)
@@ -251,55 +263,57 @@ function sw_render_edit_invoice_form( $existingInvoice ) {
 
 		<!-- Service Products -->
 		<div class="sw-form-row">
-		<label for="service_products" class="sw-form-label">Service Products:</label>
-		<span class="sw-field-description" title="Edit product. This product price and fees will be used to create next invoice. Only Service Products will appear here.">?</span>
+		<label for="service_products" class="sw-form-label"><?php esc_html_e( 'Service Products:', 'smart-woo-service-invoicing' ); ?></label>
+		<span class="sw-field-description" title="<?php esc_attr_e( 'Edit product. This product price and fees will be used to create next invoice. Only Service Products will appear here.', 'smart-woo-service-invoicing' ); ?>">?</span>
 		<?php
 		// Custom Function: Dropdown for Service Products
-		echo sw_product_dropdown( $existingInvoice->getProductId() );
+	    smartwoo_product_dropdown( $existingInvoice->getProductId() );
 		?>
 		</div>
+
 		<!-- Service Type -->
 		<div class="sw-form-row">
-			<label for="service_type" class="sw-form-label">Invoice Type</label>
-			<span class="sw-field-description" title="Enter the service type (optional)">?</span>
+			<label for="service_type" class="sw-form-label"><?php esc_html_e( 'Invoice Type', 'smart-woo-service-invoicing' ); ?></label>
+			<span class="sw-field-description" title="<?php esc_attr_e( 'Enter the service type (optional)', 'smart-woo-service-invoicing' ); ?>">?</span>
 		<?php
-		sw_invoice_type_dropdown( $existingInvoice->getInvoiceType() );
+		smartwoo_invoice_type_dropdown( $existingInvoice->getInvoiceType() );
 		?>
 		</div>
 
-		<!-- Service ID-->
+		<!-- Service ID -->
 		<div class="sw-form-row">
-			<label for="service_id" class="sw-form-label">Service ID (optional)</label>
-			<span class="sw-field-description" title="associate this invoice with service.">?</span>
+			<label for="service_id" class="sw-form-label"><?php esc_html_e( 'Service ID (optional)', 'smart-woo-service-invoicing' ); ?></label>
+			<span class="sw-field-description" title="<?php esc_attr_e( 'associate this invoice with service.', 'smart-woo-service-invoicing' ); ?>">?</span>
 			<input type="text" name="service_id" class="sw-form-input" id="service_id" value="<?php echo esc_attr( $existingInvoice->getServiceId() ); ?>">
 		</div>
-
 		<!-- Fee -->
 		<div class="sw-form-row">
-			<label for="fee" class="sw-form-label">Fee</label>
-			<span class="sw-field-description" title="charge a fee for the invoice">?</span>
+			<label for="fee" class="sw-form-label"><?php esc_html_e( 'Fee', 'smart-woo-service-invoicing' ); ?></label>
+			<span class="sw-field-description" title="<?php esc_attr_e( 'charge a fee for the invoice', 'smart-woo-service-invoicing' ); ?>">?</span>
 			<input type="number" name="fee" class="sw-form-input" id="fee" step="0.01" value="<?php echo esc_attr( $existingInvoice->getFee() ); ?>">
 		</div>
 
 		<!-- Payment status -->
 		<div class="sw-form-row">
-			<label for="payment_status" class="sw-form-label">Payment Status</label>
-			<span class="sw-field-description" title="Choose a payment status. If the status is unpaid, a new order will be created.">?</span>
+			<label for="payment_status" class="sw-form-label"><?php esc_html_e( 'Payment Status', 'smart-woo-service-invoicing' ); ?></label>
+			<span class="sw-field-description" title="<?php esc_attr_e( 'Choose a payment status. If the status is unpaid, a new order will be created.', 'smart-woo-service-invoicing' ); ?>">?</span>
 			<?php
-			sw_invoice_payment_payment_status_dropdown( $existingInvoice->getPaymentStatus() );
+			smartwoo_invoice_payment_status_dropdown( $existingInvoice->getPaymentStatus() );
 			?>
 		</div>
 
 		<!-- Input field for Due Date -->
 		<div class="sw-form-row">
-		<label for="due_date" class="sw-form-label">Date Due</label>
-		<span class="sw-field-description" title="Choose the date due.">?</span>
-		<input type="datetime-local" class="sw-form-input" name="due_date" id="due_date" value="<?php echo esc_attr( $existingInvoice->getDateDue() ); ?>">
+			<label for="due_date" class="sw-form-label"><?php esc_html_e( 'Date Due', 'smart-woo-service-invoicing' ); ?></label>
+			<span class="sw-field-description" title="<?php esc_attr_e( 'Choose the date due.', 'smart-woo-service-invoicing' ); ?>">?</span>
+			<input type="datetime-local" class="sw-form-input" name="due_date" id="due_date" value="<?php echo esc_attr( $existingInvoice->getDateDue() ); ?>">
 		</div>
+
 
 		<input type="submit" class="sw-blue-button" name="sw_update_invoice" value="Update Invoice">
 	</form>
 	<?php
+	return ob_get_clean();
 }
 
 
@@ -310,247 +324,270 @@ function sw_render_edit_invoice_form( $existingInvoice ) {
  *
  * @since 1.0.0
  */
-function sw_invoice_id_dropdown( $selected_invoice_id = null ) {
-	// Fetch invoice IDs from database
-	$invoices = Sw_Invoice_Database::get_all_invoices();
+function smartwoo_invoice_id_dropdown( $selected_invoice_id = null, $echo = true ) {
+    // Fetch invoice IDs from database.
+    $invoices = Sw_Invoice_Database::get_all_invoices();
+    if ( empty( $invoices ) ) {
+        // Handle case where no invoices are available
+        $dropdown = '<select class="sw-form-input" name="invoice_id">';
+        $dropdown .= '<option value="" selected="selected">' . __( 'No invoices available', 'smart-woo-service-invoicing' ) . '</option>';
+        $dropdown .= '</select>';
 
-	// Output the dropdown HTML
-	echo '<select class="sw-form-input" name="invoice_id">';
-	echo '<option value="" selected="selected">Select Invoice ID</option>';
+        if ( true === $echo ) {
+            echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+        }
 
-	foreach ( $invoices as $invoice ) {
-		// Check if the method to get the invoice ID exists
-		if ( method_exists( $invoice, 'getInvoiceId' ) ) {
-			$invoice_id  = $invoice->getInvoiceId();
-			$is_selected = ( $invoice_id === $selected_invoice_id ) ? 'selected="selected"' : '';
-			echo "<option value='$invoice_id' $is_selected>$invoice_id</option>";
-		}
-	}
+        return $dropdown;
+    }
 
-	echo '</select>';
+    // Output the dropdown HTML.
+    $dropdown  = '<select class="sw-form-input" name="invoice_id">';
+    $dropdown .= '<option value="" selected="selected">' . __( 'Select Invoice ID', 'smart-woo-service-invoicing' ) . '</option>';
+
+    foreach ( $invoices as $invoice ) {
+        // Check if the method to get the invoice ID exists.
+        if ( method_exists( $invoice, 'getInvoiceId' ) ) {
+            $invoice_id  = $invoice->getInvoiceId();
+            $is_selected = ( $invoice_id === $selected_invoice_id ) ? 'selected="selected"' : '';
+            $dropdown   .= "<option value='$invoice_id' $is_selected>$invoice_id</option>";
+        }
+    }
+
+    $dropdown .= '</select>';
+    if ( true === $echo ) {
+        echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+    }
+
+    return $dropdown;
 }
+
 
 
 /**
- * Invoice Adnin main page
+ * Invoice Adnin main page.
  */
 
 // Default function for the "Invoices" dashboard
-function sw_invoice_dash() {
-	echo '<h2>Invoice Dashboard</h2>';
+function smartwoo_invoice_dashboard() {
 
-	// Display thed table of all invoices
-	echo get_invoices_table();
-}
+	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$tabs = array(
+		'dashboard'                => __( 'Invoices', 'smart-woo-service-invoicing' ),
+		'add-new-invoice' => __( 'Add New', 'Invoices', 'smart-woo-service-invoicing' ),
 
-// Function to generate the simplified HTML table for all invoices
-function get_invoices_table() {
-	// Retrieve all invoices from the database
+	);
+
+	$table_html  =smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
 	$all_invoices = Sw_Invoice_Database::get_all_invoices();
+	$table_html .= '<div class="sw-table-wrapper">';
+	$table_html .= '<h2>Invoice Dashboard</h2>';
+	$table_html .= smartwoo_count_all_invoices_by_status();
 
-	echo sw_count_all_invoices_by_status();
-
-	// Check if there are any invoices
 	if ( empty( $all_invoices ) ) {
-		return smartwoo_notice( 'All invoices will appear here' );
-
+		$table_html .= smartwoo_notice( 'All invoices will appear here' );
+		return $table_html;
 	}
 
-	// Start building the simplified HTML table
-	$table_html  = '<table class="widefat fixed striped">';
+	/**
+	 * Invoice Table markeup.
+	 */
+	$table_html .= '<table class="sw-table">';
 	$table_html .= '<thead>';
 	$table_html .= '<tr>';
-	$table_html .= '<th>Invoice ID</th>';
-	$table_html .= '<th>Service ID</th>';
-	$table_html .= '<th>Invoice Type</th>';
-	$table_html .= '<th>Payment Status</th>';
-	$table_html .= '<th>Date Created</th>';
-	$table_html .= '<th>Action</th>';
+	$table_html .= '<th>' . esc_html__( 'Invoice ID', 'smart-woo-service-invoicing' ) . '</th>';
+	$table_html .= '<th>' . esc_html__( 'Invoice Type', 'smart-woo-service-invoicing' ) . '</th>';
+	$table_html .= '<th>' . esc_html__( 'Payment Status', 'smart-woo-service-invoicing' ) . '</th>';
+	$table_html .= '<th>' . esc_html__( 'Date Created', 'smart-woo-service-invoicing' ) . '</th>';
+	$table_html .= '<th>' . esc_html__( 'Action', 'smart-woo-service-invoicing' ) . '</th>';
 	$table_html .= '</tr>';
 	$table_html .= '</thead>';
-	$table_html .= '<tbody>';
+	$table_html .= '<tbody>';	
 
-	// Loop through each invoice and add a row to the table
 	foreach ( $all_invoices as $invoice ) {
 		$table_html .= '<tr>';
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
-		$table_html .= '<td>' . esc_html( $invoice->getServiceId() ) . '</td>';
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
 		$table_html .= '<td>' . esc_html( ucfirst( $invoice->getPaymentStatus() ) ) . '</td>';
 		$table_html .= '<td>' . esc_html( $invoice->getDateCreated() ) . '</td>';
-		$table_html .= '<td><a href="?page=sw-invoices&action=view-invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '">View</a></td>';
+		$table_html .= '<td><a class="sw-red-button" href="' . esc_url( add_query_arg( array( 'page' => 'sw-invoices', 'tab' => 'view-invoice', 'invoice_id' => $invoice->getInvoiceId() ), admin_url( 'admin.php' ) ) ) . '">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$table_html .= '</tr>';
 	}
 
 	$table_html .= '</tbody>';
 	$table_html .= '</table>';
+	$table_html .= '<p class="sw-table-count">' . count( $all_invoices ) . ' items</p>';
+	$table_html .= '</div>';
 
-	echo $table_html;
-	echo '<p style="text-align: right;">' . count( $all_invoices ) . ' items</p>';
+	return $table_html;
 }
 
 
 
 /**
- * Invoice Details page(Admin)
+ * Invoice Details page(Admin).
  */
-
-// Function to handle viewing a specific invoice
-function sw_view_invoice_page() {
-
-		echo '<h2>Invoice Details</h2>';
-
-	echo '<div class="invoice-details">';
-
-	// Assuming the invoice ID is passed in the URL as 'invoice_id'
-	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : null;
-
-	// Fetch the invoice data based on the provided invoice_id
-	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
-
-	if ( $invoice ) {
-		// Get user's full name using WordPress function
-		$user_full_name = get_user_meta( $invoice->getUserId(), 'first_name', true ) . ' ' . get_user_meta( $invoice->getUserId(), 'last_name', true );
-		$product_name   = wc_get_product( $invoice->getProductId() ) ? wc_get_product( $invoice->getProductId() )->get_name() : 'Not Available';
-		$paymentStatus  = esc_html( $invoice->getPaymentStatus() );
-		$dateCreated    = $invoice->getDateCreated();
-		$datePaid       = $invoice->getDatePaid();
-		$dateDue        = $invoice->getDateDue();
-		// Format the dates or display 'Not Available'
-		$formattedDateCreated = smartwoo_check_and_format( $dateCreated, true );
-		$formattedDatePaid    = smartwoo_check_and_format( $datePaid, true );
-		$formattedDateDue     = smartwoo_check_and_format( $dateDue, true );
-		
-		echo '<h2>' . esc_html( $invoice->getInvoiceType() ) . '</h2>';
-		// Display detailed information about the invoice
-		echo '<p class="invoice-details-item"><span>Payment Status:</span> <span style="background-color: red; color: white; font-weight: bold; padding: 4px; border-radius: 4px;">' . ucfirst( $paymentStatus ) . '</span></p>';
-		echo '<p class="invoice-details-item"><span>Invoice ID:</span>' . esc_html( $invoice->getInvoiceId() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>User Name:</span>' . esc_html( $user_full_name ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Product Name:</span>' . esc_html( $product_name ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Amount:</span>' . wc_price( $invoice->getAmount() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Invoice Type:</span>' . esc_html( $invoice->getInvoiceType() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Service ID:</span>' . esc_html( $invoice->getServiceId() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Fee:</span>' . wc_price( $invoice->getFee() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Order ID:</span>' . esc_html( $invoice->getOrderId() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Payment Gateway:</span>' . esc_html( $invoice->getPaymentGateway() ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Transaction ID:</span>' . esc_html( $invoice->getTransactionId() ) . '</p>';
-		// Display the formatted dates
-		echo '<p class="invoice-details-item"><span>Date Created:</span>' . esc_html( $formattedDateCreated ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Date Paid:</span>' . esc_html( $formattedDatePaid ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Date Due:</span>' . esc_html( $formattedDateDue ) . '</p>';
-		echo '<p class="invoice-details-item"><span>Total:</span>' . wc_price( $invoice->getTotal() ) . '</p>';
-
-		// Show billing address
-		echo '<p class="invoice-details-item"><span>Billing Address:</span>' . esc_html( $invoice->getBillingAddress() ) . '</p>';
-
-		// Display an "Edit Invoice" button with a link to the edit page
-		echo '<a class="button" href="?page=sw-invoices&action=edit-invoice&invoice_id=' . $invoice_id . '">Edit Invoice</a>';
-		// display the delete invoice button
-		echo sw_delete_invoice_button( $invoice->getInvoiceId());
-
-	} else {
-		wp_die( '<p class="invoice-details-item">Invoice not found.</p>' );
+function smartwoo_view_invoice_page() {
+	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	if ( empty( $invoice_id ) ) {
+		return smartwoo_error_notice( 'Missing invoice ID', 'smart-woo-service-invoicing' ) ;
 	}
 
-	echo '</div>'; // Close the container div
+	$page_html = '';
+	$invoice    = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-	// Check if there is a service ID associated with the invoice
-	if ( $invoice->getServiceId() ) {
-			echo '<div class="serv-details-card">';
-
-		// Get additional details about the service
-		$service_details = Sw_Service_Database::get_service_by_id( $invoice->getServiceId() );
-
-		// Display service details
-		if ( $service_details ) {
-			$service_name  = $service_details->getServiceName();
-			$billing_cycle = $service_details->getBillingCycle();
-			$end_date      = smartwoo_check_and_format( $service_details->getEndDate() ) ;
-			$service_id    = $invoice->getServiceId();
-
-			echo '<h3> Related Service Details </h3>';
-			echo '<p class="invoice-details-item"><span> Service Name:</span>' . esc_html( $service_name ) . '</p>';
-			echo '<p class="invoice-details-item"><span>Billing Cycle:</span>' . esc_html( $billing_cycle ) . '</p>';
-			echo '<p class="invoice-details-item"><span>End Date:</span>' . esc_html( $end_date ) . '</p>';
-			echo '<a class="button" href="admin.php?page=sw-admin&action=service_details&service_id=' . $service_id . '">More about Service ➡</a>';
-
-		} else {
-			echo smartwoo_notice( 'No details found for the service ID associated with this invoice.' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		
-		}
-		echo '</div>';
+	if ( empty( $invoice ) ) {
+		$page_html .= smartwoo_notice( 'Invoice not found', 'smart-woo-service-invoicing' );
+		return $page_html;
 	}
-	echo Sw_Invoice_log::render_log_html_output($invoice_id );
+
+	$args       = isset( $_GET['path'] ) ? sanitize_key( $_GET['path'] ) : 'details'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$query_var  =  'tab=view-invoice&invoice_id=' . $invoice->getInvoiceId() .'&path';
+	$tabs		= array(
+		'details' 	      => __( 'Invoice', 'smart-woo-service-invoicing' ),
+		'related-service' => __('Related Service', 'smart-woo-service-invoicing' ),
+		'log'             => __( 'Logs', 'smart-woo-service-invoicing' )
+	);
+	$page_html .= smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var );
+
+	switch ( $args ){
+		case 'related-service':
+				$page_html .= smartwoo_invoice_service_related( $invoice );
+			break;
+
+		case 'log':
+			$page_html .= Sw_Invoice_log::render_log_html_output($invoice_id );
+			break;
+		default:
+			$page_html .= smartwoo_invoice_details_admin_temp( $invoice );
+	}
+	return $page_html;
 }
 
+function smartwoo_invoice_details_admin_temp( $invoice ) {
+	$page_html  = '<h2>Invoice Details</h2>';
+	$page_html .= '<div class="invoice-details">';
+
+	$user_full_name = get_user_meta( $invoice->getUserId(), 'first_name', true ) . ' ' . get_user_meta( $invoice->getUserId(), 'last_name', true );
+	$product_name   = wc_get_product( $invoice->getProductId() ) ? wc_get_product( $invoice->getProductId() )->get_name() : 'Not Available';
+	$paymentStatus  = esc_html( $invoice->getPaymentStatus() );
+	$dateCreated    = $invoice->getDateCreated();
+	$datePaid       = $invoice->getDatePaid();
+	$dateDue        = $invoice->getDateDue();
+	// Format the dates or display 'Not Available'
+	$formattedDateCreated = smartwoo_check_and_format( $dateCreated, true );
+	$formattedDatePaid    = smartwoo_check_and_format( $datePaid, true );
+	$formattedDateDue     = smartwoo_check_and_format( $dateDue, true );
+	/**
+	 * Start page markup.
+	 */
+	$page_html .= '<h2>' . esc_html__( $invoice->getInvoiceType(), 'smart-woo-service-invoicing' ) . '</h2>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Payment Status:', 'smart-woo-service-invoicing' ) . '</span> <span style="background-color: red; color: white; font-weight: bold; padding: 4px; border-radius: 4px;">' . esc_html__( ucfirst( $paymentStatus ), 'smart-woo-service-invoicing' ) . '</span></p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Invoice ID:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getInvoiceId() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'User Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $user_full_name ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Product Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $product_name ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Amount:', 'smart-woo-service-invoicing' ) . '</span>' . wc_price( $invoice->getAmount() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Invoice Type:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getInvoiceType() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Service ID:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getServiceId() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Fee:', 'smart-woo-service-invoicing' ) . '</span>' . wc_price( $invoice->getFee() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Order ID:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getOrderId() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Payment Gateway:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getPaymentGateway() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Transaction ID:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getTransactionId() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Date Created:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $formattedDateCreated ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Date Paid:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $formattedDatePaid ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Date Due:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $formattedDateDue ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Total:', 'smart-woo-service-invoicing' ) . '</span>' . wc_price( $invoice->getTotal() ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Address:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getBillingAddress() ) . '</p>';
+	$page_html .= '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->getInvoiceId() ) ) . '">' . esc_html__( 'Edit Invoice', 'smart-woo-service-invoicing' ) . '</a>';
+	$page_html .= sw_delete_invoice_button( $invoice->getInvoiceId());
+	$page_html .= '</div>';
+
+	return $page_html;
+}
+function smartwoo_invoice_service_related( $invoice ){
+	$service_details = Sw_Service_Database::get_service_by_id( $invoice->getServiceId() );
+	$page_html = '<div class="serv-details-card">';
+
+	if ( $service_details ) {
+		$service_name  = $service_details->getServiceName();
+		$billing_cycle = $service_details->getBillingCycle();
+		$end_date      = smartwoo_check_and_format( $service_details->getEndDate() ) ;
+		$service_id    = $invoice->getServiceId();
+		$page_html .= '<h3>' . esc_html__( 'Related Service Details', 'smart-woo-service-invoicing' ) . '</h3>';
+		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Service Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $service_name ) . '</p>';
+		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Cycle:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $billing_cycle ) . '</p>';
+		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'End Date:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $end_date ) . '</p>';
+		$page_html .= '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service_id ) ) . '">' . esc_html__( 'More about Service ➡', 'smart-woo-service-invoicing' ) . '</a>';
+	} else {
+		$page_html .= smartwoo_notice( 'No details found for the service ID associated with this invoice.' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	
+	}
+	$page_html .= '</div>';
+	return $page_html;
+}
 
 /**
  * Invoice by status template
  */
+function smartwoo_invoice_by_status_temp() {
+	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_key( $_GET['payment_status'] ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$table_html  = '<div class="sw-table-wrapper">';
 
-// Function to handle displaying invoices based on payment status
-function sw_handle_admin_invoice_by_status() {
-	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_key( $_GET['payment_status'] ) : 'pending';
-
-	// Get invoices based on payment status
+	if( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid', ) ) ) {
+		return smartwoo_notice( 'Status Parameter cannot be manipulated!' );
+	}
 	$invoices = Sw_Invoice_Database::get_invoices_by_payment_status( $payment_status );
 
-	echo '<div class="wrap"><h1>Invoices by Payment Status</h1>';
+	$table_html .= '<h1>' . __( 'Invoices by Payment Status', 'smart-woo-service-invoicing' ) . '</h1>';
+	$table_html .= '<h2>Payment Status: ' . esc_html( ucfirst( $payment_status ) ) . '</h2>';
+	$table_html .= smartwoo_count_all_invoices_by_status();
 
-	// Display the selected payment status
-	echo '<h2>Payment Status: ' . esc_html( $payment_status ) . '</h2>';
-	echo sw_count_all_invoices_by_status();
-	// Check if there are any invoices
 	if ( ! empty( $invoices ) ) {
-		// Display the table of invoices
-		echo '<table class="widefat fixed striped">';
-		echo '<thead>';
-		echo '<tr>';
-		echo '<th>Invoice ID</th>';
-		echo '<th>Invoice Type</th>';
-		echo '<th>Service ID</th>';
-		echo '<th>Amount</th>';
-		echo '<th>Fee</th>';
-		echo '<th>Total</th>';
-		echo '<th>Action</th>';
+		$table_html .= '<table class="sw-table">';
+		$table_html .= '<thead>';
+		$table_html .= '<tr>';
+		$table_html .= '<th>' . esc_html__( 'Invoice ID', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '<th>' . esc_html__( 'Invoice Type', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '<th>' . esc_html__( 'Service ID', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '<th>' . esc_html__( 'Amount', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '<th>' . esc_html__( 'Fee', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '<th>' . esc_html__( 'Total', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '<th>' . esc_html__( 'Action', 'smart-woo-service-invoicing' ) . '</th>';
+		$table_html .= '</tr>';
+		$table_html .= '</thead>';
+		$table_html .= '<tbody>';		
 
-		echo '</tr>';
-		echo '</thead>';
-		echo '<tbody>';
-
-		// Loop through each invoice and add a row to the table
 		foreach ( $invoices as $invoice ) {
-			echo '<tr>';
-			echo '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
-			echo '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
-			echo '<td>' . esc_html( $invoice->getServiceId() ) . '</td>';
-			echo '<td>' . esc_html( $invoice->getAmount() ) . '</td>';
-			echo '<td>' . wc_price( $invoice->getFee() ) . '</td>';
-			echo '<td>' . wc_price( $invoice->getTotal() ) . '</td>';
-			echo '<td><a href="?page=sw-invoices&action=view-invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '">View</a></td>';
-
-			echo '</tr>';
+			$table_html .= '<tr>';
+			$table_html .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
+			$table_html .= '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
+			$table_html .= '<td>' . esc_html( $invoice->getServiceId() ) . '</td>';
+			$table_html .= '<td>' . esc_html( $invoice->getAmount() ) . '</td>';
+			$table_html .= '<td>' . wc_price( $invoice->getFee() ) . '</td>';
+			$table_html .= '<td>' . wc_price( $invoice->getTotal() ) . '</td>';
+			$table_html .= '<td><a class="sw-red-button" href="?page=sw-invoices&tab=view-invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '">' . __( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
+			$table_html .= '</tr>';
 		}
 
-		echo '</tbody>';
-		echo '</table>';
-		echo '<p style="text-align: right;">' . count( $invoices ) . ' items</p>';
+		$table_html .= '</tbody>';
+		$table_html .= '</table>';
+		$table_html .= '<p style="text-align: right;">' . count( $invoices ) . ' items</p>';
 
 	} else {
-		echo '<p>No invoices found for the selected payment status.</p>';
+		$table_html .= smartwoo_notice( 'No invoices found for '. $payment_status );
 	}
 
-	echo '</div>';
+	$table_html .= '</div>';
+	return $table_html;
 }
 
 
 /**
  * Invoice Status Counts for the Currently Logged in user
  */
-function sw_count_all_invoices_by_status() {
+function smartwoo_count_all_invoices_by_status() {
 	// Check if the user is logged in
 	if ( ! is_user_logged_in() ) {
-		return "Hello! It looks like you're not logged in.";
+		return smartwoo_error_notice( 'Hello! It looks like you\'re not logged in.' );
 	}
 
 	// Get the current logged-in user's ID
@@ -567,7 +604,7 @@ function sw_count_all_invoices_by_status() {
 	// Generate the HTML with links
 	$output = '<div class="invoice-status-counts">';
 	foreach ( $status_counts as $status => $count ) {
-		$url     = admin_url( 'admin.php?page=sw-invoices&action=invoice-by-status&payment_status=' . $status );
+		$url     = admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status );
 		$output .= '<div class="status-item">';
 		$output .= '<h2><a href="' . esc_url( $url ) . '">' . ucfirst( $status ) . ' (' . $count . ')</a></h2>';
 		$output .= '</div>';
@@ -576,4 +613,3 @@ function sw_count_all_invoices_by_status() {
 
 	return $output;
 }
-

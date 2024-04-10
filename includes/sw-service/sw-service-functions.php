@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 /**
  * File name    :   sw-service-functions.php
  *
@@ -80,7 +79,7 @@ function sw_generate_service(
  * @param object $service       The service.
  * @return string HTML markup button with url keypass
  */
-function sw_client_service_url_button( Sw_Service $service ) {
+function smartwoo_client_service_url_button( Sw_Service $service ) {
 	$user_id        = $service->getUserId();
 	$user_info      = get_userdata( $user_id );
 	$service_status = sw_service_status( $service->getServiceId() );
@@ -105,6 +104,21 @@ function sw_client_service_url_button( Sw_Service $service ) {
 	return false;
 }
 
+/**
+ *  Service details preview URL
+ */
+function smartwoo_service_preview_url( $service_id ) {
+
+	if ( is_account_page() ) {
+		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
+		$preview_url  = $endpoint_url .'?view_service&service_id=' . $service_id;
+		return esc_url( $preview_url );
+	}
+
+	$page 	  = get_option( 'smartwoo_service_page_id', 0 );
+	$page_url = esc_url( get_permalink( $page ) );
+	return esc_url( $page_url .'?service_page=service_details&service_id=' . $service_id );
+}
 
 /**
  * Get service information based on various parameters.
@@ -182,9 +196,9 @@ add_action( 'sw_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
  */
 function sw_is_service_active( Sw_Service $service ) {
 	// Extract only the date portion from the end date, next payment date, and current date
-	$end_date          = sw_extract_date_only( $service->getEndDate() );
-	$next_payment_date = sw_extract_date_only( $service->getNextPaymentDate() );
-	$current_date      = sw_extract_date_only( current_time( 'mysql' ) );
+	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
+	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
+	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 	// Compare date strings to check if the subscription is active
 	if ( $next_payment_date > $current_date && $end_date > $current_date ) {
@@ -202,9 +216,9 @@ function sw_is_service_active( Sw_Service $service ) {
  * @return bool True if the subscription is due, false otherwise
  */
 function sw_is_service_due( Sw_Service $service ) {
-	$end_date          = sw_extract_date_only( $service->getEndDate() );
-	$next_payment_date = sw_extract_date_only( $service->getNextPaymentDate() );
-	$current_date      = sw_extract_date_only( current_time( 'mysql' ) );
+	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
+	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
+	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
 	if ( $next_payment_date <= $current_date && $end_date > $current_date ) {
 		return true;
 
@@ -222,8 +236,8 @@ function sw_is_service_due( Sw_Service $service ) {
  */
 function sw_is_service_on_grace( Sw_Service $service ) {
 
-	$end_date     = sw_extract_date_only( $service->getEndDate() );
-	$current_date = sw_extract_date_only( current_time( 'mysql' ) );
+	$end_date     = smartwoo_extract_only_date( $service->getEndDate() );
+	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 	// Check if the service has passed its end date
 	if ( $current_date >= $end_date ) {
@@ -233,7 +247,7 @@ function sw_is_service_on_grace( Sw_Service $service ) {
 		$grace_period_date = sw_get_grace_period_end_date( $product_id, $end_date );
 
 		// Check if there is a valid grace period and if the current date is within the grace period
-		if ( ! empty( $grace_period_date ) && $current_date <= sw_extract_date_only( $grace_period_date ) ) {
+		if ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) ) {
 			return true;
 		}
 	}
@@ -251,7 +265,7 @@ function sw_is_service_on_grace( Sw_Service $service ) {
  */
 function sw_has_service_expired( Sw_Service $service ) {
 
-	$current_date = sw_extract_date_only( current_time( 'mysql' ) );
+	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 	$expiration_date = sw_get_service_expiration_date( $service );
 
 	// Check if the current date has passed the expiration date
@@ -520,7 +534,7 @@ add_action( 'smart_woo_daily_task', 'sw_regulate_service_status' );
  */
 function sw_generate_service_id( string $service_name ) {
 	// Service ID Prefix
-	$service_id_prefix = get_option( 'sw_service_id_prefix', 'SID' );
+	$service_id_prefix = get_option( 'smartwoo_service_id_prefix', 'SID' );
 
 	// Extract the first alphabet of each word in the service name
 	$first_alphabets = array_map(
@@ -565,11 +579,11 @@ function generate_service_id_callback() {
  */
 function sw_get_service_expiration_date( Sw_Service $service ) {
 	// Get necessary service information
-	$end_date   = sw_extract_date_only( $service->getEndDate() );
+	$end_date   = smartwoo_extract_only_date( $service->getEndDate() );
 	$product_id = $service->getProductId();
 
 	// Get the grace period end date using the end date as the reference
-	$grace_period_date = sw_extract_date_only( sw_get_grace_period_end_date( $product_id, $end_date ) );
+	$grace_period_date = smartwoo_extract_only_date( sw_get_grace_period_end_date( $product_id, $end_date ) );
 
 	// Determine the expiration date (either grace period end date or end date)
 	$expiration_date = $grace_period_date ?? $end_date;
@@ -601,7 +615,7 @@ function sw_check_services_expired_today() {
 	// Loop through each service
 	foreach ( $services as $service ) {
 		// Get necessary service information
-		$current_date = sw_extract_date_only( current_time( 'mysql' ) );
+		$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 		// Determine the expiration date (either grace period end date or end date)
 		$expiration_date = sw_get_service_expiration_date( $service );
@@ -789,36 +803,43 @@ function sw_get_grace_period_end_date( int $product_id, string $reference_date )
 /**
  * Render the delete Service Button
  */
-function sw_delete_service_button( string $service_id ) {
+function smartwoo_delete_service_button( string $service_id ) {
 	// Output the delete button with data-invoice-id attribute
-	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">Delete Service ⌫</button>';
+	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">' . __( 'Delete Service ⌫', 'smart-woo-service-invoicing' ) . '</button>';
 }
 
 // Add Ajax actions
-add_action( 'wp_ajax_delete_service', 'sw_delete_service_callback' );
-add_action( 'wp_ajax_nopriv_delete_service', 'sw_delete_service_callback' );
+add_action( 'wp_ajax_smartwoo_delete_service', 'smartwoo_delete_service' );
+add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' );
 
-function sw_delete_service_callback() {
-	// Verify the nonce for security
-	check_ajax_referer( 'smart_woo_nonce', 'security' );
+function smartwoo_delete_service() {
 
-	// Get the invoice ID from the Ajax request
-	$service_id = isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id'] ) : '';
+	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
+		wp_die( -1, 403 );
+	}
+	
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( -1, 403);
+	}
+
+	$service_id = isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
 
 	// Validate the service ID
 	if ( empty( $service_id ) ) {
 		wp_send_json_error( 'Invalid Service ID.' );
+		wp_die( -1, 404);
+
 	}
 
-	// Attempt to delete the invoice
 	$delete_result = Sw_Service_Database::delete_service( $service_id );
 
 	// Check the result and send appropriate response
 	if ( is_string( $delete_result ) ) {
-		// An error occurred
+		// An error occurred.
 		wp_send_json_error( $delete_result );
 	} else {
-		// Success
+		// Success.
 		wp_send_json_success( $delete_result );
 		exit();
 	}

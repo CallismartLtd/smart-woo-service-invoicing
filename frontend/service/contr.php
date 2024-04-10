@@ -23,7 +23,7 @@ function smartwoo_service_shortcode() {
 	$current_user_id  = get_current_user_id();
 	$current_user     = wp_get_current_user();
 	// Get and sanitize the 'service_page' parameter.
-	$url_param = isset( $_GET['service_page'] ) ? sanitize_key( $_GET['service_page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$url_param = isset( $_GET['service_page'] ) ? sanitize_key( $_GET['service_page'] ) : ""; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$allowed_actions = array( 'service_details', 'service_downgrade', 'active', 'renewal_due', 'expired', 'grace_period', 'service_upgrade', 'service_downgrade', 'buy_new_service' );
 
 	// If 'service_page' is set and not empty, validate against allowed actions.
@@ -79,7 +79,7 @@ function smartwoo_service_shortcode() {
 			$output 			= $on_grace_services;
 			break;
 		default:
-			$main_page 	= smartwoo_front_main_page( $current_user_id );
+			$main_page 	= smartwoo_service_front_temp( $current_user_id );
 			$output 	= $main_page;
 			break;
 		
@@ -112,7 +112,7 @@ function smartwoo_load_billing_details_callback() {
 		$email            = get_user_meta( $user_id, 'billing_email', true );
 		$phone            = get_user_meta( $user_id, 'billing_phone', true );
 		$website          = get_user_meta( $user_id, 'billing_website', true );
-		$billingAddress   = sw_get_user_billing_address( $user_id );
+		$billingAddress   = smartwoo_get_user_billing_address( $user_id );
 		// Construct the HTML for billing details
 		$html  = '<div class="billing-details-container">';
 		$html .= '<h3>Billing Details</h3>';
@@ -257,7 +257,7 @@ function smartwoo_load_transaction_history_callback() {
 	if ( is_user_logged_in() ) {
 
 		$html = '<h3>Transaction History</h3>';
-		$html .= smartwoo_transactions_shortcode_output();
+		$html .= smartwoo_transactions_shortcode();
 
 		echo wp_kses_post( $html );
 	} else {

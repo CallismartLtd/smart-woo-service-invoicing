@@ -70,7 +70,7 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 
 		function sw_initialization() {
 
-			if ( class_exists( 'woocommerce' ) ) {
+			if ( class_exists( 'WooCommerce' ) ) {
 				/**
 				 * WooComerce is active, action hook to load plugin files
 				 */

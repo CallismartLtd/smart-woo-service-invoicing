@@ -46,6 +46,11 @@ class Sw_Invoice_Database {
 		return self::get_invoices_by_criteria( 'user_id', $user_id );
 	}
 
+	/**
+	 * Get an Invoice by it's invoice_id.
+	 * 
+	 * @param string $invoice_id	The invoice id.
+	 */
 	public static function get_invoice_by_id( $invoice_id ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_invoice';

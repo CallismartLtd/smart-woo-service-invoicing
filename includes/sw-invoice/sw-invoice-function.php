@@ -58,7 +58,7 @@ function sw_evaluate_user_invoices( $user_id, $invoice_type, $payment_status ) {
 /**
  * Checks if a Service has an invoice with a specific invoice_type and transaction_status.
  *
- * @param string $service_id            The ID of Service to check.
+ * @param string $service_id         The ID of Service to check.
  * @param string $invoice_type       The invoice type to check.
  * @param string $transaction_status The desired transaction status.
  *
@@ -66,18 +66,18 @@ function sw_evaluate_user_invoices( $user_id, $invoice_type, $payment_status ) {
  *
  * @since 1.0.0
  */
-function sw_evaluate_service_invoices( $service_id, $invoice_type, $payment_status ) {
-	// Retrieve invoices based on criteria
-	$invoices = Sw_Invoice_Database::get_invoices_by_criteria( 'service_id', $service_id );
+function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $payment_status ) {
+	$service_id 	= sanitize_text_field( $service_id );
+	$invoice_type 	= sanitize_text_field( $invoice_type );
+	$payment_status = sanitize_text_field( $payment_status );
+	$invoice 		= Sw_Invoice_Database::get_invoice_by_id( 'service_id', $service_id );
 
-	// Check if the user has an invoice with the specified attributes
-	foreach ( $invoices as $invoice ) {
-		if (
-			$invoice->getInvoiceType() === $invoice_type &&
-			$invoice->getPaymentStatus() === $payment_status
-		) {
-			return $invoice->getInvoiceId(); // Return the invoice_id
-		}
+	if ( empty( $invoice ) ) {
+		return false;
+	}
+
+	if ( $invoice->getInvoiceType() === $invoice_type && $invoice->getServiceId() === $service_id && $invoice->getPaymentStatus() === $payment_status ){
+		return $invoice->getInvoiceId();
 	}
 
 	return false; // User doesn't have the desired invoice
@@ -181,7 +181,7 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
  * @return string $invoice_id   The new Generated Invoice ID
  */
 function sw_generate_invoice_id() {
-	$invoice_id = uniqid( sw_get_invoice_number_prefix() . '-' );
+	$invoice_id = uniqid( smartwoo_get_invoice_id_prefix() . '-' );
 	if ( $invoice_id ) {
 		return $invoice_id;
 	}
@@ -207,7 +207,7 @@ function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoi
 	$invoice_id = sw_generate_invoice_id();
 
 	// Get the user's billing address
-	$billing_address = sw_get_user_billing_address( $user_id );
+	$billing_address = smartwoo_get_user_billing_address( $user_id );
 
 	// Get the product price dynamically from WooCommerce
 	$amount = wc_get_product( $product_id )->get_price();
@@ -287,16 +287,16 @@ function sw_generate_service_migration_invoice() {
 			}
 
 			// Check if there is Service Upgrade or Downgrade Invoice for the service
-			$existing_invoice_id = sw_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
+			$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
 			if ( $existing_invoice_id ) {
 				// Get the invoice for payment instead of creating another
-				sw_redirect_to_invoice_preview( $existing_invoice_id );
+				smartwoo_redirect_to_invoice_preview( $existing_invoice_id );
 			}
 
 			// Generate a unique invoice ID
-			$invoice_id = sw_get_invoice_number_prefix() . '-' . uniqid();
+			$invoice_id = smartwoo_get_invoice_id_prefix() . '-' . uniqid();
 			// Get the user's billing address
-			$billing_address = sw_get_user_billing_address( $user_id );
+			$billing_address = smartwoo_get_user_billing_address( $user_id );
 			// Calculate the total by adding the fee (if provided)
 			$new_order_total = $order_total + ( $fee ?? 0 );
 			$invoice_total   = $amount + ( $fee ?? 0 );
@@ -342,7 +342,7 @@ function sw_generate_service_migration_invoice() {
 				do_action( 'sw_service_migrated', $migrated_service );
 			}
 
-			if ( 'Enabled' === sw_Is_prorate() && $refund_amount > 0 ) {
+			if ( 'Enabled' === smartwoo_is_prorate_() && $refund_amount > 0 ) {
 
 				// Log the refund data into our database from where refunds can easily be processed.
 				 $details = 'Refund for service ID: "' . $service_id . '" unused service balance due to migration.';
@@ -351,7 +351,7 @@ function sw_generate_service_migration_invoice() {
 			}
 
 			if ( $newInvoice ) {
-				sw_redirect_to_invoice_preview( $newInvoice->getInvoiceId() );
+				smartwoo_redirect_to_invoice_preview( $newInvoice->getInvoiceId() );
 			}
 		}
 	}
@@ -369,7 +369,7 @@ function sw_generate_service_migration_invoice() {
 function sw_calculate_migration_order_total( $product_price, $unused_service_price ) {
 
 	// Check if pro-rata refunds are enabled
-	$prorate_status = sw_Is_prorate();
+	$prorate_status = smartwoo_is_prorate_();
 	if ( $prorate_status === 'Enabled' ) {
 		// If the unused service amount can cover the entire product price
 		if ( $unused_service_price >= $product_price ) {
@@ -415,7 +415,7 @@ function sw_calculate_migration_order_total( $product_price, $unused_service_pri
  * @param int $user_id  The ID of the user
  * @return string Readable address format.
  */
-function sw_get_user_billing_address( $user_id ) {
+function smartwoo_get_user_billing_address( $user_id ) {
 
     // Get user's billing address details
     $billing_address_1 = get_user_meta( $user_id, 'billing_address_1', true );
@@ -461,11 +461,11 @@ function sw_get_user_billing_address( $user_id ) {
  *
  * @return stdClass Object with billing details.
  */
-function sw_biller_details() {
+function smartwoo_biller_details() {
 	// Retrieve plugin and WooCommerce settings
-	$business_name       = get_option( 'sw_business_name', '' );
-	$invoice_logo_url    = get_option( 'sw_invoice_logo_url' );
-	$admin_phone_numbers = get_option( 'sw_admin_phone_numbers', '' );
+	$business_name       = get_option( 'smartwoo_business_name', '' );
+	$invoice_logo_url    = get_option( 'smartwoo_invoice_logo_url' );
+	$admin_phone_numbers = get_option( 'smartwoo_admin_phone_numbers', '' );
 	$store_address       = get_option( 'woocommerce_store_address' );
 	$store_city          = get_option( 'woocommerce_store_city' );
 	$default_country     = get_option( 'woocommerce_default_country' );
@@ -492,6 +492,38 @@ function smartwoo_get_total_spent_by_user( $user_id ) {
 	$customer = new WC_Customer( $user_id );
 
 	return  $customer->get_total_spent();
+}
+
+/**
+ * Invoice order Payment URL
+ * 
+ * @param int $order_id WooCommerce order ID
+ * @return string The generated order-pay URL
+ */
+function smartwoo_order_pay_url( int $order_id ) {
+	$order = wc_get_order( $order_id );
+
+	if ( $order && $order->get_meta( '_sw_invoice_id' ) ) {
+
+		return $order->get_checkout_payment_url() ;
+	}
+	return "";
+}
+
+/**
+ * Get invoice preview url
+ * 
+ */
+function smartwoo_invoice_preview_url( $invoice_id ) {
+	if ( is_account_page() ) {
+		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
+		$preview_url  = $endpoint_url .'?view_invoice&invoice_id=' . $invoice_id;
+		return esc_url( $preview_url );
+	}
+
+	$invoice_page = get_option( 'smartwoo_invoice_page_id', 0 );
+	$invoice_page_url = esc_url( get_permalink( $invoice_page ) );
+	return esc_url( $invoice_page_url .'?invoice_page=view_invoice&invoice_id=' . $invoice_id );
 }
 
 function sw_delete_invoice_button( $invoice_id ) {
@@ -544,7 +576,7 @@ add_action( 'woocommerce_checkout_order_created', 'sw_create_invoice_for_configu
 function sw_create_invoice_for_configured_orders( $order ) {
 
 	// Check if the order is configured
-	$is_configured_order = has_sw_configured_products( $order );
+	$is_configured_order = smartwoo_check_if_configured( $order );
 
 	// Check if the new order has configured products
 	if ( $is_configured_order ) {
@@ -588,7 +620,7 @@ function sw_create_invoice_for_configured_orders( $order ) {
 				$total           = $amount + ( $fee_amount ?? 0 );
 				$payment_status  = 'unpaid';
 				$user_id         = $order->get_user_id();
-				$billing_address = sw_get_user_billing_address( $user_id );
+				$billing_address = smartwoo_get_user_billing_address( $user_id );
 				$service_id      = null;
 				$invoice_type    = 'New Service Invoice';
 				$service_id      = null; // Will be set when Service is processed

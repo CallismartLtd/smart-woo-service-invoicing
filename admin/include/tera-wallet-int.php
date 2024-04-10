@@ -16,7 +16,7 @@ add_action( 'process_service_renewals_event', 'sw_pay_invoice_through_woo_wallet
  * The main function to process service renewals
  */
 function sw_pay_invoice_through_woo_wallet() {
-	$enabled = get_option( 'sw_pay_pending_invoice_with_wallet', 0 );
+	$enabled = get_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 );
 
 	if ( ! $enabled ) {
 		return;

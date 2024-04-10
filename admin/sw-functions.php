@@ -27,7 +27,7 @@ function smartwoo_check_and_format( $dateString, $includeTime = false ) {
  * @param string $dateTimeString The date and time string.
  * @return string The extracted date in 'Y-m-d' format.
  */
-function sw_extract_date_only( string $datetimestring ) {
+function smartwoo_extract_only_date( string $datetimestring ) {
 	// Explicitly cast $datetimestring to a string
 	$datetimestring = (string) $datetimestring;
 
@@ -58,10 +58,10 @@ function smartwoo_convert_timestamp_to_readable_date( int $timestamp, bool $incl
 /**
  * Check if Proration is Enabled or Disabled
  *
- * @return string Returns "Enabled" if sw_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
+ * @return string Returns "Enabled" if smartwoo_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
  */
-function sw_Is_prorate() {
-	$sw_prorate = get_option( 'sw_prorate', 'Disabled' );
+function smartwoo_is_prorate_() {
+	$smartwoo_prorate = get_option( 'smartwoo_prorate', 'Disabled' );
 
 	if ( $sw_prorate === 'Enable' ) {
 		return 'Enabled';
@@ -87,19 +87,13 @@ function smart_woo_log( $log_id, $log_type, $status, $details = '',  $amount = 0
 	
 	// Instantiate an object of the class.
 	$log = new Sw_Invoice_log();
-
-	// Set data using setter methods
 	$log->setLogId( $log_id );
 	$log->setLogType( $log_type );
 	$log->setAmount( $amount );
 	$log->setStatus( $status );
 	$log->setDetails( $details );
 	$log->setNote( $note );
-	
-	// Log the data
 	$log->save();
-
-
 }
 
 /**
@@ -112,7 +106,7 @@ function smart_woo_log( $log_id, $log_type, $status, $details = '',  $amount = 0
  * @param string $log_id The ID of the logged data to refund.
  * @return bool True if the refund is successfully initiated, false otherwise.
  */
-function sw_refund_completed( $log_id ) {
+function smartwoo_refund_completed( $log_id ) {
     return Sw_Refund::refunded( $log_id );
 }
 
@@ -122,8 +116,8 @@ function sw_refund_completed( $log_id ) {
  *
  * @return string The configured Invoice Number Prefix.
  */
-function sw_get_invoice_number_prefix() {
-	$invoice_number_prefix = get_option( 'sw_invoice_id_prefix', 'CINV' );
+function smartwoo_get_invoice_id_prefix() {
+	$invoice_number_prefix = get_option( 'smartwoo_invoice_id_prefix', 'CINV' );
 	return $invoice_number_prefix;
 }
 
@@ -133,7 +127,7 @@ function sw_get_invoice_number_prefix() {
  *
  * @return string Random 32-character hexadecimal token
  */
-function sw_generate_unique_token() {
+function smartwoo_generate_token() {
 	return bin2hex( random_bytes( 16 ) );
 }
 
@@ -145,18 +139,16 @@ function sw_generate_unique_token() {
  *
  * @return string The generated payment link with a unique URL structure.
  */
-function swsi_generate_payment_link( $invoice_id, $user_email ) {
+function smartwoo_generate_invoice_payment_url( $invoice_id, $user_email ) {
 
-	// Generate a unique token
-	$token = sw_generate_unique_token();
-
-	// Get and sanitize the parameter values
-	$invoice_id = sanitize_text_field( $invoice_id );
+	// Generate a unique token.
+	$token 		= smartwoo_generate_token();
+	$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
 	$user_email = sanitize_email( $user_email );
 
-	// Store the information in a transient with a 24-hour expiration
+	// Store the information in a transient with a 24-hour expiration.
 	set_transient(
-		'sw_payment_info_' . $token,
+		'smartwoo_payment_token' . $token,
 		array(
 			'invoice_id' => $invoice_id,
 			'user_email' => $user_email,
@@ -164,13 +156,13 @@ function swsi_generate_payment_link( $invoice_id, $user_email ) {
 		24 * HOUR_IN_SECONDS
 	);
 
-	// Construct a unique URL structure for the payment link
+	// Construct a unique URL structure for the payment link.
 	$payment_link = add_query_arg(
 		array(
 			'action'     => 'sw_invoice_payment',
 			'invoice_id' => $invoice_id,
 			'user_email' => $user_email,
-			'token'      => $token,  // Include the generated token
+			'token'      => $token,
 		),
 		home_url()
 	);
@@ -185,18 +177,17 @@ function swsi_generate_payment_link( $invoice_id, $user_email ) {
  *
  * @return array|false If the token is valid, return an array with invoice_id and user_email; otherwise, return false.
  */
-function swsi_verify_token( $token ) {
-	// Retrieve information from the transient
-	$payment_info = get_transient( 'sw_payment_info_' . $token );
+function smartwoo_verify_token( $token ) {
+	// Retrieve information from the transient.
+	$payment_info = get_transient( 'smartwoo_payment_token' . $token );
 
-	// Check if the transient exists and has not expired
 	if ( $payment_info ) {
-		// Extract relevant information
+
 		$invoice_id = $payment_info['invoice_id'];
 		$user_email = $payment_info['user_email'];
 
-		// Delete the transient to ensure one-time use
-		delete_transient( 'sw_payment_info_' . $token );
+		// Delete the transient to ensure one-time use.
+		delete_transient( 'smartwoo_payment_token' . $token );
 
 		return array(
 			'invoice_id' => $invoice_id,
@@ -204,7 +195,7 @@ function swsi_verify_token( $token ) {
 		);
 	}
 
-	// Token is invalid or expired
+	// Token is invalid or expired.
 	return false;
 }
 
@@ -212,11 +203,11 @@ function swsi_verify_token( $token ) {
 /**
  * Performs check if migration is allowed
  */
-function sw_Is_migration() {
-	$sw_allow_migration = get_option( 'sw_allow_migration', 'Disable' );
+function smartwoo_is_migration() {
+	$smartwoo_allow_migration = get_option( 'smartwoo_allow_migration', 'Disable' );
 
 	// Check if service upgrade is enabled
-	return $sw_allow_migration === 'Enable';
+	return $smartwoo_allow_migration === 'Enable';
 }
 
 
@@ -226,10 +217,10 @@ function sw_Is_migration() {
  * @param string $message The notice message.
  * @return string HTML markup for the notice message.
  */
-function smartwoo_notice( $message ) {
-	// HTML and styles for the notice message
-	$output  = '<div style="background-color: #ffe9a7; padding: 10px; border: 1px solid #f3c100; border-radius: 5px; margin: 10px 0; display: flex; align-items: center;">';
-	$output .= '<p style="margin: 0; flex-grow: 1; font-weight: bold; text-align: center; max-width: 100%;">⚠ ' . esc_html__( $message, 'smart-woo-service-invoicing' ) . ' ⚠</p>'; 
+function smartwoo_notice( $message, $dismisable = false ) {
+	$class = ( true === $dismisable ) ? 'sw-notice notice notice-error is-dismissible' : 'sw-notice';
+	$output  = '<div class="' . esc_attr( $class ) . '">';
+	$output .= '<p>' . esc_html__( $message, 'smart-woo-service-invoicing' ) . '</p>'; 
 	$output .= '</div>';
 
 	return $output;
@@ -242,12 +233,13 @@ if ( ! function_exists( 'smartwoo_error_notice' ) ) {
 	 *
 	 * @param string|array $messages Error message(s) to display.
 	 */
-	function smartwoo_error_notice( $messages ) {
+	function smartwoo_error_notice( $messages, $dismisable = false ) {
 
-		if ("" === $message ) {
+		if ( "" === $messages ) {
 			return ""; // message is required.
 		}
-		$error = '<div class="sw-error-notice notice notice-error is-dismissible">';
+		$class = ( true === $dismisable ) ? 'sw-error-notice notice notice-error is-dismissible' : 'sw-error-notice';
+		$error = '<div class="' . esc_attr ( $class ) .'">';
 
 		if ( is_array( $messages ) ) {
 			$error .= smartwoo_notice( 'Errors !!' );
@@ -275,8 +267,8 @@ if ( ! function_exists( 'smartwoo_error_notice' ) ) {
  *
  * @param int $invoice_id The ID of the invoice.
  */
-function sw_redirect_to_invoice_preview( $invoice_id ) {
-	$invoice_page = get_option( 'sw_invoice_page', 0 );
+function smartwoo_redirect_to_invoice_preview( $invoice_id ) {
+	$invoice_page = get_option( 'smartwoo_invoice_page_id', 0 );
 	$redirect_url = get_permalink( $invoice_page ) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
 	wp_safe_redirect( $redirect_url );
 	exit();
@@ -284,42 +276,43 @@ function sw_redirect_to_invoice_preview( $invoice_id ) {
 
 
 /**
- * Get all orders for the configured service or check if a specific order is configured.
+ * Get all orders configured for service subscription.
  *
- * @param int|null $order_id_to_get Optional. If provided, returns the ID of the specified order.
- * @return int|array The ID of the specified order if $order_id_to_get is provided and is configured, or an array of order IDs for configured orders.
+ * @param int|null  $order_id 				If provided, returns the ID of the specified order.
+ * @return int|array $order_id | $orders	ID of or Configured orders.
  */
-function sw_get_orders_for_configured_products( $order_id_to_get = null ) {
-	// If $order_id_to_get is provided, return the ID of the specified order
-	if ( $order_id_to_get !== null ) {
-		$order = wc_get_order( $order_id_to_get );
-		if ( $order && has_sw_configured_products( $order ) ) {
-			return $order_id_to_get;
+function smartwoo_get_configured_orders_for_service( $order_id = null ) {
+
+	if ( null !== $order_id ) {
+		$order = wc_get_order( $order_id );
+		if ( $order && smartwoo_check_if_configured( $order ) ) {
+			return $order_id;
 		} else {
 			return 0; // Return 0 to indicate that the specified order is not configured
 		}
 	}
 
-	// Initialize an empty array to store order IDs
-	$order_ids = array();
+	// Initialize an empty array to store orders.
+	$orders = array();
 
 	// Query WooCommerce orders
-	$orders = wc_get_orders(
+	$wc_orders = wc_get_orders(
 		array(
 			'limit' => -1,  // Retrieve all orders
 		)
 	);
 
-	// Loop through the orders
-	foreach ( $orders as $order ) {
-		// Check if the order has configured products
-		if ( $order && has_sw_configured_products( $order ) ) {
-			$order_ids[] = $order->get_id();
-		}
+	if ( empty( $wc_orders ) ) {
+		return false;
 	}
 
-	// If $order_id_to_get is not provided, return the array of order IDs
-	return $order_ids;
+	foreach ( $wc_orders as $order ) {
+
+		if ( smartwoo_check_if_configured( $order ) ) {
+			$orders[] = $order;
+		}
+	}
+	return $orders;
 }
 
 /**
@@ -328,29 +321,34 @@ function sw_get_orders_for_configured_products( $order_id_to_get = null ) {
  * @param WC_Order $order The WooCommerce order object.
  * @return bool True if the order has configured products, false otherwise.
  */
-function has_sw_configured_products( $order ) {
+function smartwoo_check_if_configured( $order ) {
+
+	if ( is_int( $order ) ) {
+		$order = wc_get_order( $order );
+	}
+
 	$items = $order->get_items();
 
 	foreach ( $items as $item_id => $item ) {
 		$service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
 		if ( ! empty( $service_name ) ) {
-			return true; // Configured product found
+			return true;
 		}
 	}
 
-	return false; // No configured products found
+	return false;
 }
 
 
 /**
- * Service and Invoice pages navigation bar
+ * Frontend navigation menu bar.
  *
- * @param int $user_id   The current user's ID
+ * @param int $user_id   The current user's ID.
  */
-function sw_get_navbar( $current_user_id ) {
-    $service_page_id            = get_option( 'sw_service_page', 0 );
+function smartwoo_get_navbar( $current_user_id ) {
+    $service_page_id            = get_option( 'smartwoo_service_page_id', 0 );
     $service_page_url           = get_permalink( $service_page_id );
-    $invoice_preview_page_id    = get_option( 'sw_invoice_page', 0 );
+    $invoice_preview_page_id    = get_option( 'smartwoo_invoice_page_id', 0 );
     $invoice_preview_page_url   = get_permalink( $invoice_preview_page_id );
 
     // Determine the current page
@@ -428,17 +426,17 @@ function sw_get_navbar( $current_user_id ) {
 	 * wp_kses_post() function. By adding or modifying the allowed tags and
 	 * attributes, we can ensure that specific HTML elements are retained
 	 * when using wp_kses_post(). This callback function is intended to be
-	 * used in conjunction with the sw_get_navbar() function to customize
+	 * used in conjunction with the smartwoo_get_navbar() function to customize
 	 * the allowed HTML for the navigation bar output.
 	 *
 	 * @param array  $allowed_tags An array of allowed HTML tags and their attributes.
 	 * @param string $context      The context in which the HTML is being sanitized.
 	 * @return array               The modified array of allowed HTML tags and attributes.
 	 */ 
+	if( ! function_exists( 'smartwoo_kses_allowed' ) ):
 	function smartwoo_kses_allowed( $allowed_tags, $context ) {
 		// Add or modify the allowed HTML tags and attributes as needed
 		if ( 'post' === $context ) {
-			// Define the allowed HTML tags and attributes for wp_kses_post() in the context of post content
 			$allowed_tags = array_merge( $allowed_tags, array(
 				'select' => array(
 					'id' => array(),
@@ -452,6 +450,7 @@ function sw_get_navbar( $current_user_id ) {
 
 		return $allowed_tags;
 	}
+	endif;
 
     // Apply filter to modify the allowed HTML tags and attributes for wp_kses_post().
     add_filter( 'wp_kses_allowed_html', 'smartwoo_kses_allowed', 10, 2 );
@@ -459,14 +458,78 @@ function sw_get_navbar( $current_user_id ) {
     return $nav_bar;
 }
 
-
+/**
+ * Smart Woo allowed form html tags.
+ */
+function smartwoo_allowed_form_html() {
+    return array(
+        'form'		=> array(
+            'action'	=> true,
+            'method'	=> true,
+            'class'		=> true,
+            'id'		=> true,
+        ),
+        'input'		=> array(
+            'type'		=> true,
+            'name'		=> true,
+            'value'		=> true,
+            'class'		=> true,
+            'id'		=> true,
+        ),
+        'select'	=> array(
+            'name'		=> true,
+            'id'		=> true,
+            'class'		=> true,
+        ),
+        'option'		=> array(
+            'value'		=> true,
+            'selected'	=> true,
+        ),
+        'label'		=> array(
+            'for'		=> true,
+            'class'		=> true,
+        ),
+        'span'		=> array(
+            'class'		=> true,
+            'title'		=> true,
+        ),
+        'div'		=> array(
+            'class'		=> true,
+			'id'		=> true,
+        ),
+		'button'	=> array(
+			'class'		=> true,
+			'id'		=> true,
+			'type'		=> true,
+		),
+		'a'			=> array(
+			'href'		=> true,
+		),
+        'h1'		=> array(),
+		'h2'		=> array(),
+        'h3'		=> array(),
+        'p'			=> array(),
+        'hr'		=> array(),
+        'input'		=> array(
+            'type'		=> true,
+            'class'		=> true,
+            'id'		=> true,
+            'name'		=> true,
+            'value'		=> true,
+            'checked'	=> true,
+            'selected'	=> true,
+			'required'	=> true,
+			'readonly'	=> true
+        ),
+    );
+}
 
 /**
  * Determine whether or not we are in the frontend
  * 
  * @since 1.0.1
  */
-function is_smart_woo_frontend() {
+function smartwoo_is_frontend() {
 	if ( ! is_admin() || wp_doing_ajax() ) {
 		return true;
 	}
@@ -476,7 +539,7 @@ function is_smart_woo_frontend() {
  * Product configuration page.
  * 
  * @param int $product_id the product ID.
- * @return string $configure page.
+ * @return string $configure page | link to current page #.
  */
 function smartwoo_configure_page( $product_id ){
 	if ( empty( $product_id ) || "product" !== get_post_type( absint( $product_id ) ) ) {
@@ -485,3 +548,4 @@ function smartwoo_configure_page( $product_id ){
 	$configure_page = esc_url(  home_url( '/configure/' . absint( $product_id ) ) );
 	return $configure_page;
 } 
+

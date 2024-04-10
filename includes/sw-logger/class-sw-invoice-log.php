@@ -286,7 +286,7 @@ class Sw_Invoice_log {
         $output = '<div class="serv-details-card">';
 
         if ( empty( $logs ) ) {
-           $output .= smartwoo_notice( 'No log data found.' );
+           $output .= smartwoo_notice( 'All Logged data will appear here.' );
            $output .= '</div>';
 
            return $output;
@@ -294,17 +294,17 @@ class Sw_Invoice_log {
             $output .= '<h3> Logged Info</h3>';
 
         foreach ( $logs as $log ) {
-            $output .= '<p class="invoice-details-item"><span> Log ID:</span>' . esc_html( $log->getLogId() ) . '</p>';
-            $output .= '<p class="invoice-details-item"><span> Log Type:</span>' . esc_html( $log->getLogType() ) . '</p>';
-            $output .= '<p class="invoice-details-item"><span> Log Amount:</span>' . get_woocommerce_currency_symbol() . esc_html( $log->getAmount() ) . '</p>';
-            $output .= '<p class="invoice-details-item"><span> Log Status:</span>' . esc_html( $log->getStatus() ) . '</p>';
-            $output .= '<p class="invoice-details-item"><span> Log Details:</span>' . esc_html( $log->getDetails() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log ID:</span>' . esc_html( $log->getLogId() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Type:</span>' . esc_html( $log->getLogType() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Amount:</span>' . get_woocommerce_currency_symbol() . esc_html( $log->getAmount() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Status:</span>' . esc_html( $log->getStatus() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Details:</span>' . esc_html( $log->getDetails() ) . '</p>';
             if ( is_admin() ) {
-                $output .= '<p class="invoice-details-item"><span> Internal Note:</span>' . esc_html( $log->getNote() ) . '</p>';
+                $output .= '<p class="smartwoo-container-item"><span> Internal Note:</span>' . esc_html( $log->getNote() ) . '</p>';
             }
-            $output .= '<p class="invoice-details-item"><span> Date Created:</span>' . esc_html( smartwoo_check_and_format( $log->getDateCreated() ) ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Date Created:</span>' . esc_html( smartwoo_check_and_format( $log->getDateCreated() ) ) . '</p>';
             if ( ! empty( $log->getDateUpdated() ) ) {
-                $output .= '<p class="invoice-details-item"><span> Last Updated:</span>' . esc_html( smartwoo_check_and_format( $log->getDateUpdated() ) ) . '</p>';
+                $output .= '<p class="smartwoo-container-item"><span> Last Updated:</span>' . esc_html( smartwoo_check_and_format( $log->getDateUpdated() ) ) . '</p>';
             }
                 $output .= '<hr>';
             $output .= '<hr>';

@@ -8,13 +8,13 @@
  * @package    : SmartWooServiceInvoicing
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
- * Save Edited bio and User URL during edit account submit
+ * Save Edited bio and User URL during edit account submit.
  */
-function sw_save_edited_bio_and_user_url( $user_id, $address_type = 'billing' ) {
-    error_log( 'Save fired' );
+function smartwoo_save_edited_bio_and_user_url( $user_id, $address_type = 'billing' ) {
+
     if ( isset( $_POST['smart_woo_form_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['smart_woo_form_nonce'] ) ), 'smart_woo_form_nonce' ) ) {
 
         if ( isset( $_POST['bio'] ) ) {
@@ -34,5 +34,5 @@ function sw_save_edited_bio_and_user_url( $user_id, $address_type = 'billing' ) 
         }
     }
 }
-add_action( 'woocommerce_save_account_details', 'sw_save_edited_bio_and_user_url', 20, 2 );
-add_action( 'woocommerce_customer_save_address', 'sw_save_edited_bio_and_user_url', 20, 2 );
+add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
+add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );

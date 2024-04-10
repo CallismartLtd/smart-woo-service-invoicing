@@ -58,7 +58,7 @@ class Sw_Service {
 		?string $billing_cycle = null,
 		?string $status = null
 	) {
-		// Assigning values to class properties
+		// Assigning values to class properties.
 		$this->user_id           = $user_id;
 		$this->product_id        = $product_id;
 		$this->service_id        = $service_id;
@@ -312,6 +312,10 @@ class Sw_Service {
 		return $this->status;
 	}
 
+	public function save( $data ) {
+		$id = Sw_Service_Database::sw_create_service( $data );
+		return $id;
+	}
 
 	// Helper method to convert database results to Sw_Service objects
 	public static function convert_array_to_service( $data ) {

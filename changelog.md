@@ -21,14 +21,14 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 
 ### Added
 - Implemented the `get_refund_by_id` method in the `Sw_Refund` class to fetch refund data by log ID.
-- Introduced the `sw_refund_completed` procedural function to initiate the refund process.
+- Introduced the `smartwoo_refund_completed` procedural function to initiate the refund process.
 - Added comments and documentation to enhance code readability and understanding.
 
 ### Changed
 - Updated the `get_refund` method to accept additional arguments for filtering refund data.
 - Modified the `get_refund_by_id` method to allow specifying the status of the refund log to fetch.
 - Refactored the `refunded` method in the `Sw_Refund` class to use the parent class method for updating refund status.
-- Adjusted the comment block for the `sw_refund_completed` function to provide clear documentation.
+- Adjusted the comment block for the `smartwoo_refund_completed` function to provide clear documentation.
 
 ### Fixed
 - Addressed potential SQL injection vulnerability by using `$wpdb->prepare` in database queries.

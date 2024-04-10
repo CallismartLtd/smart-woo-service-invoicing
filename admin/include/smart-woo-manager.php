@@ -381,7 +381,7 @@ function sw_service_OptOut_or_Cancellation() {
 				do_action( 'sw_service_deactivated', Sw_Service_Database::get_service_by_id( $service_id ) );
 
 				// Check if pro-rata refunds are enabled
-				if ( sw_Is_prorate() === 'Enabled' ) {
+				if ( smartwoo_is_prorate_() === 'Enabled' ) {
 					// Perform pro-rata refund
 					$details = 'Refund for the cancellation of ' . $service_id;
 					sw_create_prorata_refund( $service_id, $details );
@@ -391,16 +391,9 @@ function sw_service_OptOut_or_Cancellation() {
 				sw_user_service_optout( $user_id, $service_id );
 			}
 
-			// Redirect to the service details page
-			$service_details_url = add_query_arg(
-				array(
-					'service_page' => 'service_details',
-					'service_id'   => $service_id,
-				),
-				get_permalink()
-			);
-			wp_safe_redirect( $service_details_url );
+			wp_safe_redirect( smartwoo_service_preview_url() );
 			exit();
+			
 		} else {
 			// Redirect to the service details page even if the service is not 'Active'
 			$service_details_url = add_query_arg(
@@ -424,7 +417,7 @@ function sw_service_OptOut_or_Cancellation() {
  */
 function sw_create_prorata_refund( $service_id, $details ) {
     // Check if pro-rata refunds are enabled.
-    if ( sw_Is_prorate() !== 'Enabled' ) {
+    if ( smartwoo_is_prorate_() !== 'Enabled' ) {
         // Pro-rata refunds are disabled, do not proceed with the refund.
         return false;
     }
@@ -468,7 +461,7 @@ function swsi_handle_payment_link() {
 		$token = sanitize_text_field( $_GET['token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Verify the token
-		$payment_info = swsi_verify_token( $token );
+		$payment_info = smartwoo_verify_token( $token );
 
 		if ( $payment_info ) {
 			// Extract relevant information
@@ -609,7 +602,7 @@ function sw_auto_renew_services() {
 		if ( $service_status === 'Due for Renewal' ) {
 
 			// Check if there is Service Renewal Invoice for each service
-			$existing_invoice_id = sw_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
+			$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
 			if ( $existing_invoice_id ) {
 				continue; // proceeds with the next iteration
 			} else {
@@ -660,10 +653,10 @@ function sw_manual_service_renewal() {
 			if ( $service_status === 'Due for Renewal' || $service_status === 'Expired' || $service_status === 'Grace Period' ) {
 
 				// Check if there is Service Renewal Invoice for the service
-				$existing_invoice_id = sw_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
+				$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
 				if ( $existing_invoice_id ) {
 
-					sw_redirect_to_invoice_preview( $existing_invoice_id );
+					smartwoo_redirect_to_invoice_preview( $existing_invoice_id );
 
 				} else {
 					// New Invoice Data

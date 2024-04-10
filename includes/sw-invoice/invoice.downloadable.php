@@ -40,7 +40,7 @@ if ( ! function_exists( 'sw_pdf_invoice_template' ) ) {
 		}
 
 		// Get the billing details
-		$biller_details = sw_biller_details();
+		$biller_details = smartwoo_biller_details();
 		if ( '' === $user_id ) {
 			$user_id = current_user_id();
 		} 
@@ -58,7 +58,7 @@ if ( ! function_exists( 'sw_pdf_invoice_template' ) ) {
 			$store_city         = $biller_details->store_city;
 			$default_country    = $biller_details->default_country;
 
-			$invoice_watermark_url    = get_option( 'sw_invoice_watermark_url', '' );
+			$invoice_watermark_url    = get_option( 'smartwoo_invoice_watermark_url', '' );
 			$user_data                = get_userdata( $user_id );
 			$first_name               = $user_data->first_name;
 			$last_name                = $user_data->last_name;
