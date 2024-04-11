@@ -623,6 +623,51 @@ jQuery( document ).ready(
 	}
 );
 
+// Delete Product.
+jQuery( document ).ready(
+	function ($) {
+		// Event listener for the delete button.
+		$( document ).on(
+			'click',
+			'.sw-delete-product',
+			function () {
+				// Get the product ID from the data attribute
+				var productId = $( this ).data( 'product-id' );
+
+				// Display a confirmation dialog
+				var isConfirmed = confirm( 'Are you sure you want to delete this product?' );
+
+				// If the user confirms, initiate the deletion process
+				if (isConfirmed) {
+					// Perform an Ajax request to delete the product
+					$.ajax(
+						{
+							type: 'POST',
+							url: smart_woo_vars.ajax_url,
+							data: {
+								action: 'smartwoo_delete_product',
+								product_id: productId,
+								security: smart_woo_vars.security
+							},
+							success: function () {
+								// Display a success message
+								alert( 'Product deleted successfully!' );
+								window.location.href = smart_woo_vars.sw_product_page;
+							},
+
+							error: function (error) {
+								// Handle the error
+								console.error( 'Error deleting product:', error );
+							}
+						}
+					);
+				}
+			}
+		);
+	}
+);
+
+
 
 // Add click event listener to toggle the accordion
 document.addEventListener('DOMContentLoaded', function() {
@@ -674,3 +719,24 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 });
+
+function deleteProduct(productId) {
+	var confirmDelete = confirm("Are you sure you want to delete this product?");
+	if (confirmDelete) {
+		// Perform AJAX deletion
+		var data = {
+			action: 'delete_sw_product',
+			security: smart_woo_vars.security,
+			product_id: productId
+		};
+
+		jQuery.post(ajaxurl, data, function(response) {
+			if (response.success) {
+				alert("Product deleted successfully!");
+				location.reload(); // Reload the page after deletion
+			} else {
+				alert("Error deleting the product. Please try again.");
+			}
+		});
+	}
+}

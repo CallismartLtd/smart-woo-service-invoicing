@@ -21,7 +21,6 @@ use inline CSS to overide some styles
 	text-decoration: none;
 	border-radius: 5px;
 	border: 2px solid #fafafa;
-
 	margin-right: 10px;
 }
 
@@ -71,7 +70,7 @@ use inline CSS to overide some styles
 	align-items: center;
 	margin: 20px 0;
 	background-color: #ffffff;
-	border: 1px solid #918d8d;
+	border-radius: 7px;
 	padding: 20px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 	text-align: center;
@@ -351,19 +350,22 @@ use inline CSS to overide some styles
 	justify-content: space-between;
 	margin-top: 20px;
 	margin-bottom: 20px;
-	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-
 }
 
 .sw-left-column {
 	background-color: #fff;
+	border-radius: 9px;
 	padding: 20px;
 	width: 20%;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
 .sw-right-column {
 	background-color: #fff;
+	border-radius: 9px;
 	padding: 20px;
 	width: 70%;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+
 }
 .sw-left-column ul {
 	list-style: none;
@@ -372,11 +374,34 @@ use inline CSS to overide some styles
 }
 
 .sw-left-column li {
-	margin-bottom: 10px;
+	margin: 40px;
+	text-align: center;
+
 }
 
 .instruction {
 	display: none;
+}
+
+.settings-nav{
+	display: inline-block;
+	text-decoration: none;
+	border-radius: 5px;
+	background-color: rgb(121, 59, 88);
+	color: rgb(255, 255, 0);
+	border: 2px solid #7589fc;
+	width: 100px;
+	padding: 10px;
+	font-size: 14px;
+	font-weight: bold;
+}
+.settings-nav:hover{
+	color: #fafafa
+}
+.settings-nav:focus{
+	color: #fafafa;
+	box-shadow: 0 10px 10px rgba(248, 7, 7, 0.959);
+
 }
 
 

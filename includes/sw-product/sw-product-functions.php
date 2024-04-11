@@ -28,37 +28,34 @@ function sw_product( $classname, $product_type ) {
  * Deletes or moves the sw_product type to trash
  */
 // Add AJAX action for deleting service product
-add_action( 'wp_ajax_delete_sw_product', 'delete_sw_product' );
+add_action( 'wp_ajax_smartwoo_delete_product', 'smartwoo_delete_product' );
 
-function delete_sw_product() {
+function smartwoo_delete_product() {
 	// Verify the nonce
-	if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'delete_service_product_nonce' ) ) {
-		wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
+		wp_die( -1, 403 );
 	}
-
 	// Check if the user is logged in and has the necessary capability
 	if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( array( 'message' => 'Permission denied.' ) );
+		wp_die( 'Permission denied.' );
 	}
 
 	// Get the product ID from the AJAX request
 	$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
-
-	// Check if the product ID is valid
-	if ( $product_id ) {
-		// Move the product to trash
-		$result = wp_trash_post( $product_id );
-
-		// Check if the product is successfully moved to trash
-		if ( $result ) {
-			wp_send_json_success( array( 'message' => 'Product deleted successfully.' ) );
-		} else {
-			wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
-		}
-	} else {
-		wp_send_json_error( array( 'message' => 'Invalid product ID.' ) );
+	if ( 0 === $product_id ) {
+		wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
+		wp_die( -1, 404 );
 	}
-	// Prevent further output
+
+	$result = wp_trash_post( $product_id );
+
+	// Check if the product is successfully moved to trash.
+	if ( $result ) {
+		wp_send_json_success( array( 'message' => 'Product deleted successfully.' ) );
+	} else {
+		wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
+	}
+
 	wp_die();
 }
 

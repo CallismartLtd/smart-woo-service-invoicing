@@ -20,7 +20,7 @@ require_once SW_ABSPATH . 'admin/sw-admin-settings.php';
 /**
  * Defined function callback for admin menus.
  */
-function sw_reg_admin_menu() {
+function smartwoo_reg_admin_menu() {
 	global $menu;
 	
 	$dashboard = add_menu_page(
@@ -34,7 +34,7 @@ function sw_reg_admin_menu() {
 	);
 
 	// Add submenu "Service Orders".
-	add_submenu_page(
+	$service_order = add_submenu_page(
 		'sw-admin',
 		'Service Orders',
 		'Service Orders',
@@ -44,7 +44,7 @@ function sw_reg_admin_menu() {
 	);
 
 	// Add submenu "Invoices".
-	add_submenu_page(
+	$invoices = add_submenu_page(
 		'sw-admin',
 		'Invoices',
 		'Invoices',
@@ -54,7 +54,7 @@ function sw_reg_admin_menu() {
 	);
 
 	// Add submenu "Service Products".
-	add_submenu_page(
+	$products = add_submenu_page(
 		'sw-admin',
 		'Service Products',
 		'Service Products',
@@ -64,7 +64,7 @@ function sw_reg_admin_menu() {
 	);
 
 	// Add submenu "Settings".
-	add_submenu_page(
+	$options = add_submenu_page(
 		'sw-admin',
 		'Settings',
 		'Settings',
@@ -74,6 +74,9 @@ function sw_reg_admin_menu() {
 	);
 
 	add_action( 'load-' . $dashboard, 'smartwoo_help_screen' );
+	add_action( 'load-' . $products, 'smartwoo_help_screen' );
+	add_action( 'load-' . $options, 'smartwoo_help_screen' );
+	error_log('main Page: ' . $dashboard .' Product page: ' .$products. ' Settings Page: ' . $options. ' Invoices page: ' . $invoices . 'Orders page: '. $service_order );
 
     foreach ( $menu as $index => $data ) {
         if ( $data[2] === 'sw-admin' ) {
@@ -83,7 +86,7 @@ function sw_reg_admin_menu() {
     }
 }
 
-add_action( 'admin_menu', 'sw_reg_admin_menu' );
+add_action( 'admin_menu', 'smartwoo_reg_admin_menu' );
 
 
 
@@ -113,7 +116,9 @@ function smartwoo_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_
 
 	return $output;
 }
-
+/**
+ * Add Help tab.
+ */
 function smartwoo_help_screen() {
 
 	$screen = get_current_screen();
@@ -135,15 +140,4 @@ function smartwoo_help_screen() {
         'title'	=> __('Support Our Work', 'smart-woo-service-invoicing' ),
 		'callback' => 'smartwoo_support_our_work_container',
 	) );
-}
-
-/**
- * Upsell Container card
- */
-function smartwoo_plugin_support() {
-	echo '<div id="help" class="sw-accordion-container">';
-	echo smartwoo_support_our_work_container();
-	echo smartwoo_bug_report_container();
-	echo smartwoo_help_container();
-	echo '</div>';
 }

@@ -109,6 +109,7 @@ function smartwoo_products_page() {
 			break;
 		default:
 			display_product_details_table();
+			echo wp_kses_post( smartwoo_product_table() );
 			break;
 	}
 }

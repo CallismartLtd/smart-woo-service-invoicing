@@ -65,6 +65,7 @@ function enqueue_smart_woo_scripts() {
 			'woo_billing_eddress_edit' => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-address/billing',
 			'admin_invoice_page'       => esc_url( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
 			'sw_admin_page'            => esc_url( admin_url( 'admin.php?page=sw-admin' ) ),
+			'sw_product_page'            => esc_url( admin_url( 'admin.php?page=sw-products' ) ),
 			'security'                 => wp_create_nonce( 'smart_woo_nonce' ),
 			'home_url'                 => esc_url( home_url( '/' ) ),
 			'never_expire_value'       => '',

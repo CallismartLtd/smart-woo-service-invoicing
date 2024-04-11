@@ -315,71 +315,50 @@ function display_edit_form() {
 /**
  * Display a table of sw_service products.
  */
-function display_product_details_table() {
-	// Get all sw_service products
-	$products_data = get_sw_service_product();
+function smartwoo_product_table() {
+
+	$products_data 	= get_sw_service_product();
+	$page_html 		= '<div class="wrap"><h2>Service Products</h2>';
 
 	// Check if there are any products
 	if ( ! $products_data ) {
-		echo '<div class="wrap"><h2>Service Products</h2>';
-		echo '<a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ) . '" class="sw-blue-button">Add Product</a>';
-		echo '<div class="notice notice-info"><p>No Service product found.</p></div>';
-		return;
+		$page_html .= '<a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ) . '" class="sw-blue-button">Add Product</a>';
+		$page_html .= smartwoo_notice( 'No Service product found.' );
+		return $page_html;
 	}
 
-	// Display the product details table
-	echo '<div class="wrap"><h2>Service Products</h2>';
-	echo '<a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ) . '" class="sw-blue-button">Add Product</a>';
-	echo '</div>';
+	/**
+	 * Start table markep.
+	 */
+	$page_html .= '<a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ) . '" class="sw-blue-button">Add Product</a>';
+	$page_html .= '</div>';
 
-	echo '<table class="wp-list-table widefat fixed striped">';
-	echo '<thead><tr>';
-	echo '<th>Product</th>';
-	echo '<th>Product Price</th>';
-	echo '<th>Sign Up Fee</th>';
-	echo '<th>Billing Circle</th>';
-	echo '<th>Action</th>';
-	echo '</tr></thead>';
-	echo '<tbody>';
+	$page_html .= '<table class="wp-list-table widefat fixed striped">';
+	$page_html .= '<thead><tr>';
+	$page_html .= '<th>Product</th>';
+	$page_html .= '<th>Product Price</th>';
+	$page_html .= '<th>Sign Up Fee</th>';
+	$page_html .= '<th>Billing Circle</th>';
+	$page_html .= '<th>Action</th>';
+	$page_html .= '</tr></thead>';
+	$page_html .= '<tbody>';
 
 	foreach ( $products_data as $product_id => $product_data ) {
-		echo '<tr>';
-		echo '<td>' . esc_html( $product_data['name'] ) . '</td>';
-		echo '<td>' . wc_price( $product_data['price'] ) . '</td>';
-		echo '<td>' . wc_price( $product_data['sign_up_fee'] ) . '</td>';
-		echo '<td>' . esc_html( $product_data['billing_cycle'] ) . '</td>';
-		echo '<td>';
-		echo '<a href="' . esc_url( admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $product_id ) ) . '" class="button">Edit</a>';
-		echo '<button class="button" onclick="deleteProduct(' . esc_js( $product_id ) . ')">Delete</button>';
-		echo '</td>';
-		echo '</tr>';
+		$page_html .= '<tr>';
+		$page_html .= '<td>' . esc_html( $product_data['name'] ) . '</td>';
+		$page_html .= '<td>' . wc_price( $product_data['price'] ) . '</td>';
+		$page_html .= '<td>' . wc_price( $product_data['sign_up_fee'] ) . '</td>';
+		$page_html .= '<td>' . esc_html( $product_data['billing_cycle'] ) . '</td>';
+		$page_html .= '<td>';
+		$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $product_id ) ) . '" class="button">Edit</a>';
+		$page_html .= '<button class="sw-delete-product" data-product-id="'. esc_attr( $product_id ) . '">' . __( 'Delete', 'smart-woo-service-invoicing' ) . '</button>';
+		$page_html .= '</td>';
+		$page_html .= '</tr>';
 	}
 
-	echo '</tbody></table>';
-	echo '<p style="text-align: right;">' . count( $products_data ) . ' items</p>';
+	$page_html .= '</tbody></table>';
+	$page_html .= '<p style="text-align: right;">' . count( $products_data ) . ' items</p>';
 
-	// Include JavaScript for handling product deletion via AJAX
-	echo '<script>
-        function deleteProduct(productId) {
-            var confirmDelete = confirm("Are you sure you want to delete this product?");
-            if (confirmDelete) {
-                // Perform AJAX deletion
-                var data = {
-                    action: "delete_sw_product",
-                    security: "' . wp_create_nonce( 'delete_service_product_nonce' ) . '",
-                    product_id: productId
-                };
-
-                jQuery.post(ajaxurl, data, function(response) {
-                    if (response.success) {
-                        alert("Product deleted successfully!");
-                        location.reload(); // Reload the page after deletion
-                    } else {
-                        alert("Error deleting the product. Please try again.");
-                    }
-                });
-            }
-        }
-    </script>';
+	return $page_html;
 }
 

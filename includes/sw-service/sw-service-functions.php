@@ -804,7 +804,7 @@ function sw_get_grace_period_end_date( int $product_id, string $reference_date )
  * Render the delete Service Button
  */
 function smartwoo_delete_service_button( string $service_id ) {
-	// Output the delete button with data-invoice-id attribute
+
 	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">' . __( 'Delete Service ⌫', 'smart-woo-service-invoicing' ) . '</button>';
 }
 
