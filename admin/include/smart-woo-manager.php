@@ -121,8 +121,8 @@ function sw_paid_invoice_order_manager( $order_id ) {
  * not paid, the function will return early.
  *
  * @param int $user_id User ID associated with the service.
- * @param int $service_id ID of the service to be renewed.
- * @param int $invoice_id ID of the invoice related to the service renewal.
+ * @param string $service_id ID of the service to be renewed.
+ * @param string $invoice_id ID of the invoice related to the service renewal.
  */
 function sw_renew_service( $service_id, $invoice_id ) {
 
@@ -197,8 +197,8 @@ function sw_renew_service( $service_id, $invoice_id ) {
  * not paid, the function will return early.
  *
  * @param int $user_id User ID associated with the service.
- * @param int $service_id ID of the service to be renewed.
- * @param int $invoice_id ID of the invoice related to the service renewal.
+ * @param string $service_id ID of the service to be renewed.
+ * @param string $invoice_id ID of the invoice related to the service renewal.
  */
 function sw_activate_expired_service( $service_id, $invoice_id ) {
 	// 1. Identify the Expired Service
