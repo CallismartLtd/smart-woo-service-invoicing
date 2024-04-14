@@ -65,8 +65,9 @@ function enqueue_smart_woo_scripts() {
 			'woo_billing_eddress_edit' => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-address/billing',
 			'admin_invoice_page'       => esc_url( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
 			'sw_admin_page'            => esc_url( admin_url( 'admin.php?page=sw-admin' ) ),
-			'sw_product_page'            => esc_url( admin_url( 'admin.php?page=sw-products' ) ),
+			'sw_product_page'           => esc_url( admin_url( 'admin.php?page=sw-products' ) ),
 			'security'                 => wp_create_nonce( 'smart_woo_nonce' ),
+			'user_invoice_page'			=> '',
 			'home_url'                 => esc_url( home_url( '/' ) ),
 			'never_expire_value'       => '',
 		)
@@ -107,6 +108,7 @@ function sw_load_dependencies() {
 	require_once SW_ABSPATH . 'includes/sw-product/sw-product-functions.php';
 	require_once SW_ABSPATH . 'includes/sw-product/sw-order-config.php';
 	require_once SW_ABSPATH . 'templates/email-templates.php';
+	Sw_Product::init();
 
 	// Only load compatibility file when TeraWallet plugin is installed.
 	if ( function_exists( 'woo_wallet' ) ) {

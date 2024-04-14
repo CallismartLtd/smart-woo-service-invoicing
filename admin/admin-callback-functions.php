@@ -89,7 +89,6 @@ function smartwoo_invoice_admin_page() {
 function smartwoo_products_page() {
 
 	$action     = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$product_id = isset( $_GET['product_id'] ) ? intval( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$tabs = array(
 		''        => 'Products',
@@ -102,10 +101,10 @@ function smartwoo_products_page() {
 	// Handle different actions
 	switch ( $action ) {
 		case 'add-new':
-			sw_render_new_product_form();
+			smartwoo_new_product_form();
 			break;
 		case 'edit':
-			display_edit_form( $product_id );
+		 	smartwoo_product_edit_form();
 			break;
 		default:
 			echo wp_kses_post( smartwoo_product_table() );

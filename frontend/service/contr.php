@@ -42,51 +42,49 @@ function smartwoo_service_shortcode() {
 		case 'service_upgrade':
 
 			$service_upgrade_page 	= smartwoo_upgrade_temp( $current_user_id );
-			$output 				= $service_upgrade_page;
+			$output 				= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
 			break;
 
 		case 'service_downgrade':
 
 			$service_downgrade_page = smartwoo_downgrade_temp( $current_user_id );
-			$output 				= $service_downgrade_page;
+			$output 				= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
 			break;
 
 		case 'buy_new_service':
 
 			$buy_new_service_page 	= smartwoo_buy_new_temp( $current_user_id );
-			$output 			  	= $buy_new_service_page;
+			$output 			  	= wp_kses_post( $buy_new_service_page  );
 			break;
 
 		case 'active':
 
 			$active_services_page 	= smartwoo_user_service_by_status( $current_user_id, 'Active' );
-			$output 				= $active_services_page;
+			$output 				= wp_kses_post( $active_services_page );
 			break;
 
 		case 'renewal_due':
 			
 			$due_services_page 	= smartwoo_user_service_by_status( $current_user_id, 'Due for Renewal' );
-			$output 			= $due_services_page;
+			$output 			= wp_kses_post( $due_services_page );
 			break;
 
 		case 'expired':
 			$expired_services_page 	= smartwoo_user_service_by_status( $current_user_id, 'Expired' );
-			$output 				= $expired_services_page;
+			$output 				= wp_kses_post( $expired_services_page );
 			break;
 
 		case 'grace_period':
 			$on_grace_services 	= smartwoo_user_service_by_status( $current_user_id, 'Grace Period' );
-			$output 			= $on_grace_services;
+			$output 			= wp_kses_post( $on_grace_services );
 			break;
 		default:
 			$main_page 	= smartwoo_service_front_temp( $current_user_id );
-			$output 	= $main_page;
+			$output 	= wp_kses_post( $main_page );
 			break;
 		
 	}
-	
-	// Return the output for shortcode handler.
-	return wp_kses_post( $output );
+	return $output;	
 }
 
 // AJAX handler for billing details.
@@ -114,16 +112,16 @@ function smartwoo_load_billing_details_callback() {
 		$website          = get_user_meta( $user_id, 'billing_website', true );
 		$billingAddress   = smartwoo_get_user_billing_address( $user_id );
 		// Construct the HTML for billing details
-		$html  = '<div class="billing-details-container">';
+		$html  = '<div class="card">';
 		$html .= '<h3>Billing Details</h3>';
-		$html .= '<p><strong>Name:</strong> ' . esc_html( $billingFirstName . ' ' . $billingLastName ) . '</p>';
-		$html .= '<p><strong>Company Name:</strong> ' . esc_html( $company_name ) . '</p>';
-		$html .= '<p><strong>Email Address:</strong> ' . esc_html( $email ) . '</p>';
-		$html .= '<p><strong>Phone:</strong> ' . esc_html( $phone ) . '</p>';
-		$html .= '<p><strong>Website:</strong><a> ' . esc_url( $website ) . '</a></p>';
-		$html .= '<p><strong>Address:</strong> ' . esc_html( $billingAddress ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Name:</strong></span> ' . esc_html( $billingFirstName . ' ' . $billingLastName ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Company Name:</strong></span> ' . esc_html( $company_name ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Email Address:</strong></span> ' . esc_html( $email ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Phone:</strong></span> ' . esc_html( $phone ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Website:</strong></span> <a href="' . esc_url( $website ) . '">' . esc_html( $website ) . '</a></p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Address:</strong></span> <div>' . esc_html( $billingAddress ) . '</div></p>';
 		$html .= '<button class="account-button" id="edit-billing-address">' . esc_html__( 'Edit My Billing Address', 'smart-woo-service-invoicing' ) . '</button>';
-		$html .= '</div>';
+		$html .= '</div>';		
 		echo wp_kses_post( $html );
 	} else {
 		// User is not logged in, handle accordingly.
@@ -158,15 +156,14 @@ function smartwoo_load_my_details_callback() {
 		$user_role = implode( ', ', $current_user->roles );
 		$user_url  = $current_user->user_url ;
 		// Construct the HTML for user details.
-		$html  = '<div class="user-details-container">';
+		$html  = '<div class="smartwoo-details-container">';
 		$html .= '<h3>' . esc_html__( 'My Details', 'smart-woo-service-invoicing' ) . '</h3>';
-		$html .= '<div class="user-details">';
-		$html .= '<p><strong>Full Name:</strong> ' . esc_html( $full_name ) . '</p>';
-		$html .= '<p><strong>Email:</strong> ' . esc_html( $email ) . '</p>';
-		$html .= '<p><strong>Bio:</strong> ' . esc_html( $bio ) . '</p>';
-		$html .= '<p><strong>Website:</strong> ' . esc_html( $user_url ) . '</p>';
-		$html .= '<p><strong>Account type:</strong> ' . esc_html( ucwords( $user_role ) ) . '</p>';
-		$html .= '</div>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Full Name:</strong></span> ' . esc_html( $full_name ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Email:</strong></span> ' . esc_html( $email ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Bio:</strong></span> ' . esc_html( $bio ) . '</p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Website:</strong></span> <a href="' . esc_url( $user_url ) . '">' . esc_html( $user_url ) . '</a></p>';
+		$html .= '<p class="smartwoo-container-item"><span><strong>Account Type:</strong></span> ' . esc_html( ucwords( $user_role ) ) . '</p>';
+		$html .= '</div>';		
 		$html .= '<button class="account-button" id="edit-account-button">' . esc_html__( 'Edit My Information' ) . '</button>';
 		$html .= '<button class="account-button" id="view-payment-button">' . esc_html__( 'Payment Methods' ) . '</button>';
 		$html .= '</div>';
@@ -203,7 +200,7 @@ function smartwoo_load_account_logs_callback() {
 		$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
 		$total_spent 		= smartwoo_get_total_spent_by_user( $user_id );
 		$html = '<div class="account-logs-container">';
-		$html .= '<h3>' . esc_html__( 'Account Logs' ) . '</h3>';
+		$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
 		$html .= '<ul class="account-logs-list">';
 		$html .= '<li class="account-log-item">' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$html .= '<li class="account-log-item">' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
@@ -303,7 +300,7 @@ function smartwoo_get_current_login_date( $user_id ) {
 
     // Check if $timestamp is not a valid integer (may be a string)
     if ( ! is_numeric( $timestamp ) || intval( $timestamp ) <= 0 ) {
-        // Fallback to current time if $timestamp is not a valid integer
+        // Fallback to current time if $timestamp is not a valid integer.
         $timestamp = current_time( 'timestamp' );
     }
 

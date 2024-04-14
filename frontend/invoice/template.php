@@ -104,8 +104,8 @@ function smartwoo_invoice_details() {
 		$customer_company_name	= get_user_meta( $user_id, 'billing_company', true );
 		$user_address			= esc_html( $invoice->getBillingAddress() );
 		$service_id 			= $invoice->getServiceId();
-		$service    			= ! empty( $service_id ) ? SW_Service::get_service_by_id( $service_id ) : null;
-
+		$service    			= ! empty( $service_id ) ? Sw_Service_Database::get_service_by_id( $service_id ) : null;
+ 
 		if ( null !== $service ) {
 			// Access the service name from the returned service object.
 			$service_name 		= $service->getServiceName();
@@ -129,7 +129,7 @@ function smartwoo_invoice_details() {
 		$invoice_content	= smartwoo_get_navbar( $user_id );
 		$invoice_content	.= '<div class="site-content">';
 		$invoice_content	.= '<div class="inv-button-container">';
-		$invoice_content	.= '<a href="' . esc_url( get_permalink() ) . '" class="back-button">' . esc_html__( 'Back to invoices', 'smart-woo-service-invoicing' ) . '</a>';
+		$invoice_content	.= '<a href="' . esc_url( smartwoo_invoice_page_url() ) . '" class="back-button">' . esc_html__( 'Back to invoices', 'smart-woo-service-invoicing' ) . '</a>';
 		
 		if (  strtolower( $invoice_status ) === 'unpaid' ) {
 			$order_id         = $invoice->getOrderId();
@@ -166,7 +166,7 @@ function smartwoo_invoice_details() {
 		$invoice_content	.= '<p>' . esc_html__( 'Invoice #', 'smart-woo-service-invoicing' ) . esc_html( $invoice->getInvoiceId() );
 
 		if ( ! empty( $service_name ) ) {
-			$invoice_content .=  esc_html__( 'for ', 'smart-woo-service-invoicing' ) . esc_html( $service_name );
+			$invoice_content .=  esc_html__( ' for ', 'smart-woo-service-invoicing' ) . esc_html( $service_name );
 		}
 
 		$invoice_content .= '</p>';
@@ -236,7 +236,8 @@ function smartwoo_invoice_details() {
 
 		if ( $invoice->getInvoiceType() === 'Service Upgrade Invoice' || $invoice->getInvoiceType() === 'Service Downgrade Invoice' ) {
 			// Previous Service Balance.
-			$balance          = Sw_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true )->getAmount();
+			$query 			  = Sw_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true );
+			$balance          = ! empty( $query ) ? $query->getAmount() : 0;
 			$invoice_content .= '<div class="invoice-item">';
 			$invoice_content .= '<p class="description">' . esc_html__( 'Previous Service Balance', 'smart-woo-service-invoicing' ) . '</p>';
 			$invoice_content .= '<p class="amount">' . max( 0, wc_price( $balance ) ) . '</p>';

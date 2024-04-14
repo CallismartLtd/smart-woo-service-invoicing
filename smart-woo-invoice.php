@@ -1,13 +1,5 @@
 <?php
 /**
- * Smart Woo Service Invoicing
- *
- * @package     PluginPackage
- * @author      Callistus Nwachukwu
- * @copyright   2023 Callismart Tech
- * @license     GPL-3.0-or-later
- *
- * @wordpress-plugin
  * Plugin Name: Smart Woo Service Invoicing
  * Description: Integrate powerful service subscriptions and invoicing directly into your online store.
  * Version: 1.0.2
@@ -15,18 +7,16 @@
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo
  * Requires at least: 6.0
- * Requires PHP: 7.0
  * Tested up to: 6.5
+ * Requires PHP: 7.4
+ * WC requires at least: 7.0
+ * WC tested up to: 8.3
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: smart-woo-invoice
+ * Text Domain: smart-woo-service-invoicing
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
-
-/**
- * Define Plugin Constants
- */
+ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 // Plugin name as constant.
 if ( ! defined( 'SW_PLUGIN_NAME' ) ) {
@@ -37,7 +27,7 @@ if ( ! defined( 'SW_PLUGIN_NAME' ) ) {
 
 if ( defined( 'SW_PLUGIN_NAME' ) ) {
 
-	// Define The Smart Woo absolute path
+	// Define The Smart Woo absolute path.
 	if ( ! defined( 'SW_ABSPATH' ) ) {
 
 		define( 'SW_ABSPATH', __DIR__ . '/' );
@@ -48,7 +38,7 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 		define( 'SW_DIR_URL', plugin_dir_url( __FILE__ ) );
 	}
 	
-	// Define the database table names as constants
+	// Define the database table names as constants.
 	global $wpdb;
 	define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
 	define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
@@ -74,7 +64,12 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 				/**
 				 * WooComerce is active, action hook to load plugin files
 				 */
-
+				
+				add_action( 'before_woocommerce_init', function() {
+					if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+						\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+					}
+				} );
 				do_action( 'smart_woo_init' );
 
 			}

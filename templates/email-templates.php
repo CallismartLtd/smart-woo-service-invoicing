@@ -186,7 +186,7 @@ function sw_service_cancelled_mail_to_admin( $service_id ) {
 		$start_date        = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getStartDate() ) ) );
 		$next_payment_date = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getNextPaymentDate() ) ) );
 		$end_date          = date_i18n( 'F j, Y', strtotime( esc_html( $service_details->getEndDate() ) ) );
-		$prorate_status    = smartwoo_is_prorate_();
+		$prorate_status    = smartwoo_is_prorate();
 
 		// Get product name and price using WooCommerce functions
 		$product_info  = wc_get_product( $service_details->getProductId() );

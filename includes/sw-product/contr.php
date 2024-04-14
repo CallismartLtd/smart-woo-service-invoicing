@@ -9,7 +9,7 @@
 /**
  * Controls the new service product creation form submission
  */
-function sw_handle_new_product_form() {
+function smartwoo_process_new_product() {
 	// Handle form submission
 	if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
 		// Validate the product name
@@ -82,17 +82,38 @@ function sw_handle_new_product_form() {
 	}
 }
 
-function sw_handle_product_edit_form( $product_id ) {
-	// Handle form submission for updating the product
-	if ( isset( $_POST['update_service_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_product_nonce'] ) ), 'sw_edit_product_nonce' ) ) {
-		// Update the product
-		$updated = update_sw_service_product( $product_id );
+function smartwoo_process_product_edit( $product_id ) {
+    // Handle form submission for updating the product
+    if ( isset( $_POST['update_service_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_product_nonce'] ) ), 'sw_edit_product_nonce' ) ) {
+        
+        $update                 = new SW_Product( $product_id );
+        $product_name           = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
+        $product_price          = isset( $_POST['product_price'] ) ? floatval( $_POST['product_price'] ) : 0;
+        $sign_up_fee            = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
+        $short_description      = isset( $_POST['short_description'] ) ? wc_sanitize_textarea( $_POST['short_description'] ) : '';
+        $description            = isset( $_POST['description'] ) ? wc_sanitize_textarea( $_POST['description'] ) : '';
+        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( $_POST['billing_cycle'] ) : '';
+        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
+        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : '';
+        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : '';
 
-		// Display success or error message
-		if ( $updated ) {
-			echo '<div class="updated"><p>Product updated successfully!</p></div>';
-		} else {
-			echo '<div class="error"><p>Error updating the product. Please try again.</p></div>';
-		}
-	}
+        $update->set_name( sanitize_text_field( $product_name ) );
+        $update->set_regular_price( floatval( $product_price ) );
+        $update->update_sign_up_fee( floatval( $sign_up_fee ) );
+        $update->set_short_description( wc_sanitize_textarea( $short_description ) );
+        $update->set_description( wc_sanitize_textarea( $description ) );
+        $update->update_billing_cycle( sanitize_text_field( $billing_cycle ) );
+        $update->update_grace_period_unit( sanitize_text_field( $grace_period_unit ) );
+        $update->update_grace_period_number( absint( $grace_period_number ) );
+        $update->set_image_id( $product_image_id );
+
+        $result = $update->save();
+
+        if ( ! is_wp_error( $result ) ) {
+            return smartwoo_notice( 'Product updated successfully!', true );
+        } else {
+            return smartwoo_error_notice( 'Error updating product: ' . $result->get_error_message() );
+        }
+    }
 }
+

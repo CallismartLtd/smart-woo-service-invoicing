@@ -48,7 +48,7 @@ function smartwoo_service_details( $current_user_id ) {
 	$service_name_with_status = $service_name . ' (' . $status . ')';
 	$output .= '<h3 style="text-align: center;">' . esc_html( $service_name_with_status ) . '</h3>';
 	$output .= '<div class="inv-button-container" style="text-align: center;">';
-	$output .= '<a href="' . esc_url( get_permalink() ) . '" class="back-button">Back to Services</a>';
+	$output .= '<a href="' . esc_url( smartwoo_service_page_url() ) . '" class="back-button">Back to Services</a>';
 	$renew_button_text = ( 'Due for Renewal' === $status || 'Grace Period' === $status ) ? 'Renew' : 'Reactivate';
 	// "Renew" button when the service is due for renewal or expired.
 	if ( 'Due for Renewal' === $status || 'Expired' === $status || 'Grace Period' === $status ) {
@@ -355,11 +355,6 @@ function smartwoo_user_service_by_status( $current_user_id, $status_label = "" )
     return $output;
 }
 
-
-
-
-
-
 /**
  * Function Code For Service Mini Card.
  */
@@ -419,8 +414,6 @@ function smartwoo_active_service_count_shortcode() {
 	}
 }
 
-
-
 /**
  * Handles the 'service_upgrade' action.
  *
@@ -428,16 +421,33 @@ function smartwoo_active_service_count_shortcode() {
  * @return string Output or result of the upgrade service operation.
  */
 function smartwoo_upgrade_temp( $current_user_id ) {
-	$services = Sw_Service_Database::get_services_by_user( $current_user_id );
 
-	if ( isset( $_POST['upgrade_service_submit'] ) ) {
-		if ( ! isset( $_POST['upgrade_service_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['upgrade_service_nonce'] ) ), 'upgrade_service_nonce' ) ) {
-			return esc_html__( 'Nonce verification failed.', 'smart-woo-service-invoicing' );
+	$services = Sw_Service_Database::get_services_by_user( $current_user_id );
+	$output  = smartwoo_get_navbar( $current_user_id );
+	$output .= '<div class"wrap">';
+
+	if ( empty( $services ) ) {
+		return smartwoo_notice( 'No do not have services.' );
+	}
+
+	if ( isset( $_POST['upgrade_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['upgrade_service_nonce'] ) ), 'upgrade_service_nonce' ) ) {
+		
+		$selected_service_id = isset( $_POST['selected_service'] ) ? sanitize_text_field( $_POST['selected_service'] ): '';
+		$selected_product_id = isset( $_POST['selected_product'] ) ? absint( $_POST['selected_product'] ) : '';
+		$errors = array();
+		
+		if ( empty( $selected_service_id ) ) {
+			$errors[] = 'Select a service';
 		}
 
-		$selected_service_id = sanitize_text_field( $_POST['selected_service'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$selected_product_id = absint( $_POST['selected_product'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// Find the selected service in the user's services.
+		if ( empty( $selected_product_id ) ) {
+			$errors[] = 'Select a Product';
+		}
+
+		if ( ! empty( $errors ) ) {
+			return smartwoo_error_notice( $errors );
+		}
+
 		$service_to_upgrade = null;
 
 		foreach ( $services as $service ) {
@@ -448,13 +458,11 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 		}
 
 		if ( ! $service_to_upgrade ) {
-			return esc_html__( 'Selected service not found.', 'smart-woo-service-invoicing' );
+			return smartwoo_error_notice( 'Selected service not found.', 'smart-woo-service-invoicing' );
 		}
 
-		// Check the status of the service using the sw_service_status function.
 		$service_status = sw_service_status( $service_to_upgrade->getServiceId() );
 
-		// Check if the service is 'Due for Renewal'.
 		if ( 'Active' !== $service_status ) {
 			return smartwoo_error_notice( 'Only Active Services can be Upgraded, Contact us if you need further assistance.' );
 		}
@@ -468,53 +476,54 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 		$service_price        	= sw_get_service_price( $service_to_upgrade );
 		$product_price        	= $selected_product->get_price();
 		$service_product_name 	= wc_get_product( $service_to_upgrade->getProductId() )->get_name();
-		$fee               		= floatval( get_sw_service_product( $selected_product_id )['sign_up_fee'] ?? 0 );
+		$fee               		= floatval( $selected_product->get_sign_up_fee() ?? 0 );
 		$new_service_price 		= $product_price + $fee;
-		$prorate_status 		= smartwoo_is_prorate_();
+		$prorate_status 		= smartwoo_is_prorate();
 		$usage_metrics 			= sw_check_service_usage( $selected_service_id );
 		$order_total_data 		= sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
-		$output					= smartwoo_get_navbar( $current_user_id );
 		$output 				.= '<div class="migration-order-container">';
-		$existing_invoice_id 	= smartwoo_evaluate_service_invoices( $service_to_upgrade->getServiceId(), 'Service Upgrade Invoice', 'unpaid' );
+		$existing_invoice      	 = smartwoo_evaluate_service_invoices( $service_to_upgrade->getServiceId(), 'Service Upgrade Invoice', 'unpaid' );
 		$output             	.= '<div class="migrate-order-details">';
 		$output             	.= '<p class="upgrade-section-title">' . esc_html__( 'Service Upgrade Order', 'smart-woo-service-invoicing' ) . '</p>';
 		
-		if ( $existing_invoice_id ) {
+		if ( $existing_invoice ) {
 			$output 			.= smartwoo_notice( 'This service has an outstanding invoice. If you proceed, you will be redirected to make the payment instead.' );
 		}
 
-		$output 	.= '<p><strong>' . esc_html__( 'Current service Details', 'smart-woo-service-invoicing' ) . '</strong></p>';
-		$output 	.= '<p><strong>Current Service:</strong> ' . esc_html( $service_to_upgrade->getServiceName() ) . ' - ' . esc_html( $service_to_upgrade->getServiceId() ) . '</p>';
-		$output 	.= '<p><strong>Product Name:</strong> ' . esc_html( $service_product_name ) . '</p>';
-		$output 	.= '<p><strong>Pricing:</strong> ' . wc_price( $service_price ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span><strong>' . esc_html__( 'Current service Details', 'smart-woo-service-invoicing' ) . '</span></strong></p>';
+		$output 	.= '<p class="smartwoo-container-item"><span><strong>Current Service:</span></strong> ' . esc_html( $service_to_upgrade->getServiceName() ) . ' - ' . esc_html( $service_to_upgrade->getServiceId() ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Product Name:</span> ' . esc_html( $service_product_name ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Pricing:</span><strong> ' . wc_price( $service_price ) . '</strong></p>';
 		
 		if ( 'Enabled' === $prorate_status ) {
-			$output .= '<p><strong>Amount Used:</strong> ' . wc_price( $usage_metrics['used_amount'] ) . '</p>';
-			$output .= '<p><strong> Balance:</strong> ' . wc_price( $usage_metrics['unused_amount'] ) . '</p>';
-		}
-		$output 	.= '<p><strong>New Upgrade Details</strong></p>';
-		$output 	.= '<p><strong>Product:</strong> ' . esc_html( $selected_product->get_name() ) . '</p>';
-		$output 	.= '<p><strong>Pricing:</strong> ' . wc_price( $product_price ) . '</p>';
-		$output 	.= '<p><strong>Sign-up Fee:</strong> ' . wc_price( get_sw_service_product( $selected_product_id )['sign_up_fee'] ) . '</p>';
-		$output 	.= '<p class="migrate-summary-tittle"><strong>' . esc_html( 'Summary:' ) . '</strong></p>';
-		
-		if ( 'Enabled' === $prorate_status ) {
-			$output .= '<p><strong>Refund Amount:</strong> ' . wc_price( $order_total_data['remaining_unused_balance'] ) . '</p>';
+			$output .= '<p class="smartwoo-container-item"><strong>Amount Used:</strong> ' . wc_price( $usage_metrics['used_amount'] ) . '</p>';
+			$output .= '<p class="smartwoo-container-item"><strong> Balance:</strong> ' . wc_price( $usage_metrics['unused_amount'] ) . '</p>';
 		}
 
-		$output .= '<p><strong>New Order Total:</strong> ' . wc_price( $order_total_data['order_total'] ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>New Upgrade Details</span></p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Product:</span> ' . esc_html( $selected_product->get_name() ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Pricing:</span> ' . wc_price( $product_price ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Sign-up Fee:</span> ' . wc_price( get_sw_service_product( $selected_product_id )['sign_up_fee'] ) . '</p>';
+		$output 	.= '<p class="migrate-summary-tittle"><span>' . esc_html( 'Summary:' ) . '</span></p>';
+		
+		if ( 'Enabled' === $prorate_status ) {
+			$output .= '<p class="smartwoo-container-item"><strong>Refund Amount:</strong> ' . wc_price( $order_total_data['remaining_unused_balance'] ) . '</p>';
+		}
+
+		$output .= '<p class="smartwoo-container-item"><strong>New Order Total:</strong> ' . wc_price( $order_total_data['order_total'] ) . '</p>';
 		// Hidden form to Post migration data.
-		$output .= '<form method="post" action="">';
-		$output .= wp_nonce_field( 'migration_nonce', 'migration_nonce' );
-		$output .= '<input type="hidden" name="user_id" value="' . esc_attr( $current_user_id ) . '">';
-		$output .= '<input type="hidden" name="service_id" value="' . esc_attr( $service_to_upgrade->getServiceId() ) . '">';
-		$output .= '<input type="hidden" name="new_service_product_id" value="' . esc_attr( $selected_product_id ) . '">';
-		$output .= '<input type="hidden" name="amount" value="' . esc_attr( $product_price ) . '">';
-		$output .= '<input type="hidden" name="fee" value="' . esc_attr( $fee ) . '">';
-		$output .= '<input type="hidden" name="order_total" value="' . esc_attr( $order_total_data['order_total'] ) . '">';
-		$output .= '<input type="hidden" name="refund_amount" value="' . esc_attr( $order_total_data['remaining_unused_balance'] ) . '">';
+		$output .= '<form id="migrationForm" method="post" action="">';
+		$output .= '<div id="swloader">Migrating...</div>';
+		$output .= '<input type="hidden" name="Upgrade">';
+		$output .= '<input type="hidden" id="user_id" name="user_id" value="' . esc_attr( $current_user_id ) . '">';
+		$output .= '<input type="hidden" id="service_id" name="service_id" value="' . esc_attr( $service_to_upgrade->getServiceId() ) . '">';
+		$output .= '<input type="hidden" id="new_service_product_id" name="new_service_product_id" value="' . esc_attr( $selected_product_id ) . '">';
+		$output .= '<input type="hidden" id="amount" name="amount" value="' . esc_attr( $product_price ) . '">';
+		$output .= '<input type="hidden" id="fee" name="fee" value="' . esc_attr( $fee ) . '">';
+		$output .= '<input type="hidden" id="order_total" name="order_total" value="' . esc_attr( $order_total_data['order_total'] ) . '">';
+		$output .= '<input type="hidden" id="refund_amount" name="refund_amount" value="' . esc_attr( $order_total_data['remaining_unused_balance'] ) . '">';
 		$output .= '<div class="upgrade-button-container">';
-		$output .= '<button type="submit" name="proceed_with_upgrade">' . esc_html__( 'Upgrade Now', 'smart-woo-service-invoicing' ) . '</button>';
+		$output .= '<input type="submit" name="proceed_with_migration" class="sw-red-button" id="smartwoo-migrate" value="' . esc_html__( 'Upgrade Now', 'smart-woo-service-invoicing' ) . '">';
 		$output .= '</div>';
 		$output .= '</form>';
 		$output .= '</div>';
@@ -523,84 +532,51 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 		return $output;
 	}
 
-	$output = smartwoo_get_navbar( $current_user_id );
-	if ( smartwoo_is_migration() ) {
 
-		if ( empty( $services ) ) {
-			return smartwoo_error_notice( 'No services found for upgrade.' );
-		}
-
-		$output .= '<form method="post" action="">';
-		$output .= wp_nonce_field( 'upgrade_service_nonce', 'upgrade_service_nonce', true, false );
-		// Create a select input with the user's services.
-		$select_options  = '<select name="selected_service" required>';
-		$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo-service-invoicing' ) . '</option>';
-
-		foreach ( $services as $service ) {
-			$select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
-		}
-
-		$select_options .= '</select>';
-		// Container for select service.
-		$output .= '<div class="select-service-container">';
-		$output .= '<label for="selected_service">' . esc_html__( 'Choose a service to upgrade:', 'smart-woo-service-invoicing' ) .'</label>';
-		$output .= $select_options;
-		$output .= '</div>';
-
-		// Container for products to use.
-		$output .= '<div class="products-to-use-container">';
-
-		// Retrieve selected product categories from options.
-		$selected_upgrade_category = get_option( 'smartwoo_upgrade_product_cat', '0' );
-
-		// Get products from selected categories.
-		$products_args  = array(
-			'post_type'      => 'product',
-			'posts_per_page' => -1,
-			'tax_query'      => array(
-				array(
-					'taxonomy' => 'product_cat',
-					'field'    => 'id',
-					'terms'    => $selected_upgrade_category,
-				),
-			),
-		);
-		$products_query = new WP_Query( $products_args );
-
-		if ( $products_query->have_posts() ) {
-			while ( $products_query->have_posts() ) {
-				$products_query->the_post();
-				$product_id      = get_the_ID();
-				$product_name    = get_the_title();
-				$product_price   = get_post_meta( $product_id, '_regular_price', true );
-				$product_excerpt = get_post_field( 'post_excerpt', $product_id );
-				$output .= '<div class="product-container">';
-				$output .= '<label>';
-				$output .= '<input type="checkbox" name="selected_product" value="' . esc_attr( $product_id ) . '" required>';
-				$output .= '<strong>' . esc_html( $product_name ) . '</strong><br>';
-				$output .= 'Price: ' . wc_price( $product_price ) . '<br>';
-				$output .= 'Description: ' . esc_html( $product_excerpt );
-				$output .= '</label>';
-				$output .= '</div>';
-			}
-
-			wp_reset_postdata(); // Reset the post data to the main loop.
-			$output .= '</div>';
-			$output .= '<div class="upgrade-button-container">';
-			$output .= '<button type="submit" name="upgrade_service_submit">' . esc_html__( 'Upgrade', 'smart-woo-service-invoicing' ) . '</button>';
-			$output .= '</div>';
-
-		} else {
-			$output .= 'No products found.';
-		}
-
-		$output .= '</form>';
-
-		return $output;
-	} else {
-		// Display a message or take appropriate action when update is not allowed.
-		smartwoo_error_notice( 'Service upgrade is not allowed. Contact us if you need any assistance' );
+	if ( 'Disable' === smartwoo_is_migration() ) {
+		return smartwoo_notice( 'Migration is not allowed' );
 	}
+
+	if ( empty( $services ) ) {
+		return smartwoo_notice( 'No services found for upgrade.' );
+	}
+
+	$output .= '<form method="post" action="">';
+	$output .= wp_nonce_field( 'upgrade_service_nonce', 'upgrade_service_nonce' );
+	$select_options  = '<select name="selected_service" required>';
+	$select_options .= '<option value="" selected>' . esc_html__( 'Select a Service', 'smart-woo-service-invoicing' ) . '</option>';
+
+	foreach ( $services as $service ) {
+		$select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
+	}
+
+	$select_options .= '</select>';
+	// Container for select service.
+	$output .= '<div class="select-service-container">';
+	$output .= $select_options;
+	$output .= '<button type="submit" class="sw-red-button" name="upgrade_service_submit"> Upgrade </button>';
+	$output .= '</div>';
+	$products = Sw_Product::get_migratables();
+
+	foreach( $products as $product) {
+		$product_id      	= $product->get_id();
+		$product_name    	= $product->get_name();
+		$product_price   	= $product->get_price();
+		$product_excerpt	= $product->get_short_description();
+		$sign_up_fee		= $product->get_sign_up_fee();
+		$output .= '<div class="sw-product-container">';
+		$output .= '<input type="checkbox" name="selected_product" value="' . esc_attr( $product_id ) . '">';
+		$output .=  '<h3>' . esc_html( $product_name ) . '</h3>';
+		$output .= '<p>Price: ' . wc_price( $product_price ) . '</p>';
+		$output .= '<p>Sign-Up fee ' . wc_price( $sign_up_fee ) .'</p>';
+		$output .= '<p>Description: ' . esc_html( $product_excerpt ) . '</p>';
+		$output .= '</div>';
+	}
+
+	$output .= '</form>';
+	$output .= '</div>';
+	return $output;
+
 }
 
 
@@ -611,15 +587,28 @@ function smartwoo_upgrade_temp( $current_user_id ) {
  * @return string Output or result of the downgrade service operation.
  */
 function smartwoo_downgrade_temp( $current_user_id ) {
+
 	$services = Sw_Service_Database::get_services_by_user( $current_user_id );
-	$output = "";
-	if ( isset( $_POST['downgrade_service_submit'] ) ) {
-		if ( ! isset( $_POST['downgrade_service_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['downgrade_service_nonce'] ) ), 'downgrade_service_nonce' ) ) {
-			return 'Nonce verification failed.';
+	$output  = smartwoo_get_navbar( $current_user_id );
+	$output .= '<div class"wrap">';
+		
+	if ( isset( $_POST['downgrade_service_nonce'] ) &&  wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['downgrade_service_nonce'] ) ), 'downgrade_service_nonce' ) ) {
+		$errors				= array();
+		$selected_service_id = isset( $_POST['selected_service'] ) ? sanitize_text_field( $_POST['selected_service'] ) : '';
+		$selected_product_id = isset( $_POST['selected_downgrade_product'] ) ? absint( $_POST['selected_downgrade_product'] ) : '';
+		
+		if ( empty( $selected_service_id ) ) {
+			$errors[] = 'Select a service';
 		}
 
-		$selected_service_id = sanitize_text_field( $_POST['selected_service'] );
-		$selected_product_id = absint( $_POST['selected_downgrade_product'] );
+		if ( empty( $selected_product_id ) ) {
+			$errors[] = 'Select a Product';
+		}
+
+		if ( ! empty( $errors ) ) {
+			return smartwoo_error_notice( $errors );
+		}
+
 		$service_to_downgrade = null;
 
 		foreach ( $services as $service ) {
@@ -630,32 +619,31 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 		}
 
 		if ( ! $service_to_downgrade ) {
-			return esc_html__( 'Selected service not found.', 'smart-woo-service-invoicing' );
+			return smartwoo_error_notice( 'Selected service not found.' );
 		}
 
 		$service_status = sw_service_status( $service_to_downgrade->getServiceId() );
 
-		if ( 'Active' === $service_status ) {
-			return esc_html__( 'Only Active Services can be downgraded, Contact us if you need further assistance.', 'smart-woo-service-invoicing' );
+		if ( 'Active' !== $service_status ) {
+			return smartwoo_error_notice( 'Only Active Services can be downgraded, Contact us if you need further assistance.', 'smart-woo-service-invoicing' );
 		}
 
 		$selected_product = wc_get_product( $selected_product_id );
 
 		// Check if the selected product exists.
 		if ( ! $selected_product || ! $selected_product->is_purchasable() ) {
-			return 'Selected product not found or not purchasable.';
+			return smartwoo_error_notice( 'Selected product not found or not purchasable.' );
 		}
 
 		// Get the prices for the selected service and product.
 		$service_price			= sw_get_service_price( $service_to_downgrade );
 		$service_product_name 	= wc_get_product( $service_to_downgrade->getProductId() )->get_name();
 		$product_price        	= $selected_product->get_price();
-		$fee					= floatval( get_sw_service_product( $selected_product_id )['sign_up_fee'] ?? 0 );
+		$fee					= floatval( $selected_product->get_sign_up_fee() ?? 0 );
 		$new_service_price    	= $product_price + $fee;
-		$prorate_status 		= smartwoo_is_prorate_();
+		$prorate_status 		= smartwoo_is_prorate();
 		$usage_metrics 			= sw_check_service_usage( $selected_service_id );
 		$order_total_data 		= sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
-		$output					.= smartwoo_get_navbar( $current_user_id );
 		$output 				.= '<div class="migration-order-container">';
 		$existing_invoice_id 	= smartwoo_evaluate_service_invoices( $service_to_downgrade->getServiceId(), 'Service Downgrade Invoice', 'unpaid' );
 		$output             	.= '<div class="migrate-order-details">';
@@ -665,129 +653,98 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 			$output 			.= smartwoo_notice( 'This service has an outstanding invoice. If you proceed, you will be redirected to make the payment instead.' );
 		}
 
-		$output	.= '<p><strong>Current Service Details</strong></p>';
-		$output .= '<p><strong>Current Service:</strong> ' . esc_html( $service_to_downgrade->getServiceName() ) . ' - ' . esc_html( $service_to_downgrade->getServiceId() ) . '</p>';
-		$output .= '<p><strong>Product Name:</strong> ' . $service_product_name . '</p>';
-		$output .= '<p><strong>Pricing:</strong> ' . wc_price( $service_price ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span><strong>' . esc_html__( 'Current service Details', 'smart-woo-service-invoicing' ) . '</span></strong></p>';
+		$output 	.= '<p class="smartwoo-container-item"><span><strong>Current Service:</span></strong> ' . esc_html( $service_to_downgrade->getServiceName() ) . ' - ' . esc_html( $service_to_downgrade->getServiceId() ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Product Name:</span> ' . esc_html( $service_product_name ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Pricing:</span><strong> ' . wc_price( $service_price ) . '</strong></p>';
+		
 		if ( 'Enabled' === $prorate_status ) {
-			$output .= '<p><strong>Amount Used:</strong> ' . wc_price( $usage_metrics['used_amount'] ) . '</p>';
-			$output .= '<p><strong> Balance:</strong> ' . wc_price( $usage_metrics['unused_amount'] ) . '</p>';
+			$output .= '<p class="smartwoo-container-item"><strong>Amount Used:</strong> ' . wc_price( $usage_metrics['used_amount'] ) . '</p>';
+			$output .= '<p class="smartwoo-container-item"><strong> Balance:</strong> ' . wc_price( $usage_metrics['unused_amount'] ) . '</p>';
 		}
-		$output .= '<p><strong>Substitute Service Details</strong></p>';
-		$output .= '<p><strong>Product:</strong> ' . esc_html( $selected_product->get_name() ) . '</p>';
-		$output .= '<p><strong>Pricing:</strong> ' . wc_price( $product_price ) . '</p>';
-		$output .= '<p><strong>Sign-up Fee:</strong> ' . wc_price( get_sw_service_product( $selected_product_id )['sign_up_fee'] ) . '</p>';
 
-		$output .= '<p class="migrate-summary-tittle"><strong>' . esc_html__( 'Summary:', 'smart-woo-service-invoicing' ) . '</strong></p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>New Downgrade Details</span></p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Product:</span> ' . esc_html( $selected_product->get_name() ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Pricing:</span> ' . wc_price( $product_price ) . '</p>';
+		$output 	.= '<p class="smartwoo-container-item"><span>Sign-up Fee:</span> ' . wc_price( get_sw_service_product( $selected_product_id )['sign_up_fee'] ) . '</p>';
+		$output 	.= '<p class="migrate-summary-tittle"><span>' . esc_html( 'Summary:' ) . '</span></p>';
 		
-		if ( $prorate_status === 'Enabled' ) {
-			$output .= '<p><strong>Refund Amount:</strong> ' . wc_price( $order_total_data['remaining_unused_balance'] ) . '</p>';
+		if ( 'Enabled' === $prorate_status ) {
+			$output .= '<p class="smartwoo-container-item"><strong>Refund Amount:</strong> ' . wc_price( $order_total_data['remaining_unused_balance'] ) . '</p>';
 		}
-		
-		$output .= '<p><strong>New Order Total:</strong> ' . wc_price( $order_total_data['order_total'] ) . '</p>';
+
+		$output .= '<p class="smartwoo-container-item"><strong>New Order Total:</strong> ' . wc_price( $order_total_data['order_total'] ) . '</p>';
 		// Hidden form to Post migration data.
-		$output .= '<form method="post" name="migrate_service">';
-		$output .= wp_nonce_field( 'migration_nonce', 'migration_nonce' );
-		$output .= '<input type="hidden" name="user_id" value="' . esc_attr( $current_user_id ) . '">';
-		$output .= '<input type="hidden" name="service_id" value="' . esc_attr( $service_to_downgrade->getServiceId() ) . '">';
-		$output .= '<input type="hidden" name="new_service_product_id" value="' . esc_attr( $selected_product_id ) . '">';
-		$output .= '<input type="hidden" name="amount" value="' . esc_attr( $product_price ) . '">';
-		$output .= '<input type="hidden" name="fee" value="' . esc_attr( $fee ) . '">';
-		$output .= '<input type="hidden" name="order_total" value="' . esc_attr( $order_total_data['order_total'] ) . '">';
-		$output .= '<input type="hidden" name="refund_amount" value="' . esc_attr( $order_total_data['remaining_unused_balance'] ) . '">';
+		$output .= '<form id="migrationForm" method="post" action="">';
+		$output .= '<div id="swloader">Migrating...</div>';
+		$output .= '<input type="hidden" name="Downgrade">';
+		$output .= '<input type="hidden" id="user_id" name="user_id" value="' . esc_attr( $current_user_id ) . '">';
+		$output .= '<input type="hidden" id="service_id" name="service_id" value="' . esc_attr( $service_to_downgrade->getServiceId() ) . '">';
+		$output .= '<input type="hidden" id="new_service_product_id" name="new_service_product_id" value="' . esc_attr( $selected_product_id ) . '">';
+		$output .= '<input type="hidden" id="amount" name="amount" value="' . esc_attr( $product_price ) . '">';
+		$output .= '<input type="hidden" id="fee" name="fee" value="' . esc_attr( $fee ) . '">';
+		$output .= '<input type="hidden" id="order_total" name="order_total" value="' . esc_attr( $order_total_data['order_total'] ) . '">';
+		$output .= '<input type="hidden" id="refund_amount" name="refund_amount" value="' . esc_attr( $order_total_data['remaining_unused_balance'] ) . '">';
 		$output .= '<div class="upgrade-button-container">';
-		$output .= '<button type="submit" name="proceed_with_downgrade">Downgrade Now</button>';
+		$output .= '<input type="submit" name="proceed_with_migration" class="sw-red-button" id="smartwoo-migrate" value="' . esc_html__( 'Upgrade Now', 'smart-woo-service-invoicing' ) . '">';
 		$output .= '</div>';
 		$output .= '</form>';
 		$output .= '</div>';
 		$output .= '</div>';
 
 		return $output;
+
+		return $output;
 	}
 
-	$output	.= smartwoo_get_navbar( $current_user_id );
-	if ( smartwoo_is_migration() ) {
+	if ( 'Disable' === smartwoo_is_migration() ) {
+		return smartwoo_notice( 'Migration is not allowed' );
+	}
 
-		// Check if user has any services to downgrade.
-		if ( empty( $services ) ) {
-			return esc_html__( 'No services found for downgrade.', 'smart-woo-service-invoicing' );
-		}
+	if ( empty( $services ) ) {
+		return smartwoo_notice( 'No services found for Downgrade.' );
+	}
 
-		$output .= '<form method="post" action="">';
-		$output .= wp_nonce_field( 'downgrade_service_nonce', 'downgrade_service_nonce', true, false );
 
-		// Create a select input with the user's services.
-		$select_options  = '<select name="selected_service" required>';
-		$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo-service-invoicing' ) . '</option>';
+	$output 		.= '<form method="post" action="">';
+	$output 		.= wp_nonce_field( 'downgrade_service_nonce', 'downgrade_service_nonce', true, false );
+	$select_options  = '<select name="selected_service" required>';
+	$select_options .= '<option value="" selected disabled>' . esc_html__( 'Select a Service', 'smart-woo-service-invoicing' ) . '</option>';
 
-		foreach ( $services as $service ) {
-			$select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
-		}
-		$select_options .= '</select>';
+	foreach ( $services as $service ) {
+		$select_options .= '<option value="' . esc_attr( $service->getServiceId() ) . '">' . esc_html( $service->getServiceName() ) . '</option>';
+	}
 
-		// Container for select service.
-		$output .= '<div class="select-service-container">';
-		$output .= '<p>Choose a service to downgrade:</p>' . $select_options;
+	$select_options .= '</select>';
+	$output 		.= '<div class="select-service-container">';
+	$output 		.=  $select_options;
+	$output 		.= '<button type="submit" class="sw-red-button" name="downgrade_service_submit"> Upgrade </button>';
+
+	$output 		.= '</div>';
+	$products 		= Sw_Product::get_migratables( 'Downgrade' );
+
+	foreach( $products as $product) {
+		$product_id      	= $product->get_id();
+		$product_name    	= $product->get_name();
+		$product_price   	= $product->get_price();
+		$product_excerpt	= $product->get_short_description();
+		$sign_up_fee		= $product->get_sign_up_fee();
+		$output .= '<div class="sw-product-container">';
+		$output .= '<input type="checkbox" name="selected_downgrade_product" value="' . esc_attr( $product_id ) . '">';
+		$output .=  '<h3>' . esc_html( $product_name ) . '</h3>';
+		$output .= '<p>Price: ' . wc_price( $product_price ) . '</p>';
+		$output .= '<p>Sign-Up fee ' . wc_price( $sign_up_fee ) .'</p>';
+		$output .= '<p>Description: ' . esc_html( $product_excerpt ) . '</p>';
 		$output .= '</div>';
-
-		// Container for downgrade options.
-		$output .= '<div class="products-to-use-container">';
-
-		// Retrieve selected downgrade categories from options.
-		$selected_downgrade_category = get_option( 'smartwoo_downgrade_product_cat', '0' );
-
-		// Get products from selected downgrade categories.
-		$downgrade_args  = array(
-			'post_type'      => 'product',
-			'posts_per_page' => -1,
-			'tax_query'      => array(
-				array(
-					'taxonomy' => 'product_cat',
-					'field'    => 'id',
-					'terms'    => $selected_downgrade_category,
-				),
-			),
-		);
-		$downgrade_query = new WP_Query( $downgrade_args );
-
-		if ( $downgrade_query->have_posts() ) {
-			while ( $downgrade_query->have_posts() ) {
-
-				$downgrade_query->the_post();
-				$product_id      = get_the_ID();
-				$product_name    = get_the_title();
-				$product_price   = get_post_meta( $product_id, '_price', true );
-				$product_excerpt = get_the_excerpt();
-				$output .= '<div class="product-container">';
-				$output .= '<label>';
-				$output .= '<input type="checkbox" name="selected_downgrade_product" value="' . esc_attr( $product_id ) . '" required>';
-				$output .= '<strong>' . esc_html( $product_name ) . '</strong><br>';
-				$output .= 'Price: ' . esc_html( $product_price ) . '<br>';
-				$output .= 'Description: ' . esc_html( $product_excerpt );
-				$output .= '</label>';
-				$output .= '</div>';
-
-			}
-
-			wp_reset_postdata();
-			$output .= '</div>';
-			$output .= '<div style="text-align:center;">';
-			$output .= '<button type="submit" class="sw-blue-button" name="downgrade_service_submit">' . esc_html__( 'Downgrade', 'smart-woo-service-invoicing' ) . '</button>';
-			$output .= '</div>';
-
-		} else {
-			$output .= esc_html__( 'No products found for downgrade.', 'smart-woo-service-invoicing' );
-		}
-
-		$output .= '</form>';
-
-		return $output;
-
-	} else {
-		// Display a message or take appropriate action when update is not allowed.
-		$output .= smartwoo_notice( 'Service downgrade is not allowed. Contact us if you need any assistance' );
-		return $output;
 	}
+
+	$output .= '</form>';
+	$output .= '</div>';
+
+
+	return $output;
+
+
 }
 
 
@@ -797,7 +754,7 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 function smartwoo_buy_new_temp() {
 
 	// Get Smart Woo Products.
-	$smartwoo_products = Sw_Product::get_all();
+	$smartwoo_products = Sw_Product::get_all_products();
 	$output = '';
 	$output .= smartwoo_get_navbar( get_current_user_id() );
 

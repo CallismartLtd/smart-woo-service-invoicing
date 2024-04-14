@@ -1,6 +1,6 @@
 # Smart Woo Service Invoicing. 
 
-**Requires at least:** 6.3
+**Requires at least:** 6.0
 **Tested up to:** 6.5
 **Requires PHP:** 7.4
 **Stable Tag:** 1.0.2

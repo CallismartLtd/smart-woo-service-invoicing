@@ -31,7 +31,7 @@ function smartwoo_new_service_page() {
 		$status            = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : '';
 		$our_billing_cycles = array(
 			'Monthly',
-			'Quaterly',
+			'Quarterly',
 			'Six Monthly',
 			'Yearly',
 		);

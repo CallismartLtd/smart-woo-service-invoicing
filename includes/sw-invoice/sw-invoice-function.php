@@ -67,18 +67,23 @@ function sw_evaluate_user_invoices( $user_id, $invoice_type, $payment_status ) {
  * @since 1.0.0
  */
 function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $payment_status ) {
-	$service_id 	= sanitize_text_field( $service_id );
-	$invoice_type 	= sanitize_text_field( $invoice_type );
-	$payment_status = sanitize_text_field( $payment_status );
-	$invoice 		= Sw_Invoice_Database::get_invoice_by_id( 'service_id', $service_id );
 
-	if ( empty( $invoice ) ) {
+	$invoices 		= Sw_Invoice_Database::get_invoices_by_service( $service_id );
+
+	if ( empty( $invoices ) ) {
 		return false;
 	}
 
-	if ( $invoice->getInvoiceType() === $invoice_type && $invoice->getServiceId() === $service_id && $invoice->getPaymentStatus() === $payment_status ){
-		return $invoice->getInvoiceId();
+	foreach ( $invoices as $invoice ) {
+		if ( 
+			$invoice->getInvoiceType() === $invoice_type 
+			&& $invoice->getServiceId() === $service_id 
+			&& $invoice->getPaymentStatus() === $payment_status
+			){
+			return $invoice->getInvoiceId();
+		}
 	}
+
 
 	return false; // User doesn't have the desired invoice
 }
@@ -255,105 +260,105 @@ function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoi
 	return $invoice_id;
 }
 
-
+// Add Ajax actions
+add_action( 'wp_ajax_smartwoo_service_migration', 'smartwoo_generate_service_migration_invoice' );
+add_action( 'wp_ajax_nopriv_smartwoo_service_migration', 'smartwoo_generate_service_migration_invoice' );
 /**
  * Generates a service migration invoice based on form submission.
  */
+function smartwoo_generate_service_migration_invoice() {
+	// Verify the nonce for security
+	if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
+		wp_send_json_error( 'action did not pass security check' );
+		wp_die( -1, 403);
 
-add_action( 'template_redirect', 'sw_generate_service_migration_invoice' );
+	}
+	// Get and sanitize form data.
+	$user_id                = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
+	$service_id             = isset( $_POST['service_id']) ? sanitize_text_field( $_POST['service_id'] ) : '';
+	$new_service_product_id = isset( $_POST['new_service_product_id'] ) ? absint( $_POST['new_service_product_id'] ) : '';
+	$amount                 = isset( $_POST['amount'] ) ? floatval( $_POST['amount'] ): '';
+	$order_total            = isset( $_POST['order_total'] ) ? floatval( $_POST['order_total'] ) : '';
+	$refund_amount          = isset( $_POST['refund_amount'] ) ?  floatval( $_POST['refund_amount'] ) : '';
+	$payment_status         = ( max( 0, $order_total ) === 0 ) ? 'paid' : 'unpaid';
+	$fee                    = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
+	$date_due               = current_time( 'mysql' );
 
-function sw_generate_service_migration_invoice() {
-	if ( isset( $_POST['proceed_with_upgrade'] ) || isset( $_POST['proceed_with_downgrade'] ) ) {
+	$invoice_type = null;
 
-		// Verify Migration nonce
-		if ( isset( $_POST['migration_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['migration_nonce'] ) ), 'migration_nonce' ) ) {
-			// Get and sanitize form data
-			$user_id                = absint( $_POST['user_id'] );
-			$service_id             = sanitize_text_field( $_POST['service_id'] );
-			$new_service_product_id = absint( $_POST['new_service_product_id'] );
-			$amount                 = floatval( $_POST['amount'] );
-			$order_total            = floatval( $_POST['order_total'] );
-			$refund_amount          = floatval( $_POST['refund_amount'] );
-			$payment_status         = ( max( 0, $order_total ) === 0 ) ? 'paid' : 'unpaid';
-			$fee                    = floatval( $_POST['fee'] );
-			$date_due               = current_time( 'mysql' );
+	if ( isset( $_POST['Upgrade'] ) ) {
+		$invoice_type = 'Service Upgrade Invoice';
+	} elseif ( isset( $_POST['Downgrade'] ) ) {
+		$invoice_type = 'Service Downgrade Invoice';
+	}
 
-			$invoice_type = null;
+	// Check if there is Service Upgrade or Downgrade Invoice for the service
+	$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
+	if ( $existing_invoice_id ) {
+		// Get the invoice for payment instead of creating another
+		wp_send_json_success( smartwoo_invoice_preview_url( $existing_invoice_id ) );
+	}
 
-			if ( isset( $_POST['proceed_with_upgrade'] ) ) {
-				$invoice_type = 'Service Upgrade Invoice';
-			} elseif ( isset( $_POST['proceed_with_downgrade'] ) ) {
-				$invoice_type = 'Service Downgrade Invoice';
-			}
+	// Generate a unique invoice ID
+	$invoice_id = smartwoo_get_invoice_id_prefix() . '-' . uniqid();
+	// Get the user's billing address
+	$billing_address = smartwoo_get_user_billing_address( $user_id );
+	// Calculate the total by adding the fee (if provided)
+	$new_order_total = $order_total + ( $fee ?? 0 );
+	$invoice_total   = $amount + ( $fee ?? 0 );
 
-			// Check if there is Service Upgrade or Downgrade Invoice for the service
-			$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
-			if ( $existing_invoice_id ) {
-				// Get the invoice for payment instead of creating another
-				smartwoo_redirect_to_invoice_preview( $existing_invoice_id );
-			}
+	// Create a new Sw_Invoice instance
+	$newInvoice = new Sw_Invoice(
+		$invoice_id,
+		$new_service_product_id,
+		$amount,
+		$order_total,
+		$payment_status,
+		null, // Date Created will be set to the current date in the constructor
+		$user_id,
+		$billing_address,
+		$invoice_type,
+		$service_id,
+		$fee
+	);
+	// Set the due date if provided
+	if ( $date_due ) {
+		$newInvoice->setDateDue( $date_due );
+	}
 
-			// Generate a unique invoice ID
-			$invoice_id = smartwoo_get_invoice_id_prefix() . '-' . uniqid();
-			// Get the user's billing address
-			$billing_address = smartwoo_get_user_billing_address( $user_id );
-			// Calculate the total by adding the fee (if provided)
-			$new_order_total = $order_total + ( $fee ?? 0 );
-			$invoice_total   = $amount + ( $fee ?? 0 );
+	// Call the sw_create_invoice method to save the invoice to the database
+	$invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
 
-			// Create a new Sw_Invoice instance
-			$newInvoice = new Sw_Invoice(
-				$invoice_id,
-				$new_service_product_id,
-				$amount,
-				$order_total,
-				$payment_status,
-				null, // Date Created will be set to the current date in the constructor
-				$user_id,
-				$billing_address,
-				$invoice_type,
-				$service_id,
-				$fee
-			);
-			// Set the due date if provided
-			if ( $date_due ) {
-				$newInvoice->setDateDue( $date_due );
-			}
+	// Check if payment status is 'unpaid' and generate a pending order
+	if ( strtolower( $payment_status ) === 'unpaid' ) {
+		$order_id = sw_generate_pending_order( $user_id, $invoice_id, $order_total );
 
-			// Call the sw_create_invoice method to save the invoice to the database
-			$invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
+		// Set the order ID for the new invoice
+		$fields = array(
+			'order_id' => $order_id,
+		);
+		sw_update_invoice_fields( $invoice_id, $fields );
+	}
+	if ( strtolower( $payment_status ) === 'paid' ) {
+		// Perform immidiate migration
+		$fields           = array(
+			'product_id' => $new_service_product_id,
+		);
+		$migrated_service = Sw_Service_Database::update_service_fields( $service_id, $fields );
+		do_action( 'sw_service_migrated', $migrated_service );
+	}
 
-			// Check if payment status is 'unpaid' and generate a pending order
-			if ( strtolower( $payment_status ) === 'unpaid' ) {
-				$order_id = sw_generate_pending_order( $user_id, $invoice_id, $order_total );
+	if ( 'Enabled' === smartwoo_is_prorate() && $refund_amount > 0 ) {
 
-				// Set the order ID for the new invoice
-				$fields = array(
-					'order_id' => $order_id,
-				);
-				sw_update_invoice_fields( $invoice_id, $fields );
-			}
-			if ( strtolower( $payment_status ) === 'paid' ) {
-				// Perform immidiate migration
-				$fields           = array(
-					'product_id' => $new_service_product_id,
-				);
-				$migrated_service = Sw_Service_Database::update_service_fields( $service_id, $fields );
-				do_action( 'sw_service_migrated', $migrated_service );
-			}
+		// Log the refund data into our database from where refunds can easily be processed.
+			$details = 'Refund for service ID: "' . $service_id . '" unused service balance due to migration.';
+			$note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
+			smart_woo_log( $invoice_id, 'Refund', 'Pending', $details, $refund_amount, $note );
+	}
 
-			if ( 'Enabled' === smartwoo_is_prorate_() && $refund_amount > 0 ) {
+	if ( $newInvoice ) {
 
-				// Log the refund data into our database from where refunds can easily be processed.
-				 $details = 'Refund for service ID: "' . $service_id . '" unused service balance due to migration.';
-				 $note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
-				 smart_woo_log( $invoice_id, 'Refund', 'Pending', $details, $refund_amount, $note );
-			}
-
-			if ( $newInvoice ) {
-				smartwoo_redirect_to_invoice_preview( $newInvoice->getInvoiceId() );
-			}
-		}
+		wp_send_json_success( smartwoo_invoice_preview_url( $newInvoice->getInvoiceId() ), 200 );
 	}
 }
 
@@ -369,7 +374,7 @@ function sw_generate_service_migration_invoice() {
 function sw_calculate_migration_order_total( $product_price, $unused_service_price ) {
 
 	// Check if pro-rata refunds are enabled
-	$prorate_status = smartwoo_is_prorate_();
+	$prorate_status = smartwoo_is_prorate();
 	if ( $prorate_status === 'Enabled' ) {
 		// If the unused service amount can cover the entire product price
 		if ( $unused_service_price >= $product_price ) {
@@ -514,11 +519,11 @@ function smartwoo_order_pay_url( int $order_id ) {
  * Get invoice preview url
  * 
  */
-function smartwoo_invoice_preview_url( $invoice_id ) {
+function smartwoo_invoice_preview_url( $invoice_id = '' ) {
 	if ( is_account_page() ) {
 		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
 		$preview_url  = $endpoint_url .'?view_invoice&invoice_id=' . $invoice_id;
-		return esc_url( $preview_url );
+		return esc_url_raw( $preview_url );
 	}
 
 	$invoice_page = get_option( 'smartwoo_invoice_page_id', 0 );
@@ -526,6 +531,21 @@ function smartwoo_invoice_preview_url( $invoice_id ) {
 	return esc_url( $invoice_page_url .'?invoice_page=view_invoice&invoice_id=' . $invoice_id );
 }
 
+/**
+ * Invoice URL.
+ */
+function smartwoo_invoice_page_url() {
+	$invoice_page = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
+
+	if ( is_account_page () ){
+		return wc_get_account_endpoint_url( 'smartwoo-invoice' );
+	}
+	return esc_url_raw( get_permalink( $invoice_page ) );
+}
+
+ /**
+  * Product deletion button.
+  */
 function sw_delete_invoice_button( $invoice_id ) {
 	// Output the delete button with data-invoice-id attribute
 	return '<button class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '">Delete Invoice ⌫</button>';

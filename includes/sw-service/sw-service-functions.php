@@ -117,7 +117,19 @@ function smartwoo_service_preview_url( $service_id ) {
 
 	$page 	  = get_option( 'smartwoo_service_page_id', 0 );
 	$page_url = esc_url( get_permalink( $page ) );
-	return esc_url( $page_url .'?service_page=service_details&service_id=' . $service_id );
+	return esc_url_raw( $page_url .'?service_page=service_details&service_id=' . $service_id );
+}
+
+function smartwoo_service_page_url() {
+	
+	if( is_account_page() ) {
+		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
+		return $endpoint_url;
+	}
+
+	$page		= get_option( 'smartwoo_service_page_id', 0 );
+	$page_url	= get_permalink( $page );
+	return $page_url;
 }
 
 /**

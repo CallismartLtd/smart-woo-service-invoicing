@@ -60,12 +60,12 @@ function smartwoo_convert_timestamp_to_readable_date( int $timestamp, bool $incl
  *
  * @return string Returns "Enabled" if smartwoo_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
  */
-function smartwoo_is_prorate_() {
+function smartwoo_is_prorate() {
 	$smartwoo_prorate = get_option( 'smartwoo_prorate', 'Disabled' );
 
-	if ( $sw_prorate === 'Enable' ) {
+	if ( $smartwoo_prorate === 'Enable' ) {
 		return 'Enabled';
-	} elseif ( $sw_prorate === 'Disable' ) {
+	} elseif ( $smartwoo_prorate === 'Disable' ) {
 		return 'Disabled';
 	} else {
 		return 'Disabled';
@@ -463,6 +463,7 @@ function smartwoo_get_navbar( $current_user_id ) {
  */
 function smartwoo_allowed_form_html() {
     return array(
+		'post'		=> array(),
         'form'		=> array(
             'action'	=> true,
             'method'	=> true,
@@ -496,6 +497,9 @@ function smartwoo_allowed_form_html() {
         'div'		=> array(
             'class'		=> true,
 			'id'		=> true,
+			'a'			=> true,
+			'ul'		=> true,
+			'li'		=> true
         ),
 		'button'	=> array(
 			'class'		=> true,
@@ -521,6 +525,13 @@ function smartwoo_allowed_form_html() {
 			'required'	=> true,
 			'readonly'	=> true
         ),
+		'p'			=> array(
+			'class'		=> true,
+			'span'		=> true,
+			'strong'	=> true,
+		),
+		'ul'		=> array(),
+		'li'		=> array(),
     );
 }
 

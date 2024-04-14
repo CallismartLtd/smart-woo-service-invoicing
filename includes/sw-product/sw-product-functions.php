@@ -6,42 +6,25 @@
  * @author      :   Callistus
  * Description  :   Functions file for Sw_Product
  */
-
-/**
- * Dynamically assigns 'Sw_Product' class for 'sw_product' type in WooCommerce.
- *
- * @param string $classname   The current class name for the product.
- * @param string $product_type The type of the product being processed.
- * @return string             The updated class name based on the product type.
- */
-add_filter( 'woocommerce_product_class', 'sw_product', 10, 2 ); 
-
-function sw_product( $classname, $product_type ) {
-	if ( $product_type === 'sw_product' ) {
-		$classname = 'Sw_Product';
-	}
-	return $classname;
-}
-
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Deletes or moves the sw_product type to trash
  */
-// Add AJAX action for deleting service product
 add_action( 'wp_ajax_smartwoo_delete_product', 'smartwoo_delete_product' );
 
 function smartwoo_delete_product() {
-	// Verify the nonce
+	// Verify the nonce.
 	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
 		wp_die( -1, 403 );
 	}
-	// Check if the user is logged in and has the necessary capability
+	// Check if the user is logged in and has the necessary capability.
 	if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
 		wp_die( 'Permission denied.' );
 	}
 
-	// Get the product ID from the AJAX request
-	$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+	// Get the product ID from the AJAX request.
+	$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( 0 === $product_id ) {
 		wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
 		wp_die( -1, 404 );
@@ -74,8 +57,8 @@ function display_sw_service_product_details() {
 	// Check if the product is of type 'sw_product'
 	if ( $product && $product->get_type() === 'sw_product' ) {
 		// Get the sign-up fee and billing cycle
-		$sign_up_fee   = get_post_meta( $product->get_id(), 'sign_up_fee', true );
-		$billing_cycle = get_post_meta( $product->get_id(), 'billing_cycle', true );
+		$sign_up_fee   = $product->get_sign_up_fee();
+		$billing_cycle = $product->get_billing_cycle();
 
 		// Display main product price with billing cycle
 		echo '<h4 class="main-price"> You will be charged  ' . wc_price( $product->get_price() ) . ' ' . ucfirst( $billing_cycle ) . '</h4>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

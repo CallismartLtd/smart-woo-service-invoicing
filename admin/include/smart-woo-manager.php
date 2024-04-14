@@ -381,7 +381,7 @@ function sw_service_OptOut_or_Cancellation() {
 				do_action( 'sw_service_deactivated', Sw_Service_Database::get_service_by_id( $service_id ) );
 
 				// Check if pro-rata refunds are enabled
-				if ( smartwoo_is_prorate_() === 'Enabled' ) {
+				if ( smartwoo_is_prorate() === 'Enabled' ) {
 					// Perform pro-rata refund
 					$details = 'Refund for the cancellation of ' . $service_id;
 					sw_create_prorata_refund( $service_id, $details );
@@ -417,7 +417,7 @@ function sw_service_OptOut_or_Cancellation() {
  */
 function sw_create_prorata_refund( $service_id, $details ) {
     // Check if pro-rata refunds are enabled.
-    if ( smartwoo_is_prorate_() !== 'Enabled' ) {
+    if ( smartwoo_is_prorate() !== 'Enabled' ) {
         // Pro-rata refunds are disabled, do not proceed with the refund.
         return false;
     }
@@ -719,5 +719,5 @@ function sw_migrate_service( $service, $invoice_id ) {
 	}
 	do_action( 'sw_service_migrated', $migrated );
 
-	return $migrated; // Return the result of the migration.
+	return $migrated;
 }

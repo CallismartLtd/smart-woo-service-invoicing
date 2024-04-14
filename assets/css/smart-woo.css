@@ -294,9 +294,12 @@ use inline CSS to overide some styles
 .smartwoo-container-item {
 	margin-bottom: 10px;
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
 }
+
+
 
 .smartwoo-container-item span {
 	font-weight: bold;
@@ -1127,7 +1130,7 @@ use inline CSS to overide some styles
     border: 1px solid #ddd;
     border-radius: 8px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-    margin-top: 20px;
+    margin: 20px auto;
 	margin-bottom: 20px;
     display: flex;
     flex-direction: column;
@@ -1211,9 +1214,8 @@ use inline CSS to overide some styles
 	pointer-events: none;
 }
 
-
-/* Add styling to the billing details container */
-.billing-details-container {
+/* Style the user details container */
+.smartwoo-details-container {
 	border: 1px solid #ccc;
 	border-radius: 8px; /* Add rounded corners for a card-like appearance */
 	overflow: hidden; /* Ensure rounded corners are applied */
@@ -1224,11 +1226,11 @@ use inline CSS to overide some styles
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	max-width: 400px; /* Set a maximum width for the container */
+	max-width: 800px; /* Set a maximum width for the container */
 }
 
 /* Style the heading within the container */
-.billing-details-container h3 {
+.smartwoo-details-container h3 {
 	margin: 0 10px;
 	margin-bottom: 10px;
 	padding: 10px 15px;
@@ -1238,78 +1240,16 @@ use inline CSS to overide some styles
 	border-radius: 9px;
 }
 
-/* Style individual details within the container */
-.billing-details-container p {
-	margin: 10px 0;
-}
-
-/* Style the user details container */
-.user-details-container {
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	padding: 20px;
-	margin: 20px auto;
-	background-color: #fff;
-	max-width: 400px;
-	display: flex;
-	flex-direction: column;
-	align-items: center; /* Center items horizontally */
-	text-align: center; /* Center text within the container */
-}
-
-/* Style the heading within the container */
-.user-details-container h3 {
-	margin: 0 10px;
-	margin-bottom: 10px;
-	padding: 10px 15px;
-	font-size: 18px;
-	background-color: red;
-	color: white;
-	border-radius: 9px;
-}
-
-/* Style individual details within the container */
-.user-details {
-	margin-bottom: 20px;
-}
-
-.user-details p {
-	margin: 10px 0;
-}
 
 
+.select-service-container{
+	display: block;
+	justify-content: space-between;
 
-
-/* Style for the select service container */
-.select-service-container {
-	margin-bottom: 20px;
-	background-color: #f4f4f4;
-	padding: 15px;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Style for the select service container */
-.select-service-container {
-	background-color: #f4f4f4;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	padding: 15px;
-	margin-bottom: 20px;
-}
-
-/* Style for the "Choose a service to upgrade" text */
-.select-service-container p {
-	font-size: 18px;
-	font-weight: bold;
-	margin-bottom: 10px;
 }
 
 /* Style for the select options */
 .select-service-container select {
-	width: 100%;
 	padding: 10px;
 	border: 1px solid #ccc;
 	border-radius: 4px;
@@ -1317,78 +1257,9 @@ use inline CSS to overide some styles
 	font-size: 16px;
 }
 
-/* Style for the upgrade button container */
-.upgrade-button-container {
-	margin-top: 20px;
-	text-align: center; /* Center the button within the container */
-}
-
-/* Style for the upgrade button */
-.upgrade-button-container button {
-	padding: 10px 20px;
-	background-color: #4CAF50;
-	color: #fff;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-/* Style for the upgrade button on hover */
-.upgrade-button-container button:hover {
-	background-color: #45a049;
-}
-
-
-
-/* Style for the products to use container */
-.products-to-use-container {
-	display: flex;
-	flex-wrap: wrap;
-}
-
-/* Style for each product container within the products to use container */
-.product-container {
-	width: 30%; /* Adjust the width based on  layout */
-	padding: 15px;
-	margin: 10px;
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	background-color: #ade0f5;
-}
-
-/* Style for the upgrade button container */
-.upgrade-button-container {
-	margin-top: 20px;
-	text-align: center; /* Center the button within the container */
-}
-
-/* Style for the upgrade button */
-.upgrade-button-container button {
-	padding: 10px 20px;
-	background-color: #4CAF50;
-	color: #fff;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-/* Style for the upgrade button on hover */
-.upgrade-button-container button:hover {
-	background-color: #45a049;
-}
-
-/* Style for the product name within each product container */
-.product-container strong {
-	display: block; /* Ensure line break after the product name */
-	font-weight: bold;
-	font-size: 18px; /* Adjust the font size based on  preference */
-	margin-bottom: 8px; /* Add spacing between product name and other details */
-}
 
 /* Base styles for larger screens */
 .migration-order-container {
-	border: 2px solid #d30f0f;
 	border-radius: 8px;
 	padding: 20px;
 	margin: 20px auto; /* Auto margin for centering */
@@ -1397,7 +1268,7 @@ use inline CSS to overide some styles
 	justify-content: space-between;
 	align-items: stretch;
 	width: 60%;
-	box-shadow: 0 4px 8px rgba(9, 0, 0, 0.1);
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
 
 .migrate-order-details {

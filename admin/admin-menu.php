@@ -76,7 +76,6 @@ function smartwoo_reg_admin_menu() {
 	add_action( 'load-' . $dashboard, 'smartwoo_help_screen' );
 	add_action( 'load-' . $products, 'smartwoo_help_screen' );
 	add_action( 'load-' . $options, 'smartwoo_help_screen' );
-	error_log('main Page: ' . $dashboard .' Product page: ' .$products. ' Settings Page: ' . $options. ' Invoices page: ' . $invoices . 'Orders page: '. $service_order );
 
     foreach ( $menu as $index => $data ) {
         if ( $data[2] === 'sw-admin' ) {

@@ -229,15 +229,17 @@ class Sw_Invoice_log {
         $table_name = SW_INVOICE_LOG_TABLE;
         $query   = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
         if ( true === $get_row ) {
+
             $results =  $wpdb->get_row( $query, ARRAY_A );
-            return self::convert_array_to_logs( $results );
+
+            return ! empty( $result ) ? self::convert_array_to_logs( $results ) : '';
         } elseif ( false === $get_row ) {
             $results = $wpdb->get_results( $query, ARRAY_A );
         }
         
         if ( $results === null ) {
             // Handle database query failure
-            return array(); // Return an empty array or throw an exception
+            return array();
         }
         
         // Convert results to Sw_Invoice_log objects
