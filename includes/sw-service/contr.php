@@ -148,7 +148,7 @@ function smartwoo_process_edit_service_form( $service ) {
 			// Perform the update
 			$updated = Sw_Service_Database::update_service( $service );
 			if ( $status === 'Cancelled' || $status === 'Suspended' || $status === 'Expired' && $service_type === 'Web Service' ) {
-				do_action( 'sw_service_deactivated', $service );
+				do_action( 'smartwoo_service_deactivated', $service );
 			} else {
 				do_action( 'sw_service_active', $service );
 			}

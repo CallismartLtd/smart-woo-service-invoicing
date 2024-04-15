@@ -19,11 +19,18 @@
  */
 function smartwoo_service_details( $current_user_id ) { 
 
-	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : "" ; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$service 			= Sw_Service_Database::get_service_by_id( $url_service_id );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : '' ; 
+	
+	if ( empty( $url_service_id ) ) {
+		return smartwoo_error_notice( 'Service ID parameter cannot be manupulated' );
+	}
+
+	$service	= Sw_Service_Database::get_service_by_id( $url_service_id );
+	$output		= smartwoo_get_navbar( $current_user_id );
 
 	if ( $service && $service->getUserId() !== $current_user_id || ! $service ) {
-		return esc_html__( 'Service Not Found', 'smart-woo-service-invoicing' );
+		return smartwoo_error_notice( 'Service Not Found', 'smart-woo-service-invoicing' );
 	}
 
 	$service_name 		= esc_html( $service->getServiceName() ? $service->getServiceName() : 'Not Available' );
@@ -39,10 +46,9 @@ function smartwoo_service_details( $current_user_id ) {
 	$end_date          	= smartwoo_check_and_format( $service->getEndDate() );
 	$service_url       	= esc_url( $service->getServiceUrl() ? $service->getServiceUrl() : 'Not Available' );
 	$service_button    	= smartwoo_client_service_url_button( $service );
-	$status        	   	= sw_service_status( $service_id );
+	$status        	   	= smartwoo_service_status( $service_id );
 	$usage_metrics 		= sw_get_usage_metrics( $service_id );
 	$expiry_date   		= sw_get_service_expiration_date( $service );
-	$output 			= smartwoo_get_navbar( $current_user_id );
 	$output 			.= '<div class="content">';
 	// Add the status tag to the service name.
 	$service_name_with_status = $service_name . ' (' . $status . ')';
@@ -76,7 +82,7 @@ function smartwoo_service_details( $current_user_id ) {
 		// "Quick Action" button when the service status is 'Active'.
 	if ( 'Active' === $status ) {
 
-		$output .= '<a href="#" id="sw-service-quick-action" class="sw-red-button" data-service-name="' . esc_attr( $service_name ) . '">' . esc_html__( 'Quick Action', 'smart-woo-service-invoicing' ) . '</a>';
+		$output .= '<a id="sw-service-quick-action" class="sw-blue-button" data-service-name="' . esc_attr( $service_name ) . '"data-service-id="' . esc_attr( $service_id ) . '">' . esc_html__( 'Quick Action', 'smart-woo-service-invoicing' ) . '</a>';
 	}
 
 	if ( 'Active' === $status || 'Active (NR)' === $status || 'Grace Period' === $status ):
@@ -85,6 +91,7 @@ function smartwoo_service_details( $current_user_id ) {
 	$output .= '</div>';
 	$output .=  wp_kses_post( $usage_metrics ) ;
 	$output .= '<div class="serv-details-card">';
+	$output .= '<div id="swloader">Processing....</div>';
 	$output .= '<p class="smartwoo-container-item"><span> Service Name:</span>' . esc_html( $service_id ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Service Type:</span>' . esc_html( $service_type ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Product Name:</span>' . esc_html( $product_name ) . '</p>';
@@ -188,8 +195,8 @@ function smartwoo_service_front_temp( $current_user_id ) {
 					$page_url
 				)
 			);
-			// Use sw_service_status to get the service status.
-			$status      = sw_service_status( $service_id );
+			// Use smartwoo_service_status to get the service status.
+			$status      = smartwoo_service_status( $service_id );
 			$expiry_date = sw_get_service_expiration_date( $service );
 
 			// Add the status tag to the service name.
@@ -317,7 +324,7 @@ function smartwoo_user_service_by_status( $current_user_id, $status_label = "" )
 
     foreach ( $services as $service ) {
 
-        $status = sw_service_status( $service->getServiceId() );
+        $status = smartwoo_service_status( $service->getServiceId() );
         // Check if the service status matches the specified label.
         if ( $status !== $status_label ) {
             // If not, display a message and return early.
@@ -377,7 +384,7 @@ function smartwoo_service_mini_card() {
 
 			// Create a link to the client_services page with the service_id as a URL parameter.
 			$service_link = smartwoo_service_preview_url( $service_id );
-			$status       = sw_service_status( $service_id );
+			$status       = smartwoo_service_status( $service_id );
 
 			// Add each service name, linked row, and status with a horizontal line.
 			$output .= '<p><a href="' . esc_url( $service_link ) . '">' . esc_html( $service_name ) . '</a>  ' . esc_html( $status ) . '</p>';
@@ -461,7 +468,7 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 			return smartwoo_error_notice( 'Selected service not found.', 'smart-woo-service-invoicing' );
 		}
 
-		$service_status = sw_service_status( $service_to_upgrade->getServiceId() );
+		$service_status = smartwoo_service_status( $service_to_upgrade->getServiceId() );
 
 		if ( 'Active' !== $service_status ) {
 			return smartwoo_error_notice( 'Only Active Services can be Upgraded, Contact us if you need further assistance.' );
@@ -479,7 +486,7 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 		$fee               		= floatval( $selected_product->get_sign_up_fee() ?? 0 );
 		$new_service_price 		= $product_price + $fee;
 		$prorate_status 		= smartwoo_is_prorate();
-		$usage_metrics 			= sw_check_service_usage( $selected_service_id );
+		$usage_metrics 			= smartwoo_analyse_service_usage( $selected_service_id );
 		$order_total_data 		= sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
 		$output 				.= '<div class="migration-order-container">';
 		$existing_invoice      	 = smartwoo_evaluate_service_invoices( $service_to_upgrade->getServiceId(), 'Service Upgrade Invoice', 'unpaid' );
@@ -622,7 +629,7 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 			return smartwoo_error_notice( 'Selected service not found.' );
 		}
 
-		$service_status = sw_service_status( $service_to_downgrade->getServiceId() );
+		$service_status = smartwoo_service_status( $service_to_downgrade->getServiceId() );
 
 		if ( 'Active' !== $service_status ) {
 			return smartwoo_error_notice( 'Only Active Services can be downgraded, Contact us if you need further assistance.', 'smart-woo-service-invoicing' );
@@ -642,7 +649,7 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 		$fee					= floatval( $selected_product->get_sign_up_fee() ?? 0 );
 		$new_service_price    	= $product_price + $fee;
 		$prorate_status 		= smartwoo_is_prorate();
-		$usage_metrics 			= sw_check_service_usage( $selected_service_id );
+		$usage_metrics 			= smartwoo_analyse_service_usage( $selected_service_id );
 		$order_total_data 		= sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
 		$output 				.= '<div class="migration-order-container">';
 		$existing_invoice_id 	= smartwoo_evaluate_service_invoices( $service_to_downgrade->getServiceId(), 'Service Downgrade Invoice', 'unpaid' );

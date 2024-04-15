@@ -82,7 +82,7 @@ function sw_generate_service(
 function smartwoo_client_service_url_button( Sw_Service $service ) {
 	$user_id        = $service->getUserId();
 	$user_info      = get_userdata( $user_id );
-	$service_status = sw_service_status( $service->getServiceId() );
+	$service_status = smartwoo_service_status( $service->getServiceId() );
 	if ( 'Active' === $service_status || 'Active (NR)' === $service_status  || 'Due for Renewal' === $service_status || 'Grace Period' === $service_status && 'Web Service' === $service->getServiceType() ) {
 
 		if ( $user_info ) {
@@ -112,11 +112,11 @@ function smartwoo_service_preview_url( $service_id ) {
 	if ( is_account_page() ) {
 		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
 		$preview_url  = $endpoint_url .'?view_service&service_id=' . $service_id;
-		return esc_url( $preview_url );
+		return esc_url_raw( $preview_url );
 	}
 
 	$page 	  = get_option( 'smartwoo_service_page_id', 0 );
-	$page_url = esc_url( get_permalink( $page ) );
+	$page_url = get_permalink( $page );
 	return esc_url_raw( $page_url .'?service_page=service_details&service_id=' . $service_id );
 }
 
@@ -124,12 +124,12 @@ function smartwoo_service_page_url() {
 	
 	if( is_account_page() ) {
 		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
-		return $endpoint_url;
+		return esc_url_raw( $endpoint_url );
 	}
 
 	$page		= get_option( 'smartwoo_service_page_id', 0 );
 	$page_url	= get_permalink( $page );
-	return $page_url;
+	return esc_url_raw( $page_url );
 }
 
 /**
@@ -198,6 +198,9 @@ function sw_log_renewed_service( Sw_Service $service ) {
 add_action( 'sw_service_renewed', 'sw_log_renewed_service', 20, 1 );
 add_action( 'sw_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
 
+function smartwoo_service_log( Sw_Service $service, $log_type = '' ) {
+		
+}
 
 /**
  * Check if a service subscription is active.
@@ -296,7 +299,7 @@ function sw_has_service_expired( Sw_Service $service ) {
  *
  * @return string The status.
  */
-function sw_service_status( string $service_id ) {
+function smartwoo_service_status( string $service_id ) {
 
 	// Get the service object
 	$service = Sw_Service_Database::get_service_by_id( $service_id );
@@ -346,7 +349,7 @@ function count_active_services( $user_id = null ) {
 	// Loop through each service to check its status
 	foreach ( $services as $service ) {
 		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
+		$status = smartwoo_service_status( $service->service_id );
 
 		// Check if the status is 'Active'
 		if ( $status === 'Active' ) {
@@ -375,7 +378,7 @@ function count_due_for_renewal_services( $user_id = null ) {
 	// Loop through each service to check its status
 	foreach ( $services as $service ) {
 		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
+		$status = smartwoo_service_status( $service->service_id );
 
 		// Check if the status is 'Due for Renewal'
 		if ( $status === 'Due for Renewal' ) {
@@ -404,7 +407,7 @@ function count_nr_services( $user_id = null ) {
 	// Loop through each service to check its status
 	foreach ( $services as $service ) {
 		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
+		$status = smartwoo_service_status( $service->service_id );
 
 		// Check if the status is 'Active (NR)'
 		if ( $status === 'Active (NR)' ) {
@@ -433,7 +436,7 @@ function count_expired_services( $user_id = null ) {
 	// Loop through each service to check its status
 	foreach ( $services as $service ) {
 		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
+		$status = smartwoo_service_status( $service->service_id );
 
 		// Check if the status is 'Expired'
 		if ( $status === 'Expired' ) {
@@ -462,7 +465,7 @@ function count_grace_period_services( $user_id = null ) {
 	// Loop through each service to check its status
 	foreach ( $services as $service ) {
 		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
+		$status = smartwoo_service_status( $service->service_id );
 
 		// Check if the status is 'Grace Period'
 		if ( $status === 'Grace Period' ) {
@@ -491,7 +494,7 @@ function count_suspended_services( $user_id = null ) {
 	// Loop through each service to check its status
 	foreach ( $services as $service ) {
 		// Get the status of the current service using user_id and service_id
-		$status = sw_service_status( $service->service_id );
+		$status = smartwoo_service_status( $service->service_id );
 
 		// Check if the status is 'Grace Period'
 		if ( $status === 'Suspended' ) {
@@ -517,7 +520,7 @@ function sw_regulate_service_status() {
 	// Loop
 	foreach ( $services as $service ) {
 		$expiry_date    = sw_get_service_expiration_date( $service );
-		$service_status = sw_service_status( $service->getServiceId() );
+		$service_status = smartwoo_service_status( $service->getServiceId() );
 
 		if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
 
@@ -641,14 +644,13 @@ function sw_check_services_expired_today() {
 }
 
 /**
- * Check and Calculate Service Usage, Unused Amount, and Service Cost based on Pro-Rata feature
+ * Get the analysis of service usage.
  *
- * @param int    $user_id      The ID of the service owner
- * @param string $service_id   The ID of the service
+ * @param string $service_id   The ID of the service.
  *
  * @return array|false Array containing used amount, unused amount, service cost, and additional metrics, or false on failure
  */
-function sw_check_service_usage( $service_id ) {
+function smartwoo_analyse_service_usage( $service_id ) {
 	// Get service details
 	$service_details = Sw_Service_Database::get_service_by_id( $service_id );
 
@@ -672,48 +674,48 @@ function sw_check_service_usage( $service_id ) {
 	}
 
 	// Get the cost of the first product
-	$service_cost = (float) $product->get_price(); // Treat as float
+	$service_cost = (float) $product->get_price(); // Treat as float.
 
-	// Ensure non-negative values for service cost
+	// Ensure non-negative values for service cost.
 	$service_cost = max( 0, $service_cost );
 
-	// Calculate the total days and days passed
-	$total_days  = max( 1, ( $end_date - $start_date ) / 86400 ); // 86400 seconds in a day
+	// Calculate the total days and days passed.
+	$total_days  = max( 1, ( $end_date - $start_date ) / 86400 ); // 86400 seconds in a day.
 	$days_passed = max( 0, min( $total_days, (int) ( ( $current_date - $start_date ) / 86400 ) ) );
 
-	// Calculate the unused amount based on the daily rate
+	// Calculate the unused amount based on the daily rate.
 	$daily_rate    = $total_days > 0 ? $service_cost / $total_days : 0;
 	$unused_amount = $service_cost - ( $daily_rate * $days_passed );
 
-	// Calculate used amount
+	// Calculate used amount.
 	$used_amount = $service_cost - $unused_amount;
 
-	// Additional Metrics
+	// Additional Metrics.
 	$total_service_cost = $service_cost;
 	$average_daily_cost = $total_days > 0 ? $total_service_cost / $total_days : 0;
 
 	// Cost Per Product
 	$product_costs = array();
 	$product_name  = $product->get_name();
-	$product_price = (float) $product->get_price(); // Treat as float
+	$product_price = (float) $product->get_price(); // Treat as float.
 
-	$product_costs[ $product_name ] = max( 0, $product_price ); // Ensure non-negative value
+	$product_costs[ $product_name ] = max( 0, $product_price ); // Ensures non-negative value.
 
-	// Percentage Usage
+	// Percentage Usage.
 	$percentage_used   = ( $total_service_cost > 0 ) ? ( $used_amount / $total_service_cost ) * 100 : 0;
 	$percentage_unused = ( $total_service_cost > 0 ) ? ( $unused_amount / $total_service_cost ) * 100 : 0;
 
-	// Days Remaining
+	// Days Remaining.
 	$days_remaining_seconds = max( 0, $total_days - $days_passed ) * 86400;
 	$days_remaining         = floor( $days_remaining_seconds / 86400 );
 	$hours_remaining        = floor( ( $days_remaining_seconds % 86400 ) / 3600 );
 	$minutes_remaining      = floor( ( $days_remaining_seconds % 3600 ) / 60 );
 	$seconds_remaining      = $days_remaining_seconds % 60;
 
-	// Average Hourly Usage
+	// Average Hourly Usage.
 	$average_hourly_usage = ( $total_days > 0 ) ? ( $used_amount / $total_days ) / 24 : 0;
 
-	// Convert to readable format
+	// Convert to readable format.
 	$readable_remaining = sprintf( '%d days %02d:%02d:%02d', $days_remaining, $hours_remaining, $minutes_remaining, $seconds_remaining );
 
 	return array(
@@ -869,10 +871,10 @@ function sw_get_usage_metrics( $service_id ) {
 
 	$service_name = $service->getServiceName();
 
-	$usage_metrics = sw_check_service_usage( $service_id );
+	$usage_metrics = smartwoo_analyse_service_usage( $service_id );
 
 	// Check if metrics are available
-	if ( $usage_metrics !== false ) {
+	if ( false !== $usage_metrics ) {
 		// Extract metrics
 		$used_amount          = $usage_metrics['used_amount'];
 		$unused_amount        = $usage_metrics['unused_amount'];
@@ -927,8 +929,8 @@ function sw_get_usage_metrics( $service_id ) {
 
 	} else {
 		// Handle the case where service details are not available
-		$metrics .= '<div class="sw-no-service-details">';
-		$metrics .= "<p class='no-service-details'><strong>Service details not available.</strong></p>";
+		$metrics  = '<div class="sw-no-service-details">';
+		$metrics .= smartwoo_notice( 'Service usage metrics cannot be retrieved at this time' );
 		$metrics .= '</div>';
 	}
 	return $metrics;

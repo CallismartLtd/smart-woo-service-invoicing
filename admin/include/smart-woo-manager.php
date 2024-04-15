@@ -6,42 +6,38 @@
  * Description  :   Service and Invoice management file and functions
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Perform action when a new service purchase is complete
  *
- * @param string $invoice_id The invoice ID
+ * @param string $invoice_id The invoice ID.
  */
-function sw_new_service_invoice_handler( $invoice_id ) {
-	// Mark invoice as paid
+function smartwoo_new_service_invoice_handler( $invoice_id ) {
+	// Mark invoice as paid.
 	sw_mark_invoice_as_paid( $invoice_id );
 }
-// Hook into action that indicates New Service Purchase is complete
-add_action( 'sw_new_service_purchase_complete', 'sw_new_service_invoice_handler' );
+// Hook into action that indicates New Service Purchase is complete.
+add_action( 'sw_new_service_purchase_complete', 'smartwoo_new_service_invoice_handler' );
 
 
 /**
  * Handling of Service subscription and Invoice based on WooCommerce order payment or status,
  * Essentially perform an action based on the order, or invoice type.
  *
- * @param int $order_id    The paid invoice order
+ * @param int $order_id    The paid invoice order.
  */
 // First action hook is when an order is marked as completed
-add_action( 'woocommerce_order_status_completed', 'sw_paid_invoice_order_manager', 50, 1 );
+add_action( 'woocommerce_order_status_completed', 'smartwoo_paid_invoice_order_manager', 50, 1 );
 
 // Second action hook is when payment is processed by either the payment provider
-add_action( 'woocommerce_payment_complete', 'sw_paid_invoice_order_manager', 55, 1 );
+add_action( 'woocommerce_payment_complete', 'smartwoo_paid_invoice_order_manager', 55, 1 );
 
-function sw_paid_invoice_order_manager( $order_id ) {
-
-	// Get the order object
+function smartwoo_paid_invoice_order_manager( $order_id ) {
 	$order = wc_get_order( $order_id );
-
-	// Get the invoice ID from the order metadata
 	$invoice_id = $order->get_meta( '_sw_invoice_id' );
 
-	// Early termination if the order is not related to our plugin
+	// Early termination if the order is not related to our plugin.
 	if ( empty( $invoice_id ) ) {
 		return;
 	}
@@ -54,38 +50,33 @@ function sw_paid_invoice_order_manager( $order_id ) {
 	 */
 	$invoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-	// Terminate if no invoice is gotten with the ID, which indicates invalid invoice ID
+	// Terminate if no invoice is gotten with the ID, which indicates invalid invoice ID.
 	if ( empty( $invoice ) ) {
 		return;
 	}
 
-	// Access invoice properties
 	$service_id   = $invoice->getServiceId();
 	$invoice_type = $invoice->getInvoiceType();
 
 	if ( $invoice_type === 'New Service Invoice' ) {
-		// This is a new service invoice
+		// This is a new service invoice.
 		do_action( 'sw_new_service_purchase_complete', $invoice_id );
-		// terminate execution
 		return;
 	}
 
-	// Get the ID of the user who owns the order
 	$user_id = $order->get_user_id();
 
-	// If Service ID is available, this indicates an invoice for existing service
+	// If Service ID is available, this indicates an invoice for existing service.
 	if ( ! empty( $service_id ) && ! empty( $user_id ) ) {
-
-		// Fetch the service status
-		$service_status = sw_service_status( $service_id );
+		$service_status = smartwoo_service_status( $service_id );
 		/**
 		 * Determine if the invoice is for the renewal of a Due service.
 		 * Only invoices for services on this status are considered to be for renewal.
 		 */
-		if ( $service_status === 'Due for Renewal' || $service_status === 'Grace Period' && $invoice_type === 'Service Renewal Invoice' ) {
+		if ( 'Due for Renewal' === $service_status || 'Grace Period' === $service_status && 'Service Renewal Invoice' === $invoice_type ) {
 
-			// Call the function to renew the service
-			sw_renew_service( $service_id, $invoice_id );
+			// Call the function to renew the service.
+			smartwoo_renew_service( $service_id, $invoice_id );
 
 			/**
 			 * Determine if the invoice is for the reactivation of an Expired service.
@@ -93,18 +84,15 @@ function sw_paid_invoice_order_manager( $order_id ) {
 			 */
 		} elseif ( $service_status === 'Expired' && $invoice_type === 'Service Renewal Invoice' ) {
 			// Call the function to reactivate the service
-			sw_activate_expired_service( $service_id, $invoice_id );
+			smartwoo_activate_expired_service( $service_id, $invoice_id );
 
 			/**
 			 * Determine if the invoice is for the Migration of a service.
-			 * Only This invoice types for active services  are considered to be for reactivation.
+			 * Only This invoice types for active services are considered to be for Migration.
 			 */
 
-		} elseif ( $service_status === 'Active' && $invoice_type === 'Service Upgrade Invoice' || $invoice_type === 'Service Downgrade Invoice' ) {
-
-			// Fetch the service object
+		} elseif ( 'Active' === $service_status && 'Service Upgrade Invoice' === $invoice_type || 'Service Downgrade Invoice' === $invoice_type ) {
 			$service = Sw_Service_Database::get_service_by_id( $service_id );
-			// Call the function to handle the migration process
 			sw_migrate_service( $service, $invoice_id );
 
 		} else {
@@ -124,7 +112,7 @@ function sw_paid_invoice_order_manager( $order_id ) {
  * @param int $service_id ID of the service to be renewed.
  * @param int $invoice_id ID of the invoice related to the service renewal.
  */
-function sw_renew_service( $service_id, $invoice_id ) {
+function smartwoo_renew_service( $service_id, $invoice_id ) {
 
 	// Identify the Service and Invoice
 	$service = Sw_Service_Database::get_service_by_id( $service_id );
@@ -200,7 +188,7 @@ function sw_renew_service( $service_id, $invoice_id ) {
  * @param int $service_id ID of the service to be renewed.
  * @param int $invoice_id ID of the invoice related to the service renewal.
  */
-function sw_activate_expired_service( $service_id, $invoice_id ) {
+function smartwoo_activate_expired_service( $service_id, $invoice_id ) {
 	// 1. Identify the Expired Service
 	$expired_service = Sw_Service_Database::get_service_by_id( $service_id );
 	$invoice         = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
@@ -356,57 +344,79 @@ add_action( 'smart_woo_5_minutes_task', 'sw_complete_processing_invoice_orders' 
  * This function is hooked into WordPress template redirection to handle actions related
  * to service cancellation or billing cancellation based on the 'action' parameter in the URL.
  */
-add_action( 'template_redirect', 'sw_service_OptOut_or_Cancellation' );
+// Add Ajax actions
+add_action( 'wp_ajax_smartwoo_cancel_or_optout', 'smartwoo_cancel_or_optout_service' );
+add_action( 'wp_ajax_nopriv_smartwoo_cancel_or_optout', 'smartwoo_cancel_or_optout_service' );
 
-function sw_service_OptOut_or_Cancellation() {
-	// Check if the 'action' parameter is set and is one of the allowed actions
-	if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'sw_cancel_service', 'sw_cancel_billing' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$action     = sanitize_key( $_GET['action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$user_id    = get_current_user_id();
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( $_GET['service_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+function smartwoo_cancel_or_optout_service() {
 
-		// Check if the service_id is provided and the service is currently 'Active'
-		if ( ! empty( $service_id ) && sw_service_status( $service_id ) === 'Active' ) {
-			// Determine the next service status based on the action
-			$next_service_status = ( $action === 'sw_cancel_service' ) ? 'Cancelled' : 'Active (NR)';
-			// Update the service status
-			Sw_Service_Database::update_service_fields( $service_id, array( 'status' => $next_service_status ) );
-
-			// Perform additional actions based on the action
-			if ( $action === 'sw_cancel_service' ) {
-				// Notify user and admin about service cancellation
-				sw_user_service_cancelled_mail( $user_id, $service_id );
-				sw_service_cancelled_mail_to_admin( $service_id );
-				// Trigger action with service object as argument
-				do_action( 'sw_service_deactivated', Sw_Service_Database::get_service_by_id( $service_id ) );
-
-				// Check if pro-rata refunds are enabled
-				if ( smartwoo_is_prorate() === 'Enabled' ) {
-					// Perform pro-rata refund
-					$details = 'Refund for the cancellation of ' . $service_id;
-					sw_create_prorata_refund( $service_id, $details );
-				}
-			} elseif ( $action === 'sw_cancel_billing' ) {
-				// Notify user about billing cancellation
-				sw_user_service_optout( $user_id, $service_id );
-			}
-
-			wp_safe_redirect( smartwoo_service_preview_url() );
-			exit();
-			
-		} else {
-			// Redirect to the service details page even if the service is not 'Active'
-			$service_details_url = add_query_arg(
-				array(
-					'service_page' => 'service_details',
-					'service_id'   => $service_id,
-				),
-				get_permalink()
-			);
-			wp_safe_redirect( $service_details_url );
-			exit();
-		}
+	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
+		wp_die( -1, 401 );
 	}
+
+	if ( ! is_user_logged_in() ) {
+		wp_die( -1, 403 );
+	}
+
+	$action 				= isset( $_POST['selected_action'] ) ? sanitize_key( $_POST['selected_action'] ) : '';
+	$ajax_service_id 		= isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
+	
+	if ( empty( $action) && empty( $ajax_service_id ) ) {
+		wp_die( -1, 406 );
+
+	}
+	
+	$service				= Sw_Service_Database::get_service_by_id( $ajax_service_id );
+	$user_id  				= get_current_user_id();
+	$service_id				= $service->getServiceId();
+	$next_service_status	= null;
+	$user_cancelled_service	= false;
+	$user_opted_out			= false;
+
+	if ( 'sw_cancel_service' === $action ) {
+		$next_service_status ='Cancelled';
+		$user_cancelled_service = true;
+	} elseif ( 'sw_cancel_billing' === $action ) {
+		$next_service_status ='Active (NR)';
+		$user_opted_out = true;
+
+	}
+
+	Sw_Service_Database::update_service_fields( $service_id, array( 'status' => $next_service_status ) );
+
+	if ( $user_cancelled_service ) {
+		// Notify user and admin about service cancellation.
+		smartwoo_user_service_cancelled_mail( $user_id, $service_id );
+		smartwoo_service_cancelled_mail_to_admin( $service_id );
+		
+		$log_renewal 	= new Sw_Service_Log();
+		$log_renewal->setServiceId( $service->getServiceId() );
+		$log_renewal->setLogType( 'Cancellation' );
+		$log_renewal->setNote( 'Client Cancelled this service' );
+		$log_renewal->save();
+		
+		// Trigger action with service object as argument.
+		do_action( 'smartwoo_service_deactivated', $service );
+
+		// Check if pro-rata refunds are enabled.
+		if ( smartwoo_is_prorate() === 'Enabled' ) {
+			// Perform pro-rata refund
+			$details = 'Refund for the cancellation of ' . $service_id;
+			smartwoo_create_prorata_refund( $service_id, $details );
+		}
+		return smartwoo_notice( 'Service Cancelled', true );
+	} elseif ( $user_opted_out ) {
+		smartwoo_user_service_optout_mail( $user_id, $service_id );
+		$log_renewal 	= new Sw_Service_Log();
+		$log_renewal->setServiceId( $service->getServiceId() );
+		$log_renewal->setLogType( 'Cancellation' );
+		$log_renewal->setNote( 'Client Cancelled this service' );
+		$log_renewal->save();
+		return smartwoo_notice( 'Auto Billing Cancelled', true );
+
+	}
+	wp_safe_redirect( smartwoo_service_preview_url( $service_id ) );
+
 }
 
 /**
@@ -415,7 +425,7 @@ function sw_service_OptOut_or_Cancellation() {
  * @param string $service_id ID of the cancelled service
  * @return float|false Refund amount if successful, false otherwise.
  */
-function sw_create_prorata_refund( $service_id, $details ) {
+function smartwoo_create_prorata_refund( $service_id, $details ) {
     // Check if pro-rata refunds are enabled.
     if ( smartwoo_is_prorate() !== 'Enabled' ) {
         // Pro-rata refunds are disabled, do not proceed with the refund.
@@ -430,7 +440,7 @@ function sw_create_prorata_refund( $service_id, $details ) {
     }
 
     // Retrieve Service usage to determine unused balance.
-    $service_usage = sw_check_service_usage( $service_id );
+    $service_usage = smartwoo_analyse_service_usage( $service_id );
 
     if ( $service_usage !== false && $service_usage['unused_amount'] > 0 ) {
         // Get the unused amount and make it the refund amount.
@@ -595,8 +605,8 @@ function sw_auto_renew_services() {
 		$service_name = $service->getServiceName();
 		$product_id   = $service->getProductId();
 
-		// Check the status of the service using the sw_service_status function
-		$service_status = sw_service_status( $service_id );
+		// Check the status of the service using the smartwoo_service_status function
+		$service_status = smartwoo_service_status( $service_id );
 
 		// Check if the service is 'Due for Renewal'
 		if ( $service_status === 'Due for Renewal' ) {
@@ -646,8 +656,8 @@ function sw_manual_service_renewal() {
 				wp_die( 'Error: Service does not exist.' );
 			}
 
-			// Check the status of the service using the sw_service_status function
-			$service_status = sw_service_status( $service_id );
+			// Check the status of the service using the smartwoo_service_status function
+			$service_status = smartwoo_service_status( $service_id );
 
 			// Check if the service is 'Due for Renewal'
 			if ( $service_status === 'Due for Renewal' || $service_status === 'Expired' || $service_status === 'Grace Period' ) {

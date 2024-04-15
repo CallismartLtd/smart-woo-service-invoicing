@@ -82,7 +82,7 @@ use inline CSS to overide some styles
 .dashboard-list-container {
 	display: inline-block;
 	vertical-align: top;
-	width: calc(33.33% - 20px); /* Adjust width and consider margin */
+	width: 45%; /* Adjust width and consider margin */
 	margin: 0 10px; /* Add horizontal margin for spacing */
 	padding: 20px; /* Add padding to create space within the boxes */
 
@@ -91,12 +91,15 @@ use inline CSS to overide some styles
 
 .dashboard-list-card {
 	background-color: #ffffff;
-	border: 1px solid #918d8d;
+	border-radius: 9px;
 	text-align: center;
 	min-height: 200px;
 	width: 100%;
 	margin-bottom: 20px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+}
+.dashboard-list-card h2 {
+	padding-top: 20px;
 }
 
 .dashboard-list-card:hover {
@@ -107,24 +110,40 @@ use inline CSS to overide some styles
 /* Style the list items */
 .dashboard-list-card ul {
 	list-style: none;
-	padding: 0;
+	padding: 10px;
+	width: 100%;
+
 }
 
 .dashboard-list-card li {
 	margin-bottom: 10px;
+	padding-right: 10px;
+	text-align: left;
 }
-
 .dashboard-list-card a {
 	text-decoration: none;
 	color: #2271b1;
 	transition: color 0.2s;
-	font-size: 16px;
+	font-size: 14px;
 }
 
 .dashboard-list-card a:hover {
-	color: #000000;
+	background-color: #683c02;
+	color: #ffffff;
+	border-radius: 9px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
+@media (max-width: 480px){
 
+	.dashboard-container{
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.dashboard-list-container{
+		width: 90%; /* Adjust width and consider margin */
+
+	}
+}
 /* Style for the title in each card */
 .dashboard-card h2 {
 	font-size: 18px;
@@ -920,6 +939,7 @@ use inline CSS to overide some styles
 .serv-details-card {
 	padding: 20px;
 	align-items: center;
+	border-radius: 9px;
 	margin: 20px auto;
 	width: 70%;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);

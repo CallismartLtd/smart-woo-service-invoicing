@@ -30,7 +30,6 @@ function sw_service_cron_intervals_5_hours( $schedules ) {
 }
 add_filter( 'cron_schedules', 'sw_service_cron_intervals_5_hours' );
 
-
 /**
  * Schedule the auto-renewal event.
  *
@@ -45,9 +44,6 @@ function schedule_auto_renewal_event() {
 	}
 }
 add_action( 'wp', 'schedule_auto_renewal_event' );
-
-
-
 
 /**
  * Define a custom cron interval for every 5 minutes.
@@ -69,8 +65,6 @@ function sw_service_cron_intervals_5_minutes( $schedules ) {
 }
 add_filter( 'cron_schedules', 'sw_service_cron_intervals_5_minutes' );
 
-
-
 /**
  * Schedule a cron job to auto-update paid services using the 5-minute interval.
  */
@@ -82,8 +76,6 @@ function sw_schedule_five_minutes_task() {
 	}
 }
 add_action( 'wp', 'sw_schedule_five_minutes_task' );
-
-
 
 /**
  * Define a custom cron interval for once a day.
@@ -106,9 +98,6 @@ function sw_service_cron_intervals_once_per_day( $schedules ) {
 }
 add_filter( 'cron_schedules', 'sw_service_cron_intervals_once_per_day' );
 
-
-
-
 /**
  * Schedule daily service suspension email.
  *
@@ -120,9 +109,6 @@ function sw_daily_task_schedule() {
 	}
 }
 add_action( 'wp', 'sw_daily_task_schedule' );
-
-
-
 
 /**
  * Define a cron interval for once every two days.
@@ -141,7 +127,6 @@ function sw_service_cron_intervals_once_every_two_days( $schedules ) {
 }
 add_filter( 'cron_schedules', 'sw_service_cron_intervals_once_every_two_days' );
 
-
 /**
  * Schedule payment reminders to run once every two days.
  */
@@ -154,7 +139,6 @@ function sw_schedule_once_in_two_days_task() {
 }
 add_action( 'wp', 'sw_schedule_once_in_two_days_task' );
 
-
 /**
  * Schedule daily service renewals process.
  */
@@ -164,8 +148,6 @@ function schedule_service_renewals_cron() {
 	}
 }
 add_action( 'wp', 'schedule_service_renewals_cron' );
-
-
 
 /**
  * Define a cron interval for 12 hours.
@@ -193,10 +175,6 @@ function schedule_twice_daily_task() {
 	}
 }
 add_action( 'wp', 'schedule_twice_daily_task' );
-
-
-
-
 
 /**
  * Schedule pending refund services to process every two days.

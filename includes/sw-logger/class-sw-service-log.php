@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Class SW_Service_Log
@@ -251,6 +251,47 @@ class Sw_Service_Log {
         }
 
         return $renewal_log;
+    }
+
+    /**
+     * Render log data for a given log ID in HTML output.
+     *
+     * @since 1.0.1
+     * @param string $log_id The log ID for which to render data.
+     * @return string HTML representation of the log data.
+     */
+    public static function render_log_html_output( $log_id ) {
+        $logs = self::get_logs_by_criteria( 'service_id', $log_id );
+        
+        $output = '<div class="serv-details-card">';
+
+        if ( empty( $logs ) ) {
+           $output .= smartwoo_notice( 'All Logged service data will appear here.' );
+           $output .= '</div>';
+
+           return $output;
+        }
+            $output .= '<h3>Service Logs</h3>';
+
+        foreach ( $logs as $log ) {
+            $output .= '<p class="smartwoo-container-item"><span> Log ID:</span>' . esc_html( $log->getServiceId() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Type:</span>' . esc_html( $log->getLogType() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Details:</span>' . esc_html( $log->getDetails() ) . '</p>';
+            if ( is_admin() ) {
+                $output .= '<p class="smartwoo-container-item"><span> Internal Note:</span>' . esc_html( $log->getNote() ) . '</p>';
+            }
+            $output .= '<p class="smartwoo-container-item"><span> Date Created:</span>' . esc_html( smartwoo_check_and_format( $log->getDateCreated(), true ) ) . '</p>';
+            if ( ! empty( $log->getDateUpdated() ) ) {
+                $output .= '<p class="smartwoo-container-item"><span> Last Updated:</span>' . esc_html( smartwoo_check_and_format( $log->getDateUpdated(), true ) ) . '</p>';
+            }
+                $output .= '<hr>';
+            $output .= '<hr>';
+
+        }
+
+        $output .= '</div>';
+
+        return $output;
     }
 
 

@@ -8,6 +8,7 @@
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
+
 /**
  * Main plugin admin page controller callback.
  */
@@ -98,7 +99,7 @@ function smartwoo_products_page() {
 
 	smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' );
 
-	// Handle different actions
+	// Handle different actions.
 	switch ( $action ) {
 		case 'add-new':
 			smartwoo_new_product_form();
@@ -212,4 +213,4 @@ function smartwoo_register_page_states( $post_states, $post ) {
 
 	return $post_states;
 }
-add_filter( 'display_post_states', 'smartwoo_register_page_states', 10, 2 );
+add_filter( 'display_post_states', 'smartwoo_register_page_states', 30, 2 );

@@ -49,6 +49,7 @@ function smartwoo_admin_view_service_details() {
 
 		case 'logs':
 			$page_html .= '<h2>Service Logs</h2>';
+			$page_html .= Sw_Service_log::render_log_html_output( $service_id );
 			$page_html .= Sw_Invoice_log::render_log_html_output( $service_id);
 			break;
 		
@@ -94,10 +95,10 @@ function smartwoo_admin_show_customer_details( Sw_Service $service ) {
 	$page_html .= '<div class="user-service-card">';
 	$page_html .= '<h2>Full Name</h2>';
 	$page_html .= '<p><h3><a style="text-decoration: none;" href="' . esc_url( get_edit_user_link( $user_id ) ) . '">' . esc_html( $customer_name ) . '</a></h3></p>';
-	$page_html .= '<p class="smartwoo-container-item"><span>ID:</span>' . esc_html( $user_id ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span>User ID:</span>' . esc_html( $user_id ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Email Address:</span>' . esc_html( $customer_email ) . '</p>';
-	$page_html .= '<p class="smartwoo-container-item"><span> Billing Address:</span>' . esc_html( $billing_address ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Phone Number:</span>' . esc_html( $customer_phone ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span> Billing Address:</span>' . esc_html( $billing_address ) . '</p>';
 	$page_html .= '</div>';
 	$page_html .= '</div>';
 	
@@ -115,7 +116,7 @@ function smartwoo_show_admin_service_details( Sw_Service $service ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
 	}
 
-	$service_status		= sw_service_status( $service->getServiceId() );
+	$service_status		= smartwoo_service_status( $service->getServiceId() );
 	$product_id			= $service->getProductId();
 	$product			= wc_get_product( $product_id );
 	$product_name		= $product ? $product->get_name() : 'Product Name Not Found';
@@ -240,7 +241,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Active' === $service_status ) {
 				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
@@ -270,7 +271,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Active (NR)' === $service_status ) {
 				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
@@ -300,7 +301,7 @@ function smartwoo_dashboard_page() {
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
 
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Due for Renewal' === $service_status ) {
 				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
@@ -329,7 +330,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Grace Period' === $service_status ) {
 				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
@@ -357,7 +358,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Cancelled' === $service_status ) {
 				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&servicetype=cancelled' );
@@ -385,7 +386,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Expired' === $service_status ) {
 				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
@@ -413,7 +414,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Suspended' === $service_status ) {
 				$view_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
@@ -441,7 +442,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = sw_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Pending' === $service_status ) {
 				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );

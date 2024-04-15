@@ -27,7 +27,7 @@ function smartwoo_check_and_format( $dateString, $includeTime = false ) {
  * @param string $dateTimeString The date and time string.
  * @return string The extracted date in 'Y-m-d' format.
  */
-function smartwoo_extract_only_date( string $datetimestring ) {
+function smartwoo_extract_only_date( $datetimestring ) {
 	// Explicitly cast $datetimestring to a string
 	$datetimestring = (string) $datetimestring;
 
@@ -73,7 +73,7 @@ function smartwoo_is_prorate() {
 }
 
 /**
- * Log data into the database
+ * Log invoice data into the database
  *
  * @param string    $log_id        ID to stamp the log
  * @param string    $log_type      The type of log

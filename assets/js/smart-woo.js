@@ -129,12 +129,13 @@ document.addEventListener( 'DOMContentLoaded', function() {
     if ( quickActionButton ) {
         quickActionButton.addEventListener( 'click', function() {
             var serviceName = quickActionButton.dataset.serviceName;
-            openCancelServiceDialog( serviceName );
+            var serviceId   = quickActionButton.dataset.serviceId;
+            openCancelServiceDialog( serviceName, serviceId );
         });
     }
 });
 
-function openCancelServiceDialog( serviceName ) {
+function openCancelServiceDialog( serviceName, serviceId ) {
     var confirmationMessage = 'You can either opt out of automatic renewal of ' + serviceName + ' by typing "cancel billing" or opt out of this service by typing "cancel service". This action cannot be reversed. Please note: our refund and returns policy will apply either way.' +
         '\n\nPlease enter your choice:' +
         '\nType "cancel service" to cancel the service' +
@@ -152,9 +153,30 @@ function openCancelServiceDialog( serviceName ) {
         }
 
         if ( selectedAction !== null ) {
-            // Update the URL with the selected action
-            var newUrl = updateQueryStringParameter( window.location.href, 'action', selectedAction );
-            window.location.href = newUrl;
+			showLoadingIndicator();
+
+			// AJAX request to post service cancellation
+			jQuery.ajax({
+				type: 'POST',
+				url: smart_woo_vars.ajax_url,
+				data: {
+					action: 'smartwoo_cancel_or_optout',
+					security: smart_woo_vars.security,
+					service_id: serviceId,
+					selected_action: selectedAction // Include selectedAction here
+				},
+				success: function () {
+					// Animate the text change
+					jQuery('#sw-service-quick-action').fadeIn('fast', function() {
+						jQuery(this).text('Done!').slideDown('fast');
+					});
+					location.reload();
+				},
+				complete: function () {
+					hideLoadingIndicator();
+				}
+			});
+			
         } else {
             // Show an error message
             alert( 'Oops! you mis-typed it. Please type "cancel service" or "cancel billing" as instructed.' );
@@ -405,27 +427,27 @@ document.addEventListener( 'DOMContentLoaded', function() {
  * 
  */
 function loadAccountLogs() {
-		// Show loading indicator
-		showLoadingIndicator();
+	// Show loading indicator
+	showLoadingIndicator();
 
-		// AJAX request to load Account Logs content
-		jQuery.ajax(
-			{
-				type: 'POST',
-				url: smart_woo_vars.ajax_url,
-				data: {
-					action: 'load_account_logs',
-					security: smart_woo_vars.security
-				},
-				success: function (response) {
-					jQuery( '#ajax-content-container' ).html( response );
-				},
-				complete: function () {
-					// Hide loading indicator after AJAX request is complete
-					hideLoadingIndicator();
-				}
+	// AJAX request to load Account Logs content
+	jQuery.ajax(
+		{
+			type: 'POST',
+			url: smart_woo_vars.ajax_url,
+			data: {
+				action: 'load_account_logs',
+				security: smart_woo_vars.security
+			},
+			success: function (response) {
+				jQuery( '#ajax-content-container' ).html( response );
+			},
+			complete: function () {
+				// Hide loading indicator after AJAX request is complete
+				hideLoadingIndicator();
 			}
-		);
+		}
+	);
 }
 
 /**

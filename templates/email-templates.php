@@ -16,7 +16,7 @@
  * @param int    $user_id    The ID of the service owner
  * @param string $service_id The ID of the cancelled service
  */
-function sw_user_service_cancelled_mail( $user_id, $service_id ) {
+function smartwoo_user_service_cancelled_mail( $user_id, $service_id ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_cancellation_mail_to_user', 0 );
 	if ( $mail_is_enabled ) {
@@ -98,7 +98,7 @@ function sw_user_service_cancelled_mail( $user_id, $service_id ) {
  * @param int    $user_id    The ID of the user who opted out
  * @param string $service_id The ID of the service
  */
-function sw_user_service_optout( $user_id, $service_id ) {
+function smartwoo_user_service_optout_mail( $user_id, $service_id ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_service_opt_out_mail', 0 );
 	if ( $mail_is_enabled ) {
@@ -167,7 +167,7 @@ function sw_user_service_optout( $user_id, $service_id ) {
  * @param int    $user_id    The ID of the user who cancelled the service
  * @param string $service_id The ID of the cancelled service
  */
-function sw_service_cancelled_mail_to_admin( $service_id ) {
+function smartwoo_service_cancelled_mail_to_admin( $service_id ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_service_cancellation_mail_to_admin', 0 );
 	if ( $mail_is_enabled ) {
@@ -640,7 +640,7 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
 		// Service Details
 		$service_name        = $service->getServiceName();
 		$service_id          = $service->getServiceId();
-		$status              = sw_service_status( $service_id );
+		$status              = smartwoo_service_status( $service_id );
 		$service_action_text = ( $status === 'Due for Renewal' || $status === 'Grace Period' ) ? 'renewal' : 'reactivation';
 
 		// Generate the payment link

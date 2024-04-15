@@ -7,6 +7,7 @@
  * URL assoiciated with a service, this is useful in situations where you want to take certain actions
  * based on the status of a user's service subscription.
  * In subsequent updates, there will be lot's of improvements and customizations to allow for custom webhooks.
+ * @package SmartWooAPIs.
  */
 
  defined( 'ABSPATH' ) || exit; // Prevent direct access
@@ -18,25 +19,27 @@
  *
  * @param object $service SW_Service object
  */
-function sw_deactivate_this_service( Sw_Service $service ) {
+function smartwoo_deactivate_this_service( Sw_Service $service ) {
+	$api_is_enabled = get_option( 'smartwoo_enable_api_feature', 0 );
 
-	// Check if the function is called correctly and service type
+	if ( ! $api_is_enabled ) {
+		return;
+	}
+
 	if ( ! empty( $service ) && $service->getServiceType() === 'Web Service' ) {
 
 		// Construct the URL to disable the website
 		$service_url = $service->getServiceUrl();
 		$service_id  = $service->getServiceId();
-		$status      = sw_service_status( $service_id );
+		$status      = smartwoo_service_status( $service_id );
 
-		// Confirm that Service is truly Not active
+		// Confirm that Service is truly Not active.
 		if ( $status !== 'Active' || $status !== 'Due for Renewal' || $status !== 'Grace Period' ) {
 
-			// Construct the remote URL
 			$remote_url = $service_url . '?serviceid=' . urlencode( $service_id ) . '&status=Expired';
-			// Use WordPress HTTP API to perform the GET request
-			$response = wp_remote_get( $remote_url );
+			$response 	= wp_remote_get( $remote_url );
 
-			// Log the HTTP status code
+			// Log the HTTP status code.
 			$http_status = wp_remote_retrieve_response_code( $response );
 			error_log( 'HTTP Status Code when deactivating ' . $service_id . '= ' . $http_status );
 
@@ -49,7 +52,7 @@ function sw_deactivate_this_service( Sw_Service $service ) {
 	}
 }
 // Hook into service cancellation action
-add_action( 'sw_service_deactivated', 'sw_deactivate_this_service' );
+add_action( 'smartwoo_service_deactivated', 'smartwoo_deactivate_this_service' );
 
 
 /**
@@ -58,12 +61,17 @@ add_action( 'sw_service_deactivated', 'sw_deactivate_this_service' );
  * Find out more about our Service Manager Must use plugin https://callismart.com.ng/service-manager
  */
 function check_and_disable_all_expired_services() {
-	// Get all services
+	$api_is_enabled = get_option( 'smartwoo_enable_api_feature', 0 );
+
+	if ( ! $api_is_enabled ) {
+		return;
+	}
+	
 	$services = Sw_Service_Database::get_all_services();
 
 	foreach ( $services as $service ) {
 		// Check if the service status is 'Expired' or 'Suspended'
-		$service_status = sw_service_status( $service->getServiceId() );
+		$service_status = smartwoo_service_status( $service->getServiceId() );
 
 		if ( $service_status === 'Expired' || $service_status === 'Suspended' || $service_status === 'Cancelled' ) {
 			// Construct the URL to disable the website
@@ -96,9 +104,15 @@ add_action( 'sw_twice_daily_task', 'check_and_disable_all_expired_services' );
  * @param object $service SW_Service object
  */
 function check_and_activate_paid_service( Sw_Service $service ) {
+	$api_is_enabled = get_option( 'smartwoo_enable_api_feature', 0 );
+
+	if ( ! $api_is_enabled ) {
+		return;
+	}
+
 	if ( ! empty( $service ) && $service->getServiceType() === 'Web Service' ) {
 		// Get service status
-		$service_status = sw_service_status( $service->getServiceId() );
+		$service_status = smartwoo_service_status( $service->getServiceId() );
 
 		// Make sure service is active
 		if ( $service_status === 'Active' ) {

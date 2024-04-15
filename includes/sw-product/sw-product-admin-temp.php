@@ -1,49 +1,47 @@
 <?php
-// phpcs:ignoreFile
-
 /**
  * File name    :   sw-product-admin-temp.php
  *
  * @author      :   Callistus
+ * @package SmartWooTemplates
  * Description  :   Admin Template file
  */
 
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
-// Function to display the form for adding a new product
-function smartwoo_new_product_form() {
+/**
+ * Function to display the form for adding a new product
+ * @param bool $echo Whether or not to print to screen
+ */
+function smartwoo_new_product_form( $echo = true ) {
 
-	$page_html = '<div class="wrap"><h2>Add New Service Product</h2>';
+	$form_html = '<div class="wrap"><h2>Add New Service Product</h2>';
 
 	smartwoo_process_new_product();
 
-	echo '<div class="sw-form-container">';
-	echo '<form method="post" action="" enctype="multipart/form-data" class="sw-product-form-class">';
-
-	// Add nonce for added security
-	wp_nonce_field( 'sw_add_new_product_nonce', 'sw_add_new_product_nonce' );
-
-	// Product Name
-	echo '<div class="sw-form-row">';
-	echo '<label for="product_name" class="sw-form-label">Product Name</label>';
-	echo '<span class="sw-field-description" title="Enter Product Name">?</span>';
-	echo '<input type="text" name="product_name" class="sw-form-input" required>';
-	echo '</div>';
-
-	// Product Price
-	echo '<div class="sw-form-row">';
-	echo '<label for="product_price" class="sw-form-label">Product Price</label>';
-	echo '<span class="sw-field-description" title="Enter Product Price">?</span>';
-	echo '<input type="number" name="product_price" class="sw-form-input" step="0.01" required>';
-	echo '</div>';
-
-	// Sign-Up Fee
-	echo '<div class="sw-form-row">';
-	echo '<label for="sign_up_fee" class="sw-form-label">Sign-Up Fee:</label>';
-	echo '<span class="sw-field-description" title="Charge Sign-up fee (optional)">?</span>';
-	echo '<input type="number" name="sign_up_fee" class="sw-form-input" step="0.01">';
-	echo '</div>';
-
-	// Short Description
+	$form_html .= '<div class="sw-form-container">';
+	$form_html .= '<form method="post" action="" enctype="multipart/form-data" class="sw-product-form-class">';
+	// Add nonce for added security.
+	$form_html .= wp_nonce_field( 'sw_add_new_product_nonce', 'sw_add_new_product_nonce' );
+	// Product Name.
+	$form_html .= '<div class="sw-form-row">';
+	$form_html .= '<label for="product_name" class="sw-form-label">Product Name</label>';
+	$form_html .= '<span class="sw-field-description" title="Enter Product Name">?</span>';
+	$form_html .= '<input type="text" name="product_name" class="sw-form-input" required>';
+	$form_html .= '</div>';
+	// Product Price.
+	$form_html .= '<div class="sw-form-row">';
+	$form_html .= '<label for="product_price" class="sw-form-label">Product Price</label>';
+	$form_html .= '<span class="sw-field-description" title="Enter Product Price">?</span>';
+	$form_html .= '<input type="number" name="product_price" class="sw-form-input" step="0.01" required>';
+	$form_html .= '</div>';
+	// Sign-Up Fee.
+	$form_html .= '<div class="sw-form-row">';
+	$form_html .= '<label for="sign_up_fee" class="sw-form-label">Sign-Up Fee:</label>';
+	$form_html .= '<span class="sw-field-description" title="Charge Sign-up fee (optional)">?</span>';
+	$form_html .= '<input type="number" name="sign_up_fee" class="sw-form-input" step="0.01">';
+	$form_html .= '</div>';
+	// Short Description.
 	ob_start();
 	?>
 	<div class="sw-form-row">
@@ -73,38 +71,35 @@ function smartwoo_new_product_form() {
 		?>
 	</div>
 	<?php
-	echo ob_get_clean();
-
-	// Billing Circle
-	echo '<div class="sw-form-row">';
-	echo '<label for="billing_cycle" class="sw-form-label">Billing Circle:</label>';
-	echo '<span class="sw-field-description" title="Set a default billing circle">?</span>';
-	echo '<select name="billing_cycle" class="sw-form-input">
+	$form_html .= ob_get_clean();
+	// Billing Circle.
+	$form_html .= '<div class="sw-form-row">';
+	$form_html .= '<label for="billing_cycle" class="sw-form-label">Billing Circle:</label>';
+	$form_html .= '<span class="sw-field-description" title="Set a default billing circle">?</span>';
+	$form_html .= '<select name="billing_cycle" class="sw-form-input">
     <option value="" selected>Select Billing Cycle</option>
     <option value="Monthly">Monthly</option>
     <option value="Quarterly">Quarterly</option>
     <option value="Six Monthtly">Six Monthtly</option>
     <option value="Yearly">Yearly</option>
     </select>';
-	echo '</div>';
-
-	// Grace Period
-	echo '<div class="sw-form-row">';
-	echo '<label for="grace_period_number" class="sw-form-label">Grace Period</label>';
-	echo '<div class="sw-form-input">';
-	echo '<p class="description-class">A Service with this product expires after</p>';
-	echo '<input type="number" name="grace_period_number" class="grace-period-number" min="1" >';
-	echo '<select name="grace_period_unit" class="select-grace period-unit">
-            <option value="">Select Grace Period</option>
-            <option value="days">Days</option>
-            <option value="weeks">Weeks</option>
-            <option value="months">Months</option>
-            <option value="years">Years</option>
-        </select>';
-	echo '</div>'; // Close the container
-	echo '</div>';
-
-	// Long Description
+	$form_html .= '</div>';
+	// Grace Period.
+	$form_html .= '<div class="sw-form-row">';
+	$form_html .= '<label for="grace_period_number" class="sw-form-label">Grace Period</label>';
+	$form_html .= '<div class="sw-form-input">';
+	$form_html .= '<p class="description-class">A Service with this product expires after</p>';
+	$form_html .= '<input type="number" name="grace_period_number" class="grace-period-number" min="1" >';
+	$form_html .= '<select name="grace_period_unit" class="select-grace period-unit">
+				<option value="">Select Grace Period</option>
+				<option value="days">Days</option>
+				<option value="weeks">Weeks</option>
+				<option value="months">Months</option>
+				<option value="years">Years</option>
+				</select>';
+	$form_html .= '</div>'; // Close the container
+	$form_html .= '</div>';
+	// Long Description.
 	ob_start();
 	?>
 	<div class="sw-form-row">
@@ -134,22 +129,27 @@ function smartwoo_new_product_form() {
 		?>
 	</div>
 	<?php
-	echo ob_get_clean();
+	$form_html .= ob_get_clean();
+	// Product Image.
+	$form_html .= '<div class="sw-form-row">';
+	$form_html .= '<label for="product_image" class="sw-form-label">Product Image</label>';
+	$form_html .= '<div class="sw-form-input">';
+	$form_html .= '<input type="hidden" name="product_image_id" id="product_image_id" value="" class="sw-form-input">';
+	$form_html .= '<div id="image_preview" class="sw-form-image-preview"></div>';
+	$form_html .= '<input type="button" id="upload_image_button" class="sw-red-button" value="Upload Image">';
+	$form_html .= '</div>';
+	$form_html .= '</div>';
+	$form_html .= '<input type="submit" name="create_sw_product" value="Create Product" class="sw-blue-button">';
+	$form_html .= '</form></div></div>';
 
-	// Product Image
-	echo '<div class="sw-form-row">';
-	echo '<label for="product_image" class="sw-form-label">Product Image</label>';
-	echo '<div class="sw-form-input">';
-	echo '<input type="hidden" name="product_image_id" id="product_image_id" value="" class="sw-form-input">';
-	echo '<div id="image_preview" class="sw-form-image-preview"></div>';
-	echo '<input type="button" id="upload_image_button" class="sw-red-button" value="Upload Image">';
-	echo '</div>';
-	echo '</div>';
-
-	echo '<input type="submit" name="create_sw_product" value="Create Product" class="sw-blue-button">';
-	echo '</form></div></div>';
+	if ( true === $echo ) {
+	/**
+	 * We need to render the content of this function since wp_editor cannot be run through escaping function.
+	 */
+		echo $form_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+	return $form_html;
 }
-
 
 /**
  * Display the edit form for sw_service product.
@@ -239,7 +239,7 @@ function smartwoo_product_edit_form( $echo = true) {
 			<option value="Six Monthly" ' . selected( 'Six Monthly', $product_data->get_billing_cycle(), false ) . '>Six Monthtly</option>
 			<option value="Yearly" ' . selected( 'Yearly', $product_data->get_billing_cycle(), false ) . '>Yearly</option>
 	</select></div>';
-	// Grace Period
+	// Grace Period.
 	$page_html .= '<div class="sw-form-row">';
 	$page_html .= '<label for="grace_period_number" class="sw-form-label">Grace Period</label>';
 	$page_html .= '<div class="sw-form-input">';
@@ -254,7 +254,7 @@ function smartwoo_product_edit_form( $echo = true) {
 	$page_html .= '</select>';
 	$page_html .= '</div>';
 	$page_html .= '</div>';
-	// Description
+	// Description.
 	$page_html .= '<div class="sw-form-row">';
 	$page_html .= '<label for="long_description" class="sw-form-label">Long Description:</label>';
 	$page_html .= '<span class="sw-field-description" title="Enter detailed description for product">?</span>';
@@ -281,7 +281,7 @@ function smartwoo_product_edit_form( $echo = true) {
 		);
 	$page_html .= ob_get_clean();
 	$page_html .= '</div>';
-	// Product Image
+	// Product Image.
 	$page_html .= '<div class="sw-form-row">';
 	$page_html .= '<label for="product_image" class="sw-form-label">Product Image</label>';
 	$page_html .= '<div class="sw-form-input">';
@@ -353,4 +353,3 @@ function smartwoo_product_table() {
 
 	return $page_html;
 }
-

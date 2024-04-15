@@ -47,7 +47,7 @@ function sw_service_API_responder() {
 
 				// Check authentication and service details
 				if ( $user_id !== 0 && $service !== false && $user_id === $service->getUserId() ) {
-					$status = sw_service_status( $service_id );
+					$status = smartwoo_service_status( $service_id );
 
 					// Prepare the response with status and service details
 					$response = array(

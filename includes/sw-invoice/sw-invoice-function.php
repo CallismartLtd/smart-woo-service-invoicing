@@ -528,7 +528,7 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
 
 	$invoice_page = get_option( 'smartwoo_invoice_page_id', 0 );
 	$invoice_page_url = esc_url( get_permalink( $invoice_page ) );
-	return esc_url( $invoice_page_url .'?invoice_page=view_invoice&invoice_id=' . $invoice_id );
+	return esc_url_raw( $invoice_page_url .'?invoice_page=view_invoice&invoice_id=' . $invoice_id );
 }
 
 /**

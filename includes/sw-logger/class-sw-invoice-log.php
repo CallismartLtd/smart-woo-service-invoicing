@@ -288,25 +288,25 @@ class Sw_Invoice_log {
         $output = '<div class="serv-details-card">';
 
         if ( empty( $logs ) ) {
-           $output .= smartwoo_notice( 'All Logged data will appear here.' );
+           $output .= smartwoo_notice( 'All Logged invoice data will appear here.' );
            $output .= '</div>';
 
            return $output;
         }
-            $output .= '<h3> Logged Info</h3>';
+            $output .= '<h3>Invoice Logs</h3>';
 
         foreach ( $logs as $log ) {
             $output .= '<p class="smartwoo-container-item"><span> Log ID:</span>' . esc_html( $log->getLogId() ) . '</p>';
             $output .= '<p class="smartwoo-container-item"><span> Log Type:</span>' . esc_html( $log->getLogType() ) . '</p>';
-            $output .= '<p class="smartwoo-container-item"><span> Log Amount:</span>' . get_woocommerce_currency_symbol() . esc_html( $log->getAmount() ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Log Amount:</span>' . wc_price( $log->getAmount() ) . '</p>';
             $output .= '<p class="smartwoo-container-item"><span> Log Status:</span>' . esc_html( $log->getStatus() ) . '</p>';
             $output .= '<p class="smartwoo-container-item"><span> Log Details:</span>' . esc_html( $log->getDetails() ) . '</p>';
             if ( is_admin() ) {
                 $output .= '<p class="smartwoo-container-item"><span> Internal Note:</span>' . esc_html( $log->getNote() ) . '</p>';
             }
-            $output .= '<p class="smartwoo-container-item"><span> Date Created:</span>' . esc_html( smartwoo_check_and_format( $log->getDateCreated() ) ) . '</p>';
+            $output .= '<p class="smartwoo-container-item"><span> Date Created:</span>' . esc_html( smartwoo_check_and_format( $log->getDateCreated(), true ) ) . '</p>';
             if ( ! empty( $log->getDateUpdated() ) ) {
-                $output .= '<p class="smartwoo-container-item"><span> Last Updated:</span>' . esc_html( smartwoo_check_and_format( $log->getDateUpdated() ) ) . '</p>';
+                $output .= '<p class="smartwoo-container-item"><span> Last Updated:</span>' . esc_html( smartwoo_check_and_format( $log->getDateUpdated(), true ) ) . '</p>';
             }
                 $output .= '<hr>';
             $output .= '<hr>';
