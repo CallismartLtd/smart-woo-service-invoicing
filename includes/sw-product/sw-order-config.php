@@ -23,7 +23,7 @@ function sw_configure_button_on_single_product() {
 
 		// Display the "Configure Product" button
 		echo '<div class="configure-product-button">';
-		echo '<a href="' . home_url( '/configure/' . $product->get_id() ) . '" class="sw-blue-button alt">' . esc_html__( 'Configure Product', 'woocommerce' ) . '</a>';
+		echo '<a href="' . esc_attr( home_url( '/configure/' . $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html__( 'Configure Product', 'woocommerce' ) . '</a>';
 		echo '</div>';
 	}
 }

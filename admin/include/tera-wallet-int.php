@@ -6,10 +6,10 @@
  * Description  :   Integration of Tera Wallet plugin for invoice payment and refunds
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 // Hook to run the process_service_renewals function when the cron event is triggered
-add_action( 'process_service_renewals_event', 'sw_pay_invoice_through_woo_wallet' );
+add_action( 'smartwoo_daily_task', 'sw_pay_invoice_through_woo_wallet' );
 
 
 /**
@@ -53,7 +53,7 @@ function sw_pay_invoice_through_woo_wallet() {
 				// Invoice will be updated after the order is paid or completed
 				// Log Payment successful
 				$note    = 'The invoice with this ID was paid via tera wallet.';
-				smart_woo_log( $invoice_id, 'Debit', 'Completed', $details, $invoice_total, $note );
+				smartwoo_invoice_log( $invoice_id, 'Debit', 'Completed', $details, $invoice_total, $note );
 			}
 
 		}

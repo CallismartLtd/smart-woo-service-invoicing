@@ -164,8 +164,9 @@ class Sw_Invoice_log {
             '%s' // Date Updated
         );
 
-        // Insert data into the database
+        // phpcs:disable
         $result = $wpdb->insert( $table_name, $data, $data_format );
+        // phpcs:enable
 
         // Return the newly logged data
         return $result ? $result > 0 : false;
@@ -208,8 +209,9 @@ class Sw_Invoice_log {
             '%s', // Log ID
         );
 
-        // Update data in the database
+        // phpcs:disable
         $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
+        // phpcs:enable
 
         // Return the updated log data
         return $log;
@@ -227,6 +229,7 @@ class Sw_Invoice_log {
     public static function get_logs_by_criteria( $criteria, $value, bool $get_row = false ) {
         global $wpdb;
         $table_name = SW_INVOICE_LOG_TABLE;
+        // phpcs:disable
         $query   = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
         if ( true === $get_row ) {
 
@@ -236,6 +239,7 @@ class Sw_Invoice_log {
         } elseif ( false === $get_row ) {
             $results = $wpdb->get_results( $query, ARRAY_A );
         }
+        // phpcs:enable
         
         if ( $results === null ) {
             // Handle database query failure
@@ -271,8 +275,9 @@ class Sw_Invoice_log {
             '%s',
         );
 
-        // Delete logs by log_id
+        // phpcs:disable
         $wpdb->delete( $table_name, $where, array( $log_id ), $where_format );
+        // phpcs:enable
     }
 
     /**

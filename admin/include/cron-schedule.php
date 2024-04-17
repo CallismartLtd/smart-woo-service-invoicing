@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access
 
 /**
  * Define a Smart Woo cron interval for every 5 hours.
@@ -18,32 +18,29 @@
  * @param array $schedules Existing array of cron schedules.
  * @return array Modified array with the new Smart Woo cron interval.
  */
-function sw_service_cron_intervals_5_hours( $schedules ) {
-	// Add a new cron schedule interval for every 5 hours.
-	$schedules['sw_5_hours'] = array(
-		'interval' => 5 * 60 * 60, // 5 hours in seconds
-		'display'  => __( 'Smart Woo Every 5 Hours', 'smart-woo-invoice-invoice-invoice' ),
+function smartwoo_5hr_cron( $schedules ) {
+	$schedules['smartwoo_5_hours'] = array(
+		'interval' => 5 * 60 * 60,
+		'display'  => __( 'SmartWoo Every 5 Hours', 'smart-woo-service-invoicing' ),
 	);
 
-	// Return the modified array of cron schedules.
 	return $schedules;
 }
-add_filter( 'cron_schedules', 'sw_service_cron_intervals_5_hours' );
+add_filter( 'cron_schedules', 'smartwoo_5hr_cron' );
 
 /**
  * Schedule the auto-renewal event.
  *
- * This function checks if the 'auto_renew_services_event' is not already scheduled
- * and schedules it to run every 5 hours using the 'sw_5_hours' cron interval.
+ * This function checks if the 'smartwoo_auto_service_renewal' is not already scheduled
+ * and schedules it to run every 5 hours using the 'smartwoo_5_hours' cron interval.
  */
-function schedule_auto_renewal_event() {
-	// Check if the 'auto_renew_services_event' is not already scheduled.
-	if ( ! wp_next_scheduled( 'auto_renew_services_event' ) ) {
-		// Schedule the event to run every 5 hours.
-		wp_schedule_event( current_time( 'timestamp' ), 'sw_5_hours', 'auto_renew_services_event' );
+function smartwoo_renewal_scheduler() {
+
+	if ( ! wp_next_scheduled( 'smartwoo_auto_service_renewal' ) ) {
+		wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_auto_service_renewal' );
 	}
 }
-add_action( 'wp', 'schedule_auto_renewal_event' );
+add_action( 'wp', 'smartwoo_renewal_scheduler' );
 
 /**
  * Define a custom cron interval for every 5 minutes.
@@ -53,101 +50,90 @@ add_action( 'wp', 'schedule_auto_renewal_event' );
  * @param array $schedules Existing array of cron schedules.
  * @return array Modified array with the new Smart Woo cron interval.
  */
-function sw_service_cron_intervals_5_minutes( $schedules ) {
+function smartwoo_5mins_cron( $schedules ) {
 	// Add a new cron schedule interval for every 5 minutes.
-	$schedules['sw_5_minutes'] = array(
-		'interval' => 5 * 60, // 5 minutes in seconds
-		'display'  => __( 'Smart Woo Every 5 Minutes', 'smart-woo-invoice-invoice' ),
+	$schedules['smartwoo_5_minutes'] = array(
+		'interval' => 5 * 60,
+		'display'  => __( 'SmartWoo Every 5 Minutes', 'smart-woo-service-invoicing' ),
 	);
 
 	// Return the modified array of cron schedules.
 	return $schedules;
 }
-add_filter( 'cron_schedules', 'sw_service_cron_intervals_5_minutes' );
+add_filter( 'cron_schedules', 'smartwoo_5mins_cron' );
 
 /**
  * Schedule a cron job to auto-update paid services using the 5-minute interval.
  */
-function sw_schedule_five_minutes_task() {
+function smartwoo_5mins_task_scheduler() {
 	// Check if the event is not already scheduled.
-	if ( ! wp_next_scheduled( 'smart_woo_5_minutes_task' ) ) {
+	if ( ! wp_next_scheduled( 'smartwoo_5_minutes_task' ) ) {
 		// Schedule the event to run every 5 minutes.
-		wp_schedule_event( current_time( 'timestamp' ), 'sw_5_minutes', 'smart_woo_5_minutes_task' );
+		wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_minutes', 'smartwoo_5_minutes_task' );
 	}
 }
-add_action( 'wp', 'sw_schedule_five_minutes_task' );
+add_action( 'wp', 'smartwoo_5mins_task_scheduler' );
 
 /**
  * Define a custom cron interval for once a day.
  *
- * Adds a cron schedule interval named 'sw_once_per_day' for Smart Woo,
+ * Adds a cron schedule interval named 'smartwoo_daily' for Smart Woo,
  * running every 24 hours. Used to schedule events in WordPress.
  *
  * @param array $schedules Existing array of cron schedules.
  * @return array Modified array with the new Smart Woo cron interval.
  */
-function sw_service_cron_intervals_once_per_day( $schedules ) {
+function smartwoo_daily_cron( $schedules ) {
 	// Add a new cron schedule interval for once a day (every 24 hours).
-	$schedules['sw_once_per_day'] = array(
-		'interval' => 24 * 60 * 60, // 24 hours in seconds
-		'display'  => __( 'Smart Woo Once Per Day', 'smart-woo-invoice' ),
+	$schedules['smartwoo_daily'] = array(
+		'interval' => 24 * 60 * 60,
+		'display'  => __( 'SmartWoo Daily', 'smart-woo-service-invoicing' ),
 	);
 
 	// Return the modified array of cron schedules.
 	return $schedules;
 }
-add_filter( 'cron_schedules', 'sw_service_cron_intervals_once_per_day' );
+add_filter( 'cron_schedules', 'smartwoo_daily_cron' );
 
 /**
  * Schedule daily service suspension email.
  *
  * @param array $schedules Existing array of cron schedules.
  */
-function sw_daily_task_schedule() {
-	if ( ! wp_next_scheduled( 'smart_woo_daily_task' ) ) {
-		wp_schedule_event( current_time( 'timestamp' ), 'sw_once_per_day', 'smart_woo_daily_task' );
+function smartwoo_daily_task_scheduler() {
+	if ( ! wp_next_scheduled( 'smartwoo_daily_task' ) ) {
+		wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_daily', 'smartwoo_daily_task' );
 	}
 }
-add_action( 'wp', 'sw_daily_task_schedule' );
+add_action( 'wp', 'smartwoo_daily_task_scheduler' );
 
 /**
  * Define a cron interval for once every two days.
  *
  * @param array $schedules Existing array of cron schedules.
  */
-function sw_service_cron_intervals_once_every_two_days( $schedules ) {
+function smartwoo_once_two_days_cron( $schedules ) {
 	// Add a new cron schedule interval for once every two days (48 hours).
-	$schedules['sw_once_every_two_days'] = array(
-		'interval' => 2 * 24 * 60 * 60, // 48 hours in seconds
-		'display'  => __( 'Smart Woo Once Every Two Days', 'smart-woo-invoice' ),
+	$schedules['smartwoo_once_every_two_days'] = array(
+		'interval' => 2 * 24 * 60 * 60,
+		'display'  => __( 'SmartWoo Once Every Two Days', 'smart-woo-invoice' ),
 	);
 
-	// Return the modified array of cron schedules.
 	return $schedules;
 }
-add_filter( 'cron_schedules', 'sw_service_cron_intervals_once_every_two_days' );
+add_filter( 'cron_schedules', 'smartwoo_once_two_days_cron' );
 
 /**
  * Schedule payment reminders to run once every two days.
  */
-function sw_schedule_once_in_two_days_task() {
-	// Check if 'sw_once_in_two_days_task' is not already scheduled.
-	if ( ! wp_next_scheduled( 'sw_once_in_two_days_task' ) ) {
+function smartwoo_once_in48hr_scheduler() {
+	// Check if 'smartwoo_once_in48hrs_task' is not already scheduled.
+	if ( ! wp_next_scheduled( 'smartwoo_once_in48hrs_task' ) ) {
 		// Schedule the event to run once every two days.
-		wp_schedule_event( current_time( 'timestamp' ), 'sw_once_every_two_days', 'sw_once_in_two_days_task' );
+		wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_once_every_two_days', 'smartwoo_once_in48hrs_task' );
 	}
 }
-add_action( 'wp', 'sw_schedule_once_in_two_days_task' );
-
-/**
- * Schedule daily service renewals process.
- */
-function schedule_service_renewals_cron() {
-	if ( ! wp_next_scheduled( 'process_service_renewals_event' ) && function_exists( 'woo_wallet' ) ) {
-		wp_schedule_event( current_time( 'timestamp' ), 'sw_once_per_day', 'process_service_renewals_event' );
-	}
-}
-add_action( 'wp', 'schedule_service_renewals_cron' );
+add_action( 'wp', 'smartwoo_once_in48hr_scheduler' );
 
 /**
  * Define a cron interval for 12 hours.
@@ -155,35 +141,35 @@ add_action( 'wp', 'schedule_service_renewals_cron' );
  * @param array $schedules Existing array of cron schedules.
  */
 
-function sw_service_cron_intervals_12_hours( $schedules ) {
-	$schedules['sw_12_hours'] = array(
+function smartwoo_12hrs_cron( $schedules ) {
+	$schedules['smartwoo_12_hours'] = array(
 		'interval' => 12 * 60 * 60, // 12 hours in seconds
-		'display'  => __( 'Smart Woo twice Daily', 'smart-woo-invoice' ),
+		'display'  => __( 'SmartWoo twice Daily', 'smart-woo-invoice' ),
 	);
 	return $schedules;
 }
-add_filter( 'cron_schedules', 'sw_service_cron_intervals_12_hours' );
+add_filter( 'cron_schedules', 'smartwoo_12hrs_cron' );
 
 /**
  * Schedule the task to run every 12 hours
  */
-function schedule_twice_daily_task() {
+function smartwoo_twice_daily_scheduler() {
 	// Check if the event is not already scheduled
-	if ( ! wp_next_scheduled( 'sw_twice_daily_task' ) ) {
+	if ( ! wp_next_scheduled( 'smartwoo_twice_daily_task' ) ) {
 		// Use wp_schedule_event to set up the scheduled event
-		wp_schedule_event( current_time( 'timestamp' ), 'sw_12_hours', 'sw_twice_daily_task' );
+		wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_12_hours', 'smartwoo_twice_daily_task' );
 	}
 }
-add_action( 'wp', 'schedule_twice_daily_task' );
+add_action( 'wp', 'smartwoo_twice_daily_scheduler' );
 
 /**
  * Schedule pending refund services to process every two days.
  */
-function schedule_pending_refund_services() {
-	// Check if 'process_pending_refund_event' is not already scheduled.
-	if ( ! wp_next_scheduled( 'process_pending_refund_event' ) ) {
+function smartwoo_refund_scheduler() {
+	// Check if 'smartwoo_refund_task' is not already scheduled.
+	if ( ! wp_next_scheduled( 'smartwoo_refund_task' ) ) {
 		// Use the custom interval 'once_every_two_days'.
-		wp_schedule_event( current_time( 'timestamp' ), 'once_every_two_days', 'process_pending_refund_event' );
+		wp_schedule_event( current_time( 'timestamp' ), 'once_every_two_days', 'smartwoo_refund_task' );
 	}
 }
-add_action( 'wp', 'schedule_pending_refund_services' );
+add_action( 'wp', 'smartwoo_refund_scheduler' );

@@ -18,7 +18,7 @@ if ( ! function_exists( 'sw_invoice_download' ) ) {
 				// Nonce is valid, proceed with download
 
 				// Get user ID and invoice ID url param
-				$user_id    = isset( $_GET['user_id'] ) ? intval( $_GET['user_id'] ) : 0;
+				$user_id    = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
 				$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( $_GET['invoice_id'] ) : '';
 
 				// Call PDF invoice template

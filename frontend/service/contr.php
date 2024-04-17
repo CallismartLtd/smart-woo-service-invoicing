@@ -299,7 +299,7 @@ function smartwoo_get_current_login_date( $user_id ) {
     $timestamp = get_user_meta( $user_id, 'sw_login_timestamp', true );
 
     // Check if $timestamp is not a valid integer (may be a string)
-    if ( ! is_numeric( $timestamp ) || intval( $timestamp ) <= 0 ) {
+    if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
         // Fallback to current time if $timestamp is not a valid integer.
         $timestamp = current_time( 'timestamp' );
     }
@@ -318,7 +318,7 @@ function smartwoo_get_last_login_date( $user_id ) {
 	$timestamp = get_user_meta( $user_id, 'sw_logout_timestamp', true );
 
     // Check if $timestamp is not a valid integer (may be a string)
-    if ( ! is_numeric( $timestamp ) || intval( $timestamp ) <= 0 ) {
+    if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
         // Fallback to current time if $timestamp is not a valid integer
         $timestamp = current_time( 'timestamp' );
     }

@@ -10,12 +10,18 @@
  * @package    : SmartWooServiceInvoicing
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
+
+if ( ! defined( 'SMARTWOO_VER' ) ) {
+ 
+	define( 'SMARTWOO_VER', '1.0.2' );
+}
+
 
 /**
- * Throw error when WooCommerce is not active
+ * Throw error when WooCommerce is not active.
  */
-function sw_check_woocommerce() {
+function smartwoo_check_woocommerce() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		// Throw error
 		$woo_plugin_url = 'https://wordpress.org/plugins/woocommerce/';
@@ -37,33 +43,32 @@ function sw_check_woocommerce() {
 	}
 }
 
+/**
+ * Scripts and Styles Loading.
+ */
+function smartwoo_enqueue_scripts() {
 
-function enqueue_smart_woo_scripts() {
-
-	// Enqueue styles for both admin and frontend
 	if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-	wp_enqueue_style( 'smart-woo-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.2', 'all' );
+	wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
 	
 	}
 
 	if ( is_admin() ) {
-		// Enqueue admin-specific styles
-		wp_enqueue_style( 'smart-woo-admin-style', SW_DIR_URL . 'assets/css/smart-woo.css', array(), '1.0.2', 'all' );
+		wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
 	}
 
-	// Enqueue the JavaScript file
-	wp_enqueue_script( 'smart-woo-script', SW_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), '1.0.2', true );
+	wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
 
-	// Localize the script
+	// Script localizer.
 	wp_localize_script(
-		'smart-woo-script',
+		'smartwoo-script',
 		'smart_woo_vars',
 		array(
 			'ajax_url'                 => admin_url( 'admin-ajax.php' ),
 			'woo_my_account_edit'      => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-account/',
 			'woo_payment_method_edit'  => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'payment-methods/',
 			'woo_billing_eddress_edit' => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-address/billing',
-			'admin_invoice_page'       => esc_url( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
+			'admin_invoice_page'       => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
 			'sw_admin_page'            => esc_url( admin_url( 'admin.php?page=sw-admin' ) ),
 			'sw_product_page'           => esc_url( admin_url( 'admin.php?page=sw-products' ) ),
 			'security'                 => wp_create_nonce( 'smart_woo_nonce' ),
@@ -73,22 +78,20 @@ function enqueue_smart_woo_scripts() {
 		)
 	);
 }
-
-// Hook into the appropriate action to enqueue the scripts and styles
-add_action( 'admin_enqueue_scripts', 'enqueue_smart_woo_scripts' );
-add_action( 'wp_enqueue_scripts', 'enqueue_smart_woo_scripts' );
+add_action( 'admin_enqueue_scripts', 'smartwoo_enqueue_scripts' );
+add_action( 'wp_enqueue_scripts', 'smartwoo_enqueue_scripts' );
 
 
 /**
- * Hook into 'smart_woo_init' to load the plugin files
+ * Hook into 'smartwoo_init' to load the plugin files
  * this hook is only fired when WooCommerce is active.
  */
-add_action( 'smart_woo_init', 'sw_load_dependencies' );
+add_action( 'smartwoo_init', 'smartwoo_src_files' );
 
 /**
  * Load plugin files
  */
-function sw_load_dependencies() {
+function smartwoo_src_files() {
 
 	require_once SW_ABSPATH . 'admin/sw-functions.php';
 	require_once SW_ABSPATH . 'admin/include/cron-schedule.php';

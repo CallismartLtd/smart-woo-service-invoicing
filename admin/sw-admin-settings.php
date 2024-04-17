@@ -6,6 +6,7 @@
  * Description  :   settings page for admin submenu
  */
 
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 /**
  * Handles email settings options when form is submitted
  * called directly within the HTML page redering
@@ -54,7 +55,7 @@ function smartwoo_save_email_options() {
 				update_option( $checkbox_name, 0 ); 
 			}
 		}
-		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . __( 'Settings saved!','smart-woo-service-invoicing' ) . '</p></div>' );
+		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . esc_html__( 'Settings saved!','smart-woo-service-invoicing' ) . '</p></div>' );
 
 	}
 }
@@ -183,7 +184,7 @@ function smartwoo_save_options() {
 			update_option( 'smartwoo_downgrade_product_cat', absint( $category_id ) );
 		}
 
-		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . __( 'Settings saved!', 'smart-woo-service-invoicing' ) . '</p></div>' );
+		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . esc_html( 'Settings saved!', 'smart-woo-service-invoicing' ) . '</p></div>' );
 	}
 }
 
@@ -214,7 +215,7 @@ function smartwoo_options_main_page() {
 			<div class="sw-right-column">
 				<div id="first-display" class="image-section">
 					<h3> Smart Woo Service Invoicing</h3>
-					<p><img src="<?php echo esc_url( plugins_url( 'assets/image/smart-woo-img.png', dirname(__FILE__) ) ); ?>" alt="plugin screenshot" style="width: 50%;"></p>
+					<p><img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/image/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;"></p>
 					<p>Here you will find useful information to get you started</p>
 			</div>
 				<div id="general-concept" class="instruction">
@@ -269,7 +270,7 @@ function smartwoo_service_options() {
 	$smartwoo_prorate      = get_option( 'smartwoo_prorate', 'Disable' );
 	$migration_option      = get_option( 'smartwoo_allow_migration', 'Disable' );
 	$service_id_prefix     = get_option( 'smartwoo_service_id_prefix', 'SID' );
-	echo '<h1>' . __( 'Business Info 🧊', 'smart-woo-service-invoicing' ) . '</h1>';
+	'<h1>' . esc_html_e( 'Business Info 🧊', 'smart-woo-service-invoicing' ) . '</h1>';
 
 	?>
 		<div class="wrap">
@@ -279,28 +280,28 @@ function smartwoo_service_options() {
 		
 		<!-- Business Name -->
 		<div class="sw-form-row">
-		<label for="smartwoo_business_name" class="sw-form-label"><?php echo __( 'Business Name', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="smartwoo_business_name" class="sw-form-label"><?php esc_html_e( 'Business Name', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Enter your business name">?</span>
 		<input type="text" name="smartwoo_business_name" id="smartwoo_business_name" value="<?php echo esc_attr( $business_name ); ?>" placeholder="Enter business name" class="sw-form-input">
 		</div>
 
 		<!--Business Phone -->
 		<div class="sw-form-row">
-		<label for="smartwoo_admin_phone_numbers" class="sw-form-label"><?php echo __( 'Phone Numbers', 'smart-woo-service-invoicing');?></label>
+		<label for="smartwoo_admin_phone_numbers" class="sw-form-label"><?php esc_html_e( 'Phone Numbers', 'smart-woo-service-invoicing');?></label>
 		<span class="sw-field-description" title="Enter admin phone numbers separated by commas (e.g., +123456789, +987654321).">?</span>
 		<input type="text" name="smartwoo_admin_phone_numbers" id="smartwoo_admin_phone_numbers" value="<?php echo esc_attr( $admin_phone_numbers ); ?>" placeholder="Enter business phone numbers" class="sw-form-input">
 		</div>
 
 		<!--Service Page -->
 		<div class="sw-form-row">
-		<label for="smartwoo_service_page_id" class="sw-form-label"><?php echo __( 'Service Page', 'smart-woo-service-invoicing' );?></label>
+		<label for="smartwoo_service_page_id" class="sw-form-label"><?php esc_html_e( 'Service Page', 'smart-woo-service-invoicing' );?></label>
 		<span class="sw-field-description" title="This page should have this shortcode [smartwoo_service_page] ">?</span>
 		<select name="smartwoo_service_page_id" id="smartwoo_service_page_id" class="sw-form-input">
-		<option value="0"><?php echo __( 'Select a Service page', 'smart-woo-service-invoicing' ); ?></option>
+		<option value="0"><?php esc_html_e( 'Select a Service page', 'smart-woo-service-invoicing' ); ?></option>
 		<?php
 		foreach ( $pages as $page ) {
 			$selected = ( $service_page == $page->ID ) ? 'selected' : '';
-			echo '<option value="' . esc_attr( $page->ID ) . '" ' . esc_attr( $selected ) . '>' . esc_attr( $page->post_title ) . '</option>';
+			echo '<option value="' . esc_attr( $page->ID ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $page->post_title ) . '</option>';
 		}
 		?>
 		</select>
@@ -308,14 +309,14 @@ function smartwoo_service_options() {
 
 			<!-- Form field for service_id_prefix -->
 		<div class="sw-form-row">
-		<label for="smartwoo_service_id_prefix" class="sw-form-label"><?php echo __( 'Service ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="smartwoo_service_id_prefix" class="sw-form-label"><?php esc_html_e( 'Service ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Enter a text to prifix your service IDs">?</span>
 		<input class="sw-form-input" type="text" name="smartwoo_service_id_prefix" id="smartwoo_service_id_prefix" value="<?php echo esc_attr( $service_id_prefix ); ?>" placeholder="eg, SMWSI">
 		</div>
  
 		<!-- Form field for Proration -->
 		<div class="sw-form-row">
-		<label for="smartwoo_prorate" class="sw-form-label"><?php echo __( 'Allow Proration', 'smart-woo-service-invoicing' );?></label>
+		<label for="smartwoo_prorate" class="sw-form-label"><?php esc_html_e( 'Allow Proration', 'smart-woo-service-invoicing' );?></label>
 		<span class="sw-field-description" title="Choose to allow users switch from their current service to another">?</span>
 		<select name="smartwoo_prorate" id="smartwoo_prorate" class="sw-form-input">
 		<option value="Enable" <?php selected( 'Enable', esc_attr( $smartwoo_prorate ) ); ?>>Yes</option>
@@ -325,7 +326,7 @@ function smartwoo_service_options() {
 
 		<!-- Form field for service migration -->
 		<div class="sw-form-row">
-		<label for="smartwoo_allow_migration" class="sw-form-label"><?php echo __( 'Allow Service Migration', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="smartwoo_allow_migration" class="sw-form-label"><?php esc_html_e( 'Allow Service Migration', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Choose to allow users switch from their current service to another">?</span>
 		<select name="smartwoo_allow_migration" id="smartwoo_allow_migration" class="sw-form-input">
 		<option value="Enable" <?php selected( 'Enable', esc_attr( $migration_option ) ); ?>>Yes</option>
@@ -335,7 +336,7 @@ function smartwoo_service_options() {
 
 		<!-- Service Upgrade Categories -->
 		<div class="sw-form-row">
-		<label for="smartwoo_upgrade_product_cat" class="sw-form-label"><?php echo __( 'Product Category for Upgrade', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="smartwoo_upgrade_product_cat" class="sw-form-label"><?php esc_html_e( 'Product Category for Upgrade', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Select the product category to mark as products for service upgrades.">?</span>
 		<select name="smartwoo_upgrade_product_cat" class="sw-form-input" id="smartwoo_upgrade_product_cat">
 		<option value="0" <?php selected( '0', esc_attr( $upgrade_product_cat ) ); ?>>None</option>
@@ -357,7 +358,7 @@ function smartwoo_service_options() {
 		<?php
 		foreach ( $product_categories as $category ) {
 			$selected = ( $category->term_id == $downgrade_product_cat ) ? 'selected' : '';
-			echo '<option value="' . $category->term_id . '" ' . esc_attr( $selected ) . '>' . esc_attr( $category->name ) . '</option>';
+			echo '<option value="' . esc_attr( $category->term_id ) . '" ' . esc_attr( $selected ) . '>' . esc_attr( $category->name ) . '</option>';
 		}
 		?>
 		</select>
@@ -390,7 +391,7 @@ function smartwoo_invoice_options() {
 	$pages                 = get_pages();
 	$invoice_logo_url      = get_option( 'smartwoo_invoice_logo_url' );
 	$invoice_watermark_url = get_option( 'smartwoo_invoice_watermark_url' );
-	echo '<h1>'. __( 'Invoice 🧾', 'smart-woo-service-invoicing' ) . '</h1>';
+	echo '<h1>'. esc_html__( 'Invoice 🧾', 'smart-woo-service-invoicing' ) . '</h1>';
 	?>
 		<div class="wrap">
 		<form method="post" class="inv-settings-form">
@@ -399,10 +400,10 @@ function smartwoo_invoice_options() {
 
 		<!--Service Page -->
 		<div class="sw-form-row">
-		<label for="smartwoo_invoice_page_id" class="sw-form-label"><?php echo __( 'Invoice Page', 'smart-woo-service-invoicing' ) ?></label>
+		<label for="smartwoo_invoice_page_id" class="sw-form-label"><?php esc_html_e( 'Invoice Page', 'smart-woo-service-invoicing' ) ?></label>
 		<span class="sw-field-description" title="This page should have this shortcode [smartwoo_invoice_page]">?</span>
 		<select name="smartwoo_invoice_page_id" id="smartwoo_invoice_page_id" class="sw-form-input">
-		<option value="0"><?php echo __( 'Select an invoice page', 'smart-woo-service-invoicing' ); ?></option>
+		<option value="0"><?php esc_html_e( 'Select an invoice page', 'smart-woo-service-invoicing' ); ?></option>
 		<?php
 		foreach ( $pages as $page ) {
 			$selected = ( $invoice_page == $page->ID ) ? 'selected' : '';
@@ -414,7 +415,7 @@ function smartwoo_invoice_options() {
 
 		<!-- Invoice ID Prefix -->
 		<div class="sw-form-row">
-		<label for="smartwoo_invoice_id_prefix" class="sw-form-label"><?php echo __( 'Invoice ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="smartwoo_invoice_id_prefix" class="sw-form-label"><?php esc_html_e( 'Invoice ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Enter a text to prifix your invoice IDs">?</span>
 		<input class="sw-form-input" type="text" name="smartwoo_invoice_id_prefix" id="smartwoo_invoice_id_prefix" value="<?php echo esc_attr( $invoice_prefix ); ?>" placeholder="eg, INV">
 		</div>
@@ -429,7 +430,7 @@ function smartwoo_invoice_options() {
 		
 		<!-- Invoice Watermark URL -->
 		<div class="sw-form-row">
-		<label for="smartwoo_invoice_watermark_url" class="sw-form-label"><?php echo __( 'Watermark URL', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="smartwoo_invoice_watermark_url" class="sw-form-label"><?php esc_html_e( 'Watermark URL', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Enter your business name">?</span>
 		<input type="text" name="smartwoo_invoice_watermark_url" id="smartwoo_invoice_watermark_url" value="<?php echo esc_attr( $invoice_watermark_url ); ?>" placeholder="eg www.example/image.png" class="sw-form-input">
 		</div>
@@ -472,33 +473,33 @@ function smartwoo_email_options() {
 	?>
 	<div class="wrap">
 		<h1>Emails 📧</h1>
-		<p><?php echo __( 'If you notice emails are not being sent, consider setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
+		<p><?php esc_html_e( 'If you notice emails are not being sent, consider setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
 		<form method="post" class="inv-settings-form">
 
 		<?php wp_nonce_field( 'sw_email_option_nonce', 'sw_email_option_nonce' ); ?>
 
 			<!-- Sender Name -->
 			<div class="sw-form-row">
-				<label for="smartwoo_email_sender_name" class="sw-form-label"><?php echo __( 'Sender Name','smart-woo-service-invoicing' ); ?></label>
+				<label for="smartwoo_email_sender_name" class="sw-form-label"><?php esc_html_e( 'Sender Name','smart-woo-service-invoicing' ); ?></label>
 				<span class="sw-field-description" title="This will be the sender name on the mail header">?</span>
 				<input type="text" name="smartwoo_email_sender_name" id="smartwoo_email_sender_name" value="<?php echo esc_attr( $sender_name ); ?>" placeholder="eg, Billing Team" class="sw-form-input">
 			</div>
 
 			<!-- Email Image header -->
 			<div class="sw-form-row">
-				<label for="smartwoo_email_image_header" class="sw-form-label"><?php echo __( 'Email Header Image','smart-woo-service-invoicing' ); ?></label>
+				<label for="smartwoo_email_image_header" class="sw-form-label"><?php esc_html_e( 'Email Header Image','smart-woo-service-invoicing' ); ?></label>
 				<span class="sw-field-description" title="Paste the URL of the image you want to show in the email header">?</span>
 				<input type="url" name="smartwoo_email_image_header" id="smartwoo_email_image_header" value="<?php echo esc_attr( $email_image ); ?>" placeholder="eg example.com/image" class="sw-form-input">
 			</div>
 
 			<!-- Billing Email -->
 			<div class="sw-form-row">
-				<label for="smartwoo_billing_email" class="sw-form-label"><?php echo __( 'Billing Email', 'smart-woo-service-invoicing' ) ?></label>
+				<label for="smartwoo_billing_email" class="sw-form-label"><?php esc_html_e( 'Billing Email', 'smart-woo-service-invoicing' ) ?></label>
 				<span class="sw-field-description" title="This email will be used to send emails to the clients">?</span>
 				<input type="email" name="smartwoo_billing_email" id="smartwoo_billing_email" value="<?php echo esc_attr( $billing_email ); ?>" placeholder="eg, billing@domain.com" class="sw-form-input">
 			</div>
 
-			<h3 style="text-align: center;"><?php echo __( 'Configure which Email is sent', 'smart-woo-service-invoicing' )?></h3>
+			<h3 style="text-align: center;"><?php esc_html_e( 'Configure which Email is sent', 'smart-woo-service-invoicing' )?></h3>
 			<!-- Checkboxes -->
 			<?php foreach ( $checkboxes as $checkbox_name ) : ?>
 				<div class="sw-form-row">
@@ -534,12 +535,12 @@ function smartwoo_advanced_options() {
 	
     ?>
     <div class="wrap">
-		<h1><?php echo __( 'Advanced Settings ⚙', 'smart-woo-service-invoicing' ); ?></h1>
+		<h1><?php esc_html_e( 'Advanced Settings ⚙', 'smart-woo-service-invoicing' ); ?></h1>
 
         <form method="post" class="inv-settings-form">
             <?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
 			<div class="sw-form-row">
-				<label for="smartwoo_product_text_on_shop" class="sw-form-label"><?php echo __( 'Product Button Text', 'smart-woo-service-invoicing' ); ?></label>
+				<label for="smartwoo_product_text_on_shop" class="sw-form-label"><?php esc_html_e( 'Product Button Text', 'smart-woo-service-invoicing' ); ?></label>
 				<span class="sw-field-description" title="Set the text that will be shown on each Smart Woo Product on shop page">?</span>
 				<input type="type" name="smartwoo_product_text_on_shop" id="smartwoo_product_text_on_shop" value="<?php echo esc_attr( $product_text ); ?>" placeholder="eg, View Product" class="sw-form-input">
 			</div>
@@ -557,16 +558,16 @@ function smartwoo_advanced_options() {
             // Check if the WooCommerce wallet plugin is active
             if ( function_exists( 'woo_wallet' ) ) : ?>
 			<!-- TeraWallet integration option -->
-			<h3 style="text-align: center;"><?php echo __( 'Tera Wallet Integration', 'smart-woo-service-invoicing' ); ?></h3>
+			<h3 style="text-align: center;"><?php esc_html_e( 'Tera Wallet Integration', 'smart-woo-service-invoicing' ); ?></h3>
 			<!-- Refund Via TeraWallet -->
 			<div class="sw-form-row">
-				<label for="smartwoo_refund_with_wallet" class="sw-form-checkbox"><?php echo __( 'Refund Through Wallet', 'smart-woo-service-invoicing' ); ?></label>
+				<label for="smartwoo_refund_with_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Refund Through Wallet', 'smart-woo-service-invoicing' ); ?></label>
 				<input type="checkbox" class="sw-form-input" name="smartwoo_refund_with_wallet" id="smartwoo_refund_with_wallet" <?php echo  checked( get_option( 'smartwoo_refund_with_wallet', 0 ), 1, false ) ?>>
 			</div>
 			
 			<!-- Pay Via TeraWallet -->
 			<div class="sw-form-row">
-				<label for="smartwoo_pay_pending_invoice_with_wallet" class="sw-form-checkbox"><?php echo __( 'Pay Pending Invoices with Wallet', 'smart-woo-service-invoicing' ); ?></label>
+				<label for="smartwoo_pay_pending_invoice_with_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Pay Pending Invoices with Wallet', 'smart-woo-service-invoicing' ); ?></label>
 				<input type="checkbox" class="sw-form-input" name="smartwoo_pay_pending_invoice_with_wallet" id="smartwoo_pay_pending_invoice_with_wallet" <?php echo checked( get_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 ), 1, false ); ?>>
 			</div>
             
@@ -589,7 +590,7 @@ function smartwoo_support_our_work_container( $echo = true ) {
     $content = '<div class="sw-upsell-accordion">
         <button class="sw-accordion-btn">Support Our Work ♥♥♥</button>
         <div class="sw-upsell-panel">
-            <p>' . __( 'If you find Smart Woo Service Invoicing Plugin valuable and would like to support our team in providing technical support, continuous improvement, and keeping the plugin free for everyone, you can contribute by making a financial donation.', 'smart-woo-service-invoicing' ) .'</p>
+            <p>' . esc_html__( 'If you find Smart Woo Service Invoicing Plugin valuable and would like to support our team in providing technical support, continuous improvement, and keeping the plugin free for everyone, you can contribute by making a financial donation.', 'smart-woo-service-invoicing' ) .'</p>
             <a href="' . esc_url( 'https://paystack.com/pay/support-smart-woo-dev' ) .'" target="_blank" class="sw-red-button">Donate with ♥</a>
         </div>
     </div>';
@@ -610,7 +611,7 @@ function smartwoo_bug_report_container( $echo = true) {
 	$content = '<div class="sw-upsell-accordion">
         <button class="sw-accordion-btn">Report a Bug 🐞</button>
         <div class="sw-upsell-panel">
-            <p>' . __( 'If you encounter any bugs or issues while using Smart Woo Service Invoicing Plugin, please report them to help us improve the plugin. Your feedback is valuable in enhancing the plugin\'s functionality and stability.', 'smart-woo-service-invoicing' ) . '</p>
+            <p>' . esc_html__( 'If you encounter any bugs or issues while using Smart Woo Service Invoicing Plugin, please report them to help us improve the plugin. Your feedback is valuable in enhancing the plugin\'s functionality and stability.', 'smart-woo-service-invoicing' ) . '</p>
             <a href="' . esc_url( 'https://wordpress.org/support/plugin/smart-woo-service-invoicing' ) . '" target="_blank" class="sw-red-button">Report a Bug</a>
         </div>
     </div>';

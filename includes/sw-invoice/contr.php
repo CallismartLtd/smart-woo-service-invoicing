@@ -134,7 +134,7 @@ function smartwoo_new_invoice_page() {
 			// We need to format the date input without relying on automatic conversion from database.
 			$datetime = DateTime::createFromFormat( 'Y-m-d\TH:i', $date );
 			$due_date = $datetime->format( 'Y-m-d H:i:s' );
-			$createdInvoiceID = sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, $fee, $due_date );
+			$createdInvoiceID = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, $fee, $due_date );
 
 			if ( $createdInvoiceID !== false ) {
 				$detailsPageURL = esc_url( admin_url( "admin.php?page=sw-invoices&tab=view-invoice&invoice_id=$createdInvoiceID" ) );

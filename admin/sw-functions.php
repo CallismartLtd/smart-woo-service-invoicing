@@ -6,7 +6,7 @@
  * Description  :   Functions file
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access // exit if eccessed directly
+defined( 'ABSPATH' ) || exit; // Prevent direct access // exit if eccessed directly
 
 /**
  * Function to format date to a human-readable format or show 'Not Available'.
@@ -83,7 +83,7 @@ function smartwoo_is_prorate() {
  * @param string	$note		   Internal Note for reference Purposes
  *
  */
-function smart_woo_log( $log_id, $log_type, $status, $details = '',  $amount = 0, $note = '' ) {
+function smartwoo_invoice_log( $log_id, $log_type, $status, $details = '',  $amount = 0, $note = '' ) {
 	
 	// Instantiate an object of the class.
 	$log = new Sw_Invoice_log();
@@ -260,8 +260,6 @@ if ( ! function_exists( 'smartwoo_error_notice' ) ) {
 	}
 }
 
-
-
 /**
  * Redirects to the invoice preview page based on the provided invoice ID.
  *
@@ -346,6 +344,10 @@ function smartwoo_check_if_configured( $order ) {
  * @param int $user_id   The current user's ID.
  */
 function smartwoo_get_navbar( $current_user_id ) {
+
+	if ( is_account_page() ) {
+		return;
+	}
     $service_page_id            = get_option( 'smartwoo_service_page_id', 0 );
     $service_page_url           = get_permalink( $service_page_id );
     $invoice_preview_page_id    = get_option( 'smartwoo_invoice_page_id', 0 );

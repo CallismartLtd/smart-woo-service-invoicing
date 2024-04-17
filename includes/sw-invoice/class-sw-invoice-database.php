@@ -6,6 +6,7 @@
  * Provides database-related functionality for retrieving and managing Sw_Invoice objects.
  *
  * @since   1.0.0
+ * @package SmartWooDatabase
  */
 
 class Sw_Invoice_Database {
@@ -13,35 +14,52 @@ class Sw_Invoice_Database {
 	/**
 	 * Retrieves invoices from the database based on various criteria.
 	 *
+	 * @param $criteria The criteria for the search.
+	 * @param $value	The value to match the criteria.
 	 * @since   1.0.0
 	 */
-
-	// Method to get invoices based on criteria
-	public static function get_invoices_by_criteria( $criteria, $value ) {
+	public static function get_invoices_by_criteria( $criteria, $value, $single = false ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_invoice';
-
+		// phpcs:disable
 		$query   = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
+
+		if ( true === $single ) {
+            $result =  $wpdb->get_row( $query, ARRAY_A );
+			if ( $result ) {
+				return Sw_Invoice::convert_array_to_invoice( $result );
+			}
+		}
+
 		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
 
 		return self::convert_results_to_invoices( $results );
 	}
 
 
 
-	// Method to get all invoices from the database
+	/**
+	 * Get All invoices from the database.
+	 */
 	public static function get_all_invoices() {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_invoice';
 
+		// phpcs:disable
 		$query   = "SELECT * FROM $table_name";
 		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
 
 		return self::convert_results_to_invoices( $results );
 	}
 
 
-	// Method to get invoices by user_id
+	/**
+	 * Get invoices for a user by the user's ID.
+	 * 
+	 * @param int $user_id	The ID of the user.
+	 */
 	public static function get_invoices_by_user( $user_id ) {
 		return self::get_invoices_by_criteria( 'user_id', $user_id );
 	}
@@ -55,8 +73,10 @@ class Sw_Invoice_Database {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_invoice';
 
+		// phpcs:disable
 		$query  = $wpdb->prepare( "SELECT * FROM $table_name WHERE invoice_id = %s", $invoice_id );
 		$result = $wpdb->get_row( $query, ARRAY_A );
+		// phpcs:enable
 
 		if ( $result ) {
 			// Convert the array result to Sw_Invoice object
@@ -66,28 +86,48 @@ class Sw_Invoice_Database {
 		return false;
 	}
 
-	// Method to get invoices by service_id
+	/**
+	 *  Method to get invoices by service_id.
+	 * 
+	 * @param string $service_id The ID of the service to retrieve it's invoice.
+	 */
 	public static function get_invoices_by_service( $service_id ) {
 		return self::get_invoices_by_criteria( 'service_id', $service_id );
 	}
 
-	// Method to get invoices by Invoice Type
+	/**
+	 * Method to get invoices by Invoice Type.
+	 * 
+	 * @param string $type	The invoice type.
+	 */
 	public static function get_invoices_by_type( $invoice_type ) {
 		return self::get_invoices_by_criteria( 'invoice_type', $invoice_type );
 	}
 
-	// Method to get invoices by Payment Status
+	/**
+	 * Method to get invoices by Payment Status.
+	 * 
+	 * @param string $payment_status The invoice payment status.
+	 */
 	public static function get_invoices_by_payment_status( $payment_status ) {
 		return self::get_invoices_by_criteria( 'payment_status', $payment_status );
 	}
 
-	// Method to get invoices by Order ID
-	public static function get_invoices_by_order_id( $order_id ) {
-		return self::get_invoices_by_criteria( 'order_id', $order_id );
+	/**
+	 * Method to get an invoice by Order ID.
+	 * 
+	 * @param int $order_id	The order ID associated with the invoices.
+	 */
+	public static function get_invoice_by_order_id( $order_id ) {
+		return self::get_invoices_by_criteria( 'order_id', $order_id, true );
 	}
 
 
-	// Method to get invoices by date_due
+	/**
+	 * Method to get invoices by date_due.
+	 * 
+	 * @param string $due_date The due date.
+	 */
 	public static function get_invoices_by_date_due( $date_due ) {
 		return self::get_invoices_by_criteria( 'date_due', $date_due );
 	}
@@ -102,11 +142,12 @@ class Sw_Invoice_Database {
 	public static function get_invoice_count_by_payment_status( $payment_status ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_invoice';
-
+		// phpcs:disable
 		$query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE payment_status = %s", $payment_status );
 		$count = $wpdb->get_var( $query );
+		// phpcs:enable
 
-		return intval( $count );
+		return absint( $count );
 	}
 
 	/**
@@ -120,17 +161,22 @@ class Sw_Invoice_Database {
 	public static function get_invoice_count_by_payment_status_for_user( $user_id, $payment_status ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_invoice';
-
+		// phpcs:disable
 		$query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE user_id = %d AND payment_status = %s", $user_id, $payment_status );
 		$count = $wpdb->get_var( $query );
+		// phpcs:enable
 
-		return intval( $count );
+		return absint( $count );
 	}
 
 
+	/**
+	 * Helper Private function to convert database ARRAY_A result to Sw_Invoice.
+	 * 
+	 * @param mixed|array can be array or anything else.
+	 */
 	private static function convert_results_to_invoices( $results ) {
 		if ( ! is_array( $results ) ) {
-			// Handle the case when $results is not an array (e.g., single result)
 			$results = array( $results );
 		}
 
@@ -152,10 +198,9 @@ class Sw_Invoice_Database {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function sw_create_invoice( Sw_Invoice $invoice ) {
+	public static function save( Sw_Invoice $invoice ) {
 		global $wpdb;
 
-		// Our table name
 		$table_name = $wpdb->prefix . 'sw_invoice';
 
 		// Data to be inserted
@@ -198,10 +243,9 @@ class Sw_Invoice_Database {
 			'%f', // total
 		);
 
-		// Insert data into the database
-		$wpdb->insert( $table_name, $data, $data_format );
-
-		// Return the ID of the newly inserted invoice or false on failure
+		// phpcs:disable
+		$wpdb->insert( $table_name, $data, $data_format ); 
+		// phpcs:enable
 		return $invoice->getInvoiceId();
 	}
 
@@ -269,8 +313,9 @@ class Sw_Invoice_Database {
 			'%s', // invoice_id
 		);
 
-		// Update data in the database
+		// phpcs:disable
 		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
+		// phpcs:enable
 
 		// Return true on success, false on failure
 		return $updated !== false;
@@ -312,8 +357,9 @@ class Sw_Invoice_Database {
 			'%s', // invoice_id
 		);
 
-		// Update data in the database
-		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
+		// phpcs:disable
+		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format ); 
+		// phpcs:enable
 
 		if ( $updated !== false ) {
 			// Fetch the updated invoice from the database
@@ -364,14 +410,14 @@ class Sw_Invoice_Database {
 		// Check if the invoice exists
 		$existing_invoice = self::get_invoice_by_id( $invoice_id );
 		if ( ! $existing_invoice ) {
-			return 'Invoice not found.'; // Return an error message
+			return 'Invoice not found.';
 		}
 
-		// Perform the deletion
+		// phpcs:disable
 		$deleted = $wpdb->delete( $table_name, array( 'invoice_id' => $invoice_id ), array( '%s' ) );
-
+		// phpcs:enable
 		if ( false === $deleted ) {
-			return 'Error deleting invoice.'; // Return an error message
+			return 'Error deleting invoice.';
 		}
 
 		return 'Invoice deleted successfully.';

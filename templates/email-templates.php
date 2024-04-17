@@ -233,10 +233,10 @@ function smartwoo_service_cancelled_mail_to_admin( $service_id ) {
 
 
 
-add_action( 'sw_once_in_two_days_task', 'sw_payment_reminder' );
+add_action( 'smartwoo_once_in48hrs_task', 'smartwoo_payment_reminder' );
 
 // Function to send payment reminder email for Service Renewals
-function sw_payment_reminder() {
+function smartwoo_payment_reminder() {
 
 	$mail_is_enabled = get_option( 'smartwoo_payment_reminder_to_client', 0 );
 	if ( $mail_is_enabled ) {
@@ -314,10 +314,6 @@ function sw_payment_reminder() {
 	}
 }
 
-
-
-
-
 /**
  * Send Service expiration mail to client on expiration day.
  *
@@ -387,7 +383,7 @@ function sw_send_service_expiration_email( $service ) {
 /**
  * Send service expiration mail to admin a day before expiration day
  */
-add_action( 'smart_woo_daily_task', 'sw_send_expiry_mail_to_admin' );
+add_action( 'smartwoo_daily_task', 'sw_send_expiry_mail_to_admin' );
 
 function sw_send_expiry_mail_to_admin() {
 
@@ -457,9 +453,6 @@ function sw_send_expiry_mail_to_admin() {
 	}
 }
 
-
-
-
 /**
  *  Send mail to user after sucessful service renewal.
  *
@@ -467,7 +460,7 @@ function sw_send_expiry_mail_to_admin() {
  */
 
 // Define a function to send mail when renewed service has been paid for
-function sw_renewal_sucess_email( $service ) {
+function smartwoo_renewal_sucess_email( $service ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_renewal_mail', 0 );
 	if ( $mail_is_enabled ) {
@@ -542,7 +535,7 @@ function sw_renewal_sucess_email( $service ) {
  * @param object $invoice      The Invoice created.
  * @param object $service      The service which has the invoice.
  */
-add_action( 'sw_auto_invoice_created', 'sw_send_auto_renewal_email', 10, 2 );
+add_action( 'smartwoo_auto_invoice_created', 'sw_send_auto_renewal_email', 10, 2 );
 
 // Function to send an auto-renewal email when the Service Renewal is created
 function sw_send_auto_renewal_email( $invoice, $service ) {
@@ -606,14 +599,6 @@ function sw_send_auto_renewal_email( $invoice, $service ) {
 		wp_mail( $user_email, $subject, $message, $headers );
 	}
 }
-
-
-
-
-
-
-
-
 
 /**
  * Send mail when user generates invoice for service renewal.

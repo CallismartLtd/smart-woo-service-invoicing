@@ -10,7 +10,7 @@
  * @package SmartWooAPIs.
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Notify Service URL about the service deactivation.
@@ -93,7 +93,7 @@ function check_and_disable_all_expired_services() {
 	}
 }
 // Hook to run twice daily
-add_action( 'sw_twice_daily_task', 'check_and_disable_all_expired_services' );
+add_action( 'smartwoo_twice_daily_task', 'check_and_disable_all_expired_services' );
 
 
 /**
@@ -142,6 +142,6 @@ function check_and_activate_paid_service( Sw_Service $service ) {
 // Hook to run when edit to active in admin page
 add_action( 'sw_service_active', 'check_and_activate_paid_service' );
 // Hook to run when renewed Due service
-add_action( 'sw_service_renewed', 'check_and_activate_paid_service' );
+add_action( 'smartwoo_service_renewed', 'check_and_activate_paid_service' );
 // Hook to run when reactivated
-add_action( 'sw_expired_service_activated', 'check_and_activate_paid_service' );
+add_action( 'smartwoo_expired_service_activated', 'check_and_activate_paid_service' );

@@ -1,12 +1,12 @@
 <?php
 /**
- * File name    :   sw_service_api.php
+ * File name  sw_service_api.php
  *
- * @author      :   Callistus
- * Description  :   Service API autheticator functions
+ * @author Callistus
+ * Description Service API autheticator functions
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Handle API requests for Smart Woo Service.
@@ -18,21 +18,21 @@
  * @since   1.0.0
  * @author  Callistus
  */
-function sw_service_API_responder() {
-	// Check if there is an HTTP request to the endpoint
+function smartwoo_service_API_responder() {
+	// Check if there is an HTTP request to the endpoint.
 	if ( isset( $_GET['sw_get_service_api'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$response = array(); // Initialize response array
 
 		// Get the email and service_id from the query parameters
 		$email      = isset( $_GET['email'] ) ? sanitize_email( $_GET['email'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$service_id = isset( $_GET['serviceid'] ) ? sanitize_text_field( $_GET['serviceid'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$service_id = isset( $_GET['serviceid'] ) ? sanitize_key( $_GET['serviceid'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Validate email and service_id parameters
+		// Validate email and service_id parameters.
 		if ( empty( $email ) || empty( $service_id ) ) {
 			$response['error'] = 'Missing or invalid "email" or "serviceid" parameter.';
 			http_response_code( 400 ); // Bad Request
 		} else {
-			// Map email to user ID
+			// Map email to user ID.
 			$user = get_user_by( 'email', $email );
 
 			// Check if user exists
@@ -82,7 +82,7 @@ function sw_service_API_responder() {
 		header( 'Last-Modified: ' . date_i18n( 'D, d M Y H:i:s \G\M\T', $last_modified_time ) );
 
 		echo wp_json_encode( $response );
-		exit; // End processing to prevent further output
+		exit; // End processing to prevent further output.
 	}
 }
-add_action( 'wp', 'sw_service_API_responder' );
+add_action( 'wp', 'smartwoo_service_API_responder' );

@@ -122,8 +122,9 @@ class Sw_Service_Log {
             '%s'  // Updated At
         );
 
-        // Insert data into the database
+        // phpcs:disable
         $result = $wpdb->insert( $table_name, $data, $data_format );
+        // phpcs:enable
 
         // Return the result of insertion
         return $result;
@@ -156,8 +157,9 @@ class Sw_Service_Log {
             '%s'  // Updated At
         );
     
-        // Update data in the database
+        // phpcs:disable
         $result = $wpdb->update( $table_name, $data, $where, $data_format );
+        // phpcs:enable
     
         // Return true if update was successful, false otherwise
         return $result !== false;
@@ -195,21 +197,24 @@ class Sw_Service_Log {
     
     public static function get_logs_by_criteria( $criteria, $value, bool $get_row = false ) {
         global $wpdb;
+        // phpcs:disable
         $table_name = SW_SERVICE_LOG_TABLE;
         $query   = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
+
         if ( true === $get_row ) {
             $results =  $wpdb->get_row( $query, ARRAY_A );
-            if ( $results === null ) {
+            if ( ! $results ) {
                 return false; // Query failed
             }
             return self::convert_array_to_logs( $results );
+
         } elseif ( false === $get_row ) {
             $results = $wpdb->get_results( $query, ARRAY_A );
             if ( $results === null ) {
                 return false; // Query failed
             }
         }
-        
+        // phpcs:enable
         // Convert results to Sw_Service_Log objects
         $logs = array();
         foreach ( $results as $data ) {
@@ -237,8 +242,10 @@ class Sw_Service_Log {
         global $wpdb;
 
         $table_name  = SW_SERVICE_LOG_TABLE;
+        // phpcs:disable
         $query       = $wpdb->prepare( "SELECT * FROM $table_name WHERE log_type = %s", 'Renewal' );
         $results     = $wpdb->get_results( $query, ARRAY_A );
+        // phpcs:enable
 
         if ( null === $results ) {
             // return empty array

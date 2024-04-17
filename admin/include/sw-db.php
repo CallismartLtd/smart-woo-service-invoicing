@@ -5,7 +5,8 @@
  * Description : Database table definition file
  *
  * @since      : 1.0.0
- * @package    : SmartWooServiceInvoicing
+ * @package SmartWooDatabase
+
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access
@@ -13,7 +14,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access
 /**
 * All the database structures are defined here
 */
-function sw_plugin_db_schema() {
+function smartwoo_db_schema() {
 
 	// Define the current database version
 	$smartwoo_db_version = '1.0.1'; // Update the version when making schema changes.
@@ -45,7 +46,7 @@ function sw_plugin_db_schema() {
 			'PRIMARY KEY  (id)',
 		);
 
-		sw_create_database_table( $service_table_name, $service_structure );
+		smartwoo_create_database_table( $service_table_name, $service_structure );
 
 		/**
 		 * Define the structure for the 'sw_invoice' table.
@@ -73,7 +74,7 @@ function sw_plugin_db_schema() {
 			'PRIMARY KEY  (id)',
 		);
 
-		sw_create_database_table( $invoice_table_name, $invoice_structure );
+		smartwoo_create_database_table( $invoice_table_name, $invoice_structure );
 
 		/**
 		 * Define the structure for the Service Log table.
@@ -91,7 +92,7 @@ function sw_plugin_db_schema() {
 			'PRIMARY KEY  (id)',
 		);
 
-		sw_create_database_table( $auto_renew_table_name, $auto_renew_structure );
+		smartwoo_create_database_table( $auto_renew_table_name, $auto_renew_structure );
 
 		/**
 		 * Defined the wp_sw_invoice_log table where 
@@ -115,7 +116,7 @@ function sw_plugin_db_schema() {
 		);
 
 
-		sw_create_database_table( $service_logs_table_name, $service_logs_structure );
+		smartwoo_create_database_table( $service_logs_table_name, $service_logs_structure );
 
 		// Update the stored version
 		update_option( 'smartwoo_db_version', $smartwoo_db_version );
@@ -123,28 +124,34 @@ function sw_plugin_db_schema() {
 }
 
 /**
- * Create the necessary database table
+ * Create the necessary database table.
  *
- * @param string $table_name        The name of the table
- * @param array  $table_structure   The column names
+ * @param string $table_name        The name of the table.
+ * @param array  $table_structure   The column names and types.
  */
-function sw_create_database_table( string $table_name, array $table_structure ) {
-	global $wpdb;
-	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+function smartwoo_create_database_table( string $table_name, array $table_structure ) {
+    global $wpdb;
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-	// Check if the table already exists
-	if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) !== $table_name ) {
-		$charset_collate = sw_get_charset_collate();
+	// phpcs:disable
+	$query			= $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name );
+    $table_exists 	= $wpdb->get_var( $query );
+	// phpcs:enable
+
+    if ( $table_exists !== $table_name ) {
+        $charset_collate = smartwoo_get_charset_collate();
 
 		$sql = "CREATE TABLE $table_name (";
 		foreach ( $table_structure as $column ) {
 			$sql .= "$column, ";
 		}
-		$sql  = rtrim( $sql, ', ' ); // Remove the trailing comma and space
-		$sql .= ") $charset_collate;";
 
-		dbDelta( $sql );
-	}
+        $sql  = rtrim( $sql, ', ' ); // Remove the trailing comma and space.
+        $sql .= ") $charset_collate;";
+
+        // Execute the SQL query.
+        dbDelta( $sql );
+    }
 }
 
 /**
@@ -156,7 +163,7 @@ function sw_create_database_table( string $table_name, array $table_structure ) 
  * @global wpdb $wpdb The WordPress database object.
  * @return string The generated charset and collate settings string.
  */
-function sw_get_charset_collate() {
+function smartwoo_get_charset_collate() {
 	global $wpdb;
 	$charset_collate = '';
 	if ( ! empty( $wpdb->charset ) ) {

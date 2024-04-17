@@ -128,7 +128,7 @@ function smartwoo_product_dropdown( $selected_product_id = null, $required = fal
 	$dropdown_html .= '</select>';
 
 	if ( true === $echo ) {
-		echo $dropdown_html;
+		echo wp_kses( $dropdown_html, smartwoo_allowed_form_html() );
 	} 
 	return $dropdown_html;
 

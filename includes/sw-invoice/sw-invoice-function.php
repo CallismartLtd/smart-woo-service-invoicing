@@ -159,17 +159,30 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
 	);
 	$order->add_item( $product );
 
-	// Set the order total based on the provided parameter or use the invoice total
+	// Set the order total based on the provided parameter or use the invoice total.
 	$order_total = ( $total !== null ) ? $total : $invoice->getTotal();
 	$order->set_total( $order_total );
 	$order->update_status( 'pending' );
 
 	// Set order signatures
-	$order->set_created_via( SW_PLUGIN_NAME );
+	$order->set_created_via( SMARTWOO );
 	$order->update_meta_data( '_sw_invoice_id', $invoice_id );
-	$order->update_meta_data( '_wc_order_attribution_utm_source', SW_PLUGIN_NAME );
+	$order->update_meta_data( '_wc_order_attribution_utm_source', SMARTWOO );
 	$order->update_meta_data( '_wc_order_attribution_source_type', 'utm' );
 
+	// Setting client billing addresses.
+	$customer = new WC_Customer( $user_id );
+	$order->set_billing_first_name( $customer->get_billing_first_name() );
+	$order->set_billing_last_name( $customer->get_billing_last_name() );
+	$order->set_billing_company( $customer->get_billing_company() );
+	$order->set_billing_address_1( $customer->get_billing_address_1() );
+	$order->set_billing_address_2( $customer->get_billing_address_2() );
+	$order->set_billing_city( $customer->get_billing_city() );
+	$order->set_billing_postcode( $customer->get_billing_postcode() );
+	$order->set_billing_country( $customer->get_billing_country() );
+	$order->set_billing_state( $customer->get_billing_state() );
+	$order->set_billing_email( $customer->get_billing_email() );
+	$order->set_billing_phone( $customer->get_billing_phone() );
 	// Save order
 	$order->save();
 
@@ -179,6 +192,7 @@ function sw_generate_pending_order( $user_id, $invoice_id, $total = null ) {
 	// Return the ID of the newly created order
 	return $order->get_id();
 }
+
 
 /**
  * Generate invoice ID
@@ -207,7 +221,7 @@ function sw_generate_invoice_id() {
  *
  * @since 1.0.0
  */
-function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id = null, $fee = null, $date_due = null ) {
+function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id = null, $fee = null, $date_due = null ) {
 	// Generate a unique invoice ID
 	$invoice_id = sw_generate_invoice_id();
 
@@ -243,8 +257,8 @@ function sw_generate_new_invoice( $user_id, $product_id, $payment_status, $invoi
 		$newInvoice->setDatePaid( current_time( 'mysql' ) );
 	}
 
-	// Call the sw_create_invoice method to save the invoice to the database
-	$invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
+	// Call the save method to save the invoice to the database
+	$invoice_id = Sw_Invoice_Database::save( $newInvoice );
 
 	// Check if payment status is 'unpaid' and generate a pending order
 	if ( strtolower( $payment_status ) === 'unpaid' ) {
@@ -326,8 +340,8 @@ function smartwoo_generate_service_migration_invoice() {
 		$newInvoice->setDateDue( $date_due );
 	}
 
-	// Call the sw_create_invoice method to save the invoice to the database
-	$invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
+	// Call the save method to save the invoice to the database
+	$invoice_id = Sw_Invoice_Database::save( $newInvoice );
 
 	// Check if payment status is 'unpaid' and generate a pending order
 	if ( strtolower( $payment_status ) === 'unpaid' ) {
@@ -353,7 +367,7 @@ function smartwoo_generate_service_migration_invoice() {
 		// Log the refund data into our database from where refunds can easily be processed.
 			$details = 'Refund for service ID: "' . $service_id . '" unused service balance due to migration.';
 			$note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
-			smart_woo_log( $invoice_id, 'Refund', 'Pending', $details, $refund_amount, $note );
+			smartwoo_invoice_log( $invoice_id, 'Refund', 'Pending', $details, $refund_amount, $note );
 	}
 
 	if ( $newInvoice ) {
@@ -663,8 +677,8 @@ function sw_create_invoice_for_configured_orders( $order ) {
 				);
 				$newInvoice->setDateDue( $date_due );
 
-				// Call the sw_create_invoice method to save the invoice to the database
-				$new_invoice_id = Sw_Invoice_Database::sw_create_invoice( $newInvoice );
+				// Call the save method to save the invoice to the database
+				$new_invoice_id = Sw_Invoice_Database::save( $newInvoice );
 
 				if ( $new_invoice_id ) {
 					$order->update_meta_data( '_sw_invoice_id', $invoice_id );

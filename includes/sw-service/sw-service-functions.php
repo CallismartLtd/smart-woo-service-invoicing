@@ -195,8 +195,8 @@ function sw_log_renewed_service( Sw_Service $service ) {
 	return true;
 
 }
-add_action( 'sw_service_renewed', 'sw_log_renewed_service', 20, 1 );
-add_action( 'sw_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
+add_action( 'smartwoo_service_renewed', 'sw_log_renewed_service', 20, 1 );
+add_action( 'smartwoo_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
 
 function smartwoo_service_log( Sw_Service $service, $log_type = '' ) {
 		
@@ -538,7 +538,7 @@ function sw_regulate_service_status() {
 	}
 }
 // Hook to run daily
-add_action( 'smart_woo_daily_task', 'sw_regulate_service_status' );
+add_action( 'smartwoo_daily_task', 'sw_regulate_service_status' );
 
 /**
  * Generate a unique service ID based on the provided service name.
@@ -616,7 +616,7 @@ function sw_get_service_expiration_date( Sw_Service $service ) {
  *
  * @return void
  */
-add_action( 'smart_woo_daily_task', 'sw_check_services_expired_today' );
+add_action( 'smartwoo_daily_task', 'sw_check_services_expired_today' );
 
 /**
  * Check services for expiration today and trigger 'sw_service_expired' action if found.

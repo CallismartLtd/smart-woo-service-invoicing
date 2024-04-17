@@ -35,11 +35,13 @@
 
         $merged_args = wp_parse_args( $args, $default_args );
 
+        // phpcs:disable
         $table_name = SW_INVOICE_LOG_TABLE;
         $query = $wpdb->prepare( "SELECT * FROM $table_name WHERE log_type = %s", 'Refund' );
 
         // If log_id is provided, fetch only that particular row
         if ( ! empty( $merged_args['log_id'] ) ) {
+
             $query .= $wpdb->prepare( " AND log_id = %s", $merged_args['log_id'] );
 
             // Execute the query and fetch single row
@@ -59,6 +61,7 @@
 
         // Execute the query
         $results = $wpdb->get_results( $query, ARRAY_A );
+        // phpcs:enable
 
         // Convert results to array of Sw_Invoice_log objects and return
         $logs = array();
@@ -81,7 +84,6 @@
             $refund->setStatus( 'Completed' );
             $refund->setNote( $note );
 
-            // Call the update method of the parent class to save changes
             $refund->update( $refund );
 
             // Return true to indicate success
@@ -101,10 +103,9 @@
      */
     public static function get_refund_by_id( $log_id, $status ) {
         global $wpdb;
-        
+        // phpcs:disable
         $table_name = SW_INVOICE_LOG_TABLE;
         
-        // Construct SQL query to fetch refund data by log ID and status
         $query = $wpdb->prepare( "
             SELECT log_id, log_type, amount, status, details, note, created_at, updated_at
             FROM $table_name
@@ -112,15 +113,12 @@
             LIMIT 1
         ", $log_id, $status );
 
-        // Execute the query
         $refund_data = $wpdb->get_row( $query, ARRAY_A );
+        // phpcs:enable
 
-        // Check if refund data is found
         if ( $refund_data ) {
-            // Convert the array data to Sw_Invoice_log object and return
             return self::convert_array_to_logs( $refund_data );
         } else {
-            // Refund data not found
             return null;
         }
     }

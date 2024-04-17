@@ -1026,6 +1026,7 @@ use inline CSS to overide some styles
 	background-color: rgb(255, 255, 255);
 	max-width: 600px;
 	width: 50%;
+	border-radius: 9px;
 	justify-content: space-around;
 	margin: 20px auto;
 	padding: 20px;

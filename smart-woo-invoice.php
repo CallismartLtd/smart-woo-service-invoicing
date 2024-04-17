@@ -19,13 +19,13 @@
  defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 // Plugin name as constant.
-if ( ! defined( 'SW_PLUGIN_NAME' ) ) {
+if ( ! defined( 'SMARTWOO' ) ) {
 
-	define( 'SW_PLUGIN_NAME', 'Smart Woo Service Invoicing' );
+	define( 'SMARTWOO', 'Smart Woo Service Invoicing' );
 
 }
 
-if ( defined( 'SW_PLUGIN_NAME' ) ) {
+if ( defined( 'SMARTWOO' ) ) {
 
 	// Define The Smart Woo absolute path.
 	if ( ! defined( 'SW_ABSPATH' ) ) {
@@ -34,8 +34,8 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 	}
 
 	// Define the Smart Woo Directory URL
-	if ( ! defined( 'SW_DIR_URL' ) ) {
-		define( 'SW_DIR_URL', plugin_dir_url( __FILE__ ) );
+	if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
+		define( 'SMARTWOO_DIR_URL', plugin_dir_url( __FILE__ ) );
 	}
 	
 	// Define the database table names as constants.
@@ -47,7 +47,7 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 
 	// Load scource file
 	require_once SW_ABSPATH . '/admin/include/src.php';
-	add_action( 'admin_init', 'sw_check_woocommerce' );
+	add_action( 'admin_init', 'smartwoo_check_woocommerce' );
 
 
 	/**
@@ -70,7 +70,7 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 						\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
 					}
 				} );
-				do_action( 'smart_woo_init' );
+				do_action( 'smartwoo_init' );
 
 			}
 		}
@@ -90,7 +90,7 @@ if ( defined( 'SW_PLUGIN_NAME' ) ) {
 			do_action( 'smart_woo_activation' );
 
 			// Creates Database table
-			sw_plugin_db_schema();
+			smartwoo_db_schema();
 			// Reset and recreate rewrite rules
 			flush_rewrite_rules();
 			
