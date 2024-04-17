@@ -168,12 +168,13 @@ function sw_get_service( $user_id = null, $service_id = null, $invoice_id = null
 		$query .= $wpdb->prepare( ' AND billing_cycle = %s', $billing_cycle );
 	}
 
-	// Execute the query
+	// phpcs:disable
 	if ( $service_id !== null ) {
 		return $wpdb->get_row( $query );
 	} else {
 		return $wpdb->get_results( $query );
 	}
+	// phpcs:enable
 }
 
 

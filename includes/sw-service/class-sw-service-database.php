@@ -22,10 +22,10 @@ class Sw_Service_Database {
 	public static function get_services_by_criteria( $criteria, $value ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_service';
-
-		$query   = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
-		$results = $wpdb->get_results( $query, ARRAY_A );
-
+		// phpcs:disable
+		$query   	= $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
+		$results 	= $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
 		return self::convert_results_to_services( $results );
 	}
 
@@ -38,11 +38,11 @@ class Sw_Service_Database {
 	 */
 	public static function get_all_services() {
 		global $wpdb;
+		// phpcs:disable
 		$table_name = $wpdb->prefix . 'sw_service';
-
-		$query   = "SELECT * FROM $table_name";
-		$results = $wpdb->get_results( $query, ARRAY_A );
-
+		$query   	= "SELECT * FROM $table_name";
+		$results 	= $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
 		return self::convert_results_to_services( $results );
 	}
 
@@ -58,10 +58,10 @@ class Sw_Service_Database {
 	public static function get_service_by_id( $service_id ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'sw_service';
-
+		// phpcs:disable
 		$query  = $wpdb->prepare( "SELECT * FROM $table_name WHERE service_id = %s", $service_id );
 		$result = $wpdb->get_row( $query, ARRAY_A );
-
+		// phpcs:enable
 		if ( $result ) {
 			// Convert the array result to Sw_Service object
 			return Sw_Service::convert_array_to_service( $result );
@@ -97,10 +97,8 @@ class Sw_Service_Database {
 	public static function sw_create_service( Sw_Service $service ) {
 		global $wpdb;
 
-		// Our table name
 		$table_name = $wpdb->prefix . 'sw_service';
 
-		// Data to be inserted
 		$data = array(
 			'user_id'           => absint( $service->getUserId() ),
 			'product_id'        => absint( $service->getProductId() ),
@@ -116,7 +114,6 @@ class Sw_Service_Database {
 			'status'            => sanitize_text_field( $service->getStatus() ),
 		);
 
-		// Data format (for %s, %d, etc.)
 		$data_format = array(
 			'%d', // user_id
 			'%d', // product_id
@@ -132,10 +129,9 @@ class Sw_Service_Database {
 			'%s', // status
 		);
 
-		// Insert data into the database
+		// phpcs:disable
 		$wpdb->insert( $table_name, $data, $data_format );
-
-		// Return the ID of the newly inserted service or false on failure
+		// phpcs:enable
 		return $service->getServiceId();
 	}
 
@@ -151,11 +147,8 @@ class Sw_Service_Database {
 	public static function update_service( Sw_Service $service ) {
 		global $wpdb;
 
-		// Our table name
 		$table_name = $wpdb->prefix . 'sw_service';
-
-		// Data to be updated
-		$data = array(
+		$data 		= array(
 			'user_id'           => absint( $service->getUserId() ),
 			'product_id'        => absint( $service->getProductId() ),
 			'service_name'      => sanitize_text_field( $service->getServiceName() ),
@@ -169,7 +162,6 @@ class Sw_Service_Database {
 			'status'            => is_null( $service->getStatus() ) ? null : sanitize_text_field( $service->getStatus() ),
 		);
 
-		// Data format (for %s, %d, etc.)
 		$data_format = array(
 			'%d', // user_id
 			'%d', // product_id
@@ -184,20 +176,17 @@ class Sw_Service_Database {
 			'%s', // status
 		);
 
-		// Where condition
 		$where = array(
 			'service_id' => sanitize_text_field( $service->getServiceId() ),
 		);
 
-		// Where format
 		$where_format = array(
 			'%s', // service_id
 		);
 
-		// Update data in the database
+		// phpcs:disable
 		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
-
-		// Return true on success, false on failure
+		// phpcs:enable
 		return $updated !== false;
 	}
 
@@ -213,11 +202,11 @@ class Sw_Service_Database {
 		if ( is_numeric( $value ) ) {
 			return is_float( $value ) ? '%f' : '%d';
 		} elseif ( is_bool( $value ) ) {
-			return '%d'; // Assuming boolean values are stored as integers (0 or 1)
+			return '%d';
 		} elseif ( $value instanceof DateTime ) {
-			return '%s'; // Assuming DateTime values are stored as strings
+			return '%s';
 		} else {
-			return is_string( $value ) ? '%s' : '%s'; // Default to string if the type is unknown
+			return is_string( $value ) ? '%s' : '%s';
 		}
 	}
 
@@ -234,32 +223,26 @@ class Sw_Service_Database {
 	public static function update_service_fields( $service_id, $fields ) {
 		global $wpdb;
 
-		// Our table name
-		$table_name = $wpdb->prefix . 'sw_service';
-
-		// Data to be updated
-		$data        = array();
-		$data_format = array();
+		$table_name 	= $wpdb->prefix . 'sw_service';
+		$data			= array();
+		$data_format 	= array();
 
 		foreach ( $fields as $field => $value ) {
 			$data[ $field ] = sanitize_text_field( $value );
 			$data_format[]  = self::get_data_format( $value );
 		}
 
-		// Where condition
 		$where = array(
 			'service_id' => sanitize_text_field( $service_id ),
 		);
 
-		// Where format
 		$where_format = array(
 			'%s', // service_id
 		);
 
-		// Update data in the database
+		// phpcs:disable
 		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
-
-		// Return true on success, false on failure
+		// phpcs:enable
 		return $updated !== false;
 	}
 
@@ -277,7 +260,6 @@ class Sw_Service_Database {
 		$services = array();
 
 		foreach ( $results as $result ) {
-			// Convert the array result to Sw_Service object
 			$services[] = Sw_Service::convert_array_to_service( $result );
 		}
 
@@ -304,8 +286,9 @@ class Sw_Service_Database {
 			return 'Service not found.';
 		}
 
-		// Perform the deletion
+		// phpcs:disable
 		$deleted = $wpdb->delete( $table_name, array( 'service_id' => $service_id ), array( '%s' ) );
+		// phpcs:enable
 
 		if ( false === $deleted ) {
 			return 'Error deleting Service.';

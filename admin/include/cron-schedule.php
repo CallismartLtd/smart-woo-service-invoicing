@@ -116,7 +116,7 @@ function smartwoo_once_two_days_cron( $schedules ) {
 	// Add a new cron schedule interval for once every two days (48 hours).
 	$schedules['smartwoo_once_every_two_days'] = array(
 		'interval' => 2 * 24 * 60 * 60,
-		'display'  => __( 'SmartWoo Once Every Two Days', 'smart-woo-invoice' ),
+		'display'  => __( 'SmartWoo Once Every Two Days', 'smart-woo-service-invoicing' ),
 	);
 
 	return $schedules;
@@ -144,7 +144,7 @@ add_action( 'wp', 'smartwoo_once_in48hr_scheduler' );
 function smartwoo_12hrs_cron( $schedules ) {
 	$schedules['smartwoo_12_hours'] = array(
 		'interval' => 12 * 60 * 60, // 12 hours in seconds
-		'display'  => __( 'SmartWoo twice Daily', 'smart-woo-invoice' ),
+		'display'  => __( 'SmartWoo twice Daily', 'smart-woo-service-invoicing' ),
 	);
 	return $schedules;
 }

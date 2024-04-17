@@ -49,23 +49,21 @@ function smartwoo_delete_product() {
  */
 
 // Hook to display details under the main product price
-add_action( 'woocommerce_single_product_summary', 'display_sw_service_product_details', 8 );
+add_action( 'woocommerce_single_product_summary', 'smartwoo_product_sub_info', 8 );
 
-function display_sw_service_product_details() {
+function smartwoo_product_sub_info() {
 	global $product;
 
-	// Check if the product is of type 'sw_product'
-	if ( $product && $product->get_type() === 'sw_product' ) {
-		// Get the sign-up fee and billing cycle
+	if ( $product && 'sw_product'  === $product->get_type() ) {
+
 		$sign_up_fee   = $product->get_sign_up_fee();
 		$billing_cycle = $product->get_billing_cycle();
 
-		// Display main product price with billing cycle
-		echo '<h4 class="main-price"> You will be charged  ' . wc_price( $product->get_price() ) . ' ' . ucfirst( $billing_cycle ) . '</h4>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<h4 class="main-price"> You will be charged  ' . wc_price( $product->get_price() ) . ' ' . esc_html( ucfirst( $billing_cycle ) ) . '</h4>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Display sign-up fee if applicable
 		if ( $sign_up_fee > 0 ) {
-			echo '<h5 class="sign-up-fee">and one-time sign-up fee of ' . wc_price( $sign_up_fee ) . '</h5>';
+			echo '<h5 class="sign-up-fee">and one-time sign-up fee of ' . wc_price( $sign_up_fee ) . '</h5>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			// Calculate the total price (product price + sign-up fee)
 			$total_price = $product->get_price() + $sign_up_fee;
@@ -136,7 +134,7 @@ function smartwoo_product_text_on_shop( $text, $product ) {
 	// Check if the product is of a specific type
 	if ( 'sw_product' === $product->get_type() ) {
 		$pruduct_text = get_option( 'smartwoo_product_text_on_shop', 'View Product' );
-		$text = __( $pruduct_text, 'smart-woo-invoice' );
+		$text = __( $pruduct_text, 'smart-woo-service-invoicing' );
 	}
 
 	return $text;

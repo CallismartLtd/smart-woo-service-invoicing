@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 function smartwoo_service_admin_page() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-invoice' ) );
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
 	}
 
 	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
