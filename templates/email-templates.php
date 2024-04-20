@@ -35,7 +35,7 @@ function smartwoo_user_service_cancelled_mail( $user_id, $service_id ) {
 		$cancellation_date = current_time( 'l, F j, Y @ g:i a', 0 );
 
 		// Get service details
-		$service_details = Sw_Service_Database::get_service_by_id( $service_id );
+		$service_details = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 		// Extract relevant service details
 		$service_name  = esc_html( $service_details->getServiceName() );
@@ -113,8 +113,8 @@ function smartwoo_user_service_optout_mail( $user_id, $service_id ) {
 		$user_email     = $user_info->user_email;
 		$user_firstname = $user_info->first_name;
 
-		// Get service details using sw_get_service function
-		$service_details = sw_get_service( $user_id, $service_id );
+		// Get service details using smartwoo_get_service function
+		$service_details = smartwoo_get_service( $user_id, $service_id );
 
 		// Extract relevant service details
 		$service_name = esc_html( $service_details->service_name );
@@ -172,7 +172,7 @@ function smartwoo_service_cancelled_mail_to_admin( $service_id ) {
 	$mail_is_enabled = get_option( 'smartwoo_service_cancellation_mail_to_admin', 0 );
 	if ( $mail_is_enabled ) {
 		// Get service details
-		$service_details = Sw_Service_Database::get_service_by_id( $service_id );
+		$service_details = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		$user_id         = $service_details->getUserId();
 		$user_info       = get_userdata( $user_id );
 		$user_email      = $user_info->user_email;
@@ -247,7 +247,7 @@ function smartwoo_payment_reminder() {
 		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Retrieve Unpaid Invoices
-		$unapaid_invoices = Sw_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
+		$unapaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
 		if ( empty( $unapaid_invoices ) ) {
 			return;
 		}
@@ -318,10 +318,10 @@ function smartwoo_payment_reminder() {
  * Send Service expiration mail to client on expiration day.
  *
  * @param object $service       The service object
- * @hook "sw_service_expired" triggered by sw_check_services_expired_today function
+ * @hook "smartwoo_service_expired" triggered by smatwoo_check_services_expired_today function
  */
 // Hook to send service expiration email
-add_action( 'sw_service_expired', 'sw_send_service_expiration_email' );
+add_action( 'smartwoo_service_expired', 'sw_send_service_expiration_email' );
 
 function sw_send_service_expiration_email( $service ) {
 
@@ -399,7 +399,7 @@ function sw_send_expiry_mail_to_admin() {
 		// Prepare the email subject
 		$subject = 'End Date Notification for Services Due Tomorrow';
 		// Get all Services
-		$services      = Sw_Service_Database::get_all_services();
+		$services      = SmartWoo_Service_Database::get_all_services();
 		$tomorrow_date = date_i18n( 'Y-m-d', strtotime( '+1 day' ) );
 
 		if ( ! empty( $services ) ) {
@@ -416,7 +416,7 @@ function sw_send_expiry_mail_to_admin() {
 			$message .= '<p>Dear Site Admin,</p>';
 			$message .= '<p>This is to notify you that the following services are due to end tomorrow:</p>';
 			foreach ( $services as $service ) {
-				$expiration_date = sw_get_service_expiration_date( $service );
+				$expiration_date = smartwoo_get_service_expiration_date( $service );
 
 				$user_id      = $service->getUserId();
 				$service_name = $service->getServiceName();
@@ -676,7 +676,7 @@ function sw_send_user_generated_invoice_mail( $invoice, $service ) {
  * @param object $invoice   The paid invoice
  */
 // Hook into the payment confirmation action
-add_action( 'sw_invoice_is_paid', 'smartwoo_invoice_paid_mail' );
+add_action( 'smartwoo_invoice_is_paid', 'smartwoo_invoice_paid_mail' );
 
 function smartwoo_invoice_paid_mail( $invoice ) {
 

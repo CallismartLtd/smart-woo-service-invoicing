@@ -11,13 +11,13 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
- * Class SW_Service_Log
+ * Class SmartWoo_Service_Log
  * Model used for service logging feature
  * 
  * @since   : 1.0.1
  * @package : SmartWooServiceInvoicing
  */
-class Sw_Service_Log {
+class SmartWoo_Service_Log {
     //Props
     private $id;
     private $service_id;
@@ -166,7 +166,7 @@ class Sw_Service_Log {
     }
     
     protected static function convert_array_to_logs( $data ) {
-        $log = new Sw_Service_Log();
+        $log = new SmartWoo_Service_Log();
     
         if ( isset( $data['service_id'] ) ) {
             $log->setServiceId( $data['service_id'] );
@@ -215,7 +215,7 @@ class Sw_Service_Log {
             }
         }
         // phpcs:enable
-        // Convert results to Sw_Service_Log objects
+        // Convert results to SmartWoo_Service_Log objects
         $logs = array();
         foreach ( $results as $data ) {
             $logs[] = self::convert_array_to_logs( $data );
@@ -228,14 +228,14 @@ class Sw_Service_Log {
      * Get all Renewal logs for a given service ID
      * 
      * @param string $service_id The service ID to filter by
-     * @return array             Array of Sw_Service_Log objects for renewal logs
+     * @return array             Array of SmartWoo_Service_Log objects for renewal logs
      */
     public static function get_renewal_logs_for_service_id($service_id) {
         return self::get_logs_by_criteria('service_id', $service_id);
     }
 
     /**
-     * Retrieve all Sw_Service_Log log_type that is "Renewal"
+     * Retrieve all SmartWoo_Service_Log log_type that is "Renewal"
      * Use this method when you want to get all renewal logs of a service
      */
     public static function get_renewal_log() {

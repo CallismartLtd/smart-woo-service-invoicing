@@ -22,7 +22,7 @@ function smartwoo_admin_view_service_details() {
 	if ( empty( $service_id ) ) {
 		return smartwoo_error_notice( 'Service ID parameter cannot be manipulated' );
 	}
-	$service    = Sw_Service_Database::get_service_by_id( $service_id );
+	$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 	if ( empty( $service ) ) {
 		return smartwoo_error_notice( 'Service not fund' );
 	}
@@ -49,13 +49,13 @@ function smartwoo_admin_view_service_details() {
 
 		case 'logs':
 			$page_html .= '<h2>Service Logs</h2>';
-			$page_html .= Sw_Service_log::render_log_html_output( $service_id );
-			$page_html .= Sw_Invoice_log::render_log_html_output( $service_id);
+			$page_html .= SmartWoo_Service_log::render_log_html_output( $service_id );
+			$page_html .= SmartWoo_Invoice_log::render_log_html_output( $service_id);
 			break;
 		
 		case 'stats':
 			$page_html .= '<h2>Service Logs</h2>';
-			$page_html .= sw_get_usage_metrics( $service_id );
+			$page_html .= smartwoo_usage_metrics_temp( $service_id );
 			break;
 
 		default:
@@ -72,10 +72,10 @@ function smartwoo_admin_view_service_details() {
 /**
  * Render customer details
  * 
- * @param object $service	Sw_Service object.
+ * @param object $service	SmartWoo_Service object.
  * @return string $page_html Client details container.
  */
-function smartwoo_admin_show_customer_details( Sw_Service $service ) {
+function smartwoo_admin_show_customer_details( SmartWoo_Service $service ) {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
@@ -108,9 +108,9 @@ function smartwoo_admin_show_customer_details( Sw_Service $service ) {
 /**
  * Render Details of a service.
  * 
- * @param object $service	 Sw_Service Object
+ * @param object $service	 SmartWoo_Service Object
  */
-function smartwoo_show_admin_service_details( Sw_Service $service ) {
+function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
@@ -140,7 +140,7 @@ function smartwoo_show_admin_service_details( Sw_Service $service ) {
 	$page_html .= '<p class="smartwoo-container-item"><span> Start Date:</span>' . smartwoo_check_and_format( $service->getStartDate() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Next Payment Date:</span>' . smartwoo_check_and_format( $service->getNextPaymentDate() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> End Date:</span>' . smartwoo_check_and_format( $service->getEndDate() ) . '</p>';
-	$page_html .= '<p class="smartwoo-container-item"><span> Expiration Date:</span>' . smartwoo_check_and_format( sw_get_service_expiration_date( $service ) ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span> Expiration Date:</span>' . smartwoo_check_and_format( smartwoo_get_service_expiration_date( $service ) ) . '</p>';
 	$page_html .= smartwoo_client_service_url_button( $service );
 	$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) ) . '" class="sw-blue-button">Edit this Service</a>';
 	$page_html .= smartwoo_delete_service_button( $service->getServiceId() );
@@ -154,14 +154,14 @@ function smartwoo_show_admin_service_details( Sw_Service $service ) {
  */
 function smartwoo_dashboard_page() {
 
-	$all_services = Sw_Service_Database::get_all_services();
-	$due_for_renewal_count		= count_due_for_renewal_services();
-	$expired_services_count 	= count_expired_services();
-	$grace_period_services		= count_grace_period_services();
-	$active_services_count		= count_active_services();
-	$suspended_service_acount 	= count_suspended_services();
-	$nr_services 				= count_nr_services();
-	$services   				= Sw_Service_Database::get_all_services();
+	$all_services = SmartWoo_Service_Database::get_all_services();
+	$due_for_renewal_count		= smartwoo_count_due_for_renewal_services();
+	$expired_services_count 	= smartwoo_count_expired_services();
+	$grace_period_services		= smartwoo_count_grace_period_services();
+	$active_services_count		= smartwoo_count_active_services();
+	$suspended_service_acount 	= smartwoo_count_suspended_services();
+	$nr_services 				= smartwoo_count_nr_services();
+	$services   				= SmartWoo_Service_Database::get_all_services();
 
 	/**
 	 * HTML content for dashboard Page.
@@ -599,7 +599,7 @@ function smartwoo_edit_service_form() {
 	if ( empty( $url_service_id ) ) {
 		return smartwoo_error_notice( 'Service Parameter cannot be manipulated' );
 	}
-	$service	= Sw_Service_Database::get_service_by_id( $url_service_id );
+	$service	= SmartWoo_Service_Database::get_service_by_id( $url_service_id );
 
 	if ( empty( $service ) ) {
 		return smartwoo_error_notice( 'Service not found.' );
@@ -764,7 +764,7 @@ function smartwoo_service_ID_generator_form( $service_name = null, $echo = true,
 	<div id="swloader"><?php echo esc_html__( 'Generating...', 'smart-woo-service-invoicing' ); ?></div>
 
 	<div class="sw-form-row">
-		<label for="generated-service-id" class="sw-form-label"><?php esc_html_e( 'Generated Service ID *', 'smart-woo-service-invoicing' ); ?></label>
+		<label for="generated-service-id" class="sw-form-label"><?php esc_html_e( 'Generate Service ID *', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="<?php esc_attr_e( 'Click the button to generate a unique service ID', 'smart-woo-service-invoicing' ); ?>">?</span>
 		<input type="text" class="sw-form-input" id="generated-service-id" name="service_id" readonly>
 	</div>

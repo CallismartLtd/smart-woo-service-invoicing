@@ -28,9 +28,9 @@ if ( ! defined( 'SMARTWOO' ) ) {
 if ( defined( 'SMARTWOO' ) ) {
 
 	// Define The Smart Woo absolute path.
-	if ( ! defined( 'SW_ABSPATH' ) ) {
+	if ( ! defined( 'SMARTWOO_PATH' ) ) {
 
-		define( 'SW_ABSPATH', __DIR__ . '/' );
+		define( 'SMARTWOO_PATH', __DIR__ . '/' );
 	}
 
 	// Define the Smart Woo Directory URL
@@ -46,7 +46,7 @@ if ( defined( 'SMARTWOO' ) ) {
 	define( 'SW_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
 
 	// Load scource file
-	require_once SW_ABSPATH . '/admin/include/src.php';
+	require_once SMARTWOO_PATH . '/admin/include/src.php';
 	add_action( 'admin_init', 'smartwoo_check_woocommerce' );
 
 
@@ -71,7 +71,6 @@ if ( defined( 'SMARTWOO' ) ) {
 					}
 				} );
 				do_action( 'smartwoo_init' );
-
 			}
 		}
 	}
@@ -84,7 +83,7 @@ if ( defined( 'SMARTWOO' ) ) {
 		function sw_activation() {
 
 			// Load the db table file to have access to the properties
-			include_once SW_ABSPATH . 'admin/include/sw-db.php';
+			include_once SMARTWOO_PATH . 'admin/include/sw-db.php';
 			
 			// Trigger action hook to allow us perform extra actions
 			do_action( 'smart_woo_activation' );

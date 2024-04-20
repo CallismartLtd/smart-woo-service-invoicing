@@ -1386,8 +1386,8 @@ use inline CSS to overide some styles
 }
 
 .sw-configured-product-container {
-	display: inline-block;
-	margin-right: 10px; /* Adjust margin as needed */
+	display: block;
+	
 }
 
 .sw-configured-product {

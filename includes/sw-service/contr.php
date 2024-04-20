@@ -66,8 +66,8 @@ function smartwoo_new_service_page() {
 			// Display validation errors.
 			$page_html .= smartwoo_error_notice( $validation_errors );
 		} else {
-			// Create a new Sw_Service object
-			$newservice = sw_generate_service(
+			// Create a new SmartWoo_Service object
+			$newservice = smartwoo_generate_service(
 				$user_id,
 				$product_id,
 				$service_name,
@@ -146,11 +146,11 @@ function smartwoo_process_edit_service_form( $service ) {
 			$service->setStatus( $status );
 
 			// Perform the update
-			$updated = Sw_Service_Database::update_service( $service );
+			$updated = SmartWoo_Service_Database::update_service( $service );
 			if ( $status === 'Cancelled' || $status === 'Suspended' || $status === 'Expired' && $service_type === 'Web Service' ) {
 				do_action( 'smartwoo_service_deactivated', $service );
 			} else {
-				do_action( 'sw_service_active', $service );
+				do_action( 'smartwoo_service_active', $service );
 			}
 
 			if ( $updated ) {

@@ -103,14 +103,14 @@ function smartwoo_new_product_form( $echo = true ) {
 	ob_start();
 	?>
 	<div class="sw-form-row">
-		<label for="long_description" class="sw-form-label">Long Description</label>
+		<label for="long_description" class="sw-form-label">Product Description</label>
 		<span class="sw-field-description" title="Enter detailed description for product">?</span>
 		<?php
 		wp_editor(
 			'',
-			'long_description',
+			'description',
 			array(
-				'textarea_name' => 'long_description',
+				'textarea_name' => 'description',
 				'textarea_rows' => 10,
 				'teeny'         => false,
 				'media_buttons' => true,
@@ -152,7 +152,7 @@ function smartwoo_new_product_form( $echo = true ) {
 }
 
 /**
- * Display the edit form for sw_service product.
+ * Display the form for product edit.
  * 
  * @param bool $echo whether or not to render the content.
  */
@@ -174,7 +174,7 @@ function smartwoo_product_edit_form( $echo = true) {
 		return;
 	}
 
-	if ( ! $product_data instanceof SW_Product ) {
+	if ( ! $product_data instanceof SmartWoo_Product ) {
 		echo wp_kses_post( smartwoo_error_notice( ' This is not a service product' ) );
 		return;
 	}
@@ -207,7 +207,7 @@ function smartwoo_product_edit_form( $echo = true) {
 	$page_html .= '<span class="sw-field-description" title="Enter a brief description of the product.">?</span>';
 	ob_start();
 	wp_editor(
-		esc_textarea( $product_data->get_short_description() ),
+		wp_kses_post( $product_data->get_short_description() ),
 		'short_description',
 		array(
 			'textarea_name' => 'short_description',
@@ -260,7 +260,7 @@ function smartwoo_product_edit_form( $echo = true) {
 	$page_html .= '<span class="sw-field-description" title="Enter detailed description for product">?</span>';
 	ob_start();
 	wp_editor(
-			esc_textarea( $product_data->get_description() ),
+			wp_kses_post( $product_data->get_description() ),
 			'description',
 			array(
 				'textarea_name' => 'description',
@@ -305,11 +305,11 @@ function smartwoo_product_edit_form( $echo = true) {
 
 
 /**
- * Display a table of sw_service products.
+ * Display a table of  products.
  */
 function smartwoo_product_table() {
 
-	$products_data 	= Sw_Product::get_all_products();
+	$products_data 	= SmartWoo_Product::get_all_products();
 	$page_html 		= '<div class="wrap"><h2>Service Products</h2>';
 
 	// Check if there are any products

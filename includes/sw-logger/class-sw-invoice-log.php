@@ -10,16 +10,16 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access
  
- require_once SW_ABSPATH . 'includes/sw-refund/class-sw-refund.php';
+ require_once SMARTWOO_PATH . 'includes/sw-refund/class-sw-refund.php';
 
 
 /**
- * Class Sw_Invoice_log
+ * Class SmartWoo_Invoice_log
  * 
  * Represents the Smart Woo Logs
  */
 
-class Sw_Invoice_log {
+class SmartWoo_Invoice_log {
 
     // Properties.
     private $id;
@@ -98,10 +98,10 @@ class Sw_Invoice_log {
     
 
     /**
-     * Convert array to Sw_Invoice_Log
+     * Convert array to SmartWoo_Invoice_Log
      */
     protected static function convert_array_to_logs( array $data ) {
-        $log = new Sw_Invoice_log();
+        $log = new SmartWoo_Invoice_log();
         
         if ( isset($data['log_id'] ) ) {
             $log->setLogId( $data['log_id'] );
@@ -134,7 +134,7 @@ class Sw_Invoice_log {
     /**
      * Method to log data into sw_service_logs' or 'sw_invoice_logs table
      * 
-     * @param object $log     Object of Sw_Invoice_log
+     * @param object $log     Object of SmartWoo_Invoice_log
      */
     public function save() {
         global $wpdb;
@@ -175,7 +175,7 @@ class Sw_Invoice_log {
     /**
      * Method to update a log in 'sw_service_logs' or 'sw_invoice_logs' table
      * 
-     * @param object $log     Object of Sw_Invoice_log
+     * @param object $log     Object of SmartWoo_Invoice_log
      */
     public function update( self $log ) {
         global $wpdb;
@@ -246,7 +246,7 @@ class Sw_Invoice_log {
             return array();
         }
         
-        // Convert results to Sw_Invoice_log objects
+        // Convert results to SmartWoo_Invoice_log objects
         $logs = array();
         foreach ( $results as $data ) {
             $logs[] = self::convert_array_to_logs( $data );

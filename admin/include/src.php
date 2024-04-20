@@ -1,6 +1,4 @@
 <?php
-// phpcs:ignoreFile
-
 /**
  * File name   : src.php
  * Author      : Callistus
@@ -93,51 +91,51 @@ add_action( 'smartwoo_init', 'smartwoo_src_files' );
  */
 function smartwoo_src_files() {
 
-	require_once SW_ABSPATH . 'admin/sw-functions.php';
-	require_once SW_ABSPATH . 'admin/include/cron-schedule.php';
-	require_once SW_ABSPATH . 'admin/include/service-remote.php';
-	require_once SW_ABSPATH . 'admin/include/smart-woo-manager.php';
-	include_once SW_ABSPATH . 'admin/include/sw_service_api.php';
-	require_once SW_ABSPATH . 'includes/sw-invoice/invoice.downloadable.php';
-	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice.php';
-	require_once SW_ABSPATH . 'includes/sw-invoice/class-sw-invoice-database.php';
-	require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-function.php';
-	require_once SW_ABSPATH . 'includes/sw-logger/class-sw-invoice-log.php';
-	require_once SW_ABSPATH . 'includes/sw-logger/class-sw-service-log.php';
-	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service.php';
-	require_once SW_ABSPATH . 'includes/sw-service/class-sw-service-database.php';
-	require_once SW_ABSPATH . 'includes/sw-service/sw-service-functions.php';
-	require_once SW_ABSPATH . 'includes/sw-product/class-sw-product.php';
-	require_once SW_ABSPATH . 'includes/sw-product/sw-product-functions.php';
-	require_once SW_ABSPATH . 'includes/sw-product/sw-order-config.php';
-	require_once SW_ABSPATH . 'templates/email-templates.php';
-	Sw_Product::init();
+	require_once SMARTWOO_PATH . 'admin/sw-functions.php';
+	require_once SMARTWOO_PATH . 'admin/include/cron-schedule.php';
+	require_once SMARTWOO_PATH . 'admin/include/service-remote.php';
+	require_once SMARTWOO_PATH . 'admin/include/smart-woo-manager.php';
+	include_once SMARTWOO_PATH . 'admin/include/sw_service_api.php';
+	require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
+	require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
+	require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice-database.php';
+	require_once SMARTWOO_PATH . 'includes/sw-invoice/sw-invoice-function.php';
+	require_once SMARTWOO_PATH . 'includes/sw-logger/class-sw-invoice-log.php';
+	require_once SMARTWOO_PATH . 'includes/sw-logger/class-sw-service-log.php';
+	require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service.php';
+	require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-database.php';
+	require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-functions.php';
+	require_once SMARTWOO_PATH . 'includes/sw-product/class-sw-product.php';
+	require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-functions.php';
+	require_once SMARTWOO_PATH . 'includes/sw-product/sw-order-config.php';
+	require_once SMARTWOO_PATH . 'templates/email-templates.php';
+	SmartWoo_Product::init();
 
 	// Only load compatibility file when TeraWallet plugin is installed.
 	if ( function_exists( 'woo_wallet' ) ) {
-		require_once SW_ABSPATH . 'admin/include/tera-wallet-int.php';
+		require_once SMARTWOO_PATH . 'admin/include/tera-wallet-int.php';
 	}
 	
 	// Only load admin menu and subsequent files in admin page.
 	if ( is_admin() ) {
 
-		require_once SW_ABSPATH . 'admin/admin-menu.php';
-		require_once SW_ABSPATH . 'includes/sw-service/contr.php';
-		require_once SW_ABSPATH . 'includes/sw-invoice/contr.php';
-		require_once SW_ABSPATH . 'includes/sw-product/contr.php';
+		require_once SMARTWOO_PATH . 'admin/admin-menu.php';
+		require_once SMARTWOO_PATH . 'includes/sw-service/contr.php';
+		require_once SMARTWOO_PATH . 'includes/sw-invoice/contr.php';
+		require_once SMARTWOO_PATH . 'includes/sw-product/contr.php';
 
 	}
 	// Load fontend file
 	if ( smartwoo_is_frontend() ) {
 
-		require_once SW_ABSPATH . 'frontend/woocommerce/contr.php';
-		require_once SW_ABSPATH . 'frontend/woocommerce/my-account.php';
-		require_once SW_ABSPATH . 'frontend/woocommerce/woo-forms.php';
-		require_once SW_ABSPATH . 'frontend/invoice/contr.php';
-		require_once SW_ABSPATH . 'frontend/invoice/template.php';
-		require_once SW_ABSPATH . 'frontend/shortcode.php';
-		require_once SW_ABSPATH . 'frontend/service/template.php';
-		require_once SW_ABSPATH . 'frontend/service/contr.php';
+		require_once SMARTWOO_PATH . 'frontend/woocommerce/contr.php';
+		require_once SMARTWOO_PATH . 'frontend/woocommerce/my-account.php';
+		require_once SMARTWOO_PATH . 'frontend/woocommerce/woo-forms.php';
+		require_once SMARTWOO_PATH . 'frontend/invoice/contr.php';
+		require_once SMARTWOO_PATH . 'frontend/invoice/template.php';
+		require_once SMARTWOO_PATH . 'frontend/shortcode.php';
+		require_once SMARTWOO_PATH . 'frontend/service/template.php';
+		require_once SMARTWOO_PATH . 'frontend/service/contr.php';
 
 	}
 

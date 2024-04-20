@@ -6,8 +6,9 @@
  * Description  :   Helper function for service datas
  */
 
+ defined( 'ABSPATH' ) ||exit; // Prevent direct access.
 /**
- * Generate a new Sw_Service object and save it to the database.
+ * Generate a new SmartWoo_Service object and save it to the database.
  *
  * @param int         $user_id            User ID associated with the service.
  * @param int         $product_id         Product ID for the service.
@@ -21,9 +22,9 @@
  * @param string|null $billing_cycle      Billing cycle for the service (optional).
  * @param string|null $status             Status of the service (optional).
  *
- * @return Sw_Service|false The generated Sw_Service object or false on failure.
+ * @return SmartWoo_Service|false The generated SmartWoo_Service object or false on failure.
  */
-function sw_generate_service(
+function smartwoo_generate_service(
 	int $user_id,
 	int $product_id,
 	?string $service_name = null,
@@ -37,10 +38,10 @@ function sw_generate_service(
 	?string $status = null
 ) {
 	// Generate service ID using the provided service_name or any other logic
-	$service_id = sw_generate_service_id( $service_name );
+	$service_id = smartwoo_generate_service_id( $service_name );
 
-	// Create a new Sw_Service object
-	$new_service = new Sw_Service(
+	// Create a new SmartWoo_Service object
+	$new_service = new SmartWoo_Service(
 		$user_id,
 		$product_id,
 		$service_id,
@@ -55,14 +56,13 @@ function sw_generate_service(
 		$status
 	);
 
-	// Save the new service to the database
-	$saved_service_id = Sw_Service_Database::sw_create_service( $new_service );
+	$saved_service_id = $new_service->save();
 
 	// Check if the service was successfully saved
 	if ( $saved_service_id !== false ) {
-		$new_service = Sw_Service_Database::get_service_by_id( $saved_service_id );
+		$new_service = SmartWoo_Service_Database::get_service_by_id( $saved_service_id );
 		// Trigger  action after service is created
-		do_action( 'sw_new_service_created', $new_service );
+		do_action( 'smartwoo_new_service_created', $new_service );
 
 		// Retrieve the newly created service from the database using the saved ID
 		return $new_service;
@@ -79,7 +79,7 @@ function sw_generate_service(
  * @param object $service       The service.
  * @return string HTML markup button with url keypass
  */
-function smartwoo_client_service_url_button( Sw_Service $service ) {
+function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 	$user_id        = $service->getUserId();
 	$user_info      = get_userdata( $user_id );
 	$service_status = smartwoo_service_status( $service->getServiceId() );
@@ -144,14 +144,14 @@ function smartwoo_service_page_url() {
  * @return array|object|false An array of services if no specific parameters are provided,
  *                            or service information as an object, or false if not found.
  */
-function sw_get_service( $user_id = null, $service_id = null, $invoice_id = null, $service_name = null, $billing_cycle = null, $service_type = null ) {
+function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id = null, $service_name = null, $billing_cycle = null, $service_type = null ) {
 	global $wpdb;
 	$table_name = SW_SERVICE_TABLE;
 
-	// Prepare the base query
+	// Prepare the base query.
 	$query = "SELECT * FROM $table_name WHERE 1";
 
-	// Add conditions based on provided parameters
+	// Add conditions based on provided parameters.
 	if ( $user_id !== null ) {
 		$query .= $wpdb->prepare( ' AND user_id = %d', $user_id );
 	}
@@ -180,14 +180,14 @@ function sw_get_service( $user_id = null, $service_id = null, $invoice_id = null
 
 
 /**
- * Log service information from 'sw_service' to 'sw_invoice_auto_renew'.
+ * Log service renewal information.
  *
- * @param object $service	The Sw_Service object to log
+ * @param object $service	The SmartWoo_Service object to log
  * @return bool Whether the move was successful.
  */
-function sw_log_renewed_service( Sw_Service $service ) {
+function smartwoo_log_renewed_service( SmartWoo_Service $service ) {
 
-	$log_renewal 	= new Sw_Service_Log();
+	$log_renewal 	= new SmartWoo_Service_Log();
 	$log_renewal->setServiceId( $service->getServiceId() );
 	$log_renewal->setLogType( 'Renewal' );
 	$log_renewal->setNote( 'Successfully renewed' );
@@ -196,12 +196,8 @@ function sw_log_renewed_service( Sw_Service $service ) {
 	return true;
 
 }
-add_action( 'smartwoo_service_renewed', 'sw_log_renewed_service', 20, 1 );
-add_action( 'smartwoo_expired_service_activated', 'sw_log_renewed_service', 20, 1 );
-
-function smartwoo_service_log( Sw_Service $service, $log_type = '' ) {
-		
-}
+add_action( 'smartwoo_service_renewed', 'smartwoo_log_renewed_service', 20, 1 );
+add_action( 'smartwoo_expired_service_activated', 'smartwoo_log_renewed_service', 20, 1 );
 
 /**
  * Check if a service subscription is active.
@@ -210,13 +206,11 @@ function smartwoo_service_log( Sw_Service $service, $log_type = '' ) {
  *
  * @return bool True if the subscription is active, false otherwise.
  */
-function sw_is_service_active( Sw_Service $service ) {
-	// Extract only the date portion from the end date, next payment date, and current date
+function smartwoo_is_service_active( SmartWoo_Service $service ) {
 	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
 	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
 	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
-	// Compare date strings to check if the subscription is active
 	if ( $next_payment_date > $current_date && $end_date > $current_date ) {
 		return true;
 	} else {
@@ -231,7 +225,7 @@ function sw_is_service_active( Sw_Service $service ) {
  *
  * @return bool True if the subscription is due, false otherwise
  */
-function sw_is_service_due( Sw_Service $service ) {
+function smartwoo_is_service_due( SmartWoo_Service $service ) {
 	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
 	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
 	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
@@ -250,19 +244,19 @@ function sw_is_service_due( Sw_Service $service ) {
  *
  * @return bool true if the subscription is on grace period, false otherwise.
  */
-function sw_is_service_on_grace( Sw_Service $service ) {
+function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 
 	$end_date     = smartwoo_extract_only_date( $service->getEndDate() );
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
-	// Check if the service has passed its end date
+	// Check if the service has passed its end date.
 	if ( $current_date >= $end_date ) {
 		$product_id = $service->getProductId();
 
-		// Get the grace period end date using the end date as the reference
-		$grace_period_date = sw_get_grace_period_end_date( $product_id, $end_date );
+		// Get the grace period end date using the end date as the reference.
+		$grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
-		// Check if there is a valid grace period and if the current date is within the grace period
+		// Check if there is a valid grace period and if the current date is within the grace period.
 		if ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) ) {
 			return true;
 		}
@@ -279,17 +273,17 @@ function sw_is_service_on_grace( Sw_Service $service ) {
  *
  * @return bool true if the subscription has expired, false otherwise.
  */
-function sw_has_service_expired( Sw_Service $service ) {
+function smartwoo_has_service_expired( SmartWoo_Service $service ) {
 
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
-	$expiration_date = sw_get_service_expiration_date( $service );
+	$expiration_date = smartwoo_get_service_expiration_date( $service );
 
-	// Check if the current date has passed the expiration date
+	// Check if the current date has passed the expiration date.
 	if ( $current_date >= $expiration_date ) {
-		return true; // Service has expired
+		return true;
 	}
 
-	return false; // Service has not expired
+	return false;
 }
 
 
@@ -300,26 +294,26 @@ function sw_has_service_expired( Sw_Service $service ) {
  *
  * @return string The status.
  */
-function smartwoo_service_status( string $service_id ) {
+function smartwoo_service_status( $service_id ) {
 
-	// Get the service object
-	$service = Sw_Service_Database::get_service_by_id( $service_id );
+	// Get the service object.
+	$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
-	// Get the status text in the DB which overrides the calculated status
+	// Get the status text from the DB which overrides the calculated status.
 	$overriding_status = $service->getStatus();
 
-	// Check calculated statuses
-	$active       = sw_is_service_active( $service );
-	$due          = sw_is_service_due( $service );
-	$grace_period = sw_is_service_on_grace( $service );
-	$expired      = sw_has_service_expired( $service );
+	// Check calculated statuses.
+	$active       = smartwoo_is_service_active( $service );
+	$due          = smartwoo_is_service_due( $service );
+	$grace_period = smartwoo_is_service_on_grace( $service );
+	$expired      = smartwoo_has_service_expired( $service );
 
 	// Check overriding status first
 	if ( ! empty( $overriding_status ) ) {
 		return $overriding_status;
 	}
 
-	// Check calculated statuses in order of priority
+	// Check calculated statuses in order of priority.
 	if ( $active ) {
 		return 'Active';
 	} elseif ( $due ) {
@@ -330,7 +324,7 @@ function smartwoo_service_status( string $service_id ) {
 		return 'Expired';
 	}
 
-	// Default status if none of the conditions match
+	// Default status if none of the conditions match.
 	return 'Unknown';
 }
 
@@ -340,26 +334,17 @@ function smartwoo_service_status( string $service_id ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Active' services.
  */
-function count_active_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
+function smartwoo_count_active_services( $user_id = null ) {
+	$services				= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
+	$active_services_count	= 0;
 
-	// Initialize the count of 'Active' services
-	$active_services_count = 0;
-
-	// Loop through each service to check its status
 	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
 		$status = smartwoo_service_status( $service->service_id );
 
-		// Check if the status is 'Active'
-		if ( $status === 'Active' ) {
-			// Increment the count for 'Active' services
+		if ( 'Active' === $status ) {
 			++$active_services_count;
 		}
 	}
-
-	// Return the count of 'Active' services
 	return $active_services_count;
 }
 
@@ -369,26 +354,18 @@ function count_active_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Due for Renewal' services.
  */
-function count_due_for_renewal_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
+function smartwoo_count_due_for_renewal_services( $user_id = null ) {
+	$services			= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
 	$due_services_count = 0;
 
-	// Loop through each service to check its status
 	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
 		$status = smartwoo_service_status( $service->service_id );
 
-		// Check if the status is 'Due for Renewal'
-		if ( $status === 'Due for Renewal' ) {
-			// Increment the count for 'Active' services
+		if ( 'Due for Renewal' === $status ) {
 			++$due_services_count;
 		}
 	}
 
-	// Return the count of 'Due' services
 	return $due_services_count;
 }
 
@@ -398,26 +375,18 @@ function count_due_for_renewal_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Active (NR)' services.
  */
-function count_nr_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
+function smartwoo_count_nr_services( $user_id = null ) {
+	$services 			= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
+	$nr_services_count 	= 0;
 
-	// Initialize the count of 'Active (NR)' services
-	$nr_services_count = 0;
-
-	// Loop through each service to check its status
 	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
 		$status = smartwoo_service_status( $service->service_id );
 
-		// Check if the status is 'Active (NR)'
-		if ( $status === 'Active (NR)' ) {
-			// Increment the count for 'Active' services
+		if ( 'Active (NR)' === $status ) {
 			++$nr_services_count;
 		}
 	}
 
-	// Return the count of 'Active' services
 	return $nr_services_count;
 }
 
@@ -427,26 +396,18 @@ function count_nr_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Expired' services.
  */
-function count_expired_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
+function smartwoo_count_expired_services( $user_id = null ) {
+	$services 				= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
 	$expired_services_count = 0;
 
-	// Loop through each service to check its status
 	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
 		$status = smartwoo_service_status( $service->service_id );
 
-		// Check if the status is 'Expired'
-		if ( $status === 'Expired' ) {
-			// Increment the count for 'Expired' services
+		if ( 'Expired' === $status ) {
 			++$expired_services_count;
 		}
 	}
 
-	// Return the count of 'Active' services
 	return $expired_services_count;
 }
 
@@ -456,26 +417,17 @@ function count_expired_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Grace Period' services.
  */
-function count_grace_period_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
+function smartwoo_count_grace_period_services( $user_id = null ) {
+	$services 						= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
+	$grace_period_services_count 	= 0;
 
-	// Initialize the count of 'Active' services
-	$grace_period_services_count = 0;
-
-	// Loop through each service to check its status
 	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
 		$status = smartwoo_service_status( $service->service_id );
 
-		// Check if the status is 'Grace Period'
-		if ( $status === 'Grace Period' ) {
-			// Increment the count for 'Grace Period' services
+		if ( 'Grace Period' === $status ) {
 			++$grace_period_services_count;
 		}
 	}
-
-	// Return the count of 'Active' services
 	return $grace_period_services_count;
 }
 
@@ -485,26 +437,18 @@ function count_grace_period_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Suspended' services.
  */
-function count_suspended_services( $user_id = null ) {
-	// Get services based on the provided user ID or all users
-	$services = ( $user_id !== null ) ? sw_get_service( $user_id ) : sw_get_service();
-
-	// Initialize the count of 'Active' services
+function smartwoo_count_suspended_services( $user_id = null ) {
+	$services 			= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
 	$suspended_services = 0;
 
-	// Loop through each service to check its status
 	foreach ( $services as $service ) {
-		// Get the status of the current service using user_id and service_id
 		$status = smartwoo_service_status( $service->service_id );
 
-		// Check if the status is 'Grace Period'
-		if ( $status === 'Suspended' ) {
-			// Increment the count for 'Grace Period' services
+		if ( 'Suspended' === $status ) {
 			++$suspended_services;
 		}
 	}
 
-	// Return the count of 'Active' services
 	return $suspended_services;
 }
 
@@ -515,12 +459,11 @@ function count_suspended_services( $user_id = null ) {
  * 
  * If the service has already expired, it's automatically suspend in 7days time
  */
-function sw_regulate_service_status() {
-	$services = Sw_Service_Database::get_all_services();
+function smartwoo_regulate_service_status() {
+	$services = SmartWoo_Service_Database::get_all_services();
 
-	// Loop
 	foreach ( $services as $service ) {
-		$expiry_date    = sw_get_service_expiration_date( $service );
+		$expiry_date    = smartwoo_get_service_expiration_date( $service );
 		$service_status = smartwoo_service_status( $service->getServiceId() );
 
 		if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
@@ -528,18 +471,18 @@ function sw_regulate_service_status() {
 			$field = array(
 				'status' => null,
 			);
-			Sw_Service_Database::update_service_fields( $service->getServiceId(), $field );
+			SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
 
-		} elseif ( $service_status ==='Expired' && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
+		} elseif ( 'Expired' === $service_status && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
 			$field = array(
 				'status' => 'Suspended',
 			);
-			Sw_Service_Database::update_service_fields( $service->getServiceId(), $field );
+			SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
 		}
 	}
 }
-// Hook to run daily
-add_action( 'smartwoo_daily_task', 'sw_regulate_service_status' );
+// Hook to run daily.
+add_action( 'smartwoo_daily_task', 'smartwoo_regulate_service_status' );
 
 /**
  * Generate a unique service ID based on the provided service name.
@@ -548,11 +491,9 @@ add_action( 'smartwoo_daily_task', 'sw_regulate_service_status' );
  *
  * @return string The generated service ID.
  */
-function sw_generate_service_id( string $service_name ) {
-	// Service ID Prefix
+function smartwoo_generate_service_id( string $service_name ) {
 	$service_id_prefix = get_option( 'smartwoo_service_id_prefix', 'SID' );
 
-	// Extract the first alphabet of each word in the service name
 	$first_alphabets = array_map(
 		function ( $word ) {
 			return strtoupper( substr( $word, 0, 1 ) );
@@ -560,10 +501,8 @@ function sw_generate_service_id( string $service_name ) {
 		explode( ' ', $service_name )
 	);
 
-	// Combine the first alphabets with a hyphen and a unique ID
 	$unique_id = uniqid();
 
-	// Final service ID structure: SID-each_first_alphabet_in_service_nameunique_id
 	$generated_service_id = $service_id_prefix . '-' . implode( '', $first_alphabets ) . $unique_id;
 
 	return $generated_service_id;
@@ -571,18 +510,19 @@ function sw_generate_service_id( string $service_name ) {
 
 
 // AJAX action to generate service ID
-add_action( 'wp_ajax_generate_service_id', 'generate_service_id_callback' );
+add_action( 'wp_ajax_smartwoo_service_id_ajax', 'smartwoo_ajax_service_id_callback' );
+/**
+ * Generarte service ID via ajax.
+ */
+function smartwoo_ajax_service_id_callback() { 
 
-function generate_service_id_callback() {
-	// Get the service name from AJAX request
+	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
+		wp_die( -1, 403 );
+	}
+
 	$service_name = sanitize_text_field( $_POST['service_name'] );
-
-	// generate service ID
-	$generated_service_id = sw_generate_service_id( $service_name );
-
-	// Return the generated service ID
+	$generated_service_id = smartwoo_generate_service_id( $service_name );
 	echo esc_html( $generated_service_id );
-	// avoid extra output
 	wp_die();
 }
 
@@ -593,18 +533,12 @@ function generate_service_id_callback() {
  * @param object $service The service object.
  * @return string The calculated expiration date.
  */
-function sw_get_service_expiration_date( Sw_Service $service ) {
-	// Get necessary service information
-	$end_date   = smartwoo_extract_only_date( $service->getEndDate() );
-	$product_id = $service->getProductId();
+function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
+	$end_date			= smartwoo_extract_only_date( $service->getEndDate() );
+	$product_id			= $service->getProductId();
+	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $product_id, $end_date ) );
+	$expiration_date	= $grace_period_date ?? $end_date;
 
-	// Get the grace period end date using the end date as the reference
-	$grace_period_date = smartwoo_extract_only_date( sw_get_grace_period_end_date( $product_id, $end_date ) );
-
-	// Determine the expiration date (either grace period end date or end date)
-	$expiration_date = $grace_period_date ?? $end_date;
-
-	// Format the expiration date as 'Y-m-d'
 	return $expiration_date;
 }
 
@@ -612,34 +546,28 @@ function sw_get_service_expiration_date( Sw_Service $service ) {
 /**
  * Service Expiration Action Trigger
  *
- * This function is hooked into the 'sw_service_suspension_event' action to check for services
- * that have expired today (end date is today) and trigger the 'sw_service_expired' action.
+ * This function is hooked into _event' action to check for services
+ * that have expired today (end date is today) and trigger the 'smartwoo_service_expired' action.
  *
  * @return void
  */
-add_action( 'smartwoo_daily_task', 'sw_check_services_expired_today' );
+add_action( 'smartwoo_daily_task', 'smatwoo_check_services_expired_today' );
 
 /**
- * Check services for expiration today and trigger 'sw_service_expired' action if found.
+ * Check services for expiration today and trigger 'smartwoo_service_expired' action if found.
  *
  * @return void
  */
-function sw_check_services_expired_today() {
-	// Get all services
-	$services = Sw_Service_Database::get_all_services();
+function smatwoo_check_services_expired_today() {
+	$services = SmartWoo_Service_Database::get_all_services();
 
-	// Loop through each service
 	foreach ( $services as $service ) {
-		// Get necessary service information
-		$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
+		$current_date		= smartwoo_extract_only_date( current_time( 'mysql' ) );
+		$expiration_date	= smartwoo_get_service_expiration_date( $service );
 
-		// Determine the expiration date (either grace period end date or end date)
-		$expiration_date = sw_get_service_expiration_date( $service );
-
-		// Check if the current date has passed the expiration date
 		if ( $current_date === $expiration_date ) {
-			// Trigger the 'sw_service_expired' action with the current service
-			do_action( 'sw_service_expired', $service );
+			// Trigger the 'smartwoo_service_expired' action with the current service
+			do_action( 'smartwoo_service_expired', $service );
 		}
 	}
 }
@@ -653,7 +581,7 @@ function sw_check_services_expired_today() {
  */
 function smartwoo_analyse_service_usage( $service_id ) {
 	// Get service details
-	$service_details = Sw_Service_Database::get_service_by_id( $service_id );
+	$service_details = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 	if ( ! $service_details ) {
 		// Service not found
@@ -743,27 +671,23 @@ function smartwoo_analyse_service_usage( $service_id ) {
  *
  * @return float|false The price of the service or false if not found.
  */
-function sw_get_service_price( Sw_Service $service ) {
+function smartwoo_get_service_price( SmartWoo_Service $service ) {
 
-	// Check if the service is found
 	if ( $service !== false ) {
-		// Retrieve the Product ID from the service
 		$product_id = $service->getProductId();
 		$product    = wc_get_product( $product_id );
 
-		// Check if products were retrieved successfully
-		if ( $product !== false && ! empty( $product ) ) {
+		if ( $product ) {
 
 			$product_price = $product->get_price();
 
-			// Check if the product price is available
 			if ( $product_price !== false ) {
 				return floatval( $product_price );
 			}
 		}
 	}
 
-	// Return false if the service product price is not found
+	// Return false if the service product price is not found.
 	return false;
 }
 
@@ -776,18 +700,20 @@ function sw_get_service_price( Sw_Service $service ) {
  * @param string $reference_date Reference date for calculating the grace period end date.
  * @return int|null Numeric representation of the grace period in hours, or null if not applicable.
  */
-function sw_get_grace_period_end_date( int $product_id, string $reference_date ) {
+function smartwoo_get_grace_period_end_date( $product_id, $reference_date ) {
 	// Default grace period values
 	$grace_period = array(
 		'number' => 0,
 		'unit'   => '',
 	);
 
-	// Get grace period from product metadata
-	$grace_period['number'] = get_post_meta( $product_id, 'grace_period_number', true );
-	$grace_period['unit']   = get_post_meta( $product_id, 'grace_period_unit', true );
+	$product = new SmartWoo_Product( $product_id );
 
-	// Calculate the end date of the grace period
+	// Get grace period from product metadata
+	$grace_period['number'] = $product->get_grace_period_number();
+	$grace_period['unit']   = $product->get_grace_period_unit();
+
+	// Calculate the end date of the grace period.
 	if ( ! empty( $grace_period['number'] ) && ! empty( $grace_period['unit'] ) ) {
 		switch ( $grace_period['unit'] ) {
 			case 'days':
@@ -809,7 +735,7 @@ function sw_get_grace_period_end_date( int $product_id, string $reference_date )
 		return $end_date;
 	}
 
-	// Return null if no grace period information is found or applicable
+	// Return null if no grace period information is found or applicable.
 	return null;
 }
 
@@ -847,7 +773,7 @@ function smartwoo_delete_service() {
 
 	}
 
-	$delete_result = Sw_Service_Database::delete_service( $service_id );
+	$delete_result = SmartWoo_Service_Database::delete_service( $service_id );
 
 	// Check the result and send appropriate response
 	if ( is_string( $delete_result ) ) {
@@ -867,8 +793,8 @@ function smartwoo_delete_service() {
  * @param int $user_id    User ID.
  * @param int $service_id Service ID.
  */
-function sw_get_usage_metrics( $service_id ) {
-	$service = Sw_Service_Database::get_service_by_id( $service_id );
+function smartwoo_usage_metrics_temp( $service_id ) {
+	$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 	$service_name = $service->getServiceName();
 
@@ -895,37 +821,37 @@ function sw_get_usage_metrics( $service_id ) {
 		$metrics = '<div class="serv-details-card">';
 
 		$metrics .= '<h3>Service Usage Metrics</h3>';
-		$metrics .= "<p class='service-name'> $service_name - $service_id</p>";
+		$metrics .= '<p class="service-name">' . $service_name . ' - ' . $service_id . '</p>';
 		$metrics .= "<ul class='product-costs'>";
 		foreach ( $product_costs as $product_name => $product_cost ) {
 			$metrics .= '<li>Product: ' . $product_name . ': ' . wc_price( $product_cost ) . '</li>';
 		}
 		$metrics .= '</ul>';
 
-		// Cost details
+		// Cost details.
 		$metrics .= '<h4>Cost Details:</h4>';
 
-		$metrics .= "<p class='total-service-cost'><strong>Total Service Cost:</strong> " . wc_price( $total_service_cost ) ."</p>";
-		$metrics .= "<p class='average-daily-cost'><strong>Average Daily Cost:</strong> " . wc_price( $average_daily_cost ) . "</p>";
+		$metrics .= '<p class="smartwoo-container-item"><span>Total Cost:</span>' . wc_price( $total_service_cost ) .'</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span> Average Daily Cost:</span>' . wc_price( $average_daily_cost ) . '</p>';
 
 		// Usage breakdown
 		$metrics .= '<h4>Usage Breakdown:</h4>';
-		$metrics .= "<p class='used-amount'><strong>Used Amount:</strong> " . wc_price( $used_amount ) . "</p>";
-		$metrics .= "<p class='unused-amount'><strong>Unused Amount:</strong> " . wc_price( $unused_amount ) . "</p>";
-		$metrics .= "<p class='percentage-used'><strong>Percentage Used:</strong> " . esc_html( $percentage_used ) . "%</p>";
-		$metrics .= "<p class='percentage-unused'><strong>Percentage Unused:</strong>" . esc_html( $percentage_unused ) . "%</p>";
+		$metrics .= '<p class="smartwoo-container-item"><span>Used Amount:</span>' . wc_price( $used_amount ) . '</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span>Unused Amount:</span>' . wc_price( $unused_amount ) . '</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span>Percentage Used:</span>' . esc_html( $percentage_used ) . '%</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span>Percentage Unused:</span>' . esc_html( $percentage_unused ) . '%</p>';
 
 		// Days information
 		$metrics .= '<h4>Days Information:</h4>';
-		$metrics .= "<p class='total-days'><strong>Total Days:</strong> " . esc_html( $total_days ) . "</p>";
-		$metrics .= "<p class='total-used-days'><strong>Total Used Days:</strong> " . esc_html( $total_used_days ) . "</p>";
-		$metrics .= "<p class='remaining-days'><strong>Remaining Days:</strong> " . esc_html( $remaining_days ) . "</p>";
-		$metrics .= "<p class='days-remaining'><strong>Days Remaining:</strong> " . esc_html( $days_remaining ) . "</p>";
+		$metrics .= '<p class="smartwoo-container-item"><span>Total Days:</span> ' . esc_html( $total_days ) . '</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span>Used Days:</span>' . esc_html( $total_used_days ) . '</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span>Remaining Days:</span>'. esc_html( $remaining_days ) . '</p>';
+		$metrics .= '<p class="smartwoo-container-item"><span>Expiration Countdown:</span>' . esc_html( $days_remaining ) . '</p>';
 
 		// Additional information
 		$metrics .= '<h4>Additional Information:</h4>';
-		$metrics .= "<p class='current-date-time'><strong>Current Date and Time:</strong> " . esc_html( $current_date_time ) . "</p>";
-		$metrics .= "<p class='average-hourly-usage'><strong>Average Hourly Usage:</strong> " . wc_price( $average_hourly_usage ) . "</p>";
+		$metrics .= '<p class="smartwoo-container-item"><span>Current date and Time:</span>' . esc_html( $current_date_time ) . "</p>";
+		$metrics .= '<p class="smartwoo-container-item"><span>Usage Per hour:</span>' . wc_price( $average_hourly_usage ) . "</p>";
 		$metrics .= '</div>';
 
 	} else {

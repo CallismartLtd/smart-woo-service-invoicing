@@ -7,29 +7,29 @@
  */
 
 /**
- * Class Sw_Service
+ * Class SmartWoo_Service
  *
  * Represents a service within the Smart Woo Service Invoicing for WooCommerce.
  */
-class Sw_Service {
+class SmartWoo_Service {
 
-	// Properties
-	private $id; // Unique identifier for the service (if needed)
-	private $user_id; // User ID associated with the service
-	private $product_id;   // ID of service product
-	private $service_name; // Name of the service
-	private $service_url; // URL associated with the service
-	private $service_type; // Type or category of the service
-	private $service_id; // Unique identifier for the service
-	private $invoice_id; // Invoice ID associated with the service
-	private $start_date; // Start date of the service
-	private $end_date; // End date of the service
-	private $next_payment_date; // Date of the next payment for the service
-	private $billing_cycle; // Billing cycle for the service
-	private $status; // Status of the service (e.g., active, inactive)
+	// Properties.
+	private $id;
+	private $user_id;
+	private $product_id;
+	private $service_name;
+	private $service_url;
+	private $service_type;
+	private $service_id;
+	private $invoice_id;
+	private $start_date;
+	private $end_date;
+	private $next_payment_date;
+	private $billing_cycle;
+	private $status;
 
 	/**
-	 * Sw_Service constructor.
+	 * SmartWoo_Service constructor.
 	 *
 	 * @param int         $user_id            User ID associated with the service.
 	 * @param int         $product_id         Product ID for the service
@@ -58,7 +58,6 @@ class Sw_Service {
 		?string $billing_cycle = null,
 		?string $status = null
 	) {
-		// Assigning values to class properties.
 		$this->user_id           = $user_id;
 		$this->product_id        = $product_id;
 		$this->service_id        = $service_id;
@@ -312,15 +311,21 @@ class Sw_Service {
 		return $this->status;
 	}
 
-	public function save( $data ) {
-		$id = Sw_Service_Database::sw_create_service( $data );
+	/**
+	 * Insert into the database.
+	 */
+	public function save() {
+		if ( empty( $this->getServiceId() ) ) {
+			return false; // Service ID must be generated be saving.
+		}
+		$id = SmartWoo_Service_Database::sw_create_service( $this );
 		return $id;
 	}
 
-	// Helper method to convert database results to Sw_Service objects
+	// Helper method to convert database results to SmartWoo_Service objects
 	public static function convert_array_to_service( $data ) {
-		// Create a new Sw_Service instance with the provided data
-		return new Sw_Service(
+		// Create a new SmartWoo_Service instance with the provided data
+		return new SmartWoo_Service(
 			$data['user_id'],
 			$data['product_id'],
 			$data['service_id'],

@@ -10,12 +10,12 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access // Prevent direct access // Prevent direct access
 
-require_once SW_ABSPATH . 'admin/admin-callback-functions.php';
-require_once SW_ABSPATH . 'includes/sw-service/sw-service-admin-temp.php';
-require_once SW_ABSPATH . 'includes/sw-service/sw-new-service-processing.php';
-require_once SW_ABSPATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
-require_once SW_ABSPATH . 'includes/sw-product/sw-product-admin-temp.php';
-require_once SW_ABSPATH . 'admin/sw-admin-settings.php';
+require_once SMARTWOO_PATH . 'admin/admin-callback-functions.php';
+require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-admin-temp.php';
+require_once SMARTWOO_PATH . 'includes/sw-service/sw-new-service-processing.php';
+require_once SMARTWOO_PATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
+require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-admin-temp.php';
+require_once SMARTWOO_PATH . 'admin/sw-admin-settings.php';
 
 /**
  * Defined function callback for admin menus.

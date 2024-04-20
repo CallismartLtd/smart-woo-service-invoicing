@@ -21,18 +21,16 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 function smartwoo_service_API_responder() {
 	// Check if there is an HTTP request to the endpoint.
 	if ( isset( $_GET['sw_get_service_api'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$response = array(); // Initialize response array
+		$response = array();
 
-		// Get the email and service_id from the query parameters
 		$email      = isset( $_GET['email'] ) ? sanitize_email( $_GET['email'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$service_id = isset( $_GET['serviceid'] ) ? sanitize_key( $_GET['serviceid'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Validate email and service_id parameters.
 		if ( empty( $email ) || empty( $service_id ) ) {
 			$response['error'] = 'Missing or invalid "email" or "serviceid" parameter.';
-			http_response_code( 400 ); // Bad Request
+			http_response_code( 400 );
 		} else {
-			// Map email to user ID.
 			$user = get_user_by( 'email', $email );
 
 			// Check if user exists
@@ -43,7 +41,7 @@ function smartwoo_service_API_responder() {
 				$user_id = $user->ID;
 
 				// Retrieve service details by service_id
-				$service = Sw_Service_Database::get_service_by_id( $service_id );
+				$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 				// Check authentication and service details
 				if ( $user_id !== 0 && $service !== false && $user_id === $service->getUserId() ) {

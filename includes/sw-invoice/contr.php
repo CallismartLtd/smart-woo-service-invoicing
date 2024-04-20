@@ -22,7 +22,7 @@ function smartwoo_edit_invoice_page() {
 		$page_html .= smartwoo_error_notice( 'Missing Invoice ID' );
 		return $page_html;
 	}
-	$existingInvoice = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
+	$existingInvoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( empty( $existingInvoice ) ) {
 		return smartwoo_error_notice( 'Invoice not found' );
@@ -69,7 +69,7 @@ function smartwoo_edit_invoice_page() {
 			$existingInvoice->setDateDue( sanitize_text_field( $due_date ) );
 
 			// Call the method to update the invoice in the database
-			$updated = Sw_Invoice_Database::update_invoice( $existingInvoice );
+			$updated = SmartWoo_Invoice_Database::update_invoice( $existingInvoice );
 
 			// Check the result
 			if ( $updated ) {

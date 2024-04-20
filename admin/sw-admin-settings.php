@@ -84,7 +84,7 @@ function smartwoo_save_advanced_options(){
 		}
 
 		if ( isset( $_POST['smartwoo_product_text_on_shop'] ) ) {
-			$value =  ! empty( $_POST['smartwoo_product_text_on_shop'] ) ?  sanitize_text_field( wp_unslash( $_POST['smartwoo_product_text_on_shop'] ) ) : 'View Product';
+			$value =  ! empty( $_POST['smartwoo_product_text_on_shop'] ) ?  sanitize_text_field( wp_unslash( $_POST['smartwoo_product_text_on_shop'] ) ) : 'Configure';
 			update_option( 'smartwoo_product_text_on_shop', $value );
 		}
 
@@ -526,7 +526,7 @@ function smartwoo_advanced_options() {
 
 	ob_start();
 	smartwoo_save_advanced_options();
-	$product_text = get_option( 'smartwoo_product_text_on_shop', 'View Product' );
+	$product_text = get_option( 'smartwoo_product_text_on_shop', 'Configure' );
     $checkboxes = array(
         'smartwoo_enable_api_feature',
         'smartwoo_allow_guest_invoicing',
@@ -542,7 +542,7 @@ function smartwoo_advanced_options() {
 			<div class="sw-form-row">
 				<label for="smartwoo_product_text_on_shop" class="sw-form-label"><?php esc_html_e( 'Product Button Text', 'smart-woo-service-invoicing' ); ?></label>
 				<span class="sw-field-description" title="Set the text that will be shown on each Smart Woo Product on shop page">?</span>
-				<input type="type" name="smartwoo_product_text_on_shop" id="smartwoo_product_text_on_shop" value="<?php echo esc_attr( $product_text ); ?>" placeholder="eg, View Product" class="sw-form-input">
+				<input type="type" name="smartwoo_product_text_on_shop" id="smartwoo_product_text_on_shop" value="<?php echo esc_attr( $product_text ); ?>" placeholder="eg, View Product, add to cart, configure" class="sw-form-input">
 			</div>
             <?php foreach ( $checkboxes as $checkbox_name ) : ?>
                 <div class="sw-form-row">

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Class Sw_Invoice
+ * Class SmartWoo_Invoice
  *
  * Represents an invoice for the Smart Woo Service Invoicing.
  *
  * @since   1.0.0
  */
 
-class Sw_Invoice {
+class SmartWoo_Invoice {
 
 	// Properties
 	private $id;
@@ -196,9 +196,9 @@ class Sw_Invoice {
 		return $this->total;
 	}
 
-	// Helper method to convert database results to Sw_Invoice objects
+	// Helper method to convert database results to SmartWoo_Invoice objects
 	public static function convert_array_to_invoice( $data ) {
-		return new Sw_Invoice(
+		return new SmartWoo_Invoice(
 			$data['invoice_id'],
 			$data['product_id'],
 			$data['amount'],

@@ -86,7 +86,7 @@ function smartwoo_is_prorate() {
 function smartwoo_invoice_log( $log_id, $log_type, $status, $details = '',  $amount = 0, $note = '' ) {
 	
 	// Instantiate an object of the class.
-	$log = new Sw_Invoice_log();
+	$log = new SmartWoo_Invoice_log();
 	$log->setLogId( $log_id );
 	$log->setLogType( $log_type );
 	$log->setAmount( $amount );
@@ -107,7 +107,7 @@ function smartwoo_invoice_log( $log_id, $log_type, $status, $details = '',  $amo
  * @return bool True if the refund is successfully initiated, false otherwise.
  */
 function smartwoo_refund_completed( $log_id ) {
-    return Sw_Refund::refunded( $log_id );
+    return SmartWoo_Refund::refunded( $log_id );
 }
 
 
@@ -204,10 +204,12 @@ function smartwoo_verify_token( $token ) {
  * Performs check if migration is allowed
  */
 function smartwoo_is_migration() {
-	$smartwoo_allow_migration = get_option( 'smartwoo_allow_migration', 'Disable' );
+	$option = get_option( 'smartwoo_allow_migration', 'Disable' );
+	if ( 'Enable' === $option ) {
+		return 'Enabled';
+	}
+	return 'Disabled';
 
-	// Check if service upgrade is enabled
-	return $smartwoo_allow_migration === 'Enable';
 }
 
 
@@ -558,7 +560,7 @@ function smartwoo_configure_page( $product_id ){
 	if ( empty( $product_id ) || "product" !== get_post_type( absint( $product_id ) ) ) {
 		return '#';
 	}
-	$configure_page = esc_url(  home_url( '/configure/' . absint( $product_id ) ) );
+	$configure_page = esc_url(  home_url( '/configure/?product_id=' . absint( $product_id ) ) );
 	return $configure_page;
 } 
 

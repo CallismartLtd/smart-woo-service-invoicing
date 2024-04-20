@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Class Sw_Service_Database
+ * Class SmartWoo_Service_Database
  *
- * Provides database-related functionality for retrieving and managing Sw_Service objects.
+ * Provides database-related functionality for retrieving and managing SmartWoo_Service objects.
  *
  * @since   1.0.0
  */
-class Sw_Service_Database {
+class SmartWoo_Service_Database {
 
 	/**
 	 * Retrieves services from the database based on various criteria.
@@ -15,7 +15,7 @@ class Sw_Service_Database {
 	 * @param string $criteria The criteria to filter the services.
 	 * @param mixed  $value    The value to match for the given criteria.
 	 *
-	 * @return array An array of Sw_Service objects.
+	 * @return array An array of SmartWoo_Service objects.
 	 *
 	 * @since 1.0.0
 	 */
@@ -32,7 +32,7 @@ class Sw_Service_Database {
 	/**
 	 * Retrieves all services from the database.
 	 *
-	 * @return array An array of Sw_Service objects.
+	 * @return array An array of SmartWoo_Service objects.
 	 *
 	 * @since 1.0.0
 	 */
@@ -51,7 +51,7 @@ class Sw_Service_Database {
 	 *
 	 * @param string $service_id The ID of the service to retrieve.
 	 *
-	 * @return Sw_Service|false The Sw_Service object if found, false otherwise.
+	 * @return SmartWoo_Service|false The SmartWoo_Service object if found, false otherwise.
 	 *
 	 * @since 1.0.0
 	 */
@@ -63,8 +63,8 @@ class Sw_Service_Database {
 		$result = $wpdb->get_row( $query, ARRAY_A );
 		// phpcs:enable
 		if ( $result ) {
-			// Convert the array result to Sw_Service object
-			return Sw_Service::convert_array_to_service( $result );
+			// Convert the array result to SmartWoo_Service object
+			return SmartWoo_Service::convert_array_to_service( $result );
 		}
 
 		return false;
@@ -75,7 +75,7 @@ class Sw_Service_Database {
 	 *
 	 * @param int $user_id The ID of the user to for.
 	 *
-	 * @return Sw_Service|false The Sw_Service object if found, false otherwise.
+	 * @return SmartWoo_Service|false The SmartWoo_Service object if found, false otherwise.
 	 *
 	 * @since 1.0.0
 	 */
@@ -88,13 +88,13 @@ class Sw_Service_Database {
 	/**
 	 * Creates and saves a new service in the database.
 	 *
-	 * @param Sw_Service $service The Sw_Service object to be created and saved.
+	 * @param SmartWoo_Service $service The SmartWoo_Service object to be created and saved.
 	 *
 	 * @return int|false The ID of the newly inserted service or false on failure.
 	 *
 	 * @since 1.0.0
 	 */
-	public static function sw_create_service( Sw_Service $service ) {
+	public static function sw_create_service( SmartWoo_Service $service ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'sw_service';
@@ -138,13 +138,13 @@ class Sw_Service_Database {
 	/**
 	 * Updates an existing service in the database.
 	 *
-	 * @param Sw_Service $service The Sw_Service object to be updated.
+	 * @param SmartWoo_Service $service The SmartWoo_Service object to be updated.
 	 *
 	 * @return bool True on success, false on failure.
 	 *
 	 * @since 1.0.0
 	 */
-	public static function update_service( Sw_Service $service ) {
+	public static function update_service( SmartWoo_Service $service ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'sw_service';
@@ -248,11 +248,11 @@ class Sw_Service_Database {
 
 
 	/**
-	 * Converts an array of database results to an array of Sw_Service objects.
+	 * Converts an array of database results to an array of SmartWoo_Service objects.
 	 *
 	 * @param array $results An array of database results.
 	 *
-	 * @return array An array of Sw_Service objects.
+	 * @return array An array of SmartWoo_Service objects.
 	 *
 	 * @since 1.0.0
 	 */
@@ -260,7 +260,7 @@ class Sw_Service_Database {
 		$services = array();
 
 		foreach ( $results as $result ) {
-			$services[] = Sw_Service::convert_array_to_service( $result );
+			$services[] = SmartWoo_Service::convert_array_to_service( $result );
 		}
 
 		return $services;

@@ -14,7 +14,7 @@
 function smartwoo_invoice_front_temp() {
 
 	$current_user_id = get_current_user_id();
-    $invoices        = Sw_Invoice_Database::get_invoices_by_user( $current_user_id );
+    $invoices        = SmartWoo_Invoice_Database::get_invoices_by_user( $current_user_id );
 
 	/**
 	 * Start frontpage markup
@@ -84,7 +84,7 @@ function smartwoo_invoice_details() {
 	
 	$user_id		= get_current_user_id();
 	$biller_details = smartwoo_biller_details();
-	$invoice 		= ! empty( $invoice_id ) ? Sw_Invoice_Database::get_invoice_by_id( $invoice_id ) : "";
+	$invoice 		= ! empty( $invoice_id ) ? SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id ) : "";
 
 	
 	if ( $invoice && $invoice->getUserId() === $user_id ) {
@@ -102,9 +102,9 @@ function smartwoo_invoice_details() {
 		$billing_email			= get_user_meta( $user_id, 'billing_email', true );
 		$billing_phone			= get_user_meta( $user_id, 'billing_phone', true );
 		$customer_company_name	= get_user_meta( $user_id, 'billing_company', true );
-		$user_address			= esc_html( $invoice->getBillingAddress() );
+		$user_address			= $invoice->getBillingAddress();
 		$service_id 			= $invoice->getServiceId();
-		$service    			= ! empty( $service_id ) ? Sw_Service_Database::get_service_by_id( $service_id ) : null;
+		$service    			= ! empty( $service_id ) ? SmartWoo_Service_Database::get_service_by_id( $service_id ) : null;
  
 		if ( null !== $service ) {
 			// Access the service name from the returned service object.
@@ -174,7 +174,7 @@ function smartwoo_invoice_details() {
 		// Invoice Reference (Client Details) section.
 		$invoice_content .= '<section class="invoice-details-container">';
 		$invoice_content .= '<div class="invoice-details-left">';
-		$invoice_content .= '<h3>' . esc_html__( 'Invoiced To:', 'smart-woo-service-invoicing' ) . '</h3>';
+		$invoice_content .= '<h3>' . esc_html__( 'Invoiced To', 'smart-woo-service-invoicing' ) . '</h3>';
 		$invoice_content .= '<div class="invoice-customer-info">';
 		$invoice_content .= '<p>' . esc_html( $customer_company_name ) . '</p>';
 		$invoice_content .= '<p>' . esc_html( $first_name ) . ' ' . esc_html( $last_name ) . '</p>';
@@ -185,11 +185,10 @@ function smartwoo_invoice_details() {
 		$invoice_content .= '</div>';
 		// Biller details section.
 		$invoice_content .= '<div class="invoice-details-right">';
-		$invoice_content .= '<h3>' . esc_html__( 'Pay To:', 'smart-woo-service-invoicing' ) . '</h3>';
+		$invoice_content .= '<h3>' . esc_html__( 'Pay To', 'smart-woo-service-invoicing' ) . '</h3>';
 		$invoice_content .= '<div class="invoice-business-info">';
 		$invoice_content .= '<p>' . esc_html( $business_name ) . '</p>';
-		$invoice_content .= '<p>' . esc_html( $store_address ) . '</p>';
-		$invoice_content .= '<p>' . esc_html( $store_city ) . ', ' . esc_html( $default_country ) . '</p>';
+		$invoice_content .= '<p>' . esc_html( smartwoo_get_formatted_biller_address() ) . '</p>';
 		$invoice_content .= '<p>' . esc_html( $admin_phone_number ) . '</p>';
 		$invoice_content .= '</div>';
 		$invoice_content .= '</div>';
@@ -236,7 +235,7 @@ function smartwoo_invoice_details() {
 
 		if ( $invoice->getInvoiceType() === 'Service Upgrade Invoice' || $invoice->getInvoiceType() === 'Service Downgrade Invoice' ) {
 			// Previous Service Balance.
-			$query 			  = Sw_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true );
+			$query 			  = SmartWoo_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true );
 			$balance          = ! empty( $query ) ? $query->getAmount() : 0;
 			$invoice_content .= '<div class="invoice-item">';
 			$invoice_content .= '<p class="description">' . esc_html__( 'Previous Service Balance', 'smart-woo-service-invoicing' ) . '</p>';
@@ -320,7 +319,7 @@ function smartwoo_invoice_mini_card() {
     $table_html      	  = '<div class="mini-card">';
     $table_html     	 .= '<h2>' . esc_html__('My Invoices', 'smart-woo-service-invoicing') . '</h2>';
     $table_html     	 .= '<table>';   
-    $all_invoices         = SW_Invoice_Database::get_invoices_by_user( $current_user_id );
+    $all_invoices         = SmartWoo_Invoice_Database::get_invoices_by_user( $current_user_id );
 
     if ( $all_invoices ) {
 
@@ -380,10 +379,10 @@ function smartwoo_all_user_invoices_count() {
 
 	// Get counts for each payment status for the current user.
 	$counts = array(
-		'paid'      => Sw_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'paid' ),
-		'unpaid'    => Sw_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'unpaid' ),
-		'cancelled' => Sw_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'cancelled' ),
-		'due'       => Sw_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'due' ),
+		'paid'      => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'paid' ),
+		'unpaid'    => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'unpaid' ),
+		'cancelled' => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'cancelled' ),
+		'due'       => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'due' ),
 	);
 
 	// Generate the HTML.
@@ -408,7 +407,7 @@ function smartwoo_get_unpaid_invoices_count() {
 		return "Hello! It looks like you\'re not logged in.";
 	} 
 	
-	$count = Sw_Invoice_Database::get_invoice_count_by_payment_status_for_user( get_current_user_id(), 'unpaid' );
+	$count = SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( get_current_user_id(), 'unpaid' );
 	$output	 = '<h1 class="centered" style="text-align: center; margin: 0 auto; font-size: 45px;">' . esc_html( absint( $count ) ) . '</h1>';
 	$output .= '<p class="centered" style="text-align: center; font-size: 18px;">' . esc_html__( 'New Invoices', 'smart-woo-service-invoicing' ) . '</p>';
 	

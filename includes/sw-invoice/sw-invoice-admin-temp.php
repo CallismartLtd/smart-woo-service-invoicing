@@ -6,7 +6,7 @@
  * Description  :   Functions file for invoice admin page templates
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Dropdown for Invoice Type with filter for custom options.
@@ -101,7 +101,7 @@ function smartwoo_invoice_payment_status_dropdown( $selected = null, $echo = tru
  * @since 1.0.0
  */
 function smartwoo_product_dropdown( $selected_product_id = null, $required = false, $echo = true ) {
-	// Fetch all products of type "sw_service".
+	
 	$products = wc_get_products(
 		array(
 			'type'   => 'sw_product',
@@ -326,7 +326,7 @@ function smartwoo_edit_invoice_form( $existingInvoice ) {
  */
 function smartwoo_invoice_id_dropdown( $selected_invoice_id = null, $echo = true ) {
     // Fetch invoice IDs from database.
-    $invoices = Sw_Invoice_Database::get_all_invoices();
+    $invoices = SmartWoo_Invoice_Database::get_all_invoices();
     if ( empty( $invoices ) ) {
         // Handle case where no invoices are available
         $dropdown = '<select class="sw-form-input" name="invoice_id">';
@@ -378,7 +378,7 @@ function smartwoo_invoice_dashboard() {
 	);
 
 	$table_html  =smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
-	$all_invoices = Sw_Invoice_Database::get_all_invoices();
+	$all_invoices = SmartWoo_Invoice_Database::get_all_invoices();
 	$table_html .= '<div class="sw-table-wrapper">';
 	$table_html .= '<h2>Invoice Dashboard</h2>';
 	$table_html .= smartwoo_count_all_invoices_by_status();
@@ -427,13 +427,13 @@ function smartwoo_invoice_dashboard() {
  * Invoice Details page(Admin).
  */
 function smartwoo_view_invoice_page() {
-	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( empty( $invoice_id ) ) {
 		return smartwoo_error_notice( 'Missing invoice ID', 'smart-woo-service-invoicing' ) ;
 	}
 
 	$page_html = '';
-	$invoice    = Sw_Invoice_Database::get_invoice_by_id( $invoice_id );
+	$invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( empty( $invoice ) ) {
 		$page_html .= smartwoo_notice( 'Invoice not found', 'smart-woo-service-invoicing' );
@@ -455,7 +455,7 @@ function smartwoo_view_invoice_page() {
 			break;
 
 		case 'log':
-			$page_html .= Sw_Invoice_log::render_log_html_output($invoice_id );
+			$page_html .= SmartWoo_Invoice_log::render_log_html_output($invoice_id );
 			break;
 		default:
 			$page_html .= smartwoo_invoice_details_admin_temp( $invoice );
@@ -498,13 +498,13 @@ function smartwoo_invoice_details_admin_temp( $invoice ) {
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Total:', 'smart-woo-service-invoicing' ) . '</span>' . wc_price( $invoice->getTotal() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Address:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getBillingAddress() ) . '</p>';
 	$page_html .= '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->getInvoiceId() ) ) . '">' . esc_html__( 'Edit Invoice', 'smart-woo-service-invoicing' ) . '</a>';
-	$page_html .= sw_delete_invoice_button( $invoice->getInvoiceId());
+	$page_html .= smartwoo_delete_invoice_button( $invoice->getInvoiceId());
 	$page_html .= '</div>';
 
 	return $page_html;
 }
 function smartwoo_invoice_service_related( $invoice ){
-	$service_details = Sw_Service_Database::get_service_by_id( $invoice->getServiceId() );
+	$service_details = SmartWoo_Service_Database::get_service_by_id( $invoice->getServiceId() );
 	$page_html = '<div class="serv-details-card">';
 
 	if ( $service_details ) {
@@ -535,7 +535,7 @@ function smartwoo_invoice_by_status_temp() {
 	if( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid', ) ) ) {
 		return smartwoo_notice( 'Status Parameter cannot be manipulated!' );
 	}
-	$invoices = Sw_Invoice_Database::get_invoices_by_payment_status( $payment_status );
+	$invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( $payment_status );
 
 	$table_html .= '<h1>' . __( 'Invoices by Payment Status', 'smart-woo-service-invoicing' ) . '</h1>';
 	$table_html .= '<h2>Payment Status: ' . esc_html( ucfirst( $payment_status ) ) . '</h2>';
@@ -595,10 +595,10 @@ function smartwoo_count_all_invoices_by_status() {
 
 	// Get counts for each payment status
 	$status_counts = array(
-		'paid'      => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'paid' ),
-		'unpaid'    => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'unpaid' ),
-		'cancelled' => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'cancelled' ),
-		'due'       => Sw_Invoice_Database::get_invoice_count_by_payment_status( 'due' ),
+		'paid'      => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'paid' ),
+		'unpaid'    => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'unpaid' ),
+		'cancelled' => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'cancelled' ),
+		'due'       => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'due' ),
 	);
 
 	// Generate the HTML with links

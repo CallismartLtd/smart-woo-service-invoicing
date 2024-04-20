@@ -112,10 +112,6 @@ jQuery( document ).ready(
 	}
 );
 
-
-
-
-
 /**
  * Quick Action button on Service page
  *
@@ -163,7 +159,7 @@ function openCancelServiceDialog( serviceName, serviceId ) {
 					action: 'smartwoo_cancel_or_optout',
 					security: smart_woo_vars.security,
 					service_id: serviceId,
-					selected_action: selectedAction // Include selectedAction here
+					selected_action: selectedAction
 				},
 				success: function () {
 					// Animate the text change
@@ -233,7 +229,6 @@ jQuery( document ).ready(
 
 jQuery( document ).ready(
 	function ($) {
-		// When the page is loaded, check the initial value of the grace period unit
 		checkGracePeriodUnit();
 
 		// Bind a change event to the grace period unit select
@@ -709,39 +704,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    var generateServiceIdBtn = document.getElementById('generate-service-id-btn');
-    var loader = document.getElementById('swloader');
-		if ( generateServiceIdBtn ){
-		generateServiceIdBtn.addEventListener('click', function(event) {
-			event.preventDefault();
+jQuery(document).ready(function($) {
+    var generateServiceIdBtn = $('#generate-service-id-btn');
+    var loader = $('#swloader');
 
-			// Get the service name from the input
-			var serviceName = document.getElementById('service-name').value;
-			// Display the animated loader
-			loader.style.display = 'inline-block';
+    if (generateServiceIdBtn.length) {
+        generateServiceIdBtn.on('click', function(event) {
+            event.preventDefault();
 
-			// Perform AJAX request to generate service ID
-			var xhr = new XMLHttpRequest();
+            // Get the service name from the input
+            var serviceName = $('#service-name').val();
+            // Display the animated loader
+            loader.css('display', 'inline-block');
 
-			xhr.open('POST', smart_woo_vars.ajax_url, true);
-			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.setRequestHeader('X-WP-Nonce', smart_woo_vars.security);
+            // Perform AJAX request to generate service ID
+            $.ajax({
+                url: smart_woo_vars.ajax_url,
+                type: 'POST',
+                dataType: 'text',
+                data: {
+                    action: 'smartwoo_service_id_ajax',
+                    service_name: serviceName,
+                    security: smart_woo_vars.security
+                },
+                success: function(response) {
+                    // Hide the loader when the response is received
+                    loader.css('display', 'none');
 
-			xhr.onload = function() {
-				// Hide the loader when the response is received
-				loader.style.display = 'none';
-
-				if (xhr.status >= 200 && xhr.status < 400) {
-					// Update the generated service ID input
-					document.getElementById('generated-service-id').value = xhr.responseText;
-				}
-			};
-
-			xhr.send('action=generate_service_id&service_name=' + encodeURIComponent(serviceName));
-		});
-	}
+                    // Update the generated service ID input
+                    $('#generated-service-id').val(response);
+                },
+                error: function(xhr, status, error) {
+                    // Hide the loader on error
+                    loader.css('display', 'none');
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        });
+    }
 });
+
 
 function deleteProduct(productId) {
 	var confirmDelete = confirm("Are you sure you want to delete this product?");
@@ -806,6 +809,42 @@ document.addEventListener('DOMContentLoaded', function () {
 					// Hide loading indicator after AJAX request is complete
 					hideLoadingIndicator();
 				}
+            });
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var configureProductForm = document.getElementById('smartwooConfigureProduct');
+    var buttonText = document.querySelector('.sw-blue-button');
+
+    if (configureProductForm && buttonText) {
+        configureProductForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            buttonText.textContent = 'Processing...';
+            var formData = new FormData(configureProductForm);
+            formData.append('action', 'smartwoo_configure_product');
+            formData.append('security', smart_woo_vars.security);
+
+            // Send AJAX request
+            jQuery.ajax({
+                type: 'POST',
+                url: smart_woo_vars.ajax_url,
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success && response.data) {
+                        var checkoutUrl = response.data.replace(/#038;/g, '&');
+                        window.location.href = checkoutUrl;
+                    } else {
+                        console.error('Unexpected response format:', response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    // Handle error
+                },
             });
         });
     }

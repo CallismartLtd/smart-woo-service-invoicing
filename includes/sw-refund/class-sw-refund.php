@@ -5,17 +5,17 @@
  * Description : Class file for Refund operations.
  *
  * @since      : 1.0.1
- * @package    : SmartWooServiceInvoicing
+ * @package    : SmartWooClass
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Performs all refund related operation
  * 
  * 
  */
- class Sw_Refund extends Sw_Invoice_log {
+ class SmartWoo_Refund extends SmartWoo_Invoice_log {
 
 
     /**
@@ -47,7 +47,7 @@
             // Execute the query and fetch single row
             $result = $wpdb->get_row( $query, ARRAY_A );
 
-            // Convert the result to Sw_Invoice_log object and return
+            // Convert the result to SmartWoo_Invoice_log object and return
             return self::convert_array_to_logs( $result );
         }
 
@@ -63,7 +63,7 @@
         $results = $wpdb->get_results( $query, ARRAY_A );
         // phpcs:enable
 
-        // Convert results to array of Sw_Invoice_log objects and return
+        // Convert results to array of SmartWoo_Invoice_log objects and return
         $logs = array();
         foreach ( $results as $data ) {
             $logs[] = self::convert_array_to_logs( $data );
@@ -99,7 +99,7 @@
      *
      * @param string $log_id The log ID to retrieve refund data.
      * @param string $status The status of the refund log to fetch.
-     * @return object|null Refund data as a Sw_Invoice_log object, or null if not found.
+     * @return object|null Refund data as a SmartWoo_Invoice_log object, or null if not found.
      */
     public static function get_refund_by_id( $log_id, $status ) {
         global $wpdb;

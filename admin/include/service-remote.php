@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * Please note: The API endpoint in this HTTP request is handled by our service manager must use plugin.
  * Find out more about our Service Manager Must use plugin https://callismart.com.ng/service-manager
  *
- * @param object $service SW_Service object
+ * @param object $service SmartWoo_Service object
  */
-function smartwoo_deactivate_this_service( Sw_Service $service ) {
+function smartwoo_deactivate_this_service( SmartWoo_Service $service ) {
 	$api_is_enabled = get_option( 'smartwoo_enable_api_feature', 0 );
 
 	if ( ! $api_is_enabled ) {
@@ -67,7 +67,7 @@ function check_and_disable_all_expired_services() {
 		return;
 	}
 	
-	$services = Sw_Service_Database::get_all_services();
+	$services = SmartWoo_Service_Database::get_all_services();
 
 	foreach ( $services as $service ) {
 		// Check if the service status is 'Expired' or 'Suspended'
@@ -101,9 +101,9 @@ add_action( 'smartwoo_twice_daily_task', 'check_and_disable_all_expired_services
  * Please note: The API endpoint in this HTTP request is handled by our service manager must use plugin.
  * Find out more about our Service Manager Must use plugin https://callismart.com.ng/service-manager
  *
- * @param object $service SW_Service object
+ * @param object $service SmartWoo_Service object
  */
-function check_and_activate_paid_service( Sw_Service $service ) {
+function check_and_activate_paid_service( SmartWoo_Service $service ) {
 	$api_is_enabled = get_option( 'smartwoo_enable_api_feature', 0 );
 
 	if ( ! $api_is_enabled ) {
@@ -140,7 +140,7 @@ function check_and_activate_paid_service( Sw_Service $service ) {
 	}
 }
 // Hook to run when edit to active in admin page
-add_action( 'sw_service_active', 'check_and_activate_paid_service' );
+add_action( 'smartwoo_service_active', 'check_and_activate_paid_service' );
 // Hook to run when renewed Due service
 add_action( 'smartwoo_service_renewed', 'check_and_activate_paid_service' );
 // Hook to run when reactivated

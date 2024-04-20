@@ -1,5 +1,4 @@
 <?php
-
 /**
  * File name sw-new-service-processing.php
  *Handles new service processing from the admin area
@@ -20,7 +19,8 @@ function smartwoo_service_order_table( $orders ) {
 
 
 	if ( empty( $orders ) ) {
-		return smartwoo_notice( 'All Service orders will appear here when a customer purchases a service product.' );
+		return $page_html .= smartwoo_notice( 'All Service orders will appear here when a customer purchases a service product.' );
+		
 	}
 
 	$page_html .= '<table class="sw-table">';
@@ -154,8 +154,6 @@ function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
 	return smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $service_url, $user_full_name, $start_date, $billing_cycle, $next_payment_date, $end_date, $status );
 }
 
-
-
 /**
  * Handle the processing of new service orders.
  */
@@ -202,7 +200,7 @@ function smartwoo_process_new_service_order() {
 			smartwoo_error_notice( $validation_errors );
 		}
 
-		$new_service = new Sw_Service(
+		$new_service = new SmartWoo_Service(
 			$user_id,
 			$product_id,
 			$service_id,
@@ -217,7 +215,7 @@ function smartwoo_process_new_service_order() {
 			$status
 		);
 
-			$saved_service_id = $new_service->save( $new_service );
+			$saved_service_id = $new_service->save();
 
 		if ( $saved_service_id ) {
 			$order = wc_get_order( $order_id );
@@ -226,7 +224,7 @@ function smartwoo_process_new_service_order() {
 				$order->update_status( 'completed' );
 			}
 
-			do_action( 'sw_new_service_is_processed' . $saved_service_id );
+			do_action( 'smartwoo_new_service_is_processed' . $saved_service_id );
 			wp_safe_redirect( esc_url_raw( admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $saved_service_id ) ) );
 			exit;
 		}

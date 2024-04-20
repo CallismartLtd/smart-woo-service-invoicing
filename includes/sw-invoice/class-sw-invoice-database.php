@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Class Sw_Invoice_Database
+ * Class SmartWoo_Invoice_Database
  *
- * Provides database-related functionality for retrieving and managing Sw_Invoice objects.
+ * Provides database-related functionality for retrieving and managing SmartWoo_Invoice objects.
  *
  * @since   1.0.0
  * @package SmartWooDatabase
  */
 
-class Sw_Invoice_Database {
+class SmartWoo_Invoice_Database { 
 
 	/**
 	 * Retrieves invoices from the database based on various criteria.
@@ -27,7 +27,7 @@ class Sw_Invoice_Database {
 		if ( true === $single ) {
             $result =  $wpdb->get_row( $query, ARRAY_A );
 			if ( $result ) {
-				return Sw_Invoice::convert_array_to_invoice( $result );
+				return SmartWoo_Invoice::convert_array_to_invoice( $result );
 			}
 		}
 
@@ -79,8 +79,8 @@ class Sw_Invoice_Database {
 		// phpcs:enable
 
 		if ( $result ) {
-			// Convert the array result to Sw_Invoice object
-			return Sw_Invoice::convert_array_to_invoice( $result );
+			// Convert the array result to SmartWoo_Invoice object
+			return SmartWoo_Invoice::convert_array_to_invoice( $result );
 		}
 
 		return false;
@@ -171,7 +171,7 @@ class Sw_Invoice_Database {
 
 
 	/**
-	 * Helper Private function to convert database ARRAY_A result to Sw_Invoice.
+	 * Helper Private function to convert database ARRAY_A result to SmartWoo_Invoice.
 	 * 
 	 * @param mixed|array can be array or anything else.
 	 */
@@ -182,7 +182,7 @@ class Sw_Invoice_Database {
 
 		return array_map(
 			function ( $result ) {
-				return Sw_Invoice::convert_array_to_invoice( $result );
+				return SmartWoo_Invoice::convert_array_to_invoice( $result );
 			},
 			$results
 		);
@@ -192,13 +192,13 @@ class Sw_Invoice_Database {
 	/**
 	 * Creates and saves a new invoice in the database.
 	 *
-	 * @param Sw_Invoice $invoice The Sw_Invoice object to be created and saved.
+	 * @param SmartWoo_Invoice $invoice The SmartWoo_Invoice object to be created and saved.
 	 *
 	 * @return string|false The ID of the newly inserted invoice or false on failure.
 	 *
 	 * @since 1.0.0
 	 */
-	public static function save( Sw_Invoice $invoice ) {
+	public static function save( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'sw_invoice';
@@ -253,13 +253,13 @@ class Sw_Invoice_Database {
 	/**
 	 * Updates an existing invoice in the database.
 	 *
-	 * @param Sw_Invoice $invoice The Sw_Invoice object to be updated.
+	 * @param SmartWoo_Invoice $invoice The SmartWoo_Invoice object to be updated.
 	 *
 	 * @return bool True on success, false on failure.
 	 *
 	 * @since 1.0.0
 	 */
-	public static function update_invoice( Sw_Invoice $invoice ) {
+	public static function update_invoice( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
 
 		// Our table name
@@ -328,7 +328,7 @@ class Sw_Invoice_Database {
 	 * @param string $invoice_id The ID of the invoice to update.
 	 * @param array  $fields     An associative array of fields to update and their new values.
 	 *
-	 * @return Sw_Invoice|bool The updated Sw_Invoice instance on success, false on failure.
+	 * @return SmartWoo_Invoice|bool The updated SmartWoo_Invoicenvoice instance on success, false on failure.
 	 *
 	 * @since 1.0.0
 	 */

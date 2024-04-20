@@ -22,7 +22,7 @@ function sw_pay_invoice_through_woo_wallet() {
 		return;
 	}
 	// Get all unpaid invoices
-	$unpaid_invoices = Sw_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
+	$unpaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
 
 	if ( empty( $unpaid_invoices ) ) {
 		return;

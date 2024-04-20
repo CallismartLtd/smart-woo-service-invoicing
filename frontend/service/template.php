@@ -26,7 +26,7 @@ function smartwoo_service_details( $current_user_id ) {
 		return smartwoo_error_notice( 'Service ID parameter cannot be manupulated' );
 	}
 
-	$service	= Sw_Service_Database::get_service_by_id( $url_service_id );
+	$service	= SmartWoo_Service_Database::get_service_by_id( $url_service_id );
 	$output		= smartwoo_get_navbar( $current_user_id );
 
 	if ( $service && $service->getUserId() !== $current_user_id || ! $service ) {
@@ -47,8 +47,8 @@ function smartwoo_service_details( $current_user_id ) {
 	$service_url       	= esc_url( $service->getServiceUrl() ? $service->getServiceUrl() : 'Not Available' );
 	$service_button    	= smartwoo_client_service_url_button( $service );
 	$status        	   	= smartwoo_service_status( $service_id );
-	$usage_metrics 		= sw_get_usage_metrics( $service_id );
-	$expiry_date   		= sw_get_service_expiration_date( $service );
+	$usage_metrics 		= smartwoo_usage_metrics_temp( $service_id );
+	$expiry_date   		= smartwoo_get_service_expiration_date( $service );
 	$output 			.= '<div class="content">';
 	// Add the status tag to the service name.
 	$service_name_with_status = $service_name . ' (' . $status . ')';
@@ -89,10 +89,19 @@ function smartwoo_service_details( $current_user_id ) {
 		$output .=  wp_kses_post( $service_button );
 	endif;
 	$output .= '</div>';
+
+	if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ) {
+		$output .= smartwoo_notice( 'Expiring Today' );
+	} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+		$output .= smartwoo_notice( 'Expiring Tomorrow' );
+	} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
+		$output .= smartwoo_notice( 'Expired Yesterday' );
+	}
+	
 	$output .=  wp_kses_post( $usage_metrics ) ;
 	$output .= '<div class="serv-details-card">';
 	$output .= '<div id="swloader">Processing....</div>';
-	$output .= '<p class="smartwoo-container-item"><span> Service Name:</span>' . esc_html( $service_id ) . '</p>';
+	$output .= '<p class="smartwoo-container-item"><span> Service ID:</span>' . esc_html( $service_id ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Service Type:</span>' . esc_html( $service_type ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Product Name:</span>' . esc_html( $product_name ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Amount:</span>' . esc_html( $product_price ) . '</p>';
@@ -120,10 +129,10 @@ function smartwoo_service_front_temp( $current_user_id ) {
 	$current_user 	       = wp_get_current_user();
 	$full_name             = esc_html( $current_user->display_name );
 	$user_id 			   = get_current_user_id();
-	$active_count          = count_active_services( $user_id );
-	$due_for_renewal_count = count_due_for_renewal_services( $user_id );
-	$expired_count         = count_expired_services( $user_id );
-	$grace_period_count    = count_grace_period_services( $user_id );
+	$active_count          = smartwoo_count_active_services( $user_id );
+	$due_for_renewal_count = smartwoo_count_due_for_renewal_services( $user_id );
+	$expired_count         = smartwoo_count_expired_services( $user_id );
+	$grace_period_count    = smartwoo_count_grace_period_services( $user_id );
 	// Get and sanitize the 'service_page' parameter.
 	$url_param = isset( $_GET['service_page'] ) ? sanitize_key( $_GET['service_page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$current_page_url = esc_url( add_query_arg( 'service_page', $url_param, get_permalink() ) );
@@ -169,7 +178,7 @@ function smartwoo_service_front_temp( $current_user_id ) {
 	$output .= '</div>';
 
 	// Service ID is not provided in the URL, display the list of services.
-	$services         = Sw_Service_Database::get_services_by_user( $current_user_id );
+	$services         = SmartWoo_Service_Database::get_services_by_user( $current_user_id );
 	$pending_services = smartwoo_user_processing_service( $current_user_id );
 
 	// Output services as cards.
@@ -197,7 +206,7 @@ function smartwoo_service_front_temp( $current_user_id ) {
 			);
 			// Use smartwoo_service_status to get the service status.
 			$status      = smartwoo_service_status( $service_id );
-			$expiry_date = sw_get_service_expiration_date( $service );
+			$expiry_date = smartwoo_get_service_expiration_date( $service );
 
 			// Add the status tag to the service name.
 			$service_name_with_status = $service_name . ' (' . $status . ')';
@@ -296,7 +305,7 @@ function smartwoo_user_processing_service( $user_id ) {
  */
 function smartwoo_user_service_by_status( $current_user_id, $status_label = "" ) {
     // Get all services for the current user.
-    $services	= Sw_Service_Database::get_services_by_user( $current_user_id );
+    $services	= SmartWoo_Service_Database::get_services_by_user( $current_user_id );
     $output		= smartwoo_get_navbar( $current_user_id );
 
     if ( empty( $services ) ) {
@@ -370,7 +379,7 @@ function smartwoo_service_mini_card() {
 		return 'Hello! It looks like you\'re not logged in.';
 	}
 	$current_user_id  = get_current_user_id();
-	$services         = Sw_Service_Database::get_services_by_user( $current_user_id );
+	$services         = SmartWoo_Service_Database::get_services_by_user( $current_user_id );
 	$output           = '<div class="mini-card">';
 	$output          .= '<h2>My Services</h2>';
 
@@ -407,7 +416,7 @@ function smartwoo_active_service_count_shortcode() {
 	if ( is_user_logged_in() ) {
 		$current_user = wp_get_current_user();
 		$user_id      = $current_user->ID;
-		$count = count_active_services( $user_id );
+		$count = smartwoo_count_active_services( $user_id );
 
 		// Output the count and "Services" text with inline CSS for centering.
 		$output  = '<div style="text-align: center;">';
@@ -429,12 +438,14 @@ function smartwoo_active_service_count_shortcode() {
  */
 function smartwoo_upgrade_temp( $current_user_id ) {
 
-	$services = Sw_Service_Database::get_services_by_user( $current_user_id );
+	$services = SmartWoo_Service_Database::get_services_by_user( $current_user_id );
 	$output  = smartwoo_get_navbar( $current_user_id );
 	$output .= '<div class"wrap">';
 
 	if ( empty( $services ) ) {
-		return smartwoo_notice( 'No do not have services.' );
+		$output .= smartwoo_notice( 'No service found for upgrade.' );
+		$output .= '</div>';
+		return $output;
 	}
 
 	if ( isset( $_POST['upgrade_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['upgrade_service_nonce'] ) ), 'upgrade_service_nonce' ) ) {
@@ -480,14 +491,14 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 			return smartwoo_error_notice( 'Selected product not found or not purchasable.' );
 		}
 
-		$service_price        	= sw_get_service_price( $service_to_upgrade );
+		$service_price        	= smartwoo_get_service_price( $service_to_upgrade );
 		$product_price        	= $selected_product->get_price();
 		$service_product_name 	= wc_get_product( $service_to_upgrade->getProductId() )->get_name();
 		$fee               		= floatval( $selected_product->get_sign_up_fee() ?? 0 );
 		$new_service_price 		= $product_price + $fee;
 		$prorate_status 		= smartwoo_is_prorate();
 		$usage_metrics 			= smartwoo_analyse_service_usage( $selected_service_id );
-		$order_total_data 		= sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
+		$order_total_data 		= smartwoo_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
 		$output 				.= '<div class="migration-order-container">';
 		$existing_invoice      	 = smartwoo_evaluate_service_invoices( $service_to_upgrade->getServiceId(), 'Service Upgrade Invoice', 'unpaid' );
 		$output             	.= '<div class="migrate-order-details">';
@@ -540,12 +551,15 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 	}
 
 
-	if ( 'Disable' === smartwoo_is_migration() ) {
+	if ( 'Disabled' === smartwoo_is_migration() ) {
 		return smartwoo_notice( 'Migration is not allowed' );
 	}
 
-	if ( empty( $services ) ) {
-		return smartwoo_notice( 'No services found for upgrade.' );
+	$products = SmartWoo_Product::get_migratables();
+
+	if ( empty( $products ) ) {
+		$output .= smartwoo_notice( 'No Products available to continue this upgrade, contact us if you need further assistance.' );
+		return $output;
 	}
 
 	$output .= '<form method="post" action="">';
@@ -563,7 +577,6 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 	$output .= $select_options;
 	$output .= '<button type="submit" class="sw-red-button" name="upgrade_service_submit"> Upgrade </button>';
 	$output .= '</div>';
-	$products = Sw_Product::get_migratables();
 
 	foreach( $products as $product) {
 		$product_id      	= $product->get_id();
@@ -595,9 +608,15 @@ function smartwoo_upgrade_temp( $current_user_id ) {
  */
 function smartwoo_downgrade_temp( $current_user_id ) {
 
-	$services = Sw_Service_Database::get_services_by_user( $current_user_id );
+	$services = SmartWoo_Service_Database::get_services_by_user( $current_user_id );
 	$output  = smartwoo_get_navbar( $current_user_id );
 	$output .= '<div class"wrap">';
+
+	if ( empty( $services ) ) {
+		$output .= smartwoo_notice( 'No service found for downgrade.' );
+		$output .= '</div>';
+		return $output;
+	}
 		
 	if ( isset( $_POST['downgrade_service_nonce'] ) &&  wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['downgrade_service_nonce'] ) ), 'downgrade_service_nonce' ) ) {
 		$errors				= array();
@@ -643,14 +662,14 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 		}
 
 		// Get the prices for the selected service and product.
-		$service_price			= sw_get_service_price( $service_to_downgrade );
+		$service_price			= smartwoo_get_service_price( $service_to_downgrade );
 		$service_product_name 	= wc_get_product( $service_to_downgrade->getProductId() )->get_name();
 		$product_price        	= $selected_product->get_price();
 		$fee					= floatval( $selected_product->get_sign_up_fee() ?? 0 );
 		$new_service_price    	= $product_price + $fee;
 		$prorate_status 		= smartwoo_is_prorate();
 		$usage_metrics 			= smartwoo_analyse_service_usage( $selected_service_id );
-		$order_total_data 		= sw_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
+		$order_total_data 		= smartwoo_calculate_migration_order_total( $new_service_price, $usage_metrics['unused_amount'] );
 		$output 				.= '<div class="migration-order-container">';
 		$existing_invoice_id 	= smartwoo_evaluate_service_invoices( $service_to_downgrade->getServiceId(), 'Service Downgrade Invoice', 'unpaid' );
 		$output             	.= '<div class="migrate-order-details">';
@@ -704,12 +723,15 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 		return $output;
 	}
 
-	if ( 'Disable' === smartwoo_is_migration() ) {
+	if ( 'Disabled' === smartwoo_is_migration() ) {
 		return smartwoo_notice( 'Migration is not allowed' );
 	}
 
-	if ( empty( $services ) ) {
-		return smartwoo_notice( 'No services found for Downgrade.' );
+	$products 		= SmartWoo_Product::get_migratables( 'Downgrade' );
+
+	if ( empty( $products ) ) {
+		$output .= smartwoo_notice( 'No product available to continue this downgrade, contact us if you need further assistance' );
+		return $output;
 	}
 
 
@@ -728,7 +750,6 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 	$output 		.= '<button type="submit" class="sw-red-button" name="downgrade_service_submit"> Upgrade </button>';
 
 	$output 		.= '</div>';
-	$products 		= Sw_Product::get_migratables( 'Downgrade' );
 
 	foreach( $products as $product) {
 		$product_id      	= $product->get_id();
@@ -761,7 +782,7 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 function smartwoo_buy_new_temp() {
 
 	// Get Smart Woo Products.
-	$smartwoo_products = Sw_Product::get_all_products();
+	$smartwoo_products = SmartWoo_Product::get_all_products();
 	$output = '';
 	$output .= smartwoo_get_navbar( get_current_user_id() );
 
@@ -780,8 +801,9 @@ function smartwoo_buy_new_temp() {
 			$output .= '<p>Price: ' . wc_price( $product_price ) . '</p>';
 			$output .= '<p>Sign-Up Fee: ' . $sign_up_fee . '</p>';
 			$output .= '<p><strong>' . esc_html( $billing_cycle ) . '</strong> Billing Cycle</p>';
-			$output .= '<p>' . esc_html( $product_excerpt ) . '</p>';
+			$output .= '<p>' . wp_kses_post( wp_trim_words( $product_excerpt, 40 ) ) . '</p>';
 			$output .= '<a href="' . esc_url( smartwoo_configure_page( $product_id ) ) . '" class="sw-blue-button" >' . esc_html__( 'Configure Product', 'smart-woo-service-invoicing' ) . '</a>';
+			$output .= '<a href="' . esc_url( $product->get_permalink() ) . '" class="sw-blue-button" >' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a>';
 			$output .= '</div>';
 		}
 

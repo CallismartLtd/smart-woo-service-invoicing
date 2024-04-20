@@ -1,11 +1,13 @@
 <?php
-
 /**
- * Register the 'sw_product' product type.
+ * Smart Woo Product class file
+ * 
+ * @author Callistus Nwachukwu
+ * @package SmartWooProduct.
+ * @since 1.0.0
  */
 
-
-class Sw_Product extends WC_Product {
+class SmartWoo_Product extends WC_Product {
 
 	// Properties.
 	private $type = 'sw_product';
@@ -19,49 +21,32 @@ class Sw_Product extends WC_Product {
 	 * This class should NOT be instantiated, but the wc_get_product() function
 	 * should be used. It is possible, but the wc_get_product() is preferred.
 	 *
-	 * @param int|SW_Product|object $product Product to init.
+	 * @param int|SmartWoo_Product|object $product Product to init.
 	 */
 	public function __construct( $product = 0 ) {
 		parent::__construct( $product );
+		
+		if ( ! empty( $product ) ) {
 
-		if ( is_numeric( $product ) && $product > 0 ) {
-			$this->set_id( $product );
-		} elseif ( $product instanceof self ) {
-			$this->set_id( absint( $product->get_id() ) );
-		} elseif ( ! empty( $product->ID ) ) {
-			$this->set_id( absint( $product->ID ) );
-		} else {
-			$this->set_object_read( true );
-		}
-
-		$this->data_store = WC_Data_Store::load( 'product-' . $this->get_type() );
-		if ( $this->get_id() > 0 ) {
-			$this->data_store->read( $this );
-		}
 		$this->set_sign_up_fee( $this->get_meta( '_smartwoo_sign_up_fee' ) );
 		$this->set_billing_cycle( $this->get_meta( '_smartwoo_billing_cycle' ) );
 		$this->set_grace_period_number( $this->get_meta( '_smartwoo_grace_period_number' ) );
 		$this->set_grace_period_unit( $this->get_meta( '_smartwoo_grace_period_unit' ) );
 
+		}
+
+
 	}
 
 	public static function init() {
+		$product_instance = new self();
+		$product_type = $product_instance->get_type();
 		add_filter( 'woocommerce_product_class', array( __CLASS__, 'map_product_class' ), 10, 2 );
-
+		add_action( 'woocommerce_single_product_summary', array( __CLASS__, 'sub_info' ), 10 );
+		add_action( 'woocommerce_cart_calculate_fees', array( __CLASS__, 'calculate_sign_up_fee_cart_totals' ) );
+		add_action( 'woocommerce_' . $product_type .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
 	}
-
-	 /**
-     * Map custom product type to custom class.
-     */
-    public static function map_product_class( $classname, $product_type ) {
-        if ( 'sw_product' === $product_type ) {
-            $classname = __CLASS__;
-        }
-        return $classname;
-		
-    }
-
-
+	
 	/**********************************
 	 * 		
 	 * 		Getters
@@ -149,6 +134,7 @@ class Sw_Product extends WC_Product {
 	public function set_grace_period_unit( $grace_period_unit ) {
 		$this->grace_period_unit = $grace_period_unit;
 	}
+
 	
 	/**
 	 * *****************************
@@ -186,7 +172,7 @@ class Sw_Product extends WC_Product {
 	 * Get Products of this class for migration.
 	 * 
 	 * @param $type The type of migration defaults to Upgrade
-	 * @return object $smart_woo_products Object of Sw_Product | WC_Product.
+	 * @return object $smart_woo_products Object of SmartWoo_Product | WC_Product.
 	 */
 	public static function get_migratables( $type = 'Upgrade') {
 		$cat_id = ( 'Downgrade' === $type ) ? absint( get_option( 'smartwoo_downgrade_product_cat', 0 ) ) : absint( get_option( 'smartwoo_upgrade_product_cat', 0 ) );
@@ -217,9 +203,9 @@ class Sw_Product extends WC_Product {
 	}
 
 	/**
-	 * Create a new Sw_Product.
+	 * Create a new SmartWoo_Product.
 	 *
-	 * @return Sw_Product|WP_Error The created product object or WP_Error on failure.
+	 * @return SmartWoo_Product|WP_Error The created product object or WP_Error on failure.
 	*/
 	public function save() {
 		try {
@@ -236,7 +222,7 @@ class Sw_Product extends WC_Product {
 
 	/*
 	|-----------------------------------------------------------------------------
-	|These `add` methods should be used when creating instantiating
+	|These `add` methods should be used when instantiating
 	|a new product of this class, should not be used when updating existing 
 	|product.
 	|-----------------------------------------------------------------------------
@@ -282,7 +268,7 @@ class Sw_Product extends WC_Product {
 	|--------------------------------------------------------------------------------
 	|These `update` methods should be used when an existing product of this class has
 	|been instanciated, should not be used when creating new product of this class, it's
-	|possible but somehow may introduce duplicate meta data.
+	|possible, but somehow may introduce duplicate meta data.
 	|--------------------------------------------------------------------------------
 	*/
 
@@ -321,6 +307,115 @@ class Sw_Product extends WC_Product {
 	public function update_grace_period_unit( $unit ) {
 		$this->grace_period_unit = $this->update_meta_data( '_smartwoo_grace_period_unit', $unit );
 	}
+
+	/*
+	|---------------------------------
+	|Other Methods for compatibility.
+	|---------------------------------
+	*/
+
+	/**
+	 * Add to cart URL.
+	 */
+	public function add_to_cart_url() {
+		return esc_url( esc_attr( smartwoo_configure_page( $this->get_id() ) ) );
+	}
+	
+	/**
+	 * Add to cart text.
+	 */
+	public function add_to_cart_text() {
+		$text	= smartwoo_product_text_on_shop();
+		return apply_filters( 'woocommerce_product_add_to_cart_text', $text , $this );
+	}
+
+	/**
+	 * Make product purchasable.
+	 */
+	public function is_purchasable() {
+		return true;
+	}
+	
+	/**
+	 * Map custom product type to custom class.
+	 */
+    public static function map_product_class( $classname, $product_type ) {
+        if ( 'sw_product' === $product_type ) {
+            $classname = __CLASS__;
+        }
+        return $classname;
+		
+    }
+
+	/**
+	 * Single Product add to cart text and url.
+	 */
+
+	public static function load_configure_button() {
+		global $product;
+
+		if ( $product && 'sw_product' === $product->get_type() ) {
+
+			$button  = '<div class="configure-product-button">';
+			$button .= '<a href="' . esc_attr( smartwoo_configure_page( $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html__( smartwoo_product_text_on_shop(), 'smart-woo-service-invoicing' ) . '</a>';
+			$button .= '</div>';
+			echo wp_kses_post( $button );
+		}
+	}
+
+	/**
+	 * Subscription Details on single product page.
+	 */
+	public static function sub_info() {
+		global $product;
+	
+		if ( $product && 'sw_product'  === $product->get_type() ) {
+	
+			$sign_up_fee   = $product->get_sign_up_fee();
+			$billing_cycle = $product->get_billing_cycle();
+	
+			$notice_banner  = '<div class="mini-card">';
+			$notice_banner .= '<p class="main-price"> You will be charged  <strong>' . wc_price( $product->get_price() ) . ' ' . esc_html( ucfirst( $billing_cycle ) ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	
+			if ( $sign_up_fee > 0 ) {
+				$notice_banner .=  '<p class="sign-up-fee">and a one-time sign-up fee of <strong>' . wc_price( $sign_up_fee ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$total_price = $product->get_price() + $sign_up_fee;
+	
+				$product->set_price( $total_price );
+			}
+			$notice_banner .=  '</div>';
+			echo wp_kses_post( $notice_banner );
+	
+		}
+	}
+
+	/**
+	 * Calculate the sum of sign-up fee and product price and set as cart subtotal
+	 *
+	 * @param object $cart the woocommerce cart object
+	 * @return null stops execution when cart is empty
+	 */
+	public static function calculate_sign_up_fee_cart_totals( $cart ) {
+		if ( $cart->is_empty() ) {
+			return;
+		}
+	
+		$total_sign_up_fee = 0;
+	
+		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
+			$product = $cart_item['data'];
+	
+			if ( $product && $product instanceof SmartWoo_Product ) {
+				$quantity = $cart_item['quantity'];
+	
+				$sign_up_fee = (float) $product->get_sign_up_fee() * $quantity;
+	
+				// Add the sign-up fee for the current product to the total sign-up fee
+				$total_sign_up_fee += $sign_up_fee;
+			}
+		}
+	
+		// Add total sign-up fee to cart total.
+		$cart->add_fee( 'Sign-up Fee', $total_sign_up_fee );
+	}	
 }
-
-
