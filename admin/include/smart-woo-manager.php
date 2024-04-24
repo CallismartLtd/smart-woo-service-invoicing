@@ -474,12 +474,14 @@ function smartwoo_manual_service_renewal() {
 		$service_status = smartwoo_service_status( $service_id );
 
 		if ( 'Due for Renewal' === $service_status || 'Expired' === $service_status || 'Grace Period' === $service_status ) {
-
-			$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
-			if ( $existing_invoice_id ) {
-
-				smartwoo_redirect_to_invoice_preview( $existing_invoice_id );
-
+			
+			$payment_status		= 'unpaid';
+			$invoice_type		= 'Service Renewal Invoice';
+			$date_due			= current_time( 'mysql' );
+			$created_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
+			
+			if ( $created_invoice_id ) {
+				smartwoo_redirect_to_invoice_preview( $created_invoice_id );
 			}
 
 			$payment_status = 'unpaid';

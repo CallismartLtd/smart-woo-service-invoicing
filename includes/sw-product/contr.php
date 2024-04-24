@@ -23,8 +23,8 @@ function smartwoo_process_new_product() {
         $description            = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
         $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( $_POST['billing_cycle'] ) : '';
         $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
-        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : '';
-        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : '';
+        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
+        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
 
 		// Validation.
 		$validation_errors = array();
@@ -81,8 +81,8 @@ function smartwoo_process_product_edit( $product_id ) {
         $description            = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
         $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( $_POST['billing_cycle'] ) : '';
         $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
-        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : '';
-        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : '';
+        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
+        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
 
 		$validation_errors = array();
 

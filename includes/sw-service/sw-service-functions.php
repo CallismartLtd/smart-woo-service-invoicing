@@ -703,42 +703,36 @@ function smartwoo_get_service_price( SmartWoo_Service $service ) {
  * @return int|null Numeric representation of the grace period in hours, or null if not applicable.
  */
 function smartwoo_get_grace_period_end_date( $product_id, $reference_date ) {
-	// Default grace period values
-	$grace_period = array(
-		'number' => 0,
-		'unit'   => '',
-	);
 
+	$end_date = null;
 	$product = new SmartWoo_Product( $product_id );
 
 	// Get grace period from product metadata
-	$grace_period['number'] = $product->get_grace_period_number();
-	$grace_period['unit']   = $product->get_grace_period_unit();
+	$grace_period_number	= $product->get_grace_period_number();
+	$grace_period_unit		= $product->get_grace_period_unit();
 
 	// Calculate the end date of the grace period.
-	if ( ! empty( $grace_period['number'] ) && ! empty( $grace_period['unit'] ) ) {
-		switch ( $grace_period['unit'] ) {
-			case 'days':
-				$end_date = date_i18n( 'Y-m-d', strtotime( '+' . $grace_period['number'] . ' days', strtotime( $reference_date ) ) );
-				break;
-			case 'weeks':
-				$end_date = date_i18n( 'Y-m-d', strtotime( '+' . ( $grace_period['number'] * 7 ) . ' days', strtotime( $reference_date ) ) );
-				break;
-			case 'months':
-				$end_date = date_i18n( 'Y-m-d', strtotime( '+' . $grace_period['number'] . ' months', strtotime( $reference_date ) ) );
-				break;
-			case 'years':
-				$end_date = date_i18n( 'Y-m-d', strtotime( '+' . $grace_period['number'] . ' years', strtotime( $reference_date ) ) );
-				break;
-			default:
-				$end_date = null;
-		}
-
+	if ( empty( $grace_period_number ) && empty( $grace_period_unit ) ) {
 		return $end_date;
 	}
+	switch ( $grace_period_unit ) {
+		case 'days':
+			$end_date = date_i18n( 'Y-m-d', strtotime( '+' . $grace_period_number . ' days', strtotime( $reference_date ) ) );
+			break;
+		case 'weeks':
+			$end_date = date_i18n( 'Y-m-d', strtotime( '+' . ( $grace_period_number * 7 ) . ' days', strtotime( $reference_date ) ) );
+			break;
+		case 'months':
+			$end_date = date_i18n( 'Y-m-d', strtotime( '+' . $grace_period_number . ' months', strtotime( $reference_date ) ) );
+			break;
+		case 'years':
+			$end_date = date_i18n( 'Y-m-d', strtotime( '+' . $grace_period_number . ' years', strtotime( $reference_date ) ) );
+			break;
+		default:
+			$end_date = null;
+	}
 
-	// Return null if no grace period information is found or applicable.
-	return null;
+return $end_date;
 }
 
 

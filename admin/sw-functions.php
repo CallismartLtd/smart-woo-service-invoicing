@@ -6,7 +6,7 @@
  * Description  :   Functions file
  */
 
-defined( 'ABSPATH' ) || exit; // Prevent direct access // exit if eccessed directly
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Function to format date to a human-readable format or show 'Not Available'.
@@ -16,8 +16,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access // exit if eccessed direc
  * @return string Formatted date or 'Not Available'.
  */
 function smartwoo_check_and_format( $dateString, $includeTime = false ) {
+	
 	$format = $includeTime ? 'l jS F Y \a\t h:i:s A' : 'l jS F Y';
-
 	return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
 }
 
@@ -25,17 +25,16 @@ function smartwoo_check_and_format( $dateString, $includeTime = false ) {
  * Extracts the date portion from a date and time string.
  *
  * @param string $dateTimeString The date and time string.
- * @return string The extracted date in 'Y-m-d' format.
+ * @return null|string The extracted date in 'Y-m-d' format.
  */
 function smartwoo_extract_only_date( $datetimestring ) {
-	// Explicitly cast $datetimestring to a string
-	$datetimestring = (string) $datetimestring;
 
-	// Use strtotime to convert the date and time string to a Unix timestamp
-	$timestamp = strtotime( $datetimestring );
+	if ( empty( $datetimestring ) ) {
+		return $datetimestring;
+	}
 
-	// Use date to format the timestamp to the desired 'Y-m-d' format
-	return date_i18n( 'Y-m-d', $timestamp );
+	$date_object = new DateTime( $datetimestring );
+	return $date_object->format( 'Y-m-d' );
 }
 
 /**

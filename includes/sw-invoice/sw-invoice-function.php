@@ -72,6 +72,7 @@ function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $paymen
 	}
 
 	foreach ( $invoices as $invoice ) {
+		
 		if ( 
 			$invoice->getInvoiceType() === $invoice_type 
 			&& $invoice->getServiceId() === $service_id 
@@ -82,7 +83,7 @@ function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $paymen
 	}
 
 
-	return false; // User doesn't have the desired invoice
+	return false;
 }
 
 

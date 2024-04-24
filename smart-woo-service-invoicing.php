@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Smart Woo Service Invoicing
  * Description: Integrate powerful service subscriptions and invoicing directly into your online store.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Callistus Nwachukwu
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo

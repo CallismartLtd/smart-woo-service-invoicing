@@ -2,7 +2,9 @@
 
 All notable changes to the "Smart Woo Service and Invoicing" plugin will be documented in this file.
 
-## [1.0.2] - 20224-04-24
+## [1.0.2] - yyyy-mm-dd
+
+## [1.0.2] - 2024-04-24
 
 ### Fixed
 - Security Vulnerabilities.
