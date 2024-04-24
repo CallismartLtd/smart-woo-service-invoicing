@@ -7,10 +7,10 @@
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo
  * Requires at least: 6.0
- * Tested up to: 6.5
+ * Tested up to: 6.5.2
  * Requires PHP: 7.4
  * WC requires at least: 7.0
- * WC tested up to: 8.3
+ * WC tested up to: 8.8.2
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: smart-woo-service-invoicing

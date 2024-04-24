@@ -1,7 +1,9 @@
 === Smart Woo Service Invoicing ===
 
 **Requires at least:** 6.0  
-**Tested up to:** 6.5  
+**Tested up to:** 6.5.2
+**Requires WooCommerce:** 7.0
+**WooCommerce Tested:** 8.8.2
 **Requires PHP:** 7.4  
 **Stable Tag:** 1.0.2  
 **License:** GPLv3  
