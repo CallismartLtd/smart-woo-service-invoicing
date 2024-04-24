@@ -12,8 +12,8 @@
  * Controls the new service product creation form submission
  */
 function smartwoo_process_new_product() {
-	// Handle form submission
-	if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
+
+    if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
 		
 		$new_product            = new SmartWoo_Product();
         $product_name           = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
@@ -25,9 +25,6 @@ function smartwoo_process_new_product() {
         $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
         $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : '';
         $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : '';
-
-		// Validate the product name
-		$product_name = sanitize_text_field( $_POST['product_name'] );
 
 		// Validation.
 		$validation_errors = array();

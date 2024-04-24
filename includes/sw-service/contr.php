@@ -1,12 +1,13 @@
 <?php
-
 /**
- * File name    :   contr.php
- *
- * @author      :   Callistus
- * Description  :   Controller file for Service
+ * File name contr.php
+ * Description Controller file for Service
+ * 
+ * @author Callistus
+ * @package SmartWoo\adminTemplates
  */
 
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Handles add-new service page.

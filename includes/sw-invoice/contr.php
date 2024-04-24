@@ -11,8 +11,6 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Edit invoice page controller.
- *
- * @param string $invoice_id      The ID of the Invoice to be edited.
  */
 function smartwoo_edit_invoice_page() {
 

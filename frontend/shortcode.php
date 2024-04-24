@@ -10,7 +10,7 @@
 /**
  * Central callback init function to load shortcodes
  */
-function sw_shortcode_init() {
+function smartwoo_shortcodes_init() {
 
 	/**
 	 * Short code for invoice page, should be on
@@ -59,4 +59,4 @@ function sw_shortcode_init() {
 	add_shortcode( 'sw_transactions', 'smartwoo_transactions_shortcode' );
 	add_shortcode( 'sw_transaction_status', 'smartwoo_transaction_status_shortcode' );
 }
-add_action( 'init', 'sw_shortcode_init' );
+add_action( 'init', 'smartwoo_shortcodes_init' );

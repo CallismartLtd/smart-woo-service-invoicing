@@ -5,10 +5,10 @@
  * Description : Class definition file for Smart Woo Logs
  *
  * @since      : 1.0.1
- * @package    : SmartWooServiceInvoicing
+ * @package    : SmartWoo\classes
  */
 
-defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
  
  require_once SMARTWOO_PATH . 'includes/sw-refund/class-sw-refund.php';
 

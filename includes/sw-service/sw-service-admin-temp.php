@@ -3,7 +3,7 @@
  * File name	sw-service-admin-temp.php
  * Template file for admin Service management.
  * 
- * @package SmartWooAdminTemplates.
+ * @package SmartWoo\admin\templates.
  * @author Callistus.
  */
 

@@ -25,9 +25,9 @@ function smartwoo_register_woocommerce_account_menu( $items ) {
     $position_service = 4;
 
     $items = array_slice( $items, 0, $position_invoice, true ) +
-             $new_items +
-             array_slice( $items, $position_invoice, NULL, true ) +
-             array_slice( $items, $position_service, NULL, true );
+        $new_items +
+        array_slice( $items, $position_invoice, NULL, true ) +
+    array_slice( $items, $position_service, NULL, true );
 			 
 	return $items;
 }
@@ -37,9 +37,8 @@ add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_acc
  * My Acoount endpoint.
  */
 function smartwoo_register_woocommerce_account_endpoints() {
-	add_rewrite_endpoint( 'smartwoo-invoice', EP_PERMALINK | EP_PAGES );
-	add_rewrite_endpoint( 'smartwoo-service', EP_PERMALINK | EP_PAGES );
-    
+	add_rewrite_endpoint( 'smartwoo-invoice', EP_PAGES );
+	add_rewrite_endpoint( 'smartwoo-service', EP_PAGES );
 }
 add_action( 'init', 'smartwoo_register_woocommerce_account_endpoints', 40);
 

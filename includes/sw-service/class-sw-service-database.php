@@ -1,10 +1,18 @@
 <?php
+/**
+ * Class file for Smart Woo Service Database interactions.
+ * 
+ * @author Callistus.
+ * @package SmartWoo\classes
+ */
+
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Class SmartWoo_Service_Database
- *
  * Provides database-related functionality for retrieving and managing SmartWoo_Service objects.
- *
+ * 
+ * @package SmartWooService
  * @since   1.0.0
  */
 class SmartWoo_Service_Database {
@@ -94,7 +102,7 @@ class SmartWoo_Service_Database {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function sw_create_service( SmartWoo_Service $service ) {
+	public static function create_service( SmartWoo_Service $service ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'sw_service';

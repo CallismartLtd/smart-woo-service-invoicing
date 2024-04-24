@@ -1,4 +1,13 @@
 <?php
+/**
+ * Class file for Smart Woo Invoice Database interaction.
+ * 
+ * @author Callistus.
+ * @since 1.0.0
+ * @package SmartWoo\Classes
+ */
+
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Class SmartWoo_Invoice_Database
@@ -6,9 +15,8 @@
  * Provides database-related functionality for retrieving and managing SmartWoo_Invoice objects.
  *
  * @since   1.0.0
- * @package SmartWooDatabase
+ * @package SmartWooInvoice
  */
-
 class SmartWoo_Invoice_Database { 
 
 	/**

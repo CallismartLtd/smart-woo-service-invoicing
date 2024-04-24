@@ -12,7 +12,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * Register the configure page URL rules.
  */
 function smartwoo_configure_product_page_rule() {
-	add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
+	//add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
+	
 }
 add_action( 'init', 'smartwoo_configure_product_page_rule' );
 

@@ -16,26 +16,40 @@
  * Text Domain: smart-woo-service-invoicing
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
-// Plugin name as constant.
 if ( ! defined( 'SMARTWOO' ) ) {
-
 	define( 'SMARTWOO', 'Smart Woo Service Invoicing' );
-
 }
 
 if ( defined( 'SMARTWOO' ) ) {
 
-	// Define The Smart Woo absolute path.
 	if ( ! defined( 'SMARTWOO_PATH' ) ) {
-
+		/**
+		 * Define The Smart Woo absolute path.
+		 */
 		define( 'SMARTWOO_PATH', __DIR__ . '/' );
+	}	
+	
+	if ( ! defined( 'SMARTWOO_FILE' ) ) {
+		/**
+		 * Define Main plugin file.
+		 */
+		define( 'SMARTWOO_FILE', __FILE__ );
 	}
 
 	// Define the Smart Woo Directory URL
 	if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
 		define( 'SMARTWOO_DIR_URL', plugin_dir_url( __FILE__ ) );
+	}	
+	
+	// Define the Smart Woo Directory URL
+	if ( ! defined( 'SMARTWOO_VER' ) ) {
+		define( 'SMARTWOO_VER', '1.0.2' );
+	}
+
+	if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
+		define( 'SMARTWOO_DB_VER', '1' );
 	}
 	
 	// Define the database table names as constants.
@@ -45,69 +59,8 @@ if ( defined( 'SMARTWOO' ) ) {
 	define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
 	define( 'SW_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
 
-	// Load scource file
-	require_once SMARTWOO_PATH . '/admin/include/src.php';
-	add_action( 'admin_init', 'smartwoo_check_woocommerce' );
-
-
-	/**
-	 * Load woocommerce before loading plugin dependencies
-	 */
-
-	add_action( 'woocommerce_loaded', 'sw_initialization' );
-
-	if ( ! function_exists( 'sw_initialization' ) ) {
-
-		function sw_initialization() {
-
-			if ( class_exists( 'WooCommerce' ) ) {
-				/**
-				 * WooComerce is active, action hook to load plugin files
-				 */
-				
-				add_action( 'before_woocommerce_init', function() {
-					if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-						\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-					}
-				} );
-				do_action( 'smartwoo_init' );
-			}
-		}
-	}
-
-	/**
-	 * The activation function
-	 */
-	if ( ! function_exists( 'sw_activation' ) ) {
-
-		function sw_activation() {
-
-			// Load the db table file to have access to the properties
-			include_once SMARTWOO_PATH . 'admin/include/sw-db.php';
-			
-			// Trigger action hook to allow us perform extra actions
-			do_action( 'smart_woo_activation' );
-
-			// Creates Database table
-			smartwoo_db_schema();
-			// Reset and recreate rewrite rules
-			flush_rewrite_rules();
-			
-
-		}
-	}
-
-	// Activation hook for the plugin
-	register_activation_hook( __FILE__, 'sw_activation' );
-
-	/**
-	 * Function to run when deactivating plugin
-	 */
-	if ( ! function_exists( 'sw_deactivation' ) ) {
-		function sw_deactivation() {
-			
-		}
-	}
-	register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
-	
+	// Load config file.
+	require_once SMARTWOO_PATH . 'includes/class-sw-config.php';
+	require_once SMARTWOO_PATH . 'includes/class-sw-install.php';
+	SmartWoo_Config::instance();
 }

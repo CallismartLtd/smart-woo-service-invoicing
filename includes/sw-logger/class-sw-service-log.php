@@ -5,7 +5,7 @@
  * Description : Class definition file for service logging feature
  *
  * @since      : 1.0.1
- * @package    : SmartWooServiceInvoicing
+ * @package    : SmartWoo\classes
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * Model used for service logging feature
  * 
  * @since   : 1.0.1
- * @package : SmartWooServiceInvoicing
+ * @package : SmartWooService
  */
 class SmartWoo_Service_Log {
     //Props

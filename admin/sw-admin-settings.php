@@ -642,3 +642,5 @@ function smartwoo_help_container( $echo = true) {
 		return $content;
 	}
 }
+
+

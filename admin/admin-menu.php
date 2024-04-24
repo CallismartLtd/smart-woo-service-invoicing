@@ -8,7 +8,7 @@
  * @package    : SmartWooServiceInvoicing
  */
 
-defined( 'ABSPATH' ) || exit; // Prevent direct access // Prevent direct access // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 require_once SMARTWOO_PATH . 'admin/admin-callback-functions.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-admin-temp.php';

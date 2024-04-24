@@ -1,10 +1,10 @@
 <?php
 /**
- * File name    :   sw-product-admin-temp.php
+ * File name sw-product-admin-temp.php
+ * Description  Admin Template file
  *
- * @author      :   Callistus
+ * @author  Callistus
  * @package SmartWooTemplates
- * Description  :   Admin Template file
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
@@ -142,10 +142,8 @@ function smartwoo_new_product_form( $echo = true ) {
 	$form_html .= '<input type="submit" name="create_sw_product" value="Create Product" class="sw-blue-button">';
 	$form_html .= '</form></div></div>';
 
+	// Content is safe.
 	if ( true === $echo ) {
-	/**
-	 * We need to render the content of this function since wp_editor cannot be run through escaping function.
-	 */
 		echo $form_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 	return $form_html;
@@ -293,10 +291,8 @@ function smartwoo_product_edit_form( $echo = true) {
 	$page_html .= '<input type="submit" name="update_service_product" class="sw-blue-button" value="Update Product">';
 	$page_html .= '</form></div></div>';
 	
+	// Content is safe.
 	if ( true === $echo ){
-		/**
-		 * We need to render the content of this function since wp_editor cannot be run through escaping function.
-		 */
 		echo $page_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 	return $page_html;

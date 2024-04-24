@@ -1,5 +1,4 @@
 <?php
-
 /**
  * File name    :   sw-product-functions.php
  *

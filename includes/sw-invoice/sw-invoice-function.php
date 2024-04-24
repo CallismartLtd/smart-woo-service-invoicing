@@ -1,9 +1,10 @@
 <?php
 /**
- * File name    :   sw-invoice-functions.php
+ * File name  sw-invoice-functions.php
+ * Utility function file to interact with invoice related data.
  *
- * @author      :   Callistus
- * Description  :   Helper function for invoice datas
+ * @author Callistus
+ * @package SmartWoo\functions
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
@@ -192,7 +193,7 @@ function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null )
  *
  * @return string $invoice_id   The new Generated Invoice ID
  */
-function sw_generate_invoice_id() {
+function smartwoo_generate_invoice_id() {
 	$invoice_id = uniqid( smartwoo_get_invoice_id_prefix() . '-' );
 	if ( $invoice_id ) {
 		return $invoice_id;
@@ -215,7 +216,7 @@ function sw_generate_invoice_id() {
  * @since 1.0.0
  */
 function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id = null, $fee = null, $date_due = null ) {
-	$invoice_id 		= sw_generate_invoice_id();
+	$invoice_id 		= smartwoo_generate_invoice_id();
 	$billing_address 	= smartwoo_get_user_billing_address( $user_id );
 	$amount 			= wc_get_product( $product_id )->get_price();
 	$total 				= $amount + ( $fee ?? 0 );
@@ -643,7 +644,7 @@ function smartwoo_create_new_order_invoice( $order ) {
 				* Set up the necessary properties for new invoice
 				*/
 
-				$invoice_id      = sw_generate_invoice_id();
+				$invoice_id      = smartwoo_generate_invoice_id();
 				$product_id      = $product->get_id();
 				$amount          = $product->get_price();
 				$total           = $amount + ( $fee_amount ?? 0 );

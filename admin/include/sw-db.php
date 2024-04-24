@@ -5,22 +5,17 @@
  * Description : Database table definition file
  *
  * @since      : 1.0.0
- * @package SmartWooDatabase
-
+ * @package SmartWoo\Database
  */
 
-defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
 * All the database structures are defined here
 */
 function smartwoo_db_schema() {
-
-	// Define the current database version
-	$smartwoo_db_version = '1.0.1'; // Update the version when making schema changes.
-
-	// Check the stored version
-	$stored_version = get_option( 'smartwoo_db_version' );
+	$smartwoo_db_version 	= SMARTWOO_DB_VER;
+	$stored_version 		= get_option( 'smartwoo_db_version' );
 
 	if ( $smartwoo_db_version !== $stored_version ) {
 

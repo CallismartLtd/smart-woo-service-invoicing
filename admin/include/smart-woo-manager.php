@@ -266,7 +266,7 @@ function smartwoo_cancel_or_optout_service() {
 		wp_die( -1, 406 );
 
 	}
-	
+
 	$service				= SmartWoo_Service_Database::get_service_by_id( $ajax_service_id );
 	$user_id  				= get_current_user_id();
 	$service_id				= $service->getServiceId();
@@ -299,13 +299,8 @@ function smartwoo_cancel_or_optout_service() {
 		// Trigger action with service object as argument.
 		do_action( 'smartwoo_service_deactivated', $service );
 
-		// Check if pro-rata refunds are enabled.
-		if ( smartwoo_is_prorate() === 'Enabled' ) {
-			// Perform pro-rata refund
-			$details = 'Refund for the cancellation of ' . $service_id;
-			smartwoo_create_prorata_refund( $service_id, $details );
-		}
-		return smartwoo_notice( 'Service Cancelled', true );
+		$details = 'Refund for the cancellation of ' . $service_id;
+		smartwoo_create_prorata_refund( $service_id, $details );
 	} elseif ( $user_opted_out ) {
 		smartwoo_user_service_optout_mail( $user_id, $service_id );
 		$log_renewal 	= new SmartWoo_Service_Log();
@@ -313,10 +308,7 @@ function smartwoo_cancel_or_optout_service() {
 		$log_renewal->setLogType( 'Cancellation' );
 		$log_renewal->setNote( 'Client Cancelled this service' );
 		$log_renewal->save();
-		return smartwoo_notice( 'Auto Billing Cancelled', true );
-
 	}
-	wp_safe_redirect( smartwoo_service_preview_url( $service_id ) );
 }
 
 /**
@@ -326,28 +318,21 @@ function smartwoo_cancel_or_optout_service() {
  * @return float|false Refund amount if successful, false otherwise.
  */
 function smartwoo_create_prorata_refund( $service_id, $details ) {
-    // Check if pro-rata refunds are enabled.
-    if ( 'Enabled' === smartwoo_is_prorate() ) {
-        // Pro-rata refunds are disabled, do not proceed with the refund.
-        return false;
+
+	if ( 'Enabled' !== smartwoo_is_prorate() ) {
+		return false;
     }
 
-    // Check if it's a valid service.
     $service = SmartWoo_Service_Database::get_service_by_id( $service_id );
     if ( ! $service ) {
-        // Service not found.
         return false;
     }
 
-    // Retrieve Service usage to determine unused balance.
     $service_usage = smartwoo_analyse_service_usage( $service_id );
 
-    if ( $service_usage !== false && $service_usage['unused_amount'] > 0 ) {
-        // Get the unused amount and make it the refund amount.
-        $refund_amount = $service_usage['unused_amount'];
-
-        // Log the refund data into our database from where refunds can easily be processed.
-        $note    = 'A refund has been scheduled and may take up to 48 hours to be processed.';
+    if ( $service_usage && $service_usage['unused_amount'] > 0 ) {
+		$refund_amount 	= $service_usage['unused_amount'];
+        $note    		= 'A refund has been scheduled and may take up to 48 hours to be processed.';
         smartwoo_invoice_log( $service_id, 'Refund', 'Pending', $details, $refund_amount, $note );
 
         return $refund_amount;
@@ -374,7 +359,7 @@ function smartwoo_process_payment_link() {
 		$payment_info = smartwoo_verify_token( $token );
 
 		if ( ! $payment_info ) {
-			// Token is invalid or expired; handle accordingly
+			// Token is invalid or expired.
 			wp_die( 'Invalid or expired link', 401 );
 		}
 		// Extract relevant information.
@@ -390,38 +375,35 @@ function smartwoo_process_payment_link() {
 		if ( ! class_exists( 'SmartWoo_Invoice_Database' ) ) {
 			wp_die( 'Invoice is not fully loaded', 425 );
 		}
-			$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
+		$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 		if ( ! $invoice ) {
 			wp_die( 'Invoice not found', 404 );
 		}
-		// Additional validation for service status
+
 		$user_id         = $user->ID;
 		$invoice_status  = $invoice->getPaymentStatus();
 		$invoice_user_id = $invoice->getUserId();
 
 		if ( $invoice_user_id !== $user_id ) {
-			wp_die( 'You don\'t have to pay for this invoice, contact us if you need help', 403 );
+			wp_die( 'You don\'t have the required permission to pay for this invoice, contact us if you need help', 403 );
 		}
 
-		$order_id = $invoice->getOrderId();
-		// Get the order object
-		$order = wc_get_order( $order_id );
+		$order_id 	= $invoice->getOrderId();
+		$order 		= wc_get_order( $order_id );
 
 		if ( $order && 'pending' !== $order->get_status() || 'unpaid' !== $invoice_status ) {
 			wp_die( 'Invoice cannot be paid for, contact us if you need further assistance' );
 		}
 		
-		// Log in the user
+		// Conditions has been met, user should be logged in.
 		wp_set_current_user( $user->ID, $user->user_login );
 		wp_set_auth_cookie( $user->ID );
 		do_action( 'wp_login', $user->user_login, $user );
-		// Redirect to the order pay page
-		$checkout_url = smartwoo_order_pay_url( $order_id );
-		wp_safe_redirect( $checkout_url );
+		// Redirect to the order pay page.
+		wp_safe_redirect( smartwoo_order_pay_url( $order_id ) );
 		exit();
-
 	}
 }
 
@@ -430,14 +412,8 @@ function smartwoo_process_payment_link() {
  * for services that are due.
  *
  * @Do_action "smartwoo_auto_invoice_created" triggers after successful invoice creation
- * @action @param object $newInvoice  The instance of the newly created invoice
- * @action @param object $service     The instance of the service being renewed
  * @return bool False if no service is due | True otherwise
  */
-
-// Hook to  scheduled event
-add_action( 'smartwoo_auto_service_renewal', 'smartwoo_auto_renew_services' );
-
 function smartwoo_auto_renew_services() {
 	$all_services = SmartWoo_Service_Database::get_all_services();
 
@@ -473,7 +449,8 @@ function smartwoo_auto_renew_services() {
 		}
 	}
 }
-
+// Hook to scheduled event
+add_action( 'smartwoo_auto_service_renewal', 'smartwoo_auto_renew_services' );
 
 /**
  * Handles service renewal when the client clicks the renew button on
@@ -514,7 +491,7 @@ function smartwoo_manual_service_renewal() {
 
 			if ( $NewInvoiceID ) {
 				$NewInvoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $NewInvoiceID );
-				sw_send_user_generated_invoice_mail( $NewInvoice, $service );
+				smartwoo_send_user_generated_invoice_mail( $NewInvoice, $service );
 				$new_order_id = $NewInvoice->getOrderId();
 				$new_order    = wc_get_order( $new_order_id );
 				$checkout_url = smartwoo_order_pay_url( $new_order_id );

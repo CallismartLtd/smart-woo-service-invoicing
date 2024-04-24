@@ -39,19 +39,17 @@
         $table_name = SW_INVOICE_LOG_TABLE;
         $query = $wpdb->prepare( "SELECT * FROM $table_name WHERE log_type = %s", 'Refund' );
 
-        // If log_id is provided, fetch only that particular row
         if ( ! empty( $merged_args['log_id'] ) ) {
 
             $query .= $wpdb->prepare( " AND log_id = %s", $merged_args['log_id'] );
 
-            // Execute the query and fetch single row
+            // Execute the query and fetch single row.
             $result = $wpdb->get_row( $query, ARRAY_A );
 
-            // Convert the result to SmartWoo_Invoice_log object and return
+            // Convert the result to SmartWoo_Invoice_log object and return.
             return self::convert_array_to_logs( $result );
         }
 
-        // Add conditions based on provided arguments
         if ( ! empty( $merged_args['status'] ) ) {
             $query .= $wpdb->prepare( " AND status = %s", $merged_args['status'] );
         }
@@ -59,11 +57,9 @@
             $query .= $wpdb->prepare( " AND created_at = %s", $merged_args['created_at'] );
         }
 
-        // Execute the query
         $results = $wpdb->get_results( $query, ARRAY_A );
         // phpcs:enable
 
-        // Convert results to array of SmartWoo_Invoice_log objects and return
         $logs = array();
         foreach ( $results as $data ) {
             $logs[] = self::convert_array_to_logs( $data );
@@ -75,21 +71,17 @@
      * Method to mark a Refund Log type as refunded
      */
     public static function refunded( $log_id, $note = 'Successfully Refunded' ) {
-        // Retrieve the refund object by log ID
+
         $refund = self::get_refund_by_id( $log_id, 'Pending' );
 
-        // Check if refund data is found
         if ( $refund ) {
-            // Update refund status and note
+
             $refund->setStatus( 'Completed' );
             $refund->setNote( $note );
-
             $refund->update( $refund );
 
-            // Return true to indicate success
             return true;
         } else {
-            // Return false if refund data is not found
             return false;
         }
     }

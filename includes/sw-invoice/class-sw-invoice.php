@@ -1,4 +1,13 @@
 <?php
+/**
+ * Class file for Smart Woo Invoice.
+ * 
+ * @author Callistus.
+ * @since 1.0.0
+ * @package SmartWoo\Classes
+ */
+
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Class SmartWoo_Invoice
@@ -6,8 +15,8 @@
  * Represents an invoice for the Smart Woo Service Invoicing.
  *
  * @since   1.0.0
+ * @package SmartWooInvoice
  */
-
 class SmartWoo_Invoice {
 
 	// Properties

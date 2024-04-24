@@ -1,15 +1,21 @@
 <?php
 /**
- * File name    :   class-sw-invoice.php
- *
- * @author      :   Callistus
+ * File name class-sw-invoice.php
  * Description  :   Invoice class definition file
+ *
+ * @author  Callistus
+ * @package SmartWoo\classes
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
- * Class SmartWoo_Service
- *
- * Represents a service within the Smart Woo Service Invoicing for WooCommerce.
+ * SmartWoo Service class
+ * Represents the service subscription.
+ * 
+ * @author Callistus
+ * @since 1.0.0
+ * @package SmartWooService
  */
 class SmartWoo_Service {
 
@@ -318,7 +324,7 @@ class SmartWoo_Service {
 		if ( empty( $this->getServiceId() ) ) {
 			return false; // Service ID must be generated be saving.
 		}
-		$id = SmartWoo_Service_Database::sw_create_service( $this );
+		$id = SmartWoo_Service_Database::create_service( $this ); 
 		return $id;
 	}
 

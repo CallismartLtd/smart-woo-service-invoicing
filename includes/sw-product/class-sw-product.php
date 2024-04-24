@@ -1,6 +1,17 @@
 <?php
 /**
- * Smart Woo Product class file
+ * File name class-sw-product.php.
+ * Class file for Smart Woo Product.
+ * 
+ * @since 1.0.0
+ * @author Callistus.
+ * @package SmartWoo\classes
+ */
+
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
+
+/**
+ * Smart Woo Product.
  * 
  * @author Callistus Nwachukwu
  * @package SmartWooProduct.
@@ -419,3 +430,4 @@ class SmartWoo_Product extends WC_Product {
 		$cart->add_fee( 'Sign-up Fee', $total_sign_up_fee );
 	}	
 }
+SmartWoo_Product::init();

@@ -2,13 +2,13 @@
 /**
  * File name   : email-templates.php
  * Author      : Callistus
- * Description : All mails templates
+ * Description : All mail templates
  *
  * @since      : 1.0.0
  * @package    : SmartWooServiceInvoicing
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Service Cancellation Email
@@ -88,9 +88,6 @@ function smartwoo_user_service_cancelled_mail( $user_id, $service_id ) {
 		wp_mail( $user_email, $subject, $message, $headers );
 	}
 }
-
-
-
 
 /**
  * Email for automatic renewal opt-out
@@ -321,9 +318,9 @@ function smartwoo_payment_reminder() {
  * @hook "smartwoo_service_expired" triggered by smatwoo_check_services_expired_today function
  */
 // Hook to send service expiration email
-add_action( 'smartwoo_service_expired', 'sw_send_service_expiration_email' );
+add_action( 'smartwoo_service_expired', 'smartwoo_send_service_expiration_email' );
 
-function sw_send_service_expiration_email( $service ) {
+function smartwoo_send_service_expiration_email( $service ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_service_expiration_mail', 0 );
 	if ( $mail_is_enabled ) {
@@ -383,9 +380,9 @@ function sw_send_service_expiration_email( $service ) {
 /**
  * Send service expiration mail to admin a day before expiration day
  */
-add_action( 'smartwoo_daily_task', 'sw_send_expiry_mail_to_admin' );
+add_action( 'smartwoo_daily_task', 'smartwoo_send_expiry_mail_to_admin' );
 
-function sw_send_expiry_mail_to_admin() {
+function smartwoo_send_expiry_mail_to_admin() {
 
 	$mail_is_enabled = get_option( 'smartwoo_service_expiration_mail_to_admin', 0 );
 
@@ -535,10 +532,10 @@ function smartwoo_renewal_sucess_email( $service ) {
  * @param object $invoice      The Invoice created.
  * @param object $service      The service which has the invoice.
  */
-add_action( 'smartwoo_auto_invoice_created', 'sw_send_auto_renewal_email', 10, 2 );
+add_action( 'smartwoo_auto_invoice_created', 'smartwoo_send_auto_renewal_email', 10, 2 );
 
 // Function to send an auto-renewal email when the Service Renewal is created
-function sw_send_auto_renewal_email( $invoice, $service ) {
+function smartwoo_send_auto_renewal_email( $invoice, $service ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_new_invoice_mail', 0 );
 
@@ -606,7 +603,7 @@ function sw_send_auto_renewal_email( $invoice, $service ) {
  * @param object $invoice    The invoice used
  * @param object $service    The service being reactivated
  */
-function sw_send_user_generated_invoice_mail( $invoice, $service ) {
+function smartwoo_send_user_generated_invoice_mail( $invoice, $service ) {
 
 	$mail_is_enabled = get_option( 'smartwoo_reactivation_mail', 0 );
 

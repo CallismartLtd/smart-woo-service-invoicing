@@ -3,7 +3,7 @@
  * File name  sw_service_api.php
  *
  * @author Callistus
- * Description Service API autheticator functions
+ * Description Service API authenticator functions
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.

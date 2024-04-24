@@ -30,17 +30,16 @@ delete_option( 'smartwoo_reactivation_mail' );
 delete_option( 'smartwoo_invoice_paid_mail' );
 delete_option( 'smartwoo_service_cancellation_mail_to_admin' );
 delete_option( 'smartwoo_service_expiration_mail_to_admin' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_db_version' );
+delete_option( 'smartwoo_pay_pending_invoice_with_wallet' );
+delete_option( 'smartwoo_refund_with_wallet' );
+delete_option( 'smartwoo_product_text_on_shop' );
+delete_option( 'smartwoo_enable_api_feature' );
+delete_option( 'smartwoo_allow_guest_invoicing' );
+delete_option( 'smartwoo_remove_plugin_data_during_uninstall' );
+delete_option( 'smartwoo_email_image_header' );
+delete_option( '__smartwoo_installed' );
+delete_option( '__smartwoo_added_rule' );
+delete_option( '__smartwoo_automation_scheduled_date' );
 delete_option( 'smartwoo_db_version' );
 
 /**

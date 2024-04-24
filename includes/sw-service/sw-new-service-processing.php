@@ -1,20 +1,22 @@
 <?php
 /**
  * File name sw-new-service-processing.php
- *Handles new service processing from the admin area
-
+ * Handles new service processing from the admin area
+ * 
  * @author	Callistus.
  * @package	SmartWooService
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
  
 /**
  * Call back function for new service order admin page
+ * 
+ * @param object $order WC_Order object.
  */
 function smartwoo_service_order_table( $orders ) {
 
-	$page_html  ='';
+	$page_html  = '';
 	$page_html .= '<h1 class="wp-heading-inline">Service Orders</h1>';
 
 

@@ -1,12 +1,14 @@
 <?php
 /**
- * File name    :   sw-service-functions.php
+ * File name sw-service-functions.php
+ * Utility function to interact with service data.
  *
- * @author      :   Callistus
- * Description  :   Helper function for service datas
+ * @author Callistus
+ * @package SmartWoo\functions
  */
 
- defined( 'ABSPATH' ) ||exit; // Prevent direct access.
+defined( 'ABSPATH' ) ||exit; // Prevent direct access.
+
 /**
  * Generate a new SmartWoo_Service object and save it to the database.
  *

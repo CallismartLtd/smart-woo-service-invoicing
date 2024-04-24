@@ -1,9 +1,10 @@
 <?php
 /**
- * File name    :   invoice.downloadable.php
+ * File name: invoice.downloadable.php
+ * PDF invoice template file, uses mPDF library
  *
- * @author      :   Callistus
- * Description  :   The file for PDF invoice
+ * @author Callistus
+ * @credit mPDF library by Ian Back
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
