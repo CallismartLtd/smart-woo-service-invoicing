@@ -50,6 +50,8 @@ class SmartWoo_Config{
         add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
+        register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
+
 
     }
 
