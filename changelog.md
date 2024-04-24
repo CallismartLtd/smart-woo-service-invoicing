@@ -4,6 +4,9 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 
 ## [1.0.2] - yyyy-mm-dd
 
+### Fixed 
+- incorrect expiration date bug.
+
 ## [1.0.2] - 2024-04-24
 
 ### Fixed
