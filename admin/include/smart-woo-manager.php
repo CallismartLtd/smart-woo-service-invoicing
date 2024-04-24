@@ -467,13 +467,13 @@ function smartwoo_manual_service_renewal() {
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		$product_id = $service->getProductId();
 
-		if ( ! $service ) {
+		if ( ! $service || $service->getUserId() !== get_current_user_id() ) {
 			wp_die( 'Error: Service does not exist.', 404 );
 		}
 
 		$service_status = smartwoo_service_status( $service_id );
 
-		if ('Due for Renewal' === $service_status || 'Expired' === $service_status || 'Grace Period' === $service_status ) {
+		if ( 'Due for Renewal' === $service_status || 'Expired' === $service_status || 'Grace Period' === $service_status ) {
 
 			$existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
 			if ( $existing_invoice_id ) {
