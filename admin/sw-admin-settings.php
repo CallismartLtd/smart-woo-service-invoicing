@@ -215,31 +215,35 @@ function smartwoo_options_main_page() {
 			<div class="sw-right-column">
 				<div id="first-display" class="image-section">
 					<h3> Smart Woo Service Invoicing</h3>
-					<p><img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/image/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;"></p>
-					<p>Here you will find useful information to get you started</p>
-			</div>
+					<p><img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;"></p>
+					<p>Here you will find useful information to get you started.</p>
+			    </div>
+			
 				<div id="general-concept" class="instruction">
 					<h3>Introduction</h3>
-					<p><strong>Smart Woo Service invoicing integrates powerful service subscription on your website, this includes automatic invoice creation for services that are due,
-						prompt reminders and lot's of interesting features. <br> To get started, there basically three steps needed to get your subscriptions up and running.</strong></p>
+					<p><strong>Smart Woo Service Invoicing integrates powerful service subscription capabilities into your website. This includes automatic invoice creation for services that are due, prompt reminders, and a host of other interesting features.</strong></p>
+					<p>To get started, there are basically three steps needed to get your subscriptions up and running.</p>
 				</div>
 
+
 				<div id="step1" class="instruction">
-					<h3>Basic Set-up</h3>
-					<p><strong>Set up your business details in the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=business' ) ); ?>" target="_blank">business settings page</a>, and Invoicing preferences in the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=invoicing' ) ); ?>" target="_blank">invoicing settings page</a>.</strong></p>
-					<p>You may need to created two(2) dedicated pages to allow your clients to fully manage their services and invoices, usually they should be automatically created for you but you have to confirm, make some changes(for your prefereces) and be sure each of these these pages have these shortcodes <strong>[smartwoo_service_page]</strong> and <strong>[smartwoo_invoice_page]</strong> for service and invoice page respectively.</p>
+				<h3>Basic Set-up</h3>
+					<p><strong>Set up your business details on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=business' ) ); ?>" target="_blank">business settings page</a>, and invoicing preferences on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=invoicing' ) ); ?>" target="_blank">invoicing settings page</a>.</strong></p>
+					<p>You may need to create two dedicated pages to allow your clients to fully manage their services and invoices. Usually, these pages should be automatically created for you during installation. If not, create them manually and ensure that each page contains the following shortcodes: <strong>[smartwoo_service_page]</strong> for the service page and <strong>[smartwoo_invoice_page]</strong> for the invoice page.</p>
 				</div>
+
 
 				<div id="step2" class="instruction">
 					<h3>Create Product</h3>
-					<p><strong>Create a <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&action=add-new' ) ); ?>" target="_blank">Service Product</a> specially dedicated to service subscription, set up the necessary fields.</strong></p>
-					<p>Create and publish your services as a product, an invoice will be created for the client when they purchase your service and you have options to manage and setup the subscription for them.
+					<p><strong>Create a <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&action=add-new' ) ); ?>" target="_blank">Service Product</a> specifically dedicated to service subscriptions, and set up the necessary fields.</strong></p>
+					<p>Create and publish your services as products. When a client purchases your service, an invoice will be automatically created for them. You'll also have options to manage and set up the subscription for them.</p>
 				</div>
 
 				<div id="step3" class="instruction">
 					<h3>All Done 🎉🎉</h3>
-					<p><strong>Your (service)product is now listed in the WooCommerce product page. You can view all service orders <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>">here</a>, and process them as needed.</strong></p>
+					<p><strong>Your service product is now listed on the WooCommerce product page. You can view all service orders <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>">here</a> and process them as needed.</strong></p>
 				</div>
+
 			</div>
 		</div>
 	</div>

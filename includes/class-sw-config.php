@@ -38,20 +38,27 @@ class SmartWoo_Config{
      * Initialize.
      */
     public function __construct() {
-        $this->init_hooks();
+        $this->init();
     }
 
     /**
      * Init hooks.
      */
-    public function init_hooks() {
+    public function init() {
         add_action( 'woocommerce_loaded', array( $this, 'check_woocommerce' ) );
         add_action( 'smartwoo_init', array( $this, 'load_dependencies' ) );
         add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
+        add_action( 'smart_woo_loaded', array( $this, 'init_hooks' ) );
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
         register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
-
+    }
+    public function init_hooks() {
+        add_action( 'init', array( $this, 'add_rules' ) );
+        add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
+        add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myacoount_content' );
+        add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myacoount_content' );
+        self::add_automations();
 
     }
 
@@ -214,4 +221,52 @@ class SmartWoo_Config{
       $this->woocommerce_compatibility = \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', SMARTWOO_FILE, true );
 
     }
+
+    public static function add_rules() {
+        add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
+        add_rewrite_endpoint( 'smartwoo-invoice', EP_PAGES );
+        add_rewrite_endpoint( 'smartwoo-service', EP_PAGES );
+    }
+
+    	/**
+	 * Add automation schedules.
+	 */
+	private static function add_automations() {
+		/**
+		 * Schedule the auto-renewal event.
+		 *
+		 * This function checks if the 'smartwoo_auto_service_renewal' is not already scheduled
+		 * and schedules it to run every 5 hours using the 'smartwoo_5_hours' cron interval.
+		 */
+		if ( ! wp_next_scheduled( 'smartwoo_auto_service_renewal' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_auto_service_renewal' );
+		}
+
+		/** Schedule some dynamic task to run five minutely. */
+		if ( ! wp_next_scheduled( 'smartwoo_5_minutes_task' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_minutes', 'smartwoo_5_minutes_task' );
+		}
+
+		/** Daily task automation. */
+		if ( ! wp_next_scheduled( 'smartwoo_daily_task' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_daily', 'smartwoo_daily_task' );
+		}
+
+		/** Once in 48hrs( runs one in two days) task */
+		if ( ! wp_next_scheduled( 'smartwoo_once_in48hrs_task' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_once_every_two_days', 'smartwoo_once_in48hrs_task' );
+		}
+
+		/** Twice Daily task automation */
+		if ( ! wp_next_scheduled( 'smartwoo_twice_daily_task' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_12_hours', 'smartwoo_twice_daily_task' );
+		}
+
+		/** Automate refunds */
+		if ( ! wp_next_scheduled( 'smartwoo_refund_task' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'once_every_two_days', 'smartwoo_refund_task' );
+		}
+
+		update_option( '__smartwoo_automation_last_scheduled_date', current_time( 'timestamp' ) );
+	}
 }

@@ -14,6 +14,8 @@
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: smart-woo-service-invoicing
+ * 
+ * @package SmartWoo
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
@@ -49,7 +51,7 @@ if ( defined( 'SMARTWOO' ) ) {
 	}
 
 	if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
-		define( 'SMARTWOO_DB_VER', '1' );
+		define( 'SMARTWOO_DB_VER', '1.0.2' );
 	}
 	
 	// Define the database table names as constants.
@@ -59,7 +61,7 @@ if ( defined( 'SMARTWOO' ) ) {
 	define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
 	define( 'SW_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
 
-	// Load config file.
+	// Load core and config files.
 	require_once SMARTWOO_PATH . 'includes/class-sw-config.php';
 	require_once SMARTWOO_PATH . 'includes/class-sw-install.php';
 	SmartWoo_Config::instance();

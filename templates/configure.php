@@ -19,7 +19,7 @@ $product_name = $product ? $product->get_name() : 'Product Name not found';
     <main id="main" class="site-main" role="main">
 
         <?php if ( empty( $product_id ) ) : ?>
-            <p><?php echo smartwoo_error_notice( 'Cannot configure product at this time, contact us if you nee further assistance.' ); ?></p>
+            <p><?php echo wp_kses_post( smartwoo_error_notice( 'Cannot configure product at this time, contact us if you nee further assistance.' ) ); ?></p>
         <?php else : ?>
 
             <h2>Configure</h2>

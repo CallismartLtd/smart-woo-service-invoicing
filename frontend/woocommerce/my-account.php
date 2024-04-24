@@ -31,16 +31,7 @@ function smartwoo_register_woocommerce_account_menu( $items ) {
 			 
 	return $items;
 }
-add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
 
-/**
- * My Acoount endpoint.
- */
-function smartwoo_register_woocommerce_account_endpoints() {
-	add_rewrite_endpoint( 'smartwoo-invoice', EP_PAGES );
-	add_rewrite_endpoint( 'smartwoo-service', EP_PAGES );
-}
-add_action( 'init', 'smartwoo_register_woocommerce_account_endpoints', 40);
 
 /**
  * Content callback for my Invoice account menu item.
@@ -56,7 +47,6 @@ function smartwoo_invoice_myacoount_content() {
         echo wp_kses_post( $invoice_content );
     }
 }
-add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myacoount_content' );
 
 // Service Page Content
 function smartwoo_service_myacoount_content() {
@@ -82,4 +72,3 @@ function smartwoo_service_myacoount_content() {
         echo wp_kses_post( $service_content );
     }
 }
-add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myacoount_content' );
