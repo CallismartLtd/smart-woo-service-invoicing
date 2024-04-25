@@ -265,7 +265,7 @@ jQuery( document ).ready(
  * This function sets the display property to 'block', making the loader visible.
  */
 function showLoadingIndicator() {
-    jQuery('#swloader').css('display', 'inline-block');
+    jQuery('#swloader').css('display', 'block');
 }
 
 

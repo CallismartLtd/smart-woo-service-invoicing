@@ -463,7 +463,7 @@ function smartwoo_manual_service_renewal() {
 	// Verify the nonce
 	if ( isset( $_GET['action'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['renew_nonce'] ) ), 'renew_service_nonce' ) ) {
 		
-		$service_id = sanitize_key( $_GET['service_id'] );
+		$service_id = sanitize_text_field( preg_replace( '/\s+/', '', $_GET['service_id'] ) );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		$product_id = $service->getProductId();
 

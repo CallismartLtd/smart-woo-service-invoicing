@@ -40,18 +40,18 @@ if ( defined( 'SMARTWOO' ) ) {
 		define( 'SMARTWOO_FILE', __FILE__ );
 	}
 
-	// Define the Smart Woo Directory URL
+	// Define the Smart Woo Directory URL.
 	if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
 		define( 'SMARTWOO_DIR_URL', plugin_dir_url( __FILE__ ) );
 	}	
 	
-	// Define the Smart Woo Directory URL
+	// Define the Smart Woo Directory URL.
 	if ( ! defined( 'SMARTWOO_VER' ) ) {
-		define( 'SMARTWOO_VER', '1.0.2' );
+		define( 'SMARTWOO_VER', '1.0.3' );
 	}
 
 	if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
-		define( 'SMARTWOO_DB_VER', '1.0.2' );
+		define( 'SMARTWOO_DB_VER', '1.0.3' );
 	}
 	
 	// Define the database table names as constants.

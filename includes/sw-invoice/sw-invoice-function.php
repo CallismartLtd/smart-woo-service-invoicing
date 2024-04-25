@@ -515,7 +515,7 @@ function smartwoo_get_formatted_biller_address() {
  * 
  * @param int $user_id		The user's ID.
  */
-function smartwoo_get_total_spent_by_user( $user_id ) {
+function smartwoo_client_total_spent( $user_id ) {
 	$customer = new WC_Customer( $user_id );
 
 	return  $customer->get_total_spent();

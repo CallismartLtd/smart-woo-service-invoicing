@@ -193,12 +193,12 @@ function smartwoo_load_account_logs_callback() {
 
 	if ( is_user_logged_in() ) {
 		// Get the current user object
-		$current_user = wp_get_current_user();
+		$current_user 		= wp_get_current_user();
 		$user_id      		= $current_user->ID;
 		$current_login_time = smartwoo_get_current_login_date( $user_id );
 		$last_active		= smartwoo_get_last_login_date( $user_id );
 		$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
-		$total_spent 		= smartwoo_get_total_spent_by_user( $user_id );
+		$total_spent 		= smartwoo_client_total_spent( $user_id );
 		$html = '<div class="account-logs-container">';
 		$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
 		$html .= '<ul class="account-logs-list">';
@@ -275,7 +275,7 @@ function smartwoo_load_transaction_history_callback() {
  * @since      : 1.0.1 
  */
 function smartwoo_timestamp_user_at_login( $user_login, $user ) {
-	update_user_meta( $user->ID, 'sw_login_timestamp', current_time( 'timestamp' ) );
+	update_user_meta( $user->ID, 'smartwoo_login_timestamp', current_time( 'timestamp' ) );
 }
 add_action( 'wp_login', 'smartwoo_timestamp_user_at_login', 99, 2 );
 
@@ -285,7 +285,7 @@ add_action( 'wp_login', 'smartwoo_timestamp_user_at_login', 99, 2 );
  * @param $user_id		The logged user's ID
  */
 function smartwoo_timestamp_user_at_logout( $user_id ){
-	update_user_meta( $user_id, 'sw_logout_timestamp', current_time( 'timestamp' ) );
+	update_user_meta( $user_id, 'smartwoo_logout_timestamp', current_time( 'timestamp' ) );
 }
 add_action( 'wp_logout', 'smartwoo_timestamp_user_at_logout' );
 
@@ -296,7 +296,7 @@ add_action( 'wp_logout', 'smartwoo_timestamp_user_at_logout' );
  * @since      : 1.0.1
  */
 function smartwoo_get_current_login_date( $user_id ) {
-    $timestamp = get_user_meta( $user_id, 'sw_login_timestamp', true );
+    $timestamp = get_user_meta( $user_id, 'smartwoo_login_timestamp', true );
 
     // Check if $timestamp is not a valid integer (may be a string)
     if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
@@ -315,12 +315,11 @@ function smartwoo_get_current_login_date( $user_id ) {
  */
 function smartwoo_get_last_login_date( $user_id ) {
 
-	$timestamp = get_user_meta( $user_id, 'sw_logout_timestamp', true );
+	$timestamp = get_user_meta( $user_id, 'smartwoo_logout_timestamp', true );
 
-    // Check if $timestamp is not a valid integer (may be a string)
+    // Check if $timestamp is not a valid integer (may be a string).
     if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
-        // Fallback to current time if $timestamp is not a valid integer
-        $timestamp = current_time( 'timestamp' );
+		$timestamp = current_time( 'timestamp' );
     }
 
     return smartwoo_convert_timestamp_to_readable_date( $timestamp, true );

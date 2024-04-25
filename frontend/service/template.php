@@ -98,7 +98,8 @@ function smartwoo_service_details( $current_user_id ) {
 		$output .= smartwoo_notice( 'Expired Yesterday' );
 	}
 	
-	$output .=  wp_kses_post( $usage_metrics ) ;
+	 
+	$output .=  apply_filters( 'smartwoo_before_service_details_page', '', $service_id );
 	$output .= '<div class="serv-details-card">';
 	$output .= '<div id="swloader">Processing....</div>';
 	$output .= '<p class="smartwoo-container-item"><span> Service ID:</span>' . esc_html( $service_id ) . '</p>';
@@ -111,6 +112,7 @@ function smartwoo_service_details( $current_user_id ) {
 	$output .= '<p class="smartwoo-container-item"><span> End Date:</span>' . esc_html( $end_date ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Expiry Date:</span>' . esc_html( smartwoo_check_and_format( $expiry_date, true ) ) . '</p>';
 	$output .= '</div>';
+	$output .=  apply_filters( 'smartwoo_after_service_details_page', '', $service_id );
 	$output .= '</div>';
 
 	return $output;

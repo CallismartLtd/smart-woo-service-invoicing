@@ -9,6 +9,22 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
+ * Get the local Date and time format
+ * 
+ * @since 1.0.3
+ * @return object|null stdClass or null
+ */
+function smartwoo_locale_date_format() {
+	$date_format = get_option( 'date_format' );
+	$time_format = get_option( 'time_format' );
+
+	$format = new stdClass();
+	$format->date_format = $date_format;
+	$format->time_format = $time_format;
+	return $format;
+}
+
+/**
  * Function to format date to a human-readable format or show 'Not Available'.
  *
  * @param string $dateString Date String.
@@ -16,8 +32,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * @return string Formatted date or 'Not Available'.
  */
 function smartwoo_check_and_format( $dateString, $includeTime = false ) {
-	
-	$format = $includeTime ? 'l jS F Y \a\t h:i:s A' : 'l jS F Y';
+	$locale = smartwoo_locale_date_format();
+	$format = $includeTime ? $locale->date_format . ' ' . $locale->time_format : $locale->date_format;
 	return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
 }
 
@@ -44,15 +60,16 @@ function smartwoo_extract_only_date( $datetimestring ) {
  * @param bool $includeTime Whether to include the time aspect. Default is true.
  * @return string Formatted date or 'Not Available'.
  */
-function smartwoo_convert_timestamp_to_readable_date( int $timestamp, bool $includeTime = true ) {
-    // Convert the timestamp to a date string
-    $dateString = date_i18n( 'Y-m-d H:i:s', $timestamp );
+function smartwoo_convert_timestamp_to_readable_date( ?int $timestamp, bool $includeTime = true ) {
 
-    // Use smartwoo_check_and_format to format the date string
+	if ( empty( $timestamp ) ) {
+		return $timestamp;
+	}
+
+    $dateString = date_i18n( smartwoo_locale_date_format()->date_format, $timestamp );
+
     return smartwoo_check_and_format( $dateString, $includeTime );
 }
-
-
 
 /**
  * Check if Proration is Enabled or Disabled
@@ -267,9 +284,7 @@ if ( ! function_exists( 'smartwoo_error_notice' ) ) {
  * @param int $invoice_id The ID of the invoice.
  */
 function smartwoo_redirect_to_invoice_preview( $invoice_id ) {
-	$invoice_page = get_option( 'smartwoo_invoice_page_id', 0 );
-	$redirect_url = get_permalink( $invoice_page ) . '?invoice_page=view_invoice&invoice_id=' . $invoice_id;
-	wp_safe_redirect( $redirect_url );
+	wp_safe_redirect( smartwoo_invoice_preview_url( $invoice_id) );
 	exit();
 }
 
@@ -561,5 +576,4 @@ function smartwoo_configure_page( $product_id ){
 	}
 	$configure_page = esc_url(  home_url( '/configure/?product_id=' . absint( $product_id ) ) );
 	return $configure_page;
-} 
-
+}
