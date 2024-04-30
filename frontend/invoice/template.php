@@ -96,12 +96,12 @@ function smartwoo_invoice_details() {
 		$store_city				= $biller_details->store_city;
 		$default_country		= $biller_details->default_country;
 		$invoice_watermark_url	= get_option( 'smartwoo_invoice_watermark_url' );
-		$user_data 				= get_userdata( $user_id );
-		$first_name				= $user_data->first_name;
-		$last_name				= $user_data->last_name;
-		$billing_email			= get_user_meta( $user_id, 'billing_email', true );
-		$billing_phone			= get_user_meta( $user_id, 'billing_phone', true );
-		$customer_company_name	= get_user_meta( $user_id, 'billing_company', true );
+		$user 					= new WC_Customer( $user_id );
+		$first_name				= $user->get_first_name();
+		$last_name				= $user->get_last_name();
+		$billing_email			= $user->get_billing_email();
+		$billing_phone			= $user->get_billing_phone();
+		$customer_company_name	= $user->get_billing_company();
 		$user_address			= $invoice->getBillingAddress();
 		$service_id 			= $invoice->getServiceId();
 		$service    			= ! empty( $service_id ) ? SmartWoo_Service_Database::get_service_by_id( $service_id ) : null;
@@ -215,25 +215,37 @@ function smartwoo_invoice_details() {
 		}
 
 		// Invoice Items section.
+		$invoice_items		= array();
+		$invoice_items[]	= array(
+			'description' => esc_html( $product_name ),
+			'amount'      => $invoice->getAmount(),
+		);
+
+		$invoice_items[] = array(
+			'description' => esc_html__( 'Fee', 'smart-woo-service-invoicing' ),
+			'amount'      => $invoice->getFee(),
+		);
+
+		$items	= apply_filters( 'smartwoo_invoice_items', array(), $invoice );
+		$invoice_items	= array_merge( $invoice_items, $items );
+
+		// Start building the invoice content HTML.
 		$invoice_content .= '<section class="invoice-items">';
 		$invoice_content .= '<div class="invoice-card">';
-		// Invoice Items header with Description and Amount.
 		$invoice_content .= '<div class="invoice-card-header">';
 		$invoice_content .= '<h4 class="description-heading">' . esc_html__( 'Description', 'smart-woo-service-invoicing' ) . '</h4>';
 		$invoice_content .= '<h4 class="amount-heading">' . esc_html__( 'Amount', 'smart-woo-service-invoicing' ) . '</h4>';
 		$invoice_content .= '</div>';
-		// Display product name and amount.
-		$invoice_content .= '<div class="invoice-item">';
-		$invoice_content .= '<p class="description">' . esc_html( $product_name ) . '</p>';
-		$invoice_content .= '<p class="amount">' . wc_price( $invoice->getAmount() ) . '</p>';
-		$invoice_content .= '</div>';
-		// Fee.
-		$invoice_content .= '<div class="invoice-item">';
-		$invoice_content .= '<p class="description">' . esc_html__( 'Fee', 'smart-woo-service-invoicing' ) . '</p>';
-		$invoice_content .= '<p class="amount">' . wc_price( $invoice->getFee() ) . '</p>';
-		$invoice_content .= '</div>';
 
-		if ( $invoice->getInvoiceType() === 'Service Upgrade Invoice' || $invoice->getInvoiceType() === 'Service Downgrade Invoice' ) {
+		// Loop through invoice items and generate HTML.
+		foreach ( $invoice_items as $item ) {
+			$invoice_content .= '<div class="invoice-item">';
+			$invoice_content .= '<p class="description">' . esc_html( $item['description'] ) . '</p>';
+			$invoice_content .= '<p class="amount">' . wc_price( $item['amount'] ) . '</p>';
+			$invoice_content .= '</div>';
+		}
+
+		if ( 'Service Upgrade Invoice' === $invoice->getInvoiceType() || 'Service Downgrade Invoice' === $invoice->getInvoiceType() ) {
 			// Previous Service Balance.
 			$query 			  = SmartWoo_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true );
 			$balance          = ! empty( $query ) ? $query->getAmount() : 0;
