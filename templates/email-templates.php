@@ -344,7 +344,6 @@ function smartwoo_send_service_expiration_email( $service ) {
 			// Prepare the email subject
 			$subject = 'Service Expiration Notification';
 
-			// Prepare the email message
 			$message  = '<html><head><style>';
 			$message .= 'body { font-family: Arial, sans-serif; }';
 			$message .= 'h1 { color: #333; }';

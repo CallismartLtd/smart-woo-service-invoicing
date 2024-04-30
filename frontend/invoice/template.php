@@ -106,7 +106,7 @@ function smartwoo_invoice_details() {
 		$service_id 			= $invoice->getServiceId();
 		$service    			= ! empty( $service_id ) ? SmartWoo_Service_Database::get_service_by_id( $service_id ) : null;
  
-		if ( null !== $service ) {
+		if ( $service ) {
 			// Access the service name from the returned service object.
 			$service_name 		= $service->getServiceName();
 			$service_id   		= $service->getServiceId();
@@ -119,7 +119,7 @@ function smartwoo_invoice_details() {
 		$invoice_due_date 		= smartwoo_check_and_format( $invoice->getDateDue(), true );
 		$invoice_total    		= $invoice->getTotal();
 		$payment_gateway 		= ! empty( $invoice->getPaymentGateway() ) ? $invoice->getPaymentGateway() : 'Not Available';
-		$invoice_status			= esc_html( $invoice->getPaymentStatus() );
+		$invoice_status			= $invoice->getPaymentStatus();
 		$transaction_id			= ! empty( $invoice->getTransactionId() ) ? $invoice->getTransactionId() : 'Not Available';
 		
 		/**
@@ -131,7 +131,7 @@ function smartwoo_invoice_details() {
 		$invoice_content	.= '<div class="inv-button-container">';
 		$invoice_content	.= '<a href="' . esc_url( smartwoo_invoice_page_url() ) . '" class="back-button">' . esc_html__( 'Back to invoices', 'smart-woo-service-invoicing' ) . '</a>';
 		
-		if (  strtolower( $invoice_status ) === 'unpaid' ) {
+		if ( 'unpaid' ===  strtolower( $invoice_status ) ) {
 			$order_id         = $invoice->getOrderId();
 			$pay_button_url   = smartwoo_order_pay_url( $order_id );
 			$invoice_content .= '<a href="' . esc_url( $pay_button_url ) . '" class="invoice-pay-button">' . esc_html__( 'Pay Now', 'smart-woo-service-invoicing' ) . '</a>';

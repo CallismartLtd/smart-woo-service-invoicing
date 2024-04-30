@@ -438,7 +438,6 @@ function smartwoo_get_user_billing_address( $user_id ) {
         return $user_billing_address;
     }
 
-    // Return an empty string if there's no billing address
     return '';
 }
 

@@ -598,7 +598,6 @@ function smartwoo_upgrade_temp( $current_user_id ) {
 	$output .= '</form>';
 	$output .= '</div>';
 	return $output;
-
 }
 
 
@@ -678,7 +677,7 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 		$output             	.= '<p class="upgrade-section-title">' . esc_html__( 'Service Downgrade Order', 'smart-woo-service-invoicing' ) . '</p>';
 		
 		if ( $existing_invoice_id ) {
-			$output 			.= smartwoo_notice( 'This service has an outstanding invoice. If you proceed, you will be redirected to make the payment instead.' );
+			$output	.= smartwoo_notice( 'This service has an outstanding invoice. If you proceed, you will be redirected to make the payment instead.' );
 		}
 
 		$output 	.= '<p class="smartwoo-container-item"><span><strong>' . esc_html__( 'Current service Details', 'smart-woo-service-invoicing' ) . '</span></strong></p>';
@@ -770,11 +769,7 @@ function smartwoo_downgrade_temp( $current_user_id ) {
 
 	$output .= '</form>';
 	$output .= '</div>';
-
-
 	return $output;
-
-
 }
 
 
