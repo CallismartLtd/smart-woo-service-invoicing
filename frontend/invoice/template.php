@@ -229,7 +229,6 @@ function smartwoo_invoice_details() {
 		$items	= apply_filters( 'smartwoo_invoice_items', array(), $invoice );
 		$invoice_items	= array_merge( $invoice_items, $items );
 
-		// Start building the invoice content HTML.
 		$invoice_content .= '<section class="invoice-items">';
 		$invoice_content .= '<div class="invoice-card">';
 		$invoice_content .= '<div class="invoice-card-header">';
@@ -237,7 +236,6 @@ function smartwoo_invoice_details() {
 		$invoice_content .= '<h4 class="amount-heading">' . esc_html__( 'Amount', 'smart-woo-service-invoicing' ) . '</h4>';
 		$invoice_content .= '</div>';
 
-		// Loop through invoice items and generate HTML.
 		foreach ( $invoice_items as $item ) {
 			$invoice_content .= '<div class="invoice-item">';
 			$invoice_content .= '<p class="description">' . esc_html( $item['description'] ) . '</p>';

@@ -189,6 +189,8 @@ function smartwoo_service_cancelled_mail_to_admin( $service_id ) {
 		$product_info  = wc_get_product( $service_details->getProductId() );
 		$product_name  = $product_info ? esc_html( $product_info->get_name() ) : 'N/A';
 		$product_price = $product_info ? esc_html( $product_info->get_price() ) : 'N/A';
+		$business_name = get_option( 'smartwoo_business_name' );
+		$image_header  = get_option( 'smartwoo_email_image_header' );
 
 		// Billing details
 		$billing_info  = '<div style="border: 1px solid #ccc; padding: 10px; margin-top: 20px;">';
@@ -204,9 +206,14 @@ function smartwoo_service_cancelled_mail_to_admin( $service_id ) {
 		// Email message
 		$message  = '<html><head><style>';
 		$message .= 'body { font-family: Arial, sans-serif; }';
-		$message .= '.card { border: 1px solid #ccc; padding: 10px; margin-top: 20px; }';
+		$message .= 'h1 { color: #333; }';
+		$message .= '.container { max-width: 600px; margin: 0 auto; padding: 20px; }';
+		$message .= '.logo { display: block; margin: 0 auto; max-width: 300px; }';
+		$message .= '.button { display: inline-block; padding: 10px 20px; background-color: #0073e6; color: #fff; text-decoration: none; border-radius: 5px; }';
+		$message .= '.button:hover { background-color: #005bbf; }';
 		$message .= '</style></head><body>';
-		$message .= '<h1>Service Cancellation</h1>';
+		$message .= "<div class='container'>";
+		$message .= "<img src='" . esc_url( $image_header ) . "' alt='" . esc_attr( $business_name ) . " Logo' style='max-width: 500px;'><br><br>";		$message .= '<h1>Service Cancellation</h1>';
 		$message .= "<p>$user_full_name has cancelled their service. Find details below.</p>";
 		$message .= "<div class='card'>";
 		$message .= '<p><strong>Service Details</strong></p>';

@@ -9,6 +9,8 @@
  */
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
+defined ( 'SMARTWOO' ) || defined( 'SMARTWOO_FILE' ) || exit; // Must be accessed through the main file.
+
 /**
  * SmartWoo_Config
  * Environment configuration file
@@ -38,6 +40,12 @@ class SmartWoo_Config{
      * Initialize.
      */
     public function __construct() {
+        // Define the database table names as constants.
+        global $wpdb;
+        define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
+        define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
+        define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
+        define( 'SW_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
         $this->init();
     }
 

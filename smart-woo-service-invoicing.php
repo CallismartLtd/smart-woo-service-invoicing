@@ -20,49 +20,37 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
-if ( ! defined( 'SMARTWOO' ) ) {
-	define( 'SMARTWOO', 'Smart Woo Service Invoicing' );
-}
-
 if ( defined( 'SMARTWOO' ) ) {
-
-	if ( ! defined( 'SMARTWOO_PATH' ) ) {
-		/**
-		 * Define The Smart Woo absolute path.
-		 */
-		define( 'SMARTWOO_PATH', __DIR__ . '/' );
-	}	
-	
-	if ( ! defined( 'SMARTWOO_FILE' ) ) {
-		/**
-		 * Define Main plugin file.
-		 */
-		define( 'SMARTWOO_FILE', __FILE__ );
-	}
-
-	// Define the Smart Woo Directory URL.
-	if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
-		define( 'SMARTWOO_DIR_URL', plugin_dir_url( __FILE__ ) );
-	}	
-	
-	// Define the Smart Woo Directory URL.
-	if ( ! defined( 'SMARTWOO_VER' ) ) {
-		define( 'SMARTWOO_VER', '1.0.3' );
-	}
-
-	if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
-		define( 'SMARTWOO_DB_VER', '1.0.3' );
-	}
-	
-	// Define the database table names as constants.
-	global $wpdb;
-	define( 'SW_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
-	define( 'SW_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
-	define( 'SW_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
-	define( 'SW_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
-
-	// Load core and config files.
-	require_once SMARTWOO_PATH . 'includes/class-sw-config.php';
-	require_once SMARTWOO_PATH . 'includes/class-sw-install.php';
-	SmartWoo_Config::instance();
+	return;
 }
+
+define( 'SMARTWOO', 'Smart Woo Service Invoicing' );
+
+if ( ! defined( 'SMARTWOO_PATH' ) ) {
+	/** Smart Woo Path */
+	define( 'SMARTWOO_PATH', __DIR__ . '/' );
+}	
+
+if ( ! defined( 'SMARTWOO_FILE' ) ) {
+	/** Main file */
+	define( 'SMARTWOO_FILE', __FILE__ );
+}
+
+// Define the Smart Woo Directory URL.
+if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
+	define( 'SMARTWOO_DIR_URL', plugin_dir_url( __FILE__ ) );
+}	
+
+// Define the Smart Woo Directory URL.
+if ( ! defined( 'SMARTWOO_VER' ) ) {
+	define( 'SMARTWOO_VER', '1.0.3' );
+}
+
+if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
+	define( 'SMARTWOO_DB_VER', '1.0.3' );
+}
+
+// Load core and config files.
+require_once SMARTWOO_PATH . 'includes/class-sw-config.php';
+require_once SMARTWOO_PATH . 'includes/class-sw-install.php';
+SmartWoo_Config::instance();
