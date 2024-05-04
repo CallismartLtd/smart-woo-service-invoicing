@@ -110,21 +110,28 @@ function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
  *  Service details preview URL
  */
 function smartwoo_service_preview_url( $service_id ) {
-
-	if ( is_account_page() ) {
-		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
-		$preview_url  = $endpoint_url .'?view_service&service_id=' . $service_id;
-		return esc_url_raw( $preview_url );
-	}
-
-	$page 	  = get_option( 'smartwoo_service_page_id', 0 );
-	$page_url = get_permalink( $page );
-	return esc_url_raw( $page_url .'?service_page=service_details&service_id=' . $service_id );
+    if ( is_account_page() ) {
+        $endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
+        $preview_url = add_query_arg(
+            array(
+                'view_service' => true,
+                'service_id'   => $service_id,
+            ),
+            $endpoint_url
+        );
+        return esc_url( $preview_url );
+    } else {
+        $page_id = get_option( 'smartwoo_service_page_id', 0 );
+        $page_url = get_permalink( $page_id );
+        $preview_url = add_query_arg( array( 'service_id'   => $service_id, ), $page_url .'view-subscription/' );
+        return esc_url_raw( $preview_url );
+    }
 }
+
 
 function smartwoo_service_page_url() {
 	
-	if( is_account_page() ) {
+	if ( is_account_page() ) {
 		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
 		return esc_url_raw( $endpoint_url );
 	}
@@ -148,7 +155,7 @@ function smartwoo_service_page_url() {
  */
 function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id = null, $service_name = null, $billing_cycle = null, $service_type = null ) {
 	global $wpdb;
-	$table_name = SW_SERVICE_TABLE;
+	$table_name = SMARTWOO_SERVICE_TABLE;
 
 	// Prepare the base query.
 	$query = "SELECT * FROM $table_name WHERE 1";
@@ -178,28 +185,6 @@ function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id 
 	}
 	// phpcs:enable
 }
-
-
-
-/**
- * Log service renewal information.
- *
- * @param object $service	The SmartWoo_Service object to log
- * @return bool Whether the move was successful.
- */
-function smartwoo_log_renewed_service( SmartWoo_Service $service ) {
-
-	$log_renewal 	= new SmartWoo_Service_Log();
-	$log_renewal->setServiceId( $service->getServiceId() );
-	$log_renewal->setLogType( 'Renewal' );
-	$log_renewal->setNote( 'Successfully renewed' );
-	$log_renewal->save();
-
-	return true;
-
-}
-add_action( 'smartwoo_service_renewed', 'smartwoo_log_renewed_service', 20, 1 );
-add_action( 'smartwoo_expired_service_activated', 'smartwoo_log_renewed_service', 20, 1 );
 
 /**
  * Check if a service subscription is active.

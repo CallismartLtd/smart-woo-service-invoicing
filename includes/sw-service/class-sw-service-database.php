@@ -18,26 +18,6 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 class SmartWoo_Service_Database {
 
 	/**
-	 * Retrieves services from the database based on various criteria.
-	 *
-	 * @param string $criteria The criteria to filter the services.
-	 * @param mixed  $value    The value to match for the given criteria.
-	 *
-	 * @return array An array of SmartWoo_Service objects.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function get_services_by_criteria( $criteria, $value ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_service';
-		// phpcs:disable
-		$query   	= $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
-		$results 	= $wpdb->get_results( $query, ARRAY_A );
-		// phpcs:enable
-		return self::convert_results_to_services( $results );
-	}
-
-	/**
 	 * Retrieves all services from the database.
 	 *
 	 * @return array An array of SmartWoo_Service objects.
@@ -47,8 +27,7 @@ class SmartWoo_Service_Database {
 	public static function get_all_services() {
 		global $wpdb;
 		// phpcs:disable
-		$table_name = $wpdb->prefix . 'sw_service';
-		$query   	= "SELECT * FROM $table_name";
+		$query   	= "SELECT * FROM ". SMARTWOO_SERVICE_TABLE;
 		$results 	= $wpdb->get_results( $query, ARRAY_A );
 		// phpcs:enable
 		return self::convert_results_to_services( $results );
@@ -65,9 +44,8 @@ class SmartWoo_Service_Database {
 	 */
 	public static function get_service_by_id( $service_id ) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_service';
 		// phpcs:disable
-		$query  = $wpdb->prepare( "SELECT * FROM $table_name WHERE service_id = %s", $service_id );
+		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE service_id = %s", $service_id );
 		$result = $wpdb->get_row( $query, ARRAY_A );
 		// phpcs:enable
 		if ( $result ) {
@@ -87,8 +65,22 @@ class SmartWoo_Service_Database {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function get_services_by_user( $user_id ) {
-		return self::get_services_by_criteria( 'user_id', $user_id );
+	public static function get_services_by_user( $user_id = '' ) {
+		global $wpdb;
+		if ( empty( $user_id ) ) {
+			return $user_id; // User ID must be provided.
+		}
+
+		$user_id = absint( $user_id );
+		// phpcs:disable
+		$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d", $user_id );
+		$results 	= $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+		if ( $results ) {
+			return self::convert_results_to_services( $results );
+		}
+
+		return false;
 	}
 
 
@@ -105,13 +97,11 @@ class SmartWoo_Service_Database {
 	public static function create_service( SmartWoo_Service $service ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'sw_service';
-
 		$data = array(
 			'user_id'           => absint( $service->getUserId() ),
 			'product_id'        => absint( $service->getProductId() ),
 			'service_name'      => sanitize_text_field( $service->getServiceName() ),
-			'service_url'       => esc_url_raw( $service->getServiceUrl() ),
+			'service_url'       => sanitize_url( $service->getServiceUrl(), array( 'http', 'https') ),
 			'service_type'      => sanitize_text_field( $service->getServiceType() ),
 			'service_id'        => sanitize_text_field( $service->getServiceId() ),
 			'invoice_id'        => sanitize_text_field( $service->getInvoiceId() ),
@@ -138,7 +128,7 @@ class SmartWoo_Service_Database {
 		);
 
 		// phpcs:disable
-		$wpdb->insert( $table_name, $data, $data_format );
+		$wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );
 		// phpcs:enable
 		return $service->getServiceId();
 	}
@@ -155,7 +145,6 @@ class SmartWoo_Service_Database {
 	public static function update_service( SmartWoo_Service $service ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'sw_service';
 		$data 		= array(
 			'user_id'           => absint( $service->getUserId() ),
 			'product_id'        => absint( $service->getProductId() ),
@@ -193,7 +182,7 @@ class SmartWoo_Service_Database {
 		);
 
 		// phpcs:disable
-		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
+		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );
 		// phpcs:enable
 		return $updated !== false;
 	}
@@ -231,7 +220,6 @@ class SmartWoo_Service_Database {
 	public static function update_service_fields( $service_id, $fields ) {
 		global $wpdb;
 
-		$table_name 	= $wpdb->prefix . 'sw_service';
 		$data			= array();
 		$data_format 	= array();
 
@@ -249,7 +237,7 @@ class SmartWoo_Service_Database {
 		);
 
 		// phpcs:disable
-		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
+		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );
 		// phpcs:enable
 		return $updated !== false;
 	}
@@ -286,8 +274,6 @@ class SmartWoo_Service_Database {
 	public static function delete_service( $service_id ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'sw_service';
-
 		// Check if the service exists
 		$existing_service = self::get_service_by_id( $service_id );
 		if ( ! $existing_service ) {
@@ -295,7 +281,7 @@ class SmartWoo_Service_Database {
 		}
 
 		// phpcs:disable
-		$deleted = $wpdb->delete( $table_name, array( 'service_id' => $service_id ), array( '%s' ) );
+		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );
 		// phpcs:enable
 
 		if ( false === $deleted ) {

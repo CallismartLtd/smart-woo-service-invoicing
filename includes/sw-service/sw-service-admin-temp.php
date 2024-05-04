@@ -45,17 +45,24 @@ function smartwoo_admin_view_service_details() {
 		case 'client':
 			$page_html .= '<h2>Client Details</h2>';
 			$page_html .= smartwoo_admin_show_customer_details( $service );
+			$page_html .= apply_filters( 'smartwoo_customer_details', '', $service );
 			break;
 
 		case 'logs':
 			$page_html .= '<h2>Service Logs</h2>';
-			$page_html .= SmartWoo_Service_log::render_log_html_output( $service_id );
-			$page_html .= SmartWoo_Invoice_log::render_log_html_output( $service_id);
+			if ( class_exists( 'SmartWooPro', false ) ) {
+				$page_html .= apply_filters( 'smartwoo_service_log_admin_page', '', $service_id );
+			} else {
+				$page_html .= smartwoo_pro_feature();
+			}
 			break;
 		
 		case 'stats':
 			$page_html .= '<h2>Service Logs</h2>';
-			$page_html .= smartwoo_usage_metrics_temp( $service_id );
+			if ( class_exists( 'SmartWooPro', false ) ) {
+				$page_html .= apply_filters( 'smartwoo_stats', '', $service_id );
+			}
+			$page_html .= smartwoo_pro_feature();
 			break;
 
 		default:
@@ -63,7 +70,6 @@ function smartwoo_admin_view_service_details() {
 		$page_html .= smartwoo_show_admin_service_details( $service );
 		break;
 	}
-
 
 	$page_html .= '</div>';
 	return $page_html;
@@ -842,7 +848,7 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
 	$page .= '</div>';
 	// Client's Name.
 	$page .= '<div class="sw-form-row">';
-	$page .= '<label for="user_id" class="sw-form-label">' . esc_html__( "Client's Name", 'smart-woo-service-invoicing' ) . '</label>';
+	$page .= '<label for="user_id" class="sw-form-label">' . esc_html__( 'Client\'s Name', 'smart-woo-service-invoicing' ) . '</label>';
 	$page .= '<span class="sw-field-description" title="' . esc_attr__( 'The user whose ID is associated with the order', 'smart-woo-service-invoicing' ) . '">?</span>';
 	$page .= '<input type="text" class="sw-form-input" name="user_id" id="user_id" value="' . esc_attr( $user_full_name ) . '" readonly>';
 	$page .= '</div>';
@@ -894,7 +900,7 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
 	);
 	
 	foreach ( $status_options as $value => $label ) {
-		$page .= '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $status, false ) . '>' . esc_html__( $label ) . '</option>';
+		$page .= '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $status, false ) . '>' . esc_html( $label ) . '</option>';
 	}
 	
 	$page .= '</select>';

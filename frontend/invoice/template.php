@@ -79,7 +79,7 @@ function smartwoo_invoice_details() {
 	$invoice_id		= isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ""; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	
 	if ( empty( $invoice_id ) ) {
-		return esc_html__('Invalid or Missing Invoice ID');
+		return smartwoo_notice('Invalid or Missing Invoice ID' );
 	}
 	
 	$user_id		= get_current_user_id();
@@ -95,7 +95,6 @@ function smartwoo_invoice_details() {
 		$store_address			= $biller_details->store_address;
 		$store_city				= $biller_details->store_city;
 		$default_country		= $biller_details->default_country;
-		$invoice_watermark_url	= get_option( 'smartwoo_invoice_watermark_url' );
 		$user 					= new WC_Customer( $user_id );
 		$first_name				= $user->get_first_name();
 		$last_name				= $user->get_last_name();
@@ -147,7 +146,7 @@ function smartwoo_invoice_details() {
 
 		// Add nonce to the URL.
 		$download_url 		= wp_nonce_url( $download_url, 'download_invoice_nonce' );
-		$invoice_content 	.= '<a href="' . esc_url( $download_url ) . '" class="download-button">' .esc_html__( 'Download as PDF', 'smart-woo-service-invoicing' ) . '</a>';
+		$invoice_content 	.= '<a href="' . esc_url( $download_url ) . '" class="download-button">' . esc_html__( 'Download as PDF', 'smart-woo-service-invoicing' ) . '</a>';
 		$invoice_content	.= '</div>';
 		// Generate the invoice content.
 		$invoice_content	.= '<div class="invoice-container">';
@@ -206,13 +205,7 @@ function smartwoo_invoice_details() {
 		$invoice_content .= '<p>' . esc_html( $payment_gateway ) . '</p>';
 		$invoice_content .= '</div>';
 		$invoice_content .= '</section>';
-
-		if ( ! empty( $invoice_watermark_url ) ) {
-
-			$invoice_content .= '<div class="invoice-watermark">';
-			$invoice_content .= '<img src="' . esc_url( $invoice_watermark_url ) . '" alt="Invoice Watermark" class="watermark-image">';
-			$invoice_content .= '</div>';
-		}
+		$invoice_content .= apply_filters( 'smartwoo_invoice_content', '', $invoice );
 
 		// Invoice Items section.
 		$invoice_items		= array();
@@ -243,10 +236,9 @@ function smartwoo_invoice_details() {
 			$invoice_content .= '</div>';
 		}
 
-		if ( 'Service Upgrade Invoice' === $invoice->getInvoiceType() || 'Service Downgrade Invoice' === $invoice->getInvoiceType() ) {
+		if (  class_exists( 'SmartWooPro' , false ) && 'Service Upgrade Invoice' === $invoice->getInvoiceType() || 'Service Downgrade Invoice' === $invoice->getInvoiceType() ) {
 			// Previous Service Balance.
-			$query 			  = SmartWoo_Invoice_log::get_logs_by_criteria( 'log_id', $invoice_id, true );
-			$balance          = ! empty( $query ) ? $query->getAmount() : 0;
+			$balance          = $invoice->get_balance();
 			$invoice_content .= '<div class="invoice-item">';
 			$invoice_content .= '<p class="description">' . esc_html__( 'Previous Service Balance', 'smart-woo-service-invoicing' ) . '</p>';
 			$invoice_content .= '<p class="amount">' . max( 0, wc_price( $balance ) ) . '</p>';
@@ -327,7 +319,7 @@ function smartwoo_invoice_mini_card() {
 	 * Starts card markup.
 	 */
     $table_html      	  = '<div class="mini-card">';
-    $table_html     	 .= '<h2>' . esc_html__('My Invoices', 'smart-woo-service-invoicing') . '</h2>';
+    $table_html     	 .= '<h2>' . esc_html__( 'My Invoices', 'smart-woo-service-invoicing') . '</h2>';
     $table_html     	 .= '<table>';   
     $all_invoices         = SmartWoo_Invoice_Database::get_invoices_by_user( $current_user_id );
 
@@ -339,7 +331,7 @@ function smartwoo_invoice_mini_card() {
             $generated_date = esc_html( smartwoo_check_and_format( $invoice->getDateCreated() ) );
             $order_id       = esc_html( $invoice->getOrderId() );
             $table_html    .= '<tr>
-                <td class="invoice-table-heading">' . esc_html__('Invoice ID:', 'smart-woo-service-invoicing' ) . '</td>
+                <td class="invoice-table-heading">' . esc_html__( 'Invoice ID:', 'smart-woo-service-invoicing' ) . '</td>
                 <td class="invoice-table-value">' . esc_html( $invoice_id ) . '</td>
             </tr>';
 
@@ -351,8 +343,8 @@ function smartwoo_invoice_mini_card() {
             $preview_invoice_url = smartwoo_invoice_preview_url( $invoice->getInvoiceId() );
 
             $table_html .= '<tr>
-                <td class="invoice-table-heading">' . esc_html__('Action:', 'smart-woo-service-invoicing') . '</td>
-                <td class="invoice-table-value"><a href="' . esc_url( $preview_invoice_url ) .'" class="invoice-preview-button">' . esc_html__( 'View' ) . '</a>';
+                <td class="invoice-table-heading">' . esc_html__( 'Action:', 'smart-woo-service-invoicing' ) . '</td>
+                <td class="invoice-table-value"><a href="' . esc_url( $preview_invoice_url ) .'" class="invoice-preview-button">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a>';
 
             // Show the "Pay" button beside the "View" button only if the order is pending.
             if ( 'unpaid' === $invoice->getPaymentStatus() ) {
@@ -389,10 +381,10 @@ function smartwoo_all_user_invoices_count() {
 
 	// Get counts for each payment status for the current user.
 	$counts = array(
-		'paid'      => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'paid' ),
-		'unpaid'    => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'unpaid' ),
-		'cancelled' => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'cancelled' ),
-		'due'       => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( $current_user_id, 'due' ),
+		'paid'      => SmartWoo_Invoice_Database::count_payment_status( $current_user_id, 'paid' ),
+		'unpaid'    => SmartWoo_Invoice_Database::count_payment_status( $current_user_id, 'unpaid' ),
+		'cancelled' => SmartWoo_Invoice_Database::count_payment_status( $current_user_id, 'cancelled' ),
+		'due'       => SmartWoo_Invoice_Database::count_payment_status( $current_user_id, 'due' ),
 	);
 
 	// Generate the HTML.
@@ -417,7 +409,7 @@ function smartwoo_get_unpaid_invoices_count() {
 		return "Hello! It looks like you\'re not logged in.";
 	} 
 	
-	$count = SmartWoo_Invoice_Database::get_invoice_count_by_payment_status_for_user( get_current_user_id(), 'unpaid' );
+	$count = SmartWoo_Invoice_Database::count_payment_status( get_current_user_id(), 'unpaid' );
 	$output	 = '<h1 class="centered" style="text-align: center; margin: 0 auto; font-size: 45px;">' . esc_html( absint( $count ) ) . '</h1>';
 	$output .= '<p class="centered" style="text-align: center; font-size: 18px;">' . esc_html__( 'New Invoices', 'smart-woo-service-invoicing' ) . '</p>';
 	
@@ -506,7 +498,6 @@ function smartwoo_transaction_status_shortcode() {
 	$user    = wp_get_current_user();
 	$user_id = $user->ID;
 
-	// Manually define the order statuses you want to display.
 	$defualt_statuses = array(
 		'completed'  => 'Complete',
 		'pending'    => 'Pending',
@@ -519,7 +510,6 @@ function smartwoo_transaction_status_shortcode() {
 
 	$status_counts = array();
 
-	// Loop through the manually defined order statuses and count orders for the current user.
 	foreach ( $defualt_statuses as $status => $label ) {
 		$count = wc_get_orders(
 			array(

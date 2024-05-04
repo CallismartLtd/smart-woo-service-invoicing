@@ -55,7 +55,7 @@ function smartwoo_save_email_options() {
 				update_option( $checkbox_name, 0 ); 
 			}
 		}
-		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . esc_html__( 'Settings saved!','smart-woo-service-invoicing' ) . '</p></div>' );
+		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . esc_html__( 'Settings saved!', 'smart-woo-service-invoicing' ) . '</p></div>' );
 
 	}
 }
@@ -120,15 +120,15 @@ function smartwoo_save_options() {
 	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
 
 		if ( isset( $_POST['smartwoo_invoice_page_id'] ) ) {
-			update_option( 'smartwoo_invoice_page_id', absint( $_POST['smartwoo_invoice_page_id'] ) );
+			update_option( 'smartwoo_invoice_page_id', absint(  sanitize_text_field( $_POST['smartwoo_invoice_page_id'] ) ) );
 		}
 
 		if ( isset( $_POST['smartwoo_invoice_logo_url'] ) ) {
-			update_option( 'smartwoo_invoice_logo_url', esc_url_raw( $_POST['smartwoo_invoice_logo_url'] ) );
+			update_option( 'smartwoo_invoice_logo_url', sanitize_url( $_POST['smartwoo_invoice_logo_url'], array( 'http', 'https' ) ) );
 		}
 
 		if ( isset( $_POST['smartwoo_invoice_watermark_url'] ) ) {
-			update_option( 'smartwoo_invoice_watermark_url', esc_url_raw( $_POST['smartwoo_invoice_watermark_url'] ) );
+			update_option( 'smartwoo_invoice_watermark_url', sanitize_url( $_POST['smartwoo_invoice_watermark_url'], array( 'http', 'https' ) ) );
 		}
 
 		if ( isset( $_POST['smartwoo_business_name'] ) ) {
@@ -138,7 +138,7 @@ function smartwoo_save_options() {
 
 		if ( isset( $_POST['smartwoo_admin_phone_numbers'] ) ) {
 			// Remove any characters except numbers and commas.
-			$phone_numbers       = preg_replace( '/[^0-9+,]/', '', $_POST['smartwoo_admin_phone_numbers'] );
+			$phone_numbers       = preg_replace( '/[^0-9+,]/', '', sanitize_text_field( $_POST['smartwoo_admin_phone_numbers'] ) );
 			$phone_numbers_array = explode( ',', $phone_numbers );
 			$phone_numbers_array = array_filter( $phone_numbers_array );
 			
@@ -155,32 +155,32 @@ function smartwoo_save_options() {
 		}
 
 		if ( isset( $_POST['smartwoo_prorate'] ) ) {
-			$smartwoo_prorate_value = ( 'Enable' === $_POST['smartwoo_prorate'] ) ? 'Enable': 'Disable';
+			$smartwoo_prorate_value = ( 'Enable' === sanitize_text_field( $_POST['smartwoo_prorate'] ) ) ? 'Enable': 'Disable';
 			update_option( 'smartwoo_prorate', sanitize_text_field( $smartwoo_prorate_value ) );
 		}
 
 		if ( isset( $_POST['smartwoo_invoice_id_prefix'] ) ) {
-			$invoice_number_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', $_POST['smartwoo_invoice_id_prefix'] );
+			$invoice_number_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', sanitize_text_field( $_POST['smartwoo_invoice_id_prefix'] ) );
 			update_option( 'smartwoo_invoice_id_prefix', sanitize_text_field( $invoice_number_prefix ) );
 		}
 
 		if ( isset( $_POST['smartwoo_service_id_prefix'] ) ) {
-			$service_id_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', $_POST['smartwoo_service_id_prefix'] );
+			$service_id_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', sanitize_text_field( $_POST['smartwoo_service_id_prefix'] ) );
 			update_option( 'smartwoo_service_id_prefix', sanitize_text_field( $service_id_prefix ) );
 		}
 
 		if ( isset( $_POST['smartwoo_allow_migration'] ) ) {
-			$smartwoo_allow_migration = ( 'Enable' === $_POST['smartwoo_allow_migration'] ) ? 'Enable' : 'Disable';
+			$smartwoo_allow_migration = ( 'Enable' === sanitize_text_field( $_POST['smartwoo_allow_migration'] ) ) ? 'Enable' : 'Disable';
 			update_option( 'smartwoo_allow_migration', sanitize_text_field( $smartwoo_allow_migration ) );
 		}
 
 		if ( isset( $_POST['smartwoo_upgrade_product_cat'] ) ) {
-			$category_id = absint( $_POST['smartwoo_upgrade_product_cat'] );
+			$category_id = absint( sanitize_text_field( $_POST['smartwoo_upgrade_product_cat'] ) );
 			update_option( 'smartwoo_upgrade_product_cat', absint( $category_id ) );
 		}
 
 		if ( isset( $_POST['smartwoo_downgrade_product_cat'] ) ) {
-			$category_id = absint( $_POST['smartwoo_downgrade_product_cat'] );
+			$category_id = absint( sanitize_text_field( $_POST['smartwoo_downgrade_product_cat'] ) );
 			update_option( 'smartwoo_downgrade_product_cat', absint( $category_id ) );
 		}
 
@@ -281,6 +281,8 @@ function smartwoo_service_options() {
 		<form method="post" class="inv-settings-form">
 		
 		<?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
+		<?php do_action( 'smartwoo_after_service_options' ) ?>
+
 		
 		<!-- Business Name -->
 		<div class="sw-form-row">
@@ -368,6 +370,8 @@ function smartwoo_service_options() {
 		</select>
 		</div>
 
+		<?php do_action( 'smartwoo_after_service_options' ) ?>
+		
 		<input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
 
 		</form>
@@ -401,8 +405,9 @@ function smartwoo_invoice_options() {
 		<form method="post" class="inv-settings-form">
 
 		<?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
+		<?php do_action( 'smartwoo_before_invoice_options' ) ?>
 
-		<!--Service Page -->
+		<!--Invoice Page -->
 		<div class="sw-form-row">
 		<label for="smartwoo_invoice_page_id" class="sw-form-label"><?php esc_html_e( 'Invoice Page', 'smart-woo-service-invoicing' ) ?></label>
 		<span class="sw-field-description" title="This page should have this shortcode [smartwoo_invoice_page]">?</span>
@@ -427,11 +432,12 @@ function smartwoo_invoice_options() {
 		<!-- Invoice Logo URL -->
 		<div class="sw-form-row">
 		<label for="smartwoo_invoice_logo_url" class="sw-form-label">Logo URL</label>
-		<span class="sw-field-description" title="Paste the link to your logo url">?</span>
+		<span class="sw-field-description" title="Paste the link to your logo url, size 512x512 pixels recommended">?</span>
 		<input type="text" name="smartwoo_invoice_logo_url" id="smartwoo_invoice_logo_url" value="<?php echo esc_attr( $invoice_logo_url ); ?>" placeholder=" eg. www.example/image.png" class="sw-form-input">
-		</div>        
-		
-		
+		</div> 
+		       
+		<?php do_action( 'smartwoo_after_invoice_options' ) ?>
+
 		<!-- Invoice Watermark URL -->
 		<div class="sw-form-row">
 		<label for="smartwoo_invoice_watermark_url" class="sw-form-label"><?php esc_html_e( 'Watermark URL', 'smart-woo-service-invoicing' ); ?></label>
@@ -481,6 +487,7 @@ function smartwoo_email_options() {
 		<form method="post" class="inv-settings-form">
 
 		<?php wp_nonce_field( 'sw_email_option_nonce', 'sw_email_option_nonce' ); ?>
+		<?php do_action( 'smartwoo_before_email_options' ) ?>
 
 			<!-- Sender Name -->
 			<div class="sw-form-row">
@@ -514,6 +521,7 @@ function smartwoo_email_options() {
 				</div>
 				<hr>
 			<?php endforeach; ?>
+			<?php do_action( 'smartwoo_after_email_options' ) ?>
 
 			<input type="submit" class="sw-blue-button" name="sw_save_email_options" value="Save Changes">
 		</form>

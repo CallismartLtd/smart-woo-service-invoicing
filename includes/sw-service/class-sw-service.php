@@ -56,7 +56,7 @@ class SmartWoo_Service {
 		string $service_id,
 		?string $service_name = null,
 		?string $service_url = null,
-		?string $service_type = null,
+		?string $service_type = null, 
 		?string $invoice_id = null,
 		?string $start_date = null,
 		?string $end_date = null,

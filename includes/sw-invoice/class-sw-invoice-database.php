@@ -20,46 +20,18 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 class SmartWoo_Invoice_Database { 
 
 	/**
-	 * Retrieves invoices from the database based on various criteria.
-	 *
-	 * @param $criteria The criteria for the search.
-	 * @param $value	The value to match the criteria.
-	 * @since   1.0.0
-	 */
-	public static function get_invoices_by_criteria( $criteria, $value, $single = false ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_invoice';
-		// phpcs:disable
-		$query   = $wpdb->prepare( "SELECT * FROM $table_name WHERE $criteria = %s", $value );
-
-		if ( true === $single ) {
-            $result =  $wpdb->get_row( $query, ARRAY_A );
-			if ( $result ) {
-				return SmartWoo_Invoice::convert_array_to_invoice( $result );
-			}
-		}
-
-		$results = $wpdb->get_results( $query, ARRAY_A );
-		// phpcs:enable
-
-		return self::convert_results_to_invoices( $results );
-	}
-
-
-
-	/**
 	 * Get All invoices from the database.
 	 */
 	public static function get_all_invoices() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_invoice';
-
 		// phpcs:disable
-		$query   = "SELECT * FROM $table_name";
+		$query   = "SELECT * FROM " . SMARTWOO_INVOICE_TABLE;
 		$results = $wpdb->get_results( $query, ARRAY_A );
 		// phpcs:enable
-
-		return self::convert_results_to_invoices( $results );
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );
+		}
+		return false;
 	}
 
 
@@ -68,8 +40,22 @@ class SmartWoo_Invoice_Database {
 	 * 
 	 * @param int $user_id	The ID of the user.
 	 */
-	public static function get_invoices_by_user( $user_id ) {
-		return self::get_invoices_by_criteria( 'user_id', $user_id );
+	public static function get_invoices_by_user( $user_id = 0 ) {
+		global $wpdb;
+
+		if ( empty( $user_id ) ) {
+			return false;
+		}
+		$user_id = absint( $user_id );
+
+		// phpcs:disable
+		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %s", $user_id );
+		$results	= $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );
+		}
+		return false;
 	}
 
 	/**
@@ -77,17 +63,24 @@ class SmartWoo_Invoice_Database {
 	 * 
 	 * @param string $invoice_id	The invoice id.
 	 */
-	public static function get_invoice_by_id( $invoice_id ) {
+	public static function get_invoice_by_id( $invoice_id = '' ) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_invoice';
 
+		if ( empty( $invoice_id ) ) {
+			return false;
+		}
+
+		if ( $invoice_id instanceof SmartWoo_Invoice ) {
+			$invoice_id = $invoice_id->getInvoiceId();
+		}
+		
+		$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
 		// phpcs:disable
-		$query  = $wpdb->prepare( "SELECT * FROM $table_name WHERE invoice_id = %s", $invoice_id );
+		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE invoice_id = %s", $invoice_id );
 		$result = $wpdb->get_row( $query, ARRAY_A );
 		// phpcs:enable
 
 		if ( $result ) {
-			// Convert the array result to SmartWoo_Invoice object
 			return SmartWoo_Invoice::convert_array_to_invoice( $result );
 		}
 
@@ -99,8 +92,24 @@ class SmartWoo_Invoice_Database {
 	 * 
 	 * @param string $service_id The ID of the service to retrieve it's invoice.
 	 */
-	public static function get_invoices_by_service( $service_id ) {
-		return self::get_invoices_by_criteria( 'service_id', $service_id );
+	public static function get_invoices_by_service( $service_id = '' ) {
+		global $wpdb;
+
+		if ( $service_id instanceof SmartWoo_Service ) {
+			$service_id = $service_id->getServiceId();
+		}
+
+		$service_id = sanitize_text_field( wp_unslash( $service_id ) );
+		// phpcs:disable
+		$query   = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE service_id = %s", $service_id );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );
+
+		}
+		return false;
 	}
 
 	/**
@@ -108,8 +117,22 @@ class SmartWoo_Invoice_Database {
 	 * 
 	 * @param string $type	The invoice type.
 	 */
-	public static function get_invoices_by_type( $invoice_type ) {
-		return self::get_invoices_by_criteria( 'invoice_type', $invoice_type );
+	public static function get_invoices_by_type( $invoice_type = '' ) {
+		global $wpdb;
+		if ( empty( $invoice_type ) ) {
+			return false;
+		}
+
+		$invoice_type = sanitize_text_field( wp_unslash( $invoice_type ) );
+		// phpcs:disable
+		$query   = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_INVOICE_TABLE ." WHERE invoice_type = %s", $invoice_type );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );	
+		}
+		return false;
 	}
 
 	/**
@@ -117,8 +140,24 @@ class SmartWoo_Invoice_Database {
 	 * 
 	 * @param string $payment_status The invoice payment status.
 	 */
-	public static function get_invoices_by_payment_status( $payment_status ) {
-		return self::get_invoices_by_criteria( 'payment_status', $payment_status );
+	public static function get_invoices_by_payment_status( $payment_status = '' ) {
+		global $wpdb;
+
+		if ( empty( $payment_status ) ) {
+			return false;
+		}
+
+		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
+		// phpcs:disable
+		$query   = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s", $payment_status );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );	
+		}
+		return false;
+
 	}
 
 	/**
@@ -126,8 +165,27 @@ class SmartWoo_Invoice_Database {
 	 * 
 	 * @param int $order_id	The order ID associated with the invoices.
 	 */
-	public static function get_invoice_by_order_id( $order_id ) {
-		return self::get_invoices_by_criteria( 'order_id', $order_id, true );
+	public static function get_invoice_by_order_id( $order_id = 0 ) {
+		global $wpdb;
+
+		if ( empty( $order_id ) ) {
+			return false;
+		}
+
+		if ( $order_id instanceof WC_Order ) {
+			$order_id = $order_id->get_id();
+		}
+
+		$order_id = absint( $order_id );
+		// phpcs:disable
+		$query   = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE order_id = %s", $order_id );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );	
+		}
+		return false;	
 	}
 
 
@@ -137,7 +195,22 @@ class SmartWoo_Invoice_Database {
 	 * @param string $due_date The due date.
 	 */
 	public static function get_invoices_by_date_due( $date_due ) {
-		return self::get_invoices_by_criteria( 'date_due', $date_due );
+		global $wpdb;
+
+		if ( empty( $date_due ) ) {
+			return false;
+		}
+
+		$date_due = sanitize_text_field( $date_due );
+		// phpcs:disable
+		$query   = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE date_due = %s", $date_due );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		// phpcs:enable
+
+		if ( $results ) {
+			return self::convert_results_to_invoices( $results );	
+		}
+		return false;
 	}
 
 	/**
@@ -147,11 +220,13 @@ class SmartWoo_Invoice_Database {
 	 *
 	 * @return int The count of invoices with the specified payment status.
 	 */
-	public static function get_invoice_count_by_payment_status( $payment_status ) {
+	public static function count_this_status( $payment_status ) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_invoice';
+
+		$payment_status = sanitize_text_field( wp_unslash( $payment_status  ) );
+
 		// phpcs:disable
-		$query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE payment_status = %s", $payment_status );
+		$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s", $payment_status );
 		$count = $wpdb->get_var( $query );
 		// phpcs:enable
 
@@ -166,11 +241,16 @@ class SmartWoo_Invoice_Database {
 	 *
 	 * @return int The count of invoices with the specified payment status for the current user.
 	 */
-	public static function get_invoice_count_by_payment_status_for_user( $user_id, $payment_status ) {
+	public static function count_payment_status( $user_id, $payment_status ) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'sw_invoice';
+		if ( ! is_numeric( $user_id ) || ! is_string( $payment_status ) ) {
+			return false;
+		}
+
+		$user_id		= absint( $user_id );
+		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
 		// phpcs:disable
-		$query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE user_id = %d AND payment_status = %s", $user_id, $payment_status );
+		$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %d AND payment_status = %s", $user_id, $payment_status );
 		$count = $wpdb->get_var( $query );
 		// phpcs:enable
 
@@ -209,9 +289,7 @@ class SmartWoo_Invoice_Database {
 	public static function save( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'sw_invoice';
-
-		// Data to be inserted
+		// Data to be inserted.
 		$data = array(
 			'service_id'      => sanitize_text_field( $invoice->getServiceId() ),
 			'user_id'         => absint( $invoice->getUserId() ),
@@ -252,7 +330,7 @@ class SmartWoo_Invoice_Database {
 		);
 
 		// phpcs:disable
-		$wpdb->insert( $table_name, $data, $data_format ); 
+		$wpdb->insert( SMARTWOO_INVOICE_TABLE, $data, $data_format ); 
 		// phpcs:enable
 		return $invoice->getInvoiceId();
 	}
@@ -270,10 +348,7 @@ class SmartWoo_Invoice_Database {
 	public static function update_invoice( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
 
-		// Our table name
-		$table_name = $wpdb->prefix . 'sw_invoice';
-
-		// Data to be updated
+		// Data to be updated.
 		$data = array(
 			'service_id'      => sanitize_text_field( $invoice->getServiceId() ),
 			'user_id'         => absint( $invoice->getUserId() ),
@@ -311,7 +386,7 @@ class SmartWoo_Invoice_Database {
 			'%f', // total
 		);
 
-		// Where condition
+		// Where condition.
 		$where = array(
 			'invoice_id' => sanitize_text_field( $invoice->getInvoiceId() ),
 		);
@@ -322,7 +397,7 @@ class SmartWoo_Invoice_Database {
 		);
 
 		// phpcs:disable
-		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format );
+		$updated = $wpdb->update( SMARTWOO_INVOICE_TABLE, $data, $where, $data_format, $where_format );
 		// phpcs:enable
 
 		// Return true on success, false on failure
@@ -343,10 +418,7 @@ class SmartWoo_Invoice_Database {
 	public static function update_invoice_fields( $invoice_id, $fields ) {
 		global $wpdb;
 
-		// Our table name
-		$table_name = $wpdb->prefix . 'sw_invoice';
-
-		// Data to be updated
+		// Data to be updated.
 		$data        = array();
 		$data_format = array();
 
@@ -355,21 +427,21 @@ class SmartWoo_Invoice_Database {
 			$data_format[]  = self::get_data_format( $value );
 		}
 
-		// Where condition
+		// Where condition.
 		$where = array(
 			'invoice_id' => sanitize_text_field( $invoice_id ),
 		);
 
-		// Where format
+		// Where format.
 		$where_format = array(
 			'%s', // invoice_id
 		);
 
 		// phpcs:disable
-		$updated = $wpdb->update( $table_name, $data, $where, $data_format, $where_format ); 
+		$updated = $wpdb->update( SMARTWOO_INVOICE_TABLE, $data, $where, $data_format, $where_format ); 
 		// phpcs:enable
 
-		if ( $updated !== false ) {
+		if ( $updated ) {
 			// Fetch the updated invoice from the database
 			$updated_invoice = self::get_invoice_by_id( $invoice_id );
 
@@ -413,16 +485,15 @@ class SmartWoo_Invoice_Database {
 	public static function delete_invoice( $invoice_id ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'sw_invoice';
-
-		// Check if the invoice exists
+		$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
+		// Check if the invoice exists.
 		$existing_invoice = self::get_invoice_by_id( $invoice_id );
 		if ( ! $existing_invoice ) {
 			return 'Invoice not found.';
 		}
 
 		// phpcs:disable
-		$deleted = $wpdb->delete( $table_name, array( 'invoice_id' => $invoice_id ), array( '%s' ) );
+		$deleted = $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );
 		// phpcs:enable
 		if ( false === $deleted ) {
 			return 'Error deleting invoice.';

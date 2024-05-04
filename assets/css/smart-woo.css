@@ -732,25 +732,6 @@ use inline CSS to overide some styles
 	text-align: right;
 }
 
-/* CSS for centering the watermark image and making it more transparent */
-.invoice-watermark {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none; /* Allows interaction with content beneath the watermark */
-
-}
-
-
-
-.watermark-image {
-	opacity: 0.02; /* Adjust the opacity value as needed (0.0 to 1.0) */
-}
 /* Style the invoice items section */
 .invoice-items {
 	margin-top: 20px; /* Add some top margin to separate it from the previous section */
@@ -1339,17 +1320,19 @@ use inline CSS to overide some styles
 
 /** Product CSS **/
 .sw-product-container {
-	width: calc(33.33% - 20px);
-	/* Subtracting 20px for margin and padding */
-	float: left;
-	margin: 10px;
-	background-color: #f5fcff;
+	display: inline-block;
+	vertical-align: top;
+	justify-content: space-around;
+	min-height: 400px;
+	background-color: #ffffff;
+	border-radius: 7px;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	width: 45%; /* Adjust width and consider margin */
+	margin: 20px auto; /* Add horizontal margin for spacing */
+	padding: 20px; /* Add padding to create space within the boxes */
+	align-items: center;
+
 	box-sizing: border-box;
-	min-height: 450px; /* Adjust the height as needed */
-	border: 1px solid #ddd;
-	padding: 15px;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .sw-product-container h3 {

@@ -89,30 +89,6 @@ function smartwoo_is_prorate() {
 }
 
 /**
- * Log invoice data into the database
- *
- * @param string    $log_id        ID to stamp the log
- * @param string    $log_type      The type of log
- * @param string 	$status 	   Status of the Log.
- * @param string    $details       Additional details or notes related to the log.
- * @param float  	$amount        Amount to log (Defaults to 0.00)
- * @param string	$note		   Internal Note for reference Purposes
- *
- */
-function smartwoo_invoice_log( $log_id, $log_type, $status, $details = '',  $amount = 0, $note = '' ) {
-	
-	// Instantiate an object of the class.
-	$log = new SmartWoo_Invoice_log();
-	$log->setLogId( $log_id );
-	$log->setLogType( $log_type );
-	$log->setAmount( $amount );
-	$log->setStatus( $status );
-	$log->setDetails( $details );
-	$log->setNote( $note );
-	$log->save();
-}
-
-/**
  * Procedural function to mark refund as completed.
  *
  * This function initiates the refund process for the specified logged data by its ID.
@@ -238,7 +214,7 @@ function smartwoo_is_migration() {
 function smartwoo_notice( $message, $dismisable = false ) {
 	$class = ( true === $dismisable ) ? 'sw-notice notice notice-error is-dismissible' : 'sw-notice';
 	$output  = '<div class="' . esc_attr( $class ) . '">';
-	$output .= '<p>' . esc_html__( $message, 'smart-woo-service-invoicing' ) . '</p>'; 
+	$output .= '<p>' . esc_html( $message ) . '</p>'; 
 	$output .= '</div>';
 
 	return $output;
@@ -254,7 +230,7 @@ if ( ! function_exists( 'smartwoo_error_notice' ) ) {
 	function smartwoo_error_notice( $messages, $dismisable = false ) {
 
 		if ( "" === $messages ) {
-			return ""; // message is required.
+			return $message; // message is required.
 		}
 		$class = ( true === $dismisable ) ? 'sw-error-notice notice notice-error is-dismissible' : 'sw-error-notice';
 		$error = '<div class="' . esc_attr ( $class ) .'">';
@@ -270,7 +246,7 @@ if ( ! function_exists( 'smartwoo_error_notice' ) ) {
 			}
 		} else {
 			$error .= smartwoo_notice( 'Error !!' );
-			$error .= '<p>' . esc_html__( $messages ) . '</p>';
+			$error .= '<p>' . esc_html( $messages ) . '</p>';
 		}
 
 		$error .= '</div>';
@@ -361,15 +337,16 @@ function smartwoo_check_if_configured( $order ) {
  */
 function smartwoo_get_navbar( $current_user_id ) {
 
-	if ( is_account_page() ) {
+	if ( is_account_page() || ! is_user_logged_in() ) {
 		return;
 	}
+
     $service_page_id            = get_option( 'smartwoo_service_page_id', 0 );
     $service_page_url           = get_permalink( $service_page_id );
     $invoice_preview_page_id    = get_option( 'smartwoo_invoice_page_id', 0 );
     $invoice_preview_page_url   = get_permalink( $invoice_preview_page_id );
 
-    // Determine the current page
+    // Determine the current page.
     $current_page_slug = '';
     $navbar_title      = '';
 
@@ -403,22 +380,22 @@ function smartwoo_get_navbar( $current_user_id ) {
 
     $nav_bar  = '<div class="service-navbar">';
 
-    // Container for the title (aligned to the left)
+    // Container for the title (aligned to the left).
     $nav_bar .= '<div class="navbar-title-container">';
     $nav_bar .= '<h3>' . esc_attr( $page_title ) . '</h3>';
     $nav_bar .= '</div>';
 
-    // Container for the links (aligned to the right)
+    // Container for the links (aligned to the right).
     $nav_bar .= '<div class="navbar-links-container">';
     $nav_bar .= '<ul>';
 
-    // Add link to the service page
+    // Add link to the service page.
     $nav_bar .= '<li><a href="' . esc_url( $service_page_url ) . '" class="' . ( $current_page_slug === 'services' ? 'current-page' : '' ) . '">Services</a></li>';
 
-    // Add link to the invoice preview page
+    // Add link to the invoice preview page.
     $nav_bar .= '<li><a href="' . esc_url( $invoice_preview_page_url ) . '" class="' . ( $current_page_slug === 'invoices' ? 'current-page' : '' ) . '">Invoices</a></li>';
 
-    // Add dropdown for service actions only on the service page
+    // Add dropdown for service actions only on the service page.
     if ( $current_page_slug === 'services' ) {
         // Dropdown for service actions
         $nav_bar .= '<li class="service-actions-dropdown">';
@@ -435,23 +412,30 @@ function smartwoo_get_navbar( $current_user_id ) {
     $nav_bar .= '</div>';
 
     $nav_bar .= '</div>';
+
+    // Apply filter to modify the allowed HTML tags and attributes for wp_kses_post().
+    add_filter( 'wp_kses_allowed_html', 'smartwoo_kses_allowed', 10, 2 );
+
+    return $nav_bar;
+}
+
 	
-	/**
-	 * Define Helper callback function for the wp_kses_allowed_html filter
-	 * 
-	 * This function defines a callback for the wp_kses_allowed_html filter,
-	 * which is used to modify the allowed HTML tags and attributes for the
-	 * wp_kses_post() function. By adding or modifying the allowed tags and
-	 * attributes, we can ensure that specific HTML elements are retained
-	 * when using wp_kses_post(). This callback function is intended to be
-	 * used in conjunction with the smartwoo_get_navbar() function to customize
-	 * the allowed HTML for the navigation bar output.
-	 *
-	 * @param array  $allowed_tags An array of allowed HTML tags and their attributes.
-	 * @param string $context      The context in which the HTML is being sanitized.
-	 * @return array               The modified array of allowed HTML tags and attributes.
-	 */ 
-	if( ! function_exists( 'smartwoo_kses_allowed' ) ):
+/**
+ * Define Helper callback function for the wp_kses_allowed_html filter
+ * 
+ * This function defines a callback for the wp_kses_allowed_html filter,
+ * which is used to modify the allowed HTML tags and attributes for the
+ * wp_kses_post() function. By adding or modifying the allowed tags and
+ * attributes, we can ensure that specific HTML elements are retained
+ * when using wp_kses_post(). This callback function is intended to be
+ * used in conjunction with the smartwoo_get_navbar() function to customize
+ * the allowed HTML for the navigation bar output.
+ *
+ * @param array  $allowed_tags An array of allowed HTML tags and their attributes.
+ * @param string $context      The context in which the HTML is being sanitized.
+ * @return array               The modified array of allowed HTML tags and attributes.
+ */ 
+if( ! function_exists( 'smartwoo_kses_allowed' ) ){
 	function smartwoo_kses_allowed( $allowed_tags, $context ) {
 		// Add or modify the allowed HTML tags and attributes as needed
 		if ( 'post' === $context ) {
@@ -468,20 +452,13 @@ function smartwoo_get_navbar( $current_user_id ) {
 
 		return $allowed_tags;
 	}
-	endif;
-
-    // Apply filter to modify the allowed HTML tags and attributes for wp_kses_post().
-    add_filter( 'wp_kses_allowed_html', 'smartwoo_kses_allowed', 10, 2 );
-
-    return $nav_bar;
-}
+}	
 
 /**
  * Smart Woo allowed form html tags.
  */
 function smartwoo_allowed_form_html() {
     return array(
-		'post'		=> array(),
         'form'		=> array(
             'action'	=> true,
             'method'	=> true,

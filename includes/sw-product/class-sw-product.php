@@ -186,7 +186,19 @@ class SmartWoo_Product extends WC_Product {
 	 * @return object $smart_woo_products Object of SmartWoo_Product | WC_Product.
 	 */
 	public static function get_migratables( $type = 'Upgrade') {
-		$cat_id = ( 'Downgrade' === $type ) ? absint( get_option( 'smartwoo_downgrade_product_cat', 0 ) ) : absint( get_option( 'smartwoo_upgrade_product_cat', 0 ) );
+		$cat_id				= 0;
+		$downgrade_cat_id	= absint( get_option( 'smartwoo_downgrade_product_cat', 0 ) );
+		$upgrade_cat_id		= absint( get_option( 'smartwoo_upgrade_product_cat', 0 ) );
+		if ( 'Downgrade' === $type ) {
+			$cat_id = $downgrade_cat_id;
+		} elseif ( 'Upgrade' === $type ) {
+			$cat_id = $upgrade_cat_id;
+		}
+
+		if ( empty( $cat_id ) ) {
+			return false; 
+		}
+
 		$term	= get_term( $cat_id );
 		$slug	= $term ? $term->slug : '';
 		$args	= array( 
@@ -196,6 +208,11 @@ class SmartWoo_Product extends WC_Product {
 		);
 		$query    			= new WC_Product_Query( $args );
 		$products 			= $query->get_products();
+
+		if ( empty( $products ) ) {
+			return false;
+		}
+		
 		$smart_woo_products = array();
 
 		foreach ( $products as $product ) {
@@ -368,7 +385,7 @@ class SmartWoo_Product extends WC_Product {
 		if ( $product && 'sw_product' === $product->get_type() ) {
 
 			$button  = '<div class="configure-product-button">';
-			$button .= '<a href="' . esc_attr( smartwoo_configure_page( $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html__( smartwoo_product_text_on_shop(), 'smart-woo-service-invoicing' ) . '</a>';
+			$button .= '<a href="' . esc_attr( smartwoo_configure_page( $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html( smartwoo_product_text_on_shop() ) . '</a>';
 			$button .= '</div>';
 			echo wp_kses_post( $button );
 		}

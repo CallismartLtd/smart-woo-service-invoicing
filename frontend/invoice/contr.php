@@ -14,7 +14,7 @@
 function smartwoo_invoice_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		return esc_html__( 'You must be logged in to view this page.' );
+		return esc_html__( 'You must be logged in to view this page.', 'smart-woo-service-invoicing' );
 	}
 
 	$current_user_id  	= get_current_user_id();

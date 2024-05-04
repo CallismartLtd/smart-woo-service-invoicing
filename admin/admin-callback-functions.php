@@ -102,18 +102,16 @@ function smartwoo_products_page() {
 	// Handle different actions.
 	switch ( $action ) {
 		case 'add-new':
-			smartwoo_new_product_form();
+			include_once SMARTWOO_PATH . 'templates/sw-add-product.php';
 			break;
 		case 'edit':
-		 	smartwoo_product_edit_form();
+			include_once SMARTWOO_PATH . 'templates/sw-edit-product.php';
 			break;
 		default:
 			echo wp_kses_post( smartwoo_product_table() );
 			break;
 	}
 }
-
-
 
 /**
  * Callback controller for Settings Page

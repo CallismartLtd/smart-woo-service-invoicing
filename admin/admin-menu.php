@@ -130,7 +130,7 @@ function smartwoo_help_screen() {
 
 	$screen->add_help_tab( array(
         'id'	=> 'smartwoo_bug_report',
-        'title'	=> __('Bug Report'),
+        'title'	=> __('Bug Report', 'smart-woo-service-invoicing' ),
 		'callback' => 'smartwoo_bug_report_container',
 	) );
 

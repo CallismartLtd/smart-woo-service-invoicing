@@ -373,7 +373,7 @@ function smartwoo_invoice_dashboard() {
 	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$tabs = array(
 		'dashboard'                => __( 'Invoices', 'smart-woo-service-invoicing' ),
-		'add-new-invoice' => __( 'Add New', 'Invoices', 'smart-woo-service-invoicing' ),
+		'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 
 	);
 
@@ -451,11 +451,15 @@ function smartwoo_view_invoice_page() {
 
 	switch ( $args ){
 		case 'related-service':
-				$page_html .= smartwoo_invoice_service_related( $invoice );
+			$page_html .= smartwoo_invoice_service_related( $invoice );
 			break;
 
 		case 'log':
-			$page_html .= SmartWoo_Invoice_log::render_log_html_output($invoice_id );
+			if( class_exists( 'SmartWooPro', false ) ) {
+				$page_html .= apply_filters( 'smartwoo_service_log_admin', $invoice_id );
+			} else {
+				$page_html .= smartwoo_pro_feature();
+			}
 			break;
 		default:
 			$page_html .= smartwoo_invoice_details_admin_temp( $invoice );
@@ -480,7 +484,7 @@ function smartwoo_invoice_details_admin_temp( $invoice ) {
 	/**
 	 * Start page markup.
 	 */
-	$page_html .= '<h2>' . esc_html__( $invoice->getInvoiceType(), 'smart-woo-service-invoicing' ) . '</h2>';
+	$page_html .= '<h2>' . esc_html( $invoice->getInvoiceType() ) . '</h2>';
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Payment Status:', 'smart-woo-service-invoicing' ) . '</span> <span style="background-color: red; color: white; font-weight: bold; padding: 4px; border-radius: 4px;">' . esc_html__( ucfirst( $paymentStatus ), 'smart-woo-service-invoicing' ) . '</span></p>';
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Invoice ID:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getInvoiceId() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'User Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $user_full_name ) . '</p>';
@@ -595,10 +599,10 @@ function smartwoo_count_all_invoices_by_status() {
 
 	// Get counts for each payment status
 	$status_counts = array(
-		'paid'      => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'paid' ),
-		'unpaid'    => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'unpaid' ),
-		'cancelled' => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'cancelled' ),
-		'due'       => SmartWoo_Invoice_Database::get_invoice_count_by_payment_status( 'due' ),
+		'paid'      => SmartWoo_Invoice_Database::count_this_status( 'paid' ),
+		'unpaid'    => SmartWoo_Invoice_Database::count_this_status( 'unpaid' ),
+		'cancelled' => SmartWoo_Invoice_Database::count_this_status( 'cancelled' ),
+		'due'       => SmartWoo_Invoice_Database::count_this_status( 'due' ),
 	);
 
 	// Generate the HTML with links

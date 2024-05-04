@@ -61,10 +61,10 @@ class SmartWoo_Install {
 		global $wpdb;
 
 		$table_names = array(
-			SW_SERVICE_TABLE,
-			SW_INVOICE_TABLE,
-			SW_SERVICE_LOG_TABLE,
-			SW_INVOICE_LOG_TABLE,
+			SMARTWOO_SERVICE_TABLE,
+			SMARTWOO_INVOICE_TABLE,
+			SMARTWOO_SERVICE_LOG_TABLE,
+			SMARTWOO_INVOICE_LOG_TABLE,
 		);
 
 		foreach ( $table_names as $table_name ) {
@@ -127,7 +127,7 @@ class SmartWoo_Install {
 		add_option( 'smartwoo_invoice_paid_mail', 1 );
 		add_option( 'smartwoo_service_cancellation_mail_to_admin', 1 );
 		add_option( 'smartwoo_service_expiration_mail_to_admin', 1 );
-		add_option( 'smartwoo_product_text_on_shop', __( 'Add to Cart' ) );
+		add_option( 'smartwoo_product_text_on_shop', __( 'Add to Cart', 'smart-woo-service-invoicing' ) );
 		add_option( 'smartwoo_enable_api_feature', 0 );
 		add_option( 'smartwoo_allow_guest_invoicing', 0 );
 	}

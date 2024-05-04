@@ -113,7 +113,7 @@ function smartwoo_process_product_edit( $product_id ) {
         $result = $update->save();
 
         if ( ! is_wp_error( $result ) ) {
-            return smartwoo_notice( 'Product updated successfully!', true );
+            echo wp_kses_post( smartwoo_notice( 'Product updated successfully!', true ) );
         } else {
             return smartwoo_error_notice( 'Error updating product: ' . $result->get_error_message() );
         }

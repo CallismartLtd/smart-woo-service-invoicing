@@ -17,69 +17,68 @@
 function smartwoo_service_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		return esc_html__( 'You must be logged in to view this page.', 'smart-woo-service-invoicing' );
+	 	woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+		return;
 	}
 
 	$current_user_id  = get_current_user_id();
 	$current_user     = wp_get_current_user();
-	// Get and sanitize the 'service_page' parameter.
-	$url_param = isset( $_GET['service_page'] ) ? sanitize_key( $_GET['service_page'] ) : ""; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$allowed_actions = array( 'service_details', 'service_downgrade', 'active', 'renewal_due', 'expired', 'grace_period', 'service_upgrade', 'service_downgrade', 'buy_new_service' );
+	global $wp_query;
+	$url_param = '';
 
-	// If 'service_page' is set and not empty, validate against allowed actions.
-	if ( $url_param !== '' && ! in_array( $url_param, $allowed_actions ) ) {
-		return esc_html__( 'Invalid action type.' );
-	} 
+	if ( isset ( $wp_query->query_vars['buy-new'] ) ) {
+		$url_param = 'buy-new';
+	}
 
-	// Switch based on the validated 'service_page' parameter.
+	if ( isset ( $wp_query->query_vars['view-subscription'] ) ) {
+		$url_param = 'view-subscription';
+	}
+
+	if ( isset ( $wp_query->query_vars['view-subscriptions-by'] ) ) {
+		$url_param = 'view-subscriptions-by';
+	}
+
+	if ( isset ( $wp_query->query_vars['downgrade'] ) ) {
+		$url_param = 'downgrade';
+	}
+
+	if ( isset ( $wp_query->query_vars['upgrade'] ) ) {
+		$url_param = 'downgrade';
+	}
+
 	switch ( $url_param ) {
-		case 'service_details':
+		case 'view-subscription':
 
 			$service_details_page 	= smartwoo_service_details( $current_user_id );
 			$output 				=  $service_details_page;
 			break;
 
-		case 'service_upgrade':
+		case 'upgrade':
 
 			$service_upgrade_page 	= smartwoo_upgrade_temp( $current_user_id );
 			$output 				= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
 			break;
 
-		case 'service_downgrade':
+		case 'downgrade':
 
 			$service_downgrade_page = smartwoo_downgrade_temp( $current_user_id );
 			$output 				= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
 			break;
 
-		case 'buy_new_service':
+		case 'buy-new':
 
 			$buy_new_service_page 	= smartwoo_buy_new_temp( $current_user_id );
 			$output 			  	= wp_kses_post( $buy_new_service_page  );
 			break;
 
-		case 'active':
+		case 'view-subscriptions-by':
 
-			$active_services_page 	= smartwoo_user_service_by_status( $current_user_id, 'Active' );
+			$active_services_page 	= smartwoo_user_service_by_status();
 			$output 				= wp_kses_post( $active_services_page );
 			break;
 
-		case 'renewal_due':
-			
-			$due_services_page 	= smartwoo_user_service_by_status( $current_user_id, 'Due for Renewal' );
-			$output 			= wp_kses_post( $due_services_page );
-			break;
-
-		case 'expired':
-			$expired_services_page 	= smartwoo_user_service_by_status( $current_user_id, 'Expired' );
-			$output 				= wp_kses_post( $expired_services_page );
-			break;
-
-		case 'grace_period':
-			$on_grace_services 	= smartwoo_user_service_by_status( $current_user_id, 'Grace Period' );
-			$output 			= wp_kses_post( $on_grace_services );
-			break;
 		default:
-			$main_page 	= smartwoo_service_front_temp( $current_user_id );
+			$main_page 	= smartwoo_service_front_temp();
 			$output 	= wp_kses_post( $main_page );
 			break;
 		
@@ -164,14 +163,14 @@ function smartwoo_load_my_details_callback() {
 		$html .= '<p class="smartwoo-container-item"><span><strong>Website:</strong></span> <a href="' . esc_url( $user_url ) . '">' . esc_html( $user_url ) . '</a></p>';
 		$html .= '<p class="smartwoo-container-item"><span><strong>Account Type:</strong></span> ' . esc_html( ucwords( $user_role ) ) . '</p>';
 		$html .= '</div>';		
-		$html .= '<button class="account-button" id="edit-account-button">' . esc_html__( 'Edit My Information' ) . '</button>';
-		$html .= '<button class="account-button" id="view-payment-button">' . esc_html__( 'Payment Methods' ) . '</button>';
+		$html .= '<button class="account-button" id="edit-account-button">' . esc_html__( 'Edit My Information', 'smart-woo-service-invoicing' ) . '</button>';
+		$html .= '<button class="account-button" id="view-payment-button">' . esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ) . '</button>';
 		$html .= '</div>';
 		// Send the HTML response.
 		echo wp_kses_post( $html );
 	} else {
 		// User is not logged in, handle accordingly.
-		echo esc_html__( 'User not logged in', 'smart-woo-service-invoicing' );
+		esc_html_e( 'User not logged in', 'smart-woo-service-invoicing' );
 	}
 
 	// prevent further outputing.
@@ -205,7 +204,7 @@ function smartwoo_load_account_logs_callback() {
 		$html .= '<li class="account-log-item">' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$html .= '<li class="account-log-item">' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
 		$html .= '<li class="account-log-item">' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
-		$html .= '<li class="account-log-item">' . esc_html__( 'Registration Date: ' ) . esc_html( $registration_date ) . '</li>';
+		$html .= '<li class="account-log-item">' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
 
 		/**
 		 * Retrieve User's Personal logged information using WooCommerce geolocation feature.
@@ -214,12 +213,11 @@ function smartwoo_load_account_logs_callback() {
 		$ip_address 	  = WC_Geolocation::get_ip_address();
 		$location_data    = WC_Geolocation::geolocate_ip( $ip_address );
 		
-		// Display IP Address
+		// Display IP Address.
 		$html .= '<li class="account-log-item">IP Address: ' . esc_html( $ip_address ) . '</li>';
 
 		if ( ! empty( $location_data ) ) {
-			$user_location             = $location_data['city'] . ', ' . $location_data['country'];
-
+			$user_location	= $location_data['country'];
 			$html .= '<li class="account-log-item">' . esc_html__( 'Location: ', 'smart-woo-service-invoicing' ) . esc_html( $user_location ) . '</li>';
 		} else {
 			$html .= '<li class="account-log-item">Location: ' . esc_html__( 'Unknown', 'smart-woo-service-invoicing' ) . '</li>';
@@ -232,7 +230,7 @@ function smartwoo_load_account_logs_callback() {
 		
 	} else {
 		// User is not logged in
-		echo esc_html__( 'Please log in to view user activity information.' );
+		esc_html_e( 'Please log in to view user activity information.', 'smart-woo-service-invoicing' );
 	}
 
 	// prevent further outputing
@@ -259,7 +257,7 @@ function smartwoo_load_transaction_history_callback() {
 		echo wp_kses_post( $html );
 	} else {
 		// User is not logged in
-		echo esc_html__( 'Please log in to view transaction history.' );
+		echo esc_html__( 'Please log in to view transaction history.', 'smart-woo-service-invoicing' );
 	}
 
 	// prevent further outputing

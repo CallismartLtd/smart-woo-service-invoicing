@@ -65,7 +65,7 @@ function smartwoo_service_order_table( $orders ) {
 		$page_html .= '<td>' . esc_html( $user_full_name ) . '</td>';
 
 		if ( 'processing' === $order_status ) {
-			$process_url = '<a href="' . esc_url( admin_url( "admin.php?page=sw-admin&action=process-new-service&order_id={$order_id}" ) ) . '" class="sw-red-button">' .__( 'Process Now', 'smart-woo-service-invoicing' ). '</a>';
+			$process_url = '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=process-new-service&order_id=' . $order_id ) ) . '" class="sw-red-button">' .__( 'Process Now', 'smart-woo-service-invoicing' ). '</a>';
 		} elseif ( 'pending' === $order_status ) {
 			$process_url = 'Order is Unpaid';
 		} elseif ( 'completed' === $order_status ) {

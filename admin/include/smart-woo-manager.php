@@ -27,10 +27,10 @@ add_action( 'smartwoo_new_service_purchase_complete', 'smartwoo_new_service_invo
  *
  * @param int $order_id    The paid invoice order.
  */
-// First action hook is when an order is marked as completed
+// First action hook is when an order is marked as completed.
 add_action( 'woocommerce_order_status_completed', 'smartwoo_paid_invoice_order_manager', 50, 1 );
 
-// Second action hook is when payment is processed by either the payment provider
+// Second action hook is when payment is processed by either the payment provider.
 add_action( 'woocommerce_payment_complete', 'smartwoo_paid_invoice_order_manager', 55, 1 );
 
 function smartwoo_paid_invoice_order_manager( $order_id ) {
@@ -86,23 +86,12 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 			// Call the function to reactivate the service.
 			smartwoo_activate_expired_service( $service_id, $invoice_id );
 
-			/**
-			 * Determine if the invoice is for the Migration of a service.
-			 * Only This invoice types for active services are considered to be for Migration.
-			 */
-
-		} elseif ( 'Active' === $service_status && 'Service Upgrade Invoice' === $invoice_type || 'Service Downgrade Invoice' === $invoice_type ) {
-			$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
-			smartwoo_migrate_service( $service, $invoice_id );
-
-		} else {
-			return false;
 		}
 	}
 }
 
 /**
- * Renew a service based on the provided parameters.
+ * Renew a service.
  *
  * This performs service renewal, relying on the confirmation that
  * the invoice ID provided in the third parameter is paid. If the invoice is
@@ -167,8 +156,6 @@ function smartwoo_renew_service( $service_id, $invoice_id ) {
 
 	}
 }
-
-
 
 /**
  * Activate an expired service.
@@ -267,7 +254,7 @@ function smartwoo_cancel_or_optout_service() {
 
 	}
 
-	$service				= SmartWoo_Service_Database::get_service_by_id( $ajax_service_id );
+	$service				= SmartWoo_Service_Database::get_service_by_id( sanitize_key( $ajax_service_id ) );
 	$user_id  				= get_current_user_id();
 	$service_id				= $service->getServiceId();
 	$next_service_status	= null;
@@ -286,61 +273,20 @@ function smartwoo_cancel_or_optout_service() {
 	SmartWoo_Service_Database::update_service_fields( $service_id, array( 'status' => $next_service_status ) );
 
 	if ( $user_cancelled_service ) {
-		// Notify user and admin about service cancellation.
-		smartwoo_user_service_cancelled_mail( $user_id, $service_id );
-		smartwoo_service_cancelled_mail_to_admin( $service_id );
-		
-		$log_renewal 	= new SmartWoo_Service_Log();
-		$log_renewal->setServiceId( $service->getServiceId() );
-		$log_renewal->setLogType( 'Cancellation' );
-		$log_renewal->setNote( 'Client Cancelled this service' );
-		$log_renewal->save();
-		
-		// Trigger action with service object as argument.
+
+		/**
+		 * @action_hook smartwoo_user_cancelled_service Fires When service is cancelled.
+		 * @action_hook smartwoo_service_deactivated Separate hooks which fire when Service 
+		 * is deactivated should be simulated.
+		 */
+		do_action( 'smartwoo_user_cancelled_service', $service_id );
 		do_action( 'smartwoo_service_deactivated', $service );
 
-		$details = 'Refund for the cancellation of ' . $service_id;
-		smartwoo_create_prorata_refund( $service_id, $details );
 	} elseif ( $user_opted_out ) {
-		smartwoo_user_service_optout_mail( $user_id, $service_id );
-		$log_renewal 	= new SmartWoo_Service_Log();
-		$log_renewal->setServiceId( $service->getServiceId() );
-		$log_renewal->setLogType( 'Cancellation' );
-		$log_renewal->setNote( 'Client Cancelled this service' );
-		$log_renewal->save();
+		do_action( 'smartwoo_user_opted_out', $service_id );
 	}
 }
 
-/**
- * Perform Prorata Refund for unused service due to cancellation
- *
- * @param string $service_id ID of the cancelled service
- * @return float|false Refund amount if successful, false otherwise.
- */
-function smartwoo_create_prorata_refund( $service_id, $details ) {
-
-	if ( 'Enabled' !== smartwoo_is_prorate() ) {
-		return false;
-    }
-
-    $service = SmartWoo_Service_Database::get_service_by_id( $service_id );
-    if ( ! $service ) {
-        return false;
-    }
-
-    $service_usage = smartwoo_analyse_service_usage( $service_id );
-
-    if ( $service_usage && $service_usage['unused_amount'] > 0 ) {
-		$refund_amount 	= $service_usage['unused_amount'];
-        $note    		= 'A refund has been scheduled and may take up to 48 hours to be processed.';
-        smartwoo_invoice_log( $service_id, 'Refund', 'Pending', $details, $refund_amount, $note );
-
-        return $refund_amount;
-    }
-
-    // No refund amount calculated.
-    return false;
-}
 
 
 /**
@@ -461,7 +407,7 @@ add_action( 'template_redirect', 'smartwoo_manual_service_renewal' );
 function smartwoo_manual_service_renewal() {
 
 	// Verify the nonce
-	if ( isset( $_GET['action'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['renew_nonce'] ) ), 'renew_service_nonce' ) ) {
+	if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['renew_nonce'] ) ), 'renew_service_nonce' ) ) {
 		
 		$service_id = sanitize_text_field( preg_replace( '/\s+/', '', $_GET['service_id'] ) );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
@@ -505,35 +451,4 @@ function smartwoo_manual_service_renewal() {
 	
 }
 
-/**
- * Perform Migration of service.
- *
- * @param object $service      The Service to be migrated.
- * @param string $invoice_id   The ID of the invoice used for migration payment.
- * @return bool  True if migrated, false if not migrated.
- */
-function smartwoo_migrate_service( $service, $invoice_id ) {
-	$service_id     = $service->getServiceId();
-	$product_id     = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id )->getProductId();
-	$invoice_status = smartwoo_mark_invoice_as_paid( $invoice_id );
 
-	if ( false === $invoice_status ) {
-		// Invoice is already paid, or something went wrong.
-		$log 	= new SmartWoo_Service_Log();
-		$log->setServiceId( $service->getServiceId() );
-		$log->setLogType( 'Migration' );
-		$log->setDatails( 'Service migration failed');
-		$log->setNote( 'Attempt to check invoice payment status returned unexpected result, check payment status for ' . $invoice_id );
-		$log->save();
-
-		return false;
-	}
-
-	// Update the service with the new product ID.
-	$fields = array( 'product_id' => $product_id, );
-
-	$migrated = SmartWoo_Service_Database::update_service_fields( $service_id, $fields );
-	do_action( 'smartwoo_service_migrated', $migrated );
-
-	return $migrated;
-}

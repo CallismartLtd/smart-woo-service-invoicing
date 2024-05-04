@@ -24,7 +24,7 @@ $product_name = $product ? $product->get_name() : 'Product Name not found';
 
             <h2>Configure</h2>
             <div class="sw-configure-container">
-                <p>Configure your desired options for <strong>"<?php esc_html_e( $product_name ); ?>"</strong> and continue checkout.</p>
+                <p>Configure your desired options for <strong>"<?php echo esc_html( $product_name ); ?>"</strong> and continue checkout.</p>
 
                 <form id="smartwooConfigureProduct" method="post" enctype="multipart/form-data">
 

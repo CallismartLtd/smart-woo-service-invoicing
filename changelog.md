@@ -7,6 +7,7 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 ### Fixed 
 - incorrect expiration date bug.
 - Duplicate invoice creation due to sanitization logic.
+- Fixed Security vulnerability.
 
 ## [1.0.2] - 2024-04-24
 

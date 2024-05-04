@@ -23,7 +23,7 @@ function smartwoo_db_schema() {
 		 * Define the structure for the 'sw_service' table.
 		 * This table contians the main service subscription informations.
 		 */
-		$service_table_name = SW_SERVICE_TABLE;
+		$service_table_name = SMARTWOO_SERVICE_TABLE;
 		$service_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
 			'user_id mediumint(9) NOT NULL',
@@ -47,7 +47,7 @@ function smartwoo_db_schema() {
 		 * Define the structure for the 'sw_invoice' table.
 		 * This table contains the main information pertaining to invoices.
 		 */
-		$invoice_table_name = SW_INVOICE_TABLE;
+		$invoice_table_name = SMARTWOO_INVOICE_TABLE;
 		$invoice_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
 			'service_id varchar(255) DEFAULT NULL',
@@ -75,7 +75,7 @@ function smartwoo_db_schema() {
 		 * Define the structure for the Service Log table.
 		 * This table is used to log renewed services informations.
 		 */
-		$auto_renew_table_name = SW_SERVICE_LOG_TABLE;
+		$auto_renew_table_name = SMARTWOO_SERVICE_LOG_TABLE;
 		$auto_renew_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
 			'service_id varchar(255) NOT NULL',
@@ -93,7 +93,7 @@ function smartwoo_db_schema() {
 		 * Defined the wp_sw_invoice_log table where 
 		 * all transaction related datas are logged
 		 */
-		$service_logs_table_name = SW_INVOICE_LOG_TABLE;
+		$service_logs_table_name = SMARTWOO_INVOICE_LOG_TABLE;
 		$service_logs_structure  = array(
 			'id mediumint(9) NOT NULL AUTO_INCREMENT',
 			'log_id varchar(255) NOT NULL',
