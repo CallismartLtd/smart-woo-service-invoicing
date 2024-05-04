@@ -377,11 +377,11 @@ function smartwoo_invoice_dashboard() {
 
 	);
 
-	$table_html  =smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
+	$table_html   = smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
 	$all_invoices = SmartWoo_Invoice_Database::get_all_invoices();
-	$table_html .= '<div class="sw-table-wrapper">';
-	$table_html .= '<h2>Invoice Dashboard</h2>';
-	$table_html .= smartwoo_count_all_invoices_by_status();
+	$table_html  .= '<div class="sw-table-wrapper">';
+	$table_html  .= '<h2>Invoice Dashboard</h2>';
+	$table_html  .= smartwoo_count_all_invoices_by_status();
 
 	if ( empty( $all_invoices ) ) {
 		$table_html .= smartwoo_notice( 'All invoices will appear here' );
@@ -408,7 +408,7 @@ function smartwoo_invoice_dashboard() {
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
 		$table_html .= '<td>' . esc_html( ucfirst( $invoice->getPaymentStatus() ) ) . '</td>';
-		$table_html .= '<td>' . esc_html( $invoice->getDateCreated() ) . '</td>';
+		$table_html .= '<td>' . esc_html( smartwoo_check_and_format( $invoice->getDateCreated(), true ) ) . '</td>';
 		$table_html .= '<td><a class="sw-red-button" href="' . esc_url( add_query_arg( array( 'page' => 'sw-invoices', 'tab' => 'view-invoice', 'invoice_id' => $invoice->getInvoiceId() ), admin_url( 'admin.php' ) ) ) . '">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$table_html .= '</tr>';
 	}
@@ -535,7 +535,14 @@ function smartwoo_invoice_service_related( $invoice ){
 function smartwoo_invoice_by_status_temp() {
 	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_key( $_GET['payment_status'] ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$table_html  = '<div class="sw-table-wrapper">';
+	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$tabs = array(
+		'dashboard'                => __( 'Invoices', 'smart-woo-service-invoicing' ),
+		'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 
+	);
+
+	$table_html   .= smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
 	if( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid', ) ) ) {
 		return smartwoo_notice( 'Status Parameter cannot be manipulated!' );
 	}
@@ -577,7 +584,7 @@ function smartwoo_invoice_by_status_temp() {
 		$table_html .= '<p style="text-align: right;">' . count( $invoices ) . ' items</p>';
 
 	} else {
-		$table_html .= smartwoo_notice( 'No invoices found for '. $payment_status );
+		$table_html .= smartwoo_notice( 'No ' . ucwords( $payment_status ) . ' invoice found');
 	}
 
 	$table_html .= '</div>';
