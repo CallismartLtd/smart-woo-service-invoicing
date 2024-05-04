@@ -49,25 +49,35 @@ function smartwoo_service_shortcode() {
 	switch ( $url_param ) {
 		case 'view-subscription':
 
-			$service_details_page 	= smartwoo_service_details( $current_user_id );
-			$output 				=  $service_details_page;
+			$service_details_page 	= smartwoo_service_details();
+			$output 				=  wp_kses_post( $service_details_page );
 			break;
 
 		case 'upgrade':
 
-			$service_upgrade_page 	= smartwoo_upgrade_temp( $current_user_id );
-			$output 				= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
+			if ( ! function_exists( 'smartwoo_upgrade_temp' ) ) {
+				$service_upgrade_page 	= smartwoo_service_front_temp();
+			} else {
+				$service_upgrade_page 	= smartwoo_upgrade_temp( $current_user_id );
+			}
+
+			$output	= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
 			break;
 
 		case 'downgrade':
 
-			$service_downgrade_page = smartwoo_downgrade_temp( $current_user_id );
-			$output 				= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
+			if ( ! function_exists( 'smartwoo_downgrade_temp' ) ) {
+				$service_downgrade_page 	= smartwoo_service_front_temp();
+			} else {
+				$service_downgrade_page 	= smartwoo_downgrade_temp( $current_user_id );
+			}
+
+			$output	= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
 			break;
 
 		case 'buy-new':
 
-			$buy_new_service_page 	= smartwoo_buy_new_temp( $current_user_id );
+			$buy_new_service_page 	= smartwoo_buy_new_temp();
 			$output 			  	= wp_kses_post( $buy_new_service_page  );
 			break;
 

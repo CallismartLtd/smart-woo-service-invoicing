@@ -331,91 +331,44 @@ function smartwoo_check_if_configured( $order ) {
 
 
 /**
- * Frontend navigation menu bar.
+ * Frontend navigation menu bar
  *
- * @param int $user_id   The current user's ID.
+ * @param int $title   The Title of the page.
  */
-function smartwoo_get_navbar( $current_user_id ) {
+function smartwoo_get_navbar( $title = '' ) {
 
-	if ( is_account_page() || ! is_user_logged_in() ) {
+	if ( ! is_user_logged_in() ) {
 		return;
 	}
 
-    $service_page_id            = get_option( 'smartwoo_service_page_id', 0 );
-    $service_page_url           = get_permalink( $service_page_id );
-    $invoice_preview_page_id    = get_option( 'smartwoo_invoice_page_id', 0 );
-    $invoice_preview_page_url   = get_permalink( $invoice_preview_page_id );
+	$nav_item = array(
+		smartwoo_service_page_url() => 'Services',
+		smartwoo_invoice_page_url()	=> 'Invoices',
+		smartwoo_service_page_url() . 'buy-new/' => 'Buy New',
 
-    // Determine the current page.
-    $current_page_slug = '';
-    $navbar_title      = '';
+	);
 
-    if ( is_page( $service_page_id ) ) {
-        $current_page_slug = 'services';
-        $navbar_title      = 'My Services';
-    } elseif ( is_page( $invoice_preview_page_id ) ) {
-        $current_page_slug = 'invoices';
-        $navbar_title      = 'My Invoices';
-    }
-    // Set the default page title
-    $page_title = $navbar_title;
+	/** Allow for custom items */
+	$custom_item	= apply_filters( 'smartwoo_nav_items', array() );
 
-    // If the current page is 'services' and a service action is selected
-    if ( $current_page_slug === 'services' && isset( $_GET['service_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $service_action = sanitize_key( $_GET['service_action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-        // Customize the page title based on the selected service action
-        switch ( $service_action ) {
-            case 'upgrade':
-                $page_title = 'Upgrade Service';
-                break;
-            case 'downgrade':
-                $page_title = 'Downgrade Service';
-                break;
-            case 'buy_new':
-                $page_title = 'Buy New Service';
-                break;
-        }
-    }
-
-    $nav_bar  = '<div class="service-navbar">';
-
-    // Container for the title (aligned to the left).
-    $nav_bar .= '<div class="navbar-title-container">';
-    $nav_bar .= '<h3>' . esc_attr( $page_title ) . '</h3>';
-    $nav_bar .= '</div>';
+	$nav_item		= array_merge( $nav_item, $custom_item );
+    $current_page 	= '';
+    $page_title		= $title;
+    $nav_bar		= '<div class="service-navbar">';
+    $nav_bar 	.= '<div class="navbar-title-container">';
+    $nav_bar 	.= '<h3>' . esc_html( $page_title ) . '</h3>';
+    $nav_bar 	.= '</div>';
 
     // Container for the links (aligned to the right).
     $nav_bar .= '<div class="navbar-links-container">';
     $nav_bar .= '<ul>';
-
-    // Add link to the service page.
-    $nav_bar .= '<li><a href="' . esc_url( $service_page_url ) . '" class="' . ( $current_page_slug === 'services' ? 'current-page' : '' ) . '">Services</a></li>';
-
-    // Add link to the invoice preview page.
-    $nav_bar .= '<li><a href="' . esc_url( $invoice_preview_page_url ) . '" class="' . ( $current_page_slug === 'invoices' ? 'current-page' : '' ) . '">Invoices</a></li>';
-
-    // Add dropdown for service actions only on the service page.
-    if ( $current_page_slug === 'services' ) {
-        // Dropdown for service actions
-        $nav_bar .= '<li class="service-actions-dropdown">';
-        $nav_bar .= '<select id="service-action-dropdown">';
-        $nav_bar .= '<option value="" selected>Select Action</option>';
-        $nav_bar .= '<option value="upgrade">Upgrade Service</option>';
-        $nav_bar .= '<option value="downgrade">Downgrade Service</option>';
-        $nav_bar .= '<option value="buy_new">Buy New Service</option>';
-        $nav_bar .= '</select>';
-        $nav_bar .= '</li>';
-    }
-
+	foreach ( $nav_item as $url => $text ) {
+		$nav_bar .= '<li><a href="' . esc_url( $url ) . '" class="">' . esc_html( $text ) . '</a></li>';
+	}
     $nav_bar .= '</ul>';
     $nav_bar .= '</div>';
 
     $nav_bar .= '</div>';
-
-    // Apply filter to modify the allowed HTML tags and attributes for wp_kses_post().
-    add_filter( 'wp_kses_allowed_html', 'smartwoo_kses_allowed', 10, 2 );
-
     return $nav_bar;
 }
 
@@ -447,6 +400,13 @@ if( ! function_exists( 'smartwoo_kses_allowed' ) ){
 					'value' => array(),
 					'selected' => array(),
 				),
+				'a' => array(
+					'id' => true, 
+					'class' => true, 
+					'data-service-name' => true, 
+					'data-service-id' => true, 
+				) 
+			
 			) );
 		}
 

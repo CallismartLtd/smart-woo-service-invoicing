@@ -73,13 +73,13 @@ function smartwoo_save_advanced_options(){
 		
 		if ( isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) ) {
 			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 1 );
-		} elseif ( ! isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) && function_exists( 'woo_wallet' ) ) {
+		} elseif ( ! isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) && function_exists( 'smartwoo_terawallet_int' ) ) {
 			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 );
 		}
 
 		if ( isset( $_POST['smartwoo_refund_with_wallet'] ) ) {
 			update_option( 'smartwoo_refund_with_wallet', 1 );
-		} elseif ( ! isset( $_POST['smartwoo_refund_with_wallet'] ) && function_exists( 'woo_wallet' ) ) {
+		} elseif ( ! isset( $_POST['smartwoo_refund_with_wallet'] ) && function_exists( 'smartwoo_terawallet_int' ) ) {
 			update_option( 'smartwoo_refund_with_wallet', 0 );
 		}
 
@@ -568,7 +568,7 @@ function smartwoo_advanced_options() {
 
             <?php
             // Check if the WooCommerce wallet plugin is active
-            if ( function_exists( 'woo_wallet' ) ) : ?>
+            if ( function_exists( 'smartwoo_terawallet_int' ) ) : ?>
 			<!-- TeraWallet integration option -->
 			<h3 style="text-align: center;"><?php esc_html_e( 'Tera Wallet Integration', 'smart-woo-service-invoicing' ); ?></h3>
 			<!-- Refund Via TeraWallet -->

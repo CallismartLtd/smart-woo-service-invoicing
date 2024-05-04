@@ -19,7 +19,7 @@ function smartwoo_invoice_front_temp() {
 	/**
 	 * Start frontpage markup
 	 */
-	$output  = smartwoo_get_navbar( $current_user_id );
+	$output  = smartwoo_get_navbar( 'My Invoices' );
 	$output .= '<div class="site-content">';
     $output .= smartwoo_all_user_invoices_count();
 	// Display the invoices in a table.
@@ -125,7 +125,7 @@ function smartwoo_invoice_details() {
 		 * Start building the invoice.
 		 */
 		
-		$invoice_content	= smartwoo_get_navbar( $user_id );
+		$invoice_content	= smartwoo_get_navbar( 'My Invoice' );
 		$invoice_content	.= '<div class="site-content">';
 		$invoice_content	.= '<div class="inv-button-container">';
 		$invoice_content	.= '<a href="' . esc_url( smartwoo_invoice_page_url() ) . '" class="back-button">' . esc_html__( 'Back to invoices', 'smart-woo-service-invoicing' ) . '</a>';

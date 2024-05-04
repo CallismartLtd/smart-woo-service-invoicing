@@ -52,7 +52,7 @@ function smartwoo_invoice_myacoount_content() {
 function smartwoo_service_myacoount_content() {
     $service_content = '<div class="wrap">';
     if ( isset( $_GET['view_service'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        echo wp_kses_post( smartwoo_service_details( get_current_user_id() ) );
+        echo  wp_kses_post( smartwoo_service_details() ) ;
     } else {
         $service_content .= '<h2>' . __( 'Services', 'smart-woo-service-invoicing' ). '</h2>';
         $service_content .= smartwoo_active_service_count_shortcode();

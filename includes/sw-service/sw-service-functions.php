@@ -107,7 +107,7 @@ function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 }
 
 /**
- *  Service details preview URL
+ *  Service subscription details preview URL
  */
 function smartwoo_service_preview_url( $service_id ) {
     if ( is_account_page() ) {
@@ -128,7 +128,7 @@ function smartwoo_service_preview_url( $service_id ) {
     }
 }
 
-
+/** Get the formatted url for service subscription page */
 function smartwoo_service_page_url() {
 	
 	if ( is_account_page() ) {
