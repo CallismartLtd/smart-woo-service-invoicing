@@ -268,29 +268,34 @@ function smartwoo_redirect_to_invoice_preview( $invoice_id ) {
 /**
  * Get all orders configured for service subscription.
  *
- * @param int|null  $order_id 				If provided, returns the ID of the specified order.
+ * @param int|null  $order_id	If provided, returns the ID of the specified order.
+ * @param bool $current_user Whether or not to get for current user.
  * @return int|array $order_id | $orders	ID of or Configured orders.
  */
-function smartwoo_get_configured_orders_for_service( $order_id = null ) {
+function smartwoo_get_configured_orders_for_service( $order_id = null, $current_user = false ) {
 
 	if ( null !== $order_id ) {
 		$order = wc_get_order( $order_id );
 		if ( $order && smartwoo_check_if_configured( $order ) ) {
 			return $order_id;
 		} else {
-			return 0; // Return 0 to indicate that the specified order is not configured
+			return 0;
 		}
 	}
 
-	// Initialize an empty array to store orders.
-	$orders = array();
-
-	// Query WooCommerce orders
-	$wc_orders = wc_get_orders(
-		array(
-			'limit' => -1,  // Retrieve all orders
-		)
+	$args =	array(
+		'limit' => -1,
 	);
+	if ( true === $current_user ) {
+		$args =	array(
+			'limit' 	=> -1,
+			'customer' 	=> get_current_user_id(),
+		);
+	}
+
+
+	$wc_orders 	= wc_get_orders( $args );
+	$orders		= array();
 
 	if ( empty( $wc_orders ) ) {
 		return false;

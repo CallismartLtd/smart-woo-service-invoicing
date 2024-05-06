@@ -374,7 +374,7 @@ function smartwoo_invoice_mini_card() {
 function smartwoo_all_user_invoices_count() {
 
 	if ( ! is_user_logged_in() ) {
-		return "Hello! It looks like you're not logged in.";
+		return;
 	}
 
 	$current_user_id = get_current_user_id();
@@ -424,21 +424,11 @@ function smartwoo_transactions_shortcode() {
 	$output		= "";
 
 	if ( ! is_user_logged_in() ) {
-		
 		$output .= '<p>' . esc_html__( 'Please log in to view your transaction history', 'smart-woo-service-invoicing' ) . '</p>';
 		return $output;
 	}
 
-	$current_user_id = get_current_user_id();
-
-	$orders = wc_get_orders(
-		array(
-			'limit'    => 10,
-			'status'   => array( 'wc-processing', 'wc-on-hold', 'wc-completed', 'wc-cancelled', 'wc-refunded', 'wc-failed', 'wc-pending', 'wc-partially-paid' ),
-			'customer' => $current_user_id,
-			'return'   => 'objects',
-		)
-	);
+	$orders = smartwoo_get_configured_orders_for_service( null, true );
 
 	if ( $orders ) {
 		$output	.= '<div class="sw-table-wrapper">';
@@ -464,7 +454,7 @@ function smartwoo_transactions_shortcode() {
 			$output	.= '<td>' . esc_html( $order_status ) . '</td>';
 			$output	.= '<td>' . wc_price( $amount ) . '</td>';
 			$output	.= '<td>' . esc_html( $order_date ) . '</td>';
-			$view_url = wc_get_account_endpoint_url( 'view-order' ) . '/' . $order_id;
+			$view_url = $order->get_view_order_url();
 			$output	.= '<td><a href="' . esc_url( $view_url ) . '" class="invoice-preview-button">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
 			$output	.= '</tr>';
 		}
@@ -472,7 +462,7 @@ function smartwoo_transactions_shortcode() {
 		$output	.= '</tbody>';
 		$output	.= '</table>';
 		$view_all_url = wc_get_account_endpoint_url( 'orders' );
-		$output	.= '<p><a href="' . esc_url( $view_all_url ) . '" class="-button">' . esc_html__( 'View Older Transactions', 'smart-woo-service-invoicing' ) . '</a></p>';
+		$output	.= '<p><a href="' . esc_url( $view_all_url ) . '" class="sw-blue-button">' . esc_html__( 'View Older Transactions', 'smart-woo-service-invoicing' ) . '</a></p>';
 		$output	.= '</div>';
 		$output	.= '</div>';
 

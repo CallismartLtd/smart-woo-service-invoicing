@@ -537,12 +537,13 @@ function smartwoo_invoice_by_status_temp() {
 	$table_html  = '<div class="sw-table-wrapper">';
 	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$tabs = array(
-		'dashboard'                => __( 'Invoices', 'smart-woo-service-invoicing' ),
-		'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
+		'dashboard'			=> __( 'Invoices', 'smart-woo-service-invoicing' ),
+		'add-new-invoice'	=> __( 'Add New', 'smart-woo-service-invoicing' ),
 
 	);
 
 	$table_html   .= smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
+
 	if( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid', ) ) ) {
 		return smartwoo_notice( 'Status Parameter cannot be manipulated!' );
 	}
@@ -593,18 +594,15 @@ function smartwoo_invoice_by_status_temp() {
 
 
 /**
- * Invoice Status Counts for the Currently Logged in user
+ * Admin counts for all invoice statuses.
  */
 function smartwoo_count_all_invoices_by_status() {
-	// Check if the user is logged in
-	if ( ! is_user_logged_in() ) {
-		return smartwoo_error_notice( 'Hello! It looks like you\'re not logged in.' );
+
+	if ( ! is_admin() ) {
+		return '';
 	}
 
-	// Get the current logged-in user's ID
-	$current_user_id = get_current_user_id();
-
-	// Get counts for each payment status
+	// Get counts for each payment status.
 	$status_counts = array(
 		'paid'      => SmartWoo_Invoice_Database::count_this_status( 'paid' ),
 		'unpaid'    => SmartWoo_Invoice_Database::count_this_status( 'unpaid' ),
@@ -612,7 +610,7 @@ function smartwoo_count_all_invoices_by_status() {
 		'due'       => SmartWoo_Invoice_Database::count_this_status( 'due' ),
 	);
 
-	// Generate the HTML with links
+	// Generate the HTML with links.
 	$output = '<div class="invoice-status-counts">';
 	foreach ( $status_counts as $status => $count ) {
 		$url     = admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status );

@@ -42,8 +42,6 @@ function smartwoo_delete_product() {
 	wp_die();
 }
 
-
-
 /**
  * The text for SmartWoo_Product type in the shop page
  */

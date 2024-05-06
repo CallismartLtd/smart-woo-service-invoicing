@@ -106,9 +106,7 @@ class SmartWoo_Config{
 
         require_once SMARTWOO_PATH . 'admin/sw-functions.php';
         require_once SMARTWOO_PATH . 'admin/include/cron-schedule.php';
-        require_once SMARTWOO_PATH . 'admin/include/service-remote.php';
         require_once SMARTWOO_PATH . 'admin/include/smart-woo-manager.php';
-        require_once SMARTWOO_PATH . 'admin/include/sw_service_api.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice-database.php';
@@ -130,7 +128,7 @@ class SmartWoo_Config{
             
         }
 
-        // Load fontend file
+        // Load fontend file.
         if ( smartwoo_is_frontend() ) {
 
             require_once SMARTWOO_PATH . 'frontend/woocommerce/contr.php';
@@ -179,17 +177,16 @@ class SmartWoo_Config{
             'smartwoo-script',
             'smart_woo_vars',
             array(
-                'ajax_url'                 => admin_url( 'admin-ajax.php' ),
-                'woo_my_account_edit'      => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-account/',
-                'woo_payment_method_edit'  => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'payment-methods/',
-                'woo_billing_eddress_edit' => get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . 'edit-address/billing',
-                'admin_invoice_page'       => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
-                'sw_admin_page'            => esc_url( admin_url( 'admin.php?page=sw-admin' ) ),
-                'sw_product_page'           => esc_url( admin_url( 'admin.php?page=sw-products' ) ),
-                'security'                 => wp_create_nonce( 'smart_woo_nonce' ),
-                'user_invoice_page'			=> '',
-                'home_url'                 => esc_url( home_url( '/' ) ),
-                'never_expire_value'       => '',
+                'ajax_url'                  => admin_url( 'admin-ajax.php' ),
+                'woo_my_account_edit'       => wc_get_account_endpoint_url( 'edit-account' ),
+                'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
+                'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
+                'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
+                'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
+                'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
+                'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
+                'home_url'                  => home_url( '/' ),
+                'never_expire_value'        => '',
             )
         );
     }
