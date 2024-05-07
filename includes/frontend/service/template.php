@@ -18,6 +18,10 @@
  * @return string Error message or service details.
  */
 function smartwoo_service_details() { 
+	if ( ! is_user_logged_in() ) {
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : '' ; 
@@ -27,7 +31,7 @@ function smartwoo_service_details() {
 	}
 
 	$service	= SmartWoo_Service_Database::get_service_by_id( $url_service_id );
-	$output		= smartwoo_get_navbar( 'Service Detail' );
+	$output		= smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() );
 
 	if ( $service && $service->getUserId() !== get_current_user_id()|| ! $service ) {
 		return smartwoo_error_notice( 'Service Not Found', 'smart-woo-service-invoicing' );
@@ -84,9 +88,16 @@ function smartwoo_service_details() {
 		$output .= '>' . esc_html__( 'Quick Action', 'smart-woo-service-invoicing' ) . '</a>';
 	}
 
-	if ( 'Active' === $status || 'Active (NR)' === $status || 'Grace Period' === $status ):
+	if ( 'Active' === $status || 'Active (NR)' === $status || 'Grace Period' === $status ){
 		$output .=  wp_kses_post( $service_button );
-	endif;
+	}
+
+	/** Filter button row */
+	$buttons = apply_filters( 'smartwoo_service_details_button_row', array(), $service );
+
+	foreach ( (array) $buttons as $button ) {
+		$output .= $button;
+	}
 	$output .= '</div>';
 
 	if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ) {
@@ -110,6 +121,13 @@ function smartwoo_service_details() {
 	$output .= '<p class="smartwoo-container-item"><span> Next Payment Date:</span>' . esc_html( $next_payment_date ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> End Date:</span>' . esc_html( $end_date ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Expiry Date:</span>' . esc_html( smartwoo_check_and_format( $expiry_date, true ) ) . '</p>';
+	/** Filter to add more details as associative array of title and value */
+	$additional_details = apply_filters( 'smartwoo_more_service_details', array(), $service );
+	
+	foreach ( (array) $additional_details  as $title => $value ) {
+		$output .= '<p class="smartwoo-container-item"><span> ' . $title . ':</span>' . esc_html( $value ) . '</p>';
+
+	}
 	$output .= '</div>';
 	$output .=  apply_filters( 'smartwoo_after_service_details_page', '', $service_id );
 	$output .= '</div>';
@@ -124,6 +142,10 @@ function smartwoo_service_details() {
  * @return string $output The content.
  */
 function smartwoo_service_front_temp() {
+	if ( ! is_user_logged_in() ) {
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
 	$output 			   = smartwoo_get_navbar( 'My Services' );
 	$output 			  .= '<div class="wrap">';
 	$current_user 	       = wp_get_current_user();
@@ -173,7 +195,7 @@ function smartwoo_service_front_temp() {
 
 	if ( ! empty( $services || ! empty( $pending_services ) ) ) {
 
-		$output .= $pending_services;
+		$output .= $pending_services; 
 
 		foreach ( $services as $service ) {
 			$service_name 	= esc_html( $service->getServiceName() );
@@ -231,6 +253,15 @@ function smartwoo_service_front_temp() {
  * @return string HTML markup containing the service name and status.
  */
 function smartwoo_user_processing_service( $user_id ) {
+	
+	if ( ! is_user_logged_in() ) {
+	   return;
+    }
+
+	if ( $user_id <= 0 ) {
+		return $user_id;
+	}
+
 	$orders = wc_get_orders(
 		array(
 			'customer' => $user_id,
@@ -278,9 +309,15 @@ function smartwoo_user_processing_service( $user_id ) {
  * @return string                 The HTML output of the rendered services.
  */
 function smartwoo_user_service_by_status() {
+
+	if ( ! is_user_logged_in() ) {
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
+
     $status_label = isset( $_GET['status'] ) ? sanitize_text_field( str_replace( array('/', '\\'), '', $_GET['status'] ) ) : 'active';
     $services = SmartWoo_Service_Database::get_services_by_user( get_current_user_id() );
-    $output = smartwoo_get_navbar( 'My '. $status_label . ' Services' );
+    $output = smartwoo_get_navbar( 'My '. $status_label . ' Services', smartwoo_service_page_url() );
 
     if ( empty( $services ) ) {
         return esc_html__( 'You currently do not have any services.', 'smart-woo-service-invoicing' );
@@ -373,22 +410,23 @@ function smartwoo_service_mini_card() {
  * @return int $output incremented number of active service(s) or 0 if there is none
  */
 function smartwoo_active_service_count_shortcode() {
-	// Check if the user is logged in.
-	if ( is_user_logged_in() ) {
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
-		$count = smartwoo_count_active_services( $user_id ) + smartwoo_count_nr_services( $user_id );
+	if ( ! is_user_logged_in() ) {
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
+	
+	$current_user = wp_get_current_user();
+	$user_id      = $current_user->ID;
+	$count = smartwoo_count_active_services( $user_id ) + smartwoo_count_nr_services( $user_id );
 
-		// Output the count and "Services" text with inline CSS for centering.
-		$output  = '<div style="text-align: center;">';
-		$output .= '<h1 class="centered" style="text-align: center; margin: 0 auto; font-size: 45px;">' . esc_html( $count ) . '</h1>';
-		$output .= '<p class="centered" style="text-align: center; font-size: 18px;">' . esc_html( 'Services', 'smart-woo-service-invoicing' ) . '</p>';
-		$output .= '</div>';
+	// Output the count and "Services" text with inline CSS for centering.
+	$output  = '<div style="text-align: center;">';
+	$output .= '<h1 class="centered" style="text-align: center; margin: 0 auto; font-size: 45px;">' . esc_html( $count ) . '</h1>';
+	$output .= '<p class="centered" style="text-align: center; font-size: 18px;">' . esc_html( 'Services', 'smart-woo-service-invoicing' ) . '</p>';
+	$output .= '</div>';
 
-		return $output;
-	} else {
-		return 0;
-	}
+	return $output;
+
 }
 
 
@@ -400,7 +438,7 @@ function smartwoo_buy_new_temp() {
 
 	// Get Smart Woo Products.
 	$smartwoo_products = SmartWoo_Product::get_all_products();
-	$output  = smartwoo_get_navbar( 'Buy New Service');
+	$output  = smartwoo_get_navbar( 'Buy New Service', get_permalink( wc_get_page_id( 'shop' ) ) );
 	$output .= '<div class="wrap">';
 
 	if ( empty( $smartwoo_products ) ) {

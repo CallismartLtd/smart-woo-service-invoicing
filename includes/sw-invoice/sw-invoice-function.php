@@ -431,12 +431,12 @@ function smartwoo_client_total_spent( $user_id ) {
 }
 
 /**
- * Invoice order Payment URL
+ * Invoice order Payment URL, specifically for the service invoices.
  * 
  * @param int $order_id WooCommerce order ID
  * @return string The generated order-pay URL
  */
-function smartwoo_order_pay_url( int $order_id ) {
+function smartwoo_invoice_pay_url( int $order_id ) {
 	$order = wc_get_order( $order_id );
 
 	if ( $order && $order->get_meta( '_sw_invoice_id' ) ) {

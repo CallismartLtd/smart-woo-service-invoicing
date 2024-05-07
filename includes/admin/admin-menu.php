@@ -10,12 +10,12 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
-require_once SMARTWOO_PATH . 'admin/admin-callback-functions.php';
+require_once SMARTWOO_PATH . 'includes/admin/admin-callback-functions.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-new-service-processing.php';
 require_once SMARTWOO_PATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-admin-temp.php';
-require_once SMARTWOO_PATH . 'admin/sw-admin-settings.php';
+require_once SMARTWOO_PATH . 'includes/admin/sw-admin-settings.php';
 
 /**
  * Defined function callback for admin menus.
@@ -105,9 +105,15 @@ function smartwoo_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_
 	$output .= '<nav class="nav-tab-wrapper">';
 
 	foreach ( $tabs as $tab_slug => $tab_title ) {
-		
 		$active_class = ( $current_tab === $tab_slug ) ? 'nav-tab-active' : '';
-		$output      .= "<a href='" . esc_url( add_query_arg( $query_var, $tab_slug, admin_url( 'admin.php?page=' . $page_slug ) ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
+
+		if ( '' === $tab_slug ) {
+			$output      .= "<a href='" . esc_url( admin_url( 'admin.php?page=' . $page_slug ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
+
+		} else {
+			$output      .= "<a href='" . esc_url( add_query_arg( $query_var, $tab_slug, admin_url( 'admin.php?page=' . $page_slug ) ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
+
+		}
 	}
 
 	$output .= '</nav>';

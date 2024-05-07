@@ -39,13 +39,12 @@ class SmartWoo_Product extends WC_Product {
 		
 		if ( ! empty( $product ) ) {
 
-		$this->set_sign_up_fee( $this->get_meta( '_smartwoo_sign_up_fee' ) );
-		$this->set_billing_cycle( $this->get_meta( '_smartwoo_billing_cycle' ) );
-		$this->set_grace_period_number( $this->get_meta( '_smartwoo_grace_period_number' ) );
-		$this->set_grace_period_unit( $this->get_meta( '_smartwoo_grace_period_unit' ) );
+			$this->set_sign_up_fee( $this->get_meta( '_smartwoo_sign_up_fee' ) );
+			$this->set_billing_cycle( $this->get_meta( '_smartwoo_billing_cycle' ) );
+			$this->set_grace_period_number( $this->get_meta( '_smartwoo_grace_period_number' ) );
+			$this->set_grace_period_unit( $this->get_meta( '_smartwoo_grace_period_unit' ) );
 
 		}
-
 
 	}
 
@@ -343,10 +342,31 @@ class SmartWoo_Product extends WC_Product {
 	*/
 
 	/**
+	 * Product edit link
+	 */
+	public static  function get_edit_url( $link, $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( $post && $post->post_type === 'product' ) {
+			$product = wc_get_product( $post_id );
+	
+			if ( $product && $product->is_type( 'sw_product' ) ) {
+				// Construct the custom edit URL for the product
+				$edit_url = admin_url('admin.php?page=sw-products&action=edit&product_id=' . $product->get_id() );
+	
+				// Replace the default edit link with the custom edit URL
+				$link = esc_url($edit_url);
+			}
+		}
+	
+		return $link;
+	}
+
+	/**
 	 * Add to cart URL.
 	 */
 	public function add_to_cart_url() {
-		return esc_url( esc_attr( smartwoo_configure_page( $this->get_id() ) ) );
+		return esc_url( smartwoo_configure_page( $this->get_id() ) );
 	}
 	
 	/**
@@ -354,7 +374,7 @@ class SmartWoo_Product extends WC_Product {
 	 */
 	public function add_to_cart_text() {
 		$text	= smartwoo_product_text_on_shop();
-		return apply_filters( 'woocommerce_product_add_to_cart_text', $text , $this );
+		return apply_filters( 'smartwoo_add_to_cart_text', $text , $this );
 	}
 
 	/**
@@ -385,7 +405,7 @@ class SmartWoo_Product extends WC_Product {
 		if ( $product && 'sw_product' === $product->get_type() ) {
 
 			$button  = '<div class="configure-product-button">';
-			$button .= '<a href="' . esc_attr( smartwoo_configure_page( $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html( smartwoo_product_text_on_shop() ) . '</a>';
+			$button .= '<a href="' . esc_url( smartwoo_configure_page( $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html( smartwoo_product_text_on_shop() ) . '</a>';
 			$button .= '</div>';
 			echo wp_kses_post( $button );
 		}

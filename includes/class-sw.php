@@ -48,5 +48,12 @@ final class SmartWoo {
      */
     public function __construct() {}
 
-    /** Documented and ready for next update */
+    /** Service Subscription */
+    public function service() {}
+
+    /** Invoice */
+    public function invoice() {}
+    
+
+
 }

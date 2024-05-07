@@ -61,6 +61,7 @@ class SmartWoo_Config{
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
         register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
     }
+
     /**
      * Init hooks.
      */
@@ -71,6 +72,19 @@ class SmartWoo_Config{
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myacoount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myacoount_content' );
         self::add_automations();
+        /** Register our crons */
+        add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
+        add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
+        add_action( 'smartwoo_user_cancelled_service', 'smartwoo_user_service_cancelled_mail', 100 );
+        add_action( 'smartwoo_user_cancelled_service', 'smartwoo_service_cancelled_mail_to_admin', 100 );
+        add_action( 'smartwoo_user_opted_out', 'smartwoo_user_service_optout_mail', 100 );
+        add_action( 'smartwoo_once_in48hrs_task', 'smartwoo_payment_reminder' );
+        add_action( 'smartwoo_service_expired', 'smartwoo_send_service_expiration_email' );
+        add_action( 'smartwoo_daily_task', 'smartwoo_send_expiry_mail_to_admin' );
+        add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
+        add_action( 'smartwoo_expired_service_activated', 'smartwoo_renewal_sucess_email' );
+        add_action( 'smartwoo_auto_invoice_created', 'smartwoo_send_auto_renewal_email', 10, 2 );
+        add_action( 'smartwoo_invoice_is_paid', 'smartwoo_invoice_paid_mail' );        
 
     }
 
@@ -104,9 +118,8 @@ class SmartWoo_Config{
      */
     public function include() {
 
-        require_once SMARTWOO_PATH . 'admin/sw-functions.php';
-        require_once SMARTWOO_PATH . 'admin/include/cron-schedule.php';
-        require_once SMARTWOO_PATH . 'admin/include/smart-woo-manager.php';
+        require_once SMARTWOO_PATH . 'includes/admin/sw-functions.php';
+        require_once SMARTWOO_PATH . 'includes/admin/include/smart-woo-manager.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice-database.php';
@@ -117,28 +130,29 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-product/class-sw-product.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-functions.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-order-config.php';
+        require_once SMARTWOO_PATH . 'includes/sw-utm.php';
         require_once SMARTWOO_PATH . 'templates/email-templates.php';
 
-        // Only load admin menu and subsequent files in admin page.
+        /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
-            require_once SMARTWOO_PATH . 'admin/admin-menu.php';
+            require_once SMARTWOO_PATH . 'includes/admin/admin-menu.php';
             require_once SMARTWOO_PATH . 'includes/sw-service/contr.php';
             require_once SMARTWOO_PATH . 'includes/sw-invoice/contr.php';
             require_once SMARTWOO_PATH . 'includes/sw-product/contr.php';
             
         }
 
-        // Load fontend file.
+        /** Load fontend file. */ 
         if ( smartwoo_is_frontend() ) {
 
-            require_once SMARTWOO_PATH . 'frontend/woocommerce/contr.php';
-            require_once SMARTWOO_PATH . 'frontend/woocommerce/my-account.php';
-            require_once SMARTWOO_PATH . 'frontend/woocommerce/woo-forms.php';
-            require_once SMARTWOO_PATH . 'frontend/invoice/contr.php';
-            require_once SMARTWOO_PATH . 'frontend/invoice/template.php';
-            require_once SMARTWOO_PATH . 'frontend/shortcode.php';
-            require_once SMARTWOO_PATH . 'frontend/service/template.php';
-            require_once SMARTWOO_PATH . 'frontend/service/contr.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/woo-forms.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/invoice/contr.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/invoice/template.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/shortcode.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/service/template.php';
+            require_once SMARTWOO_PATH . 'includes/frontend/service/contr.php';
 
         }
         add_action( 'admin_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
@@ -160,17 +174,18 @@ class SmartWoo_Config{
     public function load_styles() {
 
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
+        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
         
         }
+            wp_enqueue_style( 'smartwoo-admin-pro-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin-min.css', array(), SMARTWOO_VER, 'all' );
     
         if ( is_admin() ) {
-            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
         }
     }
 
     public function load_scripts() {
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/sw-min.js', array( 'jquery' ), SMARTWOO_VER, true );
     
         // Script localizer.
         wp_localize_script(
@@ -273,11 +288,45 @@ class SmartWoo_Config{
 
     }
     
+    /** Cron registeration method */
+    public function register_cron(  $schedules ) {
+        /**Define a cron interval for 12 hours. */
+        $schedules['smartwoo_12_hours'] = array(
+            'interval' => 12 * 60 * 60, // 12 hours in seconds
+            'display'  => __( 'SmartWoo twice Daily', 'smart-woo-service-invoicing' ),
+        );
+
+        /** Add a new cron schedule interval for once every two days (48 hours). */
+        $schedules['smartwoo_once_every_two_days'] = array(
+            'interval' => 2 * 24 * 60 * 60,
+            'display'  => __( 'SmartWoo Once Every Two Days', 'smart-woo-service-invoicing' ),
+        );
+
+        /** Add a new cron schedule interval for once a day (every 24 hours). */
+        $schedules['smartwoo_daily'] = array(
+            'interval' => 24 * 60 * 60,
+            'display'  => __( 'SmartWoo Daily', 'smart-woo-service-invoicing' ),
+        );
+        /** Add a new cron schedule interval for every 5 minutes. */
+        $schedules['smartwoo_5_minutes'] = array(
+            'interval' => 5 * 60,
+            'display'  => __( 'SmartWoo Every 5 Minutes', 'smart-woo-service-invoicing' ),
+        );
+
+        /** Define a Smart Woo cron interval for every 5 hours. */
+        $schedules['smartwoo_5_hours'] = array(
+            'interval' => 5 * 60 * 60,
+            'display'  => __( 'SmartWoo Every 5 Hours', 'smart-woo-service-invoicing' ),
+        );
+
+        return  $schedules;
+    }
 
     /**
 	 * Add automation schedules.
 	 */
 	private static function add_automations() {
+
 		/**
 		 * Schedule the auto-renewal event.
 		 *
@@ -312,7 +361,9 @@ class SmartWoo_Config{
 		if ( ! wp_next_scheduled( 'smartwoo_refund_task' ) ) {
 			wp_schedule_event( current_time( 'timestamp' ), 'once_every_two_days', 'smartwoo_refund_task' );
 		}
-
-		update_option( '__smartwoo_automation_last_scheduled_date', current_time( 'timestamp' ) );
+        if ( false === get_option( '__smartwoo_automation_last_scheduled_date', false ) ) {
+    		update_option( '__smartwoo_automation_last_scheduled_date', current_time( 'timestamp' ) );
+        
+        }
 	}
 }

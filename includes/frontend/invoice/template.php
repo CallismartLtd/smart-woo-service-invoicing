@@ -13,6 +13,11 @@
  */
 function smartwoo_invoice_front_temp() {
 
+	if ( ! is_user_logged_in() ) {
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
+
 	$current_user_id = get_current_user_id();
     $invoices        = SmartWoo_Invoice_Database::get_invoices_by_user( $current_user_id );
 
@@ -76,6 +81,11 @@ function smartwoo_invoice_front_temp() {
  */
 function smartwoo_invoice_details() {
 
+	if ( ! is_user_logged_in() ) {
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
+
 	$invoice_id		= isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ""; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	
 	if ( empty( $invoice_id ) ) {
@@ -125,14 +135,14 @@ function smartwoo_invoice_details() {
 		 * Start building the invoice.
 		 */
 		
-		$invoice_content	= smartwoo_get_navbar( 'My Invoice' );
+		$invoice_content	= smartwoo_get_navbar( 'My Invoice', smartwoo_invoice_page_url() );
 		$invoice_content	.= '<div class="site-content">';
 		$invoice_content	.= '<div class="inv-button-container">';
 		$invoice_content	.= '<a href="' . esc_url( smartwoo_invoice_page_url() ) . '" class="back-button">' . esc_html__( 'Back to invoices', 'smart-woo-service-invoicing' ) . '</a>';
 		
 		if ( 'unpaid' ===  strtolower( $invoice_status ) ) {
 			$order_id         = $invoice->getOrderId();
-			$pay_button_url   = smartwoo_order_pay_url( $order_id );
+			$pay_button_url   = smartwoo_invoice_pay_url( $order_id );
 			$invoice_content .= '<a href="' . esc_url( $pay_button_url ) . '" class="invoice-pay-button">' . esc_html__( 'Pay Now', 'smart-woo-service-invoicing' ) . '</a>';
 		}
 		$download_url = add_query_arg(
@@ -236,7 +246,7 @@ function smartwoo_invoice_details() {
 			$invoice_content .= '</div>';
 		}
 
-		if (  class_exists( 'SmartWooPro' , false ) && 'Service Upgrade Invoice' === $invoice->getInvoiceType() || 'Service Downgrade Invoice' === $invoice->getInvoiceType() ) {
+		if (  class_exists( 'SmartWooPro' , false ) && 'Service Upgrade Invoice' === $invoice->getInvoiceType() || class_exists( 'SmartWooPro' , false ) && 'Service Downgrade Invoice' === $invoice->getInvoiceType() ) {
 			// Previous Service Balance.
 			$balance          = $invoice->get_balance();
 			$invoice_content .= '<div class="invoice-item">';
@@ -311,7 +321,8 @@ function smartwoo_invoices_by_status() {
 function smartwoo_invoice_mini_card() {
 
 	if ( ! is_user_logged_in() ) {
-        return esc_html__('Hello! It looks like you\'re not logged in.', 'smart-woo-service-invoicing');
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
     }
 
     $current_user_id = get_current_user_id();
@@ -348,7 +359,7 @@ function smartwoo_invoice_mini_card() {
 
             // Show the "Pay" button beside the "View" button only if the order is pending.
             if ( 'unpaid' === $invoice->getPaymentStatus() ) {
-                $checkout_url  = smartwoo_order_pay_url( $invoice->getOrderID() );
+                $checkout_url  = smartwoo_invoice_pay_url( $invoice->getOrderID() );
                 $table_html   .= '<a href="' . esc_url( $checkout_url ) .'" class="invoice-pay-button">' . esc_html__( 'Pay', 'smart-woo-service-invoicing' ) . '</a>';
             }
 
@@ -406,7 +417,7 @@ function smartwoo_all_user_invoices_count() {
 function smartwoo_get_unpaid_invoices_count() {
 
 	if ( ! is_user_logged_in() ) {
-		return "Hello! It looks like you\'re not logged in.";
+		return;
 	} 
 	
 	$count = SmartWoo_Invoice_Database::count_payment_status( get_current_user_id(), 'unpaid' );
@@ -424,9 +435,9 @@ function smartwoo_transactions_shortcode() {
 	$output		= "";
 
 	if ( ! is_user_logged_in() ) {
-		$output .= '<p>' . esc_html__( 'Please log in to view your transaction history', 'smart-woo-service-invoicing' ) . '</p>';
-		return $output;
-	}
+		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+	   return;
+    }
 
 	$orders = smartwoo_get_configured_orders_for_service( null, true );
 
@@ -523,7 +534,6 @@ function smartwoo_transaction_status_shortcode() {
 	return $output;
 	
 }
-
 
 /**
  * Function for Pending Transaction Count

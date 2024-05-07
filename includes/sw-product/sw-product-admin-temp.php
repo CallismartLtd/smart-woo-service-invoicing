@@ -19,7 +19,6 @@ function smartwoo_product_table() {
 
 	// Check if there are any products
 	if ( ! $products_data ) {
-		$page_html .= '<a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ) . '" class="sw-blue-button">Add Product</a>';
 		$page_html .= smartwoo_notice( 'No Service product found.' );
 		return $page_html;
 	}
@@ -27,7 +26,6 @@ function smartwoo_product_table() {
 	/**
 	 * Start table markep.
 	 */
-	$page_html .= '<a href="' . admin_url( 'admin.php?page=sw-products&action=add-new' ) . '" class="sw-blue-button">Add Product</a>';
 	$page_html .= '</div>';
 
 	$page_html .= '<table class="sw-table">';

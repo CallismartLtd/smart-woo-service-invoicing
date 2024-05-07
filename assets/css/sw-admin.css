@@ -1,0 +1,60 @@
+.sw-pro-placeholder {
+    position: relative;
+    width: 70%;
+    height: 400px;
+    margin: 20px auto;
+    background-size: cover;
+    border-radius: 10px;
+    background-position: center;
+    filter: brightness(60%); /* Dim the background image by reducing brightness */
+    transition: background-color 0.3s ease; /* Smooth transition for overlay */
+
+
+}
+.sw-pro-placeholder:hover {
+    transform: scale(1.4);
+}
+
+.sw-pro-content-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-weight: bold;
+    font-family:'Courier New', Courier, monospace;
+    color: rgb(105, 255, 5);
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7); /* Adjust transparency for a darker overlay */
+    width: 80%; /* Adjust overlay width as needed */
+    max-width: 400px; /* Limit maximum width of the overlay */
+    border-radius: 10px; /* Add rounded corners to the overlay */
+}
+
+.sw-pro-upgrade-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff9900;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 5px !important;
+    transition: background-color 0.3s ease; 
+}
+
+.sw-pro-upgrade-button:hover {
+    background-color: #2af018; /* Darken the button color on hover */
+    color: rgb(12, 0, 0);
+    font-weight: bold;
+}
+.sw-pro-sell {
+    font-weight: bold;
+    padding: 20px;
+    margin: 20px auto;
+    margin-bottom: 30px !important;
+    background-color: rgb(255, 255, 255); 
+    width: 80%;
+    max-width: 500px;
+    border-radius: 9px;
+    box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+}

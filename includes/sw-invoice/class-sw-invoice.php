@@ -36,6 +36,7 @@ class SmartWoo_Invoice {
 	private $date_created;
 	private $date_paid;
 	private $date_due;
+	private $balance = 0;
 	private $total;
 
 	// Constructor
@@ -136,6 +137,10 @@ class SmartWoo_Invoice {
 		$this->date_due = $date_due;
 	}
 
+	public function set_balance( $balance ) {
+		$this->balance;
+	}
+	
 	public function setTotal( float $total ) {
 		$this->total = $total;
 	}
@@ -199,6 +204,11 @@ class SmartWoo_Invoice {
 
 	public function getDateDue() {
 		return $this->date_due;
+	}
+
+	public function get_balance() {
+
+		return $this->balance;
 	}
 
 	public function getTotal() {

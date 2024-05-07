@@ -370,9 +370,9 @@ function smartwoo_invoice_id_dropdown( $selected_invoice_id = null, $echo = true
 // Default function for the "Invoices" dashboard
 function smartwoo_invoice_dashboard() {
 
-	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$tabs = array(
-		'dashboard'                => __( 'Invoices', 'smart-woo-service-invoicing' ),
+		''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
 		'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 
 	);
@@ -455,10 +455,10 @@ function smartwoo_view_invoice_page() {
 			break;
 
 		case 'log':
-			if( class_exists( 'SmartWooPro', false ) ) {
+			if ( class_exists( 'SmartWooPro', false ) ) {
 				$page_html .= apply_filters( 'smartwoo_service_log_admin', $invoice_id );
 			} else {
-				$page_html .= smartwoo_pro_feature();
+				$page_html .= smartwoo_pro_feature( 'invoice logs');
 			}
 			break;
 		default:
@@ -522,8 +522,7 @@ function smartwoo_invoice_service_related( $invoice ){
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'End Date:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $end_date ) . '</p>';
 		$page_html .= '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service_id ) ) . '">' . esc_html__( 'More about Service ➡', 'smart-woo-service-invoicing' ) . '</a>';
 	} else {
-		$page_html .= smartwoo_notice( 'No details found for the service ID associated with this invoice.' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	
+		$page_html .= smartwoo_notice( __( 'Not associated with any service yet.', 'smart-woo-service-invoicing' ) ); 
 	}
 	$page_html .= '</div>';
 	return $page_html;

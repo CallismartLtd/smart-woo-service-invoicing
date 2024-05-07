@@ -149,9 +149,6 @@ function smartwoo_renew_service( $service_id, $invoice_id ) {
 		$service->setEndDate( $new_end_date );
 		$service->setStatus( null ); // Renewed service will be automatically calculated.
 		$updated = SmartWoo_Service_Database::update_service( $service );
-		// send email notification.
-		smartwoo_renewal_sucess_email( $service );
-		// Add Action Hook After Service Renewal.
 		do_action( 'smartwoo_service_renewed', $service );
 
 	}
@@ -283,7 +280,7 @@ function smartwoo_cancel_or_optout_service() {
 		do_action( 'smartwoo_service_deactivated', $service );
 
 	} elseif ( $user_opted_out ) {
-		do_action( 'smartwoo_user_opted_out', $service_id );
+		do_action( 'smartwoo_user_opted_out', $service_id ); 
 	}
 }
 
@@ -348,7 +345,7 @@ function smartwoo_process_payment_link() {
 		wp_set_auth_cookie( $user->ID );
 		do_action( 'wp_login', $user->user_login, $user );
 		// Redirect to the order pay page.
-		wp_safe_redirect( smartwoo_order_pay_url( $order_id ) );
+		wp_safe_redirect( smartwoo_invoice_pay_url( $order_id ) );
 		exit();
 	}
 }
@@ -442,7 +439,7 @@ function smartwoo_manual_service_renewal() {
 				smartwoo_send_user_generated_invoice_mail( $NewInvoice, $service );
 				$new_order_id = $NewInvoice->getOrderId();
 				$new_order    = wc_get_order( $new_order_id );
-				$checkout_url = smartwoo_order_pay_url( $new_order_id );
+				$checkout_url = smartwoo_invoice_pay_url( $new_order_id );
 				wp_safe_redirect( $checkout_url );
 				exit();
 			}

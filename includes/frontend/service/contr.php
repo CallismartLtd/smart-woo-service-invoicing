@@ -208,10 +208,12 @@ function smartwoo_load_account_logs_callback() {
 		$last_active		= smartwoo_get_last_login_date( $user_id );
 		$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
 		$total_spent 		= smartwoo_client_total_spent( $user_id );
+		$user_agent			= $_SERVER['HTTP_USER_AGENT'];
 		$html = '<div class="account-logs-container">';
 		$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
 		$html .= '<ul class="account-logs-list">';
 		$html .= '<li class="account-log-item">' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		//$html .= '<li class="account-log-item">' . esc_html__( 'User Agent: ', 'smart-woo-service-invoicing' ) . esc_html( $user_agent ) . '</li>';
 		$html .= '<li class="account-log-item">' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
 		$html .= '<li class="account-log-item">' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
 		$html .= '<li class="account-log-item">' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
@@ -306,13 +308,12 @@ add_action( 'wp_logout', 'smartwoo_timestamp_user_at_logout' );
 function smartwoo_get_current_login_date( $user_id ) {
     $timestamp = get_user_meta( $user_id, 'smartwoo_login_timestamp', true );
 
-    // Check if $timestamp is not a valid integer (may be a string)
     if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
         // Fallback to current time if $timestamp is not a valid integer.
         $timestamp = current_time( 'timestamp' );
     }
 
-    return smartwoo_convert_timestamp_to_readable_date( $timestamp, true );
+    return smartwoo_timestamp_to_date( $timestamp, true );
 }
 
 /**
@@ -330,6 +331,6 @@ function smartwoo_get_last_login_date( $user_id ) {
 		$timestamp = current_time( 'timestamp' );
     }
 
-    return smartwoo_convert_timestamp_to_readable_date( $timestamp, true );
+    return smartwoo_timestamp_to_date( $timestamp, true );
 }
 

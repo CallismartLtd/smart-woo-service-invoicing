@@ -242,6 +242,7 @@ function smartwoo_options_main_page() {
 				<div id="step3" class="instruction">
 					<h3>All Done 🎉🎉</h3>
 					<p><strong>Your service product is now listed on the WooCommerce product page. You can view all service orders <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>">here</a> and process them as needed.</strong></p>
+					<?php 	echo wp_kses_post( smartwoo_pro_feature() ); ?>
 				</div>
 
 			</div>
@@ -274,9 +275,9 @@ function smartwoo_service_options() {
 	$smartwoo_prorate      = get_option( 'smartwoo_prorate', 'Disable' );
 	$migration_option      = get_option( 'smartwoo_allow_migration', 'Disable' );
 	$service_id_prefix     = get_option( 'smartwoo_service_id_prefix', 'SID' );
-	'<h1>' . esc_html_e( 'Business Info 🧊', 'smart-woo-service-invoicing' ) . '</h1>';
-
 	?>
+	<h1><?php  esc_html_e( 'Business Info 🧊', 'smart-woo-service-invoicing' ); ?> </h1>
+
 		<div class="wrap">
 		<form method="post" class="inv-settings-form">
 		
@@ -539,11 +540,12 @@ function smartwoo_advanced_options() {
 	ob_start();
 	smartwoo_save_advanced_options();
 	$product_text = get_option( 'smartwoo_product_text_on_shop', 'Configure' );
-    $checkboxes = array(
-        'smartwoo_enable_api_feature',
-        'smartwoo_allow_guest_invoicing',
+    $default_checkboxes = array(
         'smartwoo_remove_plugin_data_during_uninstall'
     );
+	/** Rule for this filter: All array data to be passed to this filter must be prefixed with "smartwoo" */
+	$more_checkboxes = apply_filters( 'smartwoo_advanced_options', array() );
+	$checkboxes = array_merge( $default_checkboxes, $more_checkboxes );
 	
     ?>
     <div class="wrap">
@@ -567,7 +569,7 @@ function smartwoo_advanced_options() {
             <?php endforeach; ?>
 
             <?php
-            // Check if the WooCommerce wallet plugin is active
+            /** If forced, things may break. This checkboxe can only be handled by designated function */
             if ( function_exists( 'smartwoo_terawallet_int' ) ) : ?>
 			<!-- TeraWallet integration option -->
 			<h3 style="text-align: center;"><?php esc_html_e( 'Tera Wallet Integration', 'smart-woo-service-invoicing' ); ?></h3>
@@ -589,6 +591,7 @@ function smartwoo_advanced_options() {
         </form>
     </div>
     <?php
+	echo wp_kses_post( smartwoo_pro_feature() );
 	return ob_get_clean();
 }
 

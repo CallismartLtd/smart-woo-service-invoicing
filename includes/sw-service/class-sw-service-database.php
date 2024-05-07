@@ -30,7 +30,11 @@ class SmartWoo_Service_Database {
 		$query   	= "SELECT * FROM ". SMARTWOO_SERVICE_TABLE;
 		$results 	= $wpdb->get_results( $query, ARRAY_A );
 		// phpcs:enable
-		return self::convert_results_to_services( $results );
+		if ( $results ) {
+			return self::convert_results_to_services( $results );
+		}
+		// Empty array.
+		return array();
 	}
 
 	/**
@@ -53,7 +57,8 @@ class SmartWoo_Service_Database {
 			return SmartWoo_Service::convert_array_to_service( $result );
 		}
 
-		return false;
+		// Return empty array.
+		return array();
 	}
 
 	/**
@@ -80,7 +85,8 @@ class SmartWoo_Service_Database {
 			return self::convert_results_to_services( $results );
 		}
 
-		return false;
+		// Return empty array.
+		return array();
 	}
 
 

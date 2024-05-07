@@ -76,34 +76,19 @@ function smartwoo_generate_service(
 
 /**
  * The button to access the client URL, This parameters are not secure handling them
- * be subject to authentication by our service manager plugin
+ * be subject to authentication by our service manager plugin.
  *
  * @param object $service       The service.
  * @return string HTML markup button with url keypass
  */
 function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
-	$user_id        = $service->getUserId();
-	$user_info      = get_userdata( $user_id );
-	$service_status = smartwoo_service_status( $service->getServiceId() );
-	if ( 'Active' === $service_status || 'Active (NR)' === $service_status  || 'Due for Renewal' === $service_status || 'Grace Period' === $service_status && 'Web Service' === $service->getServiceType() ) {
 
-		if ( $user_info ) {
-			$user_email = $user_info->user_email;
-
-			// Construct the service URL with specified parameters
-			$access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
-
-			return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
-		}
-	} elseif ( is_admin() ) {
-		$user_email = $user_info->user_email;
-		// Construct the service URL with specified parameters
-		$access_client_service_url = esc_url( $service->getServiceUrl() ) . '?auth=1&email=' . urlencode( $user_email ) . '&userisfromcallismartparentwebsite=1&serviceid=' . $service->getServiceId() . '&requestingaccess=1';
-
-		return '<a href="' . esc_url( $access_client_service_url ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
+	if ( method_exists( 'SmartWooPro_API', 'service_url' ) ) {
+		return SmartWooPro_API::service_url( $service );
+	} else {
+		return '<a href="' . esc_url( $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
 
 	}
-	return false;
 }
 
 /**
@@ -121,10 +106,10 @@ function smartwoo_service_preview_url( $service_id ) {
         );
         return esc_url( $preview_url );
     } else {
-        $page_id = get_option( 'smartwoo_service_page_id', 0 );
-        $page_url = get_permalink( $page_id );
-        $preview_url = add_query_arg( array( 'service_id'   => $service_id, ), $page_url .'view-subscription/' );
-        return esc_url_raw( $preview_url );
+        $page_id		= absint( get_option( 'smartwoo_service_page_id', 0 ) );
+        $page_url		= get_permalink( $page_id );
+        $preview_url	= add_query_arg( array( 'service_id'   => $service_id, ), $page_url . 'view-subscription/' );
+        return  $preview_url;
     }
 }
 
@@ -236,14 +221,10 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 	$end_date     = smartwoo_extract_only_date( $service->getEndDate() );
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
-	// Check if the service has passed its end date.
 	if ( $current_date >= $end_date ) {
-		$product_id = $service->getProductId();
+		$product_id			= $service->getProductId();
+		$grace_period_date 	= smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
-		// Get the grace period end date using the end date as the reference.
-		$grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
-
-		// Check if there is a valid grace period and if the current date is within the grace period.
 		if ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) ) {
 			return true;
 		}
@@ -782,7 +763,7 @@ function smartwoo_usage_metrics_temp( $service_id ) {
 	$usage_metrics = smartwoo_analyse_service_usage( $service_id );
 
 	// Check if metrics are available
-	if ( false !== $usage_metrics ) {
+	if ( false !== $usage_metrics ) { 
 		// Extract metrics
 		$used_amount          = $usage_metrics['used_amount'];
 		$unused_amount        = $usage_metrics['unused_amount'];

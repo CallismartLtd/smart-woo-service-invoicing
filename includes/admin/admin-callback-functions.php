@@ -58,7 +58,7 @@ function smartwoo_service_orders() {
  */
 function smartwoo_invoice_admin_page() {
 
-	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	switch ( $tab ) {
 		case 'add-new-invoice':
@@ -97,7 +97,7 @@ function smartwoo_products_page() {
 
 	);
 
-	smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' );
+	echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' ) );
 
 	// Handle different actions.
 	switch ( $action ) {
@@ -121,9 +121,8 @@ function smartwoo_options_page() {
 		return;
 	}
 	// Check for URL parameters
-	$action = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	$tabs = array(
+	$action = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+	$default_tabs = array(
 		''          => 'General',
 		'business'  => 'Business',
 		'invoicing' => 'Invoicing',
@@ -132,6 +131,8 @@ function smartwoo_options_page() {
 
 	);
 
+	$more = apply_filters( 'smartwoo_options_tab', array() );
+	$tabs = array_merge( $default_tabs, $more );
 	echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Settings', 'sw-options', $action, 'tab' ) );
 
 	switch ( $action ) {
@@ -180,8 +181,14 @@ function smartwoo_options_page() {
 			break;
 
 		default:
+		if ( empty( $action ) ) {
 			smartwoo_options_main_page();
-			break;
+		}else {
+			do_action( 'smartwoo_options_' . $action . '_content') ;
+
+		}
+		break;
+		
 	}
 }
 

@@ -12,7 +12,7 @@
  * WC requires at least: 7.0
  * WC tested up to: 8.8.2
  * License: GPL v3 or later
- * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html  
  * Text Domain: smart-woo-service-invoicing
  * 
  * @package SmartWoo
@@ -51,6 +51,6 @@ if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
 }
 
 // Load core and config files.
-require_once SMARTWOO_PATH . 'includes/class-sw-config.php';
 require_once SMARTWOO_PATH . 'includes/class-sw-install.php';
+require_once SMARTWOO_PATH . 'includes/class-sw-config.php';
 SmartWoo_Config::instance();

@@ -743,7 +743,7 @@ use inline CSS to overide some styles
 	border: 1px solid #c0a7a7; /* Gray border */
 	padding: 10px; /* Add padding to the card */
 	border-radius: 5px; /* Rounded corners */
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Style the card header with Description and Amount */

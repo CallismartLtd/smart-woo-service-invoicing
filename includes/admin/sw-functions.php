@@ -25,6 +25,12 @@ function smartwoo_locale_date_format() {
 }
 
 /**
+ * Retrives a combination of local date and time format
+ */
+function smartwoo_datetime_format() {
+	return smartwoo_locale_date_format()->date_format . ' ' . smartwoo_locale_date_format()->time_format;
+}
+/**
  * Function to format date to a human-readable format or show 'Not Available'.
  *
  * @param string $dateString Date String.
@@ -34,7 +40,7 @@ function smartwoo_locale_date_format() {
 function smartwoo_check_and_format( $dateString, $includeTime = false ) {
 	$locale = smartwoo_locale_date_format();
 	$format = $includeTime ? $locale->date_format . ' ' . $locale->time_format : $locale->date_format;
-	return ! empty( $dateString ) ? esc_html( date_i18n( $format, strtotime( $dateString ) ) ) : esc_html( 'Not Available' );
+	return ! empty( $dateString ) ? date_i18n( $format, strtotime( $dateString ) ) : 'N/A';
 }
 
 /**
@@ -60,15 +66,13 @@ function smartwoo_extract_only_date( $datetimestring ) {
  * @param bool $includeTime Whether to include the time aspect. Default is true.
  * @return string Formatted date or 'Not Available'.
  */
-function smartwoo_convert_timestamp_to_readable_date( ?int $timestamp, bool $includeTime = true ) {
+function smartwoo_timestamp_to_date( ?int $timestamp, bool $includeTime = true ) {
 
 	if ( empty( $timestamp ) ) {
 		return $timestamp;
 	}
 
-    $dateString = date_i18n( smartwoo_locale_date_format()->date_format, $timestamp );
-
-    return smartwoo_check_and_format( $dateString, $includeTime );
+    return  date_i18n( smartwoo_datetime_format(), $timestamp );
 }
 
 /**
@@ -340,9 +344,9 @@ function smartwoo_check_if_configured( $order ) {
  *
  * @param int $title   The Title of the page.
  */
-function smartwoo_get_navbar( $title = '' ) {
+function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 
-	if ( ! is_user_logged_in() ) {
+	if ( ! is_user_logged_in() || is_account_page() ) {
 		return;
 	}
 
@@ -361,7 +365,7 @@ function smartwoo_get_navbar( $title = '' ) {
     $page_title		= $title;
     $nav_bar		= '<div class="service-navbar">';
     $nav_bar 	.= '<div class="navbar-title-container">';
-    $nav_bar 	.= '<h3>' . esc_html( $page_title ) . '</h3>';
+    $nav_bar 	.= '<h3><a href="' . esc_url( $title_url ) . '">' . esc_html( $page_title ) . '</a></h3>';
     $nav_bar 	.= '</div>';
 
     // Container for the links (aligned to the right).
@@ -468,10 +472,13 @@ function smartwoo_allowed_form_html() {
 		),
 		'a'			=> array(
 			'href'		=> true,
+			'class'		=> true,
+			'id'		=> true,
 		),
         'h1'		=> array(),
 		'h2'		=> array(),
         'h3'		=> array(),
+        'h4'		=> array(),
         'p'			=> array(),
         'hr'		=> array(),
         'input'		=> array(
@@ -514,8 +521,7 @@ function smartwoo_is_frontend() {
  */
 function smartwoo_configure_page( $product_id ){
 	if ( empty( $product_id ) || "product" !== get_post_type( absint( $product_id ) ) ) {
-		return '#';
+		return $product_id;
 	}
-	$configure_page = esc_url(  home_url( '/configure/?product_id=' . absint( $product_id ) ) );
-	return $configure_page;
+	return home_url( '/configure/?product_id=' . absint( $product_id ) );
 }

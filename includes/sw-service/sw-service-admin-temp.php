@@ -49,11 +49,11 @@ function smartwoo_admin_view_service_details() {
 			break;
 
 		case 'logs':
-			$page_html .= '<h2>Service Logs</h2>';
 			if ( class_exists( 'SmartWooPro', false ) ) {
+				$page_html .= '<h2>Service Logs</h2>';
 				$page_html .= apply_filters( 'smartwoo_service_log_admin_page', '', $service_id );
 			} else {
-				$page_html .= smartwoo_pro_feature();
+				$page_html .= smartwoo_pro_feature( 'service logs' );
 			}
 			break;
 		
@@ -61,8 +61,10 @@ function smartwoo_admin_view_service_details() {
 			$page_html .= '<h2>Service Logs</h2>';
 			if ( class_exists( 'SmartWooPro', false ) ) {
 				$page_html .= apply_filters( 'smartwoo_stats', '', $service_id );
+			} else {
+				$page_html .= smartwoo_pro_feature( 'advanced stats');
+
 			}
-			$page_html .= smartwoo_pro_feature();
 			break;
 
 		default:
@@ -93,7 +95,14 @@ function smartwoo_admin_show_customer_details( SmartWoo_Service $service ) {
 	$customer_email		= $user_info->user_email ?? 'Email Not Found';
 	$billing_address	= smartwoo_get_user_billing_address( $user_id ) ?? 'Billing Address Not Found';
 	$customer_phone		= get_user_meta( $user_id, 'billing_phone', true ) ?? 'Phone Number Not Found';
-
+	$client_details 	= array(
+		'Email Address' => $customer_email,
+		'Phone Number'	=>  $customer_phone,
+	);
+	/** Additional Client details as an associative array */
+	$additional_details = apply_filters( 'smartwoo_additional_client_details', array(), $user_id );
+	$details = array_merge( $client_details, $additional_details );
+	
 	/**
 	 * Client Details container.
 	 */
@@ -102,9 +111,12 @@ function smartwoo_admin_show_customer_details( SmartWoo_Service $service ) {
 	$page_html .= '<h2>Full Name</h2>';
 	$page_html .= '<p><h3><a style="text-decoration: none;" href="' . esc_url( get_edit_user_link( $user_id ) ) . '">' . esc_html( $customer_name ) . '</a></h3></p>';
 	$page_html .= '<p class="smartwoo-container-item"><span>User ID:</span>' . esc_html( $user_id ) . '</p>';
-	$page_html .= '<p class="smartwoo-container-item"><span> Email Address:</span>' . esc_html( $customer_email ) . '</p>';
-	$page_html .= '<p class="smartwoo-container-item"><span> Phone Number:</span>' . esc_html( $customer_phone ) . '</p>';
+	
+	foreach ( $details as $heading => $value ) {
+		$page_html .= '<p class="smartwoo-container-item"><span>' . $heading .':</span>' . esc_html( $value ) . '</p>';
+	}
 	$page_html .= '<p class="smartwoo-container-item"><span> Billing Address:</span>' . esc_html( $billing_address ) . '</p>';
+		
 	$page_html .= '</div>';
 	$page_html .= '</div>';
 	
@@ -123,12 +135,7 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 	}
 
 	$service_status		= smartwoo_service_status( $service->getServiceId() );
-	$product_id			= $service->getProductId();
-	$product			= wc_get_product( $product_id );
-	$product_name		= $product ? $product->get_name() : 'Product Name Not Found';
-	$product_price		= $product ? $product->get_price() : 0;
 	$currency_symbol	= get_woocommerce_currency_symbol();
-	$price 				= $currency_symbol . $product_price;
 
 	/**
 	 * Service details container
@@ -137,16 +144,30 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 	$page_html .= '<div class="de-service-details-card">';
 	$page_html .= '<span style="display: inline-block; text-align: right; color: white; background-color: red; padding: 10px; border-radius: 5px; font-weight: bold;">' . esc_html( $service_status ) . '</span>';
 	$page_html .= '<h2>Service Name</h2>';
-	$page_html .= '<h3>' . esc_html( $service->getServiceName() ) . '</h3>';
+	$page_html .= '<h3>'. $service->get_product_name() . ' - ' . esc_html( $service->getServiceName() ) . '</h3>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Service ID:</span>' . esc_html( $service->getServiceId() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Service Type:</span>' . esc_html( $service->getServiceType() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Service URL:</span>' . esc_html( $service->getServiceUrl() ) . '</p>';
-	$page_html .= '<p class="smartwoo-container-item"><span> Amount:</span>' . esc_html( $price ) . '</p>';
+	$page_html .= '<p class="smartwoo-container-item"><span> Amount:</span>' . esc_html( $currency_symbol . $service->get_pricing() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Billing Cycle:</span>' . esc_html( $service->getBillingCycle() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Start Date:</span>' . smartwoo_check_and_format( $service->getStartDate() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Next Payment Date:</span>' . smartwoo_check_and_format( $service->getNextPaymentDate() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> End Date:</span>' . smartwoo_check_and_format( $service->getEndDate() ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span> Expiration Date:</span>' . smartwoo_check_and_format( smartwoo_get_service_expiration_date( $service ) ) . '</p>';
+	/** Filter to add more details as associative array of title and value */
+	$additional_details = apply_filters( 'smartwoo_more_service_details', array(), $service );
+	
+	foreach ( (array) $additional_details  as $title => $value ) {
+		$page_html .= '<p class="smartwoo-container-item"><span> ' . $title . ':</span>' . esc_html( $value ) . '</p>';
+
+	}
+	/** Filter button row */
+	$buttons = apply_filters( 'smartwoo_service_details_button_row', array(), $service );
+	
+	foreach ( (array) $buttons as $button ) {
+		$page_html .= $button;
+	}
+	
 	$page_html .= smartwoo_client_service_url_button( $service );
 	$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) ) . '" class="sw-blue-button">Edit this Service</a>';
 	$page_html .= smartwoo_delete_service_button( $service->getServiceId() );
