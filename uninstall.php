@@ -54,4 +54,25 @@ wp_clear_scheduled_hook( 'move_old_renewal_orders_to_trash_event' );
 wp_clear_scheduled_hook( 'smartwoo_daily_task' );
 wp_clear_scheduled_hook( 'smartwoo_refund_task' );
 
+/** 
+ * Drop database table on unistall
+ */
+if ( get_option( 'smartwoo_remove_plugin_data_during_uninstall' ) ) {
+    global $wpdb;
+
+    $table_names = array(
+        SMARTWOO_SERVICE_TABLE,
+        SMARTWOO_INVOICE_TABLE,
+        SMARTWOO_SERVICE_LOG_TABLE,
+        SMARTWOO_INVOICE_LOG_TABLE,
+    );
+
+    // Loop through each table name and drop the table if it exists.
+    foreach ( $table_names as $table_name ) {
+        $sql = "DROP TABLE IF EXISTS {$wpdb->prefix}{$table_name}";
+        $wpdb->query( $sql );
+    }
+}
+
+
 
