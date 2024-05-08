@@ -132,6 +132,8 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-order-config.php';
         require_once SMARTWOO_PATH . 'includes/sw-utm.php';
         require_once SMARTWOO_PATH . 'templates/email-templates.php';
+        require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
+
 
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
@@ -146,7 +148,6 @@ class SmartWoo_Config{
         if ( smartwoo_is_frontend() ) {
 
             require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
-            require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
             require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/woo-forms.php';
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/contr.php';
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/template.php';
