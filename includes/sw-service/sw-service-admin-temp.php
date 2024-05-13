@@ -30,7 +30,8 @@ function smartwoo_admin_view_service_details() {
 	$page_html .= '<div class="wrap">';
 	// Prepare array for submenu navigation.
 	$tabs = array(
-		''   => 'Details',
+		''			=> 'Dashboard',
+		'details'   => 'Details',
 		'client' => 'Client Info',
 		'stats'  => 'Stats & Usage',
 		'logs'   => 'Service Logs',
@@ -45,20 +46,30 @@ function smartwoo_admin_view_service_details() {
 		case 'client':
 			$page_html .= '<h2>Client Details</h2>';
 			$page_html .= smartwoo_admin_show_customer_details( $service );
-			$page_html .= apply_filters( 'smartwoo_customer_details', '', $service );
+			$maybe_info = apply_filters( 'smartwoo_customer_details', array(), $service );
+
+			foreach ( (array) $maybe_info as $key => $value ) {
+				$page_html .= $value;
+			}
 			break;
 
 		case 'logs':
 			if ( class_exists( 'SmartWooPro', false ) ) {
 				$page_html .= '<h2>Service Logs</h2>';
-				$page_html .= apply_filters( 'smartwoo_service_log_admin_page', '', $service_id );
+				$maybe_content = apply_filters( 'smartwoo_service_log_admin_page', array(), $service_id ); 
+
+				foreach ( (array) $maybe_content as $key => $value ) {
+					
+					$page_html .= $value;
+
+				}
 			} else {
 				$page_html .= smartwoo_pro_feature( 'service logs' );
 			}
 			break;
 		
 		case 'stats':
-			$page_html .= '<h2>Service Logs</h2>';
+			$page_html .= '<h2>Usage Stats</h2>';
 			if ( class_exists( 'SmartWooPro', false ) ) {
 				$page_html .= apply_filters( 'smartwoo_stats', '', $service_id );
 			} else {
@@ -113,7 +124,7 @@ function smartwoo_admin_show_customer_details( SmartWoo_Service $service ) {
 	$page_html .= '<p class="smartwoo-container-item"><span>User ID:</span>' . esc_html( $user_id ) . '</p>';
 	
 	foreach ( $details as $heading => $value ) {
-		$page_html .= '<p class="smartwoo-container-item"><span>' . $heading .':</span>' . esc_html( $value ) . '</p>';
+		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html( $heading ) .':</span>' . esc_html( $value ) . '</p>';
 	}
 	$page_html .= '<p class="smartwoo-container-item"><span> Billing Address:</span>' . esc_html( $billing_address ) . '</p>';
 		
@@ -161,6 +172,7 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 		$page_html .= '<p class="smartwoo-container-item"><span> ' . $title . ':</span>' . esc_html( $value ) . '</p>';
 
 	}
+
 	/** Filter button row */
 	$buttons = apply_filters( 'smartwoo_service_details_button_row', array(), $service );
 	
@@ -631,6 +643,13 @@ function smartwoo_edit_service_form() {
 	if ( empty( $service ) ) {
 		return smartwoo_error_notice( 'Service not found.' );
 	}
+	$tabs = array(
+		''			=> 'Dashboard',
+		'details'   => 'View',
+	);
+
+	$args       = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$query_var  =  'action=view-service&service_id=' . $service->getServiceId() .'&tab';
 
 	smartwoo_process_edit_service_form( $service );
 	$service_name      = $service->getServiceName();
@@ -647,8 +666,11 @@ function smartwoo_edit_service_form() {
 
 	ob_start();
 	?>
+		<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Edit Service','sw-admin', $args, $query_var ) ); ?>
+
 	<div class="wrap">
-	<h2>Edit Service</h2>
+
+	<h2></h2>
 	<div class="sw-form-container">
 	<form action="" method="post">
 		
