@@ -41,7 +41,11 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 	if ( empty( $invoice_id ) ) {
 		return;
 	}
-
+	// Prevent multiple function execution on single load
+	if ( defined( 'SMARTWOO_PAID_INVOICE_MANAGER' ) ) {
+		return;
+	}
+	define( 'SMARTWOO_PAID_INVOICE_MANAGER', true );
 	/**
 	 * Get the invoice
 	 * 
@@ -77,7 +81,7 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 
 			// Call the function to renew the service.
 			smartwoo_renew_service( $service_id, $invoice_id );
-
+			return;
 			/**
 			 * Determine if the invoice is for the reactivation of an Expired service.
 			 * Only invoices for services on this status are considered to be for reactivation.
@@ -85,8 +89,15 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 		} elseif ( $service_status === 'Expired' && $invoice_type === 'Service Renewal Invoice' ) {
 			// Call the function to reactivate the service.
 			smartwoo_activate_expired_service( $service_id, $invoice_id );
-
+			return;
 		}
+
+		/**
+		 * Fires when existing service has a paid invoice which is not handled here.
+		 * 
+		 * @since 1.0.4
+		 */
+		do_action( 'smartwoo_invoice_for_existing_service_paid', $service_id, $invoice_id, $invoice_type  );
 	}
 }
 
