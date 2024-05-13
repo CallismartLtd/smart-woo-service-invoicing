@@ -13,7 +13,12 @@ defined ( 'ABSPATH' ) || exit;
  * @param string $feature The pro feature required.
  */
 function smartwoo_pro_feature( $feature = '' ) {
+	if ( class_exists( 'SmartWooPro' ) ) {
+		return '';
+	}
+
 	if ( 'advanced stats' === $feature || 'service logs' === $feature || 'invoice logs' === $feature ) {
+
 
 		switch ( $feature ) {
 			case 'advanced stats':
@@ -62,6 +67,7 @@ function smartwoo_pro_feature( $feature = '' ) {
 				<li>Get detailed insight into service usage.</li>
 				<li>Access to Service and Invoice logs.</li>
 				<li>Robust Refund and Pro-Rata service subscription.</li>
+				<li>Allow clients perform service migrations.</li>
 				<li>Easy integration of REST APIs for client subscriptions and management.</li>
 				<li>Have clients pay outstanding invoices with Smart Woo integration with Tera Wallet.</li>
 			</ul>
