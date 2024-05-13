@@ -525,3 +525,61 @@ function smartwoo_configure_page( $product_id ){
 	}
 	return home_url( '/configure/?product_id=' . absint( $product_id ) );
 }
+
+
+/**
+ * Set user's login timestamp.
+ * 
+ * @param string $user_login	User's Username.
+ * @param object $user			WordPress user object.
+ * @since      : 1.0.1 
+ */
+function smartwoo_timestamp_user_at_login( $user_login, $user ) {
+	update_user_meta( $user->ID, 'smartwoo_login_timestamp', current_time( 'timestamp' ) );
+}
+add_action( 'wp_login', 'smartwoo_timestamp_user_at_login', 99, 2 );
+
+/**
+ * Set user's logout timestamp.
+ * 
+ * @param $user_id		The logged user's ID
+ */
+function smartwoo_timestamp_user_at_logout( $user_id ){
+	update_user_meta( $user_id, 'smartwoo_logout_timestamp', current_time( 'timestamp' ) );
+}
+add_action( 'wp_logout', 'smartwoo_timestamp_user_at_logout' );
+
+/**
+ * Retrieve the user's current login date and time.
+ * 
+ * @param int $user_id The User's ID.
+ * @since      : 1.0.1
+ */
+function smartwoo_get_current_login_date( $user_id ) {
+    $timestamp = get_user_meta( $user_id, 'smartwoo_login_timestamp', true );
+
+    if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
+        // Fallback to current time if $timestamp is not a valid integer.
+        $timestamp = current_time( 'timestamp' );
+    }
+
+    return smartwoo_timestamp_to_date( $timestamp, true );
+}
+
+/**
+ * Retrieve the user's last login date and time
+ * 
+ * @param int $user_id  The User's ID
+ * @since	: 1.0.1
+ */
+function smartwoo_get_last_login_date( $user_id ) {
+
+	$timestamp = get_user_meta( $user_id, 'smartwoo_logout_timestamp', true );
+
+    // Check if $timestamp is not a valid integer (may be a string).
+    if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
+		$timestamp = current_time( 'timestamp' );
+    }
+
+    return smartwoo_timestamp_to_date( $timestamp, true );
+}
