@@ -429,7 +429,7 @@ function smartwoo_invoice_dashboard() {
 function smartwoo_view_invoice_page() {
 	$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( empty( $invoice_id ) ) {
-		return smartwoo_error_notice( 'Missing invoice ID', 'smart-woo-service-invoicing' ) ;
+		return smartwoo_error_notice( 'Invoice id parameter should not be manipulated', 'smart-woo-service-invoicing' ) ;
 	}
 
 	$page_html = '';
@@ -443,6 +443,7 @@ function smartwoo_view_invoice_page() {
 	$args       = isset( $_GET['path'] ) ? sanitize_key( $_GET['path'] ) : 'details'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$query_var  =  'tab=view-invoice&invoice_id=' . $invoice->getInvoiceId() .'&path';
 	$tabs		= array(
+		''					=> 'Dashboard',
 		'details' 	      => __( 'Invoice', 'smart-woo-service-invoicing' ),
 		'related-service' => __('Related Service', 'smart-woo-service-invoicing' ),
 		'log'             => __( 'Logs', 'smart-woo-service-invoicing' )
@@ -456,7 +457,10 @@ function smartwoo_view_invoice_page() {
 
 		case 'log':
 			if ( class_exists( 'SmartWooPro', false ) ) {
-				$page_html .= apply_filters( 'smartwoo_service_log_admin', $invoice_id );
+				$maybe_content	= apply_filters( 'smartwoo_invoice_log', array(), $invoice_id );
+				foreach( (array) $maybe_content as $content ) {
+					$page_html .= $content;
+				}
 			} else {
 				$page_html .= smartwoo_pro_feature( 'invoice logs');
 			}
