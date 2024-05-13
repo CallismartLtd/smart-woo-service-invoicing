@@ -7,7 +7,9 @@
  * @author      :   Callistus
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
+
+
 
 /**
  * This the callback function handles the services shortcode and is
@@ -21,8 +23,6 @@ function smartwoo_service_shortcode() {
 		return;
 	}
 
-	$current_user_id  = get_current_user_id();
-	$current_user     = wp_get_current_user();
 	global $wp_query;
 	$url_param = '';
 
@@ -43,7 +43,7 @@ function smartwoo_service_shortcode() {
 	}
 
 	if ( isset ( $wp_query->query_vars['upgrade'] ) ) {
-		$url_param = 'downgrade';
+		$url_param = 'upgrade';
 	}
 
 	switch ( $url_param ) {
@@ -55,10 +55,11 @@ function smartwoo_service_shortcode() {
 
 		case 'upgrade':
 
-			if ( ! function_exists( 'smartwoo_upgrade_temp' ) ) {
-				$service_upgrade_page 	= smartwoo_service_front_temp();
+			if ( ! method_exists( 'SmartWooPro', 'upgrade_temp' ) ) {
+				$service_upgrade_page	= smartwoo_service_front_temp();
 			} else {
-				$service_upgrade_page 	= smartwoo_upgrade_temp( $current_user_id );
+				$upgrader = new SmartWooPro();
+				$service_upgrade_page	= $upgrader->upgrade_temp();
 			}
 
 			$output	= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
@@ -66,10 +67,11 @@ function smartwoo_service_shortcode() {
 
 		case 'downgrade':
 
-			if ( ! function_exists( 'smartwoo_downgrade_temp' ) ) {
-				$service_downgrade_page 	= smartwoo_service_front_temp();
+			if ( ! method_exists( 'SmartWooPro', 'downgrade_temp' ) ) {
+				$service_downgrade_page	= smartwoo_service_front_temp();
 			} else {
-				$service_downgrade_page 	= smartwoo_downgrade_temp( $current_user_id );
+				$downgrader = new SmartWooPro();
+				$service_downgrade_page	= $downgrader->downgrade_temp();
 			}
 
 			$output	= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
@@ -275,62 +277,3 @@ function smartwoo_load_transaction_history_callback() {
 	// prevent further outputing
 	die();
 }
-
-
-/**
- * Set user's login timestamp.
- * 
- * @param string $user_login	User's Username.
- * @param object $user			WordPress user object.
- * @since      : 1.0.1 
- */
-function smartwoo_timestamp_user_at_login( $user_login, $user ) {
-	update_user_meta( $user->ID, 'smartwoo_login_timestamp', current_time( 'timestamp' ) );
-}
-add_action( 'wp_login', 'smartwoo_timestamp_user_at_login', 99, 2 );
-
-/**
- * Set user's logout timestamp.
- * 
- * @param $user_id		The logged user's ID
- */
-function smartwoo_timestamp_user_at_logout( $user_id ){
-	update_user_meta( $user_id, 'smartwoo_logout_timestamp', current_time( 'timestamp' ) );
-}
-add_action( 'wp_logout', 'smartwoo_timestamp_user_at_logout' );
-
-/**
- * Retrieve the user's current login date and time.
- * 
- * @param int $user_id The User's ID.
- * @since      : 1.0.1
- */
-function smartwoo_get_current_login_date( $user_id ) {
-    $timestamp = get_user_meta( $user_id, 'smartwoo_login_timestamp', true );
-
-    if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
-        // Fallback to current time if $timestamp is not a valid integer.
-        $timestamp = current_time( 'timestamp' );
-    }
-
-    return smartwoo_timestamp_to_date( $timestamp, true );
-}
-
-/**
- * Retrieve the user's last login date and time
- * 
- * @param int $user_id  The User's ID
- * @since	: 1.0.1
- */
-function smartwoo_get_last_login_date( $user_id ) {
-
-	$timestamp = get_user_meta( $user_id, 'smartwoo_logout_timestamp', true );
-
-    // Check if $timestamp is not a valid integer (may be a string).
-    if ( ! is_numeric( $timestamp ) || absint( $timestamp ) <= 0 ) {
-		$timestamp = current_time( 'timestamp' );
-    }
-
-    return smartwoo_timestamp_to_date( $timestamp, true );
-}
-
