@@ -759,7 +759,7 @@ function deleteProduct(productId) {
 		jQuery.post(ajaxurl, data, function(response) {
 			if (response.success) {
 				alert("Product deleted successfully!");
-				location.reload(); // Reload the page after deletion
+				location.reload();
 			} else {
 				alert("Error deleting the product. Please try again.");
 			}
@@ -767,7 +767,7 @@ function deleteProduct(productId) {
 	}
 }
 
-
+// Handle service migration.
 document.addEventListener('DOMContentLoaded', function () {
     var migrationForm = document.getElementById('migrationForm');
 
