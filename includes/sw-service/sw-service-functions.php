@@ -82,11 +82,13 @@ function smartwoo_generate_service(
  * @return string HTML markup button with url keypass
  */
 function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
+	$button_text = is_admin() ? 'Access Client Service' : 'Visit Website';
 
 	if ( method_exists( 'SmartWooPro_API', 'service_url' ) ) {
 		return SmartWooPro_API::service_url( $service );
 	} else {
-		return '<a href="' . esc_url( $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank">Access Client Service 🌐</a>';
+		wp_enqueue_style('dashicons');
+		return '<a href="' . esc_url( $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank">' . esc_html( $button_text ) .' <span class="dashicons dashicons-admin-site-alt3"></span></a>';
 
 	}
 }
@@ -228,6 +230,7 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 		if ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) ) {
 			return true;
 		}
+		//return true;
 	}
 
 	return false;
@@ -243,11 +246,11 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
  */
 function smartwoo_has_service_expired( SmartWoo_Service $service ) {
 
-	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
-	$expiration_date = smartwoo_get_service_expiration_date( $service );
+	$current_date 		= smartwoo_extract_only_date( current_time( 'mysql' ) );
+	$expiration_date 	= smartwoo_get_service_expiration_date( $service );
 
 	// Check if the current date has passed the expiration date.
-	if ( $current_date >= $expiration_date ) {
+	if ( $current_date > $expiration_date ) {
 		return true;
 	}
 
@@ -540,97 +543,7 @@ function smatwoo_check_services_expired_today() {
 	}
 }
 
-/**
- * Get the analysis of service usage.
- *
- * @param string $service_id   The ID of the service.
- *
- * @return array|false Array containing used amount, unused amount, service cost, and additional metrics, or false on failure
- */
-function smartwoo_analyse_service_usage( $service_id ) {
-	// Get service details
-	$service_details = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
-	if ( ! $service_details ) {
-		// Service not found
-		return false;
-	}
-
-	// Extract relevant service details
-	$start_date   = strtotime( esc_html( $service_details->getStartDate() ) );
-	$end_date     = strtotime( esc_html( $service_details->getEndDate() ) );
-	$current_date = current_time( 'timestamp', 0 );
-	$product_id   = $service_details->getProductId();
-
-	// Get product details from WooCommerce
-	$product = wc_get_product( $product_id );
-
-	if ( ! $product ) {
-		// Product not found
-		return false;
-	}
-
-	// Get the cost of the first product
-	$service_cost = (float) $product->get_price(); // Treat as float.
-
-	// Ensure non-negative values for service cost.
-	$service_cost = max( 0, $service_cost );
-
-	// Calculate the total days and days passed.
-	$total_days  = max( 1, ( $end_date - $start_date ) / 86400 ); // 86400 seconds in a day.
-	$days_passed = max( 0, min( $total_days, (int) ( ( $current_date - $start_date ) / 86400 ) ) );
-
-	// Calculate the unused amount based on the daily rate.
-	$daily_rate    = $total_days > 0 ? $service_cost / $total_days : 0;
-	$unused_amount = $service_cost - ( $daily_rate * $days_passed );
-
-	// Calculate used amount.
-	$used_amount = $service_cost - $unused_amount;
-
-	// Additional Metrics.
-	$total_service_cost = $service_cost;
-	$average_daily_cost = $total_days > 0 ? $total_service_cost / $total_days : 0;
-
-	// Cost Per Product
-	$product_costs = array();
-	$product_name  = $product->get_name();
-	$product_price = (float) $product->get_price(); // Treat as float.
-
-	$product_costs[ $product_name ] = max( 0, $product_price ); // Ensures non-negative value.
-
-	// Percentage Usage.
-	$percentage_used   = ( $total_service_cost > 0 ) ? ( $used_amount / $total_service_cost ) * 100 : 0;
-	$percentage_unused = ( $total_service_cost > 0 ) ? ( $unused_amount / $total_service_cost ) * 100 : 0;
-
-	// Days Remaining.
-	$days_remaining_seconds = max( 0, $total_days - $days_passed ) * 86400;
-	$days_remaining         = floor( $days_remaining_seconds / 86400 );
-	$hours_remaining        = floor( ( $days_remaining_seconds % 86400 ) / 3600 );
-	$minutes_remaining      = floor( ( $days_remaining_seconds % 3600 ) / 60 );
-	$seconds_remaining      = $days_remaining_seconds % 60;
-
-	// Average Hourly Usage.
-	$average_hourly_usage = ( $total_days > 0 ) ? ( $used_amount / $total_days ) / 24 : 0;
-
-	// Convert to readable format.
-	$readable_remaining = sprintf( '%d days %02d:%02d:%02d', $days_remaining, $hours_remaining, $minutes_remaining, $seconds_remaining );
-
-	return array(
-		'used_amount'          => max( 0, $used_amount ), // Ensure non-negative value
-		'unused_amount'        => max( 0, $unused_amount ), // Ensure non-negative value
-		'service_cost'         => max( 0, $total_service_cost ), // Ensure non-negative value
-		'average_daily_cost'   => max( 0, $average_daily_cost ), // Ensure non-negative value
-		'product_costs'        => $product_costs,
-		'percentage_used'      => max( 0, $percentage_used ), // Ensure non-negative value
-		'percentage_unused'    => max( 0, $percentage_unused ), // Ensure non-negative value
-		'days_remaining'       => $readable_remaining,
-		'total_days'           => max( 1, $total_days ), // Ensure non-zero value
-		'total_used_days'      => max( 0, $days_passed ),
-		'remaining_days'       => max( 0, $total_days - $days_passed ),
-		'current_date_time'    => smartwoo_check_and_format( current_time( 'mysql' ), true ),
-		'average_hourly_usage' => max( 0, $average_hourly_usage ), // Ensure non-negative value
-	);
-}
 
 /**
  * Get the price of a service
