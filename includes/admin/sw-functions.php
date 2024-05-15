@@ -76,6 +76,30 @@ function smartwoo_timestamp_to_date( ?int $timestamp, bool $includeTime = true )
 }
 
 /**
+ * Format a given price with WooCommerce currency settings and thousand separator.
+ *
+ * @param float $amount The amount to be formatted.
+ * @return string The formatted price with currency symbol and thousand separator.
+ * @since 1.0.4
+ */
+function smartwoo_price( $amount ) {
+    // Get WooCommerce settings for decimals and thousand separator
+    $decimals = wc_get_price_decimals();
+    $decimal_separator = wc_get_price_decimal_separator();
+    $thousand_separator = wc_get_price_thousand_separator();
+
+    // Format the price with thousand separator
+    $price = number_format( $amount, $decimals, $decimal_separator, $thousand_separator );
+
+    // Add the currency symbol
+    $price = get_woocommerce_currency_symbol() . '' . $price;
+
+    return $price;
+}
+
+
+
+/**
  * Check if Proration is Enabled or Disabled
  *
  * @return string Returns "Enabled" if smartwoo_prorate is enabled, "Disabled" if disabled, or "Not Configured" if not set.
@@ -400,27 +424,35 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 if( ! function_exists( 'smartwoo_kses_allowed' ) ){
 	function smartwoo_kses_allowed( $allowed_tags, $context ) {
 		// Add or modify the allowed HTML tags and attributes as needed
-		if ( 'post' === $context ) {
-			$allowed_tags = array_merge( $allowed_tags, array(
-				'select' => array(
-					'id' => array(),
-				),
-				'option' => array(
-					'value' => array(),
-					'selected' => array(),
-				),
-				'a' => array(
-					'id' => true, 
-					'class' => true, 
-					'data-service-name' => true, 
-					'data-service-id' => true, 
-				) 
-			
-			) );
-		}
-
-		return $allowed_tags;
+		$smartwoo_allowed = array(
+			'div' => array(
+				'class' => true,
+				'id' => true,
+			),
+			'p' => array(
+				'class' => true,
+			),
+			'input' => array(
+				'class' => true,
+				'type' => true,
+				'id' => true,
+				'checked' => true,
+				'data-option' => true,
+			),
+			'label' => array(
+				'for' => true,
+				'class' => true,
+			),
+			'script' => array(
+				'type' => true,
+				'src' => true,
+			),
+			'style' => array(),
+		);
+	
+		return array_merge( $allowed_tags, $smartwoo_allowed );
 	}
+	
 }	
 
 /**
