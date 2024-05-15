@@ -50,7 +50,6 @@ function smartwoo_service_details() {
 	$end_date          	= smartwoo_check_and_format( $service->getEndDate() );
 	$service_button    	= smartwoo_client_service_url_button( $service );
 	$status        	   	= smartwoo_service_status( $service_id );
-	$usage_metrics 		= smartwoo_usage_metrics_temp( $service_id );
 	$expiry_date   		= smartwoo_get_service_expiration_date( $service ); 
 	$output 			.= '<div class="content">';
 	// Add the status tag to the service name.
