@@ -524,7 +524,10 @@ function smartwoo_invoice_service_related( $invoice ){
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Service Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $service_name ) . '</p>';
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Cycle:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $billing_cycle ) . '</p>';
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'End Date:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $end_date ) . '</p>';
-		$page_html .= '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service_id ) ) . '">' . esc_html__( 'More about Service ➡', 'smart-woo-service-invoicing' ) . '</a>';
+		$page_html .= '<a class="sw-blue-button" href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service_id ) ) . '">';
+		$page_html .= esc_html__( 'More about Service ', 'smart-woo-service-invoicing' );
+		$page_html .= '<span class="dashicons dashicons-controls-forward"></span>';
+		$page_html .= '</a>';
 	} else {
 		$page_html .= smartwoo_notice( __( 'Not associated with any service yet.', 'smart-woo-service-invoicing' ) ); 
 	}
@@ -618,7 +621,7 @@ function smartwoo_count_all_invoices_by_status() {
 	foreach ( $status_counts as $status => $count ) {
 		$url     = admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status );
 		$output .= '<div class="status-item">';
-		$output .= '<h2><a href="' . esc_url( $url ) . '">' . ucfirst( $status ) . ' (' . $count . ')</a></h2>';
+		$output .= '<h2><a class="sw-blue-button" href="' . esc_url( $url ) . '">' . ucfirst( $status ) . ' (' . $count . ')</a></h2>';
 		$output .= '</div>';
 	}
 	$output .= '</div>';
