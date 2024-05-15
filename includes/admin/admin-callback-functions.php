@@ -121,7 +121,7 @@ function smartwoo_options_page() {
 		return;
 	}
 	// Check for URL parameters
-	$action = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+	$action = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$default_tabs = array(
 		''          => 'General',
 		'business'  => 'Business',

@@ -22,13 +22,13 @@ function smartwoo_save_edited_bio_and_user_url( $user_id, $address_type = 'billi
         }        
         
         if ( isset( $_POST['billing_website'] ) ) {
-            update_user_meta ( $user_id, 'billing_website', esc_url_raw( $_POST['billing_website'] ) );
+            update_user_meta ( $user_id, 'billing_website', sanitize_url( $_POST['billing_website'], array( 'http', 'https' ) ) );
         }
 
         if ( isset( $_POST['website'] ) ) {
             $user_data = array(
                 'ID'           => $user_id,
-                'user_url'     => esc_url_raw( $_POST['website'] ) ,
+                'user_url'     => sanitize_url( $_POST['website'], array( 'http', 'https' ) ) ,
             );
             wp_update_user( $user_data );
         }

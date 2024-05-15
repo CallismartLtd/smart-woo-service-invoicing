@@ -512,7 +512,7 @@ function smartwoo_delete_invoice_ajax_callback() {
 	$invoice_id = isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
 
 	if ( empty( $invoice_id ) ) {
-		wp_send_json_error( 'Invalid invoice ID.' );
+		wp_send_json_error( array( 'message' => 'Invalid invoice ID.' ) );
 	}
 
 	$delete_result = SmartWoo_Invoice_Database::delete_invoice( $invoice_id );

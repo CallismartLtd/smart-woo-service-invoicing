@@ -25,7 +25,7 @@ function smartwoo_save_email_options() {
 		}
 
 		if ( isset( $_POST['smartwoo_email_image_header'] ) ) {
-			update_option( 'smartwoo_email_image_header', esc_url_raw( $_POST['smartwoo_email_image_header'] ) );
+			update_option( 'smartwoo_email_image_header', sanitize_url( $_POST['smartwoo_email_image_header'], array( 'http', 'https' ) ) );
 		}
 
 		// Update sender name.

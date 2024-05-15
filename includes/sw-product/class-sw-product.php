@@ -355,7 +355,7 @@ class SmartWoo_Product extends WC_Product {
 				$edit_url = admin_url('admin.php?page=sw-products&action=edit&product_id=' . $product->get_id() );
 	
 				// Replace the default edit link with the custom edit URL
-				$link = esc_url($edit_url);
+				$link = esc_url( $edit_url );
 			}
 		}
 	
@@ -374,7 +374,7 @@ class SmartWoo_Product extends WC_Product {
 	 */
 	public function add_to_cart_text() {
 		$text	= smartwoo_product_text_on_shop();
-		return apply_filters( 'smartwoo_add_to_cart_text', $text , $this );
+		return apply_filters( 'smartwoo_add_to_cart_text', $text, $this );
 	}
 
 	/**

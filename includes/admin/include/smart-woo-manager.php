@@ -255,14 +255,19 @@ function smartwoo_cancel_or_optout_service() {
 	}
 
 	$action 				= isset( $_POST['selected_action'] ) ? sanitize_key( $_POST['selected_action'] ) : '';
-	$ajax_service_id 		= isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
+	$ajax_service_id 		= isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id'] ) : '';
 	
 	if ( empty( $action) && empty( $ajax_service_id ) ) {
 		wp_die( -1, 406 );
 
 	}
 
-	$service				= SmartWoo_Service_Database::get_service_by_id( sanitize_key( $ajax_service_id ) );
+	$service	= SmartWoo_Service_Database::get_service_by_id( sanitize_text_field( $ajax_service_id ) );
+	
+	if ( ! $service || $service->getUserId() !== get_current_user_id() ) {
+		wp_die( -1, 404 );
+	}
+	
 	$user_id  				= get_current_user_id();
 	$service_id				= $service->getServiceId();
 	$next_service_status	= null;
@@ -417,7 +422,7 @@ function smartwoo_manual_service_renewal() {
 	// Verify the nonce
 	if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['renew_nonce'] ) ), 'renew_service_nonce' ) ) {
 		
-		$service_id = sanitize_text_field( preg_replace( '/\s+/', '', $_GET['service_id'] ) );
+		$service_id = preg_replace( '/\s+/', '', sanitize_text_field( $_GET['service_id'] ) );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		$product_id = $service->getProductId();
 

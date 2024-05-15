@@ -64,8 +64,8 @@ function smartwoo_configure_product_for_checkout() {
 		wp_die( -1, 403 );
 	}
 
-	$service_name	= isset( $_POST['service_name'] ) ? wc_clean( $_POST['service_name'] ) : '';
-	$service_url	= isset( $_POST['service_url'] ) ? esc_url( $_POST['service_url'] ) : '';
+	$service_name	= isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
+	$service_url	= isset( $_POST['service_url'] ) ? sanitize_url(  $_POST['service_url'], array( 'http', 'https' ) ) : '';
 	$product_id		= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
 
 	if ( empty( $service_name ) ) {

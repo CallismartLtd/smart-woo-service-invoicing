@@ -83,16 +83,12 @@ function smartwoo_timestamp_to_date( ?int $timestamp, bool $includeTime = true )
  * @since 1.0.4
  */
 function smartwoo_price( $amount ) {
-    // Get WooCommerce settings for decimals and thousand separator
+	$amount = absint( $amount );
     $decimals = wc_get_price_decimals();
-    $decimal_separator = wc_get_price_decimal_separator();
+    $decimal_separator 	= wc_get_price_decimal_separator();
     $thousand_separator = wc_get_price_thousand_separator();
-
-    // Format the price with thousand separator
-    $price = number_format( $amount, $decimals, $decimal_separator, $thousand_separator );
-
-    // Add the currency symbol
-    $price = get_woocommerce_currency_symbol() . '' . $price;
+    $price 				= number_format( $amount, $decimals, $decimal_separator, $thousand_separator );
+    $price 				= get_woocommerce_currency_symbol() . '' . $price;
 
     return $price;
 }

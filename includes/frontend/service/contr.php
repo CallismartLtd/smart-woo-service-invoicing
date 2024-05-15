@@ -210,7 +210,7 @@ function smartwoo_load_account_logs_callback() {
 		$last_active		= smartwoo_get_last_login_date( $user_id );
 		$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
 		$total_spent 		= smartwoo_client_total_spent( $user_id );
-		$user_agent			= $_SERVER['HTTP_USER_AGENT'];
+		$user_agent			= sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] );
 		$html = '<div class="account-logs-container">';
 		$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
 		$html .= '<ul class="account-logs-list">';

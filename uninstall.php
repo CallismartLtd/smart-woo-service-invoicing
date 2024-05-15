@@ -69,6 +69,7 @@ if ( get_option( 'smartwoo_remove_plugin_data_during_uninstall' ) ) {
 
     // Loop through each table name and drop the table if it exists.
     foreach ( $table_names as $table_name ) {
+        // phpcs:disable
         $sql = "DROP TABLE IF EXISTS {$wpdb->prefix}{$table_name}";
         $wpdb->query( $sql );
     }

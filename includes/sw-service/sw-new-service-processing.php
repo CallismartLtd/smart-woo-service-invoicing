@@ -165,7 +165,7 @@ function smartwoo_process_new_service_order() {
 
 		$product_id        	= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
 		$order_id          	= isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
-		$service_url       	= isset( $_POST['service_url'] ) ? esc_url_raw( $_POST['service_url'] ) : '';
+		$service_url       	= isset( $_POST['service_url'] ) ? sanitize_url( $_POST['service_url'], array( 'http', 'https' ) ) : '';
 		$service_type      	= isset( $_POST['service_type'] ) ? sanitize_text_field( $_POST['service_type'] ) : '';
 		$user_id           	= isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : '';
 		$start_date        	= isset( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : '';

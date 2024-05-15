@@ -23,8 +23,7 @@ function smartwoo_service_details() {
 	   return;
     }
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : '' ; 
+	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : '' ; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	
 	if ( empty( $url_service_id ) ) {
 		return smartwoo_error_notice( 'Service ID parameter cannot be manupulated' );
@@ -82,8 +81,8 @@ function smartwoo_service_details() {
 	if ( 'Active' === $status ) {
 
 		$output .= '<a id="sw-service-quick-action" class="sw-blue-button"';
-		$output .= ' data-service-name="' . esc_js( json_encode( $service_name ) ) . '"';
-		$output .= ' data-service-id="' . esc_js( json_encode( $service_id ) ) . '"';
+		$output .= ' data-service-name="' . esc_js( wp_json_encode( $service_name ) ) . '"';
+		$output .= ' data-service-id="' . esc_js( wp_json_encode( $service_id ) ) . '"';
 		$output .= '>' . esc_html__( 'Quick Action', 'smart-woo-service-invoicing' ) . '</a>';
 	}
 
@@ -114,7 +113,7 @@ function smartwoo_service_details() {
 	$output .= '<p class="smartwoo-container-item"><span> Service ID:</span>' . esc_html( $service_id ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Service Type:</span>' . esc_html( $service_type ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Product Name:</span>' . esc_html( $product_name ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Amount:</span>' . esc_html( $product_price ) . '</p>';
+	$output .= '<p class="smartwoo-container-item"><span> Amount:</span>' . smartwoo_price( $product_price ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Billing Cycle:</span>' . esc_html( $billing_cycle ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Start Date:</span>' . esc_html( $start_date ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Next Payment Date:</span>' . esc_html( $next_payment_date ) . '</p>';
@@ -314,7 +313,7 @@ function smartwoo_user_service_by_status() {
 	   return;
     }
 
-    $status_label = isset( $_GET['status'] ) ? sanitize_text_field( str_replace( array('/', '\\'), '', $_GET['status'] ) ) : 'active';
+    $status_label = isset( $_GET['status'] ) ? str_replace( array('/', '\\'), '', sanitize_text_field( $_GET['status'] ) ) : 'active'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     $services = SmartWoo_Service_Database::get_services_by_user( get_current_user_id() );
     $output = smartwoo_get_navbar( 'My '. $status_label . ' Services', smartwoo_service_page_url() );
 

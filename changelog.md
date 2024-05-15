@@ -2,8 +2,12 @@
 
 All notable changes to the "Smart Woo Service and Invoicing" plugin will be documented in this file.
 
-## [1.0.4] yyyy-mm-dd
+## [1.0.4] 2024-04-15
 - Fixed WooCommerce menu issue
+- Streamlined loading process.
+- Fixed translation related issues.
+- Enhanced plugin Security.
+
 
 ## [1.0.3] - 2024-05-07
 

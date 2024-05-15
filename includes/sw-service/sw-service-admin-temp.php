@@ -232,7 +232,7 @@ function smartwoo_dashboard_page() {
 	 * Count for Active No-Renewal Services.
 	 */
 	$page_html .= '<div class="dashboard-card">';
-	$page_html .= '<h2>' . __( 'Active NR', 'smart-woo-service-invoing' ) . '</h2>';
+	$page_html .= '<h2>' . __( 'Active NR', 'smart-woo-service-invoicing' ) . '</h2>';
 	$page_html .= '<p class="count">' . esc_html( $nr_services ) . '</p>';
 	$page_html .= '</div>';
 

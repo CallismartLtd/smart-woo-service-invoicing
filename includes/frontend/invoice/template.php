@@ -82,7 +82,7 @@ function smartwoo_invoice_front_temp() {
 function smartwoo_invoice_details() {
 
 	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
+		woocommerce_login_form( array( 'message' => smartwoo_notice( __( 'You must be logged in to access this page', 'smart-woo-service-invoicing' ) ) ) );
 	   return;
     }
 

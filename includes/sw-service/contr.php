@@ -23,7 +23,7 @@ function smartwoo_new_service_page() {
 		$product_id        = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
 		$service_name      = isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
 		$service_type      = isset( $_POST['service_type'] ) ? sanitize_text_field( wp_unslash( $_POST['service_type'] ) ) : '';
-		$service_url       = isset( $_POST['service_url'] ) ? esc_url_raw( $_POST['service_url'] ) : '';
+		$service_url       = isset( $_POST['service_url'] ) ? sanitize_url( $_POST['service_url'], array( 'http', 'https' ) ) : '';
 		$invoice_id        = isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
 		$start_date        = isset( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : '';
 		$billing_cycle     = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
