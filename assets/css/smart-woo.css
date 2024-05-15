@@ -19,7 +19,7 @@ use inline CSS to overide some styles
 	color: #ffffff;
 	font-weight: bold;
 	text-decoration: none;
-	border-radius: 5px;
+	border-radius: 9px;
 	border: 2px solid #fafafa;
 	margin-right: 10px;
 }
@@ -37,7 +37,7 @@ use inline CSS to overide some styles
 	color: #fff; /* Text color */
 	text-decoration: none;
 	border: 2px solid #fafafa;
-	border-radius: 5px;
+	border-radius: 9px;
 	margin: 5px;
 	font-weight: bold;
 	transition: background-color 0.3s, color 0.3s;
@@ -1110,7 +1110,9 @@ use inline CSS to overide some styles
 	font-weight: bold;
 	color: #000;
 	background-color: #ffffff;
+
 }
+
 
 .transaction-status-list {
 	list-style-type: none;
