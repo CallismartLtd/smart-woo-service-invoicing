@@ -189,10 +189,7 @@ class SmartWoo_Install {
 
 	private static function rewrite_rule() {
 		add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
-		if ( false === get_option( '__smartwoo_added_rule', false ) ) {
-			flush_rewrite_rules();
-			update_option( '__smartwoo_added_rule', true );
-		}
+		flush_rewrite_rules();
 	}
 }
 
