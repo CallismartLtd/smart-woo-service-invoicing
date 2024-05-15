@@ -7,7 +7,8 @@ All notable changes to the "Smart Woo Service and Invoicing" plugin will be docu
 - Streamlined loading process.
 - Fixed translation related issues.
 - Enhanced plugin Security.
-
+- Tested upto WordPress 6.5.3
+- Tested upto WooCommerce 8.8.3
 
 ## [1.0.3] - 2024-05-07
 
