@@ -79,7 +79,6 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 == Contributors ==
 
 - Callistus Nwachukwu
-- Callismart Devs team
 
 == Changelog ==
 
