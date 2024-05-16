@@ -42,13 +42,13 @@ if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
 	define( 'SMARTWOO_DIR_URL', plugin_dir_url( __FILE__ ) );
 }	
 
-// Define the Smart Woo Directory URL.
+// Define the Smart Woo versions.
 if ( ! defined( 'SMARTWOO_VER' ) ) {
-	define( 'SMARTWOO_VER', '1.0.3' );
+	define( 'SMARTWOO_VER', '1.0.4' );
 }
 
 if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
-	define( 'SMARTWOO_DB_VER', '1.0.3' );
+	define( 'SMARTWOO_DB_VER', '1.0.4' );
 }
 
 // Load core and config files.

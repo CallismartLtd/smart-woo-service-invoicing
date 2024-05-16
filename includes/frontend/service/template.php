@@ -219,8 +219,10 @@ function smartwoo_service_front_temp() {
 			$output .= '</div>';
 		}
 	} else {
-		$output .= '<div class="main-page-card">';
-		$output .= '<p style="color: black;">' . esc_html__( 'All your services will appear here.', 'smart-woo-service-invoicing' ) . '</p>';
+		$buy_product_page = smartwoo_service_page_url() . 'buy-new/';
+		$output       .= '<div class="main-page-card">';
+		$output       .= '<p>All Service will appear here</p>';
+		$output       .= '<a href="' . esc_url( $buy_product_page ) . '" class="sw-blue-button">' . esc_html__( 'Buy New Service', 'smart-woo-service-invoicing' ) . '</a>';
 		$output .= '</div>';
 	}
 	$output .= '</div>'; // Close the client-services div.
@@ -318,8 +320,16 @@ function smartwoo_user_service_by_status() {
     $output = smartwoo_get_navbar( 'My '. $status_label . ' Services', smartwoo_service_page_url() );
 
     if ( empty( $services ) ) {
-        return esc_html__( 'You currently do not have any services.', 'smart-woo-service-invoicing' );
-    }
+		$buy_product_page = smartwoo_service_page_url() . 'buy-new/';
+		$output       .= '<div class="wrap">';
+		$output       .= '<div class="main-page-card">';
+		$output       .= '<p>Oh! You currently do not have any service</p>';
+		$output       .= '<a href="' . esc_url( $buy_product_page ) . '" class="sw-blue-button">' . esc_html__( 'Buy New Service', 'smart-woo-service-invoicing' ) . '</a>';
+		$output       .= '<a href="' . esc_attr( get_permalink() ) . '" class="sw-blue-button">' . esc_html__( 'Dashboard', 'smart-woo-service-invoicing' ) . '</a>';
+		$output .= '</div>';
+		$output .= '</div>';
+		return $output;
+	}
 
     $output .= '<div class="sw-table-wrapper">';
     $output .= '<h2>' . esc_html( $status_label ) . '</h2>';

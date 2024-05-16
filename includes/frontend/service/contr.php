@@ -198,56 +198,54 @@ add_action( 'wp_ajax_load_account_logs', 'smartwoo_load_account_logs_callback' )
  */
 function smartwoo_load_account_logs_callback() {
 
-	if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
+	if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
 		wp_die();
 	}
 
-	if ( is_user_logged_in() ) {
-		// Get the current user object
-		$current_user 		= wp_get_current_user();
-		$user_id      		= $current_user->ID;
-		$current_login_time = smartwoo_get_current_login_date( $user_id );
-		$last_active		= smartwoo_get_last_login_date( $user_id );
-		$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
-		$total_spent 		= smartwoo_client_total_spent( $user_id );
-		$user_agent			= sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] );
-		$html = '<div class="account-logs-container">';
-		$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
-		$html .= '<ul class="account-logs-list">';
-		$html .= '<li class="account-log-item">' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		//$html .= '<li class="account-log-item">' . esc_html__( 'User Agent: ', 'smart-woo-service-invoicing' ) . esc_html( $user_agent ) . '</li>';
-		$html .= '<li class="account-log-item">' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
-		$html .= '<li class="account-log-item">' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
-		$html .= '<li class="account-log-item">' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
-
-		/**
-		 * Retrieve User's Personal logged information using WooCommerce geolocation feature.
-		 */
-
-		$ip_address 	  = WC_Geolocation::get_ip_address();
-		$location_data    = WC_Geolocation::geolocate_ip( $ip_address );
-		
-		// Display IP Address.
-		$html .= '<li class="account-log-item">IP Address: ' . esc_html( $ip_address ) . '</li>';
-
-		if ( ! empty( $location_data ) ) {
-			$user_location	= $location_data['country'];
-			$html .= '<li class="account-log-item">' . esc_html__( 'Location: ', 'smart-woo-service-invoicing' ) . esc_html( $user_location ) . '</li>';
-		} else {
-			$html .= '<li class="account-log-item">Location: ' . esc_html__( 'Unknown', 'smart-woo-service-invoicing' ) . '</li>';
-		}
-
-		$html .= '</ul>';
-		$html .= '</div>';
-
-		echo wp_kses_post( $html );
-		
-	} else {
-		// User is not logged in
-		esc_html_e( 'Please log in to view user activity information.', 'smart-woo-service-invoicing' );
+	if ( ! is_user_logged_in() ) {
+		wp_die( -1, 401);
 	}
 
-	// prevent further outputing
+	// Get the current user object
+	$current_user 		= wp_get_current_user();
+	$user_id      		= $current_user->ID;
+	$current_login_time = smartwoo_get_current_login_date( $user_id );
+	$last_active		= smartwoo_get_last_login_date( $user_id );
+	$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
+	$total_spent 		= smartwoo_client_total_spent( $user_id );
+	$user_agent			= sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+	$html = '<div class="account-logs-container">';
+	$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
+	$html .= '<ul class="account-logs-list">';
+	$html .= '<li class="account-log-item">' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	//$html .= '<li class="account-log-item">' . esc_html__( 'User Agent: ', 'smart-woo-service-invoicing' ) . esc_html( $user_agent ) . '</li>';
+	$html .= '<li class="account-log-item">' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
+	$html .= '<li class="account-log-item">' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
+	$html .= '<li class="account-log-item">' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
+
+	/**
+	 * Retrieve User's Personal logged information using WooCommerce geolocation feature.
+	 */
+
+	$ip_address 	  = WC_Geolocation::get_ip_address();
+	$location_data    = WC_Geolocation::geolocate_ip( $ip_address );
+	
+	// Display IP Address.
+	$html .= '<li class="account-log-item">IP Address: ' . esc_html( $ip_address ) . '</li>';
+
+	if ( ! empty( $location_data ) ) {
+		$user_location	= $location_data['country'];
+		$html .= '<li class="account-log-item">' . esc_html__( 'Location: ', 'smart-woo-service-invoicing' ) . esc_html( $user_location ) . '</li>';
+	} else {
+		$html .= '<li class="account-log-item">Location: ' . esc_html__( 'Unknown', 'smart-woo-service-invoicing' ) . '</li>';
+	}
+
+	$html .= '</ul>';
+	$html .= '</div>';
+
+	echo wp_kses_post( $html );
+
+	// prevent further outputing.
 	die();
 }
 

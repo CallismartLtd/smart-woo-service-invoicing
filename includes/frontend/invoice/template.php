@@ -4,7 +4,7 @@
  * generation of the pdf invoice, we utilized the MPDF library for the generation of the pdf invoice
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Invoice main page callback.
@@ -478,7 +478,7 @@ function smartwoo_transactions_shortcode() {
 		$output	.= '</div>';
 
 	} else {
-		$output	.= '<p>' . esc_html__( 'All transaction history will appear here','smart-woo-service-invoicing' ) . '</p>';
+		$output	.= '<p>' . esc_html__( 'Transaction histories will appear here','smart-woo-service-invoicing' ) . '</p>';
 	}
 	
 

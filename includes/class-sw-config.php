@@ -56,22 +56,21 @@ class SmartWoo_Config{
         add_action( 'woocommerce_loaded', array( $this, 'check_woocommerce' ) );
         add_action( 'smartwoo_init', array( $this, 'load_dependencies' ) );
         add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
-        add_action( 'smartwoo_loaded', array( $this, 'init_hooks' ) );
+        add_action( 'smartwoo_loaded', array( $this, 'before_init' ) );
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
         register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
     }
 
     /**
-     * Init hooks.
+     * Before init hooks.
      */
-    public function init_hooks() {
+    public function before_init() {
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
-        add_action( 'init', array( $this, 'add_rules' ) );
+        add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myacoount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myacoount_content' );
-        self::add_automations();
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         /**  */
@@ -87,6 +86,14 @@ class SmartWoo_Config{
         add_action( 'smartwoo_auto_invoice_created', 'smartwoo_send_auto_renewal_email', 10, 2 );
         add_action( 'smartwoo_invoice_is_paid', 'smartwoo_invoice_paid_mail' );        
 
+    }
+
+    /**
+     * Init hooks
+     */
+    public function init_hooks() {
+        self::add_automations();
+        $this->add_rules();
     }
 
     /**

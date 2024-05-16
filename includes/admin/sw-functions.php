@@ -113,21 +113,6 @@ function smartwoo_is_prorate() {
 }
 
 /**
- * Procedural function to mark refund as completed.
- *
- * This function initiates the refund process for the specified logged data by its ID.
- *
- * @since : 1.0.1
- * 
- * @param string $log_id The ID of the logged data to refund.
- * @return bool True if the refund is successfully initiated, false otherwise.
- */
-function smartwoo_refund_completed( $log_id ) {
-    return SmartWoo_Refund::refunded( $log_id );
-}
-
-
-/**
  * Check the configured Invoice Number Prefix.
  *
  * @return string The configured Invoice Number Prefix.

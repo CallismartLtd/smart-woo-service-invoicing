@@ -255,7 +255,7 @@ function smartwoo_cancel_or_optout_service() {
 	}
 
 	$action 				= isset( $_POST['selected_action'] ) ? sanitize_key( $_POST['selected_action'] ) : '';
-	$ajax_service_id 		= isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id'] ) : '';
+	$ajax_service_id 		= isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
 	
 	if ( empty( $action) && empty( $ajax_service_id ) ) {
 		wp_die( -1, 406 );
@@ -263,7 +263,7 @@ function smartwoo_cancel_or_optout_service() {
 	}
 
 	$service	= SmartWoo_Service_Database::get_service_by_id( sanitize_text_field( $ajax_service_id ) );
-	
+
 	if ( ! $service || $service->getUserId() !== get_current_user_id() ) {
 		wp_die( -1, 404 );
 	}
