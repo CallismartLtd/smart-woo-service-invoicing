@@ -648,3 +648,5 @@ function smartwoo_get_last_login_date( $user_id ) {
 
     return smartwoo_timestamp_to_date( $timestamp, true );
 }
+
+
