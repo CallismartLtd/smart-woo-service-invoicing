@@ -453,7 +453,9 @@ function smartwoo_invoice_pay_url( int $order_id ) {
  * @return string|null Escaped URL or null if parameters are empty
  */
 function smartwoo_invoice_preview_url( $invoice_id = '' ) {
-    if ( is_account_page() ) {
+    $preview_url = '#';
+
+	if ( is_account_page() ) {
         $endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
         $preview_url = add_query_arg(
             array(
@@ -462,8 +464,18 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
             ),
             $endpoint_url
         );
-        return esc_url( $preview_url );
-    } else {
+
+    } elseif( is_admin() ) {
+
+		$preview_url = add_query_arg( 
+			array( 
+				'page' => 'sw-invoices', 
+				'tab' => 'view-invoice', 
+				'invoice_id' => $invoice_id ), 
+				admin_url( 'admin.php' ) 
+			);
+
+	} else {
         $invoice_page_id = get_option( 'smartwoo_invoice_page_id', 0 );
         $invoice_page_url = get_permalink( $invoice_page_id );
         $preview_url = add_query_arg(
@@ -473,8 +485,9 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
             ),
             $invoice_page_url
         );
-        return esc_url_raw( $preview_url );
     }
+	return $preview_url;
+
 }
 
 /**
