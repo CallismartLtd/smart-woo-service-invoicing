@@ -1,6 +1,7 @@
 ## Smart Woo Service Invoicing Changelog
 
-All notable changes to the "Smart Woo Service and Invoicing" plugin will be documented in this file.
+## [1.0.5] 2024-04-15
+
 
 ## [1.0.4] 2024-04-15
 - Fixed WooCommerce menu issue

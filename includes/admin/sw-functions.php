@@ -30,6 +30,7 @@ function smartwoo_locale_date_format() {
 function smartwoo_datetime_format() {
 	return smartwoo_locale_date_format()->date_format . ' ' . smartwoo_locale_date_format()->time_format;
 }
+
 /**
  * Function to format date to a human-readable format or show 'Not Available'.
  *
@@ -74,6 +75,57 @@ function smartwoo_timestamp_to_date( ?int $timestamp, bool $includeTime = true )
 
     return  date_i18n( smartwoo_datetime_format(), $timestamp );
 }
+
+/**
+ * Calculate the difference between two dates and return it as a human-readable string.
+ *
+ * @param string $start_date The start date in 'Y-m-d H:i:s' format.
+ * @param string $end_date The end date in 'Y-m-d H:i:s' format.
+ * 
+ * @return string The human-readable difference between the two dates.
+ * 
+ * @since 1.0.4
+ */
+function smartwoo_time_diff_string( $start_date, $end_date ) {
+    // Create DateTime objects from the provided timestamps.
+    $start  = new DateTime( $start_date );
+    $end    = new DateTime( $end_date );
+
+    // Calculate the difference between the two DateTime objects.
+    $interval = $start->diff( $end );
+
+    // Build the human-readable string.
+    $parts = [];
+
+    if ( $interval->y !== 0 ) {
+        $parts[] = $interval->y . ' year' . ( $interval->y > 1 ? 's' : '' );
+    }
+    if ( $interval->m !== 0 ) {
+        $parts[] = $interval->m . ' month' . ( $interval->m > 1 ? 's' : '' );
+    }
+    if ( $interval->d !== 0 ) {
+        $parts[] = $interval->d . ' day' . ( $interval->d > 1 ? 's' : '' );
+    }
+    if ( $interval->h !== 0 ) {
+        $parts[] = $interval->h . ' hour' . ( $interval->h > 1 ? 's' : '' );
+    }
+    if ( $interval->i !== 0 ) {
+        $parts[] = $interval->i . ' minute' . ( $interval->i > 1 ? 's' : '' );
+    }
+    if ( $interval->s !== 0 ) {
+        $parts[] = $interval->s . ' second' . ( $interval->s > 1 ? 's' : '' );
+    }
+
+    // If no difference at all.
+    if ( empty( $parts ) ) {
+        return '0 seconds';
+    }
+
+    // Join the parts into a single string.
+    return implode( ', ', $parts );
+}
+
+
 
 /**
  * Format a given price with WooCommerce currency settings and thousand separator.
