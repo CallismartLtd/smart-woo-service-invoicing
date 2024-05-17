@@ -409,7 +409,7 @@ function smartwoo_invoice_dashboard() {
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
 		$table_html .= '<td>' . esc_html( ucfirst( $invoice->getPaymentStatus() ) ) . '</td>';
 		$table_html .= '<td>' . esc_html( smartwoo_check_and_format( $invoice->getDateCreated(), true ) ) . '</td>';
-		$table_html .= '<td><a class="sw-red-button" href="' . esc_url( add_query_arg( array( 'page' => 'sw-invoices', 'tab' => 'view-invoice', 'invoice_id' => $invoice->getInvoiceId() ), admin_url( 'admin.php' ) ) ) . '">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
+		$table_html .= '<td><a class="sw-red-button" href="' . esc_url( smartwoo_invoice_preview_url( $invoice->getInvoiceId() ) ) . '">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$table_html .= '</tr>';
 	}
 
