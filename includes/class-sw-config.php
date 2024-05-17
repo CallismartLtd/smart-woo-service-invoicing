@@ -46,6 +46,7 @@ class SmartWoo_Config{
         define( 'SMARTWOO_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
         define( 'SMARTWOO_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
         define( 'SMARTWOO_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
+        define( 'SMARTWOO_PLUGIN_BASENAME', plugin_basename( SMARTWOO_FILE ) );
         $this->init();
     }
 
@@ -127,6 +128,7 @@ class SmartWoo_Config{
     public function include() {
 
         require_once SMARTWOO_PATH . 'includes/admin/sw-functions.php';
+        require_once SMARTWOO_PATH . 'includes/class-sw.php';
         require_once SMARTWOO_PATH . 'includes/admin/include/smart-woo-manager.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
