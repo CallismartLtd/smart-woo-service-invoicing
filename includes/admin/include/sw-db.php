@@ -150,10 +150,7 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
 }
 
 /**
- * Retrieve the database charset and collate settings.
- *
- * This function generates a string that includes the default character set and collate
- * settings for the WordPress database, based on the global $wpdb object.
+ * Get the charset settings
  *
  * @global wpdb $wpdb The WordPress database object.
  * @return string The generated charset and collate settings string.

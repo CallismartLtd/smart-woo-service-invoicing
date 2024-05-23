@@ -180,6 +180,7 @@ class SmartWoo_Config{
         if ( is_null( self::$instance ) ) {
             self::$instance = new self();
         }
+        return self::$instance;
     }
 
     public function load_styles() {
