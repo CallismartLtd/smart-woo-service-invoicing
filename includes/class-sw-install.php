@@ -101,7 +101,7 @@ class SmartWoo_Install {
 	 */
 	private static function create_tables() {
 		// Load the db table file to have access to the properties
-		include_once SMARTWOO_PATH . 'admin/include/sw-db.php';
+		include_once SMARTWOO_PATH . 'includes/admin/include/sw-db.php';
 		smartwoo_db_schema();
 	}
 
