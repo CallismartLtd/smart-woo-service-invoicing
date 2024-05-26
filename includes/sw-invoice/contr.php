@@ -62,7 +62,7 @@ function smartwoo_edit_invoice_page() {
 			$existingInvoice->setProductId( absint( $product_id ) );
 			$existingInvoice->setInvoiceType( sanitize_text_field( $invoice_type ) );
 			$existingInvoice->setServiceId( sanitize_text_field( $service_id ) );
-			$existingInvoice->setFee( $fee );
+			$existingInvoice->setFee(floatval( $fee ) );
 			$existingInvoice->setPaymentStatus( sanitize_text_field( $payment_status ) );
 			$existingInvoice->setDateDue( sanitize_text_field( $due_date ) );
 
