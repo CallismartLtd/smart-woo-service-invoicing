@@ -1,11 +1,11 @@
 === Smart Woo Service Invoicing ===
 
 **Requires at least:** 6.0  
-**Tested up to:** 6.5.3
+**Tested up to:** 6.5.4
 **Requires WooCommerce:** 7.0
-**WooCommerce Tested:** 8.8.3
+**WooCommerce Tested:** 8.9.2
 **Requires PHP:** 7.4
-**Stable Tag:** 1.0.5
+**Stable Tag:** 1.0.51
 **License:** GPLv3  
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.en.html  
 
@@ -82,22 +82,16 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 == Changelog ==
 
-See [changelog.txt](changelog.txt) for details on updates and changes.
+== [1.0.51] 2024-06-08 ==
+
+**Smart Woo Service Invoicing**
+
+* Fixed - Minor bugs
+
+See [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md) for details on updates and changes.
 
 == Technical Support ==
 
 We are dedicated to providing an excellent user experience, investing significant effort to ensure our product is safe and free of bugs. However, we understand that issues may arise, and we are committed to addressing them promptly.
 
 For support, please visit the [support portal](https://callismart.com.ng/support-portal).
-
-== Financial Support ==
-
-If you find Smart Woo Service Invoicing Plugin valuable and would like to support our team in providing technical support, continuous improvement, and keeping the plugin free for everyone, you can contribute by making a financial donation.
-
-Your support helps us cover development costs, server expenses, and dedicate more time to enhancing the plugin. We appreciate any amount you can contribute.
-
-To make a donation, please visit our [donation page](https://paystack.com/pay/support-smart-woo-dev).
-
-Thank you for considering supporting Smart Woo Service Invoicing Plugin! Your generosity is crucial to the sustainability and improvement of this project.
-
-**Tags:** Invoice,Invoicing, Subscription,WHM, WordPress invoicing plugin
