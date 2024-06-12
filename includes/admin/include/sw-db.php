@@ -91,7 +91,7 @@ function smartwoo_db_schema() {
 
 		/**
 		 * Defined the wp_sw_invoice_log table where 
-		 * all transaction related datas are logged
+		 * all transaction related data are logged
 		 */
 		$service_logs_table_name = SMARTWOO_INVOICE_LOG_TABLE;
 		$service_logs_structure  = array(
