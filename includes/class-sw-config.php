@@ -67,7 +67,10 @@ class SmartWoo_Config{
      * Before init hooks.
      */
     public function before_init() {
-        add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );
+        if ( class_exists( WP_CONSENT_API::class ) ) {
+            add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );            
+        }
+
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
