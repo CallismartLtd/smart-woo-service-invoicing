@@ -34,5 +34,3 @@ function smartwoo_save_edited_bio_and_user_url( $user_id, $address_type = 'billi
         }
     }
 }
-add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
-add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );

@@ -1,11 +1,11 @@
 === Smart Woo Service Invoicing ===
 
 **Requires at least:** 6.0  
-**Tested up to:** 6.5.4
+**Tested up to:** 6.5.5
 **Requires WooCommerce:** 7.0
-**WooCommerce Tested:** 8.9.2
+**WooCommerce Tested:** 9.0.2
 **Requires PHP:** 7.4
-**Stable Tag:** 1.0.51
+**Stable Tag:** 1.0.52
 **License:** GPLv3  
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.en.html  
 
@@ -86,9 +86,16 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 **Smart Woo Service Invoicing**
 
-* Fixed - Minor bugs
+* Added - Support for WP Consent API.
+* Tested Upto - WordPress Version 6.5.5
 
 See [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md) for details on updates and changes.
+
+== Source Code ==
+We included mPDF Library locally for the generation of pdf copies of an invoice,
+mPDF: A PHP library to generate PDF files from HTML with Unicode/UTF-8 and CJK support see [mPDF License Page](https://mpdf.github.io/about-mpdf/license.html) for more information.
+
+The source code for Smart Woo Service Invoicing plugin can be found on our official [GitHub public Repository](https://github.com/CallismartLtd/smart-woo-service-invoicing).
 
 == Technical Support ==
 

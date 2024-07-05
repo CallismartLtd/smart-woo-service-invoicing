@@ -1,7 +1,14 @@
 ## Smart Woo Service Invoicing Changelog
 
-## [1.0.51] 2024-06-08
+## [1.0.52] 2024-07-05
 - Minor Bug fixes
+
+## [1.0.51] 2024-06-08
+### Added 
+- Support for WP Consent API.
+
+### Tested Upto 
+- WordPress Version 6.5.5
 
 
 ## [1.0.5] 2024-05-21

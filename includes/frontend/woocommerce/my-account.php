@@ -36,7 +36,7 @@ function smartwoo_register_woocommerce_account_menu( $items ) {
 /**
  * Content callback for my Invoice account menu item.
  */
-function smartwoo_invoice_myacoount_content() {
+function smartwoo_invoice_myaccount_content() {
     $invoice_content  = '<div class="wrap">';
     if ( isset( $_GET['view_invoice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         echo wp_kses_post( smartwoo_invoice_details() );
@@ -49,7 +49,7 @@ function smartwoo_invoice_myacoount_content() {
 }
 
 // Service Page Content
-function smartwoo_service_myacoount_content() {
+function smartwoo_service_myaccount_content() {
     $service_content = '<div class="wrap">';
     if ( isset( $_GET['view_service'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         echo  wp_kses_post( smartwoo_service_details() ) ;
@@ -72,3 +72,24 @@ function smartwoo_service_myacoount_content() {
         echo wp_kses_post( $service_content );
     }
 }
+
+
+/**
+ * WooCommerce my-account page title
+ * 
+ * @param string $title The endpoint title.
+ * @return string $title The page the title.
+ * @since 1.0.52
+ */
+function smartwoo_myaccount_titles( $title ) {
+    global $wp;
+
+    if ( array_key_exists( 'smartwoo-invoice', $wp->query_vars ) ) {
+        $title = __( 'My Invoices', 'smart-woo-service-invoicing' );
+    } elseif ( array_key_exists( 'smartwoo-service',  $wp->query_vars )  ) {
+        $title = __( 'My Services', 'smart-woo-service-invoicing' );
+    }
+    
+    return $title;
+}
+

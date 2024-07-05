@@ -65,6 +65,8 @@ class SmartWoo_Config{
 
     /**
      * Before init hooks.
+     * 
+     * @since 1.0.52 Added support for WP_Consent API.
      */
     public function before_init() {
         if ( class_exists( WP_CONSENT_API::class ) ) {
@@ -74,11 +76,13 @@ class SmartWoo_Config{
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
-        add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myacoount_content' );
-        add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myacoount_content' );
+        add_filter( 'the_title', 'smartwoo_myaccount_titles', 10, 3 );
+        add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
+        add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
+
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
-        /**  */
+        
         add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
         add_action( 'smartwoo_user_cancelled_service', 'smartwoo_user_service_cancelled_mail', 100 );
         add_action( 'smartwoo_user_cancelled_service', 'smartwoo_service_cancelled_mail_to_admin', 100 );
@@ -89,7 +93,9 @@ class SmartWoo_Config{
         add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
         add_action( 'smartwoo_expired_service_activated', 'smartwoo_renewal_sucess_email' );
         add_action( 'smartwoo_auto_invoice_created', 'smartwoo_send_auto_renewal_email', 10, 2 );
-        add_action( 'smartwoo_invoice_is_paid', 'smartwoo_invoice_paid_mail' );        
+        add_action( 'smartwoo_invoice_is_paid', 'smartwoo_invoice_paid_mail' );  
+        add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
+        add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );      
 
     }
 
@@ -174,7 +180,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-
+       
     }
 
     /**
@@ -201,7 +207,7 @@ class SmartWoo_Config{
     }
 
     public function load_scripts() {
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/sw-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-min.js', array( 'jquery' ), SMARTWOO_VER, true );
     
         // Script localizer.
         wp_localize_script(
