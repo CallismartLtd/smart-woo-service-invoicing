@@ -49,6 +49,8 @@ final class SmartWoo {
     public function __construct() {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
+        add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
+        add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
     }
 
     /** Service Subscription */
@@ -105,6 +107,32 @@ final class SmartWoo {
         );
 
         return array_merge( $setting_url, $links );
+    }
+
+    /**
+     * Login form handler
+     */
+    public function login_form() {
+        if ( isset( $_POST['user_login'] ) && isset( $_POST['password'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $credentials = array(
+                'user_login'    => sanitize_text_field( wp_unslash( $_POST['user_login'] ) ),
+                'user_password' => sanitize_text_field( $_POST['password'] ),
+                'remember'      => true,
+            );
+
+
+            $user = wp_signon( $credentials, false );
+
+            if ( is_wp_error( $user ) ) {
+                set_transient( 'smartwoo_login_error', $user->get_error_message(), 5 );
+                wp_redirect( esc_url_raw( wp_get_referer() ) );
+                exit;
+
+            } else {
+                wp_redirect( esc_url_raw( $_POST['redirect'] ) );
+                exit;
+            }
+        }
     }
 
     /**
