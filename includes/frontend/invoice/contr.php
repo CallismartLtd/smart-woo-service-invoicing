@@ -14,8 +14,8 @@
 function smartwoo_invoice_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
-	   return;
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page' ), 'redirect' => add_query_arg( $_GET ) ) );
+	   
    	}
 
 	$current_user_id  	= get_current_user_id();
