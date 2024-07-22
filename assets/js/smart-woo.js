@@ -849,3 +849,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    var hamburger = document.querySelector('.navbar-hamburger');
+    var navbar = document.querySelector('.service-navbar');
+    var menuIcon = hamburger.querySelector('.dashicons-menu');
+
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            navbar.classList.toggle('active');
+            if (navbar.classList.contains('active')) {
+                menuIcon.classList.remove('dashicons-menu');
+                menuIcon.classList.add('dashicons-no');
+            } else {
+                menuIcon.classList.remove('dashicons-no');
+                menuIcon.classList.add('dashicons-menu');
+            }
+        });
+    }
+});
+
