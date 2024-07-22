@@ -445,51 +445,60 @@ use inline CSS to overide some styles
 
 /* Style for the service navigation bar */
 .service-navbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	border-bottom: 1px solid #ccc;
-	padding: 1rem;
-}
-
-.navbar-title-container {
-	flex: 1;
-}
-
-.navbar-links-container {
-	flex: 1;
-	text-align: right;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f8f8;
 }
 
 .navbar-title-container h3 {
-	margin: 0;
-	font-size: 1.2rem;
-	font-weight: bold;
+    margin: 0;
 }
 
 .navbar-links-container ul {
-	list-style: none;
-	padding: 0;
-	margin: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
 }
 
 .navbar-links-container li {
-	display: inline-block;
-	padding: 5px 10px;
+    margin-left: 15px;
 }
 
 .navbar-links-container a {
-	color: #333;
-	text-decoration: none;
+    text-decoration: none;
+    color: #333;
 }
 
-.navbar-links-container a:hover {
-	text-decoration: underline;
+.navbar-hamburger {
+    display: none;
+    cursor: pointer;
 }
 
-.current-page {
-	font-weight: bold;
+@media (max-width: 768px) {
+    .navbar-links-container {
+        display: none;
+    }
+
+    .navbar-hamburger {
+        display: block;
+    }
+
+    .navbar-links-container ul {
+        flex-direction: column;
+    }
+
+    .navbar-links-container li {
+        margin: 10px 0;
+    }
+
+    .service-navbar.active .navbar-links-container {
+        display: flex;
+    }
 }
+
 
 
 /* Add some basic styling to the container */
@@ -1138,7 +1147,7 @@ use inline CSS to overide some styles
 	margin-bottom: 20px;
     display: flex;
     flex-direction: column;
-	width: 70%;
+	width: 90%;
 }
 
 /* Header Style */
@@ -1187,36 +1196,6 @@ use inline CSS to overide some styles
     /* Add more styles as needed for the AJAX content container */
 }
 
-/* Style for the dropdown container */
-.service-navbar .service-actions-dropdown {
-	margin-left: 10px;
-}
-
-/* Style for the dropdown select element */
-.service-navbar select {
-	padding: 8px;
-	font-size: 14px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	outline: none;
-	cursor: pointer;
-}
-
-/* Style for the selected option in the dropdown */
-.service-navbar select option:checked {
-	background-color: #3498db;
-	color: #fff;
-}
-
-/* Style for the dropdown arrow */
-.service-navbar select::after {
-	content: '\25BC'; /* Unicode character for down arrow */
-	position: absolute;
-	top: 50%;
-	right: 10px;
-	transform: translateY(-50%);
-	pointer-events: none;
-}
 
 /* Style the user details container */
 .smartwoo-details-container {
@@ -1489,4 +1468,60 @@ font-weight: 100;
 /* Show the panel when the button is clicked */
 .sw-upsell-accordion.active .sw-upsell-panel {
     display: block;
+}
+
+
+/****************LOGIN FORM **********************/
+.smartwoo-login-form{
+	background-color: #ffffff;
+	border-radius: 9px;
+	margin-bottom: 20px !important;
+	width: 70%;	
+}
+
+.smartwoo-login-form-content{
+	width: 95%;
+	margin: 20px auto;
+	padding: 20px;
+}
+.smartwoo-login-form-notice {
+	text-align: left;
+	font-weight: bold;
+}
+
+.smartwoo-login-form-body {
+	background-color: #f1f1f5;
+	display: flex;
+	flex-direction: row;
+	width: 90%;
+	margin-bottom: 20px;
+}
+
+.smartwoo-login-form-label {
+	font-weight: bold;
+	color: #000000;
+	margin-left: 5px;
+	min-width: 20%;
+
+}
+
+.smartwoo-login-input {
+	display: flex;
+	border-radius: 5px;
+	margin-left: 60px;
+	width: 100%;
+}
+
+@media only screen and (min-width: 320px) and (max-width: 480px) {
+	.smartwoo-login-form-body {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	.smartwoo-login-form-label{
+		min-width: none;
+	}
+	.smartwoo-login-input{
+		display: block;
+		margin-left: 0px;
+	}
 }
