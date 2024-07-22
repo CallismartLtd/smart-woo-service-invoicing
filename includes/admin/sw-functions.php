@@ -460,44 +460,54 @@ function smartwoo_check_if_configured( $order ) {
 /**
  * Frontend navigation menu bar
  *
- * @param int $title   The Title of the page.
+ * @param string $title The Title of the page.
+ * @param string $title_url The URL for the title link.
  */
 function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 
-	if ( ! is_user_logged_in() || is_account_page() ) {
-		return;
-	}
+    if ( ! is_user_logged_in() || is_account_page() ) {
+        return;
+    }
 
-	$nav_item = array(
-		smartwoo_service_page_url() => 'Services',
-		smartwoo_invoice_page_url()	=> 'Invoices',
-		smartwoo_service_page_url() . 'buy-new/' => 'Buy New',
+	wp_enqueue_style( 'dashicons' );
 
-	);
+    $nav_item = array(
+        smartwoo_service_page_url() => 'Services',
+        smartwoo_invoice_page_url() => 'Invoices',
+        smartwoo_service_page_url() . 'buy-new/' => 'Buy New',
+    );
 
-	/** Allow for custom items */
-	$custom_item	= apply_filters( 'smartwoo_nav_items', array() );
+    /** Allow for custom items */
+    $custom_item = apply_filters( 'smartwoo_nav_items', array() );
+    $nav_item    = array_merge( $nav_item, $custom_item );
 
-	$nav_item		= array_merge( $nav_item, $custom_item );
-    $current_page 	= '';
-    $page_title		= $title;
-    $nav_bar		= '<div class="service-navbar">';
-    $nav_bar 	.= '<div class="navbar-title-container">';
-    $nav_bar 	.= '<h3><a href="' . esc_url( $title_url ) . '">' . esc_html( $page_title ) . '</a></h3>';
-    $nav_bar 	.= '</div>';
+    $current_page = '';
+    $page_title   = $title;
+
+    $nav_bar  = '<div class="service-navbar">';
+    $nav_bar .= '<div class="navbar-title-container">';
+    $nav_bar .= '<h3><a href="' . esc_url( $title_url ) . '">' . esc_html( $page_title ) . '</a></h3>';
+    $nav_bar .= '</div>';
 
     // Container for the links (aligned to the right).
     $nav_bar .= '<div class="navbar-links-container">';
     $nav_bar .= '<ul>';
-	foreach ( $nav_item as $url => $text ) {
-		$nav_bar .= '<li><a href="' . esc_url( $url ) . '" class="">' . esc_html( $text ) . '</a></li>';
-	}
+    foreach ( $nav_item as $url => $text ) {
+        $nav_bar .= '<li><a href="' . esc_url( $url ) . '" class="">' . esc_html( $text ) . '</a></li>';
+    }
     $nav_bar .= '</ul>';
     $nav_bar .= '</div>';
+	
+	// Hamburger icon for toggle
+	$nav_bar .= '<div class="navbar-hamburger">';
+	$nav_bar .= '<span class="dashicons dashicons-menu"></span>';
+	$nav_bar .= '</div>';
 
     $nav_bar .= '</div>';
+
     return $nav_bar;
 }
+
 
 	
 /**
@@ -711,3 +721,46 @@ function smartwoo_get_last_login_date( $user_id ) {
 }
 
 
+/**
+ * Smart Woo login form
+ * 
+ * @param array $options assosciative array of options.
+ * @since 1.1.0
+ */
+function smartwoo_login_form( $options ) {
+	$default_options = array(
+		'notice'	=> '',
+		'redirect'	=> get_permalink(),
+	);
+
+	$parsed_args = wp_parse_args( $options, $default_options );
+
+	$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="smartwoo-login-form">';
+	$form .= '<div class="smartwoo-login-form-content">';
+	$form .= '<div class="smartwoo-login-form-notice">';
+	$form .= wp_kses_post( $parsed_args['notice'] );
+	if ( get_transient( 'smartwoo_login_error' ) ) {
+		$form .= wp_kses_post( get_transient( 'smartwoo_login_error' ) );
+		delete_transient( 'smartwoo_login_error' );
+	}
+	$form .= '</div>';
+
+	$form .= '<div class="smartwoo-login-form-body">';
+	$form .= '<label for="user-login" class="smartwoo-login-form-label">Username/Email *</label>';
+	$form .= '<input type="text" id="user-login" class="smartwoo-login-input" name="user_login" />';
+	$form .= '</div>';
+
+	$form .= '<div class="smartwoo-login-form-body">';
+	$form .= '<label for="password" class="smartwoo-login-form-label">Password *</label>';
+	$form .= '<input type="password" id="password" class="smartwoo-login-input" name="password" />';
+	$form .= '</div>';
+
+	$form .= '<input type="hidden" name="action" value="smartwoo_login_form" />';
+	$form .= '<input type="hidden" name="redirect" value="' . esc_url( $parsed_args['redirect'] ) . '" />';
+	$form .= '<input type="hidden" name="referer" value="' . esc_url( wp_get_referer() ) . '" />';
+	$form .= '<button type="submit" class="sw-blue-button">' . apply_filters( 'smartwoo_login_button_text', __( 'login', 'smart-woo-service-invoicing' ) ) . '</button>';
+	$form .= '</div>';
+	$form .= '</form>';
+
+	return $form;
+}
