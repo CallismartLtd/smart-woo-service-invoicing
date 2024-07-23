@@ -447,7 +447,6 @@ use inline CSS to overide some styles
 .service-navbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 10px;
     background-color: #f8f8f8;
 }
@@ -472,7 +471,7 @@ use inline CSS to overide some styles
     color: #333;
 }
 
-.navbar-hamburger {
+.sw-menu-icon {
     display: none;
     cursor: pointer;
 }
@@ -482,7 +481,7 @@ use inline CSS to overide some styles
         display: none;
     }
 
-    .navbar-hamburger {
+    .sw-menu-icon {
         display: block;
     }
 

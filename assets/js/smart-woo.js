@@ -851,11 +851,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    var hamburger = document.querySelector('.navbar-hamburger');
-    var navbar = document.querySelector('.service-navbar');
-    var menuIcon = hamburger.querySelector('.dashicons-menu');
+    var hamburger 	= document.querySelector('.sw-menu-icon');
+    var navbar 		= document.querySelector('.service-navbar');
 
     if (hamburger) {
+		var menuIcon = hamburger.querySelector('.dashicons-menu');
         hamburger.addEventListener('click', function() {
             navbar.classList.toggle('active');
             if (navbar.classList.contains('active')) {

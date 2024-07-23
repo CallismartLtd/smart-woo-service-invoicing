@@ -498,8 +498,8 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     $nav_bar .= '</ul>';
     $nav_bar .= '</div>';
 	
-	// Hamburger icon for toggle
-	$nav_bar .= '<div class="navbar-hamburger">';
+	// Hamburger icon for toggle.
+	$nav_bar .= '<div class="sw-menu-icon">';
 	$nav_bar .= '<span class="dashicons dashicons-menu"></span>';
 	$nav_bar .= '</div>';
 
