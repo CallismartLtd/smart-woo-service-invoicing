@@ -1,5 +1,10 @@
 ## Smart Woo Service Invoicing Changelog
 
+## [1.1.0] 2024-07-24
+- Tested with WordPress 6.6.1
+- Added dedicated login form for service subscription and invoice page.
+- Improved security.
+
 ## [1.0.52] 2024-06-08
 ### Added 
 - Support for WP Consent API.
