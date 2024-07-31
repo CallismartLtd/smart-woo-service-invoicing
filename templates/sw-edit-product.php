@@ -155,7 +155,7 @@ if ( ! $product_data instanceof SmartWoo_Product ) {
                     <div id="image_preview" class="sw-form-image-preview">
                         <img src="<?php echo esc_url( wp_get_attachment_image_url( $product_data->get_image_id(), 'medium' ) ); ?>" style="max-width: 250px;">
                     </div>
-                    <input type="button" id="upload_image_button" class="sw-red-button" value="Upload Image">
+                    <input type="button" id="upload_sw_product_image" class="sw-red-button" value="Upload Image">
                 </div>
             </div>
 
