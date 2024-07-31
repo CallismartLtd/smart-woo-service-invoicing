@@ -38,6 +38,7 @@ class SmartWoo_Install {
 		}
 		self::rewrite_rule();
 		self::add_automations();
+		self::create_upload_dir();
 	}
 
 	/** 
@@ -190,6 +191,46 @@ class SmartWoo_Install {
 	private static function rewrite_rule() {
 		add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
 		flush_rewrite_rules();
+	}
+
+	/**
+	 * Create upload directory
+	 * 
+	 * @since 2.0.0
+	 */
+	public static function create_upload_dir() {
+		global $wp_filesystem;
+    
+        if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+    
+        // Request filesystem credentials (this will handle FTP/SSH details if required).
+        $creds = request_filesystem_credentials( '', '', false, false, null );
+        
+        // Initialize the filesystem.
+        if ( ! WP_Filesystem( $creds ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
+			error_log( 'WP_Filesystem cannot be initialized' );
+			
+        }
+    
+        $upload_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'smartwoo-uploads';
+    
+        if ( ! $wp_filesystem->is_dir( $upload_dir ) ) {
+            if ( ! $wp_filesystem->mkdir( $upload_dir, 0755 ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
+				error_log( 'Unable to create upload directory' );
+			}
+        }
+    
+
+        // Protect the directory with an .htaccess file.
+        $htaccess_content = "Deny from all";
+        $htaccess_path = $upload_dir . '/.htaccess';
+    
+        if ( ! $wp_filesystem->exists( $htaccess_path ) ) {
+            $wp_filesystem->put_contents( $htaccess_path, $htaccess_content, FS_CHMOD_FILE );         
+        }
+
 	}
 }
 
