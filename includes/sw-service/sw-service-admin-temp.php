@@ -909,10 +909,10 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
 	$page .= '<span class="sw-field-description" title="' . esc_attr__( 'This billing cycle was set from the product, you may edit it, invoices are created toward to the end of the billing cycle.', 'smart-woo-service-invoicing' ) . '">?</span>';
 	$page .= '<select name="billing_cycle" id="billing_cycle" class="sw-form-input" required>';
 	$page .= '<option value="" selected disabled>' . esc_html__( 'Select billing cycle', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Monthly" ' . selected( 'Monthly', $billing_cycle, false ) . '>' . esc_html__( 'Monthly', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Quarterly" ' . selected( 'Quarterly', $billing_cycle, false ) . '>' . esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle, false ) . '>' . esc_html__( '6 Months', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Yearly" ' . selected( 'Yearly', $billing_cycle, false ) . '>' . esc_html__( 'Yearly', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Monthly" ' . selected( 'Monthly', $billing_cycle ) . '>' . esc_html__( 'Monthly', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Quarterly" ' . selected( 'Quarterly', $billing_cycle ) . '>' . esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle ) . '>' . esc_html__( '6 Months', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Yearly" ' . selected( 'Yearly', $billing_cycle ) . '>' . esc_html__( 'Yearly', 'smart-woo-service-invoicing' ) . '</option>';
 	$page .= '</select>';
 	$page .= '</div>';
 	// Next Payment Date.
