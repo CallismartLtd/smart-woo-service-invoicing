@@ -105,6 +105,27 @@ function smartwoo_products_page() {
 			include_once SMARTWOO_PATH . 'templates/sw-add-product.php';
 			break;
 		case 'edit':
+
+			$product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				
+			if ( empty( $product_id ) ) {
+				echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
+				return;
+			}
+				
+			$product_data = wc_get_product( $product_id );
+
+			if ( empty( $product_data ) ) {
+				echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) );
+				return;
+			}
+
+			if ( ! $product_data instanceof SmartWoo_Product ) {
+				echo wp_kses_post( smartwoo_error_notice( 'This is not a service product' ) );
+				return;
+			}
+
+			$is_downloadable = $product_data->is_downloadable();
 			include_once SMARTWOO_PATH . 'templates/sw-edit-product.php';
 			break;
 		default:
