@@ -98,6 +98,7 @@ class SmartWoo_Config{
         add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         
         add_action( 'admin_post_smartwoo_create_product', 'smartwoo_process_new_product' );
+        add_action( 'admin_post_smartwoo_edit_product', 'smartwoo_process_product_edit' );
 
     }
 
