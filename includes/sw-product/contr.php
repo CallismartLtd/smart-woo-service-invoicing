@@ -6,13 +6,13 @@
  * Description  :   Controller file for SmartWoo_Product
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
  
 /**
  * Controls the new service product creation form submission
  */
 function smartwoo_process_new_product() {
-
+    
     if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
 		
 		$new_product            = new SmartWoo_Product();
@@ -25,6 +25,8 @@ function smartwoo_process_new_product() {
         $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
         $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
         $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
+        $is_downloadable        = ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] );
+
 
 		// Validation.
 		$validation_errors = array();
@@ -38,9 +40,9 @@ function smartwoo_process_new_product() {
 		}
 
 		if ( ! empty( $validation_errors ) ) {
-			// Display validation errors using the custom error notice function
-			return smartwoo_error_notice( $validation_errors );
-
+            smartwoo_set_form_error( $validation_errors );
+            wp_redirect( smartwoo_admin_product_url( 'add-new' ) );
+            exit;
 		}
 
 		$new_product->set_name( sanitize_text_field( $product_name ) );
@@ -53,10 +55,35 @@ function smartwoo_process_new_product() {
         $new_product->add_grace_period_number( absint( $grace_period_number ) );
         $new_product->set_image_id( $product_image_id );
 
+        // Check for downloadable properties.
+        if ( $is_downloadable ) {
+            $file_names     = $_POST['sw_downloadable_file_names'];
+            $file_urls      = $_POST['sw_downloadable_file_urls'];
+            $downloadables  = array();
+            if ( count( $file_names ) === count( $file_urls ) ) {
+                $downloadables  = array_combine( $file_names, $file_urls );
+            }
+            
+            foreach ( $downloadables as $k => $v ) {
+                if ( empty( $k ) || empty( $v ) ) {
+                    unset( $downloadables[$k] );
+                }
+            }
+            
+            if ( ! empty( $downloadables ) ) {
+                $downloadables  = array_map( 'sanitize_text_field', wp_unslash( $downloadables ) );
+                $new_product->add_downloadable_data( $downloadables );
+            }
+
+        }
+        
+        
         $result = $new_product->save();
 
 		if ( is_wp_error( $result ) ) {
-			return smartwoo_error_notice( $result->get_error_message() );
+            smartwoo_set_form_error( $result->get_error_message() );
+            wp_redirect( smartwoo_admin_product_url( 'add-new' ) );
+            exit;
 		}
 
 		// Show success message with product links
@@ -64,7 +91,9 @@ function smartwoo_process_new_product() {
 		$edit_link    = admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $result->get_id() );
 		$success = '<div class="notice notice-success is-dismissible"><p>New product created successfully! View your product <a href="' . esc_url( $product_link ) . '" target="_blank">here</a>.</p>
 		<p>Edit the product <a href="' . esc_url( $edit_link ) . '">here</a>.</p></div>';
-		echo wp_kses_post( $success );
+		smartwoo_set_form_success( $success );
+        wp_redirect( smartwoo_admin_product_url( 'add-new' ) );
+        exit;
 		
 	}
 }
@@ -109,6 +138,8 @@ function smartwoo_process_product_edit( $product_id ) {
         $update->update_grace_period_unit( sanitize_text_field( $grace_period_unit ) );
         $update->update_grace_period_number( absint( $grace_period_number ) );
         $update->set_image_id( $product_image_id );
+        
+
 
         $result = $update->save();
 
