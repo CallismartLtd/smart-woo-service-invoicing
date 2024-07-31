@@ -46,6 +46,7 @@ function smartwoo_product_table() {
 		$page_html .= '<td>' . esc_html( $product->get_billing_cycle() ) . '</td>';
 		$page_html .= '<td>';
 		$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $product->get_id() ) ) . '" class="button">Edit</a>';
+		$page_html .= '<a href="' . esc_url( get_permalink( $product->get_id() ) ) . '" class="button">View</a>';
 		$page_html .= '<button class="sw-delete-product" data-product-id="'. esc_attr( $product->get_id() ) . '">' . __( 'Delete', 'smart-woo-service-invoicing' ) . '</button>';
 		$page_html .= '</td>';
 		$page_html .= '</tr>';
