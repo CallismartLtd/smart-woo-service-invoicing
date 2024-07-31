@@ -27,6 +27,10 @@ class SmartWoo_Product extends WC_Product {
 	private $grace_period_number = '';
 	private $grace_period_unit = '';
 
+	private $downloadable = false;
+	private $downloads = array();
+
+
 	/**
 	 * Get the product if ID is passed, otherwise the product is new and empty.
 	 * This class should NOT be instantiated, but the wc_get_product() function
@@ -43,6 +47,11 @@ class SmartWoo_Product extends WC_Product {
 			$this->set_billing_cycle( $this->get_meta( '_smartwoo_billing_cycle' ) );
 			$this->set_grace_period_number( $this->get_meta( '_smartwoo_grace_period_number' ) );
 			$this->set_grace_period_unit( $this->get_meta( '_smartwoo_grace_period_unit' ) );
+			$this->set_downloadables( $this->get_meta( '_smartwoo_product_downloadable_data' ) );
+
+			if ( ! empty( $this->get_smartwoo_downloads() ) ) {
+				$this->downloadable = true;
+			}
 
 		}
 
@@ -100,6 +109,13 @@ class SmartWoo_Product extends WC_Product {
 		return $this->grace_period_unit;
 	}
 	
+	/**
+	 * Get downloads
+	 */
+	public function get_smartwoo_downloads() {
+		return $this->downloads;
+	}
+	
 	/*
 	|--------------------------------------------------------------------------
 	| Setters
@@ -145,7 +161,15 @@ class SmartWoo_Product extends WC_Product {
 		$this->grace_period_unit = $grace_period_unit;
 	}
 
-	
+	/**
+	 * Set Downloadable files.
+	 * 
+	 * @param array $data	An associative array containing the file data
+	 */
+	public function set_downloadables( $data ) {
+		$this->downloads = $data;
+	}
+
 	/**
 	 * *****************************
 	 * CRUD Methods.
@@ -291,6 +315,15 @@ class SmartWoo_Product extends WC_Product {
 		$this->grace_period_unit = $this->add_meta_data( '_smartwoo_grace_period_unit', $unit );
 	}
 
+	/**
+	 * Add downloadable data to product.
+	 * 
+	 * @param array $data Associative array of file_names => file_urls
+	 */
+	public function add_downloadable_data( $data ) {
+		$this->downloads	= $this->add_meta_data( '_smartwoo_product_downloadable_data', $data );
+	}
+
 	/*
 	|--------------------------------------------------------------------------------
 	|These `update` methods should be used when an existing product of this class has
@@ -335,11 +368,29 @@ class SmartWoo_Product extends WC_Product {
 		$this->grace_period_unit = $this->update_meta_data( '_smartwoo_grace_period_unit', $unit );
 	}
 
+	/**
+	 * Update downloadable data.
+	 * 
+	 * @param array $data Associative array of file_names => file_urls
+	 */
+	public function update_downloadable_data( $data ) {
+		$this->downloads	= $this->update_meta_data( '_smartwoo_product_downloadable_data', $data );
+	}
+
 	/*
 	|---------------------------------
 	|Other Methods for compatibility.
 	|---------------------------------
 	*/
+
+	/**
+	 * Check whether smartwoo product is downloadable.
+	 * 
+	 * @since 2.0.0
+	 */
+	public function is_downloadable() {
+		return $this->downloadable;
+	}
 
 	/**
 	 * Product edit link
@@ -351,10 +402,8 @@ class SmartWoo_Product extends WC_Product {
 			$product = wc_get_product( $post_id );
 	
 			if ( $product && $product->is_type( 'sw_product' ) ) {
-				// Construct the custom edit URL for the product
 				$edit_url = admin_url('admin.php?page=sw-products&action=edit&product_id=' . $product->get_id() );
 	
-				// Replace the default edit link with the custom edit URL
 				$link = esc_url( $edit_url );
 			}
 		}
