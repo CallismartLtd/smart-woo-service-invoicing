@@ -200,11 +200,43 @@ use inline CSS to overide some styles
 	padding: 20px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 	margin-bottom: 20px;
-	}
+}
 
-	/* Custom CSS for the product configuration container */
+.sw-product-download-field-container {
+	display: none;
+	background-color: #fff;
+	margin: 20px auto;
+	padding: 10px;
+	
+}
 
-	.sw-configure-container {
+.sw-product-download-fields {
+    margin: 20px auto;
+	width: 90%;
+}
+
+.sw-product-type-container label {
+	font-weight: 500;
+    display: inline;
+    margin-bottom: 20px;
+	width: 100%;
+}
+
+.sw-product-download-fields input,
+.sw-product-download-fields button {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.sw-product-download-fields .swremove-field {
+    color: red;
+    cursor: pointer;
+}
+
+
+/* Custom CSS for the product configuration container */
+
+.sw-configure-container {
 	max-width: 1000px;
 	margin: 10px auto 60px;
 	padding: 20px;
