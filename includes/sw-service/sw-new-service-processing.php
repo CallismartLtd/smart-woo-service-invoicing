@@ -124,7 +124,7 @@ function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
 		$product_id = $first_item->get_product_id();
 
 		// Fetch the billing cycle from product metadata.
-		$billing_cycle = get_post_meta( $product_id, 'billing_cycle', true );
+		$billing_cycle = get_post_meta( $product_id, '_smartwoo_billing_cycle', true );
 
 		// Set next payment date and end date based on billing cycle.
 		switch ( $billing_cycle ) {
