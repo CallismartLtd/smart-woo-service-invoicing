@@ -34,37 +34,9 @@ document.addEventListener(
 );
 
 
-
-
-document.addEventListener(
-	'DOMContentLoaded',
-	function () {
-		const attachButton      = document.getElementById( 'attach-button' );
-		const fileInput         = document.getElementById( 'attachments' );
-		const selectedFileNames = document.querySelector( '.selected-file-names ul' );
-
-		if (selectedFileNames) { // Check if the element exists
-			attachButton.addEventListener(
-				'click',
-				function () {
-					fileInput.click();
-				}
-			);
-
-			fileInput.addEventListener(
-				'change',
-				function () {
-					for (const file of fileInput.files) {
-						const listItem       = document.createElement( 'li' );
-						listItem.textContent = file.name;
-						selectedFileNames.appendChild( listItem );
-					}
-				}
-			);
-		}
-	}
-);
-
+/**
+ * Auto calculate subscription dates.
+ */
 jQuery( document ).ready(
 	function ($) {
 		$( '#billing_cycle' ).on(
@@ -182,13 +154,14 @@ function openCancelServiceDialog( serviceName, serviceId ) {
     return false;
 }
 
-
-
+/**
+ * Subscription product image selector.
+ */
 jQuery( document ).ready(
 	function ($) {
 		var mediaUploader;
 
-		$( '#upload_image_button' ).click(
+		$( '#upload_sw_product_image' ).click(
 			function (e) {
 				e.preventDefault();
 
@@ -199,9 +172,9 @@ jQuery( document ).ready(
 
 				mediaUploader = wp.media.frames.file_frame = wp.media(
 					{
-						title: 'Choose Image',
+						title: 'Choose Product Image',
 						button: {
-							text: 'Choose Image'
+							text: 'insert image'
 						},
 						multiple: false
 					}
@@ -222,11 +195,14 @@ jQuery( document ).ready(
 	}
 );
 
+/**
+ * Downloadable product file selector.
+ */
 
 
-
-
-
+/**
+ * Grace period field change checker
+ */
 jQuery( document ).ready(
 	function ($) {
 		checkGracePeriodUnit();
@@ -869,3 +845,63 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+jQuery(document).ready(function($) {
+    // 1. Toggle display of download fields and Add Field button
+    $('#is-smartwoo-downloadable').on('change', function() {
+        if ($(this).is(':checked')) {
+			$('.sw-product-download-field-container').show();
+            $('.sw-product-download-fields').show();
+            $('#add-field').show();
+        } else {
+			$('.sw-product-download-field-container').hide();
+            $('.sw-product-download-fields').hide();
+            $('#add-field').hide();
+        }
+    });
+
+    // 2. Open WordPress media library
+    var mediaUploader;
+    $(document).on('click', '.upload_image_button', function(e) {
+        e.preventDefault();
+        var $button = $(this);
+        var $fileUrlField = $button.siblings('.fileUrl');
+        
+        if (mediaUploader) {
+            mediaUploader.open();
+            mediaUploader.off('select');
+            mediaUploader.on('select', function() {
+                var attachment = mediaUploader.state().get('selection').first().toJSON();
+                $fileUrlField.val(attachment.url);
+            });
+            return;
+        }
+
+        mediaUploader = wp.media.frames.file_frame = wp.media({
+            title: 'Choose File',
+            button: {
+                text: 'Choose File'
+            },
+            multiple: false
+        });
+
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $fileUrlField.val(attachment.url);
+        });
+
+        mediaUploader.open();
+    });
+
+    // 3. Add new field set above the Add Field button
+    $('#add-field').on('click', function() {
+        var $fieldContainer = $('.sw-product-download-fields:first').clone();
+        $fieldContainer.find('input').val('');
+        $fieldContainer.find('.upload_image_button').val('Choose file');
+        $fieldContainer.insertBefore('#add-field');
+    });
+
+    // 4. Remove field set
+    $(document).on('click', '.swremove-field', function() {
+        $(this).closest('.sw-product-download-fields').remove();
+    });
+});
