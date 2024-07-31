@@ -9,36 +9,51 @@
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
-
-/* Template Name: Edit product Product */
-
-$product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	
-if ( empty( $product_id ) ) {
-    echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
-    return;
-}
-    
-$product_data = wc_get_product( $product_id );
-
-if ( empty( $product_data ) ) {
-    echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) );
-    return;
-}
-
-if ( ! $product_data instanceof SmartWoo_Product ) {
-    echo wp_kses_post( smartwoo_error_notice( 'This is not a service product' ) );
-    return;
-}
 ?>
 
 <div class="wrap">
     <h2>Edit Service Product</h2>
-    <?php smartwoo_process_product_edit( $product_id ); ?>
+    <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
+        <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
+    <?php elseif ( $success = smartwoo_get_form_success() ): ?>
+        <?php echo wp_kses_post( $success );?>
+    <?php endif;?>
 
     <div class="sw-form-container">
-        <form method="post" action="" enctype="multipart/form-data">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+            <div class="sw-product-type-container">
+                <label for="is-smartwoo-downloadable">Downloadable Product:
+                    <input type="checkbox" name="is_smartwoo_downloadable" <?php checked( $is_downloadable ) ?> id="is-smartwoo-downloadable"/>
+                </label> 
+            </div>
+            <hr><br> <br>
+            <div class="sw-product-download-field-container" <?php echo $is_downloadable ? 'style="display:block"' : '';?>>
+                
+                <?php if ( $is_downloadable ): $downloads = $product_data->get_smartwoo_downloads();?>
+                    <?php foreach( $downloads as $file_name => $url ):?>
+                        <div class="sw-product-download-fields">
+                            <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
+                            <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" />
+                            <input type="button" class="upload_image_button button" value="Choose file" />
+                            <button type="button" class="swremove-field">x</button>
+                        </div>
+                    <?php endforeach;?>
+                    <?php else:?>
+                        <div class="sw-product-download-fields">
+                            <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
+                            <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
+                            <input type="button" class="upload_image_button button" value="Choose file" />
+                            <button type="button" class="swremove-field">x</button>
+                        </div>
+                <?php endif;?>
+                
+                <button type="button" id="add-field" <?php echo $is_downloadable ? 'style="display: block;"': 'style="display: none;"';?>>Add Field</button>
+            </div>
+        
             <input type="submit" name="update_service_product" class="sw-blue-button" value="Update Product">
+            
+            <input type="hidden" name="product_id" value="<?php echo absint( $product_id ); ?>" />
+            <input type="hidden" name="action" value="smartwoo_edit_product" />
             <?php wp_nonce_field( 'sw_edit_product_nonce', 'sw_edit_product_nonce' ); ?>
 
             <!-- Product Name -->
