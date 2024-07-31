@@ -576,6 +576,7 @@ function smartwoo_allowed_form_html() {
             'value'		=> true,
             'class'		=> true,
             'id'		=> true,
+			'autocomplete' => true,
         ),
         'select'	=> array(
             'name'		=> true,
@@ -763,4 +764,60 @@ function smartwoo_login_form( $options ) {
 	$form .= '</form>';
 
 	return $form;
+}
+
+/**
+ * Set form validation error
+ * 
+ * @param array|string $data	The error to set.
+ * @return bool
+ * @since 2.0.0
+ */
+function smartwoo_set_form_error( $data ) {
+	if ( empty( $data ) ) {
+		return false;
+	}
+	
+	return set_transient( 'smartwoo_form_validation_error_'. get_current_user_id(), $data, 10 );
+}
+
+/**
+ * Get form validation error
+ * 
+ * @return mixed $error.
+ * @since 2.0.0
+ */
+function smartwoo_get_form_error() {
+	$error = get_transient( 'smartwoo_form_validation_error_'. get_current_user_id() );
+	if ( false !== $error ) {
+		delete_transient( 'smartwoo_form_validation_error_'. get_current_user_id() );
+	}
+
+	return $error;
+}
+
+/**
+ * Set form success message.
+ * 
+ * @param mixed $message The message.
+ * @return bool|mixed
+ */
+function smartwoo_set_form_success( $message ) {
+	if ( empty( $message ) ) {
+		return false;
+	}
+	
+	return set_transient( 'smartwoo_form_validation_success_'. get_current_user_id(), $message, 10 );
+}
+
+/**
+ * Get form success message
+ */
+function smartwoo_get_form_success() {
+	$message = get_transient( 'smartwoo_form_validation_success_'. get_current_user_id() );
+	if ( false !== $message ) {
+		delete_transient( 'smartwoo_form_validation_success_'. get_current_user_id() );
+	}
+
+	return $message;
 }
