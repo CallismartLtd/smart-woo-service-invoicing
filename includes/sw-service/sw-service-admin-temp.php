@@ -32,9 +32,10 @@ function smartwoo_admin_view_service_details() {
 	$tabs = array(
 		''			=> 'Dashboard',
 		'details'   => 'Details',
-		'client' => 'Client Info',
-		'stats'  => 'Stats & Usage',
-		'logs'   => 'Service Logs',
+		'client' 	=> 'Client Info',
+		'assets' 	=> 'Assets',
+		'stats'  	=> 'Stats & Usage',
+		'logs'   	=> 'Service Logs',
 
 	);
 
@@ -51,6 +52,11 @@ function smartwoo_admin_view_service_details() {
 			foreach ( (array) $maybe_info as $key => $value ) {
 				$page_html .= $value;
 			}
+			break;
+		case 'assets':
+			ob_start();
+			include_once SMARTWOO_PATH . 'templates/service-assets.php';
+			$page_html .= ob_get_clean();
 			break;
 
 		case 'logs':
@@ -79,9 +85,9 @@ function smartwoo_admin_view_service_details() {
 			break;
 
 		default:
-		$page_html .= '<h2>Service Details</h2>';
-		$page_html .= smartwoo_show_admin_service_details( $service );
-		break;
+			$page_html .= '<h2>Service Details</h2>';
+			$page_html .= smartwoo_show_admin_service_details( $service );
+			break;
 	}
 
 	$page_html .= '</div>';
@@ -283,7 +289,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Active' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$active_services_found = true;
 			}
@@ -313,7 +319,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Active (NR)' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$nr_services_found = true;
 			}
@@ -343,7 +349,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Due for Renewal' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$due_services_found = true;
 			}
@@ -372,7 +378,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Grace Period' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$grace_services = true;
 			}
@@ -400,7 +406,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Cancelled' === $service_status ) {
-				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&servicetype=cancelled' );
+				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $view_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$cancelled_services_found = true;
 			}
@@ -428,7 +434,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Expired' === $service_status ) {
-				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $view_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$expired_services_found = true;
 			}
@@ -456,7 +462,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Suspended' === $service_status ) {
-				$view_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$view_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $view_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$active_services_found = true;
 			}
@@ -484,7 +490,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Pending' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() );
+				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
 				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$pending_services_found = true;
 			}

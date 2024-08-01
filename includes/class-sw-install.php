@@ -90,10 +90,7 @@ class SmartWoo_Install {
 
 	/** Check if installation is going on */
 	private static function is_installing() {
-		if ( get_transient( '_smartwoo_is_installing' ) ) {
-			
-			self::$installing = true;
-		} 
+		self::$installing = get_transient( '_smartwoo_is_installing' );
 		return self::$installing;
 	}
 	
@@ -101,7 +98,7 @@ class SmartWoo_Install {
 	 * Create database tables.
 	 */
 	private static function create_tables() {
-		// Load the db table file to have access to the properties
+		// Load the db table file to have access to the properties.
 		include_once SMARTWOO_PATH . 'includes/admin/include/sw-db.php';
 		smartwoo_db_schema();
 	}

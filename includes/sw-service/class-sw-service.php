@@ -321,8 +321,8 @@ class SmartWoo_Service {
 	 * Get the Service product name.
 	 */
 	public function get_product_name() {
-		$product = new SmartWoo_Product( $this->getProductId() );
-		$product_name = ! empty( $product ) ? $product->get_name() : 'N/A';
+		$product 		= wc_get_product( $this->getProductId() );
+		$product_name 	= ! empty( $product ) ? $product->get_name() : 'N/A';
 		return $product_name;
 	}
 
@@ -330,7 +330,7 @@ class SmartWoo_Service {
 	 * Get the cost of service ( Excluding sign up fee)
 	 */
 	public function get_pricing() {
-		$product = new SmartWoo_Product( $this->getProductId() );
+		$product = wc_get_product( $this->getProductId() );
 		$price = ! empty( $product ) ? $product->get_price() : 0;
 		return $price;
 	}
@@ -339,7 +339,7 @@ class SmartWoo_Service {
 	 * Get sign up fee
 	 */
 	public function get_sign_up_fee() {
-		$product = new SmartWoo_Product( $this->getProductId() );
+		$product = wc_get_product( $this->getProductId() );
 		$fee = ! empty( $product ) ? $product->get_sign_up_fee() : 0;
 		return $fee;
 	}

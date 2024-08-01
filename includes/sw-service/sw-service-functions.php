@@ -584,11 +584,11 @@ function smartwoo_get_service_price( SmartWoo_Service $service ) {
 function smartwoo_get_grace_period_end_date( $product_id, $reference_date ) {
 
 	$end_date = null;
-	$product = new SmartWoo_Product( $product_id );
+	$product = wc_get_product( $product_id );
 
 	// Get grace period from product metadata
-	$grace_period_number	= $product->get_grace_period_number();
-	$grace_period_unit		= $product->get_grace_period_unit();
+	$grace_period_number	= ! empty( $product ) ? $product->get_grace_period_number(): null;
+	$grace_period_unit		= ! empty( $product ) ? $product->get_grace_period_unit(): null;
 
 	// Calculate the end date of the grace period.
 	if ( empty( $grace_period_number ) && empty( $grace_period_unit ) ) {
