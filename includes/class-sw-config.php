@@ -46,6 +46,7 @@ class SmartWoo_Config{
         define( 'SMARTWOO_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
         define( 'SMARTWOO_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
         define( 'SMARTWOO_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
+        define( 'SMARTWOO_ASSETS_TABLE', $wpdb->prefix . 'sw_assets' );
         define( 'SMARTWOO_PLUGIN_BASENAME', plugin_basename( SMARTWOO_FILE ) );
         $this->init();
     }
@@ -268,18 +269,21 @@ class SmartWoo_Config{
     public function add_rules() {
         /** Product configuration page */
         add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
+
         /** WooCommerce my-acount endpoints */
         add_rewrite_endpoint( 'smartwoo-invoice', EP_PAGES );
         add_rewrite_endpoint( 'smartwoo-service', EP_PAGES );
+
         /** Service Subscription page */
         add_rewrite_endpoint( 'buy-new', EP_PAGES );
         add_rewrite_endpoint( 'view-subscription', EP_PAGES );
         add_rewrite_endpoint( 'view-subscriptions-by', EP_PAGES );
         add_rewrite_endpoint( 'upgrade', EP_PAGES );
         add_rewrite_endpoint( 'downgrade', EP_PAGES );
-        if ( false === get_option( '_smartwoo_flushed_rewrite_rules', false ) ) {
+
+        if ( false === get_transient( '_smartwoo_flushed_rewrite_rules', false ) ) {
             flush_rewrite_rules();
-            update_option( '_smartwoo_flushed_rewrite_rules', true );
+            set_transient( '_smartwoo_flushed_rewrite_rules', true, WEEK_IN_SECONDS );
         }
     }
 

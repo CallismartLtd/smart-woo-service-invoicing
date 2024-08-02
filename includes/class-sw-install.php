@@ -15,6 +15,9 @@ class SmartWoo_Install {
 	private static $db_updates = array(
 		'1.0.2' => array(
 			''
+		),
+		'2.0.0'	=> array(
+			'created assets table'
 		)
 	);
 
@@ -68,6 +71,7 @@ class SmartWoo_Install {
 			SMARTWOO_INVOICE_TABLE,
 			SMARTWOO_SERVICE_LOG_TABLE,
 			SMARTWOO_INVOICE_LOG_TABLE,
+			SMARTWOO_ASSETS_TABLE,
 		);
 
 		foreach ( $table_names as $table_name ) {
@@ -84,7 +88,7 @@ class SmartWoo_Install {
 	
 	/** Declare current state */
 	private static function installing() {
-		set_transient( '_smartwoo_is_installing', true, 60*10 );
+		set_transient( '_smartwoo_is_installing', true, 10 );
 		self::$installing = true;
 	}
 

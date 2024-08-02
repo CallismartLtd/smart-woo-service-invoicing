@@ -268,15 +268,15 @@ class SmartWoo_Service_Database {
 		return $services;
 	}
 
-		/**
-		 * Deletes a service from the database.
-		 *
-		 * @param string $service The ID of the service to delete.
-		 *
-		 * @return bool True on success, false on failure.
-		 *
-		 * @since 1.0.0
-		 */
+	/**
+	 * Deletes a service from the database.
+	 *
+	 * @param string $service The ID of the service to delete.
+	 *
+	 * @return bool True on success, false on failure.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function delete_service( $service_id ) {
 		global $wpdb;
 
