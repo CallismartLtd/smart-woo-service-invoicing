@@ -8,7 +8,7 @@
  * @since 2.0.0
  */
 
-define( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Class representation assets assigned to a service subscription.
@@ -270,7 +270,7 @@ class SmartWoo_Service_Assets {
     | CRUD METHODS
     |----------------
     */
-
+    
     /**
      * Get assets associated with a service subscription.
      */
@@ -281,12 +281,12 @@ class SmartWoo_Service_Assets {
 
         global $wpdb;
         $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s", $this->service_id );
-        $results = $wpdb->get_results( $query, ARRAY_A );
+        $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
         $assets = array();
         if ( ! empty( $results ) ) {
             foreach ( $results as $result ){ 
-                $assets[] = $this->convert_db_result( $results );                
+                $assets[] = $this->convert_db_result( $result );                
             }
 
             return $assets;
@@ -305,7 +305,7 @@ class SmartWoo_Service_Assets {
 
         global $wpdb;
         $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s AND `asset_name` =%s", $this->service_id, $this->asset_name );
-        $result = $wpdb->get_row( $query, ARRAY_A );
+        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
         if ( $result ) {
             return $this->convert_db_result( $result );
@@ -322,7 +322,7 @@ class SmartWoo_Service_Assets {
             return false;
         }
 
-        global $wpdab;
+        global $wpdb;
 
         $is_update  = false;
         $is_new     = false;
@@ -347,7 +347,7 @@ class SmartWoo_Service_Assets {
         if ( $is_update ) {
             $data['updated_at'] = current_time( 'mysql' );
             $data_format = array_merge( $data_format, array( '%s' ) );
-            $updated = $wpdb->update( 
+            $updated = $wpdb->update(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 SMARTWOO_ASSETS_TABLE,
                 $data, 
                 array( 'asset_id' => $this->asset_id ),
@@ -360,10 +360,11 @@ class SmartWoo_Service_Assets {
         }
 
         if ( $is_new ) {
+            $data['asset_key'] = 'sw_' . smartwoo_generate_token();
             $data['created_at'] = current_time( 'mysql' );
             $data_format = array_merge( $data_format, array( '%s' ) );
 
-            $inserted = $wpdb->insert(
+            $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 SMARTWOO_ASSETS_TABLE,
                 $data,
                 $data_format
@@ -377,11 +378,6 @@ class SmartWoo_Service_Assets {
 
         return false;
     }
-
-
-
-
-
 
     /*
     |-----------------
@@ -399,11 +395,27 @@ class SmartWoo_Service_Assets {
         $this->set_service_id( $result['service_id'] );
         $this->set_asset_name( $result['asset_name'] );
         $this->set_asset_data( $result['asset_data'], 'db_get' );
-        $this->set_key( $result['key'] );
+        $this->set_key( $result['asset_key'] );
         $this->set_limit( $result['access_limit'] );
         $this->set_expiry( $result['expiry'] );
         $this->set_created_at( $result['created_at'] );
         $this->set_updated_at( $result['updated_at'] );
         return $this;
+    }
+
+    /**
+     * Convert array to an object of this class.
+     * 
+     * @param array $array Associative array.
+     */
+    public static function convert_arrays( $result, $context = 'view' ) {
+        $self = new self();
+        $self->set_service_id( ! empty( $result['service_id'] ) ? $result['service_id'] : '' );
+        $self->set_asset_name( ! empty( $result['asset_name'] ) ? $result['asset_name'] : '' );
+        $self->set_asset_data( ! empty( $result['asset_data'] ) ? $result['asset_data'] : '', $context );
+        $self->set_key( ! empty( $result['key'] ) ? $result['key'] : '' );
+        $self->set_expiry( ! empty( $result['expiry'] ) ? $result['expiry'] : '' );
+        $self->set_limit( ! empty( $result['access_limit'] ) ? $result['access_limit'] : '' );
+        return $self;
     }
 }

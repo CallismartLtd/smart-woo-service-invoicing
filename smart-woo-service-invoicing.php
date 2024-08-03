@@ -5,7 +5,7 @@
  * Version: 2.0.0
  * Author: Callistus Nwachukwu
  * Author URI: https://callismart.com.ng/callistus
- * Plugin URI: https://callismart.com.ng/smart-woo
+ * Plugin URI: https://callismart.com.ng/smart-woo-service-invoicing
  * Requires at least: 6.0
  * Tested up to: 6.6.1
  * Requires PHP: 7.4

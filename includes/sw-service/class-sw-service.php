@@ -35,6 +35,14 @@ class SmartWoo_Service {
 	private $status;
 
 	/**
+	 * Service Subscription Assets
+	 * 
+	 * @since 2.0.0
+	 * @var SmartWoo_Service_Assets
+	 */
+	private $assets = array();
+
+	/**
 	 * SmartWoo_Service constructor.
 	 *
 	 * @param int         $user_id            User ID associated with the service.
@@ -77,6 +85,12 @@ class SmartWoo_Service {
 		$this->billing_cycle     = $billing_cycle;
 		$this->status            = $status;
 	}
+
+	/*
+	|--------------
+	| SETTERS
+	|--------------
+	*/
 
 	/**
 	 * Set the ID of the service.
@@ -197,9 +211,12 @@ class SmartWoo_Service {
 		$this->status = $status;
 	}
 
+	/*
+	|----------------
+	| GETTERS
+	|----------------
+	*/
 
-
-	// Getter methods
 	/**
 	 * Get the ID of the service.
 	 *
@@ -317,6 +334,29 @@ class SmartWoo_Service {
 		return $this->status;
 	}
 
+	/*
+	|-----------------
+	| CRUD METHODS
+	|-----------------
+	*/
+
+	/**
+	 * Insert into the database.
+	 */
+	public function save() {
+		if ( empty( $this->getServiceId() ) ) {
+			return false; // Service ID must be generated be saving.
+		}
+		$id = SmartWoo_Service_Database::create_service( $this ); 
+		return $id;
+	}
+
+	/*
+	|-------------------
+	| UTILITY METHODS
+	|-------------------
+	*/
+
 	/**
 	 * Get the Service product name.
 	 */
@@ -352,17 +392,6 @@ class SmartWoo_Service {
 		return $total_cost;
 	}
 
-	/**
-	 * Insert into the database.
-	 */
-	public function save() {
-		if ( empty( $this->getServiceId() ) ) {
-			return false; // Service ID must be generated be saving.
-		}
-		$id = SmartWoo_Service_Database::create_service( $this ); 
-		return $id;
-	}
-
 	// Helper method to convert database results to SmartWoo_Service objects
 	public static function convert_array_to_service( $data ) {
 		// Create a new SmartWoo_Service instance with the provided data
@@ -381,4 +410,78 @@ class SmartWoo_Service {
 			$data['status']
 		);
 	}
+
+	/**
+	 * Check whether a given product is a SmartWpp_Product
+	 * 
+	 * @param mixed $product
+	 * @since 2.0.0
+	 */
+	public function is_smartwoo_product( $product ) {
+		return ( $product instanceof SmartWoo_Product ) ? true : false;
+	}
+
+	/*
+	|------------------------------
+	| SUBSCRIPTION ASSETS METHODS
+	|------------------------------
+	*/
+
+	/**
+	 * Get all assets for this class.
+	 * 
+	 * @return array $assets Array of SmartWoo_Service_Asset
+	 * @since 2.0.0
+	 */
+	public function get_assets() {
+		if ( ! $this->has_asset() ) {
+			return $this->assets;
+		}
+
+		$assets_obj		= new SmartWoo_Service_Assets();
+		$assets_obj->set_service_id( $this->getServiceId() );
+		$this->assets	= $assets_obj->get_service_assets();
+
+		return $this->assets;	
+	}
+
+	/**
+	 * Check whether the current subscription has an asset.
+	 * 
+	 * @return bool True if has assets, false otherwise.
+	 * @since 2.0.0
+	 */
+	public function has_asset() {
+		return true; // Return true for now
+	}
+
+	/**
+	 * Save Assets to the database.
+	 * 
+	 * @param string $asset_name The name of the asset.
+	 * @since 2.0.0
+	 */
+	public function save_assets( $asset_name = 'downloads' ) {
+		if ( 'downloads' === $asset_name ) {
+			if ( empty( $this->getProductId() ) ) {
+				return false;
+			}
+
+			$product = wc_get_product( $this->getProductId() );
+
+			if ( $this->is_smartwoo_product( $product ) && $product->is_downloadable() ) {
+				$this->assets['asset_name']		= ucfirst( $asset_name );
+				$this->assets['service_id'] 	= $this->getServiceId();
+				$this->assets['asset_data'] 	= $product->get_smartwoo_downloads();
+				$this->assets['access_limit'] 	= -1; // Will allow users to set access limit in later updates.
+				$this->assets['expiry'] 		= null; // Will allow asset expiry in future updates.
+				$obj = SmartWoo_Service_Assets::convert_arrays( $this->assets );
+				return $obj->save();
+			}
+
+			return false;
+		}
+
+	}
+	
 }

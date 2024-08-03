@@ -157,6 +157,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-utm.php';
         require_once SMARTWOO_PATH . 'templates/email-templates.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
+        require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-assets.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
