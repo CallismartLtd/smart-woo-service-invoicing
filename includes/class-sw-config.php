@@ -109,6 +109,7 @@ class SmartWoo_Config{
     public function init_hooks() {
         self::add_automations();
         $this->add_rules();
+        $this->add_actions();
     }
 
     /**
@@ -396,4 +397,15 @@ class SmartWoo_Config{
         
         }
 	}
+
+    /**
+     * Fire some actions hooks for our GET actions.
+     * 
+     * @since 2.0.0
+     */
+    private function add_actions() {
+        if ( isset( $_GET['smartwoo_action'] ) && has_action( $_GET['smartwoo_action'] ) ) {
+            do_action( $_GET['smartwoo_action'] );
+        }
+    }
 }

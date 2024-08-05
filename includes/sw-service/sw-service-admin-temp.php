@@ -41,7 +41,7 @@ function smartwoo_admin_view_service_details() {
 
 	$args       = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$query_var  =  'action=view-service&service_id=' . $service->getServiceId() .'&tab';
-	$page_html .= smartwoo_sub_menu_nav( $tabs, 'Service Informations','sw-admin', $args, $query_var );
+	$page_html .= smartwoo_sub_menu_nav( $tabs, 'Service Informations <a href="' . smartwoo_service_edit_url( $service->getServiceId() ) . '">edit</a>','sw-admin', $args, $query_var );
 
 	switch ( $args ) {
 		case 'client':
@@ -55,6 +55,7 @@ function smartwoo_admin_view_service_details() {
 			break;
 		case 'assets':
 			ob_start();
+			$assets = $service->get_assets();
 			include_once SMARTWOO_PATH . 'templates/service-assets.php';
 			$page_html .= ob_get_clean();
 			break;
@@ -289,8 +290,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Active' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$active_services_found = true;
 			}
 		}
@@ -319,8 +319,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Active (NR)' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$nr_services_found = true;
 			}
 		}
@@ -349,8 +348,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Due for Renewal' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() )) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$due_services_found = true;
 			}
 		}
@@ -378,8 +376,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Grace Period' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$grace_services = true;
 			}
 		}
@@ -406,8 +403,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Cancelled' === $service_status ) {
-				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $view_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$cancelled_services_found = true;
 			}
 		}
@@ -434,8 +430,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Expired' === $service_status ) {
-				$view_link  = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $view_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$expired_services_found = true;
 			}
 		}
@@ -462,8 +457,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Suspended' === $service_status ) {
-				$view_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $view_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$active_services_found = true;
 			}
 		}
@@ -490,8 +484,7 @@ function smartwoo_dashboard_page() {
 			$service_status = smartwoo_service_status( $service->getServiceId() );
 
 			if ( 'Pending' === $service_status ) {
-				$service_link = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service->getServiceId() . '&tab=details' );
-				$page_html .= '<li><a href="' . esc_url( $service_link ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
+				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$pending_services_found = true;
 			}
 		}
@@ -866,12 +859,13 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
 	$order      = wc_get_order( $order_id );
 	
 	if ( ! empty( $order ) ) {
-		$items = $order->get_items();
+		$items = $order->get_items( 'line_item');
 		if ( ! empty( $items ) ) {
 			$first_item = reset( $items );
 			$product_id = $first_item->get_product_id();
 		}
 	}
+	
 	$product_name = wc_get_product( $product_id )->get_name();
 	$page .= '<div class="sw-form-row">';
 	$page .= '<label for="order_id" class="sw-form-label">' . __( 'Order:', 'smart-woo-service-invoicing' ) . '</label>';
@@ -914,11 +908,11 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
 	$page .= '<label for="billing_cycle" class="sw-form-label">' . esc_html__( 'Billing Cycle', 'smart-woo-service-invoicing' ) . '</label>';
 	$page .= '<span class="sw-field-description" title="' . esc_attr__( 'This billing cycle was set from the product, you may edit it, invoices are created toward to the end of the billing cycle.', 'smart-woo-service-invoicing' ) . '">?</span>';
 	$page .= '<select name="billing_cycle" id="billing_cycle" class="sw-form-input" required>';
-	$page .= '<option value="" selected disabled>' . esc_html__( 'Select billing cycle', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Monthly" ' . selected( 'Monthly', $billing_cycle ) . '>' . esc_html__( 'Monthly', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Quarterly" ' . selected( 'Quarterly', $billing_cycle ) . '>' . esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle ) . '>' . esc_html__( '6 Months', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Yearly" ' . selected( 'Yearly', $billing_cycle ) . '>' . esc_html__( 'Yearly', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="">' . esc_html__( 'Select billing cycle', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Monthly" ' . selected( 'Monthly', $billing_cycle, false ) . '>' . esc_html__( 'Monthly', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Quarterly" ' . selected( 'Quarterly', $billing_cycle, false ) . '>' . esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle, false ) . '>' . esc_html__( '6 Months', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Yearly" ' . selected( 'Yearly', $billing_cycle, false ) . '>' . esc_html__( 'Yearly', 'smart-woo-service-invoicing' ) . '</option>';
 	$page .= '</select>';
 	$page .= '</div>';
 	// Next Payment Date.

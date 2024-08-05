@@ -452,7 +452,10 @@ class SmartWoo_Service {
 	 * @since 2.0.0
 	 */
 	public function has_asset() {
-		return true; // Return true for now
+		global $wpdb;
+		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id );
+		$result	= $wpdb->get_var( $query );
+		return $result !== null;
 	}
 
 	/**

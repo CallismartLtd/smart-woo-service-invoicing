@@ -101,7 +101,7 @@ add_action( 'admin_menu', 'smartwoo_reg_admin_menu' );
  */
 function smartwoo_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) {
 	$output  = '<div class="wrap">';
-	$output .= '<h1 class="wp-heading-inline">' . esc_html( $title ) . '</h1>';
+	$output .= '<h1 class="wp-heading-inline">' . wp_kses_post( $title ) . '</h1>';
 	$output .= '<nav class="nav-tab-wrapper">';
 
 	foreach ( $tabs as $tab_slug => $tab_title ) {

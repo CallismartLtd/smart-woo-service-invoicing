@@ -159,7 +159,7 @@ class SmartWoo_Service_Assets {
      * @param int $limit The limit before the asset will be in-accessible
      */
     public function set_limit( $limit ) {
-        $this->limit = absint( $limit );
+        $this->limit = intval( $limit );
     }
 
     /**
@@ -240,7 +240,14 @@ class SmartWoo_Service_Assets {
     /**
      * Get access limit
      */
-    public function get_access_limit() {
+    public function get_access_limit( $context = 'view') {
+        $limit = $this->limit;
+        
+        if ( 'view' === $context && intval( $this->limit ) < 0 ) {
+            return 'Unlimited';
+        } elseif (  'view' === $context && intval( $limit ) === 0 ) {
+            return 'Exceeded';
+        }
         return $this->limit;
     }
 
@@ -391,16 +398,17 @@ class SmartWoo_Service_Assets {
      * @param array $result A database query result of an associative array.
      */
     public function convert_db_result( $result ) {
-        $this->set_id( $result['asset_id'] );
-        $this->set_service_id( $result['service_id'] );
-        $this->set_asset_name( $result['asset_name'] );
-        $this->set_asset_data( $result['asset_data'], 'db_get' );
-        $this->set_key( $result['asset_key'] );
-        $this->set_limit( $result['access_limit'] );
-        $this->set_expiry( $result['expiry'] );
-        $this->set_created_at( $result['created_at'] );
-        $this->set_updated_at( $result['updated_at'] );
-        return $this;
+        $self = new self();
+        $self->set_id( $result['asset_id'] );
+        $self->set_service_id( $result['service_id'] );
+        $self->set_asset_name( $result['asset_name'] );
+        $self->set_asset_data( $result['asset_data'], 'db_get' );
+        $self->set_key( $result['asset_key'] );
+        $self->set_limit( $result['access_limit'] );
+        $self->set_expiry( $result['expiry'] );
+        $self->set_created_at( $result['created_at'] );
+        $self->set_updated_at( $result['updated_at'] );
+        return $self;
     }
 
     /**
@@ -417,5 +425,54 @@ class SmartWoo_Service_Assets {
         $self->set_expiry( ! empty( $result['expiry'] ) ? $result['expiry'] : '' );
         $self->set_limit( ! empty( $result['access_limit'] ) ? $result['access_limit'] : '' );
         return $self;
+    }
+
+    /**
+     * Verify Access key.
+     * 
+     * @param string $key The access key.
+     * @param string $data_value The value of the asset data.
+     */
+    public static function verify_key( $key, $data_value ) {
+        $key        = ! empty( $key ) && is_string( $key ) ? sanitize_text_field( $key ) : false;
+        $data_value = ! empty( $data_value ) && is_string( $data_value ) ? sanitize_text_field( $data_value ) : false;
+        
+        if ( ! $key || ! $data_value ) {
+            return false;
+        }
+
+        global $wpdb;
+
+        $query = $wpdb->prepare( "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_key` =%s", $key );
+        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        if ( ! $result ) {
+            return false;
+        }
+
+        // $limit  = $result['access_limit'];
+
+        // if ( 0 === intval( $limit ) ) {
+        //     return false;
+        // } elseif ( $limit > 0 ) {
+        //     $wpdb->update( SMARTWOO_ASSETS_TABLE, // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        //         array( 'access_limit' => intval( $limit ) - 1 ),
+        //         array( 'asset_key' => $key ),
+        //         array( '%d' ),
+        //         array( '%s' ),
+        //      );
+
+        // }
+
+
+        $asset_data = maybe_unserialize( $result['asset_data'] );
+
+        foreach ( (array) $asset_data as $name => $value ) {
+            if ( $value === $data_value ) {
+                return true;
+            }
+        }
+    
+        return false;
     }
 }

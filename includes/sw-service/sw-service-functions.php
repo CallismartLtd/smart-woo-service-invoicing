@@ -95,6 +95,10 @@ function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 
 /**
  *  Service subscription details preview URL
+ * 
+ * @param string $service_id The ID of service to preview.
+ * @return string $preview_url
+ * @since 2.0.0 Added support for admin page preview service url.
  */
 function smartwoo_service_preview_url( $service_id ) {
     if ( is_account_page() ) {
@@ -106,8 +110,18 @@ function smartwoo_service_preview_url( $service_id ) {
             ),
             $endpoint_url
         );
-        return esc_url( $preview_url );
-    } else {
+        return $preview_url;
+    } elseif( is_admin() ) {
+		$preview_url = add_query_arg( 
+			array(
+				'action' 		=> 'view-service',
+				'service_id'	=> $service_id,
+				'tab'			=> 'details'
+			),
+			admin_url( 'admin.php?page=sw-admin')
+		);
+		return $preview_url;
+	} else {
         $page_id		= absint( get_option( 'smartwoo_service_page_id', 0 ) );
         $page_url		= get_permalink( $page_id );
         $preview_url	= add_query_arg( array( 'service_id'   => $service_id, ), $page_url . 'view-subscription/' );
@@ -115,7 +129,26 @@ function smartwoo_service_preview_url( $service_id ) {
     }
 }
 
-/** Get the formatted url for service subscription page */
+/**
+ * Get edit url for service subscription
+ * 
+ * @param string $service_id The ID of service to edit.
+ * @return string $edit_url Admin page url for edit service
+ */
+function smartwoo_service_edit_url( $service_id ) {
+	$edit_url = add_query_arg( 
+		array(
+			'action' 		=> 'edit-service',
+			'service_id'	=> $service_id,
+		),
+		admin_url( 'admin.php?page=sw-admin')
+	);
+	return $edit_url;
+}
+
+/** 
+ * Get the formatted url for service subscription page 
+ */
 function smartwoo_service_page_url() {
 	
 	if ( is_account_page() ) {

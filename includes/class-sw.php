@@ -48,6 +48,7 @@ final class SmartWoo {
      */
     public function __construct() {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
+        add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
@@ -71,7 +72,7 @@ final class SmartWoo {
         /**
          * Smart Woo Pro URL
          */
-        $smartwoo_pro_url = apply_filters( 'smartwoopro_purchase_link', 'https://callismart.com.ng/smart-woo' );
+        $smartwoo_pro_url = apply_filters( 'smartwoopro_purchase_link', 'https://callismart.com.ng/smart-woo-service-invoicing' );
 
         /**
          * Plugin support link.
@@ -144,6 +145,65 @@ final class SmartWoo {
             self::$instance = new self();
         }
     }
+
+    /**
+     * File download handler
+     */
+    public function download_handler() {
+        if ( ! isset( $_GET['smartwoo_action'] ) 
+            || $_GET['smartwoo_action'] !== 'smartwoo_download' 
+            || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_download_nonce'] ?? '' ) ), 'smartwoo_download_nonce' )
+        ) {
+            return;
+        }
+    
+        $resource_url = ! empty( $_GET['resource'] ) ? esc_url_raw( rawurldecode( wp_unslash( $_GET['resource'] ) ) ) : '';
+    
+        if ( empty( $resource_url ) || ! SmartWoo_Service_Assets::verify_key( sanitize_key( wp_unslash( $_GET['key'] ) ), $resource_url ) ) {
+            wp_die( 'Unable to validate requested resource.' );
+        }
+    
+        $this->serve_file( $resource_url );
+    }
+    
+    /**
+     * Serve file for download.
+     */
+    private function serve_file( $resource_url ) {
+        $file_headers = get_headers( $resource_url, 1 );
+    
+        if ( ! $file_headers || strpos( $file_headers[0], '200' ) === false ) {
+            wp_die( 'File not found.' );
+        }
+    
+        $content_type = $file_headers['Content-Type'] ?? 'application/octet-stream';
+        $content_length = $file_headers['Content-Length'] ?? 0;
+        $filename = basename( parse_url( $resource_url, PHP_URL_PATH ) );
+    
+        header( 'Content-Description: File Transfer' );
+        header( 'Content-Type: ' . $content_type );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Expires: 0' );
+        header( 'Cache-Control: must-revalidate' );
+        header( 'Pragma: public' );
+        header( 'Content-Length: ' . $content_length );
+    
+        // Open the file and stream it to the browser
+        $handle = fopen( $resource_url, 'rb' );
+        if ( $handle ) {
+            while ( ! feof( $handle ) ) {
+                echo fread( $handle, 8192 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                ob_flush();
+                flush();
+            }
+            fclose( $handle );
+        } else {
+            wp_die( 'Unable to read the file.' );
+        }
+    
+        exit;
+    }
+    
 }
 
 SmartWoo::instance();
