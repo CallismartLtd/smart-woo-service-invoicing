@@ -8,9 +8,7 @@ use inline CSS to overide some styles
 /************************************************************************************/
 
 /************** Button CSS******************/
-.site-content .inv-button-container {
-	margin-top: 10px;
-}
+
 
 .sw-red-button {
 	display: inline-block;
@@ -38,6 +36,7 @@ use inline CSS to overide some styles
 	text-decoration: none;
 	border: 2px solid #fafafa;
 	border-radius: 9px;
+	cursor: pointer;
 	margin: 5px;
 	font-weight: bold;
 	transition: background-color 0.3s, color 0.3s;
@@ -554,7 +553,9 @@ use inline CSS to overide some styles
 	background-color: #0056b3;
 }
 
-
+.smartwoo-front-assets-container {
+	display: none;
+}
 
 
 /***************************************************************************************************

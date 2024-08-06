@@ -501,15 +501,18 @@ class SmartWoo_Product extends WC_Product {
 	
 		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
 			$product = $cart_item['data'];
-	
-			if ( $product && $product instanceof SmartWoo_Product ) {
-				$quantity = $cart_item['quantity'];
-	
-				$sign_up_fee = (float) $product->get_sign_up_fee() * $quantity;
-	
-				// Add the sign-up fee for the current product to the total sign-up fee
-				$total_sign_up_fee += $sign_up_fee;
+
+			if ( $product && 'sw_product' !== $product->get_type() ) {
+				return;
 			}
+	
+			$quantity = $cart_item['quantity'];
+
+			$sign_up_fee = (float) $product->get_sign_up_fee() * $quantity;
+
+			// Add the sign-up fee for the current product to the total sign-up fee
+			$total_sign_up_fee += $sign_up_fee;
+			
 		}
 	
 		// Add total sign-up fee to cart total.

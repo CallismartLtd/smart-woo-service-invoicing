@@ -19,134 +19,73 @@
  */
 function smartwoo_service_details() { 
 	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
-	   return;
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => add_query_arg( array_map( 'rawurlencode', $_GET ) ) ) );
+	   
     }
 
-	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : '' ; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$url_service_id 	= isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : '' ; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	
 	if ( empty( $url_service_id ) ) {
-		return smartwoo_error_notice( 'Service ID parameter cannot be manupulated' );
+		return smartwoo_error_notice( 'Service ID parameter should not be manupulated.' );
 	}
 
 	$service	= SmartWoo_Service_Database::get_service_by_id( $url_service_id );
-	$output		= smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() );
+	$output		= '';
 
 	if ( $service && $service->getUserId() !== get_current_user_id()|| ! $service ) {
-		return smartwoo_error_notice( 'Service Not Found', 'smart-woo-service-invoicing' );
+		return smartwoo_error_notice( 'Service Not Found.', 'smart-woo-service-invoicing' );
 	}
 	
-	$service_name 		= esc_html( $service->getServiceName() ? $service->getServiceName() : 'Not Available' );
-	$service_id   		= esc_html( $service->getServiceId() ? $service->getServiceId() : 'Not Available' );
-	$product_id   		= esc_html( $service->getProductId() );
-	$service_type 		= esc_html( $service->getServicetype() ? $service->getServiceType() : 'Not Available' );
+	$service_name 		= $service->getServiceName() ? $service->getServiceName() : 'Not Available';
+	$service_id   		= $service->getServiceId() ? $service->getServiceId() : 'Not Available';
+	$product_id   		= $service->getProductId();
+	$service_type 		= $service->getServicetype() ? $service->getServiceType() : 'Not Available';
 	$product_info  		= wc_get_product( $product_id );
 	$product_name  		= $product_info ? $product_info->get_name() : 'Product Not Found';
 	$product_price 		= $product_info ? $product_info->get_price() : 0;
-	$billing_cycle     	= esc_html( $service->getBillingCycle() ? $service->getBillingCycle() : 'Not Available' );
+	$billing_cycle     	= $service->getBillingCycle() ? $service->getBillingCycle() : 'Not Available';
 	$start_date        	= smartwoo_check_and_format( $service->getStartDate(), true );
 	$next_payment_date 	= smartwoo_check_and_format( $service->getNextPaymentDate() );
 	$end_date          	= smartwoo_check_and_format( $service->getEndDate() );
 	$service_button    	= smartwoo_client_service_url_button( $service );
 	$status        	   	= smartwoo_service_status( $service_id );
 	$expiry_date   		= smartwoo_get_service_expiration_date( $service );
-	$output 			.= '<div class="content">';
+	
 	// Add the status tag to the service name.
 	$service_name_with_status = $service_name . ' (' . $status . ')';
-	$output .= '<h3 style="text-align: center;">' . esc_html( $service_name_with_status ) . '</h3>';
-	$output .= '<div class="inv-button-container" style="text-align: center;">';
-	$output .= '<a href="' . esc_url( smartwoo_service_page_url() ) . '" class="back-button">Back to Services</a>';
-	$renew_button_text = ( 'Due for Renewal' === $status || 'Grace Period' === $status ) ? 'Renew' : 'Reactivate';
-	// "Renew" button when the service is due for renewal or expired.
-	if ( 'Due for Renewal' === $status || 'Expired' === $status || 'Grace Period' === $status ) {
-		// Add the nonce to the URL.
-		$renew_link = esc_url(
-			wp_nonce_url(
-				add_query_arg(
-					array(
-						'service_id' => $service_id,
-						'action'     => 'renew-service',
-					),
-					get_permalink()
+	$renew_link = esc_url(
+		wp_nonce_url(
+			add_query_arg(
+				array(
+					'service_id' => $service_id,
+					'action'     => 'renew-service',
 				),
-				'renew_service_nonce',
-				'renew_nonce'
-			)
-		);
+				get_permalink()
+			),
+			'renew_service_nonce',
+			'renew_nonce'
+		)
+	);
+	$renew_button_text = ( 'Due for Renewal' === $status || 'Grace Period' === $status ) ? 'Renew' : 'Reactivate';
 
-		// Output the "Renew" button with the nonce.
-		$output .= '<a href="' . esc_url( $renew_link ) . '" class="renew-button">' . esc_html( $renew_button_text ) . '</a>';
-	}
-		// "Quick Action" button when the service status is 'Active'.
-	if ( 'Active' === $status ) {
-
-		$output .= '<a id="sw-service-quick-action" class="sw-blue-button"';
-		$output .= ' data-service-name="' . esc_js( wp_json_encode( $service_name ) ) . '"';
-		$output .= ' data-service-id="' . esc_js( wp_json_encode( $service_id ) ) . '"';
-		$output .= '>' . esc_html__( 'Quick Action', 'smart-woo-service-invoicing' ) . '</a>';
-	}
-
-	if ( 'Active' === $status || 'Active (NR)' === $status || 'Grace Period' === $status ){
-		$output .=  wp_kses_post( $service_button );
-	}
-
-	if ( $service->has_assets() ) {
-		$output .= '<a href="#">';
-	}
-
-	/** Filter button row */
-	$buttons = apply_filters( 'smartwoo_service_details_button_row', array(), $service );
-
-	foreach ( (array) $buttons as $button ) {
-		$output .= $button;
-	}
-	$output .= '</div>';
-
-	if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ) {
-		$output .= smartwoo_notice( 'Expiring Today' );
-	} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
-		$output .= smartwoo_notice( 'Expiring Tomorrow' );
-	} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
-		$output .= smartwoo_notice( 'Expired Yesterday' );
-	}
-	
-	$output .= '<div class="smartwoo-assets-container">';
-	$output .=  apply_filters( 'smartwoo_before_service_details_page', '', $service_id );
-	$output .= '<div class="serv-details-card">';
-	$output .= '<div id="swloader">Processing....</div>';
-	$output .= '<h3>Subscription Info</h3>';
-	$output .= '<p class="smartwoo-container-item"><span> Service ID:</span>' . esc_html( $service_id ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Service Type:</span>' . esc_html( $service_type ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Product Name:</span>' . esc_html( $product_name ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Amount:</span>' . smartwoo_price( $product_price ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Billing Cycle:</span>' . esc_html( $billing_cycle ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Start Date:</span>' . esc_html( $start_date ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Next Payment Date:</span>' . esc_html( $next_payment_date ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> End Date:</span>' . esc_html( $end_date ) . '</p>';
-	$output .= '<p class="smartwoo-container-item"><span> Expiry Date:</span>' . esc_html( smartwoo_check_and_format( $expiry_date, true ) ) . '</p>';
-	/** Filter to add more details as associative array of title and value */
+	/** 
+	 * Add more buttons to the row
+	 * 
+	 * @param array Associative array of item => value
+	 * @param SnartWoo_Service
+	 */
+	$buttons	= apply_filters( 'smartwoo_service_details_button_row', array(), $service );
+	/**
+	 * Add additional service information to the container
+	 * 
+	 * @param array Associative array of item => value
+	 * @param SnartWoo_Service
+	 */
 	$additional_details = apply_filters( 'smartwoo_more_service_details', array(), $service );
 	
-	foreach ( (array) $additional_details  as $title => $value ) {
-		$output .= '<p class="smartwoo-container-item"><span> ' . $title . ':</span>' . esc_html( $value ) . '</p>';
-
-	}
-
-	$output .= '</div>';
-	$output .= '</div>';
-
-	/**
-	 * Assets table.
-	 * 
-	 * @since 2.0.0
-	 */
-	$output .= '<h2 id="my-assets">Assets</h2>';
-	$output .= $service->get_assets_containers(); 
-		
-	$output .=  apply_filters( 'smartwoo_after_service_details_page', '', $service_id );
-	$output .= '</div>';
-
-	return $output;
+	ob_start();
+	include SMARTWOO_PATH . 'templates/frontend/subscriptions/view-subscription.php';
+	return ob_get_clean();
 }
 
 

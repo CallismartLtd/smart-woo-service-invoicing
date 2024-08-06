@@ -17,7 +17,8 @@ defined( 'ABSPATH' ) || exit;
         <div class="serv-details-card">
             <p class="smartwoo-container-item"><span> Asset ID: </span> <?php echo esc_html( $asset->get_id() );?></p>
             <p class="smartwoo-container-item"><span> Access Limit: </span> <?php echo esc_html( $asset->get_access_limit() );?></p>
-            <h2> Asset Name:</h2> <h3> <?php echo esc_html( $asset->get_asset_name() );?></h3>
+            <p> Asset Name:</p>
+            <h3> <?php echo esc_html( $asset->get_asset_name() );?></h3>
             <table class="sw-table">
                 <thead>
                     <tr>
@@ -32,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
                                 <?php echo esc_html( $name ); ?>
                             </td>
                             <td>
-                                <a href="<?php echo esc_url( smartwoo_download_url( $value, $asset->get_key() ) ); ?>"><button>Download</button></a>
+                                <a href="<?php echo esc_url( smartwoo_download_url( $value, $asset->get_key() ) ); ?>" class="sw-red-button">Download</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

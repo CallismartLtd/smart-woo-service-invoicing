@@ -912,3 +912,29 @@ jQuery(document).ready(function($) {
         $(this).closest('.sw-product-download-fields').remove();
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+	var assetSubBtn = document.getElementById( 'smartwoo-assets-sub-nav' );
+
+	if ( assetSubBtn ) {
+		var subContainer	= document.getElementById( 'smartwoo-sub-info' );
+		var assetsContainer = document.getElementById( 'smartwoo-sub-assets' );
+		var originalBtnText	= assetSubBtn.textContent;
+		var isClicked		= false;
+		
+		assetSubBtn.addEventListener( 'click', function( event ) {
+			if ( isClicked ) {
+				assetSubBtn.textContent			= originalBtnText;
+				subContainer.style.display		= "flex";
+				assetsContainer.style.display 	= "none";
+			} else {
+				assetSubBtn.textContent			= "Subscriptions";
+				subContainer.style.display		= "none";
+				assetsContainer.style.display 	= "block";
+			}
+			isClicked = !isClicked;
+		
+		} );
+	}
+} );

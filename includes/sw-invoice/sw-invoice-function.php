@@ -469,11 +469,12 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
 
 		$preview_url = add_query_arg( 
 			array( 
-				'page' => 'sw-invoices', 
-				'tab' => 'view-invoice', 
-				'invoice_id' => $invoice_id ), 
+				'page' 			=> 'sw-invoices', 
+				'tab' 			=> 'view-invoice', 
+				'invoice_id'	=> $invoice_id 
+			), 
 				admin_url( 'admin.php' ) 
-			);
+		);
 
 	} else {
         $invoice_page_id = get_option( 'smartwoo_invoice_page_id', 0 );

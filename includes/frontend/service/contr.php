@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 function smartwoo_service_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page' ), 'redirect' => add_query_arg( $_GET ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => add_query_arg( array_map( 'rawurlencode', $_GET ) ) ) );
 	}
 
 	global $wp_query;

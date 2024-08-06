@@ -53,6 +53,7 @@ final class SmartWoo {
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
+        add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
     }
 
     /** Service Subscription */
@@ -111,6 +112,18 @@ final class SmartWoo {
         return array_merge( $setting_url, $links );
     }
 
+    /**
+     * Display Dashboard nav button when a configured order is checked out.
+     * 
+     * @param WC_Order
+     */
+    public function before_order_table( $order ) {
+        if ( smartwoo_check_if_configured( $order ) ) {
+            echo '<a href="' . esc_url( smartwoo_service_page_url() ) .'" class="sw-blue-button">Dashbaord</a>';
+        }
+    
+    }
+
     /*
     |------------------------------------
     | FORM POST HANDLERS
@@ -148,7 +161,7 @@ final class SmartWoo {
      */
     public function new_service_from_order() {
 
-        if ( isset( $_POST['smartwoo_process_new_service'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'])), 'sw_process_new_service_nonce') ) {
+        if ( isset( $_POST['smartwoo_process_new_service'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'] ) ), 'sw_process_new_service_nonce' ) ) {
 
             $product_id        	= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
             $order_id          	= isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
@@ -241,16 +254,19 @@ final class SmartWoo {
      * File download handler
      */
     public function download_handler() {
-        if ( ! isset( $_GET['smartwoo_action'] ) 
-            || $_GET['smartwoo_action'] !== 'smartwoo_download' 
-            || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_download_nonce'] ?? '' ) ), 'smartwoo_download_nonce' )
-        ) {
+        if ( ! isset( $_GET['smartwoo_action'] )  || $_GET['smartwoo_action'] !== 'smartwoo_download' ) {
             return;
         }
+
+        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_download_nonce'] ?? '' ) ), 'smartwoo_download_nonce' ) ) {
+            wp_die( 'Authentication failed', 401 );
+        }
     
-        $resource_url = ! empty( $_GET['resource'] ) ? esc_url_raw( rawurldecode( wp_unslash( $_GET['resource'] ) ) ) : '';
-    
-        if ( empty( $resource_url ) || ! SmartWoo_Service_Assets::verify_key( sanitize_key( wp_unslash( $_GET['key'] ) ), $resource_url ) ) {
+        $asset_id       = ! empty( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
+        $resource_id    = ! empty( $_GET['resource_id'] ) ? sanitize_url( rawurldecode( wp_unslash( $_GET['resource_id'] ) ) ) : '';
+        $asset_key      = ! empty( $_GET['key'] ) ? sanitize_key( wp_unslash( $_GET['key'] ) ): '';
+        
+        if ( empty( $resource_url ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
             wp_die( 'Unable to validate requested resource.' );
         }
     
