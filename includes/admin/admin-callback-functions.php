@@ -102,7 +102,7 @@ function smartwoo_products_page() {
 	// Handle different actions.
 	switch ( $action ) {
 		case 'add-new':
-			include_once SMARTWOO_PATH . 'templates/sw-add-product.php';
+			include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-add-product.php';
 			break;
 		case 'edit':
 
@@ -126,7 +126,7 @@ function smartwoo_products_page() {
 			}
 
 			$is_downloadable = $product_data->is_downloadable();
-			include_once SMARTWOO_PATH . 'templates/sw-edit-product.php';
+			include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-edit-product.php';
 			break;
 		default:
 			echo wp_kses_post( smartwoo_product_table() );

@@ -486,5 +486,18 @@ class SmartWoo_Service {
 		}
 
 	}
+
+	/**
+	 * Get all assets in container.
+	 */
+	public function get_assets_containers() {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+		$assets = $this->get_assets();
+		ob_start();
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
+		return ob_get_clean();
+	}
 	
 }

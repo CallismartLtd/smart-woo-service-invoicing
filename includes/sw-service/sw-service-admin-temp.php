@@ -56,7 +56,9 @@ function smartwoo_admin_view_service_details() {
 		case 'assets':
 			ob_start();
 			$assets = $service->get_assets();
-			include_once SMARTWOO_PATH . 'templates/service-assets.php';
+			$page_html .= '<h1>Assets <span class="dashicons dashicons-database-view"></span></h1>';
+
+			include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
 			$page_html .= ob_get_clean();
 			break;
 
@@ -847,13 +849,11 @@ function smartwoo_service_ID_generator_form( $service_name = null, $echo = true,
  * @param string $status            The status (Default 'pending').
  */
 function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $service_url, $user_full_name, $start_date, $billing_cycle, $next_payment_date, $end_date, $status ) {
-
 	$page  = '<h1>Process New Service Order</h1>';
 	$page .= '<p>After processing, this order will be marked as completed.</p>';
-	// Handle form submission for new service order processing.
-	$page .= smartwoo_process_new_service_order();
+	
 	$page .= '<div class="sw-form-container">';
-	$page .= '<form method="post" action="">';
+	$page .= '<form method="post" action="'. admin_url( 'admin-post.php' ) . '">';
 
 	$product_id = 0;
 	$order      = wc_get_order( $order_id );
@@ -876,6 +876,7 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
  	smartwoo_service_ID_generator_form( $service_name, true, true );
 	$page .= ob_get_clean();
 	$page .= '<input type="hidden" name="product_id" value="' . esc_attr( $product_id ) . '">';
+	$page .= '<input type="hidden" name="action" value="smartwoo_service_from_order">';
 	$page .= wp_nonce_field( 'sw_process_new_service_nonce', 'sw_process_new_service_nonce' );
 	// Service URL.
 	$page .= '<div class="sw-form-row">';

@@ -23,13 +23,13 @@ $product_name = $product ? $product->get_name() : 'Product Name not found';
         <?php else : ?>
 
             <h2>Configure</h2>
+            <div id="error-container"></div>
             <div class="sw-configure-container">
                 <p>Configure your desired options for <strong>"<?php echo esc_html( $product_name ); ?>"</strong> and continue checkout.</p>
-
+                
                 <form id="smartwooConfigureProduct" method="post" enctype="multipart/form-data">
-
                     <?php wp_nonce_field( 'sw_product_configuration_nonce', 'sw_product_configuration_nonce' ); ?>
-
+                    
                     <!-- Service Name -->
                     <div class="sw-form-row">
                         <label for="service_name" class="sw-form-label">Service Name *</label>

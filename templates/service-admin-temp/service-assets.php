@@ -5,7 +5,6 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<h1>Assets <span class="dashicons dashicons-database-view"></span></h1>
 <div class="smartwoo-assets-container">
     
     <?php if ( empty( $assets ) ):?>

@@ -35,7 +35,7 @@ function smartwoo_service_details() {
 	if ( $service && $service->getUserId() !== get_current_user_id()|| ! $service ) {
 		return smartwoo_error_notice( 'Service Not Found', 'smart-woo-service-invoicing' );
 	}
-
+	
 	$service_name 		= esc_html( $service->getServiceName() ? $service->getServiceName() : 'Not Available' );
 	$service_id   		= esc_html( $service->getServiceId() ? $service->getServiceId() : 'Not Available' );
 	$product_id   		= esc_html( $service->getProductId() );
@@ -49,7 +49,7 @@ function smartwoo_service_details() {
 	$end_date          	= smartwoo_check_and_format( $service->getEndDate() );
 	$service_button    	= smartwoo_client_service_url_button( $service );
 	$status        	   	= smartwoo_service_status( $service_id );
-	$expiry_date   		= smartwoo_get_service_expiration_date( $service ); 
+	$expiry_date   		= smartwoo_get_service_expiration_date( $service );
 	$output 			.= '<div class="content">';
 	// Add the status tag to the service name.
 	$service_name_with_status = $service_name . ' (' . $status . ')';
@@ -90,6 +90,10 @@ function smartwoo_service_details() {
 		$output .=  wp_kses_post( $service_button );
 	}
 
+	if ( $service->has_assets() ) {
+		$output .= '<a href="#">';
+	}
+
 	/** Filter button row */
 	$buttons = apply_filters( 'smartwoo_service_details_button_row', array(), $service );
 
@@ -106,10 +110,11 @@ function smartwoo_service_details() {
 		$output .= smartwoo_notice( 'Expired Yesterday' );
 	}
 	
-	 
+	$output .= '<div class="smartwoo-assets-container">';
 	$output .=  apply_filters( 'smartwoo_before_service_details_page', '', $service_id );
 	$output .= '<div class="serv-details-card">';
 	$output .= '<div id="swloader">Processing....</div>';
+	$output .= '<h3>Subscription Info</h3>';
 	$output .= '<p class="smartwoo-container-item"><span> Service ID:</span>' . esc_html( $service_id ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Service Type:</span>' . esc_html( $service_type ) . '</p>';
 	$output .= '<p class="smartwoo-container-item"><span> Product Name:</span>' . esc_html( $product_name ) . '</p>';
@@ -126,7 +131,18 @@ function smartwoo_service_details() {
 		$output .= '<p class="smartwoo-container-item"><span> ' . $title . ':</span>' . esc_html( $value ) . '</p>';
 
 	}
+
 	$output .= '</div>';
+	$output .= '</div>';
+
+	/**
+	 * Assets table.
+	 * 
+	 * @since 2.0.0
+	 */
+	$output .= '<h2 id="my-assets">Assets</h2>';
+	$output .= $service->get_assets_containers(); 
+		
 	$output .=  apply_filters( 'smartwoo_after_service_details_page', '', $service_id );
 	$output .= '</div>';
 

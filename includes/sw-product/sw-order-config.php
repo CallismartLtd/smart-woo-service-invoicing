@@ -60,16 +60,31 @@ add_action( 'wp_ajax_nopriv_smartwoo_configure_product', 'smartwoo_configure_pro
  */
 function smartwoo_configure_product_for_checkout() {
 	// Verify the nonce.
-	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
-		wp_die( -1, 403 );
+	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+		wp_send_json_error( array( 'message' => smartwoo_notice( 'Basic authentication failed, please refresh current page.' ) ) );
 	}
 
+	$validation_errors = array();
 	$service_name	= isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
-	$service_url	= isset( $_POST['service_url'] ) ? sanitize_url(  $_POST['service_url'], array( 'http', 'https' ) ) : '';
+	if ( empty( $service_name ) ) {
+		$validation_errors[] = 'Service Name is required to configure your subscription.';
+	}
+
+	$service_url	=	isset( $_POST['service_url'] ) ? sanitize_url(  $_POST['service_url'], array( 'http', 'https' ) ) : '';
+	if ( ! empty( $_POST['service_url'] ) && empty( $service_url ) ) {
+		$validation_errors[] = 'Enter a valid website URL.';
+	}
+
 	$product_id		= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
 
-	if ( empty( $service_name ) ) {
-		wp_send_json_error( 'Service Name is required to configure your subscription' );
+	if ( empty( $product_id ) ) {
+		$validation_errors[] = 'Product ID could not be found.';
+
+	}
+
+	if ( ! empty( $validation_errors ) ) {
+		wp_send_json_error( array( 'message' => smartwoo_error_notice( $validation_errors ) ) );
+
 	}
 
 	$cart_item_data = array(
@@ -79,7 +94,7 @@ function smartwoo_configure_product_for_checkout() {
 
 	$cart = new WC_Cart();
 	$cart->add_to_cart( $product_id, 1, 0, array(), $cart_item_data );
-	wp_send_json_success( wc_get_checkout_url() );
+	wp_send_json_success( array( 'checkout' => wc_get_checkout_url() ) );
 }
 
 

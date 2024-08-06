@@ -790,6 +790,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+/**
+ * Configure Product client Ajax handler.
+ */
 document.addEventListener('DOMContentLoaded', function () {
     var configureProductForm = document.getElementById('smartwooConfigureProduct');
     var buttonText = document.querySelector('.sw-blue-button');
@@ -797,6 +800,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (configureProductForm && buttonText) {
         configureProductForm.addEventListener('submit', function (event) {
             event.preventDefault();
+			var originalBtnText = buttonText.textContent;
             buttonText.textContent = 'Processing...';
             var formData = new FormData(configureProductForm);
             formData.append('action', 'smartwoo_configure_product');
@@ -811,15 +815,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 contentType: false,
                 success: function (response) {
                     if (response.success && response.data) {
-                        var checkoutUrl = response.data.replace(/#038;/g, '&');
+                        var checkoutUrl = response.data.checkout;
+						buttonText.textContent = 'Product is configured, redirecting to checkout page....';
                         window.location.href = checkoutUrl;
                     } else {
-                        console.error('Unexpected response format:', response);
+						jQuery( '#error-container' ).html( response.data.message );
+						buttonText.textContent = originalBtnText;
                     }
+					
                 },
                 error: function (xhr, status, error) {
                     console.error(error);
-                    // Handle error
+					buttonText.textContent = originalBtnText;
                 },
             });
         });
