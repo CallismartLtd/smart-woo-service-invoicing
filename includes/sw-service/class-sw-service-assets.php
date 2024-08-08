@@ -322,6 +322,29 @@ class SmartWoo_Service_Assets {
     }
 
     /**
+     * Get asset data only
+     * 
+     * @param int $asset_id The asset ID to look.
+     * @param string $key Asset key.
+     * @return array Asset data if successful, empty array otherwise.
+     */
+    public static function return_data( $asset_id, $key ) {
+        global $wpdb;
+        $query  = $wpdb->prepare(  
+            "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d AND `asset_key` = %s",
+            absint( $asset_id ), sanitize_text_field( $key ) 
+        );
+        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        
+        if ( ! $result ) {
+            return array();
+        }
+
+        return wp_unslash( maybe_unserialize( $result['asset_data'] ) );
+        
+    }
+
+    /**
      * Save asset.
      */
     public function save() {
@@ -386,11 +409,51 @@ class SmartWoo_Service_Assets {
         return false;
     }
 
+    /**
+     * Delete a single asset record
+     */
+    public function delete() {
+        if ( empty( $this->asset_id ) ) {
+            return false;
+        }
+
+        global $wpdb;
+        
+        $deleted = $wpdb->delete( SMARTWOO_ASSETS_TABLE, array( 'asset_id' => $this->asset_id ), array( '%d' ) );
+        return $deleted !== false;
+    }
+
+    /**
+     * Deletes every Asset related this the service id in the database.
+     */
+    public function delete_all() {
+        if ( empty( $this->service_id ) || ! $this->exists( $this->service_id ) ) {
+            return false;
+        }
+
+        global $wpdb;
+        
+        $deleted = $wpdb->delete( SMARTWOO_ASSETS_TABLE, array( 'service_id' => $this->service_id ), array( '%s' ) );
+        return $deleted !== false;
+    }
+
     /*
     |-----------------
     | UTILITY METHODS
     |-----------------
     */
+
+    /**
+     * Check if a service id exists in the database.
+     * 
+     * @param string $service_id TAhe service ID.
+     */
+    public function exists( $service_id ) {
+        global $wpdb;
+		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id );
+		$result	= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $result !== null;
+    }
 
     /**
      * Convert database result to an object of this class.
@@ -431,13 +494,13 @@ class SmartWoo_Service_Assets {
      * Verify Access key.
      * 
      * @param string $key The access key.
-     * @param string $data_value The value of the asset data.
+     * @param int $data_index The position of the value of the asset data.
      */
-    public static function verify_key( $key, $data_value ) {
+    public static function verify_key( $key, $data_index ) {
         $key        = ! empty( $key ) && is_string( $key ) ? sanitize_text_field( $key ) : false;
-        $data_value = ! empty( $data_value ) && is_string( $data_value ) ? sanitize_text_field( $data_value ) : false;
+        $data_index = ! empty( $data_index ) && is_numeric( $data_index ) ? absint( $data_index ) : false;
         
-        if ( ! $key || ! $data_value ) {
+        if ( ! $key || ! $data_index ) {
             return false;
         }
 
@@ -465,14 +528,8 @@ class SmartWoo_Service_Assets {
         // }
 
 
-        $asset_data = maybe_unserialize( $result['asset_data'] );
+        $asset_data = array_values( (array) maybe_unserialize( $result['asset_data'] ) );
 
-        foreach ( (array) $asset_data as $name => $value ) {
-            if ( $value === $data_value ) {
-                return true;
-            }
-        }
-    
-        return false;
+        return array_key_exists( $data_index - 1, $asset_data );
     }
 }
