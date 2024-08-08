@@ -230,6 +230,7 @@ class SmartWoo_Config{
                 'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
                 'home_url'                  => home_url( '/' ),
                 'never_expire_value'        => '',
+                'wp_spinner_gif_loader'     => admin_url('images/spinner.gif')
             )
         );
     }
