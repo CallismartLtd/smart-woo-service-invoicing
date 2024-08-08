@@ -823,23 +823,24 @@ function smartwoo_get_form_success() {
 }
 
 
-    /**
-     * Construct a download url for downloadable assets.
-     * 
-     * @param string $resource The URL of the resource to download
-     * 
-     * @return string $url The download url (optional).
-     */
-    function smartwoo_download_url( $resource, $key ) {
-        if ( empty( $resource ) || empty( $key ) ) {
-            return '';
-        }
-		$url = add_query_arg( array(
-			'smartwoo_action' 	=> 'smartwoo_download',
-			'resource'			=> rawurlencode( $resource ),
-			'key'				=> rawurlencode( $key ),
-			'_download_nonce'	=> wp_create_nonce( 'smartwoo_download_nonce' ),
-		), smartwoo_service_page_url() );
+/**
+ * Construct a download url for downloadable assets.
+ * 
+ * @param string $resource The URL of the resource to download
+ * 
+ * @return string $url The download url (optional).
+ */
+function smartwoo_download_url( $resource_id, $key, $asset_id ) {
+	if ( empty( $resource_id ) || empty( $key ) ) {
+		return '';
+	}
+	$url = add_query_arg( array(
+		'smartwoo_action' 	=> 'smartwoo_download',
+		'resource_id'		=> rawurlencode( $resource_id ),
+		'asset_id'			=> rawurlencode( $asset_id ),
+		'key'				=> rawurlencode( $key ),
+		'token'				=> wp_create_nonce( 'smartwoo_download_nonce' ),
+	), smartwoo_service_page_url() );
 
-        return $url;
-    }
+	return $url;
+}
