@@ -517,10 +517,8 @@ add_action( 'wp_ajax_nopriv_delete_invoice', 'smartwoo_delete_invoice_ajax_callb
 
 function smartwoo_delete_invoice_ajax_callback() {
 
-	if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
-		wp_send_json_error( 'action did not pass security check' );
-		wp_die();
-
+	if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+		wp_send_json_error( array( 'message' => 'Action did not pass security check.' ) );
 	}
 
 	$invoice_id = isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
@@ -531,11 +529,10 @@ function smartwoo_delete_invoice_ajax_callback() {
 
 	$delete_result = SmartWoo_Invoice_Database::delete_invoice( $invoice_id );
 
-	if ( is_string( $delete_result ) ) {
-		wp_send_json_error( $delete_result );
+	if ( ! $delete_result ) {
+		wp_send_json_error( array( 'message' => 'Unable to delete invoice' ) );
 	} else {
-		wp_send_json_success( $delete_result );
-		exit();
+		wp_send_json_success( array( 'message' => 'Invoice deleted' ) );
 	}
 }
 
