@@ -258,18 +258,27 @@ final class SmartWoo {
             return;
         }
 
-        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_download_nonce'] ?? '' ) ), 'smartwoo_download_nonce' ) ) {
+        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) ), 'smartwoo_download_nonce' ) ) {
             wp_die( 'Authentication failed', 401 );
         }
     
         $asset_id       = ! empty( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
-        $resource_id    = ! empty( $_GET['resource_id'] ) ? sanitize_url( rawurldecode( wp_unslash( $_GET['resource_id'] ) ) ) : '';
+        $resource_id    = ! empty( $_GET['resource_id'] ) ? absint( rawurldecode( wp_unslash( $_GET['resource_id'] ) ) ) : '';
         $asset_key      = ! empty( $_GET['key'] ) ? sanitize_key( wp_unslash( $_GET['key'] ) ): '';
         
-        if ( empty( $resource_url ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
+        if ( empty( $resource_id ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
             wp_die( 'Unable to validate requested resource.' );
         }
-    
+
+        $asset_data = SmartWoo_Service_Assets::return_data( $asset_id, $asset_key );
+
+        if ( ! is_array( $asset_data ) || empty( $asset_data ) ) {
+            wp_die( 'Invalid data format returned', 403 );
+        }
+
+        $re_indexed_data    = array_values( (array) $asset_data );
+        $resource_url       = array_key_exists( $resource_id - 1, $re_indexed_data ) ? $re_indexed_data[$resource_id - 1]: wp_die( 'File URL not found.', 404 );
+        
         $this->serve_file( $resource_url );
     }
     
@@ -277,19 +286,21 @@ final class SmartWoo {
      * Serve file for download.
      */
     private function serve_file( $resource_url ) {
-        $file_headers = get_headers( $resource_url, 1 );
+        
+        $resource_url   = sanitize_url( $resource_url, array( 'http', 'https' ) );
+        $file_headers   = get_headers( $resource_url, 1 );
     
         if ( ! $file_headers || strpos( $file_headers[0], '200' ) === false ) {
             wp_die( 'File not found.' );
         }
     
-        $content_type = $file_headers['Content-Type'] ?? 'application/octet-stream';
+        $content_type   = $file_headers['Content-Type'] ?? 'application/octet-stream';
         $content_length = $file_headers['Content-Length'] ?? 0;
-        $filename = basename( parse_url( $resource_url, PHP_URL_PATH ) );
+        $filename       = basename( parse_url( $resource_url, PHP_URL_PATH ) );
     
         header( 'Content-Description: File Transfer' );
         header( 'Content-Type: ' . $content_type );
-        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $filename ) . '"' );
         header( 'Expires: 0' );
         header( 'Cache-Control: must-revalidate' );
         header( 'Pragma: public' );
