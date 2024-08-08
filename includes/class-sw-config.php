@@ -186,7 +186,13 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-        
+        // add_action( 'admin_head', function(){
+        //     global $menu;
+        //     echo '<pre>';
+        //     print_r( $menu );
+        //     echo '</pre>';
+        //     exit;
+        // });
     }
 
     /**

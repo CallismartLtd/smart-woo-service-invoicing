@@ -33,11 +33,12 @@ function smartwoo_reg_admin_menu() {
 		58.5
 	);
 
+	$new_order_count = smartwoo_count_unprocessed_orders();
 	// Add submenu "Service Orders".
 	$service_order = add_submenu_page(
 		'sw-admin',
 		'Service Orders',
-		'Service Orders',
+		! empty( $new_order_count ) ? 'Service Orders <span class="awaiting-mod">' . $new_order_count . '</span>': 'Service Orders',
 		'manage_options',
 		'sw-service-orders',
 		'smartwoo_service_orders'

@@ -196,8 +196,7 @@ function smartwoo_readable_duration( $duration ) {
  * @since 1.0.4
  */
 function smartwoo_price( $amount ) {
-	$amount = absint( $amount );
-    $decimals = wc_get_price_decimals();
+    $decimals 			= wc_get_price_decimals();
     $decimal_separator 	= wc_get_price_decimal_separator();
     $thousand_separator = wc_get_price_thousand_separator();
     $price 				= number_format( $amount, $decimals, $decimal_separator, $thousand_separator );
@@ -408,11 +407,9 @@ function smartwoo_get_configured_orders_for_service( $order_id = null, $current_
 	$args =	array(
 		'limit' => -1,
 	);
+
 	if ( true === $current_user ) {
-		$args =	array(
-			'limit' 	=> -1,
-			'customer' 	=> get_current_user_id(),
-		);
+		$args['customer'] = get_current_user_id();	 	
 	}
 
 
@@ -456,7 +453,35 @@ function smartwoo_check_if_configured( $order ) {
 	return false;
 }
 
+/**
+ * Get the count for service orders awaiting processing.
+ * 
+ * @return int $count The total number of unprocessed orders.
+ * @since 2.0.0
+ */
+function smartwoo_count_unprocessed_orders() {
+	$args = array(
+		'limit'		=> -1,
+		'status'	=> 'processing',
+	);
 
+	$wc_orders	= wc_get_orders( $args );
+	$count		= 0;
+
+	if ( empty( $wc_orders ) ) {
+		return $count;
+	}
+	
+
+	foreach ( $wc_orders as $order ) {
+		if ( smartwoo_check_if_configured( $order ) ) {
+			$count++;
+		}
+	}
+
+	return $count;
+
+}
 /**
  * Frontend navigation menu bar
  *
