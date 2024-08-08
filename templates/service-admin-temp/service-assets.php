@@ -27,13 +27,13 @@ defined( 'ABSPATH' ) || exit;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ( (array) $asset->get_asset_data() as $name => $value ) : ?>
+                    <?php $id = 1; foreach ( (array) $asset->get_asset_data() as $name => $value ) : ?>
                         <tr>
                             <td>
                                 <?php echo esc_html( $name ); ?>
                             </td>
                             <td>
-                                <a href="<?php echo esc_url( smartwoo_download_url( $value, $asset->get_key() ) ); ?>" class="sw-red-button">Download</a>
+                                <a href="<?php echo esc_url( smartwoo_download_url( $id, $asset->get_key(), $asset->get_id() ) ); $id++; ?>" class="sw-red-button">Download</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
