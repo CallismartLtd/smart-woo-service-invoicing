@@ -441,7 +441,6 @@ class SmartWoo_Service {
 		$assets_obj		= new SmartWoo_Service_Assets();
 		$assets_obj->set_service_id( $this->getServiceId() );
 		$this->assets	= $assets_obj->get_service_assets();
-
 		return $this->assets;	
 	}
 
