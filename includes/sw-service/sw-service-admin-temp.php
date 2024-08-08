@@ -161,7 +161,6 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 	 * Service details container
 	 */
 	$page_html	= '<div class="serv-details-card">';
-	$page_html .= '<div class="de-service-details-card">';
 	$page_html .= '<span style="display: inline-block; text-align: right; color: white; background-color: red; padding: 10px; border-radius: 5px; font-weight: bold;">' . esc_html( $service_status ) . '</span>';
 	$page_html .= '<h2>Service Name</h2>';
 	$page_html .= '<h3>'. $service->get_product_name() . ' - ' . esc_html( $service->getServiceName() ) . '</h3>';
@@ -188,11 +187,10 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 	foreach ( (array) $buttons as $button ) {
 		$page_html .= $button;
 	}
-	
+	$page_html .= '<span id="sw-delete-button" style="text-align:center;"></span>';
 	$page_html .= smartwoo_client_service_url_button( $service );
 	$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) ) . '" class="sw-blue-button">Edit this Service</a>';
 	$page_html .= smartwoo_delete_service_button( $service->getServiceId() );
-	$page_html .= '</div>';
 	$page_html .= '</div>';
 	return $page_html;
 }
