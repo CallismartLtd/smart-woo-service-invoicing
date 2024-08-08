@@ -4,11 +4,12 @@ Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicin
 Requires at least: 6.0  
 Tested up to: 6.6.1
 Requires WooCommerce: 8.0
-WooCommerce Tested: 9.1.2
+WooCommerce Tested: 9.1.4
 Requires PHP: 7.4
-Stable Tag: 1.1.0
+Stable Tag: 2.0.0
 License: GPLv3  
-License URI:** https://www.gnu.org/licenses/gpl-3.0.en.html  
+License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
+
 
 Integrate powerful service subscriptions and invoicing directly into your online store!
 
@@ -84,21 +85,28 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 == Changelog ==
 
-= 1.1.0 2024-07-23 =
+= 2.0.0 - 2024-08-09 =
+* Added:
+  - Service Subscription Assets.
+  - Downloadable Feature for service products.
+  - Dedicated login form for the client portal.
+  - Notification bubble counter for new service orders.
 
-**Smart Woo Service Invoicing**
+* Fixed:
+  - Enhanced security.
+  - Resolved incorrect messages returned during deletions via Ajax.
 
+* Tested:
+  - Compatibility with WooCommerce 9.1.4.
 
-* Tested Upto - WordPress Version 6.6.1
-
-See [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md) for details on updates and changes.
+For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
 == Source Code ==
 
-The source code for Smart Woo Service Invoicing plugin can be found on our official [GitHub public Repository](https://github.com/CallismartLtd/smart-woo-service-invoicing).
+The source code for the Smart Woo Service Invoicing plugin can be found on our official [GitHub Public Repository](https://github.com/CallismartLtd/smart-woo-service-invoicing).
 
 == Technical Support ==
 
-We are dedicated to providing an excellent user experience, investing significant effort to ensure our product is safe and free of bugs. However, we understand that issues may arise, and we are committed to addressing them promptly.
+We are dedicated to providing an excellent user experience and invest significant effort to ensure our product is safe and free of bugs. However, we understand that issues may arise, and we are committed to addressing them promptly.
 
-For support, please visit the [support portal](https://callismart.com.ng/support-portal).
+For dedicated support, please visit our [support portal](https://callismart.com.ng/support-portal). This portal is not intended for general inquiries; please use the [WordPress Support](https://wordpress.org/support/plugin/smart-woo-service-invoicing) forum for that purpose.

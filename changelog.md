@@ -1,5 +1,19 @@
 ## Smart Woo Service Invoicing Changelog
 
+## [2.0.0] 2024-08-09
+### Added
+- Service Subscription Assets.
+- Downloadable Feature for service products.
+- Dedicated login form for client portal.
+- Notification bubble couter for New Service Orders.
+
+### Fixed
+- Hardened Security
+- Deletions returning incorrect messages during Ajax
+
+### Tested
+- Tested with WooCommerce 9.1.4
+
 ## [1.1.0] 2024-07-24
 - Tested with WordPress 6.6.1
 - Added dedicated login form for service subscription and invoice page.
