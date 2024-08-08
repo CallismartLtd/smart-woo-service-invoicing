@@ -118,7 +118,7 @@ function smartwoo_db_schema() {
 		'asset_data text DEFAULT NULL',
 		'asset_key varchar(255) NOT NULL',
 		'access_limit mediumint(9) DEFAULT NULL',
-		'expiry datetime DEFAULT NULL',
+		'expiry DATETIME DEFAULT NULL',
 		'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
 		'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
 		'INDEX service_id_index (service_id)',
