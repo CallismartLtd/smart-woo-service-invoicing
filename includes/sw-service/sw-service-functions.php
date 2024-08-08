@@ -653,7 +653,9 @@ return $end_date;
  * Render the delete Service Button
  */
 function smartwoo_delete_service_button( string $service_id ) {
-
+	if ( ! is_admin() ) {
+		return '';
+	}
 	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">' . __( 'Delete Service ⌫', 'smart-woo-service-invoicing' ) . '</button>';
 }
 
@@ -663,34 +665,28 @@ add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' 
 
 function smartwoo_delete_service() {
 
-	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
-		wp_die( -1, 403 );
+	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+		wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
 	}
 	
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( -1, 403);
+		wp_send_json_error( array( 'message' => 'You don\'t have the required permission to delete this data.' ) );
 	}
 
 	$service_id = isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
 
-	// Validate the service ID
 	if ( empty( $service_id ) ) {
-		wp_send_json_error( 'Invalid Service ID.' );
-		wp_die( -1, 404);
+		wp_send_json_error( array( 'message' => 'Service ID is missing.' ) );
 
 	}
 
-	$delete_result = SmartWoo_Service_Database::delete_service( $service_id );
+	$deleted = SmartWoo_Service_Database::delete_service( $service_id );
 
-	// Check the result and send appropriate response
-	if ( is_string( $delete_result ) ) {
-		// An error occurred.
-		wp_send_json_error( $delete_result );
+	if ( ! $deleted ) {
+		wp_send_json_error( array( 'message' => 'Unable to delete this service.') );
 	} else {
-		// Success.
-		wp_send_json_success( $delete_result );
-		exit();
+		wp_send_json_success( array( 'message' => 'Service subscription has been deleted' ) );
 	}
 }
 
