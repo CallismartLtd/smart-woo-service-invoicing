@@ -1,3 +1,18 @@
+function smartWooAddSpinner(targetId) {
+	const loadingSpinner = document.createElement('div');
+	loadingSpinner.classList.add('loading-spinner'); // Add a class for styling
+	loadingSpinner.innerHTML = '<img src=" ' + smart_woo_vars.wp_spinner_gif_loader +'" alt="Loading...">';
+  
+	const targetElement = document.getElementById(targetId);
+	targetElement.appendChild(loadingSpinner);
+  
+	return loadingSpinner; // Return the created element for potential removal
+  }
+  
+  function smartWooRemoveSpinner(spinnerElement) {
+	spinnerElement.remove();
+  }
+
 document.addEventListener(
     "DOMContentLoaded",
     function () {
@@ -544,6 +559,8 @@ jQuery( document ).ready(
 
 				// If the user confirms, initiate the deletion process
 				if (isConfirmed) {
+					spinner = smartWooAddSpinner( 'sw-delete-button' );
+
 					// Perform an Ajax request to delete the invoice
 					$.ajax(
 						{
@@ -554,15 +571,22 @@ jQuery( document ).ready(
 								invoice_id: invoiceId,
 								security: smart_woo_vars.security
 							},
-							success: function () {
-								// Display a success message
-								alert( 'Invoice deleted successfully!' );
-								window.location.href = smart_woo_vars.admin_invoice_page;
+							success: function ( response ) {
+								if ( response.success ) {
+									alert( response.data.message );
+									window.location.href = smart_woo_vars.admin_invoice_page;	
+								} else {
+									alert( response.data.message );
+								}
+								
 							},
 
 							error: function (error) {
 								// Handle the error
 								console.error( 'Error deleting invoice:', error );
+							}, 
+							complete: function() {
+								smartWooRemoveSpinner( spinner );
 							}
 						}
 					);
@@ -585,10 +609,12 @@ jQuery( document ).ready(
 				var serviceId = $( this ).data( 'service-id' );
 
 				// Display a confirmation dialog
-				var isConfirmed = confirm( 'Are you sure you want to delete this service?' );
+				var isConfirmed = confirm( 'Are you sure you want to delete this service? All invoices and assets alocated to it will be lost forever.' );
 
 				// If the user confirms, initiate the deletion process
 				if (isConfirmed) {
+					spinner = smartWooAddSpinner( 'sw-delete-button' );
+
 					// Perform an Ajax request to delete the invoice
 					$.ajax(
 						{
@@ -599,15 +625,23 @@ jQuery( document ).ready(
 								service_id: serviceId,
 								security: smart_woo_vars.security
 							},
-							success: function () {
-								// Display a success message
-								alert( 'Service deleted successfully!' );
-								window.location.href = smart_woo_vars.sw_admin_page;
+							success: function (response) {
+								if ( response.success) {
+
+									alert( response.data.message );
+									window.location.href = smart_woo_vars.sw_admin_page;
+								} else {
+									alert( response.data.message );
+								}
+
 							},
 
 							error: function (error) {
 								// Handle the error
-								console.error( 'Error deleting service:', error );
+								alert( 'Error deleting service:', error );
+							},
+							complete: function() {
+								smartWooRemoveSpinner( spinner );
 							}
 						}
 					);
@@ -625,14 +659,15 @@ jQuery( document ).ready(
 			'click',
 			'.sw-delete-product',
 			function () {
-				// Get the product ID from the data attribute
+				// Get the product ID from the data attribute.
 				var productId = $( this ).data( 'product-id' );
 
-				// Display a confirmation dialog
+				// Display a confirmation dialog.
 				var isConfirmed = confirm( 'Are you sure you want to delete this product?' );
 
 				// If the user confirms, initiate the deletion process
 				if (isConfirmed) {
+					spinner = smartWooAddSpinner( 'sw-delete-button' );
 					// Perform an Ajax request to delete the product
 					$.ajax(
 						{
@@ -643,17 +678,26 @@ jQuery( document ).ready(
 								product_id: productId,
 								security: smart_woo_vars.security
 							},
-							success: function () {
-								// Display a success message
-								alert( 'Product deleted successfully!' );
-								window.location.href = smart_woo_vars.sw_product_page;
+							success: function ( response ) {
+								
+								if ( response.success ) {
+									alert( response.data.message );
+									window.location.href = smart_woo_vars.sw_product_page;
+								} else {
+									alert( response.data.message );
+								}
+								
 							},
 
 							error: function (error) {
 								// Handle the error
 								console.error( 'Error deleting product:', error );
+							},
+							complete: function() {
+								smartWooRemoveSpinner( spinner);
 							}
 						}
+						
 					);
 				}
 			}
