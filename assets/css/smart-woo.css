@@ -958,6 +958,7 @@ use inline CSS to overide some styles
 .smartwoo-assets-container {
 	display: flex;
 	justify-content: space-between;
+	flex-wrap: wrap;
 }
 .smartwoo-assets-container .serv-details-card {
 	width: 45%;
@@ -1406,7 +1407,10 @@ text-decoration:rgb(236, 236, 13);
 font-family: poppins;
 font-weight: 100;
 }
-
+.sw-delete-product-container {
+	display: flex;
+	
+}
 
 #swloader {
 	display: none;
@@ -1414,7 +1418,7 @@ font-weight: 100;
 	background-color: #eb0d0d;
 	color: rgb(255, 255, 255);
 	position: fixed;
-	top: 50px;
+	top: 35%;
 	left: 50%;
 	transform: translate(-50%, 0);
 	border-radius: 50%;
@@ -1431,7 +1435,11 @@ font-weight: 100;
 		transform: scale(1.2);
 	}
 }
-
+@media ( min-width: 320px ) and (max-width: 720px ) {
+	#swloader {
+		left: 30%;
+	}
+}
 
 /************************************************************************************/
 /**************************Front End CSS ends here **********************************/
