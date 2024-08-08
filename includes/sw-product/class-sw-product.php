@@ -64,6 +64,8 @@ class SmartWoo_Product extends WC_Product {
 		add_action( 'woocommerce_single_product_summary', array( __CLASS__, 'sub_info' ), 10 );
 		add_action( 'woocommerce_cart_calculate_fees', array( __CLASS__, 'calculate_sign_up_fee_cart_totals' ) );
 		add_action( 'woocommerce_' . $product_type .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
+		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
+
 	}
 	
 	/**********************************
@@ -402,9 +404,8 @@ class SmartWoo_Product extends WC_Product {
 			$product = wc_get_product( $post_id );
 	
 			if ( $product && $product->is_type( 'sw_product' ) ) {
-				$edit_url = admin_url('admin.php?page=sw-products&action=edit&product_id=' . $product->get_id() );
 	
-				$link = esc_url( $edit_url );
+				$link = esc_url( smartwoo_admin_product_url( $action = 'edit', $product->get_id() ) );
 			}
 		}
 	
@@ -517,6 +518,32 @@ class SmartWoo_Product extends WC_Product {
 	
 		// Add total sign-up fee to cart total.
 		$cart->add_fee( 'Sign-up Fee', $total_sign_up_fee );
-	}	
+	}
+	
+	/**
+	 * Ajax Product deletion.
+	 */
+	public static function ajax_delete() {
+		if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+			wp_send_json_error( array( 'message' => 'Action failed basic authentication.') );
+		}
+		// Check if the user is logged in and has the necessary capability.
+		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have the required permission to delete this product.') );
+		}
+
+		// Get the product ID from the AJAX request.
+		$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+		if ( empty( $product_id ) ) {
+			wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
+		}
+
+		$product = wc_get_product( $product_id );
+		if ( $product && $product->delete( true ) ) {
+			wp_send_json_success( array( 'message' => 'Product deleted successfully.' ) );
+		}
+
+		wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
+	}
 }
 SmartWoo_Product::init();
