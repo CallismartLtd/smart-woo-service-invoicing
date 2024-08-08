@@ -57,8 +57,7 @@ class SmartWoo_Service_Database {
 			return SmartWoo_Service::convert_array_to_service( $result );
 		}
 
-		// Return empty array.
-		return array();
+		return false;
 	}
 
 	/**
@@ -283,17 +282,19 @@ class SmartWoo_Service_Database {
 		// Check if the service exists
 		$existing_service = self::get_service_by_id( $service_id );
 		if ( ! $existing_service ) {
-			return 'Service not found.';
+			return false;
 		}
 
-		// phpcs:disable
-		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );
-		// phpcs:enable
+		$assets_obj = new SmartWoo_Service_Assets();
+		$assets_obj->set_service_id( $service_id );
+		$assets_obj->delete_all();
+		/**
+		 * Delete all invoices.
+		 */
+		$wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
+		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-		if ( false === $deleted ) {
-			return 'Error deleting Service.';
-		}
-
-		return 'Service deleted successfully.';
+		return $deleted !== false;
 	}
 }
