@@ -489,16 +489,11 @@ class SmartWoo_Invoice_Database {
 		// Check if the invoice exists.
 		$existing_invoice = self::get_invoice_by_id( $invoice_id );
 		if ( ! $existing_invoice ) {
-			return 'Invoice not found.';
+			return false;
 		}
 
-		// phpcs:disable
-		$deleted = $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );
-		// phpcs:enable
-		if ( false === $deleted ) {
-			return 'Error deleting invoice.';
-		}
-
-		return 'Invoice deleted successfully.';
+		$deleted = $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
+		return $deleted !== false;
 	}
 }
