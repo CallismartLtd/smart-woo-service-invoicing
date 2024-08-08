@@ -248,7 +248,7 @@ function smartwoo_user_processing_service( $user_id ) {
 			$service_name_with_status = $service_name . ' (' . $service_status . ')';
 			$output .= '<div class="main-page-card">';
 			$output .= '<h3>' . esc_html( $service_name_with_status ) . '</h3>';
-			$output .= smartwoo_notice( 'We are currently processing this service. It will be active as soon as we are done processing it.' );
+			$output .= smartwoo_notice( 'We are currently processing this service. It will be active as soon as the process is complete.' );
 			$output .= '</div>';
 		}
 	}
