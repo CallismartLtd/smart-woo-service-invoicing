@@ -505,6 +505,7 @@ function smartwoo_invoice_details_admin_temp( $invoice ) {
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Date Due:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $formattedDateDue ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Total:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( smartwoo_price( $invoice->getTotal() ) ) . '</p>';
 	$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Address:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $invoice->getBillingAddress() ) . '</p>';
+	$page_html .= '<span id="sw-delete-button" style="text-align:center;"></span>';
 	$page_html .= '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->getInvoiceId() ) ) . '">' . esc_html__( 'Edit Invoice', 'smart-woo-service-invoicing' ) . '</a>';
 	$page_html .= smartwoo_delete_invoice_button( $invoice->getInvoiceId());
 	$page_html .= '</div>';
