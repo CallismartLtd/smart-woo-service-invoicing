@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 ?>
 
 <div class="wrap">
-    <h2>Edit Service Product</h2>
+    <h2>Edit Service Product</h2><div id="sw-delete-button" class="sw-delete-product-container"> <button class="sw-delete-product" data-product-id="<?php echo esc_attr( $product_data->get_id() );?>"><?php echo esc_html__( 'Delete', 'smart-woo-service-invoicing' );?></button></div>
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
         <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
     <?php elseif ( $success = smartwoo_get_form_success() ): ?>
