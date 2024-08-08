@@ -34,7 +34,7 @@ function smartwoo_product_table() {
 	$page_html .= '<th>Product Price</th>';
 	$page_html .= '<th>Sign Up Fee</th>';
 	$page_html .= '<th>Billing Circle</th>';
-	$page_html .= '<th>Action</th>';
+	$page_html .= '<th id="sw-delete-button" class="sw-delete-product-container">Action</th>';
 	$page_html .= '</tr></thead>';
 	$page_html .= '<tbody>';
 
