@@ -91,14 +91,3 @@
 ## Key Highlights:
 - Seamless Invoicing: Smart Woo now empowers your WooCommerce store with robust invoicing capabilities.
 - Commitment to Excellence: Our team is fully dedicated to the ongoing development and improvement of Smart Woo.
-
-
-
-
-
-
-
-
-
-
-
