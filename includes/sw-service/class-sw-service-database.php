@@ -26,10 +26,9 @@ class SmartWoo_Service_Database {
 	 */
 	public static function get_all_services() {
 		global $wpdb;
-		// phpcs:disable
 		$query   	= "SELECT * FROM ". SMARTWOO_SERVICE_TABLE;
-		$results 	= $wpdb->get_results( $query, ARRAY_A );
-		// phpcs:enable
+		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 		if ( $results ) {
 			return self::convert_results_to_services( $results );
 		}
@@ -48,10 +47,9 @@ class SmartWoo_Service_Database {
 	 */
 	public static function get_service_by_id( $service_id ) {
 		global $wpdb;
-		// phpcs:disable
+
 		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE service_id = %s", $service_id );
-		$result = $wpdb->get_row( $query, ARRAY_A );
-		// phpcs:enable
+		$result = $wpdb->get_row( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( $result ) {
 			// Convert the array result to SmartWoo_Service object
 			return SmartWoo_Service::convert_array_to_service( $result );
@@ -76,10 +74,10 @@ class SmartWoo_Service_Database {
 		}
 
 		$user_id = absint( $user_id );
-		// phpcs:disable
+
 		$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d", $user_id );
-		$results 	= $wpdb->get_results( $query, ARRAY_A );
-		// phpcs:enable
+		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 		if ( $results ) {
 			return self::convert_results_to_services( $results );
 		}
@@ -132,9 +130,9 @@ class SmartWoo_Service_Database {
 			'%s', // status
 		);
 
-		// phpcs:disable
-		$wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );
-		// phpcs:enable
+		
+		$wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
 		return $service->getServiceId();
 	}
 
@@ -186,9 +184,8 @@ class SmartWoo_Service_Database {
 			'%s', // service_id
 		);
 
-		// phpcs:disable
-		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );
-		// phpcs:enable
+		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
 		return $updated !== false;
 	}
 
@@ -241,9 +238,7 @@ class SmartWoo_Service_Database {
 			'%s', // service_id
 		);
 
-		// phpcs:disable
-		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );
-		// phpcs:enable
+		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $updated !== false;
 	}
 
