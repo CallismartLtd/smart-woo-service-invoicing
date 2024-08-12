@@ -167,6 +167,7 @@ class SmartWoo_Config{
             require_once SMARTWOO_PATH . 'includes/sw-service/contr.php';
             require_once SMARTWOO_PATH . 'includes/sw-invoice/contr.php';
             require_once SMARTWOO_PATH . 'includes/sw-product/contr.php';
+            require_once SMARTWOO_PATH . 'includes/class-sw-db-update.php';
             
         }
 
@@ -186,6 +187,11 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
+        // $response = wp_remote_head( 'http://localhost/callismart/wp-content/uploads/2024/08/smart-woo-pro.zip' );
+        // echo '<pre>';
+        // var_dump( $response );
+        // echo '</pre>';
+        // exit;
     }
 
     /**
@@ -212,7 +218,7 @@ class SmartWoo_Config{
     }
 
     public function load_scripts() {
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
     
         // Script localizer.
         wp_localize_script(
