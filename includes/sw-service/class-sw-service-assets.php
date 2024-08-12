@@ -419,7 +419,7 @@ class SmartWoo_Service_Assets {
 
         global $wpdb;
         
-        $deleted = $wpdb->delete( SMARTWOO_ASSETS_TABLE, array( 'asset_id' => $this->asset_id ), array( '%d' ) );
+        $deleted = $wpdb->delete( SMARTWOO_ASSETS_TABLE, array( 'asset_id' => $this->asset_id ), array( '%d' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         return $deleted !== false;
     }
 
@@ -433,7 +433,7 @@ class SmartWoo_Service_Assets {
 
         global $wpdb;
         
-        $deleted = $wpdb->delete( SMARTWOO_ASSETS_TABLE, array( 'service_id' => $this->service_id ), array( '%s' ) );
+        $deleted = $wpdb->delete( SMARTWOO_ASSETS_TABLE, array( 'service_id' => $this->service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         return $deleted !== false;
     }
 
