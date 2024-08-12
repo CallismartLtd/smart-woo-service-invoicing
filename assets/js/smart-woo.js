@@ -982,3 +982,50 @@ document.addEventListener('DOMContentLoaded', function() {
 		} );
 	}
 } );
+
+/**
+ * Database AJAX update handler
+ */
+addEventListener( 'DOMContentLoaded', function() {
+	var updateBtn = document.getElementById( 'smartwooUpdateBtn' );
+	if ( updateBtn ) {
+		updateBtn.addEventListener( 'click', function() {
+			var noticeDiv = document.getElementById( 'smartwooNoticeDiv' );
+			var newDiv = document.createElement( 'div' );
+			var pTag = document.createElement( 'p' );
+			newDiv.className = 'notice notice-success is-dismissible';
+			updateBtn.textContent = '';
+			var spinner = smartWooAddSpinner( 'smartwooUpdateBtn' );
+			jQuery.ajax({
+				type: 'GET',
+				url: smart_woo_vars.ajax_url,
+				data: {
+					action: 'smartwoo_db_update',
+					security: smart_woo_vars.security
+				},
+				success: function( response ) {
+					pTag.textContent = response.success ? response.data.message : 'Background update started';
+					newDiv.appendChild( pTag );
+					noticeDiv.replaceWith( newDiv );
+					// window.location.reload();
+				},
+				error: function ( error ) {
+					var message  = 'Error updating the database: ';
+					// Handle the error
+					if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
+						message = message + error.responseJSON.data.message;
+					} else if (error.responseText) {
+						message = message + error.responseText;
+					} else {
+						message = message + error;
+					}
+
+					console.error( message );
+				},
+				complete: function() {
+					smartWooRemoveSpinner( spinner );
+				}
+			});
+		});
+	}
+});
