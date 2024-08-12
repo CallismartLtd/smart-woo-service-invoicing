@@ -10,18 +10,18 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
+/**
+ * Installation handler
+ * 
+ * @since 1.1.0 or later
+ */
 class SmartWoo_Install {
-
-	private static $db_updates = array(
-		'1.0.2' => array(
-			''
-		),
-		'2.0.0'	=> array(
-			'created assets table'
-		)
-	);
-
-	private static $installing = false;
+	/**
+	 * Whether an installation is running
+	 * 
+	 * @var bool
+	 */
+	protected static $installing = false;
 
 	/**
 	 * Installation.
@@ -41,7 +41,6 @@ class SmartWoo_Install {
 		}
 		self::rewrite_rule();
 		self::add_automations();
-		self::create_upload_dir();
 	}
 
 	/** 
@@ -63,7 +62,7 @@ class SmartWoo_Install {
 	/**
 	 * Updating existing data.
 	 */
-	private static function update() {
+	protected static function update() {
 		global $wpdb;
 
 		$table_names = array(
@@ -87,13 +86,13 @@ class SmartWoo_Install {
 	}
 	
 	/** Declare current state */
-	private static function installing() {
+	protected static function installing() {
 		set_transient( '_smartwoo_is_installing', true, 10 );
 		self::$installing = true;
 	}
 
 	/** Check if installation is going on */
-	private static function is_installing() {
+	protected static function is_installing() {
 		self::$installing = get_transient( '_smartwoo_is_installing' );
 		return self::$installing;
 	}
@@ -101,7 +100,7 @@ class SmartWoo_Install {
 	/**
 	 * Create database tables.
 	 */
-	private static function create_tables() {
+	protected static function create_tables() {
 		// Load the db table file to have access to the properties.
 		include_once SMARTWOO_PATH . 'includes/admin/include/sw-db.php';
 		smartwoo_db_schema();
@@ -110,7 +109,7 @@ class SmartWoo_Install {
 	/**
 	 * Set up default options.
 	 */
-	private static function create_options() {
+	protected static function create_options() {
 		
 		add_option( 'smartwoo_invoice_id_prefix', 'SmartWoo' );
 		add_option( 'smartwoo_service_id_prefix', 'SmartWoo' );
@@ -139,7 +138,7 @@ class SmartWoo_Install {
 	/**
 	 * Add automation schedules.
 	 */
-	private static function add_automations() {
+	protected static function add_automations() {
 		/**
 		 * Schedule the auto-renewal event.
 		 *
@@ -182,14 +181,14 @@ class SmartWoo_Install {
 	/**
 	 * Check if it's new installation.
 	 */
-	private static function is_new_installation() {
+	protected static function is_new_installation() {
 		if ( false === get_option( '__smartwoo_installed', false ) ){
 			return true;
 		}
 		return false;
 	}
 
-	private static function rewrite_rule() {
+	protected static function rewrite_rule() {
 		add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
 		flush_rewrite_rules();
 	}
@@ -234,4 +233,3 @@ class SmartWoo_Install {
 
 	}
 }
-
