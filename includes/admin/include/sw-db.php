@@ -112,27 +112,23 @@ function smartwoo_db_schema() {
 	 */
 	$assets_table = SMARTWOO_ASSETS_TABLE;
 	$assets_table_structure = array(
-		'asset_id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY',
+		'asset_id mediumint(9) NOT NULL AUTO_INCREMENT',
 		'service_id varchar(255) NOT NULL',
 		'asset_name varchar(255) DEFAULT NULL',
 		'asset_data text DEFAULT NULL',
 		'asset_key varchar(255) NOT NULL',
+		// 'is_external varchar(20) DEFAULT NULL', // added 2.0.1
 		'access_limit mediumint(9) DEFAULT NULL',
 		'expiry DATETIME DEFAULT NULL',
 		'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
 		'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
 		'INDEX service_id_index (service_id)',
 		'INDEX asset_name_index (asset_name)',
+		'PRIMARY KEY  (asset_id)',
+
 	);
 
 	smartwoo_create_database_table( $assets_table, $assets_table_structure );
-
-	$smartwoo_db_version 	= SMARTWOO_DB_VER;
-	$stored_version 		= get_option( 'smartwoo_db_version' );
-	if ( $smartwoo_db_version !== $stored_version ) {
-		// Update the stored version.
-		update_option( 'smartwoo_db_version', $smartwoo_db_version );
-	}
 }
 
 /**
@@ -145,11 +141,9 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
     global $wpdb;
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-	// phpcs:disable
 	$query			= $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name );
-    $table_exists 	= $wpdb->get_var( $query );
-	// phpcs:enable
-
+    $table_exists 	= $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$is_update		= 'running' === get_transient( 'smartwoo_db_update' );
     if ( $table_exists !== $table_name ) {
         $charset_collate = smartwoo_get_charset_collate();
 
@@ -162,8 +156,19 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
         $sql .= ") $charset_collate;";
 
         // Execute the SQL query.
-        dbDelta( $sql );
+        $result  = dbDelta( $sql );
+
+		if ( $result === false ) {
+			error_log( "Failed to execute dbDelta for table $table_name." );
+		}
+
     }
+
+	$stored_version 		= get_option( 'smartwoo_db_version' );
+	if ( SMARTWOO_DB_VER !== $stored_version ) {
+		// Update the stored version.
+		update_option( 'smartwoo_db_version', SMARTWOO_DB_VER );
+	}
 }
 
 /**
@@ -182,4 +187,36 @@ function smartwoo_get_charset_collate() {
 		$charset_collate .= " COLLATE $wpdb->collate";
 	}
 	return $charset_collate;
+}
+
+function smartwoo_update_201_assets_table() {
+	error_log( '"smartwoo_update_201_assets_table" called' );
+}
+
+/**
+ * Inclusion of is_external column in the assets table
+ * 
+ * @since 2.0.2
+ */
+function smartwoo_update_201_asset_type() {
+	global $wpdb;
+	$table_name = SMARTWOO_ASSETS_TABLE;
+	$new_col 	= 'is_external';
+	$constrnts	= 'varchar(20) DEFAULT NULL';
+	$columns = $wpdb->get_results( "SHOW COLUMNS FROM $table_name", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+	$column_names = array();
+	foreach ( $columns as $column ) {
+		$column_names[] = $column['Field'];
+	}
+
+	if ( ! in_array( $new_col, $column_names ) ) {
+		$new_col 	= $new_col . ' ' . $constrnts;
+		$query		= "ALTER TABLE {$table_name} ADD {$new_col} AFTER `asset_key`;";
+		$result		= $wpdb->query( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
+		if ( ! $result  && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( $wpdb->last_error );
+		}
+	}
 }
