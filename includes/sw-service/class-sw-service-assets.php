@@ -53,6 +53,14 @@ class SmartWoo_Service_Assets {
     protected $key;
 
     /**
+     * Whether asset has an external url.
+     * 
+     * @since 2.0.1
+     * @var string $is_external
+     */
+    protected $is_external = 'no';
+
+    /**
      * Asset expiry date
      * 
      * @var string $expiry
@@ -81,9 +89,16 @@ class SmartWoo_Service_Assets {
     protected $updated_at;
 
     /**
-     * Class constructor
+     * Class constructor.
+     * 
+     * @param int $id Asset ID.
      */
-    public function __construct() {}
+    public function __construct( $id = 0 ) {
+        if ( ! empty( $id ) && ! is_string( $id ) ) {
+            $this->get_asset( $id, false );
+        }
+
+    }
 
     /*
     |----------
@@ -277,7 +292,29 @@ class SmartWoo_Service_Assets {
     | CRUD METHODS
     |----------------
     */
+
+    /**
+     * Get an asset by id
+     * 
+     * @param int $id
+     */
+    public function get_asset( $id, $new_self = true ) {
+        if ( empty( $id ) ) {
+            return false;
+        }
+        global $wpdb;
+        $id         = absint( $id );
+        $table_name = SMARTWOO_ASSETS_TABLE;
+        $query      = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `asset_id` = %d", $id );
+        $result     = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     
+        if ( ! empty( $result ) ) {
+            return $this->convert_db_result( $result, $new_self  );
+        }
+
+        return false;
+    }
+
     /**
      * Get assets associated with a service subscription.
      */
@@ -328,7 +365,7 @@ class SmartWoo_Service_Assets {
      * @param string $key Asset key.
      * @return array Asset data if successful, empty array otherwise.
      */
-    public static function return_data( $asset_id, $key ) {
+    public static function return_data( $asset_id, $key, &$this_obj = null ) {
         global $wpdb;
         $query  = $wpdb->prepare(  
             "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d AND `asset_key` = %s",
@@ -340,6 +377,7 @@ class SmartWoo_Service_Assets {
             return array();
         }
 
+        $this_obj  = new self( absint( $asset_id ) );
         return wp_unslash( maybe_unserialize( $result['asset_data'] ) );
         
     }
@@ -368,6 +406,7 @@ class SmartWoo_Service_Assets {
             'asset_name'    => $this->asset_name,
             'asset_data'    => $this->get_asset_data( 'db_save' ),
             'asset_key'     => $this->key,
+            'is_external'   => $this->is_external,
             'access_limit'  => $this->limit,
             'expiry'        => $this->expiry,
         );
@@ -390,7 +429,7 @@ class SmartWoo_Service_Assets {
         }
 
         if ( $is_new ) {
-            $data['asset_key'] = 'sw_' . smartwoo_generate_token();
+            $data['asset_key'] = empty( $this->key ) ? 'sw_' . smartwoo_generate_token() : $this->key;
             $data['created_at'] = current_time( 'mysql' );
             $data_format = array_merge( $data_format, array( '%s' ) );
 
@@ -444,6 +483,22 @@ class SmartWoo_Service_Assets {
     */
 
     /**
+     * Check or set external property
+     * 
+     * @param mixed $value The value
+     */
+    public function is_external( $value = '' ) {
+        if ( empty( $value ) ) {
+            return $this->is_external;
+        }
+
+        $this->is_external = wc_bool_to_string( wc_string_to_bool( $value ) ); 
+       
+        return $this->is_external;
+        
+    }
+
+    /**
      * Check if a service id exists in the database.
      * 
      * @param string $service_id TAhe service ID.
@@ -460,13 +515,14 @@ class SmartWoo_Service_Assets {
      * 
      * @param array $result A database query result of an associative array.
      */
-    public function convert_db_result( $result ) {
-        $self = new self();
+    public function convert_db_result( $result, $new_self = true ) {
+        $self = $new_self ? new self() : $this;
         $self->set_id( $result['asset_id'] );
         $self->set_service_id( $result['service_id'] );
         $self->set_asset_name( $result['asset_name'] );
         $self->set_asset_data( $result['asset_data'], 'db_get' );
         $self->set_key( $result['asset_key'] );
+        $self->is_external( $result['is_external'] );
         $self->set_limit( $result['access_limit'] );
         $self->set_expiry( $result['expiry'] );
         $self->set_created_at( $result['created_at'] );
@@ -484,9 +540,11 @@ class SmartWoo_Service_Assets {
         $self->set_service_id( ! empty( $result['service_id'] ) ? $result['service_id'] : '' );
         $self->set_asset_name( ! empty( $result['asset_name'] ) ? $result['asset_name'] : '' );
         $self->set_asset_data( ! empty( $result['asset_data'] ) ? $result['asset_data'] : '', $context );
-        $self->set_key( ! empty( $result['key'] ) ? $result['key'] : '' );
+        $self->set_key( ! empty( $result['asset_key'] ) ? $result['asset_key'] : '' );
         $self->set_expiry( ! empty( $result['expiry'] ) ? $result['expiry'] : '' );
         $self->set_limit( ! empty( $result['access_limit'] ) ? $result['access_limit'] : '' );
+        $self->is_external( ! empty( $result['is_external'] ) ? $result['is_external']: '' );
+
         return $self;
     }
 
