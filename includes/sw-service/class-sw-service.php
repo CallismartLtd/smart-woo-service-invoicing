@@ -458,12 +458,12 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Save Assets to the database.
+	 * Sync Downloadable Product items to subscription.
 	 * 
 	 * @param string $asset_name The name of the asset.
 	 * @since 2.0.0
 	 */
-	public function save_assets( $asset_name = 'downloads' ) {
+	public function save_assets( $asset_name = '' ) {
 		if ( 'downloads' === $asset_name ) {
 			if ( empty( $this->getProductId() ) ) {
 				return false;
@@ -476,7 +476,7 @@ class SmartWoo_Service {
 				$this->assets['service_id'] 	= $this->getServiceId();
 				$this->assets['asset_data'] 	= $product->get_smartwoo_downloads();
 				$this->assets['access_limit'] 	= -1; // Will allow users to set access limit in later updates.
-				$this->assets['expiry'] 		= null; // Will allow asset expiry in future updates.
+				$this->assets['expiry'] 		= $this->getEndDate();
 				$obj = SmartWoo_Service_Assets::convert_arrays( $this->assets );
 				return $obj->save();
 			}
@@ -494,6 +494,7 @@ class SmartWoo_Service {
 			return '';
 		}
 		$assets = $this->get_assets();
+		$service = $this;
 		ob_start();
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
 		return ob_get_clean();
