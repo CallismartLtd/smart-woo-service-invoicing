@@ -621,11 +621,12 @@ function smartwoo_allowed_form_html() {
             'title'		=> true,
         ),
         'div'		=> array(
+			'style'		=> true,
             'class'		=> true,
 			'id'		=> true,
 			'a'			=> true,
 			'ul'		=> true,
-			'li'		=> true
+			'li'		=> true,
         ),
 		'button'	=> array(
 			'class'		=> true,
@@ -643,6 +644,8 @@ function smartwoo_allowed_form_html() {
         'h4'		=> array(),
         'p'			=> array(),
         'hr'		=> array(),
+		'strong'	=> array(),
+		'br'		=> array(),
         'input'		=> array(
             'type'		=> true,
             'class'		=> true,
@@ -652,7 +655,9 @@ function smartwoo_allowed_form_html() {
             'checked'	=> true,
             'selected'	=> true,
 			'required'	=> true,
-			'readonly'	=> true
+			'readonly'	=> true,
+			'placeholder'	=> true,
+			'style'		=> true,
         ),
 		'p'			=> array(
 			'class'		=> true,
@@ -855,7 +860,7 @@ function smartwoo_get_form_success() {
  * 
  * @return string $url The download url (optional).
  */
-function smartwoo_download_url( $resource_id, $key, $asset_id ) {
+function smartwoo_download_url( $resource_id, $key, $asset_id, $service_id ) {
 	if ( empty( $resource_id ) || empty( $key ) ) {
 		return '';
 	}
@@ -864,6 +869,7 @@ function smartwoo_download_url( $resource_id, $key, $asset_id ) {
 		'resource_id'		=> rawurlencode( $resource_id ),
 		'asset_id'			=> rawurlencode( $asset_id ),
 		'key'				=> rawurlencode( $key ),
+		'service_id'		=> rawurlencode( $service_id ),
 		'token'				=> wp_create_nonce( 'smartwoo_download_nonce' ),
 	), smartwoo_service_page_url() );
 
