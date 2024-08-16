@@ -900,13 +900,15 @@ jQuery(document).ready(function($) {
     // 1. Toggle display of download fields and Add Field button
     $('#is-smartwoo-downloadable').on('change', function() {
         if ($(this).is(':checked')) {
-			$('.sw-product-download-field-container').show();
-            $('.sw-product-download-fields').show();
-            $('#add-field').show();
+			$('.sw-product-download-field-container').fadeIn();
+            $('.sw-product-download-fields').fadeIn();
+            $('.sw-assets-div').fadeIn();
+            $('#add-field').fadeIn();
         } else {
-			$('.sw-product-download-field-container').hide();
-            $('.sw-product-download-fields').hide();
-            $('#add-field').hide();
+			$('.sw-product-download-field-container').fadeOut();
+            $('.sw-product-download-fields').fadeOut();
+            $('.sw-assets-div').fadeOut();
+            $('#add-field').fadeOut();
         }
     });
 
@@ -928,9 +930,9 @@ jQuery(document).ready(function($) {
         }
 
         mediaUploader = wp.media.frames.file_frame = wp.media({
-            title: 'Choose File',
+            title: 'Select a file',
             button: {
-                text: 'Choose File'
+                text: 'Add to asset'
             },
             multiple: false
         });
@@ -954,10 +956,12 @@ jQuery(document).ready(function($) {
     // 4. Remove field set
     $(document).on('click', '.swremove-field', function() {
         $(this).closest('.sw-product-download-fields').remove();
-    });
+    });	
 });
 
-
+/**
+ * Toggle visility of assets and subscription tabs in frontend
+ */
 document.addEventListener('DOMContentLoaded', function() {
 	var assetSubBtn = document.getElementById( 'smartwoo-assets-sub-nav' );
 
@@ -1029,3 +1033,53 @@ addEventListener( 'DOMContentLoaded', function() {
 		});
 	}
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var moreAddiAssetsButton 	= document.getElementById('more-addi-assets');
+    var mainContainer 			= document.getElementById('additionalAssets');
+	var isExternal				= document.getElementById( 'isExternal' )
+    if (moreAddiAssetsButton && mainContainer) {
+        moreAddiAssetsButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent form submission or any default action of the button
+
+            var newField = document.createElement('div');
+            newField.classList.add('sw-additional-assets-field');
+
+            newField.innerHTML = `
+				<p><strong>Add More Assets</strong></p>
+                <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
+                <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
+                <input type="text" name="add_asset_values[]" placeholder="Asset Value" />
+                <button class="remove-field" title="Remove this field">×</button>
+            `;
+
+            mainContainer.insertBefore(newField, moreAddiAssetsButton);
+        });
+
+        // Event delegation to handle click events on the dynamically added remove buttons
+        mainContainer.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-field')) {
+                event.preventDefault(); // Prevent default button action
+                var fieldToRemove = event.target.parentElement;
+                fieldToRemove.remove(); // Remove the parent div of the clicked remove button
+            }
+        });
+    }
+
+	if ( isExternal ) {
+		var inputField = document.getElementById( 'assetKey' );
+		isExternal.addEventListener( 'change', function( e ) {
+			if ( 'yes' === isExternal.value ) {
+				inputField.style.display = 'block';
+				inputField.style.width = '100%';
+			} else {
+				inputField.style.display = 'none';
+
+			}
+			
+		} );
+
+	}
+});
+

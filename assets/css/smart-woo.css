@@ -2,7 +2,9 @@
  * This file contains all the CSS File for this plugin although there are some point where it was neccessary for us to
 use inline CSS to overide some styles
  */
-
+.smartwoo-hide {
+	display: none;
+}
 
 /************************************************************************************/
 /**************************CSS for admin pages starts here **********************************/
@@ -202,12 +204,30 @@ use inline CSS to overide some styles
 	margin-bottom: 20px;
 }
 
+.sw-assets-div {
+	display: flex;
+	justify-content: space-evenly;
+	background-color: #ffffff;
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.sw-assets-div  .line {
+	border-right: solid 0.02px;
+}
 .sw-product-download-field-container {
 	display: none;
 	background-color: #fff;
 	margin: 20px auto;
 	padding: 10px;
 	
+}
+
+.sw-product-download-field-container.show {
+	display: block;
+	margin-left: 5px;
+	width: 100%;
+
 }
 
 .sw-product-download-fields {
@@ -219,7 +239,7 @@ use inline CSS to overide some styles
 	font-weight: 500;
     display: inline;
     margin-bottom: 20px;
-	width: 100%;
+	
 }
 
 .sw-product-download-fields input,
@@ -232,7 +252,35 @@ use inline CSS to overide some styles
     color: red;
     cursor: pointer;
 }
+.sw-additional-assets {
+	width: 40%;
+	padding: 10px;
+	margin: 20px auto;
+}
+.sw-additional-assets .sw-additional-assets-field input {
+	margin: 5px 5px;
+	width: 90%;
+}
+.sw-additional-assets button {
+	margin-top: 10px;
+}
 
+@media ( min-width: 280px ) and ( max-width: 425px ) {
+	.sw-assets-div {
+		flex-wrap: wrap;
+	}
+	.sw-product-download-field-container.show {
+		margin: auto;
+	}
+	
+	.sw-assets-div .line {
+		display: none;
+	}
+	.sw-additional-assets {
+		width: 100%;
+		padding: 2px;
+	}
+}
 
 /* Custom CSS for the product configuration container */
 
