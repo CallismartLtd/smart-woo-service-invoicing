@@ -22,8 +22,8 @@ defined( 'ABSPATH' ) || exit;
             <table class="sw-table">
                 <thead>
                     <tr>
-                        <th>File Name</th>
-                        <th>Action</th>
+                        <th><?php echo ( 'downloads' === $asset->get_asset_name() ) ? 'File Name': 'Name';?></th>
+                        <th> <?php echo ( 'downloads' === $asset->get_asset_name() ) ? 'Action': 'Value';?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
                                 <?php echo esc_html( $name ); ?>
                             </td>
                             <td>
-                                <a href="<?php echo esc_url( smartwoo_download_url( $id, $asset->get_key(), $asset->get_id() ) ); $id++; ?>" class="sw-red-button">Download</a>
+                            <?php echo ( 'downloads' === $asset->get_asset_name() ) ? '<a href="' . esc_url( smartwoo_download_url( $id, $asset->get_key(), $asset->get_id(), $service->getServiceId() ) ) . '" class="sw-red-button">Download</a>': $value;  $id++;?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
