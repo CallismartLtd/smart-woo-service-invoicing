@@ -117,7 +117,7 @@ function smartwoo_db_schema() {
 		'asset_name varchar(255) DEFAULT NULL',
 		'asset_data text DEFAULT NULL',
 		'asset_key varchar(255) NOT NULL',
-		// 'is_external varchar(20) DEFAULT NULL', // added 2.0.1
+		'is_external varchar(20) DEFAULT NULL', // added 2.0.1
 		'access_limit mediumint(9) DEFAULT NULL',
 		'expiry DATETIME DEFAULT NULL',
 		'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
