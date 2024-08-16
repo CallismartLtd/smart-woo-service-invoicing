@@ -41,7 +41,7 @@ $product_name = $product ? $product->get_name() : 'Product Name not found';
                     <div class="sw-form-row">
                         <label for="service_url" class="sw-form-label">Service URL (optional)</label>
                         <span class="sw-field-description" title="Enter the service URL e.g., https:// (optional)">?</span>
-                        <input type="url" name="service_url" id="sw-product-config" class="sw-form-input" id="service_url">
+                        <input type="text" name="service_url" id="sw-product-config" class="sw-form-input" id="service_url">
                     </div>
 
                     <!-- Submit Button -->
