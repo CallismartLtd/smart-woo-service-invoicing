@@ -82,18 +82,18 @@ function smartwoo_pro_feature( $feature = '' ) {
  * Smart Woo UTM campaign function.
  */
 function smartwoo_utm_campaign_url() {
-	$utm_url = 'https://callismart.com.ng/smart-woo';
+	$utm_url = 'https://callismart.com.ng/smart-woo-service-invoicing';
 	$utm_source = SMARTWOO;
 	$utm_medium = 'upgrade button';
 	$utm_campaign = 'pro-upgrade';
 	$plugin_version = SMARTWOO_VER;
 	$utm_referrer = site_url();
 
-	$utm_url .= '?utm_source=' . urlencode( $utm_source );
-	$utm_url .= '&utm_medium=' . urlencode( $utm_medium );
-	$utm_url .= '&utm_campaign=' . urlencode( $utm_campaign );
-	$utm_url .= '&plugin_version=' . urlencode( $plugin_version );
-	$utm_url .= '&utm_referrer=' . urlencode( $utm_referrer );
+	$utm_url .= '?utm_source=' . rawurlencode( $utm_source );
+	$utm_url .= '&utm_medium=' . rawurlencode( $utm_medium );
+	$utm_url .= '&utm_campaign=' . rawurlencode( $utm_campaign );
+	$utm_url .= '&plugin_version=' . rawurlencode( $plugin_version );
+	$utm_url .= '&utm_referrer=' . rawurlencode( $utm_referrer );
 
 	return $utm_url;
 }
