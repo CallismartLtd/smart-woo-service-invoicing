@@ -87,8 +87,8 @@ function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 	if ( method_exists( 'SmartWooPro_API', 'service_url' ) ) {
 		return SmartWooPro_API::service_url( $service );
 	} else {
-		wp_enqueue_style('dashicons');
-		return '<a href="' . esc_url( $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank">' . esc_html( $button_text ) .' <span class="dashicons dashicons-admin-site-alt3"></span></a>';
+	
+		return '<a href="' . esc_url( $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
 
 	}
 }
@@ -299,9 +299,12 @@ function smartwoo_has_service_expired( SmartWoo_Service $service ) {
  * @return string The status.
  */
 function smartwoo_service_status( $service_id ) {
-
-	// Get the service object.
-	$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
+	if ( $service_id instanceof SmartWoo_Service ) {
+		$service = $service_id;
+	} else {
+		// Get the service object.
+		$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
+	}
 
 	// Get the status text from the DB which overrides the calculated status.
 	$overriding_status = $service->getStatus();
@@ -331,6 +334,7 @@ function smartwoo_service_status( $service_id ) {
 	// Default status if none of the conditions match.
 	return 'Unknown';
 }
+
 
 /**
  * Count the number of 'Active' services for a specific user or all users.
@@ -690,4 +694,15 @@ function smartwoo_delete_service() {
 	}
 }
 
-
+/**
+ * Get the statuses that indicate Active service.
+ * 
+ * @return array
+ * @since 2.0.1
+ */
+function smartwoo_active_service_statuses() {
+	return
+	apply_filters( 'smartwoo_active_service_statuses', array(
+		'Active', 'Active (NR)', 'Due for Renewal', 'Due', 'Grace Period' )
+	);
+}
