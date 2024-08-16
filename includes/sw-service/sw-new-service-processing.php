@@ -152,7 +152,8 @@ function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
 		}
 	}
 
-	$product_name	= wc_get_product( $product_id )->get_name();
+	$product		= wc_get_product( $product_id );
+	$product_name	= $product->get_name();
 	$status_options = array(
 		''                => esc_html__( 'Auto Calculate', 'smart-woo-service-invoicing' ),
 		'Pending'         => esc_html__( 'Pending', 'smart-woo-service-invoicing' ),
@@ -162,8 +163,9 @@ function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
 		'Expired'         => esc_html__( 'Expired', 'smart-woo-service-invoicing' ),
 	);
 
+	$is_downloadable	= $product->is_downloadable();
+
 	// The form.
-	// return smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $service_url, $user_full_name, $start_date, $billing_cycle, $next_payment_date, $end_date, $status );
 	ob_start();
 	include_once SMARTWOO_PATH . 'templates/service-admin-temp/new-service-order-form.php';
 	return ob_get_clean();
