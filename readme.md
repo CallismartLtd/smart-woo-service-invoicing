@@ -59,7 +59,7 @@ Alternatively, you can install the plugin directly from your WordPress dashboard
 2. Search for 'Smart Woo Service Invoicing'.
 3. Install and activate the plugin.
 
-For more details and updates, visit the [Smart Woo Service Invoicing Plugin page](https://callismart.com.ng/smart-woo).
+For more details and updates, visit the [Smart Woo Service Invoicing Plugin page](https://callismart.com.ng/smart-woo-service-invoicing).
 
 ## Usage
 
