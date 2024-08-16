@@ -21,6 +21,60 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="sw-form-container">
     <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) );?>">
+
+        <div class="sw-product-type-container">
+            <label for="is-smartwoo-downloadable">Order Has Asset:
+                <input type="checkbox" name="is_smartwoo_downloadable" <?php checked( $is_downloadable ) ?> id="is-smartwoo-downloadable"/>
+            </label> 
+        </div>
+        <hr><br> <br>
+        <div class="sw-assets-div">
+            <div class="sw-product-download-field-container<?php echo $is_downloadable ? ' show' : '';?>">
+                <p><strong>Downloadable asset type in "<?php echo esc_html( $product_name );?>"</strong></p>
+                <?php if ( $is_downloadable ): $downloads = $product->get_smartwoo_downloads();?>
+                    <?php foreach( $downloads as $file_name => $url ):?>
+                        <div class="sw-product-download-fields">
+                            <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
+                            <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" />
+                            <input type="button" class="upload_image_button button" value="Choose file" />
+                            <button type="button" class="swremove-field">x</button>
+                        </div>
+                    <?php endforeach;?>
+                <?php else:?>
+                        <div class="sw-product-download-fields">
+                            <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
+                            <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
+                            <input type="button" class="upload_image_button button" value="Choose file" />
+                            <button type="button" class="swremove-field">X</button>
+                        </div>
+                <?php endif;?>
+                
+                <button type="button" id="add-field" <?php echo $is_downloadable ? 'style="display: block;"': 'style="display: none;"';?>>Add More Assets</button>   
+                <br><br>
+                <div class="sw-form-row">
+                <label for="order_id" class="sw-form-label"><?php echo esc_html__( 'External:', 'smart-woo-service-invoicing' );?></label>
+                    <span class="sw-field-description" title="<?php echo esc_attr__( 'Select yes if the url of any downloadable file is external or protected resource', 'smart-woo-service-invoicing' );?>">?</span>
+                    <select name="is_external" id="isExternal" class="sw-form-input">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+                
+                <input type="text" id="assetKey" class="smartwoo-hide" name="asset_key" placeholder="Authorization token (optional)" />
+
+            </div>
+            <span class="line"></span>
+            <div class="sw-additional-assets" id="additionalAssets">
+                <p><strong>Additional Asset Types</strong></p>
+                <div class="sw-additional-assets-field">
+                    <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
+                    <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
+                    <input type="text" name="add_asset_values[]" placeholder="Asset Value" />                    
+                </div>
+                <button id="more-addi-assets">More Fields</button> 
+            </div>
+        </div>
+            
         <div class="sw-form-row">
             <label for="order_id" class="sw-form-label"><?php echo esc_html__( 'Order:', 'smart-woo-service-invoicing' );?></label>
             <span class="sw-field-description" title="The order ID and Product Name">?</span>
