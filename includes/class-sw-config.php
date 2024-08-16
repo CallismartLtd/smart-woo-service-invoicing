@@ -187,11 +187,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-        // $response = wp_remote_head( 'http://localhost/callismart/wp-content/uploads/2024/08/smart-woo-pro.zip' );
-        // echo '<pre>';
-        // var_dump( $response );
-        // echo '</pre>';
-        // exit;
+        
     }
 
     /**
@@ -207,13 +203,13 @@ class SmartWoo_Config{
     public function load_styles() {
 
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         
         }
         wp_enqueue_style( 'smartwoo-admin-utm-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin-min.css', array(), SMARTWOO_VER, 'all' );
 
         if ( is_admin() ) {
-            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         }
     }
 
