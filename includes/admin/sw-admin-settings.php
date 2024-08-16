@@ -648,7 +648,7 @@ function smartwoo_help_container( $echo = true) {
         <button class="sw-accordion-btn">Get Help 🏷</button>
         <div class="sw-upsell-panel">
             <p>Need assistance with using Smart Woo Service Invoicing Plugin? Check out our documentation or contact our support team for help. We are here to assist you in getting the most out of the plugin.</p>
-            <a href="' . esc_url( 'https://callismart.com.ng/smart-woo' ) . '" target="_blank" class="sw-red-button">Get Help</a>
+            <a href="' . esc_url( 'https://callismart.com.ng/smart-woo-service-invoicing' ) . '" target="_blank" class="sw-red-button">Get Help</a>
         </div>
     </div>';
 	if ( $echo ) {
