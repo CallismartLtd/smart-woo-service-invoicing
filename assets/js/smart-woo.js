@@ -900,14 +900,14 @@ jQuery(document).ready(function($) {
     // 1. Toggle display of download fields and Add Field button
     $('#is-smartwoo-downloadable').on('change', function() {
         if ($(this).is(':checked')) {
+			$('.sw-assets-div').fadeIn().css('display', 'flex');;
 			$('.sw-product-download-field-container').fadeIn();
             $('.sw-product-download-fields').fadeIn();
-            $('.sw-assets-div').fadeIn();
             $('#add-field').fadeIn();
         } else {
+			$('.sw-assets-div').fadeOut();
 			$('.sw-product-download-field-container').fadeOut();
             $('.sw-product-download-fields').fadeOut();
-            $('.sw-assets-div').fadeOut();
             $('#add-field').fadeOut();
         }
     });
@@ -1039,6 +1039,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var moreAddiAssetsButton 	= document.getElementById('more-addi-assets');
     var mainContainer 			= document.getElementById('additionalAssets');
 	var isExternal				= document.getElementById( 'isExternal' )
+	
     if (moreAddiAssetsButton && mainContainer) {
         moreAddiAssetsButton.addEventListener('click', function(event) {
             event.preventDefault(); // Prevent form submission or any default action of the button
@@ -1060,9 +1061,53 @@ document.addEventListener('DOMContentLoaded', function() {
         // Event delegation to handle click events on the dynamically added remove buttons
         mainContainer.addEventListener('click', function(event) {
             if (event.target.classList.contains('remove-field')) {
-                event.preventDefault(); // Prevent default button action
+                event.preventDefault(); // Prevent default button action.
                 var fieldToRemove = event.target.parentElement;
-                fieldToRemove.remove(); // Remove the parent div of the clicked remove button
+				var removedId = event.target.dataset.removedId;
+				var confirmed = removedId ? confirm( 'This asset will be deleted from the database, click okay to continue.' ) : 0;
+				var removeEle = removedId ? false : true;
+				if ( removedId && confirmed ) {
+					var spinner = smartWooAddSpinner( 'smartSpin' );
+					console.log( removedId );
+					jQuery.ajax({
+						type: 'GET',
+						url: smart_woo_vars.ajax_url,
+						data: {
+							action: 'smartwoo_asset_delete',
+							security: smart_woo_vars.security,
+							asset_id: removedId
+						},
+						success: function( response ) {
+							if ( response.success ) {
+								alert( response.data.message );
+								fieldToRemove.remove(); // Remove the parent div of the clicked remove button.
+							} else {
+								alert( response.data.message );
+							}
+						},
+						error: function ( error ) {
+							var message  = 'Error deleting asset: ';
+							// Handle the error
+							if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
+								message = message + error.responseJSON.data.message;
+							} else if (error.responseText) {
+								message = message + error.responseText;
+							} else {
+								message = message + error;
+							}
+		
+							console.error( message );
+						},
+						complete: function() {
+							smartWooRemoveSpinner( spinner );
+							
+						}
+					});
+				}
+				if ( removeEle ) {
+					fieldToRemove.remove();
+				}
+				
             }
         });
     }
