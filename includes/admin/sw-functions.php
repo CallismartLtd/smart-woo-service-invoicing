@@ -619,19 +619,18 @@ function smartwoo_allowed_form_html() {
         'span'		=> array(
             'class'		=> true,
             'title'		=> true,
+			'id'		=> true,
         ),
         'div'		=> array(
-			'style'		=> true,
             'class'		=> true,
 			'id'		=> true,
-			'a'			=> true,
-			'ul'		=> true,
-			'li'		=> true,
+			'style'		=> true,
         ),
 		'button'	=> array(
 			'class'		=> true,
 			'id'		=> true,
 			'type'		=> true,
+			'data-removed-id' => true,
 		),
 		'a'			=> array(
 			'href'		=> true,
