@@ -53,7 +53,9 @@ final class SmartWoo {
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
+        add_action( 'admin_post_smartwoo_edit_service', 'smartwoo_process_edit_service_form' );
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
+        add_action( 'wp_ajax_smartwoo_asset_delete', array( 'SmartWoo_Service_Assets', 'ajax_delete' ) );
     }
 
     /** Service Subscription */
@@ -510,7 +512,7 @@ final class SmartWoo {
      * @param string $token The authorization bearer token.
      * @param string $resource_url The URL of the outgoing HTTP request.
      */
-    private function append_http_authorization( $token = '', $resource_url ) {
+    private function append_http_authorization( $token = '', $resource_url = '' ) {
         add_filter( 'http_request_args', function( $args, $url ) use ( $token, $resource_url ) {
             if ( $resource_url === $url ) {
                 $args['headers']['Authorization'] = 'Bearer ' . $token;
