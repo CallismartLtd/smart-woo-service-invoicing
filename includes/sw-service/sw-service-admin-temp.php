@@ -632,7 +632,7 @@ function smartwoo_new_service_form() {
  * Render service editor form.
  */
 function smartwoo_edit_service_form() {
-	$url_service_id = sanitize_key( $_GET['service_id'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$url_service_id = sanitize_text_field( wp_unslash( $_GET['service_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	
 	if ( empty( $url_service_id ) ) {
 		return smartwoo_error_notice( 'Service Parameter cannot be manipulated' );
@@ -650,142 +650,41 @@ function smartwoo_edit_service_form() {
 	$args       = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$query_var  =  'action=view-service&service_id=' . $service->getServiceId() .'&tab';
 
-	smartwoo_process_edit_service_form( $service );
-	$service_name      = $service->getServiceName();
-	$service_url       = $service->getServiceUrl();
-	$service_type      = $service->getServiceType();
-	$product_id        = $service->getProductId();
-	$user_id           = $service->getUserId();
-	$invoice_id        = $service->getInvoiceId();
-	$start_date        = $service->getStartDate();
-	$end_date          = $service->getEndDate();
-	$next_payment_date = $service->getNextPaymentDate();
-	$billing_cycle     = $service->getBillingCycle();
-	$status            = $service->getStatus();
+	$service_name		= $service->getServiceName();
+	$service_url		= $service->getServiceUrl();
+	$service_type		= $service->getServiceType();
+	$product_id			= $service->getProductId();
+	$user_id			= $service->getUserId();
+	$invoice_id			= $service->getInvoiceId();
+	$start_date			= $service->getStartDate();
+	$end_date			= $service->getEndDate();
+	$next_payment_date 	= $service->getNextPaymentDate();
+	$billing_cycle		= $service->getBillingCycle();
+	$status				= $service->getStatus();
+	$is_downloadable	= $service->has_asset();
+	$product_name		= $service->get_product_name();
+	if ( $is_downloadable ) {
+		$assets	= $service->get_assets();
+		$downloadables 	= array();
+		$additionals	= array();
+
+		foreach ( $assets as $asset ) {
+			if ( 'downloads' === $asset->get_asset_name() ) {
+				foreach ( $asset->get_asset_data() as $file => $url ) {
+					$downloadables[$file]	= $url;
+				}
+
+				$id = $asset->get_id();
+				continue;
+			}
+			
+			$additionals[] = $asset;
+		}
+	}
+	
 
 	ob_start();
-	?>
-		<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Edit Service','sw-admin', $args, $query_var ) ); ?>
-
-	<div class="wrap">
-
-	<h2></h2>
-	<div class="sw-form-container">
-	<form action="" method="post">
-		
-		<?php wp_nonce_field( 'sw_edit_service_nonce', 'sw_edit_service_nonce' ); ?>
-		
-		<div class="sw-form-row">
-			<label for="service_name" class="sw-form-label"><?php esc_html_e( 'Service Name *', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Enter the service name (required)', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<input type="text" name="service_name" class="sw-form-input" id="service_name" value="<?php echo esc_attr( $service_name ); ?>" required>
-		</div>
-
-		<div class="sw-form-row">
-			<label for="service_type" class="sw-form-label"><?php esc_html_e( 'Service Type', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Enter the service type (optional)', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<input type="text" name="service_type" class="sw-form-input" id="service_type" value="<?php echo esc_attr( $service_type ); ?>">
-		</div>
-
-
-		<!-- Service URL -->
-		<div class="sw-form-row">
-			<label for="service_url" class="sw-form-label"><?php esc_html_e( 'Service URL', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Enter the service URL e.g., https:// (optional)', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<input type="url" name="service_url" class="sw-form-input" id="service_url" value="<?php echo esc_url( $service_url ); ?>" >
-		</div>
-
-
-		<!-- Choose a Client -->
-		<div class="sw-form-row">
-			<label for="user_id" class="sw-form-label"><?php esc_html_e( 'Choose a Client', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Choose a user from WordPress. (required)', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<?php
-			$selected_user = ( $user_id ) ? get_user_by( 'ID', $user_id ) : false;
-			wp_dropdown_users(
-				array(
-					'name'              => 'user_id',
-					'selected'          => $selected_user ? $selected_user->ID : '',
-					'show_option_none'  => esc_html__( 'Select a user', 'smart-woo-service-invoicing' ),
-					'option_none_value' => '',
-					'class'             => 'sw-form-input',
-				)
-			);
-			?>
-		</div>
-
-
-		<!-- Service Products -->
-		<div class="sw-form-row">
-			<label for="service_products" class="sw-form-label"><?php esc_html_e( 'Service Products', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Select one product. This product price and fees will be used to create the next invoice. Only Service Products will appear here.', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<?php smartwoo_product_dropdown( esc_attr( $product_id ), true ); ?>	
-		</div>
-
-		<!-- Invoice ID -->
-		<div class="sw-form-row">
-			<label for="invoice_id" class="sw-form-label"><?php esc_html_e( 'Invoice ID (optional)', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Associate this service with an already created invoice.', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<?php smartwoo_invoice_id_dropdown( esc_attr( $invoice_id ) ); ?>
-		</div>
-
-		<!-- Start Date -->
-		<div class="sw-form-row">
-			<label for="start_date" class="sw-form-label"><?php esc_html_e( 'Start Date', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Choose the start date for the service subscription.', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<input type="date" name="start_date" class="sw-form-input" id="start_date" value="<?php echo esc_attr( $start_date ); ?>" required>
-		</div>
-
-	
-		<!-- Billing Cycle -->
-		<div class="sw-form-row">
-			<label for="billing_cycle" class="sw-form-label"><?php esc_html_e( 'Billing Cycle', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Choose the billing cycle for the service, invoices are created toward to the end of the billing cycle', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<select name="billing_cycle" id="billing_cycle" class="sw-form-input" required>
-				<option value="" <?php selected( '', $billing_cycle ); ?>><?php esc_html_e( 'Select billing cycle', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Monthly" <?php selected( 'Monthly', ucfirst( strtolower( $billing_cycle ) ) ); ?>><?php esc_html_e( 'Monthly', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Quarterly" <?php selected( 'Quarterly', ucfirst( strtolower( $billing_cycle ) ) ); ?>><?php esc_html_e( 'Quarterly', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Six Monthly" <?php selected( 'Six Monthly', ucwords( strtolower( $billing_cycle ) ) ); ?>><?php esc_html_e( 'Six Monthly', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Yearly" <?php selected( 'Yearly', ucfirst( strtolower( $billing_cycle ) ) ); ?>><?php esc_html_e( 'Yearly', 'smart-woo-service-invoicing' ); ?></option>
-			</select>
-		</div>
-
-
-		<!-- Next Payment Date -->
-		<div class="sw-form-row">
-			<label for="next_payment_date" class="sw-form-label">Next Payment Date</label>
-			<span class="sw-field-description" title="Choose the next payment date, services wil be due and invoice is created on this day.">?</span>
-			<input type="date" name="next_payment_date" class="sw-form-input" id="next_payment_date" value="<?php echo esc_attr( $next_payment_date ); ?>" required>
-		</div>
-	
-		<!-- End Date -->
-		<div class="sw-form-row">
-			<label for="end_date" class="sw-form-label">End Date</label>
-			<span class="sw-field-description" title="Choose the end date for the service. This service will expire on this day if the product does not have a grace period set up.">?</span>
-			<input type="date" name="end_date" class="sw-form-input" id="end_date" value="<?php echo esc_attr( $end_date ); ?>" required>
-		</div>
-
-		<!-- Set Service Status -->
-		<div class="sw-form-row">
-			<label for="status" class="sw-form-label"><?php esc_html_e( 'Set Service Status', 'smart-woo-service-invoicing' ); ?></label>
-			<span class="sw-field-description" title="<?php esc_attr_e( 'Set the status for the service. Status should be automatically calculated, choose another option to override the status. Please Note: invoice will be created if the status is set to Due for Renewal', 'smart-woo-service-invoicing' ); ?>">?</span>
-			<select name="status" id="status" class="sw-form-input">
-				<option value="" <?php selected( null, $status ); ?>><?php esc_html_e( 'Auto Calculate', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Active" <?php selected( 'Active', $status ); ?>><?php esc_html_e( 'Active', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Active (NR)" <?php selected( 'Active (NR)', $status ); ?>><?php esc_html_e( 'Disable Renewal', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Suspended" <?php selected( 'Suspended', $status ); ?>><?php esc_html_e( 'Suspend Service', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Cancelled" <?php selected( 'Cancelled', $status ); ?>><?php esc_html_e( 'Cancel Service', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Due for Renewal" <?php selected( 'Due for Renewal', $status ); ?>><?php esc_html_e( 'Due for Renewal', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Expired" <?php selected( 'Expired', $status ); ?>><?php esc_html_e( 'Expired', 'smart-woo-service-invoicing' ); ?></option>
-			</select>
-		</div>
-
-		<!-- Submit Button -->
-		<input type="submit" name="edit_service_submit" class="sw-blue-button" value="Update Service">
-	</form>
-	</div>
-	</div>
-	<?php
+	include_once SMARTWOO_PATH . 'templates/service-admin-temp/edit-service.php';
 	return ob_get_clean();
 }
 
