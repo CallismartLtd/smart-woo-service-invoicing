@@ -22,7 +22,6 @@ function smartwoo_service_admin_page() {
 
 	switch ( $action ) {
 		case 'process-new-service':
-			// echo smartwoo_process_new_service_order_page();
 			echo wp_kses( smartwoo_process_new_service_order_page(), smartwoo_allowed_form_html() );
 			break;
 
