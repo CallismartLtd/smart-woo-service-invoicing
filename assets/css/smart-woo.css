@@ -205,11 +205,15 @@ use inline CSS to overide some styles
 }
 
 .sw-assets-div {
-	display: flex;
+	display: none;
 	justify-content: space-evenly;
 	background-color: #ffffff;
 	width: 100%;
 	margin-bottom: 20px;
+}
+
+.sw-assets-div.show {
+	display: flex;
 }
 
 .sw-assets-div  .line {
