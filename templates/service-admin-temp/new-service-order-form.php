@@ -28,9 +28,9 @@ defined( 'ABSPATH' ) || exit;
             </label> 
         </div>
         <hr><br> <br>
-        <div class="sw-assets-div">
+        <div class="sw-assets-div<?php echo $is_downloadable ? ' show':'';?>">
             <div class="sw-product-download-field-container<?php echo $is_downloadable ? ' show' : '';?>">
-                <p><strong>Downloadable asset type in "<?php echo esc_html( $product_name );?>"</strong></p>
+            <p><strong><?php echo ! $is_downloadable ? 'No d': 'D';?>ownloadable asset type in "<?php echo esc_html( $product_name );?>"</strong></p>
                 <?php if ( $is_downloadable ): $downloads = $product->get_smartwoo_downloads();?>
                     <?php foreach( $downloads as $file_name => $url ):?>
                         <div class="sw-product-download-fields">
