@@ -537,6 +537,7 @@ class SmartWoo_Service_Assets {
      */
     public static function convert_arrays( $result, $context = 'view' ) {
         $self = new self();
+        $self->set_id( ! empty( $result['asset_id'] ) ? $result['asset_id'] : 0 );
         $self->set_service_id( ! empty( $result['service_id'] ) ? $result['service_id'] : '' );
         $self->set_asset_name( ! empty( $result['asset_name'] ) ? $result['asset_name'] : '' );
         $self->set_asset_data( ! empty( $result['asset_data'] ) ? $result['asset_data'] : '', $context );
@@ -589,5 +590,35 @@ class SmartWoo_Service_Assets {
         $asset_data = array_values( (array) maybe_unserialize( $result['asset_data'] ) );
 
         return array_key_exists( $data_index - 1, $asset_data );
+    }
+
+    /**
+     * Ajax callback to delete an asset.
+     * 
+     * @since 2.0.1
+     */
+    public static function ajax_delete() {
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'You don\'t have the required permission to delete this data.' ) );
+        }
+
+        $asset_id = isset( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
+
+        if ( empty( $asset_id ) ) {
+            wp_send_json_error( array( 'message' => 'Asset ID not provided.' ) );
+        }
+
+        $self = new self();
+        $self->set_id( $asset_id );
+        
+        if ( $self->delete() ) {
+            wp_send_json_success( array( 'message' => 'Asset has been removed' ) );
+        }
+        
+        wp_send_json_error( array( 'message' => 'An error occured when deleting asset.' ) );
     }
 }
