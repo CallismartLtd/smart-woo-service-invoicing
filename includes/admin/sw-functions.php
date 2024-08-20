@@ -597,6 +597,9 @@ function smartwoo_allowed_form_html() {
         ),
         'input'		=> array(
             'type'		=> true,
+            'min'		=> true,
+            'max'		=> true,
+			'placeholder' => true,
             'name'		=> true,
             'value'		=> true,
             'class'		=> true,

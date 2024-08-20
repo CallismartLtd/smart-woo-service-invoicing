@@ -1052,6 +1052,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                 <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
                 <input type="text" name="add_asset_values[]" placeholder="Asset Value" />
+				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional).">
+
                 <button class="remove-field" title="Remove this field">×</button>
             `;
 
@@ -1113,13 +1115,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 	if ( isExternal ) {
-		var inputField = document.getElementById( 'assetKey' );
+		var inputField = document.getElementById( 'auth-token-div' );
 		isExternal.addEventListener( 'change', function( e ) {
 			if ( 'yes' === isExternal.value ) {
-				inputField.style.display = 'block';
-				inputField.style.width = '100%';
+				inputField.classList.remove( 'smartwoo-hide' );
+				inputField.classList.add( 'sw-form-row' );
+			
 			} else {
-				inputField.style.display = 'none';
+				inputField.classList.remove( 'sw-form-row' );
+				inputField.classList.add( 'smartwoo-hide' );
 
 			}
 			

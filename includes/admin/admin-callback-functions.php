@@ -30,8 +30,7 @@ function smartwoo_service_admin_page() {
 			break;
 
 		case 'add-new-service':
-			echo wp_kses( smartwoo_new_service_page(), smartwoo_allowed_form_html() );
-
+			include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
 			break;
 
 		case 'edit-service':

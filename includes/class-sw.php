@@ -53,6 +53,7 @@ final class SmartWoo {
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
+        add_action( 'admin_post_smartwoo_add_service', 'smartwoo_process_new_service_form' );
         add_action( 'admin_post_smartwoo_edit_service', 'smartwoo_process_edit_service_form' );
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
         add_action( 'wp_ajax_smartwoo_asset_delete', array( 'SmartWoo_Service_Assets', 'ajax_delete' ) );
@@ -373,7 +374,7 @@ final class SmartWoo {
 
         // Check Asset validity via parent service.
         $service = SmartWoo_Service_Database::get_service_by_id( $service_id );
-        if ( ! $service ) {
+        if ( ! $service || ! $service->current_user_can_access() ) {
             wp_die( 'Invalid service subscription.', 404 );
         }
 

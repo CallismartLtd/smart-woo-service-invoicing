@@ -72,7 +72,7 @@ class SmartWoo_Service_Assets {
      * 
      * @var int $limit
      */
-    protected $limit;
+    protected $limit = -1;
 
     /**
      * Date of creation.
@@ -256,12 +256,13 @@ class SmartWoo_Service_Assets {
      * Get access limit
      */
     public function get_access_limit( $context = 'view') {
-        $limit = $this->limit;
         
         if ( 'view' === $context && intval( $this->limit ) < 0 ) {
             return 'Unlimited';
-        } elseif (  'view' === $context && intval( $limit ) === 0 ) {
+        } elseif (  'view' === $context && intval( $this->limit ) === 0 ) {
             return 'Exceeded';
+        } elseif ( 'edit' === $context && $this->limit <= -1 ) {
+            $this->limit = '';
         }
         return $this->limit;
     }
@@ -405,7 +406,7 @@ class SmartWoo_Service_Assets {
             'service_id'    => $this->service_id,
             'asset_name'    => $this->asset_name,
             'asset_data'    => $this->get_asset_data( 'db_save' ),
-            'asset_key'     => $this->key,
+            'asset_key'     => empty( $this->key ) ? 'sw_' . smartwoo_generate_token() : $this->key,
             'is_external'   => $this->is_external,
             'access_limit'  => $this->limit,
             'expiry'        => $this->expiry,
@@ -429,7 +430,6 @@ class SmartWoo_Service_Assets {
         }
 
         if ( $is_new ) {
-            $data['asset_key'] = empty( $this->key ) ? 'sw_' . smartwoo_generate_token() : $this->key;
             $data['created_at'] = current_time( 'mysql' );
             $data_format = array_merge( $data_format, array( '%s' ) );
 

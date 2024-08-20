@@ -60,17 +60,14 @@ function smartwoo_generate_service(
 
 	$saved_service_id = $new_service->save();
 
-	// Check if the service was successfully saved
 	if ( $saved_service_id !== false ) {
 		$new_service = SmartWoo_Service_Database::get_service_by_id( $saved_service_id );
-		// Trigger  action after service is created
+		// Trigger  action after service is created.
 		do_action( 'smartwoo_new_service_created', $new_service );
 
-		// Retrieve the newly created service from the database using the saved ID
 		return $new_service;
 	}
 
-	// Return false if the service creation or database insertion failed
 	return false;
 }
 

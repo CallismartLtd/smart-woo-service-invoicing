@@ -1,6 +1,6 @@
 <?php
 /**
- * File Name : add-new-service.php
+ * File Name : edit-service.php
  * Service edit template file.
  * 
  * @package SmartWoo\templates.
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
     <form action="<?php echo esc_url( admin_url( 'admin-post.php?service_id=' . $url_service_id ) ) ?>" method="post">
 
         <div class="sw-product-type-container">
-            <label for="is-smartwoo-downloadable">Set Assets:
+            <label for="is-smartwoo-downloadable"><?php esc_html_e( 'Set Assets:', 'smart-woo-service-invoicing' );?>
                 <input type="checkbox" name="is_smartwoo_downloadable" <?php checked( $is_downloadable ) ?> id="is-smartwoo-downloadable"/>
             </label> 
         </div>
@@ -54,18 +54,28 @@ defined( 'ABSPATH' ) || exit;
                 <label for="isExternal" class="sw-form-label"><?php echo esc_html__( 'External:', 'smart-woo-service-invoicing' );?></label>
                     <span class="sw-field-description" title="<?php echo esc_attr__( 'Select yes if the url of any downloadable file is external or protected resource', 'smart-woo-service-invoicing' );?>">?</span>
                     <select name="is_external" id="isExternal" class="sw-form-input">
-                        <option value="no">No</option>
-                        <option value="yes">Yes</option>
+                        <option value="no" <?php selected( "no", $downloads_a_obj->is_external() ) ?>>No</option>
+                        <option value="yes" <?php selected( "yes", $downloads_a_obj->is_external() ) ?>>Yes</option>
                     </select>
                 </div>
                 
-                <input type="text" id="assetKey" class="smartwoo-hide" name="asset_key" placeholder="Authorization token (optional)" />
+                <div id="auth-token-div" class="<?php echo ( 'yes' === $downloads_a_obj->is_external() ) ? 'sw-form-row': 'smartwoo-hide';?>">
+                    <label for="assetKey" class="sw-form-label"><?php echo esc_html__( 'Authorizaton Token:', 'smart-woo-service-invoicing' );?></label>
+                    <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, ypu can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
+                    <input type="text" id="assetKey" class="sw-form-input" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
+                </div>
+
+                <div class="sw-form-row">
+                    <label for="access-limit" class="sw-form-label"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
+                    <span class="sw-field-description" title="<?php echo esc_attr__( 'Set access limit, leave empty for unlimited', 'smart-woo-service-invoicing' );?>">?</span>
+                    <input type="number" name="access_limits[]" value="<?php echo esc_html( $downloads_a_obj->get_access_limit( 'edit' ) ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                </div>
 
             </div>
 
             <span class="line"></span>
             <div class="sw-additional-assets" id="additionalAssets">
-                <p><strong>Additional Asset Types</strong></p>
+                <p><strong><?php esc_html_e( 'Additional Asset Types', 'smart-woo-service-invoicing' );?></strong></p>
                 <span id="smartSpin"></span>
                 <?php if ( $is_downloadable && ! empty( $additionals ) ): foreach ( $additionals as $main_asset ):?>
                     <div class="sw-additional-assets-field">
@@ -75,8 +85,9 @@ defined( 'ABSPATH' ) || exit;
                             <input type="text" name="add_asset_names[]" value="<?php echo esc_attr( $name );?>" placeholder="Asset Name" />
                             <input type="text" name="add_asset_values[]" value="<?php echo esc_attr( $value );?>" placeholder="Asset Value" />
                             <input type="hidden" name="asset_ids[]" value="<?php echo absint( $main_asset->get_id() );?>"/>
+                            <input type="number" name="access_limits[]" class="sw-form-input" value="<?php echo esc_html( $main_asset->get_access_limit( 'edit' ) ); ?>" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
 
-                            <button class="remove-field" title="Remove this field" data-removed-id="<?php echo absint( $main_asset->get_id() );?>">×</button>
+                            <button class="remove-field" title="<?php esc_attr_e( 'Remove this field', 'smart-woo-service-invoicing' );?>" data-removed-id="<?php echo absint( $main_asset->get_id() );?>">×</button>
 
                         <?php endforeach;?>
                     </div>
@@ -86,9 +97,11 @@ defined( 'ABSPATH' ) || exit;
                         <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                         <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
                         <input type="text" name="add_asset_values[]" placeholder="Asset Value" /> 
+                        <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+
                     </div>
                 <?php endif;?>
-                <button id="more-addi-assets">More Fields</button> 
+                <button id="more-addi-assets"><?php esc_html_e( 'More Fields', 'smart-woo-service-invoicing' );?></button> 
             </div>
         </div>
 

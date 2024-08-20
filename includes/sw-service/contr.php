@@ -14,22 +14,27 @@ defined( 'ABSPATH' ) || exit;
  * This function is responsible for handling the manual creation of a
  * service subscription in the admin area
  */
-function smartwoo_new_service_page() {
-	$page_html  = '';
+function smartwoo_process_new_service_form() {
+	// echo '<pre>';
+    // var_dump( $_POST );
+    // echo '</pre>';return;
 
 	if ( isset( $_POST['add_new_service_submit'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_service_nonce'] ) ), 'sw_add_new_service_nonce' ) ) {
 
-		$user_id           = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
-		$product_id        = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
-		$service_name      = isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
-		$service_type      = isset( $_POST['service_type'] ) ? sanitize_text_field( wp_unslash( $_POST['service_type'] ) ) : '';
-		$service_url       = isset( $_POST['service_url'] ) ? sanitize_url( $_POST['service_url'], array( 'http', 'https' ) ) : '';
-		$invoice_id        = isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
-		$start_date        = isset( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : '';
-		$billing_cycle     = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
-		$next_payment_date = isset( $_POST['next_payment_date'] ) ? sanitize_text_field( $_POST['next_payment_date'] ) : '';
-		$end_date          = isset( $_POST['end_date'] ) ? sanitize_text_field( $_POST['end_date'] ) : '';
-		$status            = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : '';
+		$user_id				= isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
+		$product_id				= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+		$service_name      		= isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
+		$service_type      		= isset( $_POST['service_type'] ) ? sanitize_text_field( wp_unslash( $_POST['service_type'] ) ) : '';
+		$service_url       		= isset( $_POST['service_url'] ) ? sanitize_url( $_POST['service_url'], array( 'http', 'https' ) ) : '';
+		$invoice_id        		= isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
+		$start_date        		= isset( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : '';
+		$billing_cycle     		= isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
+		$next_payment_date 		= isset( $_POST['next_payment_date'] ) ? sanitize_text_field( $_POST['next_payment_date'] ) : '';
+		$end_date          		= isset( $_POST['end_date'] ) ? sanitize_text_field( $_POST['end_date'] ) : '';
+		$status            		= isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : '';
+		$process_downloadable   = ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] );
+		$process_more_assets    = ! empty( $_POST['add_asset_types'][0] ) && ! empty( $_POST['add_asset_names'][0] ) && ! empty( $_POST['add_asset_values'][0] );
+
 		$our_billing_cycles = array(
 			'Monthly',
 			'Quarterly',
@@ -44,7 +49,7 @@ function smartwoo_new_service_page() {
 		}
 
 		if ( ! in_array( $billing_cycle, $our_billing_cycles, true ) ) {
-			$validation_errors[] = 'Billing Cycle should not be modified';
+			$validation_errors[] = 'Billing Cycle not supported.';
 		}
 
 		if ( ! empty( $service_type ) && ! preg_match( '/^[A-Za-z0-9\s]+$/', $service_type ) ) {
@@ -64,43 +69,142 @@ function smartwoo_new_service_page() {
 		}
 
 		if ( ! empty( $validation_errors ) ) {
-			// Display validation errors.
-			$page_html .= smartwoo_error_notice( $validation_errors );
-		} else {
-			// Create a new SmartWoo_Service object
-			$newservice = smartwoo_generate_service(
-				$user_id,
-				$product_id,
-				$service_name,
-				$service_url,
-				$service_type,
-				$invoice_id,
-				$start_date,
-				$end_date,
-				$next_payment_date,
-				$billing_cycle,
-				$status
-			);
+			smartwoo_set_form_error( $errors );
+			wp_redirect( admin_url( 'admin.php/?page=sw-admin&action=add-new-service' ) );
+			exit;
+		}
 
-			if ( $newservice ) {
-				$service_id_value = $newservice->getServiceId();
-				$details_url      = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service_id_value );
-				$page_html       .= '<div class="notice notice-success is-dismissible"><p><strong>Service successfully added.</strong> <a href="' . esc_url( $details_url ) . '">View Details</a></p></div>';
+		// Create a new SmartWoo_Service object
+		$newservice = smartwoo_generate_service(
+			$user_id,
+			$product_id,
+			$service_name,
+			$service_url,
+			$service_type,
+			$invoice_id,
+			$start_date,
+			$end_date,
+			$next_payment_date,
+			$billing_cycle,
+			$status
+		);
+
+		if ( ! $newservice ) {
+			smartwoo_set_form_error('Unable to save to the database, use the help tab above if the issue persists.' );
+			wp_redirect( admin_url( 'admin.php/?page=sw-admin&action=add-new-service' ) );
+			exit;
+
+		}
+
+		$saved_service_id = $newservice->getServiceId();
+		// Process downloadable assets first.
+		if ( $process_downloadable ) {
+			$file_names     = $_POST['sw_downloadable_file_names'];
+			$file_urls      = $_POST['sw_downloadable_file_urls'];
+			$is_external    = isset( $_POST['is_external'] ) ? sanitize_text_field( $_POST['is_external'] ) : 'no';
+			$asset_key      = isset( $_POST['asset_key'] ) ? sanitize_text_field( $_POST['asset_key'] ) : '';
+			$access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
+
+			$downloadables  = array();
+			if ( count( $file_names ) === count( $file_urls ) ) {
+				$downloadables  = array_combine( $file_names, $file_urls );
+			}
+			
+			foreach ( $downloadables as $k => $v ) {
+				if ( empty( $k ) || empty( $v ) ) {
+					unset( $downloadables[$k] );
+				}
+			}
+
+			if ( ! empty( $downloadables ) ) {
+				$raw_assets = array(
+					'asset_name'    => 'downloads',
+					'service_id'    => $saved_service_id,
+					'asset_data'    => $downloadables,
+					'access_limit'  => isset( $access_limit[0] ) && '' !== $access_limit[0] ? intval( $access_limit[$index] ) : -1,
+					'is_external'   => $is_external,
+					'asset_key'     => $asset_key,
+					'expiry'        => $end_date,
+				);
+
+				$obj = SmartWoo_Service_Assets::convert_arrays( $raw_assets );
+				$obj->save();
+
+			} 
+		}
+			
+		if ( $process_more_assets ) {
+			/**
+			 * Additional assets are grouped by their asset types, this is to say that
+			 * an asset type will be stored with each asset data.
+			 * 
+			 * Asset data will be an extraction of a combination of each asset name and value
+			 * in the form.
+			 */
+			$asset_tpes 	= $_POST['add_asset_types'];
+			$the_keys		= $_POST['add_asset_names'];
+			$the_values		= $_POST['add_asset_values'];
+			$access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
+
+			$asset_data = array();
+
+			// Attempt tp pair asset names and values.
+			if ( count( $the_keys ) === count( $the_values ) ) {
+				$asset_data = array_combine( $the_keys, $the_values );
+			}
+
+			// If this pairing was successful.
+			if ( ! empty( $asset_data ) ) {
+				// The assets types are numerically indexed.
+				$index      = 0;
+				array_shift( $access_limit ); // Remove limit for downloadables which is already proceesed.
+				/**
+				 * We loop through each part of the combined asset data to
+				 * save it with an asset type in the database.
+				 */
+				foreach ( $asset_data as $k => $v ) {
+					// Empty asset name or value will not be saved.
+					if ( empty( $k ) || empty( $v ) || empty( $asset_tpes[$index] ) ) {
+						var_dump( empty( $asset_tpes[$index] ) );
+						unset( $asset_data[$k] );
+						unset( $asset_tpes[$index] );
+						unset( $access_limit[$index] );
+
+						$index++;
+						continue;
+						
+					}
+
+					// Proper asset data structure where asset name is used to identify the asset type.
+					$raw_assets = array(
+						'asset_data'    => array_map( 'sanitize_text_field', wp_unslash( array( $k => $v ) ) ),
+						'asset_name'    => $asset_tpes[$index],
+						'expiry'        => $end_date,
+						'service_id'    => $saved_service_id,
+						'access_limit'  => isset( $access_limit[$index] ) && '' !== $access_limit[$index] ? intval( $access_limit[$index] ) : -1,
+					);
+
+					// Instantiation of SmartWoo_Service_Asset using the convert_array method.
+					$obj = SmartWoo_Service_Assets::convert_arrays( $raw_assets );
+					$obj->save();
+					$index++;
+				}
 			}
 		}
+		
+		$details_url      = admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $saved_service_id );
+		$message       = '<div class="notice notice-success is-dismissible"><p><strong>Service successfully added.</strong> <a href="' . esc_url( $details_url ) . '">View Details</a></p></div>';
+		smartwoo_set_form_success( $message );
+		wp_redirect( admin_url( 'admin.php/?page=sw-admin&action=add-new-service' ) );
+		exit;
+		
 	}
-	
-	$page_html .= smartwoo_new_service_form();
-	return $page_html;
 }
 
 /**
  * Handle edit service page
  */
 function smartwoo_process_edit_service_form() {
-	echo '<pre>';
-    var_dump( $_POST );
-    echo '</pre>';return;
 
 	if ( isset( $_POST['edit_service_submit'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_service_nonce'] ) ), 'sw_edit_service_nonce' ) ) {
 		
@@ -123,7 +227,7 @@ function smartwoo_process_edit_service_form() {
 		// Validate Service URL
 		$service_url = isset( $_POST['service_url'] ) ? esc_url_raw( $_POST['service_url'] ) : '';
 		if ( ! empty( $service_url ) && ( ! filter_var( $service_url, FILTER_VALIDATE_URL ) || strpos( $service_url, ' ' ) !== false ) ) {
-			$errors['service_url'] = 'Service URL should be a valid URL without spaces.';
+			$errors['service_url'] = 'Service URL should be a valid URL.';
 		}
 
 		$invoice_id				= isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
@@ -170,7 +274,8 @@ function smartwoo_process_edit_service_form() {
 				$file_urls      = $_POST['sw_downloadable_file_urls'];
 				$is_external    = isset( $_POST['is_external'] ) ? sanitize_text_field( $_POST['is_external'] ) : 'no';
 				$asset_key      = isset( $_POST['asset_key'] ) ? sanitize_text_field( $_POST['asset_key'] ) : '';
-				$asset_ids		= ! empty( $_POST['asset_ids'] ) ? wp_unslash( $_POST['asset_ids'] ) : 0;
+				$asset_ids		= isset( $_POST['asset_ids'] ) ? wp_unslash( $_POST['asset_ids'] ) : 0;
+				$access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
 				$downloadables  = array();
 				if ( count( $file_names ) === count( $file_urls ) ) {
 					$downloadables  = array_combine( $file_names, $file_urls );
@@ -187,7 +292,7 @@ function smartwoo_process_edit_service_form() {
 						'asset_name'    => 'downloads',
 						'service_id'    => $service_id,
 						'asset_data'    => $downloadables,
-						'access_limit'  => -1,
+						'access_limit'  => isset( $access_limit[0] ) && '' !== $access_limit[0] ? intval( $access_limit[0] ) : -1,
 						'is_external'   => $is_external,
 						'asset_key'     => $asset_key,
 						'expiry'        => $end_date,
@@ -215,6 +320,7 @@ function smartwoo_process_edit_service_form() {
 				$the_keys   = $_POST['add_asset_names'];
 				$the_values = $_POST['add_asset_values'];
 				$asset_ids	= ! empty( $_POST['asset_ids'] ) ? wp_unslash( $_POST['asset_ids'] ) : 0;
+				$access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
 
 				$asset_data = array();
 
@@ -229,6 +335,7 @@ function smartwoo_process_edit_service_form() {
 					$index      = 0;
 					if ( $process_downloadable  && ! empty( $asset_ids ) ) {
 						array_shift( $asset_ids ); // remove index of downloadable assets.
+						array_shift( $access_limit ); // Remove index for downloadable assets
 					}
 					
 
@@ -241,6 +348,7 @@ function smartwoo_process_edit_service_form() {
 						if ( empty( $k ) || empty( $v ) || empty( $asset_tpes[$index] ) ) {
 							if ( $process_downloadable  && ! empty( $asset_ids ) ) {
 								unset( $asset_ids[$index] );
+								unset( $access_limit[$index] );
 							}
 							unset( $asset_data[$k] );
 							unset( $asset_tpes[$index] );
@@ -255,7 +363,7 @@ function smartwoo_process_edit_service_form() {
 							'asset_name'    => $asset_tpes[$index],
 							'expiry'        => $end_date,
 							'service_id'    => $service_id,
-							'access_limit'  => -1,
+							'access_limit'  => isset( $access_limit[$index] ) && '' !== $access_limit[$index] ? intval( $access_limit[$index] ) : -1,
 						);
 						if ( ! empty( $asset_ids ) ) {
 							$raw_assets['asset_id'] = $asset_ids[$index];
@@ -266,6 +374,11 @@ function smartwoo_process_edit_service_form() {
 						$index++;
 					}
 				}
+			}
+			if ( ! $process_downloadable && ! $process_more_assets && $service->has_asset() ) {
+				$asset_obj = new SmartWoo_Service_Assets();
+				$asset_obj->set_service_id( $service_id );
+				$asset_obj->delete_all();
 			}
 			smartwoo_set_form_success('Service updated.' );
 		} else {

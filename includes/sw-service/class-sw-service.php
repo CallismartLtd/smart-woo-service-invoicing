@@ -421,6 +421,28 @@ class SmartWoo_Service {
 		return ( $product instanceof SmartWoo_Product ) ? true : false;
 	}
 
+	/**
+	 * Determine wether current user can access a service
+	 * 
+	 * @return bool True if yes, False otherwise.
+	 * @since 2.0.1
+	 */
+	public function current_user_can_access() {
+		if ( empty( $this->user_id ) ) {
+			return false;
+		}
+
+		if ( is_admin() || current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		if ( $this->user_id === get_current_user_id() ) {
+			return true;
+		}
+
+		return false;
+	}
+
 	/*
 	|------------------------------
 	| SUBSCRIPTION ASSETS METHODS
