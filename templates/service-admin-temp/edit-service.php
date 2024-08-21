@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
                             <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
                             <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" />
                             <input type="button" class="upload_image_button button" value="Choose file" />
-                            <button type="button" class="swremove-field">×</button>
+                            <button type="button" class="swremove-field">&times;</button>
                         </div>
                     <?php endforeach;?>
                     <input type="hidden" name="asset_ids[]" value="<?php echo absint( $id );?>"/>
@@ -44,7 +44,7 @@ defined( 'ABSPATH' ) || exit;
                             <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
                             <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
                             <input type="button" class="upload_image_button button" value="Choose file" />
-                            <button type="button" class="swremove-field">×</button>
+                            <button type="button" class="swremove-field">&times;</button>
                         </div>
                 <?php endif;?>
                 
@@ -87,7 +87,7 @@ defined( 'ABSPATH' ) || exit;
                             <input type="hidden" name="asset_ids[]" value="<?php echo absint( $main_asset->get_id() );?>"/>
                             <input type="number" name="access_limits[]" class="sw-form-input" value="<?php echo esc_html( $main_asset->get_access_limit( 'edit' ) ); ?>" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
 
-                            <button class="remove-field" title="<?php esc_attr_e( 'Remove this field', 'smart-woo-service-invoicing' );?>" data-removed-id="<?php echo absint( $main_asset->get_id() );?>">×</button>
+                            <button class="remove-field" title="<?php esc_attr_e( 'Remove this field', 'smart-woo-service-invoicing' );?>" data-removed-id="<?php echo absint( $main_asset->get_id() );?>">&times;</button>
 
                         <?php endforeach;?>
                     </div>

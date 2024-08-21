@@ -5,6 +5,10 @@
 - Support for downloading assets from protected resource servers.
 - Option to set custom assets for a service subscription.
 - Edit Assets option for services.
+- Automatic updates for smart woo database.
+
+### Fixed
+- Responsiveness for product configuration form.
 
 ## [2.0.0] 2024-08-09
 ### Added

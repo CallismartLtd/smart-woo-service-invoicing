@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
                     <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
                     <input type="text" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
                     <input type="button" class="upload_image_button button" value="Choose file" />
-                    <button type="button" class="swremove-field">×</button>
+                    <button type="button" class="swremove-field">&times;</button>
                 </div>
                
                 

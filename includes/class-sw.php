@@ -242,6 +242,8 @@ final class SmartWoo {
                     $file_urls      = $_POST['sw_downloadable_file_urls'];
                     $is_external    = isset( $_POST['is_external'] ) ? sanitize_text_field( $_POST['is_external'] ) : 'no';
                     $asset_key      = isset( $_POST['asset_key'] ) ? sanitize_text_field( $_POST['asset_key'] ) : '';
+                    $access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
+
                     $downloadables  = array();
                     if ( count( $file_names ) === count( $file_urls ) ) {
                         $downloadables  = array_combine( $file_names, $file_urls );
@@ -258,7 +260,7 @@ final class SmartWoo {
                             'asset_name'    => 'downloads',
                             'service_id'    => $saved_service_id,
                             'asset_data'    => $downloadables,
-                            'access_limit'  => -1,
+                            'access_limit'  => isset( $access_limit[0] ) && '' !== $access_limit[0] ? intval( $access_limit[$index] ) : -1,
                             'is_external'   => $is_external,
                             'asset_key'     => $asset_key,
                             'expiry'        => $end_date,
@@ -281,6 +283,8 @@ final class SmartWoo {
                     $asset_tpes = $_POST['add_asset_types'];
                     $the_keys   = $_POST['add_asset_names'];
                     $the_values = $_POST['add_asset_values'];
+                    $access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
+
                     $asset_data = array();
 
                     // Attempt tp pair asset names and values.
@@ -292,6 +296,7 @@ final class SmartWoo {
                     if ( ! empty( $asset_data ) ) {
                         // The assets types are numerically indexed.
                         $index      = 0;
+                        array_shift( $access_limit ); // Remove limit for downloadables which is already proceesed.
 
                         /**
                          * We loop through each part of the combined asset data to
@@ -300,9 +305,10 @@ final class SmartWoo {
                         foreach ( $asset_data as $k => $v ) {
                             // Empty asset name or value will not be saved.
                             if ( empty( $k ) || empty( $v ) || empty( $asset_tpes[$index] ) ) {
-                                var_dump( empty( $asset_tpes[$index] ) );
                                 unset( $asset_data[$k] );
                                 unset( $asset_tpes[$index] );
+                                unset( $access_limit[$index] );
+
                                 $index++;
                                 continue;
                                 
@@ -314,7 +320,7 @@ final class SmartWoo {
                                 'asset_name'    => $asset_tpes[$index],
                                 'expiry'        => $end_date,
                                 'service_id'    => $saved_service_id,
-                                'access_limit'  => -1,
+                                'access_limit'  => isset( $access_limit[$index] ) && '' !== $access_limit[$index] ? intval( $access_limit[$index] ) : -1,
                             );
 
                             // Instantiation of SmartWoo_Service_Asset using the convert_array method.
@@ -327,7 +333,7 @@ final class SmartWoo {
                 
                 $order = wc_get_order( $order_id );
                 
-                if ( 'processing' === $order->get_status()  ) {
+                if ( $order && 'processing' === $order->get_status()  ) {
                     $order->update_status( 'completed' );
                 }
 

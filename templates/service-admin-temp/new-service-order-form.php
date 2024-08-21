@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
                             <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
                             <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" />
                             <input type="button" class="upload_image_button button" value="Choose file" />
-                            <button type="button" class="swremove-field">x</button>
+                            <button type="button" class="swremove-field">&times;</button>
                         </div>
                     <?php endforeach;?>
                 <?php else:?>
@@ -45,7 +45,7 @@ defined( 'ABSPATH' ) || exit;
                             <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
                             <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
                             <input type="button" class="upload_image_button button" value="Choose file" />
-                            <button type="button" class="swremove-field">X</button>
+                            <button type="button" class="swremove-field">&times;</button>
                         </div>
                 <?php endif;?>
                 
@@ -60,7 +60,17 @@ defined( 'ABSPATH' ) || exit;
                     </select>
                 </div>
                 
-                <input type="text" id="assetKey" class="smartwoo-hide" name="asset_key" placeholder="Authorization token (optional)" />
+                <div id="auth-token-div" class="smartwoo-hide">
+                    <label for="assetKey" class="sw-form-label"><?php echo esc_html__( 'Authorizaton Token:', 'smart-woo-service-invoicing' );?></label>
+                    <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, ypu can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
+                    <input type="text" id="assetKey" class="sw-form-input" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
+                </div>
+
+                <div class="sw-form-row">
+                    <label for="access-limit" class="sw-form-label"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
+                    <span class="sw-field-description" title="<?php echo esc_attr__( 'Set access limit, leave empty for unlimited', 'smart-woo-service-invoicing' );?>">?</span>
+                    <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                </div>
 
             </div>
             <span class="line"></span>
@@ -69,7 +79,8 @@ defined( 'ABSPATH' ) || exit;
                 <div class="sw-additional-assets-field">
                     <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                     <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
-                    <input type="text" name="add_asset_values[]" placeholder="Asset Value" />                    
+                    <input type="text" name="add_asset_values[]" placeholder="Asset Value" />
+                    <input type="number" name="access_limits[]" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).' ); ?>">
                 </div>
                 <button id="more-addi-assets">More Fields</button> 
             </div>

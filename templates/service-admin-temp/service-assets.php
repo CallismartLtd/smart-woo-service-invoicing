@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
             <p class="smartwoo-container-item"><span> Asset ID: </span> <?php echo esc_html( $asset->get_id() );?></p>
             <p class="smartwoo-container-item"><span> Access Limit: </span> <?php echo esc_html( $asset->get_access_limit() );?></p>
             <p> Asset Name:</p>
-            <h3> <?php echo esc_html( $asset->get_asset_name() );?></h3>
+            <h3> <?php echo esc_html( ucwords( $asset->get_asset_name() ) );?></h3>
             <table class="sw-table">
                 <thead>
                     <tr>

@@ -1054,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="text" name="add_asset_values[]" placeholder="Asset Value" />
 				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional).">
 
-                <button class="remove-field" title="Remove this field">×</button>
+                <button class="remove-field" title="Remove this field">&times;</button>
             `;
 
             mainContainer.insertBefore(newField, moreAddiAssetsButton);
