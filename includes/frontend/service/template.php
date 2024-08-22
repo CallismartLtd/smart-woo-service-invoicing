@@ -181,7 +181,7 @@ function smartwoo_service_front_temp() {
 		$output .= '</div>';
 	}
 	$output .= '</div>'; // Close the client-services div.
-	$output .= '<div id="swloader">Loading...</div>';
+	$output .= '<div id="swloader">Just a moment</div>';
 	$output .= '<div class="settings-tools-section">';
 	$output .= '<h2>Settings and Tools</h2>';
 	$output .= '<div class="sw-button-container">';
