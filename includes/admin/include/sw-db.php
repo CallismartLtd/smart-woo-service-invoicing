@@ -158,10 +158,6 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
         // Execute the SQL query.
         $result  = dbDelta( $sql );
 
-		if ( $result === false ) {
-			error_log( "Failed to execute dbDelta for table $table_name." );
-		}
-
     }
 
 	$stored_version 		= get_option( 'smartwoo_db_version' );
@@ -189,16 +185,12 @@ function smartwoo_get_charset_collate() {
 	return $charset_collate;
 }
 
-function smartwoo_update_201_assets_table() {
-	error_log( '"smartwoo_update_201_assets_table" called' );
-}
-
 /**
  * Inclusion of is_external column in the assets table
  * 
  * @since 2.0.2
  */
-function smartwoo_update_201_asset_type() {
+function smartwoo_db_update_201_is_external() {
 	global $wpdb;
 	$table_name = SMARTWOO_ASSETS_TABLE;
 	$new_col 	= 'is_external';
@@ -218,5 +210,17 @@ function smartwoo_update_201_asset_type() {
 		if ( ! $result  && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( $wpdb->last_error );
 		}
+	}
+}
+
+/**
+ * Migration of Wallet refund option name to correct English phrase.
+ */
+function smartwoo_migrate_options_201() {
+	$option = get_option( 'smartwoo_refund_with_wallet', false );
+
+	if ( $option ) {
+		update_option( 'smartwoo_refund_to_wallet', $option );
+		delete_option( 'smartwoo_refund_with_wallet' );
 	}
 }
