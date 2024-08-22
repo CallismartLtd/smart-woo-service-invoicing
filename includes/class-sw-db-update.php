@@ -22,8 +22,8 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
      */
     protected $schema_changes = array(
         '2.0.1' => array(
-            'smartwoo_update_201_assets_table',
-            'smartwoo_update_201_asset_type',
+            'smartwoo_db_update_201_is_external',
+            'smartwoo_migrate_options_201',
         ),
     );
 
