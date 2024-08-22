@@ -31,7 +31,7 @@ delete_option( 'smartwoo_invoice_paid_mail' );
 delete_option( 'smartwoo_service_cancellation_mail_to_admin' );
 delete_option( 'smartwoo_service_expiration_mail_to_admin' );
 delete_option( 'smartwoo_pay_pending_invoice_with_wallet' );
-delete_option( 'smartwoo_refund_with_wallet' );
+delete_option( 'smartwoo_refund_to_wallet' );
 delete_option( 'smartwoo_product_text_on_shop' );
 delete_option( 'smartwoo_enable_api_feature' );
 delete_option( 'smartwoo_allow_guest_invoicing' );
