@@ -59,7 +59,7 @@ function smartwoo_service_myaccount_content() {
         $service_content .= smartwoo_service_mini_card();
         $service_content .= '<div class="settings-tools-section">';
         $service_content .= '<h2>Settings and Tools</h2>';
-        $service_content .= '<div id="swloader">Loading...</div>';
+        $service_content .= '<div id="swloader">Just a moment</div>';
         $service_content .= '<div class="sw-button-container">';
         $service_content .= '<button class="minibox-button" id="sw-billing-details">Billing Details</button>';
         $service_content .= '<button class="minibox-button" id="sw-load-user-details">My Details</button>';
