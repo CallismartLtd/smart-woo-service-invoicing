@@ -73,14 +73,14 @@ function smartwoo_save_advanced_options(){
 		
 		if ( isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) ) {
 			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 1 );
-		} elseif ( ! isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) && function_exists( 'smartwoo_terawallet_int' ) ) {
+		} elseif ( ! isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) ) {
 			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 );
 		}
 
-		if ( isset( $_POST['smartwoo_refund_with_wallet'] ) ) {
-			update_option( 'smartwoo_refund_with_wallet', 1 );
-		} elseif ( ! isset( $_POST['smartwoo_refund_with_wallet'] ) && function_exists( 'smartwoo_terawallet_int' ) ) {
-			update_option( 'smartwoo_refund_with_wallet', 0 );
+		if ( isset( $_POST['smartwoo_refund_to_wallet'] ) ) {
+			update_option( 'smartwoo_refund_to_wallet', 1 );
+		} elseif ( ! isset( $_POST['smartwoo_refund_to_wallet'] ) ) {
+			update_option( 'smartwoo_refund_to_wallet', 0 );
 		}
 
 		if ( isset( $_POST['smartwoo_product_text_on_shop'] ) ) {
@@ -575,8 +575,8 @@ function smartwoo_advanced_options() {
 			<h3 style="text-align: center;"><?php esc_html_e( 'Tera Wallet Integration', 'smart-woo-service-invoicing' ); ?></h3>
 			<!-- Refund Via TeraWallet -->
 			<div class="sw-form-row">
-				<label for="smartwoo_refund_with_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Refund Through Wallet', 'smart-woo-service-invoicing' ); ?></label>
-				<input type="checkbox" class="sw-form-input" name="smartwoo_refund_with_wallet" id="smartwoo_refund_with_wallet" <?php echo  checked( get_option( 'smartwoo_refund_with_wallet', 0 ), 1, false ) ?>>
+				<label for="smartwoo_refund_to_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Refund Through Wallet', 'smart-woo-service-invoicing' ); ?></label>
+				<input type="checkbox" class="sw-form-input" name="smartwoo_refund_to_wallet" id="smartwoo_refund_to_wallet" <?php echo  checked( get_option( 'smartwoo_refund_to_wallet', 0 ), 1, false ) ?>>
 			</div>
 			
 			<!-- Pay Via TeraWallet -->
