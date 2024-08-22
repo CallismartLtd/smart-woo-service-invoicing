@@ -248,7 +248,6 @@ function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoi
 
 	$invoice_id = SmartWoo_Invoice_Database::save( $newInvoice );
 
-
 	if ( 'unpaid' === strtolower( $payment_status ) ) {
 		$order_id = smartwoo_generate_pending_order( $user_id, $invoice_id );
 
@@ -560,7 +559,7 @@ function smartwoo_create_new_order_invoice( $order ) {
 			0
 		);
 
-		// Decode the JSON-encoded fee string
+		// Decode the JSON-encoded fee string.
 		$fee_data = json_decode( $fee, true );
 
 		// Extract the fee amount
@@ -574,7 +573,7 @@ function smartwoo_create_new_order_invoice( $order ) {
 		foreach ( $order_items as $item_id => $item ) {
 			// Check if the product is of type 'sw_product'
 			$product = $item->get_product();
-			if ( $product && $product->get_type() === 'sw_product' ) {
+			if ( $product && 'sw_product' === $product->get_type() ) {
 
 				/**
 				* Set up the necessary properties for new invoice
@@ -587,7 +586,6 @@ function smartwoo_create_new_order_invoice( $order ) {
 				$payment_status  = 'unpaid';
 				$user_id         = $order->get_user_id();
 				$billing_address = smartwoo_get_user_billing_address( $user_id );
-				$service_id      = null;
 				$invoice_type    = 'New Service Invoice';
 				$service_id      = null; // Will be set when Service is processed
 				$date_due        = current_time( 'mysql' ); // New Service invoices are due same day
@@ -642,9 +640,9 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 		// Update additional fields in the invoice
 		$fields          = array(
 			'payment_status'  => 'paid',
-			'date_paid'       => current_time( 'Y-m-d H:i:s' ),
-			'transaction_id'  => $order->get_transaction_id(), // Use order transaction id
-			'payment_gateway' => $order->get_payment_method_title(), // Use payment gateway used for the order
+			'date_paid'       => current_time( 'mysql' ),
+			'transaction_id'  => $order->get_transaction_id(),
+			'payment_gateway' => $order->get_payment_method_title(),
 		);
 		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
 		do_action( 'smartwoo_invoice_is_paid', $updated_invoice );

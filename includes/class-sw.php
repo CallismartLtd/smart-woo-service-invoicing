@@ -335,6 +335,8 @@ final class SmartWoo {
                 
                 if ( $order && 'processing' === $order->get_status()  ) {
                     $order->update_status( 'completed' );
+                    $invoice_id = $order->get_meta( '_sw_invoice_id' );
+                    SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, array( 'service_id' => $saved_service_id ) );
                 }
 
                 do_action( 'smartwoo_new_service_is_processed', $saved_service_id );

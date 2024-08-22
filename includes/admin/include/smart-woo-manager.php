@@ -34,7 +34,7 @@ add_action( 'woocommerce_order_status_completed', 'smartwoo_paid_invoice_order_m
 add_action( 'woocommerce_payment_complete', 'smartwoo_paid_invoice_order_manager', 55, 1 );
 
 function smartwoo_paid_invoice_order_manager( $order_id ) {
-	$order = wc_get_order( $order_id );
+	$order		= wc_get_order( $order_id );
 	$invoice_id = $order->get_meta( '_sw_invoice_id' );
 
 	// Early termination if the order is not related to our plugin.
@@ -42,7 +42,7 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 		return;
 	}
 	// Prevent multiple function execution on single load
-	if ( defined( 'SMARTWOO_PAID_INVOICE_MANAGER' ) ) {
+	if ( defined( 'SMARTWOO_PAID_INVOICE_MANAGER' ) && SMARTWOO_PAID_INVOICE_MANAGER ) {
 		return;
 	}
 	define( 'SMARTWOO_PAID_INVOICE_MANAGER', true );
@@ -59,16 +59,18 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 		return;
 	}
 
-	$service_id   = $invoice->getServiceId();
 	$invoice_type = $invoice->getInvoiceType();
 
 	if ( $invoice_type === 'New Service Invoice' ) {
-		// This is a new service invoice.
+		/**
+		 * This action fires when 
+		 */
 		do_action( 'smartwoo_new_service_purchase_complete', $invoice_id );
 		return;
 	}
 
-	$user_id = $order->get_user_id();
+	$user_id		= $order->get_user_id();
+	$service_id		= $invoice->getServiceId();
 
 	// If Service ID is available, this indicates an invoice for existing service.
 	if ( ! empty( $service_id ) && ! empty( $user_id ) ) {
@@ -81,7 +83,7 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 
 			// Call the function to renew the service.
 			smartwoo_renew_service( $service_id, $invoice_id );
-			return;
+			
 			/**
 			 * Determine if the invoice is for the reactivation of an Expired service.
 			 * Only invoices for services on this status are considered to be for reactivation.
@@ -89,7 +91,7 @@ function smartwoo_paid_invoice_order_manager( $order_id ) {
 		} elseif ( $service_status === 'Expired' && $invoice_type === 'Service Renewal Invoice' ) {
 			// Call the function to reactivate the service.
 			smartwoo_activate_expired_service( $service_id, $invoice_id );
-			return;
+			
 		}
 
 		/**
