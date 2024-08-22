@@ -15,9 +15,8 @@ defined( 'ABSPATH' ) || exit;
     
     <?php foreach( $assets as $asset ):?>
         <div class="serv-details-card">
-            <p class="smartwoo-container-item"><span> Asset ID: </span> <?php echo esc_html( $asset->get_id() );?></p>
             <p class="smartwoo-container-item"><span> Access Limit: </span> <?php echo esc_html( $asset->get_access_limit() );?></p>
-            <p> Asset Name:</p>
+            <p>Name:</p>
             <h3> <?php echo esc_html( ucwords( $asset->get_asset_name() ) );?></h3>
             <table class="sw-table">
                 <thead>
