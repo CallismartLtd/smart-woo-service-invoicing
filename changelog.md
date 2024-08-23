@@ -9,6 +9,7 @@
 
 ### Fixed
 - Responsiveness for product configuration form.
+- Syncronization of service and invoice after order is processed.
 
 ## [2.0.0] 2024-08-09
 ### Added

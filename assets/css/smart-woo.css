@@ -269,6 +269,19 @@ use inline CSS to overide some styles
 	margin-top: 10px;
 }
 
+/* Custom CSS for the product configuration container */
+
+.sw-configure-container {
+	max-width: 1000px;
+	margin: 10px auto 60px !important;
+	padding: 20px;
+	min-height: auto;
+	background-color: #fff;
+	border: 2px solid #faefef; /* Add a border */
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+}
+
+
 @media ( min-width: 280px ) and ( max-width: 425px ) {
 	.sw-assets-div {
 		flex-wrap: wrap;
@@ -284,21 +297,10 @@ use inline CSS to overide some styles
 		width: 100%;
 		padding: 2px;
 	}
+
 }
 
-/* Custom CSS for the product configuration container */
-
-.sw-configure-container {
-	max-width: 1000px;
-	margin: 10px auto 60px;
-	padding: 20px;
-	height: 300px;
-	background-color: #fff;
-	border: 2px solid #faefef; /* Add a border */
-	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-	}
-
-	/* Styles for inv-settings-form */
+/* Styles for inv-settings-form */
 .inv-settings-form {
 	max-width: 100%;
 	margin: 0 auto;
@@ -311,64 +313,71 @@ use inline CSS to overide some styles
 
 
 
+.sw-form-row {
+display: flex;
+align-items: center;
+margin-bottom: 10px; /* Add some spacing between rows */
+}
+
+
+.sw-form-label {
+flex: 1;
+font-size: 14px;
+font-weight: bold;
+margin-right: 10px;
+
+}
+
+.sw-form-checkbox {
+flex: 0.7;
+font-size: 14px;
+font-weight: bold;
+margin-right: 10px;
+
+}
+
+.sw-field-description {
+background-color: black;
+color: rgb(255, 255, 255);
+border-radius: 50%;
+padding: 2px;
+font-weight: bold;
+font-size: 11px;
+text-align: center;
+
+}
+
+/* Style for form descriptions (visible on hover) */
+.sw-field-description {
+margin-left: 5px; /* Add some space between the label and the question mark */
+cursor: help;
+position: relative;
+}
+
+
+
+.sw-cart-form {
+width: 100%;
+}
+
+
+.sw-form-input {
+max-width: 400px;
+padding: 8px;
+margin-bottom: 10px;
+width: 100%;
+
+border: 2px solid #fffefe;
+box-sizing: border-box;
+
+border-radius: 5px;
+}
+
+@media ( min-width: 280px ) and ( max-width: 425px ) {
 	.sw-form-row {
-	display: flex;
-	align-items: center;
-	margin-bottom: 10px; /* Add some spacing between rows */
+		flex-wrap: wrap;
 	}
-
-	.sw-form-label {
-	flex: 1;
-	font-size: 14px;
-	font-weight: bold;
-	margin-right: 10px;
-
-	}
-
-	.sw-form-checkbox {
-	flex: 0.7;
-	font-size: 14px;
-	font-weight: bold;
-	margin-right: 10px;
-
-	}
-
-	.sw-field-description {
-	background-color: black;
-	color: rgb(255, 255, 255);
-	border-radius: 50%;
-	padding: 2px;
-	font-weight: bold;
-	font-size: 11px;
-	text-align: center;
-
-	}
-
-	/* Style for form descriptions (visible on hover) */
-	.sw-field-description {
-	margin-left: 5px; /* Add some space between the label and the question mark */
-	cursor: help;
-	position: relative;
-	}
-
-
-
-	.sw-cart-form {
-	width: 100%;
-	}
-
-
-	.sw-form-input {
-	max-width: 400px;
-	padding: 8px;
-	margin-bottom: 10px;
-	width: 100%;
-
-	border: 2px solid #fffefe;
-	box-sizing: border-box;
-
-	border-radius: 5px;
-	}
+}
 
 /************************************All form CSS ends here****************************************/
 
@@ -1396,7 +1405,13 @@ use inline CSS to overide some styles
 	width: 100%;
 }
 
-
+/**Product subscription info */
+.smartwoo-sub-info {
+	background-color: #ffffff;
+	border-left: solid #ff0303;
+	margin: 10px 0 10px 0;
+	padding: 10px;
+}
 
 
 /** Product CSS **/
@@ -1619,7 +1634,7 @@ font-weight: 100;
 	width: 100%;
 }
 
-@media only screen and (min-width: 320px) and (max-width: 480px) {
+@media only screen and (min-width: 222px) and (max-width: 480px) {
 	.smartwoo-login-form-body {
 		flex-direction: row;
 		flex-wrap: wrap;

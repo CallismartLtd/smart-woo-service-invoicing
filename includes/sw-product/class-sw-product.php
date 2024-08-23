@@ -472,7 +472,7 @@ class SmartWoo_Product extends WC_Product {
 			$sign_up_fee   = $product->get_sign_up_fee();
 			$billing_cycle = $product->get_billing_cycle();
 	
-			$notice_banner  = '<div class="mini-card">';
+			$notice_banner  = '<div class="smartwoo-sub-info">';
 			$notice_banner .= '<p class="main-price"> You will be charged  <strong>' . wc_price( $product->get_price() ) . ' ' . esc_html( ucfirst( $billing_cycle ) ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	
 			if ( $sign_up_fee > 0 ) {
