@@ -4,9 +4,9 @@ Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicin
 Requires at least: 6.0  
 Tested up to: 6.6.1
 Requires WooCommerce: 8.0
-WooCommerce Tested: 9.1.4
+WooCommerce Tested: 9.2.2
 Requires PHP: 7.4
-Stable Tag: 2.0.0
+Stable Tag: 2.0.1
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -84,6 +84,19 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 == Changelog ==
+= 2.0.1 - yyyy-mm-dd
+* Added:
+  - Support for downloading assets from protected resource servers.
+  - Option to set custom assets for a service subscription.
+  - Edit Assets option for services.
+  - Automatic updates for smart woo database.
+
+* Fixed
+  - Responsiveness for product configuration form.
+  - Syncronization of service and invoice after order is processed.
+
+* Compatibility
+  - WooCommerce tested up 9.2.2
 
 = 2.0.0 - 2024-08-09 =
 * Added:
