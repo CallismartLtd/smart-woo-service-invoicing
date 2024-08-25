@@ -1,6 +1,6 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.0.1] yyyy-mm-dd
+# [2.0.1] 2024-08-25
 ### Added
 - Support for downloading assets from protected resource servers.
 - Option to set custom assets for a service subscription.

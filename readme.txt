@@ -84,7 +84,7 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 == Changelog ==
-= 2.0.1 - yyyy-mm-dd
+= 2.0.1 - 2024-08-25
 * Added:
   - Support for downloading assets from protected resource servers.
   - Option to set custom assets for a service subscription.
