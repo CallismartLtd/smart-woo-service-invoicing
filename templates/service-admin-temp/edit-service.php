@@ -54,12 +54,12 @@ defined( 'ABSPATH' ) || exit;
                 <label for="isExternal" class="sw-form-label"><?php echo esc_html__( 'External:', 'smart-woo-service-invoicing' );?></label>
                     <span class="sw-field-description" title="<?php echo esc_attr__( 'Select yes if the url of any downloadable file is external or protected resource', 'smart-woo-service-invoicing' );?>">?</span>
                     <select name="is_external" id="isExternal" class="sw-form-input">
-                        <option value="no" <?php selected( "no", $downloads_a_obj->is_external() ) ?>>No</option>
-                        <option value="yes" <?php selected( "yes", $downloads_a_obj->is_external() ) ?>>Yes</option>
+                        <option value="no" <?php selected( "no", ! empty( $downloads_a_obj ) ? $downloads_a_obj->is_external() : 'no' ) ?>>No</option>
+                        <option value="yes" <?php selected( "yes", ! empty( $downloads_a_obj ) ? $downloads_a_obj->is_external() : '' ) ?>>Yes</option>
                     </select>
                 </div>
                 
-                <div id="auth-token-div" class="<?php echo ( 'yes' === $downloads_a_obj->is_external() ) ? 'sw-form-row': 'smartwoo-hide';?>">
+                <div id="auth-token-div" class="<?php echo ( ! empty( $downloads_a_obj ) && 'yes' === $downloads_a_obj->is_external() ) ? 'sw-form-row': 'smartwoo-hide';?>">
                     <label for="assetKey" class="sw-form-label"><?php echo esc_html__( 'Authorizaton Token:', 'smart-woo-service-invoicing' );?></label>
                     <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, ypu can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
                     <input type="text" id="assetKey" class="sw-form-input" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
@@ -68,7 +68,7 @@ defined( 'ABSPATH' ) || exit;
                 <div class="sw-form-row">
                     <label for="access-limit" class="sw-form-label"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
                     <span class="sw-field-description" title="<?php echo esc_attr__( 'Set access limit, leave empty for unlimited', 'smart-woo-service-invoicing' );?>">?</span>
-                    <input type="number" name="access_limits[]" value="<?php echo esc_html( $downloads_a_obj->get_access_limit( 'edit' ) ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                    <input type="number" name="access_limits[]" value="<?php echo esc_html( ! empty( $downloads_a_obj ) ? $downloads_a_obj->get_access_limit( 'edit' ): '' ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
                 </div>
 
             </div>
