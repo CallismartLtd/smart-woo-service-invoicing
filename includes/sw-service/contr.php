@@ -69,7 +69,7 @@ function smartwoo_process_new_service_form() {
 		}
 
 		if ( ! empty( $validation_errors ) ) {
-			smartwoo_set_form_error( $errors );
+			smartwoo_set_form_error( $validation_errors );
 			wp_redirect( admin_url( 'admin.php/?page=sw-admin&action=add-new-service' ) );
 			exit;
 		}

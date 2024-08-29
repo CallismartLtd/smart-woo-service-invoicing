@@ -25,10 +25,10 @@
     font-family:'Courier New', Courier, monospace;
     color: rgb(105, 255, 5);
     padding: 20px;
-    background-color: rgba(0, 0, 0, 0.7); /* Adjust transparency for a darker overlay */
+    background-color: rgba(0, 0, 0, 0.7);
     width: 80%; /* Adjust overlay width as needed */
-    max-width: 400px; /* Limit maximum width of the overlay */
-    border-radius: 10px; /* Add rounded corners to the overlay */
+    max-width: 400px;
+    border-radius: 10px;
 }
 
 .sw-pro-upgrade-button {
