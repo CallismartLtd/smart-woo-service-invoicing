@@ -114,15 +114,15 @@ function smartwoo_product_dropdown( $selected_product_id = null, $required = fal
 	$dropdown_html .= '<option value="">Select Service Product</option>';
 
 	foreach ( $products as $product ) {
-			// Get the product ID and name
-			$product_id   = $product->get_id();
-			$product_name = $product->get_name();
+		// Get the product ID and name
+		$product_id   = $product->get_id();
+		$product_name = $product->get_name();
 
-			// Check if the current product is selected
-			$selected = ( $product_id == $selected_product_id ) ? 'selected' : '';
+		// Check if the current product is selected
+		$selected = ( $product_id == $selected_product_id ) ? 'selected' : '';
 
-			// Add the option to the dropdown
-			$dropdown_html .= '<option value="' . esc_attr( $product_id ) . '" ' . $selected . '>' . esc_html( $product_name ) . '</option>';
+		// Add the option to the dropdown
+		$dropdown_html .= '<option value="' . esc_attr( $product_id ) . '" ' . $selected . '>' . esc_html( $product_name ) . '</option>';
 	}
 
 	$dropdown_html .= '</select>';
@@ -525,7 +525,7 @@ function smartwoo_invoice_service_related( $invoice ){
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Service Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $service_name ) . '</p>';
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Cycle:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $billing_cycle ) . '</p>';
 		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'End Date:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $end_date ) . '</p>';
-		$page_html .= '<a class="sw-blue-button" href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=view-service&service_id=' . $service_id ) ) . '">';
+		$page_html .= '<a class="sw-blue-button" href="' . esc_url( smartwoo_service_preview_url( $service_id ) ) . '">';
 		$page_html .= esc_html__( 'More about Service ', 'smart-woo-service-invoicing' );
 		$page_html .= '<span class="dashicons dashicons-controls-forward"></span>';
 		$page_html .= '</a>';
@@ -551,7 +551,7 @@ function smartwoo_invoice_by_status_temp() {
 
 	$table_html   .= smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
 
-	if( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid', ) ) ) {
+	if( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid' ), true ) ) {
 		return smartwoo_notice( 'Status Parameter cannot be manipulated!' );
 	}
 	$invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( $payment_status );
