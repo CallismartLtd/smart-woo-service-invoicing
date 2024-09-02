@@ -1,13 +1,13 @@
 # Smart Woo Service Invoicing
 
 **Contributors:** callismartltd  
-**Tags:** subscription plugin, billing plugin, woocommerce invoice, service invoicing, automated billing plugin  
+![Subscription Plugin](https://img.shields.io/badge/Subscription%20Plugin-blue) ![Billing Plugin](https://img.shields.io/badge/Billing%20Plugin-green) ![WooCommerce Invoice](https://img.shields.io/badge/WooCommerce%20Invoice-yellow) ![Service Invoicing](https://img.shields.io/badge/Service%20Invoicing-orange) ![Automated Billing Plugin](https://img.shields.io/badge/Automated%20Billing%20Plugin-red)  
 **Requires at least:** 6.0  
 **Tested up to:** 6.6.1  
 **Requires WooCommerce:** 8.0  
-**WooCommerce Tested:** 9.2.3
+**WooCommerce Tested:** 9.2.3  
 **Requires PHP:** 7.4  
-**Stable Tag:** 2.0.11
+**Stable Tag:** 2.0.11  
 **License:** GPLv3  
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -86,26 +86,26 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 # [2.0.11] 2024-09-02
 ### Fixed
-- PDF invoice download resulting to fatal error due to PHP 8.0 compatibility with mPDF library.
-- Minor bug fixes
+- PDF invoice download resulting in a fatal error due to PHP 8.0 compatibility with mPDF library.
+- Minor bug fixes.
 
 ### Tested
-- Tested with WordPress 6.6.2
-- Tested with WooCommerce 9.2.3
+- Tested with WordPress 6.6.2.
+- Tested with WooCommerce 9.2.3.
 
 # [2.0.1] 2024-08-25
 ### Added
 - Support for downloading assets from protected resource servers.
 - Option to set custom assets for a service subscription.
 - Edit Assets option for services.
-- Automatic updates for smart woo database.
+- Automatic updates for Smart Woo database.
 
 ### Fixed
 - Responsiveness for product configuration form.
-- Syncronization of service and invoice after order is processed.
+- Synchronization of service and invoice after order is processed.
 
 ### Compatibility
-- WooCommerce tested up 9.2.2
+- WooCommerce tested up to 9.2.2.
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
