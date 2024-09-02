@@ -1,6 +1,6 @@
 # Smart Woo Service Invoicing
 
-**Author:** <img src="https://github.com/CallismartLtd.png?size=40" alt="Callistus Nwachukwu" style="border-radius: 50%; vertical-align: middle;" /> [Callistus Nwachukwu](https://github.com/CallismartLtd)
+**Author:** ![Callistus Nwachukwu](https://github.com/CallismartLtd.png?size=40) [Callistus Nwachukwu](https://github.com/CallismartLtd)
 
  
 ![Subscription Plugin](https://img.shields.io/badge/Subscription%20Plugin-blue) ![Billing Plugin](https://img.shields.io/badge/Billing%20Plugin-green) ![WooCommerce Invoice](https://img.shields.io/badge/WooCommerce%20Invoice-yellow) ![Service Invoicing](https://img.shields.io/badge/Service%20Invoicing-orange) ![Automated Billing Plugin](https://img.shields.io/badge/Automated%20Billing%20Plugin-red)  
