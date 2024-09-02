@@ -84,6 +84,15 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 == Changelog ==
+= 2.0.11 - 2024-09-02 =
+* Fixed
+  - PDF invoice download resulting to fatal error due to PHP 8.0 compatibility with mPDF library.
+  - Minor bugs.
+
+* Tested
+  - With WordPress 6.6.2
+  - With WooCommerce 9.2.3
+
 = 2.0.1 - 2024-08-25 =
 * Added:
   - Support for downloading assets from protected resource servers.
@@ -98,19 +107,6 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 * Compatibility
   - WooCommerce tested up 9.2.2
 
-= 2.0.0 - 2024-08-09 =
-* Added:
-  - Service Subscription Assets.
-  - Downloadable Feature for service products.
-  - Dedicated login form for the client portal.
-  - Notification bubble counter for new service orders.
-
-* Fixed:
-  - Enhanced security.
-  - Resolved incorrect messages returned during deletions via Ajax.
-
-* Tested:
-  - Compatibility with WooCommerce 9.1.4.
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
