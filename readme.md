@@ -1,8 +1,8 @@
 # Smart Woo Service Invoicing
 
-**Author:** ![Callistus Nwachukwu](https://github.com/CallismartLtd.png?size=40) [Callistus Nwachukwu](https://github.com/CallismartLtd)
+**Author:** [Callistus Nwachukwu](https://github.com/CallismartLtd)
 
- 
+
 ![Subscription Plugin](https://img.shields.io/badge/Subscription%20Plugin-blue) ![Billing Plugin](https://img.shields.io/badge/Billing%20Plugin-green) ![WooCommerce Invoice](https://img.shields.io/badge/WooCommerce%20Invoice-yellow) ![Service Invoicing](https://img.shields.io/badge/Service%20Invoicing-orange) ![Automated Billing Plugin](https://img.shields.io/badge/Automated%20Billing%20Plugin-red)  
 **Requires at least:** 6.0  
 **Tested up to:** 6.6.1  
