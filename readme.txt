@@ -6,7 +6,7 @@ Tested up to: 6.6.1
 Requires WooCommerce: 8.0
 WooCommerce Tested: 9.2.2
 Requires PHP: 7.4
-Stable Tag: 2.0.1
+Stable Tag: 2.0.11
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
