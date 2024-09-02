@@ -1,5 +1,14 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.0.11] 2024-09-02
+### Fixed
+- PDF invoice download resulting to fatal error due to PHP 8.0 compatibility with mPDF library.
+- Minor bug fixes
+
+### Tested
+- Tested with WordPress 6.6.2
+- Tested with WooCommerce 9.2.3
+
 # [2.0.1] 2024-08-25
 ### Added
 - Support for downloading assets from protected resource servers.
