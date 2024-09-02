@@ -1,4 +1,4 @@
-Smart Woo Service Invoicing - Service Subscription and Invoicing plugin for WooCommerce
+Smart Woo Service Invoicing - Service Subscription and Invoicing plugin for WooCommerce 
 
 Copyright 2024 by the contributors
 
