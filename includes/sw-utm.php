@@ -17,12 +17,13 @@ function smartwoo_pro_feature( $feature = '' ) {
 		return '';
 	}
 
+
 	if ( 'advanced stats' === $feature || 'service logs' === $feature || 'invoice logs' === $feature ) {
 
 
 		switch ( $feature ) {
 			case 'advanced stats':
-				$image_url = SMARTWOO_DIR_URL . '/assets/images/smartwoopro-usage.png';
+				$image_url = SMARTWOO_DIR_URL . '/assets/images/smartwoopro-adv-stats.png';
 				$description = 'Stats and usage are only available on Smart Woo Pro.';
 				$benefits = 'Unlock advanced subscription usage analysis!';
 				break;
@@ -62,14 +63,16 @@ function smartwoo_pro_feature( $feature = '' ) {
 	?>
 	<div class="sw-pro-sell">
 		<div class="sw-default-overlay">
-			<h4>Unlock more features only available on Smart Woo Pro.</h4>
+			<h2>Unlock more features only available on Smart Woo Pro.</h2>
 			<ul>
 				<li>Get detailed insight into service usage.</li>
 				<li>Access to Service and Invoice logs.</li>
 				<li>Robust Refund and Pro-Rata service subscription.</li>
 				<li>Allow clients perform service migrations.</li>
-				<li>Easy integration of REST APIs for client subscriptions and management.</li>
+				<li>Easy REST API integration for client subscriptions and management.</li>
 				<li>Have clients pay outstanding invoices with Smart Woo integration with Tera Wallet.</li>
+				<li>Support services made easy with Smart Woo Integration with fluent support.</li>
+				<li>Attach PDF invoice to mails.</li>
 			</ul>
 			<a href="<?php echo esc_url( smartwoo_utm_campaign_url() ); ?>" class="sw-pro-upgrade-button" id="pro-upgrade-button">Purchase Pro Version</a>
 		</div>
