@@ -60,6 +60,7 @@ class SmartWoo_Config{
         add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
         add_action( 'smartwoo_loaded', array( $this, 'before_init' ) );
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
+        add_action( 'woocommerce_order_details_before_order_table', array( $this, 'remove_order_again_button' ) );
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
         register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
     }
@@ -408,6 +409,19 @@ class SmartWoo_Config{
     private function add_actions() {
         if ( isset( $_GET['smartwoo_action'] ) && has_action( $_GET['smartwoo_action'] ) ) {
             do_action( $_GET['smartwoo_action'] );
+        }
+    }
+
+    /**
+     * Remove order again button button for renewed service orders.
+     * 
+     * @param WC_Order $order WooComerce Order
+     * @return null
+     * @since 2.0.12
+     */
+    public function remove_order_again_button( $order ) {
+        if ( $order->is_created_via( SMARTWOO ) ) {
+            remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_again_button' );
         }
     }
 }
