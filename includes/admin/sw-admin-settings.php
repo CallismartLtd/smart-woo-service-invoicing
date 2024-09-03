@@ -34,7 +34,7 @@ function smartwoo_save_email_options() {
 		}
 
 		// Define an array of checkbox names.
-		$checkboxes = array(
+		$checkboxes = apply_filters( 'smartwoo_mail_options', array(
 			'smartwoo_cancellation_mail_to_user',
 			'smartwoo_service_opt_out_mail',
 			'smartwoo_payment_reminder_to_client',
@@ -45,7 +45,7 @@ function smartwoo_save_email_options() {
 			'smartwoo_invoice_paid_mail',
 			'smartwoo_service_cancellation_mail_to_admin',
 			'smartwoo_service_expiration_mail_to_admin',
-		);
+		) );
 
 		// Update checkbox options
 		foreach ( $checkboxes as $checkbox_name ) {
@@ -268,12 +268,7 @@ function smartwoo_service_options() {
 	$business_name         = get_option( 'smartwoo_business_name', $site_name );
 	$admin_phone_numbers   = get_option( 'smartwoo_admin_phone_numbers', '' );
 	$service_page          = get_option( 'smartwoo_service_page_id', 0 );
-	$upgrade_product_cat   = get_option( 'smartwoo_upgrade_product_cat', '0' );
-	$downgrade_product_cat = get_option( 'smartwoo_downgrade_product_cat', '0' );
-	$product_categories    = get_terms( 'product_cat' );
 	$pages                 = get_pages();
-	$smartwoo_prorate      = get_option( 'smartwoo_prorate', 'Disable' );
-	$migration_option      = get_option( 'smartwoo_allow_migration', 'Disable' );
 	$service_id_prefix     = get_option( 'smartwoo_service_id_prefix', 'SID' );
 	?>
 	<h1><?php  esc_html_e( 'Business Info 🧊', 'smart-woo-service-invoicing' ); ?> </h1>
@@ -282,7 +277,7 @@ function smartwoo_service_options() {
 		<form method="post" class="inv-settings-form">
 		
 		<?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
-		<?php do_action( 'smartwoo_after_service_options' ) ?>
+		<?php do_action( 'smartwoo_before_service_options' ) ?>
 
 		
 		<!-- Business Name -->
@@ -314,61 +309,11 @@ function smartwoo_service_options() {
 		</select>
 		</div>
 
-			<!-- Form field for service_id_prefix -->
+		<!-- Form field for service_id_prefix -->
 		<div class="sw-form-row">
 		<label for="smartwoo_service_id_prefix" class="sw-form-label"><?php esc_html_e( 'Service ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
 		<span class="sw-field-description" title="Enter a text to prifix your service IDs">?</span>
 		<input class="sw-form-input" type="text" name="smartwoo_service_id_prefix" id="smartwoo_service_id_prefix" value="<?php echo esc_attr( $service_id_prefix ); ?>" placeholder="eg, SMWSI">
-		</div>
- 
-		<!-- Form field for Proration -->
-		<div class="sw-form-row">
-		<label for="smartwoo_prorate" class="sw-form-label"><?php esc_html_e( 'Allow Proration', 'smart-woo-service-invoicing' );?></label>
-		<span class="sw-field-description" title="Choose to allow users switch from their current service to another">?</span>
-		<select name="smartwoo_prorate" id="smartwoo_prorate" class="sw-form-input">
-		<option value="Enable" <?php selected( 'Enable', esc_attr( $smartwoo_prorate ) ); ?>>Yes</option>
-		<option value="Disable" <?php selected( 'Disable', esc_attr( $smartwoo_prorate ) ); ?>>No</option>
-		</select>
-		</div>
-
-		<!-- Form field for service migration -->
-		<div class="sw-form-row">
-		<label for="smartwoo_allow_migration" class="sw-form-label"><?php esc_html_e( 'Allow Service Migration', 'smart-woo-service-invoicing' ); ?></label>
-		<span class="sw-field-description" title="Choose to allow users switch from their current service to another">?</span>
-		<select name="smartwoo_allow_migration" id="smartwoo_allow_migration" class="sw-form-input">
-		<option value="Enable" <?php selected( 'Enable', esc_attr( $migration_option ) ); ?>>Yes</option>
-		<option value="Disable" <?php selected( 'Disable', esc_attr( $migration_option ) ); ?>>No</option>
-		</select>
-		</div>
-
-		<!-- Service Upgrade Categories -->
-		<div class="sw-form-row">
-		<label for="smartwoo_upgrade_product_cat" class="sw-form-label"><?php esc_html_e( 'Product Category for Upgrade', 'smart-woo-service-invoicing' ); ?></label>
-		<span class="sw-field-description" title="Select the product category to mark as products for service upgrades.">?</span>
-		<select name="smartwoo_upgrade_product_cat" class="sw-form-input" id="smartwoo_upgrade_product_cat">
-		<option value="0" <?php selected( '0', esc_attr( $upgrade_product_cat ) ); ?>>None</option>
-		<?php
-		foreach ( $product_categories as $category ) {
-			$selected = ( $category->term_id == $upgrade_product_cat ) ? 'selected' : '';
-			echo '<option value="' . esc_attr( $category->term_id ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $category->name ) . '</option>';
-		}
-		?>
-		</select>
-		</div>
-
-		<!-- Service Downdgrade Categories -->
-		<div class="sw-form-row">
-		<label for="smartwoo_downgrade_product_cat" class="sw-form-label">Product Category for Downgrade</label>
-		<span class="sw-field-description" title="Select the category of products to mark as products for service downgrades.">?</span>
-		<select name="smartwoo_downgrade_product_cat" class="sw-form-input" id="smartwoo_downgrade_product_cat">
-		<option value="0" <?php selected( '0', $downgrade_product_cat ); ?>>None</option>
-		<?php
-		foreach ( $product_categories as $category ) {
-			$selected = ( $category->term_id == $downgrade_product_cat ) ? 'selected' : '';
-			echo '<option value="' . esc_attr( $category->term_id ) . '" ' . esc_attr( $selected ) . '>' . esc_attr( $category->name ) . '</option>';
-		}
-		?>
-		</select>
 		</div>
 
 		<?php do_action( 'smartwoo_after_service_options' ) ?>
@@ -468,7 +413,7 @@ function smartwoo_email_options() {
 	$email_image   = get_option( 'smartwoo_email_image_header' );
 
 	// Define an array of checkbox names
-	$checkboxes = array(
+	$checkboxes = apply_filters( 'smartwoo_mail_options', array(
 		'smartwoo_cancellation_mail_to_user',
 		'smartwoo_service_opt_out_mail',
 		'smartwoo_payment_reminder_to_client',
@@ -479,7 +424,8 @@ function smartwoo_email_options() {
 		'smartwoo_invoice_paid_mail',
 		'smartwoo_service_cancellation_mail_to_admin',
 		'smartwoo_service_expiration_mail_to_admin',
-	);
+	) );
+
 
 	?>
 	<div class="wrap">
@@ -543,9 +489,11 @@ function smartwoo_advanced_options() {
     $default_checkboxes = array(
         'smartwoo_remove_plugin_data_during_uninstall'
     );
-	/** Rule for this filter: All array data to be passed to this filter must be prefixed with "smartwoo" */
-	$more_checkboxes = apply_filters( 'smartwoo_advanced_options', array() );
-	$checkboxes = array_merge( $default_checkboxes, $more_checkboxes );
+	/**
+	 * Rule for this filter: All array values to be passed to this filter must be prefixed with "smartwoo" 
+	 */
+	$more_checkboxes 	= apply_filters( 'smartwoo_advanced_options', array() );
+	$checkboxes			= array_merge( $default_checkboxes, $more_checkboxes );
 	
     ?>
     <div class="wrap">
