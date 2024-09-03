@@ -552,8 +552,8 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
  */ 
 if( ! function_exists( 'smartwoo_kses_allowed' ) ){
 	function smartwoo_kses_allowed( $allowed_tags, $context ) {
-		// Add or modify the allowed HTML tags and attributes as needed
-		$smartwoo_allowed = array(
+	
+		$smartwoo_allowed = apply_filters( 'smartwoo_kses_allowed', array(
 			'div' => array(
 				'class' => true,
 				'id' => true,
@@ -577,7 +577,9 @@ if( ! function_exists( 'smartwoo_kses_allowed' ) ){
 				'src' => true,
 			),
 			'style' => array(),
-		);
+			'ul'	=> array(),
+			'li'	=> array(),
+		) );
 	
 		return array_merge( $allowed_tags, $smartwoo_allowed );
 	}
@@ -588,7 +590,7 @@ if( ! function_exists( 'smartwoo_kses_allowed' ) ){
  * Smart Woo allowed form html tags.
  */
 function smartwoo_allowed_form_html() {
-    return array(
+    return apply_filters( 'smartwoo_allowed_form_html', array(
         'form'		=> array(
             'action'	=> true,
             'method'	=> true,
@@ -668,7 +670,7 @@ function smartwoo_allowed_form_html() {
 		),
 		'ul'		=> array(),
 		'li'		=> array(),
-    );
+    ) );
 }
 
 /**
