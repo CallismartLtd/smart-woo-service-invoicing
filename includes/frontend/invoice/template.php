@@ -12,14 +12,18 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * @return string HTML post mark up
  */
 function smartwoo_invoice_front_temp() {
+	global $wp_query;
 
 	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
-	   return;
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( $_GET ) ) );
     }
 
-	$current_user_id = get_current_user_id();
-    $invoices        = SmartWoo_Invoice_Database::get_invoices_by_user( $current_user_id );
+	$limit 			= 10;
+	$page 			= isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ? absint( $wp_query->query_vars['paged'] ) : 1;
+    $invoices		= SmartWoo_Invoice_Database::get_invoices_by_user( get_current_user_id() );
+	$all_inv_count	= SmartWoo_Invoice_Database::count_all_by_user( get_current_user_id() );
+	$total_pages 	= ceil( $all_inv_count / $limit );
+
 
 	/**
 	 * Start frontpage markup
@@ -66,9 +70,24 @@ function smartwoo_invoice_front_temp() {
 
 	$output .= '</tbody>';
 	$output .= '</table>';
+	$output .= '<div class="sw-pagination-buttons">';
+
+	$output .= '<p>' . count( $invoices ) . ' item' . ( count( $invoices ) > 1 ? 's' : '' ) . '</p>';
+
+	if ( $page > 1 ) {
+		$prev_page = $page - 1;
+		$output .= '<a class="sw-pagination-button" href="' . esc_url( add_query_arg( 'paged', $prev_page ) ) . '"><span class="dashicons dashicons-arrow-left-alt2"></span></a>';
+	}
+
+	$output .= '<p>'. absint( $page ) . ' of ' . absint( $total_pages ) . '</p>';
+
+	if ( $page < $total_pages ) {
+		$next_page = $page + 1;
+		$output .= '<a class="sw-pagination-button" href="' . esc_url( add_query_arg( 'paged', $next_page ) ) . '"><span class="dashicons dashicons-arrow-right-alt2"></span></a>';
+	}
+	$output .= '</div>'; // Pagination container.
 	$output .= '</div>';
 	$output .= '</div>';
-	$output .= '<p class="sw-table-count">' . absint( count( $invoices ) ) . ' item(s)</p>';
 	
 	return $output;
 }
@@ -310,6 +329,86 @@ function smartwoo_invoice_details() {
  * @return HTML Post markup
  */
 function smartwoo_invoices_by_status() {
+	global $wp_query;
+
+	if ( ! is_user_logged_in() ) {
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( $_GET ) ) );
+    }
+
+	$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
+
+	$limit 			= 10;
+	$page 			= isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ? absint( $wp_query->query_vars['paged'] ) : 1;
+    $invoices		= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status );
+	$all_inv_count	= SmartWoo_Invoice_Database::count_this_status( $status );
+	$total_pages 	= ceil( $all_inv_count / $limit );
+
+
+	/**
+	 * Start frontpage markup
+	 */
+	$output  = smartwoo_get_navbar( 'My Invoices' );
+	$output .= '<div class="site-content">';
+    $output .= smartwoo_all_user_invoices_count();
+	// Display the invoices in a table.
+	$output .= '<div class="sw-table-wrapper">';
+	$output .= '<table class="sw-table">';
+	$output .= '<thead>';
+	$output .= '<tr>';
+	$output .= '<th>Invoice ID</th>';
+	$output .= '<th>Invoice Date</th>';
+	$output .= '<th>Date Due</th>';
+	$output .= '<th>Total</th>';
+	$output .= '<th>Status</th>';
+	$output .= '<th>Action</th>';
+	$output .= '</tr>';
+	$output .= '</thead>';
+	$output .= '<tbody>';
+	
+	if ( empty( $invoices ) ) {
+		$output .= '<tr><td colspan="6" style="text-align: center;"> All Invoices will appear here</td></tr>';
+		$output .= '</tbody></table></div></div>';
+		return $output;
+	}
+
+	foreach ( $invoices as $invoice ) {
+
+		$date_created = smartwoo_check_and_format( $invoice->getDateCreated(), true );
+		$datePaid     = $invoice->getDatePaid();
+		$date_due     = smartwoo_check_and_format( $invoice->getDateDue() );
+		// Table content.
+		$output .= '<tr>';
+		$output .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
+		$output .= '<td>' . esc_html( $date_created ) . '</td>';
+		$output .= '<td>' . esc_html( $date_due ) . '</td>';
+		$output .= '<td>' . wc_price( $invoice->getTotal() ) . '</td>';
+		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->getPaymentStatus() ) ) . '</td>';
+		$output .= '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
+		$output .= '</tr>';
+	}
+
+	$output .= '</tbody>';
+	$output .= '</table>';
+	$output .= '<div class="sw-pagination-buttons">';
+
+	$output .= '<p>' . count( $invoices ) . ' item' . ( count( $invoices ) > 1 ? 's' : '' ) . '</p>';
+
+	if ( $page > 1 ) {
+		$prev_page = $page - 1;
+		$output .= '<a class="sw-pagination-button" href="' . esc_url( add_query_arg( 'paged', $prev_page ) ) . '"><span class="dashicons dashicons-arrow-left-alt2"></span></a>';
+	}
+
+	$output .= '<p>'. absint( $page ) . ' of ' . absint( $total_pages ) . '</p>';
+
+	if ( $page < $total_pages ) {
+		$next_page = $page + 1;
+		$output .= '<a class="sw-pagination-button" href="' . esc_url( add_query_arg( 'paged', $next_page ) ) . '"><span class="dashicons dashicons-arrow-right-alt2"></span></a>';
+	}
+	$output .= '</div>'; // Pagination container.
+	$output .= '</div>';
+	$output .= '</div>';
+	
+	return $output;
 
 }
 
