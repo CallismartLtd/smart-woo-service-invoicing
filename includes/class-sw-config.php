@@ -160,6 +160,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'templates/email-templates.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
         require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-assets.php';
+        require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
@@ -175,7 +176,6 @@ class SmartWoo_Config{
         /** Load fontend file. */ 
         if ( smartwoo_is_frontend() ) {
 
-            require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
             require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/woo-forms.php';
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/contr.php';
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/template.php';
@@ -204,18 +204,18 @@ class SmartWoo_Config{
     public function load_styles() {
 
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         
         }
-        wp_enqueue_style( 'smartwoo-admin-utm-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin-min.css', array(), SMARTWOO_VER, 'all' );
 
         if ( is_admin() ) {
-            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-admin-utm-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         }
     }
 
     public function load_scripts() {
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
     
         // Script localizer.
         wp_localize_script(
