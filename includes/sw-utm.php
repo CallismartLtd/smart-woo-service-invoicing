@@ -18,24 +18,30 @@ function smartwoo_pro_feature( $feature = '' ) {
 	}
 
 
-	if ( 'advanced stats' === $feature || 'service logs' === $feature || 'invoice logs' === $feature ) {
+	if ( 'advanced stats' === $feature || 'service logs' === $feature || 'invoice logs' === $feature || 'migration-options' === $feature ) {
 
 
 		switch ( $feature ) {
 			case 'advanced stats':
-				$image_url = SMARTWOO_DIR_URL . '/assets/images/smartwoopro-adv-stats.png';
-				$description = 'Stats and usage are only available on Smart Woo Pro.';
-				$benefits = 'Unlock advanced subscription usage analysis!';
+				$image_url 		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-adv-stats.png';
+				$description 	= 'Stats and usage are only available on Smart Woo Pro.';
+				$benefits 		= 'Unlock advanced subscription usage analysis!';
 				break;
 			case 'service logs':
-				$image_url = SMARTWOO_DIR_URL . '/assets/images/smartwoopro-service-log.png';
-				$description = 'Service log is only available on Smart Woo Pro.';
-				$benefits = 'Unlock advanced insights into service subscription activities.';
+				$image_url 		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-service-log.png';
+				$description 	= 'Service log is only available on Smart Woo Pro.';
+				$benefits 		= 'Unlock advanced insights into service subscription activities.';
 				break;
 			case 'invoice logs':
-				$image_url = SMARTWOO_DIR_URL . '/assets/images/smartwoopro-invoice-log.png';
-				$description = 'Invoice log is only available on Smart Woo Pro.';
-				$benefits = 'Unlock advanced invoice logging feature.';
+				$image_url		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-invoice-log.png';
+				$description 	= 'Invoice log is only available on Smart Woo Pro.';
+				$benefits 		= 'Unlock advanced invoice logging feature.';
+				break;
+
+			case 'migration-options':
+				$image_url		= SMARTWOO_DIR_URL . '/assets/images/smartwoo-business-pro-options.png';
+				$description	= 'Enable service subscription migration and prorated billing exclusively on Smart Woo Pro';
+				$benefits		= 'Discount applies';
 				break;
 			default:
 				// Default case for unknown features
