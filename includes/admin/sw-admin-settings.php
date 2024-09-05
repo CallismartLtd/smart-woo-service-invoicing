@@ -296,25 +296,24 @@ function smartwoo_service_options() {
 
 		<!--Service Page -->
 		<div class="sw-form-row">
-		<label for="smartwoo_service_page_id" class="sw-form-label"><?php esc_html_e( 'Service Page', 'smart-woo-service-invoicing' );?></label>
-		<span class="sw-field-description" title="This page should have this shortcode [smartwoo_service_page] ">?</span>
-		<select name="smartwoo_service_page_id" id="smartwoo_service_page_id" class="sw-form-input">
-		<option value="0"><?php esc_html_e( 'Select a Service page', 'smart-woo-service-invoicing' ); ?></option>
-		<?php
-		foreach ( $pages as $page ) {
-			$selected = ( $service_page == $page->ID ) ? 'selected' : '';
-			echo '<option value="' . esc_attr( $page->ID ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $page->post_title ) . '</option>';
-		}
-		?>
-		</select>
+			<label for="smartwoo_service_page_id" class="sw-form-label"><?php esc_html_e( 'Service Page', 'smart-woo-service-invoicing' );?></label>
+			<span class="sw-field-description" title="This page should have this shortcode [smartwoo_service_page] ">?</span>
+			<select name="smartwoo_service_page_id" id="smartwoo_service_page_id" class="sw-form-input">
+				<option value="0"><?php esc_html_e( 'Select a Service page', 'smart-woo-service-invoicing' ); ?></option>
+				<?php foreach ( $pages as $page ) : ?>
+				<option value="<?php echo esc_attr( $page->ID );?>"<?php selected( $service_page, $page->ID );?>><?php echo esc_html( $page->post_title );?> </option>
+				<?php endforeach;?>
+			</select>
 		</div>
 
 		<!-- Form field for service_id_prefix -->
 		<div class="sw-form-row">
-		<label for="smartwoo_service_id_prefix" class="sw-form-label"><?php esc_html_e( 'Service ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
-		<span class="sw-field-description" title="Enter a text to prifix your service IDs">?</span>
-		<input class="sw-form-input" type="text" name="smartwoo_service_id_prefix" id="smartwoo_service_id_prefix" value="<?php echo esc_attr( $service_id_prefix ); ?>" placeholder="eg, SMWSI">
+			<label for="smartwoo_service_id_prefix" class="sw-form-label"><?php esc_html_e( 'Service ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
+			<span class="sw-field-description" title="Enter a text to prifix your service IDs">?</span>
+			<input class="sw-form-input" type="text" name="smartwoo_service_id_prefix" id="smartwoo_service_id_prefix" value="<?php echo esc_attr( $service_id_prefix ); ?>" placeholder="eg, SMWSI">
 		</div>
+
+		<?php echo wp_kses_post( smartwoo_pro_feature( 'migration-options' ) ) ;?>
 
 		<?php do_action( 'smartwoo_after_service_options' ) ?>
 		
