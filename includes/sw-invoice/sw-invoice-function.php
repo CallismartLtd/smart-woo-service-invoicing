@@ -464,7 +464,7 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
             $endpoint_url
         );
 
-    } elseif( is_admin() ) {
+    } elseif( ! smartwoo_is_frontend() && is_admin() ) {
 
 		$preview_url = add_query_arg( 
 			array( 
