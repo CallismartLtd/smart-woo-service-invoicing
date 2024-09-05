@@ -14,7 +14,7 @@
 function smartwoo_invoice_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page' ), 'redirect' => add_query_arg( $_GET ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( $_GET ) ) );
 	   
    	}
 
@@ -38,7 +38,6 @@ function smartwoo_invoice_shortcode() {
 			break;
 
 		default:
-
 			$main_page = smartwoo_invoice_front_temp();
 			$output    = $main_page;
 			break;
