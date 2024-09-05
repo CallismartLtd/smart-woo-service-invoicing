@@ -121,8 +121,10 @@ final class SmartWoo {
      * @param WC_Order
      */
     public function before_order_table( $order ) {
-        if ( smartwoo_check_if_configured( $order ) ) {
+        $our_order  = apply_filters( 'smartwoo_order_details_buttons', smartwoo_check_if_configured( $order ) || $order->is_created_via( SMARTWOO ) );
+        if ( $our_order ) {
             echo '<a href="' . esc_url( smartwoo_service_page_url() ) .'" class="sw-blue-button">Dashbaord</a>';
+            echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $order->get_meta( '_sw_invoice_id' ) ) ) .'" class="sw-blue-button">Invoice</a>';
         }
     
     }
@@ -461,7 +463,7 @@ final class SmartWoo {
             $file = download_url( $resource_url );
 
             if ( is_wp_error( $file ) ) {
-                wp_die( $file->get_error_message() );
+                wp_die( wp_kses_post( $file->get_error_message() ) );
             }
 
             global $wp_filesystem;
