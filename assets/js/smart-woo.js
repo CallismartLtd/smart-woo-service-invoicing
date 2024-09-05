@@ -268,8 +268,6 @@ function hideLoadingIndicator() {
 		jQuery( '#swloader' ).hide();
 }
 
-
-
 function confirmEditAccount() {
 		var confirmAccount = confirm( "Are you sure you want to edit your information?" );
 	if (confirmAccount) {
@@ -786,53 +784,6 @@ function deleteProduct(productId) {
 		});
 	}
 }
-
-// Handle service migration.
-document.addEventListener('DOMContentLoaded', function () {
-    var migrationForm = document.getElementById('migrationForm');
-
-    if (migrationForm) {
-        migrationForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            showLoadingIndicator();
-            // Serialize form data
-            var formData = new FormData(migrationForm);
-
-            // Append additional data
-            formData.append('action', 'smartwoo_service_migration');
-            formData.append('security', smart_woo_vars.security);
-
-            // Send AJAX request
-            jQuery.ajax({
-                type: 'POST',
-                url: smart_woo_vars.ajax_url,
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-					if (response.success && response.data) {
-
-						var invoicePreviewURL = response.data.replace(/#038;/g, '&');
-						window.location.href  = invoicePreviewURL;
-
-					} else {
-
-						console.error('Unexpected response format:', response);
-					}
-                },
-                error: function (xhr, status, error) {
-                    console.error(error);
-					console.log(status);
-                    // Handle error
-                },
-				complete: function () {
-					// Hide loading indicator after AJAX request is complete
-					hideLoadingIndicator();
-				}
-            });
-        });
-    }
-});
 
 /**
  * Configure Product client Ajax handler.
