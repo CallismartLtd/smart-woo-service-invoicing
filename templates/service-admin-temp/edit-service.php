@@ -155,13 +155,6 @@ defined( 'ABSPATH' ) || exit;
             <?php smartwoo_product_dropdown( $product_id, true ); ?>	
         </div>
 
-        <!-- Invoice ID -->
-        <div class="sw-form-row">
-            <label for="invoice_id" class="sw-form-label"><?php esc_html_e( 'Invoice ID (optional)', 'smart-woo-service-invoicing' ); ?></label>
-            <span class="sw-field-description" title="<?php esc_attr_e( 'Associate this service with an already created invoice.', 'smart-woo-service-invoicing' ); ?>">?</span>
-            <?php smartwoo_invoice_id_dropdown( esc_attr( $invoice_id ) ); ?>
-        </div>
-
         <!-- Start Date -->
         <div class="sw-form-row">
             <label for="start_date" class="sw-form-label"><?php esc_html_e( 'Start Date', 'smart-woo-service-invoicing' ); ?></label>
