@@ -61,6 +61,32 @@ use inline CSS to overide some styles
 	border-radius: 9px;
 }
 
+.sw-pagination-buttons {
+	display: flex;
+	background-color: #ffffff;
+	width: 15% auto;
+	border: solid 0.5px blue;
+	border-radius: 5px;
+	float: right;
+	margin-right: 15px;
+	margin-bottom: 10px;
+}
+
+.sw-pagination-buttons p, .sw-pagination-buttons a {
+	margin: 8px;
+	font-weight: bold;
+}
+
+.sw-pagination-buttons a button {
+	border: none;
+	border-radius: 50%;
+}
+.sw-pagination-buttons a button span {
+	padding: 2px auto;
+	font-size: 18px;
+	color: #000;
+}
+
 /************** Button CSS Ends here******************/
 
 /************** Dashboard Service Details CSS Starts here******************/
@@ -1218,9 +1244,16 @@ border-radius: 5px;
 	text-align: center;
 	margin-bottom: 20px;
 	max-width: 800px;
-	width: 70%;
+	width: 90% auto;
 }
-
+@media (min-width: 280px) and (max-width: 369px) {
+	.invoice-status-counts {
+		flex-wrap: wrap;
+		width: 100%;
+		margin: none;
+		
+	}
+}
 .status-item {
 	flex-basis: calc(50% - 10px);
 	padding: 10px;
