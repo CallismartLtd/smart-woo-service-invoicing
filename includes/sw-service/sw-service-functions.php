@@ -291,7 +291,7 @@ function smartwoo_has_service_expired( SmartWoo_Service $service ) {
 /**
  * Get the status of a service.
  *
- * @param string $service_id The service ID.
+ * @param SmartWoo_Service|string $service_id The service object or service ID.
  *
  * @return string The status.
  */
