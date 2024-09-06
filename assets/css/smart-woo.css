@@ -296,10 +296,14 @@ use inline CSS to overide some styles
 }
 
 /* Custom CSS for the product configuration container */
+.content-area #main .smartwoo_template {
+	padding: 5px !important;
+	margin: 10px !important;
+}
 
 .sw-configure-container {
 	max-width: 1000px;
-	margin: 10px auto 60px !important;
+	margin: 20px auto;
 	padding: 20px;
 	min-height: auto;
 	background-color: #fff;
