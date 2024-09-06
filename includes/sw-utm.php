@@ -18,39 +18,48 @@ function smartwoo_pro_feature( $feature = '' ) {
 	}
 
 
-	if ( 'advanced stats' === $feature || 'service logs' === $feature || 'invoice logs' === $feature || 'migration-options' === $feature ) {
+	if ( 'advanced stats' === $feature || 'service logs' === $feature || 'invoice logs' === $feature || 'migration-options' === $feature || 'more-email-options' === $feature ) {
 
 
 		switch ( $feature ) {
 			case 'advanced stats':
 				$image_url 		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-adv-stats.png';
-				$description 	= 'Stats and usage are only available on Smart Woo Pro.';
+				$description 	= 'Statistics and usage data are only available in Smart Woo Pro.';
 				$benefits 		= 'Unlock advanced subscription usage analysis!';
 				break;
+				
 			case 'service logs':
 				$image_url 		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-service-log.png';
-				$description 	= 'Service log is only available on Smart Woo Pro.';
+				$description 	= 'Service logs are only available in Smart Woo Pro.';
 				$benefits 		= 'Unlock advanced insights into service subscription activities.';
 				break;
+				
 			case 'invoice logs':
 				$image_url		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-invoice-log.png';
-				$description 	= 'Invoice log is only available on Smart Woo Pro.';
-				$benefits 		= 'Unlock advanced invoice logging feature.';
+				$description 	= 'Invoice logs are only available in Smart Woo Pro.';
+				$benefits 		= 'Unlock advanced invoice logging features.';
 				break;
-
+		
 			case 'migration-options':
 				$image_url		= SMARTWOO_DIR_URL . '/assets/images/smartwoo-business-pro-options.png';
-				$description	= 'Enable service subscription migration and prorated billing exclusively on Smart Woo Pro';
-				$benefits		= 'Discount applies';
+				$description	= 'Enable additional features available exclusively in Smart Woo Pro.';
+				$benefits		= 'Enable service subscription migration and prorated billing exclusively in Smart Woo Pro.';
 				break;
+		
+			case 'more-email-options':
+				$image_url		= SMARTWOO_DIR_URL . '/assets/images/smartwoopro-more-email-options.png';
+				$description	= 'Enable more features available exclusively in Smart Woo Pro.';
+				$benefits		= 'Stop default WooCommerce emails for subscription-related orders, and attach PDF invoices to emails.';
+				break;
+		
 			default:
 				// Default case for unknown features
 				$image_url = '';
-				$description = 'Unlock more features only available on Smart Woo Pro.';
-				$benefits = 'Get detailed insight into service usage and more!';
+				$description = 'Unlock more features available exclusively in Smart Woo Pro.';
+				$benefits = 'Get detailed insights into service usage and more!';
 				break;
 		}
-
+		
 		ob_start();
 		?>
 		<div class="sw-pro-placeholder" style="background-image: url('<?php echo esc_url( $image_url ); ?>');">
@@ -90,13 +99,13 @@ function smartwoo_pro_feature( $feature = '' ) {
 /**
  * Smart Woo UTM campaign function.
  */
-function smartwoo_utm_campaign_url() {
-	$utm_url = 'https://callismart.com.ng/smart-woo-service-invoicing';
-	$utm_source = SMARTWOO;
-	$utm_medium = 'upgrade button';
-	$utm_campaign = 'pro-upgrade';
+function smartwoo_utm_campaign_url( $utm_url = '' ) {
+	$utm_url		= empty( $utm_url ) ? 'https://callismart.com.ng/smart-woo-service-invoicing' : $utm_url;
+	$utm_source 	= SMARTWOO;
+	$utm_medium 	= 'upgrade button';
+	$utm_campaign 	= 'pro-upgrade';
 	$plugin_version = SMARTWOO_VER;
-	$utm_referrer = site_url();
+	$utm_referrer 	= site_url();
 
 	$utm_url .= '?utm_source=' . rawurlencode( $utm_source );
 	$utm_url .= '&utm_medium=' . rawurlencode( $utm_medium );
