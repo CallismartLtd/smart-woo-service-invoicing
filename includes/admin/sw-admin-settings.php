@@ -271,7 +271,7 @@ function smartwoo_service_options() {
 	$pages                 = get_pages();
 	$service_id_prefix     = get_option( 'smartwoo_service_id_prefix', 'SID' );
 	?>
-	<h1><?php  esc_html_e( 'Business Info 🧊', 'smart-woo-service-invoicing' ); ?> </h1>
+	<h1><span class="dashicons dashicons-tagcloud"></span> Business Info</h1>
 
 		<div class="wrap">
 		<form method="post" class="inv-settings-form">
@@ -344,8 +344,9 @@ function smartwoo_invoice_options() {
 	$pages                 = get_pages();
 	$invoice_logo_url      = get_option( 'smartwoo_invoice_logo_url' );
 	$invoice_watermark_url = get_option( 'smartwoo_invoice_watermark_url' );
-	echo '<h1>'. esc_html__( 'Invoice 🧾', 'smart-woo-service-invoicing' ) . '</h1>';
 	?>
+		<h1><span class="dashicons dashicons-media-spreadsheet"></span> Invoice</h1>
+
 		<div class="wrap">
 		<form method="post" class="inv-settings-form">
 
@@ -428,7 +429,7 @@ function smartwoo_email_options() {
 
 	?>
 	<div class="wrap">
-		<h1>Emails 📧</h1>
+		<h1><span class="dashicons dashicons-email-alt"></span> Emails</h1>
 		<p><?php esc_html_e( 'If you notice emails are not being sent, consider setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
 		<form method="post" class="inv-settings-form">
 
@@ -467,6 +468,8 @@ function smartwoo_email_options() {
 				</div>
 				<hr>
 			<?php endforeach; ?>
+			<?php echo wp_kses_post( smartwoo_pro_feature( 'more-email-options' ) ) ;?>
+
 			<?php do_action( 'smartwoo_after_email_options' ) ?>
 
 			<input type="submit" class="sw-blue-button" name="sw_save_email_options" value="Save Changes">
@@ -496,7 +499,7 @@ function smartwoo_advanced_options() {
 	
     ?>
     <div class="wrap">
-		<h1><?php esc_html_e( 'Advanced Settings ⚙', 'smart-woo-service-invoicing' ); ?></h1>
+		<h1><span class="dashicons dashicons-screenoptions"></span> Advanced Settings</h1>
 
         <form method="post" class="inv-settings-form">
             <?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
@@ -566,8 +569,8 @@ function smartwoo_support_our_work_container( $echo = true ) {
 /**
  * Generate HTML content for upsell accordion for Bug Report.
  *
- * @param bool $echo	 Whether to print or return content.
- * @return string HTML content.
+ * @param bool $echo		Whether to print or return content.
+ * @return string $content	HTML content.
  */
 function smartwoo_bug_report_container( $echo = true) {
 	$content = '<div class="sw-upsell-accordion">
@@ -579,7 +582,7 @@ function smartwoo_bug_report_container( $echo = true) {
     </div>';
 	if ( $echo ) {
 		echo wp_kses_post( $content );
-	} 
+	}
 
 	return $content;
 }
@@ -591,7 +594,7 @@ function smartwoo_bug_report_container( $echo = true) {
  * @return string HTML content.
  */
 function smartwoo_help_container( $echo = true) {
-	    $content = '<div class="sw-upsell-accordion">
+	$content = '<div class="sw-upsell-accordion">
         <button class="sw-accordion-btn">Get Help 🏷</button>
         <div class="sw-upsell-panel">
             <p>Need assistance with using Smart Woo Service Invoicing Plugin? Check out our documentation or contact our support team for help. We are here to assist you in getting the most out of the plugin.</p>
@@ -604,5 +607,3 @@ function smartwoo_help_container( $echo = true) {
 		return $content;
 	}
 }
-
-
