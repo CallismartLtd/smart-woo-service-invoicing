@@ -200,12 +200,11 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
  */
 function smartwoo_dashboard_page() {
 
-	$all_services = SmartWoo_Service_Database::get_all_services();
 	$due_for_renewal_count		= smartwoo_count_due_for_renewal_services();
 	$expired_services_count 	= smartwoo_count_expired_services();
 	$grace_period_services		= smartwoo_count_grace_period_services();
 	$active_services_count		= smartwoo_count_active_services();
-	$suspended_service_acount 	= smartwoo_count_suspended_services();
+	$suspended_service_count 	= smartwoo_count_suspended_services();
 	$nr_services 				= smartwoo_count_nr_services();
 	$services   				= SmartWoo_Service_Database::get_all_services();
 
@@ -224,7 +223,7 @@ function smartwoo_dashboard_page() {
 	 */
 	$page_html .= '<div class="dashboard-card">';
 	$page_html .= '<h2>' . __( 'All Services', 'smart-woo-service-invoicing' ) . '</h2>';
-	$page_html .= '<p class="count">' . esc_html( count( $all_services ) ) . '</p>';
+	$page_html .= '<p class="count">' . esc_html( count( $services ) ) . '</p>';
 	$page_html .= '</div>';
 
 	/**
@@ -272,7 +271,7 @@ function smartwoo_dashboard_page() {
 	 */
 	$page_html .= '<div class="dashboard-card">';
 	$page_html .= '<h2>' . __( 'Suspended', 'smart-woo-service-invoicing' ) . '</h2>';
-	$page_html .= '<p class="count">' . esc_html( $suspended_service_acount ) . '</p>';
+	$page_html .= '<p class="count">' . esc_html( $suspended_service_count ) . '</p>';
 	$page_html .= '</div>';
 	$page_html .= '</div>';
 
@@ -287,7 +286,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Active' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -316,7 +315,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Active (NR)' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -345,7 +344,7 @@ function smartwoo_dashboard_page() {
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
 
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Due for Renewal' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() )) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -373,7 +372,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Grace Period' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -400,7 +399,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Cancelled' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -427,7 +426,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Expired' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -454,7 +453,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Suspended' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
@@ -481,7 +480,7 @@ function smartwoo_dashboard_page() {
 
 	if ( ! empty( $services ) ) {
 		foreach ( $services as $service ) {
-			$service_status = smartwoo_service_status( $service->getServiceId() );
+			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Pending' === $service_status ) {
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
