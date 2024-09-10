@@ -371,12 +371,15 @@ function smartwoo_dashboard_page() {
 	$grace_services = false;
 
 	if ( ! empty( $services ) ) {
+		$i = 1;
 		foreach ( $services as $service ) {
 			$service_status = smartwoo_service_status( $service );
 
 			if ( 'Grace Period' === $service_status ) {
+				$page_html .= $i;
 				$page_html .= '<li><a href="' . esc_url( smartwoo_service_preview_url( $service->getServiceId() ) ) . '">' . esc_html( $service->getServiceName() ) . ' - ' . esc_html( $service->getServiceId() ) . '</a></li>';
 				$grace_services = true;
+				$i++;
 			}
 		}
 	}
