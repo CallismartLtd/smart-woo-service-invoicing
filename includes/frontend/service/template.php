@@ -104,10 +104,10 @@ function smartwoo_service_front_temp() {
 	$current_user 	       = wp_get_current_user();
 	$full_name             = $current_user->first_name . ' '. $current_user->last_name  ;
 	$user_id 			   = get_current_user_id();
-	$active_count          = smartwoo_count_active_services( $user_id ) + smartwoo_count_nr_services( $user_id );
-	$due_for_renewal_count = smartwoo_count_due_for_renewal_services( $user_id );
-	$expired_count         = smartwoo_count_expired_services( $user_id );
-	$grace_period_count    = smartwoo_count_grace_period_services( $user_id );
+	$active_count          = smartwoo_count_active_services() + smartwoo_count_nr_services();
+	$due_for_renewal_count = smartwoo_count_due_for_renewal_services();
+	$expired_count         = smartwoo_count_expired_services();
+	$grace_period_count    = smartwoo_count_grace_period_services();
 	
 	$output .= '<p style="text-align: center; margin-top: 10px;">Welcome, ' . esc_html( $full_name ) . '!</p>';
 	$output .= '<div class="status-counts">';
