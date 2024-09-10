@@ -211,6 +211,10 @@ function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id 
  * @return bool True if the subscription is active, false otherwise.
  */
 function smartwoo_is_service_active( SmartWoo_Service $service ) {
+	if ( 'Active' === $service->getStatus() ) {
+		return true;
+	}
+
 	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
 	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
 	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
@@ -230,6 +234,10 @@ function smartwoo_is_service_active( SmartWoo_Service $service ) {
  * @return bool True if the subscription is due, false otherwise
  */
 function smartwoo_is_service_due( SmartWoo_Service $service ) {
+	if ( 'Due for Renewal' === $service->getStatus() ) {
+		return true;
+	}
+
 	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
 	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
 	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
@@ -249,7 +257,9 @@ function smartwoo_is_service_due( SmartWoo_Service $service ) {
  * @return bool true if the subscription is on grace period, false otherwise.
  */
 function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
-
+	if ( 'Grace Period' === $service->getStatus() ) {
+		return true;
+	}
 	$end_date     = smartwoo_extract_only_date( $service->getEndDate() );
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
@@ -260,7 +270,6 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 		if ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) ) {
 			return true;
 		}
-		//return true;
 	}
 
 	return false;
@@ -275,9 +284,12 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
  * @return bool true if the subscription has expired, false otherwise.
  */
 function smartwoo_has_service_expired( SmartWoo_Service $service ) {
+	if ( 'Expired' === $service->getStatus() ) {
+		return true;
+	}
 
-	$current_date 		= smartwoo_extract_only_date( current_time( 'mysql' ) );
-	$expiration_date 	= smartwoo_get_service_expiration_date( $service );
+	$current_date 		= current_time( 'Y-m-d' );
+	$expiration_date	= smartwoo_get_service_expiration_date( $service );
 
 	// Check if the current date has passed the expiration date.
 	if ( $current_date > $expiration_date ) {
@@ -296,40 +308,48 @@ function smartwoo_has_service_expired( SmartWoo_Service $service ) {
  * @return string The status.
  */
 function smartwoo_service_status( $service_id ) {
-	if ( $service_id instanceof SmartWoo_Service ) {
-		$service = $service_id;
-	} else {
-		// Get the service object.
-		$service = SmartWoo_Service_Database::get_service_by_id( $service_id );
-	}
 
+	$service	= ( $service_id instanceof SmartWoo_Service ) ? $service_id : SmartWoo_Service_Database::get_service_by_id( $service_id );
+	
+	if ( ! $service ) {
+		return 'unknown';
+	}
+	
 	// Get the status text from the DB which overrides the calculated status.
 	$overriding_status = $service->getStatus();
-
-	// Check calculated statuses.
-	$active       = smartwoo_is_service_active( $service );
-	$due          = smartwoo_is_service_due( $service );
-	$grace_period = smartwoo_is_service_on_grace( $service );
-	$expired      = smartwoo_has_service_expired( $service );
-
-	// Check overriding status first
+	
+	// Check overriding status first.
 	if ( ! empty( $overriding_status ) ) {
 		return $overriding_status;
 	}
+	
+	$status = get_transient( 'smartwoo_status_'. $service->getServiceId() );
 
-	// Check calculated statuses in order of priority.
-	if ( $active ) {
-		return 'Active';
-	} elseif ( $due ) {
-		return 'Due for Renewal';
-	} elseif ( $grace_period ) {
-		return 'Grace Period';
-	} elseif ( $expired ) {
-		return 'Expired';
+	if ( false === $status ) {
+		// Check calculated statuses.
+		$active       = smartwoo_is_service_active( $service );
+		$due          = smartwoo_is_service_due( $service );
+		$grace_period = smartwoo_is_service_on_grace( $service );
+		$expired      = smartwoo_has_service_expired( $service );
+
+		// Check calculated statuses in order of priority.
+		if ( $active ) {
+			$status = 'Active';
+		} elseif ( $due ) {
+			$status = 'Due for Renewal';
+		} elseif ( $grace_period ) {
+			$status = 'Grace Period';
+		} elseif ( $expired ) {
+			$status = 'Expired';
+		} else {
+			$status	= 'Unknown';
+		}
+
+		set_transient( 'smartwoo_status_' . $service->getServiceId(), $status, 6 * HOUR_IN_SECONDS );
 	}
 
-	// Default status if none of the conditions match.
-	return 'Unknown';
+	
+	return $status;
 }
 
 
@@ -339,18 +359,8 @@ function smartwoo_service_status( $service_id ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Active' services.
  */
-function smartwoo_count_active_services( $user_id = null ) {
-	$services				= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
-	$active_services_count	= 0;
-
-	foreach ( $services as $service ) {
-		$status = smartwoo_service_status( $service->service_id );
-
-		if ( 'Active' === $status ) {
-			++$active_services_count;
-		}
-	}
-	return $active_services_count;
+function smartwoo_count_active_services() {
+	return count( SmartWoo_Service_Database::get_all_active() );
 }
 
 /**
@@ -359,19 +369,8 @@ function smartwoo_count_active_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Due for Renewal' services.
  */
-function smartwoo_count_due_for_renewal_services( $user_id = null ) {
-	$services			= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
-	$due_services_count = 0;
-
-	foreach ( $services as $service ) {
-		$status = smartwoo_service_status( $service->service_id );
-
-		if ( 'Due for Renewal' === $status ) {
-			++$due_services_count;
-		}
-	}
-
-	return $due_services_count;
+function smartwoo_count_due_for_renewal_services() {
+	return count( SmartWoo_Service_Database::get_all_due( 1, null ) );
 }
 
 /**
@@ -381,18 +380,7 @@ function smartwoo_count_due_for_renewal_services( $user_id = null ) {
  * @return int The number of 'Active (NR)' services.
  */
 function smartwoo_count_nr_services( $user_id = null ) {
-	$services 			= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
-	$nr_services_count 	= 0;
-
-	foreach ( $services as $service ) {
-		$status = smartwoo_service_status( $service->service_id );
-
-		if ( 'Active (NR)' === $status ) {
-			++$nr_services_count;
-		}
-	}
-
-	return $nr_services_count;
+	return count( SmartWoo_Service_Database::get_( array( 'status' => 'Active (NR)', 'limit' => 0 ) ) );
 }
 
 /**
@@ -402,18 +390,7 @@ function smartwoo_count_nr_services( $user_id = null ) {
  * @return int The number of 'Expired' services.
  */
 function smartwoo_count_expired_services( $user_id = null ) {
-	$services 				= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
-	$expired_services_count = 0;
-
-	foreach ( $services as $service ) {
-		$status = smartwoo_service_status( $service->service_id );
-
-		if ( 'Expired' === $status ) {
-			++$expired_services_count;
-		}
-	}
-
-	return $expired_services_count;
+	return count( SmartWoo_Service_Database::get_all_expired( 1, null ) );
 }
 
 /**
@@ -422,18 +399,8 @@ function smartwoo_count_expired_services( $user_id = null ) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Grace Period' services.
  */
-function smartwoo_count_grace_period_services( $user_id = null ) {
-	$services 						= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
-	$grace_period_services_count 	= 0;
-
-	foreach ( $services as $service ) {
-		$status = smartwoo_service_status( $service->service_id );
-
-		if ( 'Grace Period' === $status ) {
-			++$grace_period_services_count;
-		}
-	}
-	return $grace_period_services_count;
+function smartwoo_count_grace_period_services( $user_id = null) {
+	return count( SmartWoo_Service_Database::get_all_on_grace( 1, null ) );
 }
 
 /**
@@ -443,18 +410,7 @@ function smartwoo_count_grace_period_services( $user_id = null ) {
  * @return int The number of 'Suspended' services.
  */
 function smartwoo_count_suspended_services( $user_id = null ) {
-	$services 			= ( $user_id !== null ) ? smartwoo_get_service( $user_id ) : smartwoo_get_service();
-	$suspended_services = 0;
-
-	foreach ( $services as $service ) {
-		$status = smartwoo_service_status( $service->service_id );
-
-		if ( 'Suspended' === $status ) {
-			++$suspended_services;
-		}
-	}
-
-	return $suspended_services;
+	return count( SmartWoo_Service_Database::get_( array( 'status' => 'Suspended', 'limit' => 0 ) ) );
 }
 
 /**
@@ -571,7 +527,7 @@ function smatwoo_check_services_expired_today() {
 		$expiration_date	= smartwoo_get_service_expiration_date( $service );
 
 		if ( $current_date === $expiration_date ) {
-			// Trigger the 'smartwoo_service_expired' action with the current service
+			// Trigger the 'smartwoo_service_expired' action with the current service.
 			do_action( 'smartwoo_service_expired', $service );
 		}
 	}
