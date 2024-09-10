@@ -412,7 +412,6 @@ function smartwoo_send_expiry_mail_to_admin() {
 			);
 
 			if ( $expiration_date === $tomorrow_date ) {
-
 				wp_mail( get_option( 'admin_email' ), $subject, $message, $headers );
 			}
 		}
