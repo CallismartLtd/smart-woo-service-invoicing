@@ -1,5 +1,16 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.0.12] yyyy-mm-dd
+### Added 
+- Logout button on service page.
+
+### Fixed
+- Hardened Security.
+- New UI and UX for the admin dashboard.
+
+### Optimized
+- Database queries now faster than ever.
+
 # [2.0.11] 2024-09-02
 ### Fixed
 - PDF invoice download resulting to fatal error due to PHP 8.0 compatibility with mPDF library.
