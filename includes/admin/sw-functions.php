@@ -503,9 +503,9 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     );
 
     /** Allow for custom items */
-    $custom_item = apply_filters( 'smartwoo_nav_items', array() );
-    $nav_item    = array_merge( $nav_item, $custom_item );
-
+    $custom_item 	= apply_filters( 'smartwoo_nav_items', array() );
+    $nav_item    	= array_merge( $nav_item, $custom_item );
+	$nav_item[wp_logout_url()]	= 'Logout';
     $current_page = '';
     $page_title   = $title;
 
