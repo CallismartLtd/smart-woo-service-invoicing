@@ -44,15 +44,24 @@ class SmartWoo_Service_Database {
 	 * @return SmartWoo_Service|false The SmartWoo_Service object if found, false otherwise.
 	 *
 	 * @since 1.0.0
+	 * @since 2.0.12 Implemented object caching.
 	 */
 	public static function get_service_by_id( $service_id ) {
+		$service	= wp_cache_get( 'smartwoo_service_' . $service_id );
+		if ( false !== $service ) {
+			return $service;
+		}
+
 		global $wpdb;
 
 		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE service_id = %s", $service_id );
-		$result = $wpdb->get_row( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->get_row( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		if ( $result ) {
 			// Convert the array result to SmartWoo_Service object
-			return SmartWoo_Service::convert_array_to_service( $result );
+			$service	= SmartWoo_Service::convert_array_to_service( $result );
+			wp_cache_set( 'smartwoo_service_' . $service_id, $service, 'smartwoo_service', HOUR_IN_SECONDS );
+			
+			return $service;
 		}
 
 		return false;
@@ -73,20 +82,314 @@ class SmartWoo_Service_Database {
 			return $user_id; // User ID must be provided.
 		}
 
-		$user_id = absint( $user_id );
+		$user_id 	= absint( $user_id );
+		$services	= wp_cache_get( 'smartwoo_user_services_' . $user_id );
+
+		if ( false !== $services ) {
+			return $services;
+		}
 
 		$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d", $user_id );
-		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		if ( $results ) {
-			return self::convert_results_to_services( $results );
+			$services = self::convert_results_to_services( $results );
+			wp_cache_set( 'smartwoo_user_services_' . $user_id, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			return $services;
 		}
 
 		// Return empty array.
 		return array();
 	}
 
+	/**
+	 * Get services that are within the "Active" range or have the "Active" status override.
+	 * 
+	 * @param int $page  The current page being requested.
+	 * @param int $limit The limit for the current page.
+	 * @since 2.0.12
+	 * @return array|null Array of services or null if parameters are invalid.
+	 */
+	public static function get_all_active( $page = 1, $limit = null ) {
+		if ( empty( $page ) ) {
+			return null; // Return null for invalid input.
+		}
+	
+		global $wpdb;
+	
+		$offset 	= ( $page - 1 ) * $limit;
+		$cache_key	= 'smartwoo_all_active_services_' . $page . '_' . $offset;
+		$services 	= wp_cache_get( $cache_key );
+		if ( smartwoo_is_frontend() ) {
+			$cache_key	= 'smartwoo_all_' . get_current_user_id() .'_active_services_' . $page . '_' . $offset;
+			$services 	= wp_cache_get( $cache_key );
+		}
+		
+		
+		if ( false === $services ) {
+			$services	= array();
+			// Base query
+			$query = "
+				SELECT * FROM " . SMARTWOO_SERVICE_TABLE . 
+				" WHERE ( 
+					`status` = %s 
+					OR (
+						(`status` IS NULL OR `status` = %s) 
+						AND `next_payment_date` > CURDATE() 
+						AND `end_date` > CURDATE()
+					)
+				)";
+		
+			// Append user condition if in frontend.
+			if ( smartwoo_is_frontend() ) {
+				$query .= " AND `user_id` = %d";
+			}
+		
+			// Append LIMIT and OFFSET if $limit is provided.
+			if ( ! empty( $limit ) ) {
+				$query .= " LIMIT %d OFFSET %d";
+			}
+		
+			// Prepare the query with necessary parameters.
+			if ( smartwoo_is_frontend() ) {
+				if ( ! empty( $limit ) ) {
+					$query = $wpdb->prepare( $query, 'Active', '', get_current_user_id(), $limit, $offset );
+				} else {
+					$query = $wpdb->prepare( $query, 'Active', '', get_current_user_id() );
+				}
+			} else {
+				if ( ! empty( $limit ) ) {
+					$query = $wpdb->prepare( $query, 'Active', '', $limit, $offset );
+				} else {
+					$query = $wpdb->prepare( $query, 'Active', '' );
+				}
+			}
+		
+			$results = $wpdb->get_results( $query, ARRAY_A );
+			
+			if ( ! empty( $results ) ) {
+				$services = self::convert_results_to_services( $results );
+				if ( wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS ) ) {
+					error_log( 'reached' );
+				}
+				
+			}
+		}
+	
+		return $services;
+	}
 
+	/**
+	 * Get services that have custom labels (status).
+	 * 
+	 * @param array $args Associative array of args.
+	 * @return array Array of SmartWoo_Service Objects or empty array.
+	 */
+	public static function get_( $args ) {
+		// Ensure that $args is an array.
+		if ( ! is_array( $args ) ) {
+			return array();
+		}
+		global $wpdb;
+
+		// Default arguments.
+		$default_args = array(
+			'page'   => 1,         // Default page number.
+			'limit'  => 10,        // Default limit per page.
+			'status' => 'Pending'         // Default status filter.
+		);
+
+		// Parse incoming arguments and merge them with defaults.
+		$parsed_args = wp_parse_args( $args, $default_args );
+		$offset      = ( $parsed_args['page'] - 1 ) * $parsed_args['limit'];
+
+		// Start building the query.
+		$query = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `status` = %s", sanitize_text_field( wp_unslash( $parsed_args['status'] ) ) );
+
+		// Check if on the frontend to filter by user.
+		if ( smartwoo_is_frontend() ) {
+			$query .= $wpdb->prepare( " AND `user_id` = %d", get_current_user_id() );
+		}
+
+		// Add pagination if limit is set.
+		if ( ! empty( $parsed_args['limit'] ) ) {
+			$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $parsed_args['limit'], $offset );
+		}
+
+		// Execute the query and get the results.
+		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		// Return the converted results or an empty array.
+		if ( ! empty( $results ) ) {
+			return self::convert_results_to_services( $results );
+		}
+
+		return array(); // Return an empty array if no results found.
+	}
+
+	
+	/**
+	 * Get services that are within "Due for Renewal" range or have the "Due for Renewal" status override.
+	 * 
+	 * @param int $page  The current page being requested.
+	 * @param int $limit The limit for the current page.
+	 * @since 2.0.12
+	 * @return array|null Array of services or null if parameters are invalid.
+	 */
+	public static function get_all_due( $page = 1, $limit = 10 ) {
+		if ( empty( $page ) ) {
+			return null; // Return null for invalid input.
+		}
+
+		global $wpdb;
+
+		$offset = ( $page - 1 ) * $limit;
+		
+		// Base query for backend.
+		$query = $wpdb->prepare(
+			"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
+			WHERE (`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
+			OR `status` = %s",
+			'Due for Renewal'
+		);
+
+		// Add pagination for backend or frontend users if limit is specified.
+		if ( ! empty( $limit ) ) {
+			$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+		}
+
+		// Modify query for frontend users.
+		if ( smartwoo_is_frontend() ) {
+			$query = $wpdb->prepare(
+				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
+				WHERE (
+					(`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
+					OR `status` = %s
+				) 
+				AND `user_id` = %d",
+				'Due for Renewal',
+				get_current_user_id()
+			);
+
+			// Add pagination for frontend if limit is specified.
+			if ( ! empty( $limit ) ) {
+				$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+			}
+		}
+
+		// Fetch results.
+		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
+		if ( ! empty( $results ) ) {
+			return self::convert_results_to_services( $results );
+		}
+
+		return array(); // Return an empty array if no results found.
+	}
+
+
+	/**
+	 * Get services that are within the "Expired" date range or has "Expired" status overide.
+	 * 
+	 * @param int $page		The current page being requested.
+	 * @param int $limit	The limit for the current page.
+	 * @return null|array	Null for invalid input, array of SmartWoo_Service or empty array otherwise.
+	 * @since 2.0.12
+	 */
+	public static function get_all_on_grace( $page =  1, $limit = 10 ) {
+		if ( empty( $page ) ) {
+			return null; // Return null for invalid input.
+		}
+
+		global $wpdb;
+
+		$offset 	= ( $page - 1 ) * $limit;
+		$services	= array();
+		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . 
+			" WHERE (
+				`status` = %s
+				OR (
+					(`status` IS NULL OR `status` = %s)
+					AND `end_date` <= CURDATE()
+				)
+				
+			)
+			
+		", 'Grace Period', '');
+		
+		if ( smartwoo_is_frontend() ) {
+			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE (`end_date` < CURDATE() OR `status` = %s) AND `user_id` = %d", 'Grace Period', get_current_user_id() );
+		}
+
+		if ( ! empty( $limit ) ) {
+			$query	.= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+		}
+
+		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( ! empty( $results ) ) {
+			$the_services	= self::convert_results_to_services( $results );
+
+			foreach( $the_services as $service ) {
+				if ( smartwoo_is_service_on_grace( $service ) ) {
+					$services[]	= $service;
+				}
+
+			}
+			// wp_die( count( $services ) );
+			return $services;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get services that are within the "Expired" date range or has "Expired" status overide.
+	 * 
+	 * @param int $page		The current page being requested.
+	 * @param int $limit	The limit for the current page.
+	 * @since 2.0.12
+	 */
+	public static function get_all_expired( $page =  1, $limit = 10 ) {
+		if ( empty( $page ) ) {
+			return null; // Return null for invalid input.
+		}
+
+		global $wpdb;
+
+		$offset 	= ( $page - 1 ) * $limit;
+		$today		= current_time( 'Y-m-d' );
+		$services	= array();
+		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `end_date` < %s OR `status` = %s", $today, 'Expired' );
+		
+		if ( smartwoo_is_frontend() ) {
+			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE (`end_date` < %s OR `status` = %s) AND `user_id` = %d", $today, 'Expired', get_current_user_id() );
+		}
+
+		if ( ! empty( $limit ) ) {
+			$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+		}
+
+		$results	= smartwoo_is_frontend() ? wp_cache_get( 'smartwoo_user_expired_services_' . get_current_user_id() ) : wp_cache_get( 'smartwoo_expired_services' );
+		if ( false === $results ) {
+			$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		}
+
+		if ( ! empty( $results ) ) {
+			$the_services	= self::convert_results_to_services( $results );
+
+			foreach( $the_services as $service ) {
+				if ( ! smartwoo_is_service_on_grace( $service ) ) {
+					$services[]	= $service;
+				}
+
+			}
+
+			return $services;
+		}
+
+		return array();
+	}
 
 	/**
 	 * Creates and saves a new service in the database.
@@ -185,7 +488,8 @@ class SmartWoo_Service_Database {
 		);
 
 		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		
+		delete_transient( 'smartwoo_status_' . $service->getServiceId() );
+		wp_cache_delete( 'smartwoo_status_' . $service->getServiceId() );
 		return $updated !== false;
 	}
 
@@ -239,6 +543,9 @@ class SmartWoo_Service_Database {
 		);
 
 		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		delete_transient( 'smartwoo_status_' . $service_id );
+		wp_cache_delete( 'smartwoo_status_' . $service_id );
+
 		return $updated !== false;
 	}
 
@@ -289,6 +596,9 @@ class SmartWoo_Service_Database {
 		$wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		
 		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		delete_transient( 'smartwoo_status_' . $service_id );
+		wp_cache_delete( 'smartwoo_status_' . $service_id );
+
 
 		return $deleted !== false;
 	}
