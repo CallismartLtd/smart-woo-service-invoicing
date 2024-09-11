@@ -8,6 +8,7 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 /**
  * Class SmartWoo_Service_Database
  * Provides database-related functionality for retrieving and managing SmartWoo_Service objects.
@@ -27,7 +28,7 @@ class SmartWoo_Service_Database {
 	public static function get_all_services() {
 		global $wpdb;
 		$query   	= "SELECT * FROM ". SMARTWOO_SERVICE_TABLE;
-		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( $results ) {
 			return self::convert_results_to_services( $results );
@@ -55,7 +56,7 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE service_id = %s", $service_id );
-		$result = $wpdb->get_row( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$result = $wpdb->get_row( $query, ARRAY_A );
 		if ( $result ) {
 			// Convert the array result to SmartWoo_Service object
 			$service	= SmartWoo_Service::convert_array_to_service( $result );
@@ -77,7 +78,6 @@ class SmartWoo_Service_Database {
 	 * @since 1.0.0
 	 */
 	public static function get_services_by_user( $user_id = '' ) {
-		global $wpdb;
 		if ( empty( $user_id ) ) {
 			return $user_id; // User ID must be provided.
 		}
@@ -85,21 +85,19 @@ class SmartWoo_Service_Database {
 		$user_id 	= absint( $user_id );
 		$services	= wp_cache_get( 'smartwoo_user_services_' . $user_id );
 
-		if ( false !== $services ) {
-			return $services;
+		if ( false === $services ) {
+			global $wpdb;
+			$services 	= array();
+			$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d", $user_id );
+			$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+	
+			if ( $results ) {
+				$services = self::convert_results_to_services( $results );
+				wp_cache_set( 'smartwoo_user_services_' . $user_id, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			}
 		}
-
-		$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d", $user_id );
-		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-
-		if ( $results ) {
-			$services = self::convert_results_to_services( $results );
-			wp_cache_set( 'smartwoo_user_services_' . $user_id, $services, 'smartwoo_service', HOUR_IN_SECONDS );
-			return $services;
-		}
-
 		// Return empty array.
-		return array();
+		return $services;
 	}
 
 	/**
@@ -114,21 +112,18 @@ class SmartWoo_Service_Database {
 		if ( empty( $page ) ) {
 			return null; // Return null for invalid input.
 		}
-	
-		global $wpdb;
-	
+		
 		$offset 	= ( $page - 1 ) * $limit;
 		$cache_key	= 'smartwoo_all_active_services_' . $page . '_' . $offset;
-		$services 	= wp_cache_get( $cache_key );
 		if ( smartwoo_is_frontend() ) {
 			$cache_key	= 'smartwoo_all_' . get_current_user_id() .'_active_services_' . $page . '_' . $offset;
-			$services 	= wp_cache_get( $cache_key );
 		}
-		
+
+		$services	= wp_cache_get( $cache_key );
 		
 		if ( false === $services ) {
+			global $wpdb;
 			$services	= array();
-			// Base query
 			$query = "
 				SELECT * FROM " . SMARTWOO_SERVICE_TABLE . 
 				" WHERE ( 
@@ -165,14 +160,11 @@ class SmartWoo_Service_Database {
 				}
 			}
 		
-			$results = $wpdb->get_results( $query, ARRAY_A );
+			$results = $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			
 			if ( ! empty( $results ) ) {
 				$services = self::convert_results_to_services( $results );
-				if ( wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS ) ) {
-					error_log( 'reached' );
-				}
-				
+				wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS );
 			}
 		}
 	
@@ -190,41 +182,51 @@ class SmartWoo_Service_Database {
 		if ( ! is_array( $args ) ) {
 			return array();
 		}
-		global $wpdb;
 
 		// Default arguments.
 		$default_args = array(
-			'page'   => 1,         // Default page number.
-			'limit'  => 10,        // Default limit per page.
-			'status' => 'Pending'         // Default status filter.
+			'page'   => 1,
+			'limit'  => 10,
+			'status' => 'Pending'
 		);
 
 		// Parse incoming arguments and merge them with defaults.
-		$parsed_args = wp_parse_args( $args, $default_args );
-		$offset      = ( $parsed_args['page'] - 1 ) * $parsed_args['limit'];
-
-		// Start building the query.
-		$query = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `status` = %s", sanitize_text_field( wp_unslash( $parsed_args['status'] ) ) );
-
-		// Check if on the frontend to filter by user.
+		$parsed_args	= wp_parse_args( $args, $default_args );
+		$offset      	= ( $parsed_args['page'] - 1 ) * $parsed_args['limit'];
+		$cache_key		= 'smartwoo_get_'. $parsed_args['status'] . '_' . $parsed_args['page'] . '_' . $offset;
 		if ( smartwoo_is_frontend() ) {
-			$query .= $wpdb->prepare( " AND `user_id` = %d", get_current_user_id() );
+			$cache_key	= 'smartwoo_' . get_current_user_id() . 'get_' . $parsed_args['status'] . '_' . $parsed_args['page'] . '_' . $offset;
+		}
+		
+		$services	= wp_cache_get( $cache_key );
+
+		if ( false === $services ) {
+			global $wpdb;
+			$services = array();
+			// Start building the query.
+			$query = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `status` = %s", sanitize_text_field( wp_unslash( $parsed_args['status'] ) ) );
+
+			// Check if on the frontend to filter by user.
+			if ( smartwoo_is_frontend() ) {
+				$query .= $wpdb->prepare( " AND `user_id` = %d", get_current_user_id() );
+			}
+
+			// Add pagination if limit is set.
+			if ( ! empty( $parsed_args['limit'] ) ) {
+				$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $parsed_args['limit'], $offset );
+			}
+
+			// Execute the query and get the results.
+			$results = $wpdb->get_results( $query, ARRAY_A ); 
+
+			// Return the converted results or an empty array.
+			if ( ! empty( $results ) ) {
+				$services = self::convert_results_to_services( $results );
+				wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			}
 		}
 
-		// Add pagination if limit is set.
-		if ( ! empty( $parsed_args['limit'] ) ) {
-			$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $parsed_args['limit'], $offset );
-		}
-
-		// Execute the query and get the results.
-		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-
-		// Return the converted results or an empty array.
-		if ( ! empty( $results ) ) {
-			return self::convert_results_to_services( $results );
-		}
-
-		return array(); // Return an empty array if no results found.
+		return $services;
 	}
 
 	
@@ -241,50 +243,60 @@ class SmartWoo_Service_Database {
 			return null; // Return null for invalid input.
 		}
 
-		global $wpdb;
-
 		$offset = ( $page - 1 ) * $limit;
-		
-		// Base query for backend.
-		$query = $wpdb->prepare(
-			"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
-			WHERE (`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
-			OR `status` = %s",
-			'Due for Renewal'
-		);
-
-		// Add pagination for backend or frontend users if limit is specified.
-		if ( ! empty( $limit ) ) {
-			$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+		$cache_key	= 'smartwoo_all_dueservices_' . $page . '_' . $offset;
+		if( smartwoo_is_frontend() ) {
+			$cache_key	= 'smartwoo_all_' . get_current_user_id() .'_due_services_' . $page . '_' . $offset;
 		}
+		
+		$services	= wp_cache_get( $cache_key );
 
-		// Modify query for frontend users.
-		if ( smartwoo_is_frontend() ) {
+		if ( false === $services ) {
+			global $wpdb;
+			$services	= array();
+			// Base query for backend.
 			$query = $wpdb->prepare(
 				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
-				WHERE (
-					(`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
-					OR `status` = %s
-				) 
-				AND `user_id` = %d",
-				'Due for Renewal',
-				get_current_user_id()
+				WHERE (`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
+				OR `status` = %s",
+				'Due for Renewal'
 			);
 
-			// Add pagination for frontend if limit is specified.
+			// Add pagination for backend or frontend users if limit is specified.
 			if ( ! empty( $limit ) ) {
 				$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
 			}
+
+			// Modify query for frontend users.
+			if ( smartwoo_is_frontend() ) {
+				$query = $wpdb->prepare(
+					"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
+					WHERE (
+						(`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
+						OR `status` = %s
+					) 
+					AND `user_id` = %d",
+					'Due for Renewal',
+					get_current_user_id()
+				);
+
+				// Add pagination for frontend if limit is specified.
+				if ( ! empty( $limit ) ) {
+					$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+				}
+			}
+
+			// Fetch results.
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			
+			if ( ! empty( $results ) ) {
+				$services = self::convert_results_to_services( $results );
+				wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			}
 		}
 
-		// Fetch results.
-		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		
-		if ( ! empty( $results ) ) {
-			return self::convert_results_to_services( $results );
-		}
 
-		return array(); // Return an empty array if no results found.
+		return $services;
 	}
 
 
@@ -301,46 +313,53 @@ class SmartWoo_Service_Database {
 			return null; // Return null for invalid input.
 		}
 
-		global $wpdb;
-
 		$offset 	= ( $page - 1 ) * $limit;
-		$services	= array();
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . 
-			" WHERE (
-				`status` = %s
-				OR (
-					(`status` IS NULL OR `status` = %s)
-					AND `end_date` <= CURDATE()
-				)
-				
-			)
-			
-		", 'Grace Period', '');
+		$cache_key	= 'smartwoo_all_grace_services_' . $page . '_' . $offset;
 		
 		if ( smartwoo_is_frontend() ) {
-			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE (`end_date` < CURDATE() OR `status` = %s) AND `user_id` = %d", 'Grace Period', get_current_user_id() );
+			$cache_key	= 'smartwoo_all_' . get_current_user_id() .'_grace_services_' . $page . '_' . $offset;
 		}
 
-		if ( ! empty( $limit ) ) {
-			$query	.= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
-		}
-
-		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-
-		if ( ! empty( $results ) ) {
-			$the_services	= self::convert_results_to_services( $results );
-
-			foreach( $the_services as $service ) {
-				if ( smartwoo_is_service_on_grace( $service ) ) {
-					$services[]	= $service;
-				}
-
+		$services	= wp_cache_get( $cache_key );
+		if ( false === $services ) {
+			global $wpdb;
+			$services	= array();
+			$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . 
+				" WHERE (
+					`status` = %s
+					OR (
+						(`status` IS NULL OR `status` = %s)
+						AND `end_date` <= CURDATE()
+					)
+					
+				)
+				
+			", 'Grace Period', '');
+			
+			if ( smartwoo_is_frontend() ) {
+				$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE (`end_date` < CURDATE() OR `status` = %s) AND `user_id` = %d", 'Grace Period', get_current_user_id() );
 			}
-			// wp_die( count( $services ) );
-			return $services;
+	
+			if ( ! empty( $limit ) ) {
+				$query	.= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+			}
+	
+			$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+	
+			if ( ! empty( $results ) ) {
+				$the_services	= self::convert_results_to_services( $results );
+	
+				foreach( $the_services as $service ) {
+					if ( smartwoo_is_service_on_grace( $service ) ) {
+						$services[]	= $service;
+					}
+	
+				}
+				wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			}
 		}
 
-		return array();
+		return $services;
 	}
 
 	/**
@@ -358,37 +377,43 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		$offset 	= ( $page - 1 ) * $limit;
-		$today		= current_time( 'Y-m-d' );
-		$services	= array();
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `end_date` < %s OR `status` = %s", $today, 'Expired' );
-		
+		$cache_key	= 'smartwoo_all_expired_services_' . $page . '_' . $offset;
 		if ( smartwoo_is_frontend() ) {
-			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE (`end_date` < %s OR `status` = %s) AND `user_id` = %d", $today, 'Expired', get_current_user_id() );
+			$cache_key	= 'smartwoo_all_' . get_current_user_id() .'_expired_services_' . $page . '_' . $offset;
 		}
+		$services	= wp_cache_get( $cache_key );
 
-		if ( ! empty( $limit ) ) {
-			$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
-		}
-
-		$results	= smartwoo_is_frontend() ? wp_cache_get( 'smartwoo_user_expired_services_' . get_current_user_id() ) : wp_cache_get( 'smartwoo_expired_services' );
-		if ( false === $results ) {
-			$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		}
-
-		if ( ! empty( $results ) ) {
-			$the_services	= self::convert_results_to_services( $results );
-
-			foreach( $the_services as $service ) {
-				if ( ! smartwoo_is_service_on_grace( $service ) ) {
-					$services[]	= $service;
-				}
-
+		if ( false === $services ) {
+			$today		= current_time( 'Y-m-d' );
+			$services	= array();
+			$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `end_date` < %s OR `status` = %s", $today, 'Expired' );
+			
+			if ( smartwoo_is_frontend() ) {
+				$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE (`end_date` < %s OR `status` = %s) AND `user_id` = %d", $today, 'Expired', get_current_user_id() );
 			}
-
-			return $services;
+	
+			if ( ! empty( $limit ) ) {
+				$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $limit, $offset );
+			}
+	
+			$results	= smartwoo_is_frontend() ? wp_cache_get( 'smartwoo_user_expired_services_' . get_current_user_id() ) : wp_cache_get( 'smartwoo_expired_services' );
+			if ( false === $results ) {
+				$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			}
+	
+			if ( ! empty( $results ) ) {
+				$the_services	= self::convert_results_to_services( $results );
+	
+				foreach( $the_services as $service ) {
+					if ( ! smartwoo_is_service_on_grace( $service ) ) {
+						$services[]	= $service;
+					}
+	
+				}
+				wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			}
 		}
-
-		return array();
+		return $services;
 	}
 
 	/**

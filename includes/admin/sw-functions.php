@@ -496,16 +496,15 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 
 	wp_enqueue_style( 'dashicons' );
 
-    $nav_item = array(
-        smartwoo_service_page_url() => 'Services',
-        smartwoo_invoice_page_url() => 'Invoices',
-        smartwoo_service_page_url() . 'buy-new/' => 'Buy New',
+    $nav_item = apply_filters( 'smartwoo_nav_items', 
+		array(
+			'Services'	=> smartwoo_service_page_url(),
+			'Invoices'	=> smartwoo_invoice_page_url(),
+			'Buy New'	=> smartwoo_service_page_url() . 'buy-new/',
+			'Logout'	=> wp_logout_url()
+		)
     );
 
-    /** Allow for custom items */
-    $custom_item 	= apply_filters( 'smartwoo_nav_items', array() );
-    $nav_item    	= array_merge( $nav_item, $custom_item );
-	$nav_item[wp_logout_url()]	= 'Logout';
     $current_page = '';
     $page_title   = $title;
 
@@ -517,7 +516,7 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     // Container for the links (aligned to the right).
     $nav_bar .= '<div class="navbar-links-container">';
     $nav_bar .= '<ul>';
-    foreach ( $nav_item as $url => $text ) {
+    foreach ( $nav_item as  $text => $url ) {
         $nav_bar .= '<li><a href="' . esc_url( $url ) . '" class="">' . esc_html( $text ) . '</a></li>';
     }
     $nav_bar .= '</ul>';
@@ -679,9 +678,11 @@ function smartwoo_allowed_form_html() {
  * @since 1.0.1
  */
 function smartwoo_is_frontend() {
-	if ( ! is_admin() || wp_doing_ajax() ) {
+	if ( ( ! is_admin() || wp_doing_ajax() ) ) {
 		return true;
 	}
+
+	return false;
 }
 
 /**

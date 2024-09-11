@@ -38,7 +38,7 @@ function smartwoo_service_admin_page() {
 			break;
 
 		default:
-			echo wp_kses_post( smartwoo_dashboard_page() );
+			smartwoo_dashboard_page();
 			break;
 	}
 }
