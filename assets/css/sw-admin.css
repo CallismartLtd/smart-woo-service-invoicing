@@ -58,3 +58,146 @@
     border-radius: 9px;
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
+.sw-round-up {
+    background-color: red;
+    border-radius: 100%;
+    color: #ffffff;
+    font-size: 12px;
+    padding: 1px;
+    position: relative auto;
+    
+
+}
+
+.sw-upgrade-to-pro {
+    background: #ff9900;
+    height: 60%;
+    align-items: center;
+}
+
+.sw-upgrade-to-pro a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 20px;
+    cursor: pointer;
+}
+/************************** ADMIN DASHBOARD STYLES *******************************/
+
+.sw-admin-dashboard {
+    margin: 0;
+    padding: 0;
+}
+
+.sw-admin-dash-header {
+    position: fixed;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 120px;
+    left: 0;
+    top: 20px;
+    z-index: 999;
+
+}
+
+.sw-admin-dash-header .sw-admin-dash-info,
+.sw-admin-dash-header .sw-admin-dash-nav,
+.sw-admin-dash-header .sw-upgrade-to-pro {
+    display: flex;
+    margin: 20px auto;
+}
+
+.sw-admin-dash-header .sw-admin-dash-info {
+    margin-left: 160px;
+}
+
+.sw-admin-dash-header .sw-admin-dash-info img {
+    border-radius: 50%;
+    height: 80px;
+    width: 80px;
+    margin-left: 20px;
+}
+.sw-admin-dash-info h1 {
+    padding-top: 15px;
+    font-size: 30px;
+}
+
+.sw-admin-dash-info em {
+    padding-top: 50px;
+    margin-right: 2px;
+    font-size: 9px;
+}
+
+.sw-admin-dash-nav a {
+    margin: 4px;
+    color: #241919;
+    text-decoration: none;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.sw-admin-dash-body {
+    margin-top: 150px;
+}
+
+.sw-admin-dash-body .sw-dash-content-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 90%;
+}
+.sw-dash-content {
+    align-items: center;
+    background-color: #ffffff;
+    height: 200px;
+    width: 30%;
+    border-radius: 9px;
+    margin: 10px;
+}
+
+.sw-dash-content:hover {
+    cursor: pointer;
+}
+
+.sw-dash-count {
+    display: none;
+    flex-direction: column;
+    padding: 10px;
+}
+.sw-dash-count h2 {
+    text-align: center;
+    font-size: 35px;
+    color: #040404;
+    font-weight: 500;
+}
+
+.sw-dash-count span {
+    text-align: center;
+}
+.sw-skeleton {
+    background-color: #e0e0e0;
+    height: 20px;
+    margin: 10px 0;
+    border-radius: 4px;
+    width: 100%;
+    animation: sw-skeleton-loading .5s linear infinite alternate;
+}
+
+.sw-skeleton-text {
+    align-items: center;
+    width: 100%;
+    height: .5rem;
+    margin-bottom: .25rem;
+    border-radius: .125rem;
+}
+
+.sw-skeleton-text:last-child {
+    width: 80%;
+}
+
+@keyframes sw-skeleton-loading {
+    0% { opacity: 0.9; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
