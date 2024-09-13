@@ -616,10 +616,6 @@ function smartwoo_delete_service_button( string $service_id ) {
 	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">' . __( 'Delete Service ⌫', 'smart-woo-service-invoicing' ) . '</button>';
 }
 
-// Add Ajax actions
-add_action( 'wp_ajax_smartwoo_delete_service', 'smartwoo_delete_service' );
-add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' );
-
 function smartwoo_delete_service() {
 
 	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
