@@ -460,27 +460,35 @@ function smartwoo_check_if_configured( $order ) {
  * @since 2.0.0
  */
 function smartwoo_count_unprocessed_orders() {
-	$args = array(
-		'limit'		=> -1,
-		'status'	=> 'processing',
-	);
+	$count		= wp_cache_get( 'smartwoo_count_unprocessed_orders' );
+	if ( false === $count ) {
+		$count	= 0;
 
-	$wc_orders	= wc_get_orders( $args );
-	$count		= 0;
+		$args = array(
+			'limit'		=> -1,
+			'status'	=> 'processing',
+		);
 
-	if ( empty( $wc_orders ) ) {
-		return $count;
-	}
-	
-
-	foreach ( $wc_orders as $order ) {
-		if ( smartwoo_check_if_configured( $order ) ) {
-			$count++;
+		if ( smartwoo_is_frontend() ) {
+			$args['customer'] = get_current_user_id();
 		}
+	
+		$wc_orders	= wc_get_orders( $args );
+		
+	
+		if ( empty( $wc_orders ) ) {
+			return $count;
+		}
+		
+	
+		foreach ( $wc_orders as $order ) {
+			if ( smartwoo_check_if_configured( $order ) ) {
+				$count++;
+			}
+		}
+		wp_cache_set( 'smartwoo_count_unprocessed_orders', $count, 'smartwoo_orders', HOUR_IN_SECONDS );
 	}
-
 	return $count;
-
 }
 /**
  * Frontend navigation menu bar
@@ -676,10 +684,11 @@ function smartwoo_allowed_form_html() {
  * Determine whether or not we are in the frontend
  * 
  * @since 1.0.1
+ * @since 2.0.12 Added smartwoo_is_frontend filter @param bool.
  */
 function smartwoo_is_frontend() {
-	if ( ( ! is_admin() || wp_doing_ajax() ) ) {
-		return true;
+	if ( ! is_admin() || wp_doing_ajax() ) {
+		return apply_filters( 'smartwoo_is_frontend', true );
 	}
 
 	return false;
