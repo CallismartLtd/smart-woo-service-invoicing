@@ -417,6 +417,20 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
+	 * Count all the record in the database.
+	 * 
+	 * @return int
+	 * @since 2.0.12
+	 */
+	public static function count_all() {
+		global $wpdb;
+		$query	= "SELECT COUNT(*) FROM " . SMARTWOO_SERVICE_TABLE;
+		$count	= (int) $wpdb->get_var( $query );
+
+		return $count;
+	}
+
+	/**
 	 * Creates and saves a new service in the database.
 	 *
 	 * @param SmartWoo_Service $service The SmartWoo_Service object to be created and saved.
@@ -460,7 +474,7 @@ class SmartWoo_Service_Database {
 
 		
 		$wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		
+		SmartWoo::count_all_services();
 		return $service->getServiceId();
 	}
 
@@ -623,7 +637,7 @@ class SmartWoo_Service_Database {
 		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		delete_transient( 'smartwoo_status_' . $service_id );
 		wp_cache_delete( 'smartwoo_status_' . $service_id );
-
+		SmartWoo::count_all_services();
 
 		return $deleted !== false;
 	}
