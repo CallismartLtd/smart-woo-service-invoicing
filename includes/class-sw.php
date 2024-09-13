@@ -56,7 +56,13 @@ final class SmartWoo {
         add_action( 'admin_post_smartwoo_add_service', 'smartwoo_process_new_service_form' );
         add_action( 'admin_post_smartwoo_edit_service', 'smartwoo_process_edit_service_form' );
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
+        add_action( 'smartwoo_service_scan', array( __CLASS__, 'count_all_services' ) );
+
+        // Add Ajax actions
         add_action( 'wp_ajax_smartwoo_asset_delete', array( 'SmartWoo_Service_Assets', 'ajax_delete' ) );
+        add_action( 'wp_ajax_smartwoo_delete_service', 'smartwoo_delete_service' );
+        add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' );
+        add_action( 'wp_ajax_smartwoo_dashboard', array( $this, 'dashboard_ajax' ) );
     }
 
     /** Service Subscription */
@@ -532,6 +538,75 @@ final class SmartWoo {
         }, 10, 2 );
     }
 
+    /**
+     * Dashboard page Ajax handler
+     * 
+     * @since 2.0.12
+     */
+    public function dashboard_ajax() {
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
+
+        }
+
+        add_filter( 'smartwoo_is_frontend', '__return_false' );
+
+        $allowed_actions   = apply_filters( 'smartwoo_allowed_dashboard_actions',
+            array( 
+                'total_services',
+                'total_pending_services',
+                'total_active_services',
+                'total_active_nr_services',
+                'total_due_services',
+                'total_on_grace_services',
+                'total_expired_services',
+                'total_suspended_services',
+                'total_cancelled_services',
+                'all_services_table',
+                'all_pending_services_table',
+                'all_active_services_table',
+                'all_active_nr_services_table',
+                'all_due_services_table',
+                'all_on_grace_services_table',
+                'all_expired_services_table',
+                'all_suspended_services_table',
+                'all_cancelled_services_table',
+            )
+        );
+
+        $action = isset( $_GET['real_action'] ) ? sanitize_text_field( wp_unslash( $_GET['real_action'] ) ) : wp_die();
+
+        if ( ! in_array( $action, $allowed_actions, true ) ){
+            wp_send_json_error( array( 'message' => 'action is not allowed' ) );
+        }
+        
+        if ( 'total_services' === $action ) {
+            $total  = get_option( 'smartwoo_all_services_count', 0 );
+            wp_send_json_success( array( 'total_services' =>  absint( $total ) ) );
+
+        } elseif ( 'total_pending_services' === $action ) {
+            $total  = smartwoo_count_unprocessed_orders();
+            wp_send_json_success( array( 'total_pending_services' =>  absint( $total ) ) );
+
+        } elseif ( 'total_active_services' === $action ) {
+            $total  = smartwoo_count_active_services();
+            wp_send_json_success( array( 'total_active_services' =>  absint( $total ) ) );
+        }
+    }
+
+    /**
+     * Count all services in the database every five hours.
+     * 
+     * @since 2.0.12.
+     */
+    public static function count_all_services() {
+        $count  = SmartWoo_Service_Database::count_all();
+        update_option( 'smartwoo_all_services_count', $count );
+    }
     
 }
 
