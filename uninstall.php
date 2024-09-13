@@ -41,6 +41,7 @@ delete_option( '__smartwoo_installed' );
 delete_option( '__smartwoo_added_rule' );
 delete_option( '__smartwoo_automation_scheduled_date' );
 delete_option( 'smartwoo_db_version' );
+delete_option( 'smartwoo_all_services_count' );
 
 /**
  * Clear scheduled events
