@@ -962,7 +962,7 @@ addEventListener( 'DOMContentLoaded', function() {
 					pTag.textContent = response.success ? response.data.message : 'Background update started';
 					newDiv.appendChild( pTag );
 					noticeDiv.replaceWith( newDiv );
-					// window.location.reload();
+					
 				},
 				error: function ( error ) {
 					var message  = 'Error updating the database: ';
