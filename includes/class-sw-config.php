@@ -101,6 +101,7 @@ class SmartWoo_Config{
         
         add_action( 'admin_post_smartwoo_create_product', 'smartwoo_process_new_product' );
         add_action( 'admin_post_smartwoo_edit_product', 'smartwoo_process_product_edit' );
+        add_action( 'woocommerce_new_order', array( $this, 'clear_order_cache' ), 20, 2 );
 
     }
 
@@ -188,14 +189,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-        
-        // add_action( 'wp', function() { 
-        // $services = SmartWoo_Service_Database::get_all_due(1, 500);
-        // echo '<pre>';
-        // var_dump( $services );
-        // echo '</pre>';
-        // exit;
-        // } );
+        // var_dump( ( absint( get_option('woocommerce_myaccount_page_id') ) ) );
     }
 
     /**
@@ -211,7 +205,7 @@ class SmartWoo_Config{
     public function load_styles() {
 
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-        wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         
         }
 
@@ -221,27 +215,32 @@ class SmartWoo_Config{
         }
     }
 
+    /**
+     * JavaScript registeration.
+     */
     public function load_scripts() {
+        $l10n   =   array(
+            'ajax_url'                  => admin_url( 'admin-ajax.php' ),
+            'woo_my_account_edit'       => wc_get_account_endpoint_url( 'edit-account' ),
+            'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
+            'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
+            'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
+            'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
+            'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
+            'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
+            'home_url'                  => home_url( '/' ),
+            'never_expire_value'        => '',
+            'wp_spinner_gif_loader'     => admin_url('images/spinner.gif')
+        );
+
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
     
-        // Script localizer.
-        wp_localize_script(
-            'smartwoo-script',
-            'smart_woo_vars',
-            array(
-                'ajax_url'                  => admin_url( 'admin-ajax.php' ),
-                'woo_my_account_edit'       => wc_get_account_endpoint_url( 'edit-account' ),
-                'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
-                'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
-                'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
-                'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
-                'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
-                'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
-                'home_url'                  => home_url( '/' ),
-                'never_expire_value'        => '',
-                'wp_spinner_gif_loader'     => admin_url('images/spinner.gif')
-            )
-        );
+        if ( is_admin() ) {
+            wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin.js', array( 'jquery' ), SMARTWOO_VER, true );
+            wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
+        }
+        wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
+
     }
 
     /**
@@ -378,6 +377,15 @@ class SmartWoo_Config{
 			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_auto_service_renewal' );
 		}
 
+        /**
+         * Schedule to periodically count all services in the database.
+         * 
+         * @since 2.0.12
+         */
+        if ( ! wp_next_scheduled( 'smartwoo_service_scan' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_service_scan' );
+		}
+
 		/** Schedule some dynamic task to run five minutely. */
 		if ( ! wp_next_scheduled( 'smartwoo_5_minutes_task' ) ) {
 			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_minutes', 'smartwoo_5_minutes_task' );
@@ -429,6 +437,19 @@ class SmartWoo_Config{
     public function remove_order_again_button( $order ) {
         if ( $order->is_created_via( SMARTWOO ) ) {
             remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_again_button' );
+        }
+    }
+
+    /**
+     * Flush smartwoo_order cache.
+     * 
+     * @param int $order_id Order ID
+     * @param WC_Order WooCommerce Order object.
+     * @since 2.0.12
+     */
+    public function clear_order_cache( $order_id, $order ) {
+        if ( smartwoo_check_if_configured( $order ) || $order->is_created_via( SMARTWOO ) ) {
+            wp_cache_delete( 'smartwoo_count_unprocessed_orders', 'smartwoo_orders' );
         }
     }
 }
