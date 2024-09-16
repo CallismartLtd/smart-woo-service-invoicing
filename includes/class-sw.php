@@ -544,9 +544,9 @@ final class SmartWoo {
      * @since 2.0.12
      */
     public function dashboard_ajax() {
-        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
-            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
-        }
+        // if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+        //     wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        // }
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
@@ -564,8 +564,8 @@ final class SmartWoo {
                 'total_due_services',
                 'total_on_grace_services',
                 'total_expired_services',
-                'total_suspended_services',
                 'total_cancelled_services',
+                'total_suspended_services',
                 'all_services_table',
                 'all_pending_services_table',
                 'all_active_services_table',
@@ -573,8 +573,8 @@ final class SmartWoo {
                 'all_due_services_table',
                 'all_on_grace_services_table',
                 'all_expired_services_table',
-                'all_suspended_services_table',
                 'all_cancelled_services_table',
+                'all_suspended_services_table',
             )
         );
 
@@ -588,14 +588,125 @@ final class SmartWoo {
             $total  = get_option( 'smartwoo_all_services_count', 0 );
             wp_send_json_success( array( 'total_services' =>  absint( $total ) ) );
 
-        } elseif ( 'total_pending_services' === $action ) {
+        }
+        
+        if ( 'total_pending_services' === $action ) {
             $total  = smartwoo_count_unprocessed_orders();
             wp_send_json_success( array( 'total_pending_services' =>  absint( $total ) ) );
 
-        } elseif ( 'total_active_services' === $action ) {
+        }
+        
+        if ( 'total_active_services' === $action ) {
             $total  = smartwoo_count_active_services();
             wp_send_json_success( array( 'total_active_services' =>  absint( $total ) ) );
+        } 
+        
+        if ( 'total_active_nr_services' === $action ) {
+            $total = smartwoo_count_nr_services();
+            wp_send_json_success( array( 'total_active_nr_services' =>  absint( $total ) ) );
+
         }
+        
+        if ( 'total_due_services' === $action ) {
+            $total = smartwoo_count_due_for_renewal_services();
+            wp_send_json_success( array( 'total_due_services' =>  absint( $total ) ) );
+
+        } 
+        
+        if ( 'total_on_grace_services' === $action ) {
+            $total = smartwoo_count_grace_period_services();
+            wp_send_json_success( array( 'total_on_grace_services' =>  absint( $total ) ) );
+
+        }
+        
+        if ( 'total_expired_services' === $action ) {
+            $total = smartwoo_count_expired_services();
+            wp_send_json_success( array( 'total_expired_services' =>  absint( $total ) ) );
+
+        }
+        
+        if ( 'total_cancelled_services' === $action ) {
+            $total = smartwoo_count_cancelled_services();
+            wp_send_json_success( array( 'total_cancelled_services' =>  absint( $total ) ) );
+
+        }
+        
+        if ( 'total_suspended_services' === $action ) {
+            $total = smartwoo_count_suspended_services();
+            wp_send_json_success( array( 'total_suspended_services' =>  absint( $total ) ) );
+
+        }
+
+        if ( 'all_pending_services_table' === $action ) {
+            wp_safe_redirect( admin_url( 'admin.php?page=sw-service-orders') );
+            exit;
+        }
+
+        $limit  = isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 10;
+        $paged  = isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
+
+        /**
+         * Send json data for table structures.
+         */
+
+        if ( 'all_services_table' === $action ) {
+            $all_services   = SmartWoo_Service_Database::get_all();
+            $total_services = absint( get_option( 'smartwoo_all_services_count', 0 ) );
+
+        } elseif ( 'all_active_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_all_active( $paged, $limit );
+            $total_services = smartwoo_count_active_services();
+
+        } elseif ( 'all_active_nr_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_( array( 'status' => 'Active (NR)', 'page' => $paged, 'limit' => $limit ) );
+            $total_services = smartwoo_count_nr_services();
+        } elseif ( 'all_due_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_all_due( $paged, $limit );
+            $total_services = smartwoo_count_due_for_renewal_services();
+        } elseif ( 'all_on_grace_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_all_on_grace( $paged, $limit );
+            $total_services = smartwoo_count_grace_period_services();
+        } elseif ( 'all_expired_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_all_expired( $paged, $limit );
+            $total_services = smartwoo_count_expired_services();
+        } elseif ( 'all_cancelled_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_( array( 'status' => 'Cancelled', 'page' => $paged, 'limit' => $limit ) );
+            $total_services = smartwoo_count_cancelled_services();
+        } elseif ( 'all_suspended_services_table' === $action ) {
+            $all_services = SmartWoo_Service_Database::get_( array( 'status' => 'Suspended', 'page' => $paged, 'limit' => $limit ) );
+            $total_services = smartwoo_count_suspended_services();
+        }
+
+        $total_pages    = ceil( $total_services / $limit );
+        $data           = array();
+        $row_names      = array();
+
+        // wp_die( var_dump( $all_services ) );
+        if ( ! empty( $all_services ) ) {
+            foreach ( $all_services as $service ) {
+                $data[] = array( $service->getServiceName(), $service->getServiceId(), smartwoo_service_status( $service ) );
+                $row_names[] = $service->getServiceId();
+            }
+            
+        }
+
+        $response   = array(
+            'table_header'  => array(
+                'Service Name',
+                'Service ID',
+                'Status',
+            ),
+
+            'table_body'    => $data,
+            'row_names'     => $row_names,
+            'total_pages'   => $total_pages,
+            'current_page'  => $paged,
+        );
+
+        wp_send_json_success( array( 'all_services_table' => $response ) );
+        
+
+        
     }
 
     /**

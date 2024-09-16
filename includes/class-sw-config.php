@@ -224,13 +224,15 @@ class SmartWoo_Config{
             'woo_my_account_edit'       => wc_get_account_endpoint_url( 'edit-account' ),
             'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
             'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
-            'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
             'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
+            'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
+            'admin_order_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-service-orders' ) ),
             'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
             'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
             'home_url'                  => home_url( '/' ),
             'never_expire_value'        => '',
-            'wp_spinner_gif_loader'     => admin_url('images/spinner.gif')
+            'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
+            
         );
 
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );

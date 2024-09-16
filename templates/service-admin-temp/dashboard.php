@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
         <!-- Navigation buttons -->
         <div class="sw-admin-dash-nav">
-            <a>Dashboard</a>
+            <a id="dashboardBtn">Dashboard</a>
             <a>Dashboard</a>
             <a>Dashboard</a>
             <a>Dashboard</a>
@@ -28,19 +28,18 @@ defined( 'ABSPATH' ) || exit;
         </div>
         <?php if( ! class_exists( 'SmartWooPro', false ) ):?>
             <div class="sw-upgrade-to-pro">
-                <a>Upgrade to Pro</a>
+                <a><?php echo esc_html__( 'Upgrade to Pro', 'smart-woo-service-invoicing' );?></a>
             </div>
         <?php endif;?>
 
     </div>
 
+    <div id="swloader">Just a moment</div>
     <div class="sw-admin-dash-body">
+
         <div class="sw-dash-content-container">
             <div class="sw-dash-content">
-                <!-- <div class="sw-dash-count">
-                    <h2>87</h2>
-                    <span>Active services</span>
-                </div> -->
+
                 <div class="sw-skeleton sw-skeleton-text"></div>
                 <div class="sw-skeleton sw-skeleton-text"></div>
                 <div class="sw-skeleton sw-skeleton-text"></div>
@@ -52,7 +51,6 @@ defined( 'ABSPATH' ) || exit;
                 <div class="sw-skeleton sw-skeleton-text"></div>
             </div>
         </div>
-   
 
     </div>
 

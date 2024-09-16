@@ -80,6 +80,7 @@ use inline CSS to overide some styles
 .sw-pagination-buttons a button {
 	border: none;
 	border-radius: 50%;
+	cursor: pointer;
 }
 .sw-pagination-buttons a button span {
 	padding: 2px auto;

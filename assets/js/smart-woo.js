@@ -508,7 +508,6 @@ function redirectBasedOnServiceAction(selectedAction) {
         case 'buy_new':
             selectedPage = 'buy_new_service';
             break;
-        // Add more cases as needed
         default:
             selectedPage = '';
             break;

@@ -354,53 +354,45 @@ function smartwoo_service_status( $service_id ) {
 
 
 /**
- * Count the number of 'Active' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Active' services.
+ * Count the number of 'Active' services.
  */
 function smartwoo_count_active_services() {
 	return count( SmartWoo_Service_Database::get_all_active() );
 }
 
 /**
- * Count the number of 'Due for Renewal' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Due for Renewal' services.
+ * Count the number of 'Due for Renewal' services.
  */
 function smartwoo_count_due_for_renewal_services() {
 	return count( SmartWoo_Service_Database::get_all_due( 1, null ) );
 }
 
 /**
- * Count the number of 'Active No Renewal' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Active (NR)' services.
+ * Count the number of 'Active No Renewal' services.
  */
-function smartwoo_count_nr_services( $user_id = null ) {
+function smartwoo_count_nr_services() {
 	return count( SmartWoo_Service_Database::get_( array( 'status' => 'Active (NR)', 'limit' => 0 ) ) );
 }
 
 /**
- * Count the number of 'Expired' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Expired' services.
+ * Count the number of 'Expired' services.
  */
-function smartwoo_count_expired_services( $user_id = null ) {
+function smartwoo_count_expired_services() {
 	return count( SmartWoo_Service_Database::get_all_expired( 1, null ) );
 }
 
 /**
- * Count the number of 'Grace Period' services for a specific user or all users.
- *
- * @param int|null $user_id The user ID (optional).
- * @return int The number of 'Grace Period' services.
+ * Count the number of 'Grace Period' services.
  */
-function smartwoo_count_grace_period_services( $user_id = null) {
+function smartwoo_count_grace_period_services() {
 	return count( SmartWoo_Service_Database::get_all_on_grace( 1, null ) );
+}
+
+/**
+ * Count the number of 'Cancelled' services.
+ */
+function smartwoo_count_cancelled_services() {
+	return count( SmartWoo_Service_Database::get_( array( 'status' => 'Cancelled', 'limit' => 0 ) ) );
 }
 
 /**
@@ -409,7 +401,7 @@ function smartwoo_count_grace_period_services( $user_id = null) {
  * @param int|null $user_id The user ID (optional).
  * @return int The number of 'Suspended' services.
  */
-function smartwoo_count_suspended_services( $user_id = null ) {
+function smartwoo_count_suspended_services() {
 	return count( SmartWoo_Service_Database::get_( array( 'status' => 'Suspended', 'limit' => 0 ) ) );
 }
 

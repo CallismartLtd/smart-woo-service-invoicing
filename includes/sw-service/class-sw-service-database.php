@@ -38,6 +38,33 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
+	 * Get all services from database with pagination technique.
+	 */
+	public static function get_all() {
+		global $wpdb;
+
+		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1;
+		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; 
+		
+		// Calculate the offset.
+		$offset = ( $page - 1 ) * $limit;
+
+		$query = $wpdb->prepare( 
+			"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " ORDER BY `id` DESC LIMIT %d OFFSET %d", 
+			$limit, 
+			$offset 
+		);
+		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( ! empty( $results ) ) {
+			return $invoices = self::convert_results_to_services( $results );
+
+		}
+
+		return false;
+	}
+
+	/**
 	 * Retrieves a service by its ID from the database.
 	 *
 	 * @param string $service_id The ID of the service to retrieve.
