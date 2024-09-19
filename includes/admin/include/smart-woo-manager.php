@@ -314,7 +314,7 @@ function smartwoo_process_payment_link() {
 	// Check if the pay-invoice action is set in the URL
 	if ( isset( $_GET['action'] ) && $_GET['action'] === 'sw_invoice_payment' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Get and sanitize the parameters from the URL
-		$token = sanitize_text_field( $_GET['token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token = isset( $_GET['token'] ) ? sanitize_text_field( $_GET['token'] ): wp_die('Missing token' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Verify the token.
 		$payment_info = smartwoo_verify_token( $token );
