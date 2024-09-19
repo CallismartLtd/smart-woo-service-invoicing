@@ -7,8 +7,10 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
     // Clear existing table before rendering the new one
     removeTable();
     totalItems  = bodyData.length;
+    
     // Add pagination controls
     addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index);
+    
     // Create table element
     let table = document.createElement('table');
     table.classList.add('sw-table');
@@ -50,52 +52,76 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
     // Create table body
     let tbody = document.createElement('tbody');
 
-    bodyData.forEach((rowData, index) => {
-        let row = document.createElement('tr');
+    // Check if there is no data
+    if (bodyData.length === 0) {
+        // Create a row with a "No data found" message
+        let noDataRow = document.createElement('tr');
+        let noDataCell = document.createElement('td');
+        noDataCell.colSpan = headers.length + 1; // +1 for the checkbox column
+        noDataCell.textContent = 'No service found.';
+        noDataCell.classList.add('sw-not-found');
+        noDataRow.appendChild(noDataCell);
+        tbody.appendChild(noDataRow);
+    } else {
+        bodyData.forEach((rowData, rowIndex) => {
+            let row = document.createElement('tr');
 
-        // Add a checkbox cell for each row, using rowNames for the checkbox name
-        let checkboxCell = document.createElement('td');
-        let checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.name = rowNames[index]; // Set the name to the corresponding value from rowNames
+            // Add a checkbox cell for each row, using rowNames for the checkbox name
+            let checkboxCell = document.createElement('td');
+            let checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = rowNames[rowIndex]; // Set the name to the corresponding value from rowNames
 
-        // Set the checkbox state based on the global state
-        if (selectedRowsState[checkbox.name]) {
-            checkbox.checked = true;
-        }
-
-        // Add event listener to each checkbox
-        checkbox.addEventListener('change', function() {
-            // Update the global state when a checkbox is checked/unchecked
-            selectedRowsState[this.name] = this.checked;
-
-            // If any checkbox is unchecked, deselect "Select All"
-            if (!this.checked) {
-                selectAllCheckbox.checked = false;
+            // Set the checkbox state based on the global state
+            if (selectedRowsState[checkbox.name]) {
+                checkbox.checked = true;
             }
 
-            // If all checkboxes are checked, automatically select "Select All"
-            let allChecked = Array.from(tbody.querySelectorAll('input[type="checkbox"]')).every(cb => cb.checked);
-            if (allChecked) {
-                selectAllCheckbox.checked = true;
-            }
+            // Add event listener to each checkbox
+            checkbox.addEventListener('change', function() {
+                // Update the global state when a checkbox is checked/unchecked
+                selectedRowsState[this.name] = this.checked;
 
-            // Trigger the action dialog with selected rows if any
-            triggerActionDialog();
+                // If any checkbox is unchecked, deselect "Select All"
+                if (!this.checked) {
+                    selectAllCheckbox.checked = false;
+                }
+
+                // If all checkboxes are checked, automatically select "Select All"
+                let allChecked = Array.from(tbody.querySelectorAll('input[type="checkbox"]')).every(cb => cb.checked);
+                if (allChecked) {
+                    selectAllCheckbox.checked = true;
+                }
+
+                // Trigger the action dialog with selected rows if any
+                triggerActionDialog();
+            });
+
+            checkboxCell.appendChild(checkbox);
+            row.appendChild(checkboxCell);
+
+            // Populate the rest of the row with data
+            rowData.forEach((cellData, cellIndex) => {
+                let td = document.createElement('td');
+                td.textContent = cellData;
+
+                // Add event listener for the Service ID column (Service ID is at index 1)
+                if (cellIndex === 1) {
+                    td.classList.add('service-id-column');
+                    td.style.cursor = 'pointer';
+                    
+                    // Add click event listener to log the service ID
+                    td.addEventListener('click', function() {
+                        smartwoo_service_admin_view(cellData); // Log or redirect to the service view page
+                    });
+                }
+
+                row.appendChild(td);
+            });
+
+            tbody.appendChild(row);
         });
-
-        checkboxCell.appendChild(checkbox);
-        row.appendChild(checkboxCell);
-
-        // Populate the rest of the row with data
-        rowData.forEach(cellData => {
-            let td = document.createElement('td');
-            td.textContent = cellData;
-            row.appendChild(td);
-        });
-
-        tbody.appendChild(row);
-    });
+    }
 
     table.appendChild(tbody);
 
@@ -116,6 +142,8 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
         }
     }
 }
+
+
 
 function addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index) {
     let paginationDiv = document.createElement('div');
@@ -171,18 +199,36 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
     bodyContent.appendChild(paginationDiv);
 }
 
+/**
+ * Redirect to Service view page at admin.
+ */
+function smartwoo_service_admin_view(serviceId) {
+    let dashUrl = new URL(smartwoo_admin_vars.sw_admin_page);
+    dashUrl.searchParams.set('action', 'view-service');
+    dashUrl.searchParams.set('service_id', serviceId);
+    dashUrl.searchParams.set('tab', 'details');
+    window.location.href = dashUrl.href;
 
+}
 
 // Function to remove the table
 function removeTable() {
     let swTable = document.querySelector('.sw-table');
     let pagenaBtns = document.querySelectorAll('.sw-pagination-buttons');
     if (swTable) {
-        swTable.remove();
+        jQuery('.sw-table').fadeOut();
+        setTimeout(()=>{
+            swTable.remove();
+        }, 1000);
+        
         if (pagenaBtns){
-            pagenaBtns.forEach((btns)=>{
-                btns.remove();
-            });
+            jQuery(pagenaBtns).fadeOut();
+            setTimeout(()=>{
+                pagenaBtns.forEach((btns)=>{
+                    btns.remove();
+                });
+            }, 1000);
+            
         }  
     }
 }
@@ -275,11 +321,12 @@ function fetchDashboardData(index, queryVars = {}) {
             realAction = 'all_suspended_services_table';
             break;
         default: 
-            realAction = '';
+            realAction = 'sw_search';
     }
 
     if ('all_pending_services_table' === realAction) {
         window.location.href = smartwoo_admin_vars.admin_order_page;
+        return;
     }
 
     // Default pagination vars if not provided
@@ -295,6 +342,7 @@ function fetchDashboardData(index, queryVars = {}) {
             real_action: realAction,
             limit: limit,
             paged: paged,
+            search_term: 'sw_search' === realAction ? queryVars.search: '',
         },
         success: function(response) {
             if (response.success) {
@@ -335,6 +383,14 @@ function fetchDashboardData(index, queryVars = {}) {
 document.addEventListener('DOMContentLoaded', () => {
     let contentDiv = document.querySelector('.sw-dash-content-container');
     let skeletonContent = document.querySelectorAll('.sw-dash-content');
+    let ordersBtn = document.getElementById('dashOrderBtn');
+    let invoicesBtn = document.getElementById('dashInvoicesBtn');
+    let productsBtn = document.getElementById('dashProductBtn');
+    let settingsBtn = document.getElementById('dashSettingsBtn');
+    let proBtn = document.querySelector('.sw-upgrade-to-pro');
+    let searchField = document.getElementById('sw_service_search');
+    let searchbtn = document.getElementById('swSearchBtn');
+    const notificationTooltip = document.getElementById('search-notification');
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -361,6 +417,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (ordersBtn) {
+        ordersBtn.addEventListener('click', ()=>{
+            window.location.href = smartwoo_admin_vars.admin_order_page;
+        });
+    }
+
+    if (invoicesBtn) {
+        invoicesBtn.addEventListener('click', ()=>{
+            window.location.href = smartwoo_admin_vars.admin_invoice_page;
+        });
+    }
+
+    if (productsBtn) {
+        productsBtn.addEventListener('click', ()=>{
+            window.location.href = smartwoo_admin_vars.sw_product_page;
+        });
+    }
+
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', ()=>{
+            window.location.href = smartwoo_admin_vars.sw_options_page;
+        });
+    }
+
+    if (proBtn) {
+        proBtn.addEventListener('click', ()=>{
+            window.open(smartwoo_admin_vars.smartwoo_plugin_page, '_blank');
+        });
+    }
+
+    if (searchField && searchbtn && notificationTooltip) {
+        searchbtn.addEventListener('click', () => {
+        const searchValue = searchField.value.trim();
+    
+        if (searchValue.length > 0) {
+          fetchDashboardData('sw_search', {search: searchValue});
+          
+          notificationTooltip.style.display = 'none';
+        } else {
+          notificationTooltip.textContent = 'Search field cannot be empty.';
+          notificationTooltip.style.display = 'block';
+        }
+
+        notificationTooltip.addEventListener('click', ()=>{
+            notificationTooltip.style.display = 'none'; // Hide the tooltip
+        } );
+      });
+    }
+
 });
 
 /**
@@ -382,7 +487,7 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
     // Add listener to dashboard button
     dashboardBtn.addEventListener('click', () => {
         removeTable();  // Remove table when dashboard button is clicked
-        contentDiv.style.display = "flex";  // Show dashboard content
+        jQuery(contentDiv).fadeIn().css('display', 'flex');// Show dashboard content
     });
 });
 
