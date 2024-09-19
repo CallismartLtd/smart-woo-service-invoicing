@@ -8,7 +8,6 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 /**
  * Class SmartWoo_Service_Database
  * Provides database-related functionality for retrieving and managing SmartWoo_Service objects.
@@ -28,7 +27,7 @@ class SmartWoo_Service_Database {
 	public static function get_all_services() {
 		global $wpdb;
 		$query   	= "SELECT * FROM ". SMARTWOO_SERVICE_TABLE;
-		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		if ( $results ) {
 			return self::convert_results_to_services( $results );
@@ -83,7 +82,7 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE service_id = %s", $service_id );
-		$result = $wpdb->get_row( $query, ARRAY_A );
+		$result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		if ( $result ) {
 			// Convert the array result to SmartWoo_Service object
 			$service	= SmartWoo_Service::convert_array_to_service( $result );
@@ -244,7 +243,7 @@ class SmartWoo_Service_Database {
 			}
 
 			// Execute the query and get the results.
-			$results = $wpdb->get_results( $query, ARRAY_A ); 
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 			// Return the converted results or an empty array.
 			if ( ! empty( $results ) ) {
@@ -284,9 +283,17 @@ class SmartWoo_Service_Database {
 			// Base query for backend.
 			$query = $wpdb->prepare(
 				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
-				WHERE (`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
-				OR `status` = %s",
-				'Due for Renewal'
+				WHERE (
+					`status` = %s
+					OR ( (`status` IS NULL OR `status` = %s)
+						AND `next_payment_date` <= CURDATE() AND `end_date` > CURDATE()
+					)
+					
+				
+				)", 
+				
+				'Due for Renewal',
+				''
 			);
 
 			// Add pagination for backend or frontend users if limit is specified.
@@ -299,11 +306,14 @@ class SmartWoo_Service_Database {
 				$query = $wpdb->prepare(
 					"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
 					WHERE (
-						(`next_payment_date` <= CURDATE() AND `end_date` > CURDATE()) 
-						OR `status` = %s
+						`status` = %s
+						OR ( (`status` IS NULL OR `status` = %s)
+							AND `next_payment_date` <= CURDATE() AND `end_date` > CURDATE()
+						)
 					) 
 					AND `user_id` = %d",
 					'Due for Renewal',
+					'',
 					get_current_user_id()
 				);
 
@@ -444,6 +454,69 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
+	 * Search a service by a search term with exact match.
+	 *
+	 * @return array Array of SmartWoo_Service Objects or empty array.
+	 */
+	public static function search() {
+		global $wpdb;
+
+		// Check if search term is present in the URL parameters.
+		$search_term 	= isset( $_GET['search_term'] ) ? sanitize_text_field( wp_unslash( $_GET['search_term'] ) ) : wp_die( 'Search term missing' );
+        $limit  		= isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 10;
+		error_log( $search_term );
+
+		// Try to retrieve the results from the cache.
+		$services = wp_cache_get( 'smartwoo_services_' . $search_term );
+
+		// If cache is not available, query the database.
+		if ( false === $services ) {
+			$services = array(); // Initialize an empty array for services.
+
+			// Prepare the query to search multiple columns with exact match.
+			$query = $wpdb->prepare( 
+				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " 
+				WHERE `id` = %s 
+				OR `user_id` = %s 
+				OR `service_name` = %s 
+				OR `service_url` = %s 
+				OR `service_type` = %s 
+				OR `service_id` = %s 
+				OR `product_id` = %s 
+				OR `start_date` = %s 
+				OR `next_payment_date` = %s
+				OR `end_date` = %s 
+				OR `status` = %s
+				LIMIT %d",  // Add a limit to avoid fetching too many results.
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term, 
+				$search_term,
+				$limit
+			);
+
+			// Execute the query.
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+			// If results are found, convert them to services and cache them.
+			if ( ! empty( $results ) ) {
+				$services = self::convert_results_to_services( $results );
+				wp_cache_set( 'smartwoo_services_' . $search_term, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+			}
+		}
+
+		return $services;
+	}
+
+
+	/**
 	 * Count all the record in the database.
 	 * 
 	 * @return int
@@ -452,7 +525,7 @@ class SmartWoo_Service_Database {
 	public static function count_all() {
 		global $wpdb;
 		$query	= "SELECT COUNT(*) FROM " . SMARTWOO_SERVICE_TABLE;
-		$count	= (int) $wpdb->get_var( $query );
+		$count	= (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		return $count;
 	}
