@@ -82,8 +82,47 @@
     padding: 20px;
     cursor: pointer;
 }
-/************************** ADMIN DASHBOARD STYLES *******************************/
 
+.sw-not-found {
+    text-align: center !important;
+    font-weight: 500;
+    
+}
+/************************** ADMIN DASHBOARD STYLES *******************************/
+.sw-search-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.sw-search-container #sw_service_search, .sw-search-container #swSearchBtn {
+    height: 50px;
+    border: solid blue 1.5px;
+    background-color: #ffffff;
+    color: #a55353;
+}
+.sw-search-container #sw_service_search {
+    width: 40%;
+    text-align: center;
+    border-right: none;
+    border-radius: 8px 0px 0px 8px;
+}
+
+.sw-search-container #swSearchBtn {
+    /* border-left: solid blue; */
+    background-color: #f1f1f1f1;
+    margin-left: -1px;
+}
+.notification-tooltip {
+    display: none;
+    position: absolute;
+    top: 24%;
+    left: 10%;
+    background-color: #ff0000;
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    cursor: not-allowed;
+  }
 .sw-admin-dashboard {
     margin: 0;
     padding: 0;
@@ -139,7 +178,7 @@
 }
 
 .sw-admin-dash-body {
-    margin-top: 150px;
+    margin-top: 180px;
 }
 
 .sw-admin-dash-body .sw-dash-content-container {
@@ -200,4 +239,9 @@
     0% { opacity: 0.9; }
     50% { opacity: 0.4; }
     100% { opacity: 1; }
+}
+
+.service-id-column {
+    color: blue;
+    font-weight: 500;
 }
