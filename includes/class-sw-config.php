@@ -189,7 +189,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-        // var_dump( ( absint( get_option('woocommerce_myaccount_page_id') ) ) );
+        
     }
 
     /**
@@ -226,12 +226,14 @@ class SmartWoo_Config{
             'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
             'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
             'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
-            'admin_order_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-service-orders' ) ),
+            'admin_order_page'          => esc_url_raw( admin_url( 'admin.php?page=sw-service-orders' ) ),
             'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
+            'sw_options_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-options' ) ),
             'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
             'home_url'                  => home_url( '/' ),
             'never_expire_value'        => '',
             'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
+            'smartwoo_plugin_page'      => 'https://callismart.com.ng/smart-woo-service-invoicing',
             
         );
 
