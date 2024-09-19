@@ -21,10 +21,10 @@ defined( 'ABSPATH' ) || exit;
         <!-- Navigation buttons -->
         <div class="sw-admin-dash-nav">
             <a id="dashboardBtn">Dashboard</a>
-            <a>Dashboard</a>
-            <a>Dashboard</a>
-            <a>Dashboard</a>
-            <a>Dashboard</a>
+            <a id="dashOrderBtn">Orders</a>
+            <a id="dashInvoicesBtn">Invoices</a>
+            <a id="dashProductBtn">Products</a>
+            <a id="dashSettingsBtn">Settings</a>
         </div>
         <?php if( ! class_exists( 'SmartWooPro', false ) ):?>
             <div class="sw-upgrade-to-pro">
@@ -36,8 +36,13 @@ defined( 'ABSPATH' ) || exit;
 
     <div id="swloader">Just a moment</div>
     <div class="sw-admin-dash-body">
+        <div class="sw-search-container">
+            <input type="search" name="sw_service_search" id="sw_service_search" placeholder="Search service">
+            <button id="swSearchBtn" title="click to search"><span class="dashicons dashicons-search"></span></button>
+            <div id="search-notification" class="notification-tooltip"></div>
+        </div>
 
-        <div class="sw-dash-content-container">
+        <div class="sw-dash-content-container">            
             <div class="sw-dash-content">
 
                 <div class="sw-skeleton sw-skeleton-text"></div>
