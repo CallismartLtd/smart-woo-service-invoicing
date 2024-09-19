@@ -556,7 +556,8 @@ final class SmartWoo {
         add_filter( 'smartwoo_is_frontend', '__return_false' );
 
         $allowed_actions   = apply_filters( 'smartwoo_allowed_dashboard_actions',
-            array( 
+            array(
+                'sw_search',
                 'total_services',
                 'total_pending_services',
                 'total_active_services',
@@ -648,8 +649,11 @@ final class SmartWoo {
         /**
          * Send json data for table structures.
          */
-
-        if ( 'all_services_table' === $action ) {
+        if ( 'sw_search' === $action ) {
+            $all_services   = SmartWoo_Service_Database::search();
+            $total_services = count( $all_services );
+            
+        } elseif ( 'all_services_table' === $action ) {
             $all_services   = SmartWoo_Service_Database::get_all();
             $total_services = absint( get_option( 'smartwoo_all_services_count', 0 ) );
 
