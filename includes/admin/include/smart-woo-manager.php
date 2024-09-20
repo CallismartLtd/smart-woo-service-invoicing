@@ -311,12 +311,10 @@ function smartwoo_cancel_or_optout_service() {
 add_action( 'template_redirect', 'smartwoo_process_payment_link' );
 
 function smartwoo_process_payment_link() {
-	// Check if the pay-invoice action is set in the URL
-	if ( isset( $_GET['action'] ) && $_GET['action'] === 'sw_invoice_payment' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// Get and sanitize the parameters from the URL
-		$token = isset( $_GET['token'] ) ? sanitize_text_field( $_GET['token'] ): wp_die('Missing token' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	
+	if ( isset( $_GET['action'] ) && 'sw_invoice_payment' === $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ): wp_die('Missing token' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Verify the token.
 		$payment_info = smartwoo_verify_token( $token );
 
 		if ( ! $payment_info ) {
@@ -424,7 +422,7 @@ function smartwoo_manual_service_renewal() {
 	// Verify the nonce
 	if ( isset( $_GET['renew_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['renew_nonce'] ) ), 'renew_service_nonce' ) ) {
 		
-		$service_id = preg_replace( '/\s+/', '', sanitize_text_field( $_GET['service_id'] ) );
+		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ): '';
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		$product_id = $service->getProductId();
 

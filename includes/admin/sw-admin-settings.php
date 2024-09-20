@@ -17,15 +17,15 @@ function smartwoo_save_email_options() {
 		return;
 	}
 
-	if ( isset( $_POST['sw_save_email_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['sw_email_option_nonce'] ) ), 'sw_email_option_nonce') ) {
+	if ( isset( $_POST['sw_save_email_options'], $_POST['sw_email_option_nonce']  ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['sw_email_option_nonce'] ) ), 'sw_email_option_nonce') ) {
 
 		// Update billing email.
 		if ( isset( $_POST['smartwoo_billing_email'] ) ) {
-			update_option( 'smartwoo_billing_email', sanitize_email( $_POST['smartwoo_billing_email'] ) );
+			update_option( 'smartwoo_billing_email', sanitize_email( wp_unslash( $_POST['smartwoo_billing_email'] ) ) );
 		}
 
 		if ( isset( $_POST['smartwoo_email_image_header'] ) ) {
-			update_option( 'smartwoo_email_image_header', sanitize_url( $_POST['smartwoo_email_image_header'], array( 'http', 'https' ) ) );
+			update_option( 'smartwoo_email_image_header', sanitize_url( wp_unslash( $_POST['smartwoo_email_image_header'] ), array( 'http', 'https' ) ) );
 		}
 
 		// Update sender name.
@@ -69,7 +69,7 @@ function smartwoo_save_advanced_options(){
 		return;
 	}
 
-	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
+	if ( isset( $_POST['sw_save_options'], $_POST['sw_option_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
 		
 		if ( isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) ) {
 			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 1 );
@@ -117,18 +117,18 @@ function smartwoo_save_options() {
 		return;
 	}
 
-	if ( isset( $_POST['sw_save_options'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
+	if ( isset( $_POST['sw_save_options'], $_POST['sw_option_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
 
 		if ( isset( $_POST['smartwoo_invoice_page_id'] ) ) {
-			update_option( 'smartwoo_invoice_page_id', absint(  sanitize_text_field( $_POST['smartwoo_invoice_page_id'] ) ) );
+			update_option( 'smartwoo_invoice_page_id', absint( $_POST['smartwoo_invoice_page_id'] ) );
 		}
 
 		if ( isset( $_POST['smartwoo_invoice_logo_url'] ) ) {
-			update_option( 'smartwoo_invoice_logo_url', sanitize_url( $_POST['smartwoo_invoice_logo_url'], array( 'http', 'https' ) ) );
+			update_option( 'smartwoo_invoice_logo_url', sanitize_url( wp_unslash( $_POST['smartwoo_invoice_logo_url'] ), array( 'http', 'https' ) ) );
 		}
 
 		if ( isset( $_POST['smartwoo_invoice_watermark_url'] ) ) {
-			update_option( 'smartwoo_invoice_watermark_url', sanitize_url( $_POST['smartwoo_invoice_watermark_url'], array( 'http', 'https' ) ) );
+			update_option( 'smartwoo_invoice_watermark_url', sanitize_url( wp_unslash( $_POST['smartwoo_invoice_watermark_url'] ), array( 'http', 'https' ) ) );
 		}
 
 		if ( isset( $_POST['smartwoo_business_name'] ) ) {
@@ -138,7 +138,7 @@ function smartwoo_save_options() {
 
 		if ( isset( $_POST['smartwoo_admin_phone_numbers'] ) ) {
 			// Remove any characters except numbers and commas.
-			$phone_numbers       = preg_replace( '/[^0-9+,]/', '', sanitize_text_field( $_POST['smartwoo_admin_phone_numbers'] ) );
+			$phone_numbers       = preg_replace( '/[^0-9+,]/', '', sanitize_text_field( wp_unslash( $_POST['smartwoo_admin_phone_numbers'] ) ) );
 			$phone_numbers_array = explode( ',', $phone_numbers );
 			$phone_numbers_array = array_filter( $phone_numbers_array );
 			
@@ -155,33 +155,33 @@ function smartwoo_save_options() {
 		}
 
 		if ( isset( $_POST['smartwoo_prorate'] ) ) {
-			$smartwoo_prorate_value = ( 'Enable' === sanitize_text_field( $_POST['smartwoo_prorate'] ) ) ? 'Enable': 'Disable';
-			update_option( 'smartwoo_prorate', sanitize_text_field( $smartwoo_prorate_value ) );
+			$smartwoo_prorate_value = ( 'Enable' === sanitize_text_field( wp_unslash( $_POST['smartwoo_prorate'] ) ) ) ? 'Enable': 'Disable';
+			update_option( 'smartwoo_prorate', $smartwoo_prorate_value );
 		}
 
 		if ( isset( $_POST['smartwoo_invoice_id_prefix'] ) ) {
-			$invoice_number_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', sanitize_text_field( $_POST['smartwoo_invoice_id_prefix'] ) );
-			update_option( 'smartwoo_invoice_id_prefix', sanitize_text_field( $invoice_number_prefix ) );
+			$invoice_number_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', sanitize_text_field( wp_unslash( $_POST['smartwoo_invoice_id_prefix'] ) ) );
+			update_option( 'smartwoo_invoice_id_prefix', $invoice_number_prefix );
 		}
 
 		if ( isset( $_POST['smartwoo_service_id_prefix'] ) ) {
-			$service_id_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', sanitize_text_field( $_POST['smartwoo_service_id_prefix'] ) );
-			update_option( 'smartwoo_service_id_prefix', sanitize_text_field( $service_id_prefix ) );
+			$service_id_prefix = preg_replace( '/[^a-zA-Z0-9]/', '', sanitize_text_field( wp_unslash( $_POST['smartwoo_service_id_prefix'] ) ) );
+			update_option( 'smartwoo_service_id_prefix', $service_id_prefix );
 		}
 
 		if ( isset( $_POST['smartwoo_allow_migration'] ) ) {
-			$smartwoo_allow_migration = ( 'Enable' === sanitize_text_field( $_POST['smartwoo_allow_migration'] ) ) ? 'Enable' : 'Disable';
-			update_option( 'smartwoo_allow_migration', sanitize_text_field( $smartwoo_allow_migration ) );
+			$smartwoo_allow_migration = ( 'Enable' === $_POST['smartwoo_allow_migration'] ) ? 'Enable' : 'Disable';
+			update_option( 'smartwoo_allow_migration', $smartwoo_allow_migration );
 		}
 
 		if ( isset( $_POST['smartwoo_upgrade_product_cat'] ) ) {
-			$category_id = absint( sanitize_text_field( $_POST['smartwoo_upgrade_product_cat'] ) );
-			update_option( 'smartwoo_upgrade_product_cat', absint( $category_id ) );
+			$category_id = absint( $_POST['smartwoo_upgrade_product_cat'] );
+			update_option( 'smartwoo_upgrade_product_cat', $category_id );
 		}
 
 		if ( isset( $_POST['smartwoo_downgrade_product_cat'] ) ) {
-			$category_id = absint( sanitize_text_field( $_POST['smartwoo_downgrade_product_cat'] ) );
-			update_option( 'smartwoo_downgrade_product_cat', absint( $category_id ) );
+			$category_id = absint( $_POST['smartwoo_downgrade_product_cat'] );
+			update_option( 'smartwoo_downgrade_product_cat', $category_id );
 		}
 
 		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . esc_html( 'Settings saved!', 'smart-woo-service-invoicing' ) . '</p></div>' );

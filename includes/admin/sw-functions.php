@@ -800,6 +800,7 @@ function smartwoo_login_form( $options ) {
 	$form .= '<input type="password" id="password" class="smartwoo-login-input" name="password" />';
 	$form .= '</div>';
 
+	$form .= wp_nonce_field( 'smartwoo_login_nonce', 'smartwoo_login_nonce' );
 	$form .= '<input type="hidden" name="action" value="smartwoo_login_form" />';
 	$form .= '<input type="hidden" name="redirect" value="' . esc_url( $parsed_args['redirect'] ) . '" />';
 	$form .= '<input type="hidden" name="referer" value="' . esc_url( wp_get_referer() ) . '" />';

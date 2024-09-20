@@ -142,7 +142,7 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 	$query			= $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name );
-    $table_exists 	= $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $table_exists 	= $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared --False positive 
 	$is_update		= 'running' === get_transient( 'smartwoo_db_update' );
     if ( $table_exists !== $table_name ) {
         $charset_collate = smartwoo_get_charset_collate();
@@ -195,7 +195,7 @@ function smartwoo_db_update_201_is_external() {
 	$table_name = SMARTWOO_ASSETS_TABLE;
 	$new_col 	= 'is_external';
 	$constrnts	= 'varchar(20) DEFAULT NULL';
-	$columns = $wpdb->get_results( "SHOW COLUMNS FROM $table_name", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 	$column_names = array();
 	foreach ( $columns as $column ) {
@@ -205,7 +205,7 @@ function smartwoo_db_update_201_is_external() {
 	if ( ! in_array( $new_col, $column_names ) ) {
 		$new_col 	= $new_col . ' ' . $constrnts;
 		$query		= "ALTER TABLE {$table_name} ADD {$new_col} AFTER `asset_key`;";
-		$result		= $wpdb->query( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result		= $wpdb->query( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		
 		if ( ! $result  && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( $wpdb->last_error );

@@ -426,8 +426,8 @@ class SmartWoo_Config{
      * @since 2.0.0
      */
     private function add_actions() {
-        if ( isset( $_GET['smartwoo_action'] ) && has_action( $_GET['smartwoo_action'] ) ) {
-            do_action( $_GET['smartwoo_action'] );
+        if ( isset( $_GET['smartwoo_action'] ) && has_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ) ) {
+            do_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) );
         }
     }
 

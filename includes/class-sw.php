@@ -145,11 +145,11 @@ final class SmartWoo {
      * Login form handler
      */
     public function login_form() {
-        if ( isset( $_POST['user_login'] ) && isset( $_POST['password'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( isset( $_POST['user_login'], $_POST['password'], $_POST['smartwoo_login_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['smartwoo_login_nonce'] ) ), 'smartwoo_login_nonce') ) {
             $credentials = array(
                 'user_login'    => sanitize_text_field( wp_unslash( $_POST['user_login'] ) ),
-                'user_password' => sanitize_text_field( $_POST['password'] ),
-                'remember'      => true,
+                'user_password' => $_POST['password'], // phpcs:disable -- Passwords shouldn't be mutilated
+                'remember'      => isset( $_POST['remember_me'] )
             );
 
 
@@ -161,7 +161,7 @@ final class SmartWoo {
                 exit;
 
             } else {
-                wp_redirect( esc_url_raw( $_POST['redirect'] ) );
+                wp_redirect( esc_url_raw( isset( $_POST['redirect'] ) ? wp_unslash( $_POST['redirect'] ): smartwoo_service_page_url() ) );
                 exit;
             }
         }
@@ -175,20 +175,20 @@ final class SmartWoo {
      */
     public function new_service_from_order() {
     
-        if ( isset( $_POST['smartwoo_process_new_service'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'] ) ), 'sw_process_new_service_nonce' ) ) {
+        if ( isset( $_POST['smartwoo_process_new_service'], $_POST['sw_process_new_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'] ) ), 'sw_process_new_service_nonce' ) ) {
 
             $product_id        	= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
             $order_id          	= isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
-            $service_url       	= isset( $_POST['service_url'] ) ? sanitize_url( $_POST['service_url'], array( 'http', 'https' ) ) : '';
-            $service_type      	= isset( $_POST['service_type'] ) ? sanitize_text_field( $_POST['service_type'] ) : '';
+            $service_url       	= isset( $_POST['service_url'] ) ? sanitize_url( wp_unslash( $_POST['service_url'] ), array( 'http', 'https' ) ) : '';
+            $service_type      	= isset( $_POST['service_type'] ) ? sanitize_text_field( wp_unslash( $_POST['service_type'] ) ) : '';
             $user_id           	= isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : '';
-            $start_date        	= isset( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : '';
-            $billing_cycle     	= isset( $_POST['billing_cycle'] ) ? sanitize_text_field( $_POST['billing_cycle'] ) : '';
-            $next_payment_date 	= isset( $_POST['next_payment_date'] ) ? sanitize_text_field( $_POST['next_payment_date'] ) : '';
-            $end_date          	= isset( $_POST['end_date'] ) ? sanitize_text_field( $_POST['end_date'] ) : '';
+            $start_date        	= isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
+            $billing_cycle     	= isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
+            $next_payment_date 	= isset( $_POST['next_payment_date'] ) ? sanitize_text_field( wp_unslash( $_POST['next_payment_date'] ) ) : '';
+            $end_date          	= isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';
             $status            	= isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : '';
-            $service_name 		= isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
-            $service_id 		= isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id'] ) : '';
+            $service_name 		= isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name']) ) : '';
+            $service_id 		= isset( $_POST['service_id'] ) ? sanitize_text_field( wp_unslash( $_POST['service_id'] ) ) : '';
             $process_downloadable   = ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] );
             $process_more_assets    = ! empty( $_POST['add_asset_types'][0] ) && ! empty( $_POST['add_asset_names'][0] ) && ! empty( $_POST['add_asset_values'][0] );
 
@@ -246,11 +246,11 @@ final class SmartWoo {
 
                 // Process downloadable assets first.
                 if ( $process_downloadable ) {
-                    $file_names     = $_POST['sw_downloadable_file_names'];
-                    $file_urls      = $_POST['sw_downloadable_file_urls'];
-                    $is_external    = isset( $_POST['is_external'] ) ? sanitize_text_field( $_POST['is_external'] ) : 'no';
-                    $asset_key      = isset( $_POST['asset_key'] ) ? sanitize_text_field( $_POST['asset_key'] ) : '';
-                    $access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
+                    $file_names     = array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) );
+                    $file_urls      = array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) );
+                    $is_external    = isset( $_POST['is_external'] ) ? sanitize_text_field( wp_unslash( $_POST['is_external'] ) ) : 'no';
+                    $asset_key      = isset( $_POST['asset_key'] ) ? sanitize_text_field( wp_unslash( $_POST['asset_key'] ) ) : '';
+                    $access_limit	= isset( $_POST['access_limits'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['access_limits'] ) ) : array();
 
                     $downloadables  = array();
                     if ( count( $file_names ) === count( $file_urls ) ) {
@@ -288,14 +288,14 @@ final class SmartWoo {
                      * Asset data will be an extraction of a combination of each asset name and value
                      * in the form.
                      */
-                    $asset_tpes = $_POST['add_asset_types'];
-                    $the_keys   = $_POST['add_asset_names'];
-                    $the_values = $_POST['add_asset_values'];
-                    $access_limit	= isset( $_POST['access_limits'] ) ? wp_unslash( $_POST['access_limits'] ) : array();
+                    $asset_tpes     = array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_types'] ) );
+                    $the_keys       = array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_names'] ) );
+                    $the_values     = array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_values'] ) );
+                    $access_limit	= isset( $_POST['access_limits'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['access_limits'] ) ) : array();
 
                     $asset_data = array();
 
-                    // Attempt tp pair asset names and values.
+                    // Attempt to pair asset names and values.
                     if ( count( $the_keys ) === count( $the_values ) ) {
                         $asset_data = array_combine( $the_keys, $the_values );
                     }
@@ -381,7 +381,7 @@ final class SmartWoo {
         }
         
         $asset_id       = ! empty( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
-        $resource_id    = ! empty( $_GET['resource_id'] ) ? absint( rawurldecode( $_GET['resource_id'] ) ) : '';
+        $resource_id    = ! empty( $_GET['resource_id'] ) ? absint( wp_unslash( $_GET['resource_id'] ) ) : '';
         $asset_key      = ! empty( $_GET['key'] ) ? sanitize_key( wp_unslash( $_GET['key'] ) ): '';
         $service_id     = ! empty( $_GET['service_id'] ) ? sanitize_key( wp_unslash( $_GET['service_id'] ) ) : '';
         if ( empty( $resource_id ) || empty( $service_id ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
@@ -428,7 +428,7 @@ final class SmartWoo {
         
             $content_type   = $file_headers['Content-Type'] ?? 'application/octet-stream';
             $content_length = $file_headers['Content-Length'] ?? 0;
-            $filename       = basename( parse_url( $resource_url, PHP_URL_PATH ) );
+            $filename       = basename( wp_parse_url( $resource_url, PHP_URL_PATH ) );
         
             header( 'Content-Description: File Transfer' );
             header( 'Content-Type: ' . $content_type );
@@ -439,14 +439,16 @@ final class SmartWoo {
             header( 'Content-Length: ' . $content_length );
         
             // Open the file and stream it to the browser.
+            // phpcs:disable
             $handle = fopen( $resource_url, 'rb' );
             if ( $handle ) {
                 while ( ! feof( $handle ) ) {
-                    echo fread( $handle, 8192 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo fread( $handle, 8192 );
                     ob_flush();
                     flush();
                 }
                 fclose( $handle );
+                // phpcs:enable
             } else {
                 wp_die( 'Unable to read the file.' );
             }
@@ -496,7 +498,7 @@ final class SmartWoo {
 
             // Get the file size
             $file_size = $wp_filesystem->size( $file );
-            $filename       = basename( parse_url( $resource_url, PHP_URL_PATH ) );
+            $filename       = basename( wp_parse_url( $resource_url, PHP_URL_PATH ) );
 
             // Set headers
             header( 'Content-Description: File Transfer' );
@@ -544,9 +546,9 @@ final class SmartWoo {
      * @since 2.0.12
      */
     public function dashboard_ajax() {
-        // if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
-        //     wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
-        // }
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
