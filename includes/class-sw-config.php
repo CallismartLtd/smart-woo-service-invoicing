@@ -81,7 +81,9 @@ class SmartWoo_Config{
         add_filter( 'the_title', 'smartwoo_myaccount_titles', 10, 3 );
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
-
+        add_filter( 'template_include', 'smartwoo_template_for_configure_page' );
+        add_action( 'wp_ajax_smartwoo_configure_product', 'smartwoo_configure_product_for_checkout' );
+        add_action( 'wp_ajax_nopriv_smartwoo_configure_product', 'smartwoo_configure_product_for_checkout' );
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
@@ -225,6 +227,7 @@ class SmartWoo_Config{
             'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
             'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
             'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
+            'new_service_page'          => esc_url_raw( admin_url( 'admin.php?page=sw-admin&action=add-new-service')),
             'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
             'admin_order_page'          => esc_url_raw( admin_url( 'admin.php?page=sw-service-orders' ) ),
             'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
@@ -233,7 +236,7 @@ class SmartWoo_Config{
             'home_url'                  => home_url( '/' ),
             'never_expire_value'        => '',
             'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
-            'smartwoo_plugin_page'      => 'https://callismart.com.ng/smart-woo-service-invoicing',
+            'smartwoo_plugin_page'      => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
             
         );
 
@@ -426,8 +429,9 @@ class SmartWoo_Config{
      * @since 2.0.0
      */
     private function add_actions() {
-        if ( isset( $_GET['smartwoo_action'] ) && has_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ) ) {
-            do_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) );
+        
+        if ( isset( $_GET['smartwoo_action'] ) && has_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            do_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         }
     }
 
