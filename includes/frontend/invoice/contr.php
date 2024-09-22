@@ -14,7 +14,7 @@
 function smartwoo_invoice_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( $_GET ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	   
    	}
 
