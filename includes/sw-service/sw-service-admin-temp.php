@@ -206,7 +206,7 @@ function smartwoo_dashboard_page() {
  * Render service editor form.
  */
 function smartwoo_edit_service_form() {
-	$url_service_id = sanitize_text_field( wp_unslash( $_GET['service_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$url_service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	
 	if ( empty( $url_service_id ) ) {
 		return smartwoo_error_notice( 'Service Parameter cannot be manipulated' );

@@ -306,8 +306,8 @@ class SmartWoo_Service_Assets {
         global $wpdb;
         $id         = absint( $id );
         $table_name = SMARTWOO_ASSETS_TABLE;
-        $query      = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `asset_id` = %d", $id );
-        $result     = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $query      = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `asset_id` = %d", $id ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $result     = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
     
         if ( ! empty( $result ) ) {
             return $this->convert_db_result( $result, $new_self  );
@@ -325,8 +325,8 @@ class SmartWoo_Service_Assets {
         }
 
         global $wpdb;
-        $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s", $this->service_id );
-        $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared --false positive
+        $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
         $assets = array();
         if ( ! empty( $results ) ) {
@@ -349,8 +349,8 @@ class SmartWoo_Service_Assets {
         }
 
         global $wpdb;
-        $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s AND `asset_name` =%s", $this->service_id, $this->asset_name );
-        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s AND `asset_name` =%s", $this->service_id, $this->asset_name ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
         if ( $result ) {
             return $this->convert_db_result( $result );
@@ -369,10 +369,10 @@ class SmartWoo_Service_Assets {
     public static function return_data( $asset_id, $key, &$this_obj = null ) {
         global $wpdb;
         $query  = $wpdb->prepare(  
-            "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d AND `asset_key` = %s",
+            "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d AND `asset_key` = %s", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
             absint( $asset_id ), sanitize_text_field( $key ) 
         );
-        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
         
         if ( ! $result ) {
             return array();
@@ -505,8 +505,8 @@ class SmartWoo_Service_Assets {
      */
     public function exists( $service_id ) {
         global $wpdb;
-		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id );
-		$result	= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$result	= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return $result !== null;
     }
 
@@ -565,8 +565,8 @@ class SmartWoo_Service_Assets {
 
         global $wpdb;
 
-        $query = $wpdb->prepare( "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_key` =%s", $key );
-        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $query = $wpdb->prepare( "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_key` =%s", $key ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
         if ( ! $result ) {
             return false;

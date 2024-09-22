@@ -20,15 +20,20 @@ defined( 'ABSPATH' ) || exit;
 
         <!-- Navigation buttons -->
         <div class="sw-admin-dash-nav">
-            <a id="dashboardBtn">Dashboard</a>
-            <a id="dashOrderBtn">Orders</a>
+        <a id="dashboardBtn">Dashboard</a>
+        <a id="dashAddNew">Add New</a>
+        <a id="dashOrderBtn">Orders</a>
             <a id="dashInvoicesBtn">Invoices</a>
             <a id="dashProductBtn">Products</a>
             <a id="dashSettingsBtn">Settings</a>
         </div>
+       <div class="sw-admin-menu-icon">
+	        <span class="dashicons dashicons-menu"></span>
+	    </div>
+
         <?php if( ! class_exists( 'SmartWooPro', false ) ):?>
             <div class="sw-upgrade-to-pro">
-                <a><?php echo esc_html__( 'Upgrade to Pro', 'smart-woo-service-invoicing' );?></a>
+                <a><?php echo apply_filters( 'smartwoo_dash_pro_button_text', esc_html__( 'Upgrade to Pro', 'smart-woo-service-invoicing' ) );?></a>
             </div>
         <?php endif;?>
 
