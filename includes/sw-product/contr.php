@@ -13,16 +13,16 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  */
 function smartwoo_process_new_product() {
     
-    if ( isset( $_POST['create_sw_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
+    if ( isset( $_POST['create_sw_product'], $_POST['sw_add_new_product_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
 		
 		$new_product            = new SmartWoo_Product();
         $product_name           = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
         $product_price          = isset( $_POST['product_price'] ) ? floatval( $_POST['product_price'] ) : 0;
         $sign_up_fee            = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
-        $short_description      = isset( $_POST['short_description'] ) ? wp_kses_post( $_POST['short_description'] ) : '';
-        $description            = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
-        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( $_POST['billing_cycle'] ) : '';
-        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
+        $short_description      = isset( $_POST['short_description'] ) ? wp_kses_post( wp_unslash( $_POST['short_description'] ) ) : '';
+        $description            = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
+        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
+        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['grace_period_unit'] ) ) : '';
         $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
         $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
         $is_downloadable        = ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] );
@@ -57,8 +57,8 @@ function smartwoo_process_new_product() {
 
         // Check for downloadable properties.
         if ( $is_downloadable ) {
-            $file_names     = $_POST['sw_downloadable_file_names'];
-            $file_urls      = $_POST['sw_downloadable_file_urls'];
+            $file_names     = array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) );
+            $file_urls      = array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) );
             $downloadables  = array();
             if ( count( $file_names ) === count( $file_urls ) ) {
                 $downloadables  = array_combine( $file_names, $file_urls );
@@ -100,7 +100,7 @@ function smartwoo_process_new_product() {
 
 function smartwoo_process_product_edit() {
     // Handle form submission for updating the product
-    if ( isset( $_POST['update_service_product'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_product_nonce'] ) ), 'sw_edit_product_nonce' ) ) {
+    if ( isset( $_POST['update_service_product'], $_POST['sw_edit_product_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_product_nonce'] ) ), 'sw_edit_product_nonce' ) ) {
         $product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ): 0;
         if ( empty( $product_id ) ) {
             wp_die( 'Invalid product.' );
@@ -120,10 +120,10 @@ function smartwoo_process_product_edit() {
         $product_name           = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
         $product_price          = isset( $_POST['product_price'] ) ? floatval( $_POST['product_price'] ) : 0;
         $sign_up_fee            = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
-        $short_description      = isset( $_POST['short_description'] ) ? wp_kses_post( $_POST['short_description'] ) : '';
-        $description            = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
-        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( $_POST['billing_cycle'] ) : '';
-        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( $_POST['grace_period_unit'] ) : '';
+        $short_description      = isset( $_POST['short_description'] ) ? wp_kses_post( wp_unslash( $_POST['short_description'] ) ) : '';
+        $description            = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
+        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
+        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['grace_period_unit'] ) ) : '';
         $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
         $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
 
@@ -156,8 +156,8 @@ function smartwoo_process_product_edit() {
         
         // Check for downloadable properties.
         if ( $is_downloadable ) {
-            $file_names     = isset( $_POST['sw_downloadable_file_names'] ) ? $_POST['sw_downloadable_file_names'] : array();
-            $file_urls      = isset( $_POST['sw_downloadable_file_urls'] ) ? $_POST['sw_downloadable_file_urls']: array();
+            $file_names     = isset( $_POST['sw_downloadable_file_names'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) ) : array();
+            $file_urls      = isset( $_POST['sw_downloadable_file_urls'] ) ? array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) ): array();
             $downloadables  = array();
             if ( count( $file_names ) === count( $file_urls ) ) {
                 $downloadables  = array_combine( $file_names, $file_urls );

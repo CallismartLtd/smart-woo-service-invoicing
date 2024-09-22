@@ -322,7 +322,7 @@ function smartwoo_invoice_dashboard() {
 	$all_inv_count 	= SmartWoo_Invoice_Database::count_all();
 	$limit = 10;
 	$total_pages = ceil( $all_inv_count / $limit );
-	$page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+	$page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$table_html  .= '<div class="sw-table-wrapper">';
 	$table_html  .= '<h2>Invoice Dashboard</h2>';
@@ -521,7 +521,7 @@ function smartwoo_invoice_by_status_temp() {
 	$all_inv_count 	= absint( SmartWoo_Invoice_Database::count_this_status( $payment_status ) );
 	$limit 			= 10;
 	$total_pages 	= ceil( $all_inv_count / $limit );
-	$page 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+	$page 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$table_html .= '<h1>' . __( 'Invoices by Payment Status', 'smart-woo-service-invoicing' ) . '</h1>';
 	$table_html .= '<h2>Payment Status: ' . esc_html( ucfirst( $payment_status ) ) . '</h2>';

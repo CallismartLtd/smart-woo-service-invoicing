@@ -51,10 +51,6 @@ function smartwoo_configure_query_var( $vars ) {
     return $template;
 }
 
-add_filter( 'template_include', 'smartwoo_template_for_configure_page' );
-add_action( 'wp_ajax_smartwoo_configure_product', 'smartwoo_configure_product_for_checkout' );
-add_action( 'wp_ajax_nopriv_smartwoo_configure_product', 'smartwoo_configure_product_for_checkout' );
-
 /**
  * Ajax configure and add to cart function.
  */
@@ -65,12 +61,12 @@ function smartwoo_configure_product_for_checkout() {
 	}
 
 	$validation_errors = array();
-	$service_name	= isset( $_POST['service_name'] ) ? sanitize_text_field( $_POST['service_name'] ) : '';
+	$service_name	= isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
 	if ( empty( $service_name ) ) {
 		$validation_errors[] = 'Service Name is required to configure your subscription.';
 	}
 
-	$service_url	=	isset( $_POST['service_url'] ) ? sanitize_url(  $_POST['service_url'], array( 'http', 'https' ) ) : '';
+	$service_url	=	isset( $_POST['service_url'] ) ? sanitize_url(  wp_unslash( $_POST['service_url'] ), array( 'http', 'https' ) ) : '';
 	if ( ! empty( $_POST['service_url'] ) && empty( $service_url ) ) {
 		$validation_errors[] = 'Enter a valid website URL.';
 	}

@@ -520,7 +520,7 @@ function smartwoo_delete_invoice_ajax_callback() {
 		wp_send_json_error( array( 'message' => 'Action did not pass security check.' ) );
 	}
 
-	$invoice_id = isset( $_POST['invoice_id'] ) ? sanitize_text_field( $_POST['invoice_id'] ) : '';
+	$invoice_id = isset( $_POST['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_id'] ) ) : '';
 
 	if ( empty( $invoice_id ) ) {
 		wp_send_json_error( array( 'message' => 'Invalid invoice ID.' ) );

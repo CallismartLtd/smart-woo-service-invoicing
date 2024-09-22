@@ -9,21 +9,22 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
+/**
+ * Check pdf invoice download request.
+ */
+function smartwoo_invoice_download() {
+	if ( isset( $_GET['download_invoice'], $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'download_invoice_nonce' ) ) {
 
-if ( ! function_exists( 'smartwoo_invoice_download' ) ) {
-	function smartwoo_invoice_download() {
-		if ( isset( $_GET['download_invoice'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'download_invoice_nonce' ) ) {
+		// Get user ID and invoice ID url param
+		$user_id    = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
+		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : '';
 
-			// Get user ID and invoice ID url param
-			$user_id    = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
-			$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : '';
-
-			smartwoo_pdf_invoice_template( $invoice_id, $user_id );
-		}
+		smartwoo_pdf_invoice_template( $invoice_id, $user_id );
 	}
 }
 
-add_action( 'wp_loaded', 'smartwoo_invoice_download' );
+
+add_action( 'template_redirect', 'smartwoo_invoice_download' );
 
 if ( ! function_exists( 'smartwoo_pdf_invoice_template' ) ) {
 	function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0 ) {

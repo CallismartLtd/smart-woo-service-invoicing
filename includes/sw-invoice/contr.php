@@ -26,15 +26,15 @@ function smartwoo_edit_invoice_page() {
 		return smartwoo_error_notice( 'Invoice not found' );
 	}
 
-	if ( isset( $_POST['sw_update_invoice'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_invoice_nonce'] ) ), 'sw_edit_invoice_nonce' ) ) {
+	if ( isset( $_POST['sw_update_invoice'], $_POST['sw_edit_invoice_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_invoice_nonce'] ) ), 'sw_edit_invoice_nonce' ) ) {
 		// Sanitize and validate inputs
 		$user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : $existingInvoice->getUserId();
 		$product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : $existingInvoice->getProductId();
-		$invoice_type   = isset( $_POST['invoice_type'] ) ? sanitize_text_field( $_POST['invoice_type'] ) : $existingInvoice->getInvoiceType();
-		$service_id     = isset( $_POST['service_id'] ) ? sanitize_text_field( $_POST['service_id'] ) : null;
+		$invoice_type   = isset( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : $existingInvoice->getInvoiceType();
+		$service_id     = isset( $_POST['service_id'] ) ? sanitize_text_field( wp_unslash( $_POST['service_id'] ) ) : null;
 		$fee            = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : $existingInvoice->getFee();
-		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( $_POST['payment_status'] ) : $existingInvoice->getPaymentStatus();
-		$due_date       = isset( $_POST['due_date'] ) ? sanitize_text_field( $_POST['due_date'] ) : null;
+		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : $existingInvoice->getPaymentStatus();
+		$due_date       = isset( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( $_POST['due_date'] ) ) : null;
 
 		// Validate inputs
 		$errors = array();
@@ -90,14 +90,14 @@ function smartwoo_edit_invoice_page() {
 function smartwoo_new_invoice_page() {
 	$page_html = '<h2>Create New Invoice 📄</h2>';
 
-	if ( isset( $_POST['create_invoice'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_create_invoice_nonce'] ) ), 'sw_create_invoice_nonce' ) ) {
+	if ( isset( $_POST['create_invoice'], $_POST['sw_create_invoice_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_create_invoice_nonce'] ) ), 'sw_create_invoice_nonce' ) ) {
 		$user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
 		$product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
 		$invoice_type   = isset( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : '';
 		$service_id     = isset( $_POST['service_id'] ) ? sanitize_text_field( wp_unslash( $_POST['service_id'] ) ) : '';
 		$date           = isset( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( $_POST['due_date'] ) ) : '';				
 		$fee            = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
-		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( $_POST['payment_status'] ) : 'unpaid';
+		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'unpaid';
 		// Check for a duplicate unpaid invoice for a service.
 		$existing_invoice_type_for_a_service = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
 

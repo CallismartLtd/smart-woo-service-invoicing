@@ -19,7 +19,7 @@
  */
 function smartwoo_service_details() { 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => add_query_arg( array_map( 'rawurlencode', $_GET ) ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	   
     }
 
@@ -270,7 +270,7 @@ function smartwoo_user_service_by_status() {
 	   return;
     }
 
-    $status_label = isset( $_GET['status'] ) ? str_replace( array('/', '\\'), '', sanitize_text_field( $_GET['status'] ) ) : 'active'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    $status_label = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'active'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     $services = SmartWoo_Service_Database::get_services_by_user( get_current_user_id() );
     $output = smartwoo_get_navbar( 'My '. $status_label . ' Services', smartwoo_service_page_url() );
 
