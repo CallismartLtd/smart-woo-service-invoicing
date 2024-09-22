@@ -4,7 +4,7 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
     let searchDiv = document.querySelector('.sw-search-container');
     
     // Clear existing table before rendering the new one
-    removeTable();
+    smartwooRemoveTable();
     totalItems  = bodyData.length;
     
     // Add pagination controls
@@ -216,7 +216,7 @@ function smartwoo_service_admin_view(serviceId) {
 }
 
 // Function to remove the table
-function removeTable() {
+function smartwooRemoveTable() {
     let swTable = document.querySelector('.sw-table');
     let pagenaBtns = document.querySelectorAll('.sw-pagination-buttons');
     if (swTable) {
@@ -292,7 +292,7 @@ function smartwooShowActionDialog(selectedRows) {
     
     actionDiv.innerHTML = `
       <select id="sw-action-select" name="dash_bulk_action">
-        <option label>Choose Action</option>
+        <option selected>Choose Action</option>
         <option value="auto_calc">Auto Calculate</option>
         <option value="Active">Activate</option>
         <option value="Active (NR)">Disable Renewal</option>
@@ -307,6 +307,7 @@ function smartwooShowActionDialog(selectedRows) {
     
     const tableDiv = document.querySelector('.sw-table');
     tableDiv.prepend(actionDiv);
+    jQuery('.sw-action-container').fadeIn().css('display', 'flex');
     
     actionDiv.addEventListener('change', () => {
         const selectedAction = actionDiv.querySelector('select').value;
@@ -323,6 +324,8 @@ function smartwooShowActionDialog(selectedRows) {
         actionBtn.style.border = "solid .5px blue";
         if ( 'Choose Action' !== selectedAction ) {
             actionDiv.append(actionBtn);
+            jQuery(actionBtn).fadeIn();
+
         }
         if (actionBtn) {
             actionBtn.addEventListener('click', ()=>{
@@ -668,14 +671,14 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
             if (e.target.matches('.sw-red-button') ) {
                 return;
             }
-            removeTable();
+            smartwooRemoveTable();
             fetchDashboardData(index);
         });
     });
 
     // Add listener to dashboard button
     dashboardBtn.addEventListener('click', () => {
-        removeTable();  // Remove table when dashboard button is clicked
+        smartwooRemoveTable();  // Remove table when dashboard button is clicked
         jQuery(contentDiv).fadeIn().css('display', 'flex');// Show dashboard content
     });
 });
