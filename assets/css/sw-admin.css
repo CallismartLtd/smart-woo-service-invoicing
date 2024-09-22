@@ -1,3 +1,16 @@
+.sw-action-container {
+    display: none;
+    position:fixed;
+    background-color: #000;
+    height: 30px;
+    right: 50px;
+    border: solid red;
+    border-radius: 9px;
+    padding: 15px;
+}
+.sw-action-btn {
+    display: none;
+}
 .sw-pro-placeholder {
     position: relative;
     width: 70%;
@@ -335,6 +348,12 @@
         }
         .notification-tooltip {
             top: 14%;
+        }
+
+        @media(min-width: 280px) and (max-width: 320px) {
+            .sw-action-container {
+                right: 0;
+            }
         }
     }
 
