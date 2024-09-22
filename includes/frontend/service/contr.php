@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 function smartwoo_service_shortcode() {
 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => add_query_arg( array_map( 'rawurlencode', $_GET ) ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to access this page.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	global $wp_query;
@@ -212,7 +212,7 @@ function smartwoo_load_account_logs_callback() {
 	$last_active		= smartwoo_get_last_login_date( $user_id );
 	$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
 	$total_spent 		= smartwoo_client_total_spent( $user_id );
-	$user_agent			= sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+	$user_agent			= wc_get_user_agent();
 	$html = '<div class="account-logs-container">';
 	$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
 	$html .= '<ul class="account-logs-list">';
