@@ -7,11 +7,51 @@ function smartWooAddSpinner(targetId) {
 	targetElement.appendChild(loadingSpinner);
   
 	return loadingSpinner; // Return the created element for potential removal
-  }
+}
   
-  function smartWooRemoveSpinner(spinnerElement) {
-	spinnerElement.remove();
-  }
+function smartWooRemoveSpinner(spinnerElement) {
+spinnerElement.remove();
+}
+
+function showNotification(message, duration) {
+    // Create a div element for the notification
+    const notification = document.createElement('div');
+    notification.classList.add('notification');
+    
+    // Set the notification message
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span style="float:right; cursor:pointer; font-weight:bold;" class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</span>
+            <p>${message}</p>
+        </div>
+    `;
+    
+    // Apply styles to the notification
+    notification.style.position = 'fixed';
+    notification.style.top  = '40px';
+    notification.style.left = '50%';
+    notification.style.width = '30%';
+    notification.style.fontWeight = 'bold';
+    notification.style.transform = 'translateX(-50%)';
+    notification.style.padding = '15px';
+    notification.style.backgroundColor = '#fff'; // White background
+    notification.style.color = '#333'; // Black text color
+    notification.style.border = '1px solid #ccc';
+    notification.style.borderRadius = '5px';
+    notification.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.5)';
+    notification.style.zIndex = '9999';
+    notification.style.textAlign = 'center';
+    
+    // Append the notification to the body
+    document.body.appendChild(notification);
+    
+    // Automatically remove the notification after a specified duration (in milliseconds)
+    if (duration) {
+        setTimeout(() => {
+            notification.remove();
+        }, duration);
+    }
+}
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -253,19 +293,20 @@ jQuery( document ).ready(
 
 /**
  * Show the loading indicator by displaying the #swloader element.
- * This function sets the display property to 'block', making the loader visible.
+ * It sets the cursor to 'progress' for the body, affecting all its children.
  */
 function showLoadingIndicator() {
     jQuery('#swloader').css('display', 'block');
+    jQuery('body').css('cursor', 'progress'); // Apply progress cursor to body
 }
-
 
 /**
  * Hide the loading indicator by hiding the #swloader element.
- * This function sets the display property to 'none', making the loader invisible.
+ * It resets the cursor to its default state for the body.
  */
 function hideLoadingIndicator() {
-		jQuery( '#swloader' ).hide();
+    jQuery('#swloader').css('display', 'none');
+    jQuery('body').css('cursor', ''); // Reset cursor to default for body
 }
 
 function confirmEditAccount() {
