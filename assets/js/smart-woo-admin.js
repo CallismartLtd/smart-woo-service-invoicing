@@ -1,15 +1,14 @@
-// Global object to store checkbox states
-let selectedRowsState = {};
-
 function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index) {
+    let selectedRowsState = {};
     let bodyContent = document.querySelector('.sw-admin-dash-body');
+    let searchDiv = document.querySelector('.sw-search-container');
     
     // Clear existing table before rendering the new one
     removeTable();
     totalItems  = bodyData.length;
     
     // Add pagination controls
-    addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index);
+    addPaginationControls(searchDiv, totalPages, currentPage, totalItems, index);
     
     // Create table element
     let table = document.createElement('table');
@@ -139,16 +138,21 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
 
         if (selectedRows.length > 0) {
             smartwooShowActionDialog(selectedRows); // Call the action dialog with selected rows' names
+        } else {
+            let actionDiv   = document.querySelector('.sw-action-container');
+
+            if(actionDiv) {
+                actionDiv.remove();
+            }
         }
     }
 }
 
-
-
+// Add pagination control to table.
 function addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index) {
     let paginationDiv = document.createElement('div');
     paginationDiv.classList.add('sw-pagination-buttons');
-
+    paginationDiv.style.float = "right";
     // Item count placeholder (optional if needed for the frontend)
     let itemCountText = document.createElement('p');
     itemCountText.textContent = `${totalItems} items`; // Example item count; you can adjust it based on real data
@@ -222,27 +226,120 @@ function removeTable() {
         }, 1000);
         
         if (pagenaBtns){
-            jQuery(pagenaBtns).fadeOut();
-            setTimeout(()=>{
-                pagenaBtns.forEach((btns)=>{
-                    btns.remove();
-                });
-            }, 1000);
-            
+    
+            pagenaBtns.forEach((btns)=>{
+                btns.remove();
+            });
+        
         }  
     }
 }
 
-// Example usage of the smartwooShowActionDialog function
+function smartwooPostBulkAction(action, values = []) {
+    if ('delete' === action) {
+        let confirmed = confirm('Heads up!! You are about to delete the selected service' +(values.length > 1 ? 's':'') +'. click ok to continue.');
+        if ( ! confirmed ) {
+            return;
+        }
+    }
+    showLoadingIndicator();
+    jQuery.ajax({
+        type: "POST",
+        url: smartwoo_admin_vars.ajax_url,
+        data: {
+            action: "smartwoo_dashboard_bulk_action",
+            service_ids: values,
+            real_action: action,
+            security: smartwoo_admin_vars.security,
+        },
+        success: function(response) {
+            // console.log('Bulk action success:', response);
+            if( response.success) {
+                showNotification(response.data.message);
+                setTimeout(()=>{
+                    window.location.reload();
+                }, 2000);
+            } else {
+                showNotification("Oops! " + response.data.message);
+            }
+            
+        },
+        error: function(xhr, status, error) {
+            console.error('Bulk action failed:', error);
+            showNotification("An error occured, please inspect console.")
+        },
+        complete: function() {
+            let formerDiv   = document.querySelector('.sw-action-container');
+
+            if(formerDiv) {
+                formerDiv.remove();
+            }
+            hideLoadingIndicator();
+        }
+    });
+}
+
+// Show bulk action dialogue options.
 function smartwooShowActionDialog(selectedRows) {
-    console.log('Selected Rows:', selectedRows);
-    // Show the action dialog here with the selected rows' names
-    // You can implement your dialog or buttons to perform actions based on the selected rows
+    let formerDiv   = document.querySelector('.sw-action-container');
+
+    if(formerDiv) {
+        formerDiv.remove();
+    }
+
+    const actionDiv = document.createElement('div');
+    actionDiv.classList.add('sw-action-container');
+    
+    actionDiv.innerHTML = `
+      <select id="sw-action-select" name="dash_bulk_action">
+        <option label>Choose Action</option>
+        <option value="auto_calc">Auto Calculate</option>
+        <option value="Active">Activate</option>
+        <option value="Active (NR)">Disable Renewal</option>
+        <option value="Suspended">Suspend Service</option>
+        <option value="Cancelled">Cancel Service</option>
+        <option value="Due for Renewal">Due for Renewal</option>
+        <option value="Expired">Expired</option>
+        <option value="delete">Delete</option>
+      </select>
+      <input type="hidden" name="service_ids" value="${selectedRows}"/>
+    `;
+    
+    const tableDiv = document.querySelector('.sw-table');
+    tableDiv.prepend(actionDiv);
+    
+    actionDiv.addEventListener('change', () => {
+        const selectedAction = actionDiv.querySelector('select').value;
+        let initBtn = document.querySelector('.sw-action-btn');
+        if ( initBtn) {
+            initBtn.remove();
+        }
+        let actionBtn = document.createElement('button');
+        actionBtn.classList.add('sw-action-btn');
+        actionBtn.textContent = "Apply Action";
+        actionBtn.style.backgroundColor = "#f1f1f1f1";
+        actionBtn.style.marginLeft = "-2px";
+        actionBtn.style.height = "30px";
+        actionBtn.style.border = "solid .5px blue";
+        if ( 'Choose Action' !== selectedAction ) {
+            actionDiv.append(actionBtn);
+        }
+        if (actionBtn) {
+            actionBtn.addEventListener('click', ()=>{
+                smartwooPostBulkAction(selectedAction, selectedRows);
+
+            });
+        }
+
+    });
+    
 }
 
 // Helper function to make AJAX requests and update the DOM
-function fetchServiceCount( index, action, label ) {
-    let dashContents = document.querySelectorAll( '.sw-dash-content' );
+let fetchIntervals = {}; // Store intervals to avoid multiple intervals for the same index
+
+function fetchServiceCount(index, action, label) {
+    let dashContents = document.querySelectorAll('.sw-dash-content');
 
     return jQuery.ajax({
         type: "GET",
@@ -252,25 +349,29 @@ function fetchServiceCount( index, action, label ) {
             real_action: action,
             security: smartwoo_admin_vars.security,
         },
-        success: function( response ) {
-            if ( response.success ) {
-                smartwoo_clear_dash_content( index );
-                let divTag  = document.createElement('div');
-                let hTag    = document.createElement('h2');
+        success: function(response) {
+            if (response.success) {
+                smartwoo_clear_dash_content(index);
+
+                let divTag = document.createElement('div');
+                let hTag = document.createElement('h2');
                 let spanTag = document.createElement('span');
 
                 divTag.classList.add('sw-dash-count');
                 hTag.textContent = response.data[action]; // Dynamically use the action key
                 spanTag.textContent = label;
-                
+
                 divTag.appendChild(hTag);
                 divTag.appendChild(spanTag);
                 dashContents[index].append(divTag);
                 jQuery('.sw-dash-count').fadeIn().css('display', 'flex');
+            } else {
+                console.log(response);
+                smartwooAddRetryBtn(index, action, label);
             }
         },
-        error: function( error ) {
-            var message  = 'Error fetching data: ';
+        error: function(error) {
+            let message = 'Error fetching data: ';
             if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
                 message += error.responseJSON.data.message;
             } else if (error.responseText) {
@@ -279,14 +380,59 @@ function fetchServiceCount( index, action, label ) {
                 message += error;
             }
             console.error(message);
+            smartwooAddRetryBtn(index, action, label);
+        },
+        complete: function() {
+            // Clear any existing interval for this index before setting a new one
+            if (fetchIntervals[index]) {
+                clearInterval(fetchIntervals[index]);
+            }
+
+            // Perform auto data update every five minutes.
+            fetchIntervals[index] = setInterval(() => {
+                fetchServiceCount(index, action, label);
+                console.log('Auto data refresh executed for index: ' + index);
+            }, 300000); // 300,000 ms = 5 minutes
         }
     });
 }
 
+
+// Add retry button when count fetch fails.
+function smartwooAddRetryBtn(index, action, label) {
+    let dashContents = document.querySelectorAll('.sw-dash-content');
+    smartwoo_clear_dash_content(index);
+
+    // Add a retry button
+    let divTag  = document.createElement('div');
+    divTag.classList.add('sw-dash-count');
+    let h3Tag   = document.createElement('h3');
+    h3Tag.textContent = "Error Occurred";
+    divTag.append(h3Tag);
+
+    let retryBtn = document.createElement('button');
+    retryBtn.classList.add('sw-red-button');
+    retryBtn.textContent = "retry";
+
+    // Assign an onclick attribute with the function and parameters
+    retryBtn.setAttribute('onclick', `fetchServiceCount(${index}, '${action}', '${label}')`);
+
+    divTag.append(retryBtn);
+    dashContents[index].append(divTag);
+    jQuery('.sw-dash-count').fadeIn().css('display', 'flex');
+    retryBtn.addEventListener('click', ()=>{
+        retryBtn.style.cursor = "progress";
+    });
+}
+
+
 // Function to clear skeleton content
 function smartwoo_clear_dash_content( index ) {
     let dashContents = document.querySelectorAll( '.sw-dash-content' );
-    dashContents[index].innerHTML = "";
+    if (dashContents) {
+        dashContents[index].innerHTML = "";
+    }
+   
 }
 
 function fetchDashboardData(index, queryVars = {}) {
@@ -355,6 +501,7 @@ function fetchDashboardData(index, queryVars = {}) {
 
                 // Pass the data to the table rendering function, with pagination info
                 renderTable(tableHeaders, tableBody, rowIds, totalPages, currentPage, index);
+
             }            
         },
         error: function(error) {
@@ -373,7 +520,7 @@ function fetchDashboardData(index, queryVars = {}) {
                 dashContents.style.display = "none";
             }
             
-            hideLoadingIndicator()
+            hideLoadingIndicator();
         },
     });
     
@@ -384,6 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let contentDiv = document.querySelector('.sw-dash-content-container');
     let skeletonContent = document.querySelectorAll('.sw-dash-content');
     let ordersBtn = document.getElementById('dashOrderBtn');
+    let addNewBtn = document.getElementById('dashAddNew');
     let invoicesBtn = document.getElementById('dashInvoicesBtn');
     let productsBtn = document.getElementById('dashProductBtn');
     let settingsBtn = document.getElementById('dashSettingsBtn');
@@ -391,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchField = document.getElementById('sw_service_search');
     let searchbtn = document.getElementById('swSearchBtn');
     const notificationTooltip = document.getElementById('search-notification');
+    let menuButton = document.querySelector('.sw-admin-menu-icon');
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -415,6 +564,12 @@ document.addEventListener('DOMContentLoaded', () => {
         Promise.allSettled(dashBoardLoad).finally(() => {
             document.dispatchEvent(new CustomEvent('SmartWooDashboardLoaded'));
         });
+    }
+
+    if (addNewBtn) {
+        addNewBtn.addEventListener('click', ()=>{
+            window.location.href = smartwoo_admin_vars.new_service_page;
+        } );
     }
 
     if (ordersBtn) {
@@ -448,22 +603,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (searchField && searchbtn && notificationTooltip) {
+        searchField.addEventListener('input', ()=>{
+            const searchValue = searchField.value.trim();
+            if (searchValue.length == 0) {
+                searchbtn.style.cursor = "not-allowed";
+            } else {
+                searchbtn.style.cursor = "pointer";
+                notificationTooltip.style.display = 'none';
+            }
+        })
+        
         searchbtn.addEventListener('click', () => {
-        const searchValue = searchField.value.trim();
-    
-        if (searchValue.length > 0) {
-          fetchDashboardData('sw_search', {search: searchValue});
-          
-          notificationTooltip.style.display = 'none';
-        } else {
-          notificationTooltip.textContent = 'Search field cannot be empty.';
-          notificationTooltip.style.display = 'block';
-        }
+            const searchValue = searchField.value.trim();
 
-        notificationTooltip.addEventListener('click', ()=>{
-            notificationTooltip.style.display = 'none'; // Hide the tooltip
-        } );
-      });
+            if (searchValue.length > 0) {
+                fetchDashboardData('sw_search', {search: searchValue});
+                
+                notificationTooltip.style.display = 'none';
+                } else {
+                notificationTooltip.textContent = 'Search field cannot be empty.';
+                notificationTooltip.style.display = 'block';
+                
+            }
+
+            notificationTooltip.addEventListener('click', ()=>{
+                notificationTooltip.style.display = 'none'; // Hide the tooltip
+            } );
+        });
+    }
+
+    if (menuButton) {
+        let toggled = false;
+        menuButton.addEventListener('click', ()=>{
+            let navDiv = document.querySelector('.sw-admin-dash-nav');
+            
+            if (!toggled) {
+                
+                jQuery(navDiv).fadeIn().css('display', 'flex');
+
+            } else {
+                // navDiv.style.display = "none";
+                jQuery(navDiv).fadeIn().css('display', 'none');
+
+            }
+
+            toggled = !toggled;
+            
+        });
     }
 
 });
@@ -478,9 +664,12 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
 
     // Loop through each dashboard statistic container and attach event listener
     dashboardCount.forEach((stat, index) => {
-        stat.addEventListener('click', () => {
-            removeTable();  // Remove table when any stat is clicked
-            fetchDashboardData(index);  // Fetch new data for the clicked stat
+        stat.addEventListener('click', (e) => {
+            if (e.target.matches('.sw-red-button') ) {
+                return;
+            }
+            removeTable();
+            fetchDashboardData(index);
         });
     });
 
