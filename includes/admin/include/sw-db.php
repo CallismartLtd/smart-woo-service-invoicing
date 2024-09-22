@@ -195,7 +195,7 @@ function smartwoo_db_update_201_is_external() {
 	$table_name = SMARTWOO_ASSETS_TABLE;
 	$new_col 	= 'is_external';
 	$constrnts	= 'varchar(20) DEFAULT NULL';
-	$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 	$column_names = array();
 	foreach ( $columns as $column ) {
