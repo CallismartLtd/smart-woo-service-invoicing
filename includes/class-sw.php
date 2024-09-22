@@ -63,6 +63,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_delete_service', 'smartwoo_delete_service' );
         add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' );
         add_action( 'wp_ajax_smartwoo_dashboard', array( $this, 'dashboard_ajax' ) );
+        add_action( 'wp_ajax_smartwoo_dashboard_bulk_action', array( $this, 'dashboard_ajax_bulk_action' ) );
     }
 
     /** Service Subscription */
@@ -578,6 +579,7 @@ final class SmartWoo {
                 'all_expired_services_table',
                 'all_cancelled_services_table',
                 'all_suspended_services_table',
+                
             )
         );
 
@@ -687,7 +689,6 @@ final class SmartWoo {
         $data           = array();
         $row_names      = array();
 
-        // wp_die( var_dump( $all_services ) );
         if ( ! empty( $all_services ) ) {
             foreach ( $all_services as $service ) {
                 $data[] = array( $service->getServiceName(), $service->getServiceId(), smartwoo_service_status( $service ) );
@@ -710,9 +711,90 @@ final class SmartWoo {
         );
 
         wp_send_json_success( array( 'all_services_table' => $response ) );
+    }
+
+    /**
+     * Dashboard bulk action handler.
+     */
+    public function dashboard_ajax_bulk_action() {
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
+
+        }
+
+        add_filter( 'smartwoo_is_frontend', '__return_false' );
+        $allowed_actions    = array(
+            'auto_calc',
+            'Active',
+            'Active (NR)',
+            'Suspended',
+            'Cancelled',
+            'Due for Renewal',
+            'Expired',
+            'delete'
+        );
         
+        $action = isset( $_POST['real_action'] ) ? sanitize_text_field( wp_unslash( $_POST['real_action'] ) ) : false;
+
+        if ( ! $action ) {
+            wp_send_json_error( array('message' => 'Real action missing.' ) );
+        }
+        
+        if ( ! in_array($action, $allowed_actions, true ) ) {
+            wp_send_json_error( array( 'message' => 'Action is not allowed' ) );
+        }
+        $service_ids    = isset( $_POST['service_ids'] ) && is_array( $_POST['service_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['service_ids'] ) ) : array();
+        
+        if ( empty( $service_ids ) ) {
+            wp_send_json_error( array( 'message' => 'No service ID was provided.' ) );
+        }
+
+        $service_noun = ( count( $service_ids ) > 1 ) ? "Services": "Service";
+        if ( 'auto_calc' === $action ) {
+            $message        = "Automatic calculation applied to the selected " . $service_noun;
+            $field_value    = null;
+
+        } elseif ( 'Active' === $action ) {
+            $message        = $service_noun . " has been activated.";
+            $field_value    = 'Active';
+        } elseif ( 'Active (NR)' === $action ) {
+            $message        = $service_nounce . " has been activated but will not renew on next payment date";
+            $field_value    = 'Active (NR)';
+        } elseif ( 'Suspended' === $action ) {
+            $message        = $service_noun . " has been suspended.";
+            $field_value    = 'Suspended';
+        } elseif ( 'Cancelled' === $action ) {
+            $message        = $service_noun . " has been cancelled";
+            $field_value    = 'Cancelled';
+        } elseif ( 'Due for Renewal' === $action ) {
+            $message        = $service_noun . " now Due for renewal";
+            $field_value    = 'Due for Renewal';
+        } elseif ( 'Expired' === $action ) {
+            $message        = $service_noun . " has been expired";
+            $field_value    = 'Expired';
+        } elseif ( 'delete' === $action ) {
+            $message        = $service_noun . " has been deleted";
+        }
 
         
+        foreach ( $service_ids as $service_id ) {
+            if ( 'delete' !== $action ) {
+                SmartWoo_Service_Database::update_service_fields( $service_id, array('status' => $field_value ) );
+                continue;
+            }
+            
+            if ( 'delete' === $action ) {
+                SmartWoo_Service_Database::delete_service( $service_id );
+            }
+        }
+
+
+
+        wp_send_json_success( array('message' => $message ) );
     }
 
     /**
