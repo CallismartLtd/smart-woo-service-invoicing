@@ -67,8 +67,9 @@ use inline CSS to overide some styles
 	width: 15% auto;
 	border: solid 0.5px blue;
 	border-radius: 5px;
-	float: right;
+	float: right !important;
 	margin-right: 15px;
+	margin-left: 60px;
 	margin-bottom: 10px;
 }
 
