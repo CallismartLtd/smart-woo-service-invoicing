@@ -15,7 +15,7 @@ function smartwoo_invoice_front_temp() {
 	global $wp_query;
 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( $_GET ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     }
 
 	$limit 			= 10;
@@ -332,10 +332,10 @@ function smartwoo_invoices_by_status() {
 	global $wp_query;
 
 	if ( ! is_user_logged_in() ) {
-		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( $_GET ) ) );
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     }
 
-	$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
+	$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$limit 			= 10;
 	$page 			= isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ? absint( $wp_query->query_vars['paged'] ) : 1;
