@@ -224,3 +224,10 @@ function smartwoo_migrate_options_201() {
 		delete_option( 'smartwoo_refund_with_wallet' );
 	}
 }
+
+/**
+ * Count all services and save to option
+ */
+function smartwoo_2012_update_service_count() {
+	SmartWoo::count_all_services();
+}

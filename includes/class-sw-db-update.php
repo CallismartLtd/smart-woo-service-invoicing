@@ -25,6 +25,10 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
             'smartwoo_db_update_201_is_external',
             'smartwoo_migrate_options_201',
         ),
+
+        '2.0.12' => array(
+            'smartwoo_2012_update_service_count'
+        )
     );
 
     /**
