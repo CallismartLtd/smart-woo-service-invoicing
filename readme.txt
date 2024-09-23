@@ -4,9 +4,9 @@ Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicin
 Requires at least: 6.0  
 Tested up to: 6.6.2  
 Requires WooCommerce: 8.0  
-WooCommerce tested: 9.2.3  
+WooCommerce tested: 9.3.2  
 Requires PHP: 7.4  
-Stable Tag: 2.0.11  
+Stable Tag: 2.0.12 
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -16,10 +16,11 @@ More Than Just A Subscription Plugin!
 Smart Woo Service Invoicing simplifies your subscription-based business by automating invoicing at the end of a billing cycle. Perfect for freelancers and agencies, it offers robust features to efficiently manage recurring services without breaking the bank.
 
 == Features ==
+- **Professional Client Portal**: A modern frontend UI allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
 - **Automatic Invoice Generation**: Automatically generates and issues invoices at the end of each billing cycle, making the management process seamless.
+- **Flexible Payment Options**: Smart Woo works with any payment method supported by WooCommerce, making invoice payments easier for your clients.
 - **Flexible Billing Cycles**: Charge for Monthly, Quarterly, Six-Monthly, and Yearly service subscription periods.
 - **User-Friendly Interface**: Empower customers to set their service name, billing cycle, and other relevant data during the purchase (sign-up) process.
-- **Professional Client Portal**: A modern frontend UI allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
 - **Robust Subscription Assets**: Supports downloadable, remote-protected (resource), digital, and physical asset subscriptions.
 - **Customized Notifications**: Choose how to receive notifications about service purchases, renewals, expirations, and stay informed about your subscriptions.
 - **Stats and Usage**: Monitor service subscription performance directly from the admin dashboard.
@@ -58,15 +59,18 @@ For more information and updates, visit the [Smart Woo Service Invoicing Plugin 
 
 == Usage ==
 
-1. Create a 'Service Product' from the plugin's service product page.
-2. Set billing cycles, sign-up fees, and other parameters specific to the service you offer.
-3. Customers can now personalize their service details during sign-up.
+1. Create a product from the plugin's service product page.
+2. Set billing cycles, sign-up fees, and other options specific to the service you offer.
+3. Customers can now set up their service details during sign-up.
 4. Manage orders effortlessly through the Service Order page.
-5. Automatic invoice generation simplifies the renewal process.
+5. After processing an order from the service order page, the service subscription will be up and running.
+6. Automatic invoice generation simplifies the renewal process.
+7. Customers can pay their invoices through the invoice mail or manually log in to the portal to pay.
 
 == Feedback and Contributions ==
 
 We welcome and appreciate user suggestions! Feel free to submit your ideas or report issues. Together, we can make Smart Woo the ultimate solution for service billing on WooCommerce.
+For more information on future releases, release notes, and feature requests, visit the [official release page](http://callismart.com.ng/smart-woo-service-invoicing-release-notes/).
 
 == Author ==
 
@@ -78,28 +82,21 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 == Changelog ==
-= 2.0.11 - 2024-09-02 =
+= 2.0.12 - 2024-09-23 =
 * Fixed
-  - PDF invoice download resulting to fatal error due to PHP 8.0 compatibility with mPDF library.
-  - Minor bugs.
+  - Hardened Security.
+  - New UI and UX for the admin dashboard.
+  - Paginated invoice table on both admin and client portal.
 
 * Tested
   - With WordPress 6.6.2
-  - With WooCommerce 9.2.3
+  - With WooCommerce 9.3.2
+  - Tested with over 12,000 subscription data and page speed is proven to be fast, consistent and efficient.
 
-= 2.0.1 - 2024-08-25 =
-* Added:
-  - Support for downloading assets from protected resource servers.
-  - Option to set custom assets for a service subscription.
-  - Edit Assets option for services.
-  - Automatic updates for smart woo database.
 
-* Fixed
-  - Responsiveness for product configuration form.
-  - Synchronization of service and invoice after order is processed.
+* Optimized
+  - Database queries now faster than ever.
 
-* Compatibility
-  - WooCommerce tested up 9.2.2
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
@@ -113,4 +110,3 @@ We are committed to delivering a high-quality user experience and ensuring that 
 
 For dedicated support, please visit our [support portal](https://callismart.com.ng/support-portal). For general inquiries, use the [WordPress Support Forum](https://wordpress.org/support/plugin/smart-woo-service-invoicing).
 
-For more information, release notes, and feature requests, visit the [official release page](http://callismart.com.ng/smart-woo-service-invoicing-release-notes/).
