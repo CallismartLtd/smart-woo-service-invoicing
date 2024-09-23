@@ -40,7 +40,8 @@ This project is licensed under the GPL-v3.0+ License.
 
 ![Screenshot 1](assets/images/smart-woo-img.png)  
 ![Screenshot 2](assets/images/service-page.png)  
-![Screenshot 3](assets/images/invoice-sample.png)
+![Screenshot 3](assets/images/smartwoopro-adv-stats.png)  
+![Screenshot 4](assets/images/invoice-sample.png)
 
 ## Prerequisites
 
