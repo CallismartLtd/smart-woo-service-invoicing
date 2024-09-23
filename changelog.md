@@ -1,15 +1,17 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.0.12] yyyy-mm-dd
+# [2.0.12] 2024-09-23
 ### Added 
 - Logout button on service page.
 
 ### Fixed
 - Hardened Security.
 - New UI and UX for the admin dashboard.
+- Paginated invoice table on both admin and client portal.
 
 ### Optimized
 - Database queries now faster than ever.
+- Tested with over 12,000 subscription data and page speed is proven to be fast, consistent and efficient.
 
 # [2.0.11] 2024-09-02
 ### Fixed
