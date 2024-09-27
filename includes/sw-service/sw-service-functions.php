@@ -80,14 +80,9 @@ function smartwoo_generate_service(
  */
 function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 	$button_text = is_admin() ? 'Access Client Service' : 'Visit Website';
+	$button_text = apply_filters( 'smartwoo_service_url_button_text', $button_text );
+	return '<a href="' . esc_url( apply_filters( 'smartwoo_service_url', $service->getServiceUrl() ) ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
 
-	if ( method_exists( 'SmartWooPro_API', 'service_url' ) ) {
-		return SmartWooPro_API::service_url( $service );
-	} else {
-	
-		return '<a href="' . esc_url( $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
-
-	}
 }
 
 /**
