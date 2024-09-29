@@ -32,8 +32,11 @@ function smartwoo_service_details() {
 	$service	= SmartWoo_Service_Database::get_service_by_id( $url_service_id );
 	$output		= '';
 
-	if ( $service && $service->getUserId() !== get_current_user_id()|| ! $service ) {
-		return smartwoo_error_notice( 'Service Not Found.', 'smart-woo-service-invoicing' );
+	if ( ! $service || ( $service && $service->getUserId() !== get_current_user_id() ) ) {
+		$output  = wp_kses_post( smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() ) );
+		$output .= smartwoo_error_notice( 'Service Not Found.', 'smart-woo-service-invoicing' );
+
+		return $output;
 	}
 	
 	$service_name 		= $service->getServiceName() ? $service->getServiceName() : 'Not Available';

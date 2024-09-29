@@ -80,8 +80,12 @@ function smartwoo_generate_service(
  */
 function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 	$button_text = is_admin() ? 'Access Client Service' : 'Visit Website';
-	$button_text = apply_filters( 'smartwoo_service_url_button_text', $button_text );
-	return '<a href="' . esc_url( apply_filters( 'smartwoo_service_url', $service->getServiceUrl() ) ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
+	$button_text = apply_filters( 'smartwoo_service_url_button_text', $button_text, $service );
+	/**
+	 * @see filter	smartwoo_service_url allows for total replacement of the client service
+	 * 		url button by plugins;
+	 */
+	return apply_filters( 'smartwoo_service_url_button_html', '<a href="' . esc_url(  $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>', $button_text, $service );
 
 }
 
