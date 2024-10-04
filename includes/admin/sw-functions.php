@@ -509,7 +509,7 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 			'Services'	=> smartwoo_service_page_url(),
 			'Invoices'	=> smartwoo_invoice_page_url(),
 			'Buy New'	=> smartwoo_service_page_url() . 'buy-new/',
-			'Logout'	=> wp_logout_url()
+			'Logout'	=> ''
 		)
     );
 
@@ -525,7 +525,13 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     $nav_bar .= '<div class="navbar-links-container">';
     $nav_bar .= '<ul>';
     foreach ( $nav_item as  $text => $url ) {
-        $nav_bar .= '<li><a href="' . esc_url( $url ) . '" class="">' . esc_html( $text ) . '</a></li>';
+		if ( 'Logout' === $text ) {
+			$nav_bar .= '<li><a class="smart-woo-logout">' . esc_html( $text ) . '</a></li>';
+
+		} else {
+			$nav_bar .= '<li><a href="' . esc_url( $url ) . '" class="smart-woo-nav-text">' . esc_html( $text ) . '</a></li>';
+
+		}
     }
     $nav_bar .= '</ul>';
     $nav_bar .= '</div>';
