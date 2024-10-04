@@ -86,23 +86,17 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 ## Changelog
 
-# [2.0.12] 2024-09-23
-### Added 
-- Logout button on service page.
+# [2.0.13] 2024-10-04
+
+### Added
+- Ajax logout feature on the invoice and service pages.
+- Invoices by status filtering for users.
 
 ### Fixed
-- Hardened Security.
-- New UI and UX for the admin dashboard.
-- Paginated invoice table on both admin and client portal.
 
-### Tested
-- With WordPress 6.6.2
-- With WooCommerce 9.3.2
-- Tested with over 12,000 subscription data and page speed is proven to be fast, consistent and efficient.
-
-
-### Optimized
-- Database queries now faster than ever.
+- Admin search feature not working for mariaDB users.
+- New service purchase template now available for logged out users.
+- Minor bug fixes.
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
