@@ -476,7 +476,6 @@ class SmartWoo_Service_Database {
 		if ( false === $services ) {
 			$services = array(); // Initialize an empty array for services.
 
-			// Prepare the query to search multiple columns with exact match.
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$query = $wpdb->prepare( 
 				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . "
@@ -487,9 +486,6 @@ class SmartWoo_Service_Database {
 				OR `service_type` = %s 
 				OR `service_id` = %s 
 				OR `product_id` = %s 
-				OR `start_date` = %s 
-				OR `next_payment_date` = %s
-				OR `end_date` = %s 
 				OR `status` = %s
 				LIMIT %d
 				OFFSET %d", 
@@ -501,9 +497,6 @@ class SmartWoo_Service_Database {
 				$search_term, 
 				$search_term, 
 				$search_term, 
-				$search_term, 
-				$search_term, 
-				$search_term,
 				$limit,
 				$offset
 			);
