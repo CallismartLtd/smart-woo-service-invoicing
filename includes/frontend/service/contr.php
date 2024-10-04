@@ -17,12 +17,12 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * in the client service page.
  */
 function smartwoo_service_shortcode() {
-
-	if ( ! is_user_logged_in() ) {
+	global $wp_query;
+	if ( ! is_user_logged_in() && ! isset( $wp_query->query_vars['buy-new'] ) ) {
 		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to access this page.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
-	global $wp_query;
+	
 	$url_param = '';
 
 	if ( isset ( $wp_query->query_vars['buy-new'] ) ) {
