@@ -1,9 +1,10 @@
 function smartWooAddSpinner(targetId) {
 	const loadingSpinner = document.createElement('div');
-	loadingSpinner.classList.add('loading-spinner'); // Add a class for styling
+	loadingSpinner.classList.add('loading-spinner');
 	loadingSpinner.innerHTML = '<img src=" ' + smart_woo_vars.wp_spinner_gif_loader +'" alt="Loading...">';
   
 	const targetElement = document.getElementById(targetId);
+
 	targetElement.appendChild(loadingSpinner);
   
 	return loadingSpinner; // Return the created element for potential removal
@@ -868,9 +869,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+function smartwoo_ajax_logout() {
+	let actionModalframe = document.querySelector('.smartwoo-logout-contaner');
+	let spinnerDiv		= document.createElement('div')
+	spinnerDiv.id = 'spinnerDiv';
+	actionModalframe.appendChild(spinnerDiv);
+	let theSpin = smartWooAddSpinner('spinnerDiv');
+
+	jQuery.ajax({
+		type: 'GET',
+		url: smart_woo_vars.ajax_url,
+		data: {
+			security: smart_woo_vars.security,
+			action: 'smartwoo_ajax_logout'
+		},
+		complete: function() {
+			theSpin.remove();
+			window.location.reload();
+		}
+	});
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    var hamburger 	= document.querySelector('.sw-menu-icon');
-    var navbar 		= document.querySelector('.service-navbar');
+    let hamburger 	= document.querySelector('.sw-menu-icon');
+    let navbar 		= document.querySelector('.service-navbar');
+	let logoutBtn	= document.querySelector( '.smart-woo-logout' );
 
     if (hamburger) {
 		var menuIcon = hamburger.querySelector('.dashicons-menu');
@@ -885,6 +908,57 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+	if (logoutBtn) {
+		let clicked = false;
+		logoutBtn.addEventListener('click', function(){
+			let actionModalframe	= document.createElement('div');
+			actionModalframe.classList.add('smartwoo-logout-frame');
+			let actionModal = document.createElement('div');
+			actionModal.classList.add('smartwoo-logout-contaner');
+			actionModalframe.append(actionModal);
+
+			let pTag	= document.createElement('p');
+			pTag.textContent = "Are sure you want to logout?";
+
+			actionModal.append(pTag);
+
+			let btnDiv	= document.createElement('div');
+			btnDiv.classList.add('smartwoo-logout-btn-container');
+
+			let yesBtn = document.createElement('button');
+			yesBtn.classList.add('sw-blue-button');
+			yesBtn.textContent = "Yes";
+			let noBtn  = document.createElement('button');
+			noBtn.classList.add('sw-red-button');
+			noBtn.textContent = "No";
+			btnDiv.append(noBtn, yesBtn);
+			actionModal.append(btnDiv);
+			if (clicked) {
+				jQuery('.smartwoo-logout-frame').fadeOut();
+				setTimeout(()=>{
+					document.querySelector('.smartwoo-logout-frame').remove();
+
+				}, 200);
+			} else {
+				navbar.insertAdjacentElement('afterend',actionModalframe);
+				jQuery(actionModalframe).fadeIn().css('display', 'block')
+			}
+			clicked = !clicked;
+
+			noBtn.addEventListener('click', ()=>{
+				jQuery('.smartwoo-logout-frame').fadeOut();
+				setTimeout(()=>{
+					document.querySelector('.smartwoo-logout-frame').remove();
+
+				}, 200);
+				clicked = !clicked;
+			});
+
+			yesBtn.addEventListener('click', smartwoo_ajax_logout );
+			
+
+		});
+	}
 });
 
 jQuery(document).ready(function($) {
