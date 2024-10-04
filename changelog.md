@@ -1,5 +1,17 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.0.13] 2024-10-04
+
+### Added
+- Ajax logout feature on the invoice and service pages.
+- Invoices by status filtering for users.
+
+### Fixed
+
+- Admin search feature not working for mariaDB users.
+- New service purchase template now available for logged out users.
+- Minor bug fixes.
+
 # [2.0.12] 2024-09-23
 ### Added 
 - Logout button on service page.
