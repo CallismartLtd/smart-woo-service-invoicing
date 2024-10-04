@@ -64,6 +64,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' );
         add_action( 'wp_ajax_smartwoo_dashboard', array( $this, 'dashboard_ajax' ) );
         add_action( 'wp_ajax_smartwoo_dashboard_bulk_action', array( $this, 'dashboard_ajax_bulk_action' ) );
+        add_action( 'wp_ajax_smartwoo_ajax_logout', array( __CLASS__, 'ajax_logout' ) );
     }
 
     /** Service Subscription */
@@ -805,6 +806,15 @@ final class SmartWoo {
     public static function count_all_services() {
         $count  = SmartWoo_Service_Database::count_all();
         update_option( 'smartwoo_all_services_count', $count );
+    }
+
+    /**
+     * Logout ajax handler
+     */
+    public static function ajax_logout() {
+        check_ajax_referer( 'smart_woo_nonce', 'security' );
+        wp_logout();
+        wp_send_json_success();
     }
     
 }
