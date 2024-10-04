@@ -28,7 +28,7 @@ function smartwoo_invoice_front_temp() {
 	/**
 	 * Start frontpage markup
 	 */
-	$output  = smartwoo_get_navbar( 'My Invoices' );
+	$output  = smartwoo_get_navbar( 'My Invoices', smartwoo_invoice_page_url() );
 	$output .= '<div class="site-content">';
     $output .= smartwoo_all_user_invoices_count();
 	// Display the invoices in a table.
@@ -347,7 +347,7 @@ function smartwoo_invoices_by_status() {
 	/**
 	 * Start frontpage markup
 	 */
-	$output  = smartwoo_get_navbar( 'My Invoices' );
+	$output  = smartwoo_get_navbar( 'My Invoices', smartwoo_invoice_page_url() );
 	$output .= '<div class="site-content">';
     $output .= smartwoo_all_user_invoices_count();
 	// Display the invoices in a table.
@@ -366,7 +366,7 @@ function smartwoo_invoices_by_status() {
 	$output .= '<tbody>';
 	
 	if ( empty( $invoices ) ) {
-		$output .= '<tr><td colspan="6" style="text-align: center;"> All Invoices will appear here</td></tr>';
+		$output .= '<tr><td colspan="6" style="text-align: center;"> All '. $status .' invoices will appear here</td></tr>';
 		$output .= '</tbody></table></div></div>';
 		return $output;
 	}
@@ -500,8 +500,9 @@ function smartwoo_all_user_invoices_count() {
 	// Generate the HTML.
 	$output = '<div class="invoice-status-counts">';
 	foreach ( $counts as $status => $count ) {
+		$nav_url = add_query_arg( array( 'invoice_page' => 'invoices_by_status', 'status' => $status ) );
 		$output .= '<div class="status-item">';
-		$output .= '<p>' . ucfirst( $status ) . ' (' . $count . ')</p>';
+		$output .= '<p><a href="' . esc_url( $nav_url ) .'">' . ucfirst( $status ) . ' <small>' . $count . '</small></a></p>';
 		$output .= '</div>';
 	}
 	$output .= '</div>';
