@@ -374,9 +374,15 @@ function smartwoo_process_payment_link() {
  * @return bool False if no service is due | True otherwise
  */
 function smartwoo_auto_renew_services() {
-	$all_services = SmartWoo_Service_Database::get_all_services();
+	add_filter( 'smartwoo_is_frontend', '__return_false' );
+	$args			= get_transient( 'smartwoo_auto_renew_args' );
+	if ( false === $args ) {
+		$args = array( 'page' => 1, 'limit' => 20 );
+	}
+	$all_services 	= SmartWoo_Service_Database::get_all_due( $rgs['page'], $args['limit'] );
 
 	if ( empty( $all_services ) ) {
+		delete_transient( 'smartwoo_auto_renew_args' );
 		return;
 	}
 
@@ -407,6 +413,8 @@ function smartwoo_auto_renew_services() {
 			
 		}
 	}
+	$args['page']++;
+	set_transient( 'smartwoo_auto_renew_args', $args, 12 * HOUR_IN_SECONDS );
 }
 // Hook to scheduled event
 add_action( 'smartwoo_auto_service_renewal', 'smartwoo_auto_renew_services' );

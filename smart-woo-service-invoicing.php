@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Smart Woo Service Invoicing
  * Description: More than just a subscription plugin.
- * Version: 2.0.12
+ * Version: 2.0.13
  * Author: Callistus Nwachukwu
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo-service-invoicing
@@ -11,7 +11,7 @@
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  * WC requires at least: 8.0
- * WC tested up to: 9.2.3
+ * WC tested up to: 9.3.3
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html  
  * Text Domain: smart-woo-service-invoicing

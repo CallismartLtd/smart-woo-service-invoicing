@@ -4,9 +4,9 @@ Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicin
 Requires at least: 6.0  
 Tested up to: 6.6.2  
 Requires WooCommerce: 8.0  
-WooCommerce tested: 9.3.2  
+WooCommerce tested: 9.3.3
 Requires PHP: 7.4  
-Stable Tag: 2.0.12 
+Stable Tag: 2.0.13
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
