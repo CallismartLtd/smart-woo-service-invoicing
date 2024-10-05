@@ -44,11 +44,11 @@ if ( ! defined( 'SMARTWOO_DIR_URL' ) ) {
 
 // Define the Smart Woo versions.
 if ( ! defined( 'SMARTWOO_VER' ) ) {
-	define( 'SMARTWOO_VER', '2.0.12' );
+	define( 'SMARTWOO_VER', '2.0.13' );
 }
 
 if ( ! defined( 'SMARTWOO_DB_VER' ) ) {
-	define( 'SMARTWOO_DB_VER', '2.0.12' );
+	define( 'SMARTWOO_DB_VER', '2.0.13' );
 }
 
 // Load core and config files.
