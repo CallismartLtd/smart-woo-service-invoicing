@@ -21,16 +21,18 @@ Smart Woo Service Invoicing simplifies your subscription-based business by autom
 
 ## Features
 
-- **Automatic Invoice Generation**: Automatically generates and issues invoices at the end of each billing cycle, making the whole management process seamless.
+- **Professional Client Portal**: A modern frontend UI to allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
+- **Automatic Invoice Generation**: Automatically generates and issues invoices at the end of each billing cycle, making the management process seamless.
+- **Flexible Payment Options**: Smart Woo works with any payment method supported by WooCommerce, making invoice payments easier for your clients.
 - **Flexible Billing Cycles**: Charge for Monthly, Quarterly, Six-Monthly, and Yearly service subscription periods.
 - **User-Friendly Interface**: Empower customers to set their service name, billing cycle, and other relevant data during the purchase (sign-up) process.
-- **Professional Client Portal**: A modern frontend UI allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
 - **Robust Subscription Assets**: Supports downloadable, remote-protected (resource), digital, and physical asset subscriptions.
 - **Customized Notifications**: Choose how to receive notifications about service purchases, renewals, expirations, and stay informed about your subscriptions.
 - **Stats and Usage**: Monitor service subscription performance directly from the admin dashboard.
 - **Automated Refunds**: Provides efficient refund calculations and automatic refunds.
 - **Prorated Service Subscriptions**: Option to prorate subscriptions and reflect this in the invoicing system.
 - **Service Subscription Migration**: Flexible options allow clients to migrate from their current subscription to another, directly from their dashboard.
+
 
 ## License
 
