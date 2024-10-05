@@ -73,23 +73,3 @@ function smartwoo_service_myaccount_content() {
     }
 }
 
-
-/**
- * WooCommerce my-account page title
- * 
- * @param string $title The endpoint title.
- * @return string $title The page the title.
- * @since 1.0.52
- */
-function smartwoo_myaccount_titles( $title ) {
-    global $wp;
-
-    if ( array_key_exists( 'smartwoo-invoice', $wp->query_vars ) ) {
-        $title = __( 'My Invoices', 'smart-woo-service-invoicing' );
-    } elseif ( array_key_exists( 'smartwoo-service',  $wp->query_vars )  ) {
-        $title = __( 'My Services', 'smart-woo-service-invoicing' );
-    }
-    
-    return $title;
-}
-
