@@ -10,6 +10,7 @@
 
 - Admin search feature not working for mariaDB users.
 - New service purchase template now available for logged out users.
+- WooCommerce account menu bug.
 - Minor bug fixes.
 
 # [2.0.12] 2024-09-23
