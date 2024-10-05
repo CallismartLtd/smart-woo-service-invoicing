@@ -1,6 +1,6 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.0.13] 2024-10-04
+# [2.0.13] 2024-10-05
 
 ### Added
 - Ajax logout feature on the invoice and service pages.
