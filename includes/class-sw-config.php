@@ -78,7 +78,6 @@ class SmartWoo_Config{
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
-        add_filter( 'the_title', 'smartwoo_myaccount_titles', 10, 3 );
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
         add_filter( 'template_include', 'smartwoo_template_for_configure_page' );
@@ -148,7 +147,6 @@ class SmartWoo_Config{
 
         require_once SMARTWOO_PATH . 'includes/admin/sw-functions.php';
         require_once SMARTWOO_PATH . 'includes/class-sw.php';
-        require_once SMARTWOO_PATH . 'includes/admin/include/smart-woo-manager.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice-database.php';
