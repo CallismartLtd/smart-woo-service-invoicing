@@ -262,7 +262,7 @@ class SmartWoo_Service_Assets {
         } elseif (  'view' === $context && intval( $this->limit ) === 0 ) {
             return 'Exceeded';
         } elseif ( 'edit' === $context && $this->limit <= -1 ) {
-            $this->limit = '';
+            $this->limit = -1;
         }
         return $this->limit;
     }
@@ -543,7 +543,7 @@ class SmartWoo_Service_Assets {
         $self->set_asset_data( ! empty( $result['asset_data'] ) ? $result['asset_data'] : '', $context );
         $self->set_key( ! empty( $result['asset_key'] ) ? $result['asset_key'] : '' );
         $self->set_expiry( ! empty( $result['expiry'] ) ? $result['expiry'] : '' );
-        $self->set_limit( ! empty( $result['access_limit'] ) ? $result['access_limit'] : '' );
+        $self->set_limit( ! empty( $result['access_limit'] ) ? $result['access_limit'] : -1 );
         $self->is_external( ! empty( $result['is_external'] ) ? $result['is_external']: '' );
 
         return $self;
