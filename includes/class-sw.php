@@ -168,7 +168,7 @@ final class SmartWoo {
             $user = wp_signon( $credentials, false );
 
             if ( is_wp_error( $user ) ) {
-                set_transient( 'smartwoo_login_error', $user->get_error_message(), 5 );
+                set_transient( 'smartwoo_login_error', $user->get_error_message(), 15 );
                 wp_redirect( esc_url_raw( wp_get_referer() ) );
                 exit;
 
@@ -302,7 +302,7 @@ final class SmartWoo {
                      */
                     $asset_tpes     = array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_types'] ) );
                     $the_keys       = array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_names'] ) );
-                    $the_values     = array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_values'] ) );
+                    $the_values     = array_map( 'wp_kses_post', wp_unslash( $_POST['add_asset_values'] ) );
                     $access_limit	= isset( $_POST['access_limits'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['access_limits'] ) ) : array();
 
                     $asset_data = array();
@@ -336,7 +336,7 @@ final class SmartWoo {
     
                             // Proper asset data structure where asset name is used to identify the asset type.
                             $raw_assets = array(
-                                'asset_data'    => array_map( 'sanitize_text_field', wp_unslash( array( $k => $v ) ) ),
+                                'asset_data'    => array_map( 'wp_kses_post', wp_unslash( array( $k => $v ) ) ),
                                 'asset_name'    => $asset_tpes[$index],
                                 'expiry'        => $end_date,
                                 'service_id'    => $saved_service_id,
@@ -837,7 +837,7 @@ final class SmartWoo {
      * @return bool False if no service is due | True otherwise
      */
     public static function auto_renew_due() {
-        add_filter( 'smartwoo_is_frontend', '__return_false' ); // Ensures the process runs in backend context
+        add_filter( 'smartwoo_is_frontend', '__return_false' ); // Ensures the process runs in backend context.
 
         $args = get_transient( 'smartwoo_auto_renew_args' );
         if ( false === $args ) {
