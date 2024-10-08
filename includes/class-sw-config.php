@@ -189,7 +189,6 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-        
     }
 
     /**
@@ -205,7 +204,7 @@ class SmartWoo_Config{
     public function load_styles() {
 
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-            wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         
         }
 
@@ -238,7 +237,7 @@ class SmartWoo_Config{
             
         );
 
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
     
         if ( is_admin() ) {
             wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin-min.js', array( 'jquery' ), SMARTWOO_VER, true );

@@ -1,5 +1,11 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.0.14] YYYY-MM-DD
+
+### Fixed
+- Invoice payment reminder not sending.
+- Responsive layout for client menu.
+
 # [2.0.13] 2024-10-05
 
 ### Added

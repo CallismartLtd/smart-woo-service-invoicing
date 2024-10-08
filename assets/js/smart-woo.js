@@ -894,6 +894,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let hamburger 	= document.querySelector('.sw-menu-icon');
     let navbar 		= document.querySelector('.service-navbar');
 	let logoutBtn	= document.querySelector( '.smart-woo-logout' );
+	let loginPWDVisible = document.getElementById('smartwoo-login-form-visible');
+	let loginPWDHidden 	= document.getElementById('smartwoo-login-form-invisible');
+	let loginPWDInput	= document.getElementById('sw-user-password');
 
     if (hamburger) {
 		var menuIcon = hamburger.querySelector('.dashicons-menu');
@@ -957,6 +960,19 @@ document.addEventListener('DOMContentLoaded', function() {
 			yesBtn.addEventListener('click', smartwoo_ajax_logout );
 			
 
+		});
+	}
+
+	if (loginPWDVisible && loginPWDHidden && loginPWDInput) {
+		loginPWDVisible.addEventListener('click', ()=> {
+			loginPWDVisible.style.display = "none";
+			loginPWDHidden.style.display	= "block";
+			loginPWDInput.setAttribute('type', 'text');
+		});
+		loginPWDHidden.addEventListener('click', ()=>{
+			loginPWDHidden.style.display = "none";
+			loginPWDVisible.style.display = "block";
+			loginPWDInput.setAttribute('type', 'password');
 		});
 	}
 });

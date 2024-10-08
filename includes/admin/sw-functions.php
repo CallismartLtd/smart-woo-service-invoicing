@@ -779,6 +779,7 @@ function smartwoo_get_last_login_date( $user_id ) {
  * @since 1.1.0
  */
 function smartwoo_login_form( $options ) {
+	wp_enqueue_style( 'dashicons' );
 	$default_options = array(
 		'notice'	=> '',
 		'redirect'	=> get_permalink(),
@@ -786,7 +787,7 @@ function smartwoo_login_form( $options ) {
 
 	$parsed_args = wp_parse_args( $options, $default_options );
 
-	$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="smartwoo-login-form">';
+	$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="smartwoo-login-form" id="smartwoo-login-form">';
 	$form .= '<div class="smartwoo-login-form-content">';
 	$form .= '<div class="smartwoo-login-form-notice">';
 	$form .= wp_kses_post( $parsed_args['notice'] );
@@ -797,13 +798,15 @@ function smartwoo_login_form( $options ) {
 	$form .= '</div>';
 
 	$form .= '<div class="smartwoo-login-form-body">';
-	$form .= '<label for="user-login" class="smartwoo-login-form-label">Username/Email *</label>';
-	$form .= '<input type="text" id="user-login" class="smartwoo-login-input" name="user_login" />';
+	$form .= '<label for="sw-user-login" class="smartwoo-login-form-label">Username/Email *</label>';
+	$form .= '<input type="text" id="sw-user-login" class="smartwoo-login-input" name="user_login" />';
 	$form .= '</div>';
 
 	$form .= '<div class="smartwoo-login-form-body">';
-	$form .= '<label for="password" class="smartwoo-login-form-label">Password *</label>';
-	$form .= '<input type="password" id="password" class="smartwoo-login-input" name="password" />';
+	$form .= '<label for="sw-user-password" class="smartwoo-login-form-label">Password *</label>';
+	$form .= '<input type="password" id="sw-user-password" class="smartwoo-login-input" name="password" />';
+	$form .= '<span id="smartwoo-login-form-visible" class="dashicons dashicons-visibility"></span>';
+	$form .= '<span id="smartwoo-login-form-invisible" class="dashicons dashicons-hidden" style="display: none"></span>';
 	$form .= '</div>';
 
 	$form .= wp_nonce_field( 'smartwoo_login_nonce', 'smartwoo_login_nonce' );
