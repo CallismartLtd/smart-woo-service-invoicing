@@ -6,7 +6,7 @@ Tested up to: 6.6.2
 Requires WooCommerce: 8.0  
 WooCommerce tested: 9.3.3
 Requires PHP: 7.4  
-Stable Tag: 2.0.13
+Stable Tag: 2.0.14
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -82,19 +82,10 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
-= 2.0.13 - 2024-10-05 =
-* Added
-  - Ajax logout feature on the invoice and service pages.
-  - Invoices by status filtering for users.
-
-* Fixed
-  - Admin search feature not working for mariaDB users.
-  - New service purchase template now available for logged out users.
-  - WooCommerce account menu bug.
-  - Minor bug fixes.
-
-* Tested
-  - With WooCommerce 9.3.3
+= 2.0.14 - 2024-10-08 =
+* Tweaked
+  - Responsive menu nav for client portal.
+  - Added shortcode for login form [smartwoo_login_form]
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
