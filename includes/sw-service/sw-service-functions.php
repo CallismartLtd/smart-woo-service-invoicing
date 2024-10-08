@@ -414,9 +414,13 @@ function smartwoo_count_suspended_services() {
 function smartwoo_regulate_service_status() {
 	$services = SmartWoo_Service_Database::get_all_services();
 
+	if ( empty( $services ) ) {
+		return;
+	}
+
 	foreach ( $services as $service ) {
 		$expiry_date    = smartwoo_get_service_expiration_date( $service );
-		$service_status = smartwoo_service_status( $service->getServiceId() );
+		$service_status = smartwoo_service_status( $service );
 
 		if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
 
