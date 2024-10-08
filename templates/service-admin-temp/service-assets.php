@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
                                 <?php echo esc_html( $name ); ?>
                             </td>
                             <td>
-                            <?php echo ( 'downloads' === $asset->get_asset_name() ) ? '<a href="' . esc_url( smartwoo_download_url( $id, $asset->get_key(), $asset->get_id(), $service->getServiceId() ) ) . '" class="sw-red-button">Download</a>': esc_html( $value );  $id++;?>
+                            <?php echo ( 'downloads' === $asset->get_asset_name() ) ? '<a href="' . esc_url( smartwoo_download_url( $id, $asset->get_key(), $asset->get_id(), $service->getServiceId() ) ) . '" class="sw-red-button">Download</a>': wp_kses_post( $value );  $id++;?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
