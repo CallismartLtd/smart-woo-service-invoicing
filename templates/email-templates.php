@@ -224,6 +224,13 @@ function smartwoo_payment_reminder() {
 
 	$mail_is_enabled = get_option( 'smartwoo_payment_reminder_to_client', 0 );
 	if ( $mail_is_enabled ) {
+		if ( wp_doing_cron() ) {
+			add_filter( 'smartwoo_is_frontend', '__return_false' );
+
+			$_GET['paged'] = 1;
+			$_GET['limit'] = 100;
+		}
+				
 		// Get sender details from options
 		$sender_name   = get_option( 'smartwoo_email_sender_name' );
 		$sender_email  = get_option( 'smartwoo_billing_email' );
