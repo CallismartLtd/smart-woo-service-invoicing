@@ -143,7 +143,7 @@ function smartwoo_process_new_service_form() {
 			 */
 			$asset_tpes 	= array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_types'] ) );
 			$the_keys		= array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_names'] ) );
-			$the_values		= array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_values'] ) );
+			$the_values		= array_map( 'wp_kses_post', wp_unslash( $_POST['add_asset_values'] ) );
 			$access_limit	= isset( $_POST['access_limits'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['access_limits'] ) ) : array();
 
 			$asset_data = array();
@@ -177,7 +177,7 @@ function smartwoo_process_new_service_form() {
 
 					// Proper asset data structure where asset name is used to identify the asset type.
 					$raw_assets = array(
-						'asset_data'    => array_map( 'sanitize_text_field', wp_unslash( array( $k => $v ) ) ),
+						'asset_data'    => array_map( 'wp_kses_post', wp_unslash( array( $k => $v ) ) ),
 						'asset_name'    => $asset_tpes[$index],
 						'expiry'        => $end_date,
 						'service_id'    => $saved_service_id,
@@ -318,7 +318,7 @@ function smartwoo_process_edit_service_form() {
 				 */
 				$asset_tpes		= array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_types'] ) );
 				$the_keys   	= array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_names'] ) );
-				$the_values 	= array_map( 'sanitize_text_field', wp_unslash( $_POST['add_asset_values'] ) );
+				$the_values 	= array_map( 'wp_kses_post', wp_unslash( $_POST['add_asset_values'] ) );
 				$asset_ids		= ! empty( $_POST['asset_ids'] ) ? array_map( 'intval', wp_unslash( $_POST['asset_ids'] ) ) : 0;
 				$access_limit	= isset( $_POST['access_limits'] ) ? array_map( 'intval', wp_unslash( $_POST['access_limits'] ) ) : array();
 
@@ -359,7 +359,7 @@ function smartwoo_process_edit_service_form() {
 
 						// Proper asset data structure where asset name is used to identify the asset type.
 						$raw_assets = array(
-							'asset_data'    => array_map( 'sanitize_text_field', wp_unslash( array( $k => $v ) ) ),
+							'asset_data'    => array_map( 'wp_kses_post', wp_unslash( array( $k => $v ) ) ),
 							'asset_name'    => $asset_tpes[$index],
 							'expiry'        => $end_date,
 							'service_id'    => $service_id,
