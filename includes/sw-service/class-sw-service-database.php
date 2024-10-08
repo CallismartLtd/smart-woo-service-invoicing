@@ -23,8 +23,13 @@ class SmartWoo_Service_Database {
 	 * @return array An array of SmartWoo_Service objects.
 	 *
 	 * @since 1.0.0
-	 */
+	 * @since 1.0.14 Restricted this method to cron jobs only.
+	 */ 
 	public static function get_all_services() {
+		if ( ! wp_doing_cron() ) {
+			return;
+		}
+		
 		global $wpdb;
 		$query   	= "SELECT * FROM ". SMARTWOO_SERVICE_TABLE; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
