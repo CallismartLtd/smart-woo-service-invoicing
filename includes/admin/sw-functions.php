@@ -625,6 +625,8 @@ function smartwoo_allowed_form_html() {
             'name'		=> true,
             'id'		=> true,
             'class'		=> true,
+			'required'	=> true,
+			'readonly'	=> true
         ),
         'option'		=> array(
             'value'		=> true,
@@ -654,6 +656,7 @@ function smartwoo_allowed_form_html() {
 			'href'		=> true,
 			'class'		=> true,
 			'id'		=> true,
+			'smartwoo-product-id' => true
 		),
         'h1'		=> array(),
 		'h2'		=> array(),
