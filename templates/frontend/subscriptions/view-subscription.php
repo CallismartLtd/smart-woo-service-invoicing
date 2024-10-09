@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="smartwoo-view-sub-page">
+<div class="smartwoo-page">
     <?php echo wp_kses_post( smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() ) );?>
     <h3 style="text-align: center;"><?php echo esc_html( $service_name_with_status );?></h3>
     <hr>
