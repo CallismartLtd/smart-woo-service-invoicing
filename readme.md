@@ -9,7 +9,7 @@
 **Requires WooCommerce:** 8.0  
 **WooCommerce Tested:** 9.3.3
 **Requires PHP:** 7.4  
-**Stable Tag:** 2.0.13 
+**Stable Tag:** 2.0.14 
 **License:** GPLv3  
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
