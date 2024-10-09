@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 <?php endif;?>
 <br><br>
 <div class="sw-form-container">
-    <form action="<?php echo esc_url( admin_url( 'admin-post.php?service_id=' . $url_service_id ) ) ?>" method="post">
+    <form action="<?php echo esc_url( admin_url( 'admin-post.php?service_id=' . $url_service_id ) ) ?>" method="post" id="smartwoo-service-form-id">
 
         <div class="sw-product-type-container">
             <label for="is-smartwoo-downloadable"><?php esc_html_e( 'Set Assets:', 'smart-woo-service-invoicing' );?>
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
         <div class="sw-assets-div<?php echo $is_downloadable ? ' show':'';?>">
             <div class="sw-product-download-field-container<?php echo $is_downloadable ? ' show' : '';?>">
                 <p><strong><?php echo ! $is_downloadable ? 'No d': 'D';?>ownloadable asset type in "<?php echo esc_html( $product_name );?>"</strong></p>
-                <?php if ( $is_downloadable ):?>
+                <?php if ( $is_downloadable && ! empty( $downloadables )):?>
                     <?php foreach( $downloadables as $file_name => $url ):?>
                         <div class="sw-product-download-fields">
                             <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
@@ -83,7 +83,7 @@ defined( 'ABSPATH' ) || exit;
                         <?php foreach ( $main_asset->get_asset_data() as $name => $value ):?>
                             
                             <input type="text" name="add_asset_names[]" value="<?php echo esc_attr( $name );?>" placeholder="Asset Name" />
-                            <input  type="text" name="add_asset_values[]" value="<?php echo esc_attr( $value );?>" placeholder="Asset Value" />
+                            <input type="text" name="add_asset_values[]" value="<?php echo esc_attr( $value );?>" placeholder="Asset Value" />
                             <input type="hidden" name="asset_ids[]" value="<?php echo absint( $main_asset->get_id() );?>"/>
                             <input type="number" name="access_limits[]" class="sw-form-input" value="<?php echo esc_html( $main_asset->get_access_limit( 'edit' ) ); ?>" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
 
