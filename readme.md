@@ -90,9 +90,8 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 
 # [2.0.14] 2024-08-10
 
-### Tweaked
-- Responsive menu nav for client portal.
-- Added shortcode for login form [smartwoo_login_form]
+### Added
+- Shortcode for login form [smartwoo_login_form]
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
