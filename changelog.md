@@ -2,9 +2,8 @@
 
 # [2.0.14] 2024-08-10
 
-### Tweaked
-- Responsive menu nav for client portal.
-- Added shortcode for login form [smartwoo_login_form]
+### Added
+- Shortcode for login form [smartwoo_login_form]
 
 ### Fixed
 - Invoice payment reminder not sending.
