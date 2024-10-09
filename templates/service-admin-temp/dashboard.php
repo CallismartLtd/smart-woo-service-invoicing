@@ -52,13 +52,6 @@ defined( 'ABSPATH' ) || exit;
 
                 <div class="sw-skeleton sw-skeleton-text"></div>
                 <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
-                <div class="sw-skeleton sw-skeleton-text"></div>
             </div>
         </div>
 
