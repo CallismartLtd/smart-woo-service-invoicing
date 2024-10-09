@@ -260,56 +260,6 @@ function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoi
 	return $invoice_id;
 }
 
-
-
-/**
- * Calculate the migration order total.
- *
- * @param float $product_price      The price of the selected product.
- * @param float $unused_service_price The unused amount for the selected service.
- *
- * @return float The calculated order total.
- */
-function smartwoo_calculate_migration_order_total( $product_price, $unused_service_price ) {
-
-	if ( 'Enabled' === smartwoo_is_prorate() ) {
-
-		if ( $unused_service_price >= $product_price ) {
-			// Calculate the remaining unused balance.
-			$remaining_unused_balance = $unused_service_price - $product_price;
-
-			// Set the order total to 0.
-			return array(
-				'order_total'              => 0,
-				'remaining_unused_balance' => $remaining_unused_balance,
-			);
-		} else {
-			/**
-			 * If the unused service amount is less than the product price,
-			 * this means the service balance cannot fully cover the purchase.
-			 *  Set the remaining unused balance to 0.
-			 */
-			$remaining_unused_balance = 0;
-
-			// Subtract the unused service amount from the product price
-			$order_total = $product_price - $unused_service_price;
-
-			return array(
-				'order_total'              => $order_total,
-				'remaining_unused_balance' => $remaining_unused_balance,
-			);
-		}
-	} else {
-		// If pro-rata is not enabled, use the product price as the order total
-		return array(
-			'order_total'              => $product_price,
-			'remaining_unused_balance' => 0,
-		);
-	}
-}
-
-
-
 /**
  * Retrieves a user's WooCommerce billing address parts and compile them
  * into a readable address.
