@@ -58,5 +58,35 @@ function smartwoo_shortcodes_init() {
 	add_shortcode( 'smartwoo_pending_transactions_count', 'smartwoo_get_pending_transactions_count' );
 	add_shortcode( 'smartwoo_transactions', 'smartwoo_transactions_shortcode' );
 	add_shortcode( 'smartwoo_transaction_status', 'smartwoo_transaction_status_shortcode' );
+
+	/**
+	 * @since 2.0.14 Added new shortcode for login form
+	 */
+	add_shortcode( 'smartwoo_login_form', 'smartwoo_render_login_form' );
+
 }
 add_action( 'init', 'smartwoo_shortcodes_init' );
+
+/**
+ * Callback function for login form shortcode.
+ */
+function smartwoo_render_login_form( $atts ) {
+	$atts = shortcode_atts( array(
+		'notice'		=> '',                     
+		'redirect_url' 	=> get_permalink(),
+	), $atts, 'smartwoo_login_form' );
+
+	// Form is hidded when user is logged in
+	if ( is_user_logged_in() ) {
+		return '';
+	}
+
+	// Prepare options for the login form
+	$options = array(
+		'notice'   => esc_html( $atts['notice'] ),   // Sanitize and set the notice
+		'redirect' => esc_url( $atts['redirect_url'] ), // Sanitize and set the redirect URL
+	);
+
+	// Return the login form with the provided options
+	return smartwoo_login_form( $options );
+}
