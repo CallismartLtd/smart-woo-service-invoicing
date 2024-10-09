@@ -23,6 +23,7 @@ use inline CSS to overide some styles
 	border-radius: 9px;
 	border: 2px solid #fafafa;
 	margin-right: 10px;
+	cursor: pointer;
 }
 
 /* Style for the on hover */
@@ -604,7 +605,13 @@ border-radius: 5px;
 
 /***************************************************************************************************
 ////////////////////////////////////////////CSS for the Invoice page ///////////////////////////////
-/***************************************************************************************************
+/***************************************************************************************************/
+.smartwoo-page {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
 /* Table Styles */
 .sw-table-wrapper {
     overflow-x: auto;
@@ -1416,20 +1423,20 @@ border-radius: 5px;
 
 
 /** Product CSS **/
-.sw-product-container {
-	display: inline-block;
-	vertical-align: top;
-	justify-content: space-around;
-	min-height: 400px;
-	background-color: #ffffff;
-	border-radius: 7px;
-	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-	width: 45%; /* Adjust width and consider margin */
-	margin: 20px auto; /* Add horizontal margin for spacing */
-	padding: 20px; /* Add padding to create space within the boxes */
-	align-items: center;
+.sw-products-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 100%;
+}
 
-	box-sizing: border-box;
+.sw-product-container {
+	background-color: #ffffff;
+	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	width: 30%;
+	margin: 20px 10px;
+	padding: 10px;
+	border-radius: 9px;
 }
 
 .sw-product-container h3 {
@@ -1441,27 +1448,33 @@ border-radius: 5px;
 	margin-bottom: 8px;
 }
 
+.sw-products-container .sw-description {
+	height: 200px;
+	overflow: hidden;
+}
 
-
-/* Clearfix to prevent float issues */
-.clearfix::after {
-	content: "";
-	clear: both;
-	display: table;
+.sw-products-container .sw-description:hover {
+	overflow: auto;
+}
+.sw-products-container .sw-red-button {
+	float: right;
+	margin-top: 15px;
 }
 
 /* Responsive styling */
-@media (max-width: 768px) {
-	.sw-product-container {
-		width: calc(50% - 20px);
-		/* Two columns on smaller screens */
+@media (min-width: 280px) and (max-width: 425px) {
+	.sw-products-container {
+		flex-wrap: wrap;
 	}
-}
-
-@media (max-width: 480px) {
 	.sw-product-container {
-		width: 100%;
-		/* One column on even smaller screens */
+		width: 40%;
+	}
+
+	@media (min-width: 280px) and (max-width: 375px) {
+		.sw-product-container {
+			width: 80%;
+			margin: 20px auto;
+		}
 	}
 }
 
