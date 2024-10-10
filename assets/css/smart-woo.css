@@ -355,7 +355,6 @@ border-radius: 5px;
 	font-size: 16px;
 }
 
-
 /* Style for the "Invoice not found" message */
 .smartwoo-container-item.not-found {
 	color: red;
@@ -1341,73 +1340,6 @@ border-radius: 5px;
 }
 
 
-
-.select-service-container{
-	display: block;
-	justify-content: space-between;
-
-}
-
-/* Style for the select options */
-.select-service-container select {
-	padding: 10px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-sizing: border-box;
-	font-size: 16px;
-}
-
-
-/* Base styles for larger screens */
-.migration-order-container {
-	border-radius: 8px;
-	padding: 20px;
-	margin: 20px auto; /* Auto margin for centering */
-	background-color: #ffffff;
-	display: flex;
-	justify-content: space-between;
-	align-items: stretch;
-	width: 60%;
-	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-}
-
-.migrate-order-details {
-	font-family: 'Arial', sans-serif;
-	font-size: 18px;
-	text-align: left;
-	color: #333;
-	flex-grow: 1;
-}
-
-.upgrade-section-title,
-.migrate-summary-tittle {
-	font-size: 24px;
-	font-weight: bold;
-	color: #000;
-	text-align: center;
-}
-
-.migrate-summary-tittle {
-	margin-top: 10px;
-}
-
-.migrate-order-details p {
-	margin-bottom: 10px;
-}
-
-/* Media query for smaller screens (e.g., mobile devices) */
-@media screen and (max-width: 600px) {
-	.migration-order-container {
-	flex-direction: column; /* Stack items vertically on smaller screens */
-	width: 90%; /* Adjust width for smaller screens */
-	}
-
-	.migrate-order-details {
-	width: 100%; /* Full width for inner content on smaller screens */
-	}
-}
-
-
 /* Form Containers and Input fields*/
 .sw-cart-form {
 	width: 100%;
@@ -1506,10 +1438,10 @@ font-weight: 100;
 	border-radius: 50%;
 	font-weight: bold;
 	text-align: center;
-	animation: pulse 0.3s infinite ease-in-out;
+	animation: smartwoopulse 0.3s infinite ease-in-out;
 }
 
-@keyframes pulse {
+@keyframes smartwoopulse {
 	0%, 100% {
 		transform: scale(1);
 	}
