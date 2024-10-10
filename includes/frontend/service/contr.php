@@ -54,11 +54,11 @@ function smartwoo_service_shortcode() {
 
 		case 'upgrade':
 
-			if ( ! method_exists( 'SmartWooPro', 'upgrade_temp' ) ) {
+			if ( ! method_exists( 'SmartWooPro', 'migration_select_product' ) ) {
 				$service_upgrade_page	= smartwoo_service_front_temp();
 			} else {
 				$upgrader = new SmartWooPro();
-				$service_upgrade_page	= $upgrader->upgrade_temp();
+				$service_upgrade_page	= $upgrader->migration_select_product();
 			}
 
 			$output	= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
@@ -66,11 +66,11 @@ function smartwoo_service_shortcode() {
 
 		case 'downgrade':
 
-			if ( ! method_exists( 'SmartWooPro', 'downgrade_temp' ) ) {
+			if ( ! method_exists( 'SmartWooPro', 'migration_select_product' ) ) {
 				$service_downgrade_page	= smartwoo_service_front_temp();
 			} else {
 				$downgrader = new SmartWooPro();
-				$service_downgrade_page	= $downgrader->downgrade_temp();
+				$service_downgrade_page	= $downgrader->migration_select_product();
 			}
 
 			$output	= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
