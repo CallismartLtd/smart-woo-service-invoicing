@@ -333,7 +333,7 @@ function smartwoo_is_migration() {
  * @return string HTML markup for the notice message.
  */
 function smartwoo_notice( $message, $dismisable = false ) {
-	$class = ( true === $dismisable ) ? 'sw-notice notice notice-error is-dismissible' : 'sw-notice';
+	$class = ( true === $dismisable ) ? 'sw-notice notice notice-info is-dismissible' : 'sw-notice';
 	$output  = '<div class="' . esc_attr( $class ) . '">';
 	$output .= '<p>' . esc_html( $message ) . '</p>'; 
 	$output .= '</div>';
