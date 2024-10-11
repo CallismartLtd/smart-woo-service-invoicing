@@ -499,7 +499,7 @@ function smartwoo_count_unprocessed_orders() {
 function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 
     if ( ! is_user_logged_in() || is_account_page() ) {
-        return;
+        return '';
     }
 
 	wp_enqueue_style( 'dashicons' );
@@ -901,4 +901,28 @@ function smartwoo_download_url( $resource_id, $key, $asset_id, $service_id ) {
 	), smartwoo_service_page_url() );
 
 	return $url;
+}
+
+/**
+ * Set the document title of any page in WordPress.
+ *
+ * @param string $title The page title.
+ * @since 2.0.15
+ */
+function smartwoo_set_document_title( $title ) {
+    $sep           = apply_filters( 'document_title_separator', '-' );
+    $title_parts   = array( 'title' => $title );
+    $title_parts['site'] = get_bloginfo( 'name', 'display' );
+
+    // Combine title and site name with the separator
+    $final_title   = implode( " $sep ", array_filter( $title_parts ) );
+
+    // Output the script safely in the footer
+    ?>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.title = <?php echo wp_json_encode( $final_title ); ?>;
+        });
+    </script>
+    <?php
 }
