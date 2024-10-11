@@ -351,6 +351,7 @@ function loadBillingDetails() {
 	// Show loading indicator
 	showLoadingIndicator();
 
+
 	// AJAX request to load billing details content
 	jQuery.ajax(
 		{
@@ -387,7 +388,7 @@ function loadBillingDetails() {
  */
 document.addEventListener('DOMContentLoaded', function() {
 	var detailsButton = document.getElementById( 'sw-load-user-details' );
-
+	smartWooAddSpinner('ajax-content-container')
 	if ( detailsButton ) {
 		detailsButton.addEventListener( 'click', function() {
 			loadMyDetails();
