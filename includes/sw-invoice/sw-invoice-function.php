@@ -380,6 +380,26 @@ function smartwoo_client_total_spent( $user_id ) {
 }
 
 /**
+ * Retrieves client's billing email, when billing email is not available
+ * the client's login email is used.
+ *
+ * @param int $user_id The user's ID 
+ * @since 2.0.15
+ */
+function smartwoo_get_client_billing_email( $user_id ) {
+	$user	= new WC_Customer( $user_id );
+	$billing_email	= $user->get_billing_email();
+
+	if ( empty( $billing_email ) ) {
+		// Fallback to user's login email address.
+		$billing_email = $user->get_email();
+	}
+
+
+	return $billing_email;
+}
+
+/**
  * Invoice order Payment URL, specifically for the service invoices.
  * 
  * @param int $order_id WooCommerce order ID
