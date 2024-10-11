@@ -50,10 +50,10 @@ function smartwoo_invoice_myaccount_content() {
 
 // Service Page Content
 function smartwoo_service_myaccount_content() {
-    $service_content = '<div class="wrap">';
     if ( isset( $_GET['view_service'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         echo  wp_kses_post( smartwoo_service_details() ) ;
     } else {
+        $service_content = '<div class="smartwoo-page">';
         $service_content .= '<h2>' . __( 'Services', 'smart-woo-service-invoicing' ). '</h2>';
         $service_content .= smartwoo_active_service_count_shortcode();
         $service_content .= smartwoo_service_mini_card();
@@ -61,10 +61,10 @@ function smartwoo_service_myaccount_content() {
         $service_content .= '<h2>Settings and Tools</h2>';
         $service_content .= '<div id="swloader">Just a moment</div>';
         $service_content .= '<div class="sw-button-container">';
-        $service_content .= '<button class="minibox-button" id="sw-billing-details">Billing Details</button>';
-        $service_content .= '<button class="minibox-button" id="sw-load-user-details">My Details</button>';
-        $service_content .= '<button class="minibox-button" id="sw-account-log">Account Logs</button>';
-        $service_content .= '<button class="minibox-button" id="sw-load-transaction-history">Transaction History</button>';
+        $service_content .= '<a class="sw-blue-button" id="sw-billing-details">Billing Details</a>';
+        $service_content .= '<a class="sw-blue-button" id="sw-load-user-details">My Details</a>';
+        $service_content .= '<a class="sw-blue-button" id="sw-account-log">Account Logs</a>';
+        $service_content .= '<a class="sw-blue-button" id="sw-load-transaction-history">Transaction History</a>';
         $service_content .= '</div>';
         $service_content .= '<div id="ajax-content-container"></div>'; //Respone container.
         $service_content .= '</div>';
@@ -72,4 +72,3 @@ function smartwoo_service_myaccount_content() {
         echo wp_kses_post( $service_content );
     }
 }
-
