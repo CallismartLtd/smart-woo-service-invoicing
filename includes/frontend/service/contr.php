@@ -112,34 +112,47 @@ function smartwoo_load_billing_details_callback() {
 
 	if ( is_user_logged_in() ) {
 
-		$user_id = get_current_user_id();
+		$user_id 	= get_current_user_id();
+		$user		= new WC_Customer( $user_id );
 		// Get additional customer details
-		$billingFirstName = get_user_meta( $user_id, 'billing_first_name', true );
-		$billingLastName  = get_user_meta( $user_id, 'billing_last_name', true );
-		$company_name     = get_user_meta( $user_id, 'billing_company', true );
-		$email            = get_user_meta( $user_id, 'billing_email', true );
-		$phone            = get_user_meta( $user_id, 'billing_phone', true );
+		$billingFirstName = $user->get_billing_first_name();
+		$billingLastName  = $user->get_billing_last_name();
+		$company_name     = $user->get_billing_company();
+		$email            = $user->get_billing_email();
+		$phone            = $user->get_billing_phone();
 		$website          = get_user_meta( $user_id, 'billing_website', true );
 		$billingAddress   = smartwoo_get_user_billing_address( $user_id );
-		// Construct the HTML for billing details
-		$html  = '<div class="card">';
-		$html .= '<h3>Billing Details</h3>';
-		$html .= '<p class="smartwoo-container-item"><span><strong>Name:</strong></span> ' . esc_html( $billingFirstName . ' ' . $billingLastName ) . '</p>';
-		$html .= '<p class="smartwoo-container-item"><span><strong>Company Name:</strong></span> ' . esc_html( $company_name ) . '</p>';
-		$html .= '<p class="smartwoo-container-item"><span><strong>Email Address:</strong></span> ' . esc_html( $email ) . '</p>';
-		$html .= '<p class="smartwoo-container-item"><span><strong>Phone:</strong></span> ' . esc_html( $phone ) . '</p>';
-		$html .= '<p class="smartwoo-container-item"><span><strong>Website:</strong></span> <a href="' . esc_url( $website ) . '">' . esc_html( $website ) . '</a></p>';
-		$html .= '<p class="smartwoo-container-item"><span><strong>Address:</strong></span> <div>' . esc_html( $billingAddress ) . '</div></p>';
-		$html .= '<button class="account-button" id="edit-billing-address">' . esc_html__( 'Edit My Billing Address', 'smart-woo-service-invoicing' ) . '</button>';
-		$html .= '</div>';		
-		echo wp_kses_post( $html );
-	} else {
-		// User is not logged in, handle accordingly.
-		echo esc_html__( 'User not logged in', 'smart-woo-service-invoicing' );
+		ob_start();
+		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-billing.php';
+		echo wp_kses_post( ob_get_clean() );
 	}
 
-	// prevent further outputing
-	wp_die();
+	die();
+}
+
+/**
+ * Get the edit billing details form.
+ * 
+ * @since 1.0.15
+ */
+function smartwoo_get_edit_billing_form() {
+	$user_id = get_current_user_id();
+	$customer = new WC_Customer( $user_id );
+
+	// Get the customer's billing address fields using WooCommerce's helper functions.
+	$address_fields = WC()->countries->get_address_fields( $customer->get_billing_country(), 'billing_' );
+
+	// Pre-fill the fields with current customer data
+	foreach ( $address_fields as $key => $field ) {
+		$address_fields[ $key ]['value'] = $customer->{"get_{$key}"}();
+	}
+
+	// Render the billing address form
+	wc_get_template( 'myaccount/form-edit-address.php', array(
+		'load_address'   => 'billing', 
+		'address'        => $address_fields, // Pass the address fields
+		'user_id'        => $user_id, // Pass the user ID
+	) );
 }
 
 /**
@@ -183,9 +196,17 @@ function smartwoo_load_my_details_callback() {
 		// User is not logged in, handle accordingly.
 		esc_html_e( 'User not logged in', 'smart-woo-service-invoicing' );
 	}
+	die();
+}
 
-	// prevent further outputing.
-	wp_die();
+/**
+ * Get the edit account details form
+ * 
+ * @since 2.0.15
+ */
+function smartwoo_get_edit_account_form() {
+	$user = wp_get_current_user();
+    wc_get_template( 'myaccount/form-edit-account.php', array('user' => $user ) );
 }
 
 /**
@@ -213,14 +234,14 @@ function smartwoo_load_account_logs_callback() {
 	$registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
 	$total_spent 		= smartwoo_client_total_spent( $user_id );
 	$user_agent			= wc_get_user_agent();
-	$html = '<div class="account-logs-container">';
+	$html = '<div class="smartwoo-details-container">';
 	$html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
 	$html .= '<ul class="account-logs-list">';
-	$html .= '<li class="account-log-item">' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	//$html .= '<li class="account-log-item">' . esc_html__( 'User Agent: ', 'smart-woo-service-invoicing' ) . esc_html( $user_agent ) . '</li>';
-	$html .= '<li class="account-log-item">' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
-	$html .= '<li class="account-log-item">' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
-	$html .= '<li class="account-log-item">' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
+	$html .= '<li>' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . wc_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	//$html .= '<li>' . esc_html__( 'User Agent: ', 'smart-woo-service-invoicing' ) . esc_html( $user_agent ) . '</li>';
+	$html .= '<li>' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
+	$html .= '<li>' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
+	$html .= '<li>' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
 
 	/**
 	 * Retrieve User's Personal logged information using WooCommerce geolocation feature.
@@ -230,13 +251,13 @@ function smartwoo_load_account_logs_callback() {
 	$location_data    = WC_Geolocation::geolocate_ip( $ip_address );
 	
 	// Display IP Address.
-	$html .= '<li class="account-log-item">IP Address: ' . esc_html( $ip_address ) . '</li>';
+	$html .= '<li>IP Address: ' . esc_html( $ip_address ) . '</li>';
 
 	if ( ! empty( $location_data ) ) {
 		$user_location	= $location_data['country'];
-		$html .= '<li class="account-log-item">' . esc_html__( 'Location: ', 'smart-woo-service-invoicing' ) . esc_html( $user_location ) . '</li>';
+		$html .= '<li>' . esc_html__( 'Location: ', 'smart-woo-service-invoicing' ) . esc_html( $user_location ) . '</li>';
 	} else {
-		$html .= '<li class="account-log-item">Location: ' . esc_html__( 'Unknown', 'smart-woo-service-invoicing' ) . '</li>';
+		$html .= '<li>Location: ' . esc_html__( 'Unknown', 'smart-woo-service-invoicing' ) . '</li>';
 	}
 
 	$html .= '</ul>';
