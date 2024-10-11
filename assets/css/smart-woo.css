@@ -343,16 +343,20 @@ border-radius: 5px;
 	margin-bottom: 10px;
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-between;
-	align-items: center;
+	justify-items: center;
+	width: 100%;
 }
 
-
+.smartwoo-container-item p {
+	margin-left: 40%;
+	text-align: left;
+}
 
 .smartwoo-container-item span {
 	font-weight: bold;
-	margin-right: 10px;
 	font-size: 16px;
+	width: 50%;
+	padding: 0px;
 }
 
 /* Style for the "Invoice not found" message */
@@ -607,8 +611,8 @@ border-radius: 5px;
 /***************************************************************************************************/
 .smartwoo-page {
 	width: 100%;
-	padding: 0;
-	margin: 0;
+	padding: 10px;
+	margin: 20px;
 }
 
 /* Table Styles */
@@ -931,29 +935,19 @@ border-radius: 5px;
 	background-color: #005bbd;
 }
 
-
-
-
-/* Style for the main page heading */
-.serv-main {
-	text-align: center;
-	margin-top: 20px;
-
-}
-
 /* Style for the outer container of service cards on the main page */
 .client-services {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-between;
 }
 
 /* Style for each individual service card on the main page */
 .main-page-card {
-	border: 1px solid #ccc;
+	border: 1px solid #1764f5;
+	border-radius: 8px;
 	padding: 20px;
-	margin: 10px;
-	width: calc(50% - 20px); /* Two cards per row on larger screens */
+	margin: 10px auto;
+	width: 350px;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 	background-color: #fff;
 	text-align: center;
@@ -994,13 +988,20 @@ border-radius: 5px;
 }
 
 /* Media query for smaller screens */
-@media (max-width: 768px) {
-	.client-services {
-	flex-direction: column; /* Stack cards vertically on smaller screens */
-	}
-
+@media (min-width: 280px) and (max-width: 768px) {
 	.main-page-card {
-	width: 100%; /* Full width for cards on smaller screens */
+		width: 45%;
+	}
+	@media (min-width:280px) and (max-width:425px) {
+		.client-services {
+			flex-direction: column;
+		}
+		.main-page-card {
+			width: 80%;
+		}
+	}
+	.client-services {
+		flex-wrap: wrap;
 	}
 }
 
@@ -1260,7 +1261,6 @@ border-radius: 5px;
     border-radius: 8px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
     margin: 20px auto;
-	margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 	width: 90%;
@@ -1270,46 +1270,22 @@ border-radius: 5px;
 .settings-tools-section h2 {
     font-size: 24px;
     margin-bottom: 15px;
-    color: #333;
 }
-
-/* Button Container Style */
 .sw-button-container {
     display: flex;
-    gap: 15px;
-}
-
-/* Minibox Button Style */
-.minibox-button  {
-    background-color: #3498db;
-    color: #fff;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-@media only screen and (min-width: 320px) and (max-width: 768px){
-
-	.sw-button-container{
-		gap: 1px;
-	}
-
-	.minibox-button {
-		font-size: 10px;
-		padding: 6px 12px;
-		flex-direction: row;
-	}
-}
-
-.minibox-button:hover {
-    background-color: #2980b9;
+	flex-wrap: wrap;
+	border: 1px solid #1764f5;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
 }
 
 /* AJAX Content Container Style */
 #ajax-content-container {
     margin-top: 20px;
-    /* Add more styles as needed for the AJAX content container */
+	position: relative;
+	width: 100%;
+	height: 100%;
 }
 
 
@@ -1325,14 +1301,13 @@ border-radius: 5px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	max-width: 800px; /* Set a maximum width for the container */
+	width: 100%;
 }
 
 /* Style the heading within the container */
 .smartwoo-details-container h3 {
-	margin: 0 10px;
-	margin-bottom: 10px;
-	padding: 10px 15px;
+	margin: 10px;
+	padding: 10px; 
 	font-size: 18px;
 	background-color: red;
 	color: white;
@@ -1438,6 +1413,7 @@ font-weight: 100;
 	border-radius: 50%;
 	font-weight: bold;
 	text-align: center;
+	z-index: 999;
 	animation: smartwoopulse 0.3s infinite ease-in-out;
 }
 
