@@ -33,7 +33,7 @@ function smartwoo_service_details() {
 	$output		= '';
 
 	if ( ! $service || ( $service && $service->getUserId() !== get_current_user_id() ) ) {
-		$output  = wp_kses_post( smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() ) );
+		$output  = smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() );
 		$output .= smartwoo_error_notice( 'Service Not Found.', 'smart-woo-service-invoicing' );
 
 		return $output;
@@ -102,8 +102,8 @@ function smartwoo_service_front_temp() {
 		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
 	   return;
     }
-	$output 			   = smartwoo_get_navbar( 'My Services' );
-	$output 			  .= '<div class="wrap">';
+	$output 			   = '<div class="smartwoo-page">';
+	$output 			  .= smartwoo_get_navbar( 'My Services' );
 	$current_user 	       = wp_get_current_user();
 	$full_name             = $current_user->first_name . ' '. $current_user->last_name  ;
 	$user_id 			   = get_current_user_id();
@@ -188,10 +188,10 @@ function smartwoo_service_front_temp() {
 	$output .= '<div class="settings-tools-section">';
 	$output .= '<h2>Settings and Tools</h2>';
 	$output .= '<div class="sw-button-container">';
-	$output .= '<button class="minibox-button" id="sw-billing-details">Billing Details</button>';
-	$output .= '<button class="minibox-button" id="sw-load-user-details">My Details</button>';
-	$output .= '<button class="minibox-button" id="sw-account-log">Account Logs</button>';
-	$output .= '<button class="minibox-button" id="sw-load-transaction-history">Transaction History</button>';
+	$output .= '<a class="sw-blue-button" id="sw-billing-details">Billing Details</a>';
+	$output .= '<a class="sw-blue-button" id="sw-load-user-details">My Details</a>';
+	$output .= '<a class="sw-blue-button" id="sw-account-log">Account Logs</a>';
+	$output .= '<a class="sw-blue-button" id="sw-load-transaction-history">Transaction History</a>';
 	$output .= '</div>';
 	$output .= '<div id="ajax-content-container"></div>';
 	$output .= '</div>';
