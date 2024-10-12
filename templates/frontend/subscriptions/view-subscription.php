@@ -8,7 +8,6 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-smartwoo_set_document_title( $service->getServiceName() );
 ?>
 <div class="smartwoo-page">
     <?php echo wp_kses_post( smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() ) );?>

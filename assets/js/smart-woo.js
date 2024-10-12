@@ -388,7 +388,6 @@ function loadBillingDetails() {
  */
 document.addEventListener('DOMContentLoaded', function() {
 	var detailsButton = document.getElementById( 'sw-load-user-details' );
-	smartWooAddSpinner('ajax-content-container')
 	if ( detailsButton ) {
 		detailsButton.addEventListener( 'click', function() {
 			loadMyDetails();
@@ -516,126 +515,6 @@ function loadTransactionHistory() {
 		);
 }
 
-/**
- * Add event listener to the service action dropdown
- */
-document.addEventListener('DOMContentLoaded', function() {
-    var dropdown = document.getElementById('service-action-dropdown');
-
-    if (dropdown) {
-        dropdown.addEventListener('change', function() {
-            var selectedAction = this.value;
-            redirectBasedOnServiceAction(selectedAction);
-        });
-    }
-});
-
-/**
- * Redirect based on the selected service action
- *
- * @param {*} selectedAction Selected service action
- */
-function redirectBasedOnServiceAction(selectedAction) {
-    // Get the current URL
-    var currentUrl = window.location.href;
-
-    // Determine the selected page based on the action
-    var selectedPage;
-    switch (selectedAction) {
-        case 'upgrade':
-            selectedPage = 'service_upgrade';
-            break;
-        case 'downgrade':
-            selectedPage = 'service_downgrade';
-            break;
-        case 'buy_new':
-            selectedPage = 'buy_new_service';
-            break;
-        default:
-            selectedPage = '';
-            break;
-    }
-
-    // Update the URL with the selected action and page
-    var updatedUrl = updateQueryStringParameter(currentUrl, 'service_page', selectedPage);
-    updatedUrl = updateQueryStringParameter(updatedUrl, 'service_action', selectedAction);
-
-    // Redirect to the updated URL
-    window.location.href = updatedUrl;
-}
-
-/**
- * Function to update or add a parameter to a URL
- *
- * @param {string} uri   The URL
- * @param {string} key   The parameter key
- * @param {string} value The parameter value
- * @returns {string}     The updated URL
- */
-function updateQueryStringParameter(uri, key, value) {
-    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
-
-    if (uri.match(re)) {
-        return uri.replace(re, '$1' + key + "=" + value + '$2');
-    } else {
-        return uri + separator + key + "=" + value;
-    }
-}
-
-// Function to delete invoice
-jQuery( document ).ready(
-	function ($) {
-		// Event listener for the delete button
-		$( document ).on(
-			'click',
-			'.delete-invoice-button',
-			function () {
-				// Get the invoice ID from the data attribute
-				var invoiceId = $( this ).data( 'invoice-id' );
-
-				// Display a confirmation dialog
-				var isConfirmed = confirm( 'Are you sure you want to delete this invoice?' );
-
-				// If the user confirms, initiate the deletion process
-				if (isConfirmed) {
-					spinner = smartWooAddSpinner( 'sw-delete-button' );
-
-					// Perform an Ajax request to delete the invoice
-					$.ajax(
-						{
-							type: 'POST',
-							url: smart_woo_vars.ajax_url,
-							data: {
-								action: 'delete_invoice',
-								invoice_id: invoiceId,
-								security: smart_woo_vars.security
-							},
-							success: function ( response ) {
-								if ( response.success ) {
-									alert( response.data.message );
-									window.location.href = smart_woo_vars.admin_invoice_page;	
-								} else {
-									alert( response.data.message );
-								}
-								
-							},
-
-							error: function (error) {
-								// Handle the error
-								console.error( 'Error deleting invoice:', error );
-							}, 
-							complete: function() {
-								smartWooRemoveSpinner( spinner );
-							}
-						}
-					);
-				}
-			}
-		);
-	}
-);
-
 
 // Function to delete service
 jQuery( document ).ready(
@@ -690,61 +569,6 @@ jQuery( document ).ready(
 		);
 	}
 );
-
-// Delete Product.
-jQuery( document ).ready(
-	function ($) {
-		// Event listener for the delete button.
-		$( document ).on(
-			'click',
-			'.sw-delete-product',
-			function () {
-				// Get the product ID from the data attribute.
-				var productId = $( this ).data( 'product-id' );
-
-				// Display a confirmation dialog.
-				var isConfirmed = confirm( 'Are you sure you want to delete this product?' );
-
-				// If the user confirms, initiate the deletion process
-				if (isConfirmed) {
-					spinner = smartWooAddSpinner( 'sw-delete-button' );
-					// Perform an Ajax request to delete the product
-					$.ajax(
-						{
-							type: 'POST',
-							url: smart_woo_vars.ajax_url,
-							data: {
-								action: 'smartwoo_delete_product',
-								product_id: productId,
-								security: smart_woo_vars.security
-							},
-							success: function ( response ) {
-								
-								if ( response.success ) {
-									alert( response.data.message );
-									window.location.href = smart_woo_vars.sw_product_page;
-								} else {
-									alert( response.data.message );
-								}
-								
-							},
-
-							error: function (error) {
-								// Handle the error
-								console.error( 'Error deleting product:', error );
-							},
-							complete: function() {
-								smartWooRemoveSpinner( spinner);
-							}
-						}
-						
-					);
-				}
-			}
-		);
-	}
-);
-
 
 
 // Add click event listener to toggle the accordion
@@ -805,7 +629,7 @@ jQuery(document).ready(function($) {
     }
 });
 
-
+// Delete a product
 function deleteProduct(productId) {
 	var confirmDelete = confirm("Are you sure you want to delete this product?");
 	if (confirmDelete) {

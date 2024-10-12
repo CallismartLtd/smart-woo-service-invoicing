@@ -26,6 +26,8 @@ function smartwoo_admin_view_service_details() {
 	if ( empty( $service ) ) {
 		return smartwoo_error_notice( 'Service not fund' );
 	}
+
+	smartwoo_set_document_title( $service->getServiceName() );
 	$page_html  = '';
 	$page_html .= '<div class="wrap">';
 	// Prepare array for submenu navigation.

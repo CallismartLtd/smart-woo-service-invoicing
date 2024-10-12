@@ -525,8 +525,81 @@ function fetchDashboardData(index, queryVars = {}) {
             hideLoadingIndicator();
         },
     });
-    
+}
 
+// Delete an invoice
+function smartwooDeleteInvoice(invoiceId) {
+    let isConfirmed = confirm('Do you realy want to delete this invoice? This action cannot be reversed!');
+	if (isConfirmed) {
+		spinner = smartWooAddSpinner( 'sw-delete-button' );
+
+		jQuery.ajax(
+			{
+				type: 'POST',
+				url: smart_woo_vars.ajax_url,
+				data: {
+					action: 'delete_invoice',
+					invoice_id: invoiceId,
+					security: smart_woo_vars.security
+				},
+				success: function ( response ) {
+					if ( response.success ) {
+						alert( response.data.message );
+						window.location.href = smart_woo_vars.admin_invoice_page;	
+					} else {
+						alert( response.data.message );
+					}
+					
+				},
+
+				error: function (error) {
+					// Handle the error
+					console.error( 'Error deleting invoice:', error );
+				}, 
+				complete: function() {
+					smartWooRemoveSpinner( spinner );
+				}
+			}
+		);
+	}
+}
+
+function smartwooDeleteProduct(productId) {
+    let isConfirmed = confirm( 'Are you sure you want to permanently delete this product? This action cannot be reversed!' );
+    if (isConfirmed) {
+        spinner = smartWooAddSpinner( 'sw-delete-button' );
+
+        jQuery.ajax(
+            {
+                type: 'POST',
+                url: smart_woo_vars.ajax_url,
+                data: {
+                    action: 'smartwoo_delete_product',
+                    product_id: productId,
+                    security: smart_woo_vars.security
+                },
+                success: function ( response ) {
+                    
+                    if ( response.success ) {
+                        alert( response.data.message );
+                        window.location.href = smart_woo_vars.sw_product_page;
+                    } else {
+                        alert( response.data.message );
+                    }
+                    
+                },
+
+                error: function (error) {
+                    // Handle the error
+                    console.error( 'Error deleting product:', error );
+                },
+                complete: function() {
+                    smartWooRemoveSpinner( spinner);
+                }
+            }
+            
+        );
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -542,6 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchbtn = document.getElementById('swSearchBtn');
     const notificationTooltip = document.getElementById('search-notification');
     let menuButton = document.querySelector('.sw-admin-menu-icon');
+    let deleteInvoiceBtns = document.querySelectorAll('.delete-invoice-button');
+    let deleteProductIds = document.querySelectorAll('.sw-delete-product' );
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -652,6 +727,40 @@ document.addEventListener('DOMContentLoaded', () => {
             toggled = !toggled;
             
         });
+    }
+
+    if (deleteInvoiceBtns && deleteInvoiceBtns.length !== 0) {
+        deleteInvoiceBtns.forEach((deleteInvoiceBtn)=>{
+            let siblings = deleteInvoiceBtn.parentElement.querySelectorAll('a button');
+            let invoiceId = deleteInvoiceBtn.getAttribute('data-invoice-id');
+            deleteInvoiceBtn.style.border = "solid blue 1px";
+            siblings.forEach((Btn)=>{
+                Btn.style.border = "solid blue 1px";
+                Btn.style.margin = "3px";
+    
+            });
+            deleteInvoiceBtn.addEventListener('click', ()=>{
+                smartwooDeleteInvoice(invoiceId);
+            });
+        });
+
+    }
+
+    if (deleteProductIds && deleteProductIds.length !== 0) {
+        deleteProductIds.forEach((deleteProductId)=>{
+            let siblings = deleteProductId.parentElement.querySelectorAll('a button');
+            let productId = deleteProductId.getAttribute('data-product-id');
+            deleteProductId.style.border = "solid blue 1px";
+            siblings.forEach((Btn)=>{
+                Btn.style.border = "solid blue 1px";
+                Btn.style.margin = "3px";
+    
+            });
+            deleteProductId.addEventListener('click', ()=>{
+                smartwooDeleteProduct(productId);
+            });
+        });
+
     }
 
 });

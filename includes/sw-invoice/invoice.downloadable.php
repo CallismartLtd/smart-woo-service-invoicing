@@ -23,13 +23,12 @@ function smartwoo_invoice_download() {
 	}
 }
 
-
 add_action( 'template_redirect', 'smartwoo_invoice_download' );
 
 if ( ! function_exists( 'smartwoo_pdf_invoice_template' ) ) {
 	function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0 ) {
 
-		if(  ! is_user_logged_in() ) {
+		if (  ! is_user_logged_in() ) {
 			return;
 		}
 

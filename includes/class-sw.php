@@ -50,11 +50,14 @@ final class SmartWoo {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
         add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
+
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
         add_action( 'admin_post_smartwoo_add_service', 'smartwoo_process_new_service_form' );
         add_action( 'admin_post_smartwoo_edit_service', 'smartwoo_process_edit_service_form' );
+        add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
+
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
         add_action( 'smartwoo_service_scan', array( __CLASS__, 'count_all_services' ) );
         add_action( 'smartwoo_auto_service_renewal', array( __CLASS__, 'auto_renew_due' ) );
@@ -1271,6 +1274,28 @@ final class SmartWoo {
     public static function new_service_order_paid( $invoice_id ) {
         // Mark invoice as paid.
         smartwoo_mark_invoice_as_paid( $invoice_id );
+    }
+
+    /**
+     * Handle admin invoice download
+     */
+    public static function admin_download_invoice() {
+        if ( isset( $_GET['_sw_download_token'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_sw_download_token'] ) ), '_sw_download_token' ) ) {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_die( 'You do not have the required permision to download this invoice' );
+            }
+
+            $invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : wp_die( 'Missing Invoice ID' );
+            $invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+
+            if ( empty( $invoice ) ) {
+                wp_die( 'Invalid or deleted invoice' );
+            }
+
+            smartwoo_pdf_invoice_template( $invoice_id, $invoice->getUserId() );
+            exit;
+        }
+
     }
     
 }

@@ -476,8 +476,7 @@ function smartwoo_invoice_page_url() {
   * Product deletion button.
   */
 function smartwoo_delete_invoice_button( $invoice_id ) {
-	// Output the delete button with data-invoice-id attribute
-	return '<button class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '">Delete Invoice ⌫</button>';
+	return '<button title="Delete Invoice" class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '"><span class="dashicons dashicons-trash"></span></button>';
 }
 
 // Add Ajax actions

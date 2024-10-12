@@ -39,6 +39,7 @@ function smartwoo_service_details() {
 		return $output;
 	}
 	
+	smartwoo_set_document_title( $service->getServiceName() );
 	$service_name 		= $service->getServiceName() ? $service->getServiceName() : 'Not Available';
 	$service_id   		= $service->getServiceId() ? $service->getServiceId() : 'Not Available';
 	$product_id   		= $service->getProductId();
@@ -401,11 +402,11 @@ function smartwoo_active_service_count_shortcode() {
  * Handle new service product pruchase
  */
 function smartwoo_buy_new_temp() {
-
+	smartwoo_set_document_title( apply_filters( 'smartwoo_buy_new_product_page_title', 'Buy New' ) );
 	// Get Smart Woo Products.
 	$smartwoo_products = SmartWoo_Product::get_all_products();
-	$output  = smartwoo_get_navbar( 'Buy New Service', get_permalink( wc_get_page_id( 'shop' ) ) );
-	$output .= '<div class="wrap">';
+	$output		= '<div class="smartwoo-page">';
+	$output	   .= smartwoo_get_navbar( 'Buy New Service', get_permalink( wc_get_page_id( 'shop' ) ) );
 
 	if ( empty( $smartwoo_products ) ) {
 		$shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
@@ -417,6 +418,8 @@ function smartwoo_buy_new_temp() {
 		$output .= '</div>';
 		return $output;
 	}
+
+	$output .= '<div class="sw-products-container">';
 
 	foreach ( $smartwoo_products as $product ) {
 		$product_id      = $product->get_id();
@@ -431,11 +434,14 @@ function smartwoo_buy_new_temp() {
 		$output .= '<p>Price: ' . wc_price( $product_price ) . '</p>';
 		$output .= '<p>Sign-Up Fee: ' . $sign_up_fee . '</p>';
 		$output .= '<p><strong>' . esc_html( $billing_cycle ) . '</strong> Billing Cycle</p>';
-		$output .= '<p>' . wp_kses_post( wp_trim_words( $product_excerpt, 40 ) ) . '</p>';
+		$output .= '<div class="sw-description">';
+		$output .= 	wp_kses_post( $product_excerpt );
+		$output .= '</div>';
 		$output .= '<a href="' . esc_url( smartwoo_configure_page( $product_id ) ) . '" class="sw-blue-button" >' . esc_html__( 'Configure Product', 'smart-woo-service-invoicing' ) . '</a>';
 		$output .= '<a href="' . esc_url( $product->get_permalink() ) . '" class="sw-blue-button" >' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a>';
 		$output .= '</div>';
 	}
+	$output .= '</div>';
 	$output .= '</div>';
 	return $output;
 
