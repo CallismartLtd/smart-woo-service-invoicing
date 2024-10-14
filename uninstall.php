@@ -1,7 +1,30 @@
 <?php
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
+require_once 'smart-woo-service-invoicing.php';
 
+$delete = get_option( 'smartwoo_remove_plugin_data_during_uninstall', false );
+if ( ! $delete ) {
+    return;
+}
+/**
+ * Drop database table on uninstall
+ */
+global $wpdb;
+
+$table_names = array(
+    SMARTWOO_SERVICE_TABLE,
+    SMARTWOO_INVOICE_TABLE,
+    SMARTWOO_SERVICE_LOG_TABLE,
+    SMARTWOO_INVOICE_LOG_TABLE,
+    SMARTWOO_ASSETS_TABLE
+);
+
+foreach ( $table_names as $table_name ) {
+    // phpcs:disable
+    $sql = "DROP TABLE IF EXISTS {$table_name}";
+    $wpdb->query( $sql );
+}
 
 /**
  * Delete pluigin settings during uninstall
@@ -54,23 +77,3 @@ wp_clear_scheduled_hook( 'smartwoo_once_in48hrs_task' );
 wp_clear_scheduled_hook( 'move_old_renewal_orders_to_trash_event' );
 wp_clear_scheduled_hook( 'smartwoo_daily_task' );
 wp_clear_scheduled_hook( 'smartwoo_refund_task' );
-
-/**
- * Drop database table on uninstall
- */
-if ( get_option( 'smartwoo_remove_plugin_data_during_uninstall' ) ) {
-    global $wpdb;
-
-    $table_names = array(
-        SMARTWOO_SERVICE_TABLE,
-        SMARTWOO_INVOICE_TABLE,
-        SMARTWOO_SERVICE_LOG_TABLE,
-        SMARTWOO_INVOICE_LOG_TABLE,
-    );
-
-    foreach ( $table_names as $table_name ) {
-        // phpcs:disable
-        $sql = $wpdb->prepare( "DROP TABLE IF EXISTS %s", $table_name );
-        $wpdb->query( $sql );
-    }
-}
