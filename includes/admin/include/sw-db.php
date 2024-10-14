@@ -85,7 +85,7 @@ function smartwoo_db_schema() {
 	smartwoo_create_database_table( $auto_renew_table_name, $auto_renew_structure );
 
 	/**
-	 * Defined the wp_sw_invoice_log table where 
+	 * Defined the log table where 
 	 * all transaction related data are logged
 	 */
 	$service_logs_table_name = SMARTWOO_INVOICE_LOG_TABLE;
