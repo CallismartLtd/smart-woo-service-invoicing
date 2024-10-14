@@ -90,7 +90,13 @@ function smartwoo_admin_view_service_details() {
 			break;
 
 		default:
-			$page_html .= '<h2>Service Details</h2>';
+		$page_html .= '<h2>Service Details</h2>';
+		$page_html .= '<div>';
+		$page_html .= smartwoo_client_service_url_button( $service );
+			$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) ) . '"><button title="Edit Service"><span class="dashicons dashicons-edit"></span></button></a>';
+			$page_html .= smartwoo_delete_service_button( $service->getServiceId() );
+			$page_html .= '<span id="sw-delete-button" style="text-align:center;"></span>';
+			$page_html . '</div>';
 			$page_html .= smartwoo_show_admin_service_details( $service );
 			break;
 	}
@@ -189,10 +195,7 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 	foreach ( (array) $buttons as $button ) {
 		$page_html .= $button;
 	}
-	$page_html .= '<span id="sw-delete-button" style="text-align:center;"></span>';
-	$page_html .= smartwoo_client_service_url_button( $service );
-	$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=edit-service&service_id=' . $service->getServiceId() ) ) . '" class="sw-blue-button">Edit this Service</a>';
-	$page_html .= smartwoo_delete_service_button( $service->getServiceId() );
+
 	$page_html .= '</div>';
 	return $page_html;
 }
