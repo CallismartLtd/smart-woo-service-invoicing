@@ -79,13 +79,18 @@ function smartwoo_generate_service(
  * @return string HTML markup button with url keypass
  */
 function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
-	$button_text = is_admin() ? 'Access Client Service' : 'Visit Website';
-	$button_text = apply_filters( 'smartwoo_service_url_button_text', $button_text, $service );
+	$button_text 	= is_admin() ? 'Service URL' : 'Visit Website';
+	$button_text 	= apply_filters( 'smartwoo_service_url_button_text', $button_text, $service );
+	if ( smartwoo_is_frontend() ) {
+		$button	=  '<a href="' . esc_url(  $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
+	} else {
+		$button	=  '<a href="' . esc_url(  $service->getServiceUrl() ) . '" target="_blank"><button title="'. esc_attr( $button_text ) .'"><span class="dashicons dashicons-admin-site-alt3"></span></button></a>';
+	}
 	/**
 	 * @see filter	smartwoo_service_url allows for total replacement of the client service
 	 * 		url button by plugins;
 	 */
-	return apply_filters( 'smartwoo_service_url_button_html', '<a href="' . esc_url(  $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>', $button_text, $service );
+	return apply_filters( 'smartwoo_service_url_button_html', $button, $button_text, $service );
 
 }
 
@@ -608,7 +613,7 @@ function smartwoo_delete_service_button( string $service_id ) {
 	if ( ! is_admin() ) {
 		return '';
 	}
-	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '">' . __( 'Delete Service ⌫', 'smart-woo-service-invoicing' ) . '</button>';
+	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '" title="Delete Service"><span class="dashicons dashicons-trash"></span></button>';
 }
 
 function smartwoo_delete_service() {
