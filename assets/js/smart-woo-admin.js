@@ -237,10 +237,10 @@ function smartwooRemoveTable() {
 
 function smartwooPostBulkAction(action, values = []) {
     if ('delete' === action) {
-        let confirmed = confirm('Heads up!! You are about to delete the selected service' +(values.length > 1 ? 's':'') +'. click ok to continue.');
+        let confirmed = confirm('Warning: You are about to delete the selected service' + (values.length > 1 ? 's' : '') + ', along with all related invoices and assets. Click OK to confirm.');
         if ( ! confirmed ) {
             return;
-        }
+        }        
     }
     showLoadingIndicator();
     jQuery.ajax({
@@ -602,6 +602,47 @@ function smartwooDeleteProduct(productId) {
     }
 }
 
+// Delete a service subscription.
+function smartwooDeleteService(serviceId) {
+    let isConfirmed = confirm( 'Are you sure you want to delete this service? All invoices and assets alocated to it will be lost forever.' );
+
+    if (isConfirmed) {
+        spinner = smartWooAddSpinner( 'sw-delete-button' );
+
+        // Perform an Ajax request to delete the invoice
+        jQuery.ajax(
+            {
+                type: 'POST',
+                url: smart_woo_vars.ajax_url,
+                data: {
+                    action: 'smartwoo_delete_service',
+                    service_id: serviceId,
+                    security: smart_woo_vars.security
+                },
+                success: function (response) {
+                    if ( response.success) {
+
+                        alert( response.data.message );
+                        window.location.href = smart_woo_vars.sw_admin_page;
+                    } else {
+                        alert( response.data.message );
+                    }
+
+                },
+
+                error: function (error) {
+                    // Handle the error
+                    alert( 'Error deleting service:', error );
+                },
+                complete: function() {
+                    smartWooRemoveSpinner( spinner );
+                }
+            }
+        );
+    }
+
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     let contentDiv = document.querySelector('.sw-dash-content-container');
     let skeletonContent = document.querySelectorAll('.sw-dash-content');
@@ -617,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let menuButton = document.querySelector('.sw-admin-menu-icon');
     let deleteInvoiceBtns = document.querySelectorAll('.delete-invoice-button');
     let deleteProductIds = document.querySelectorAll('.sw-delete-product' );
+    let deleteServiceBtn = document.querySelector('.delete-service-button');
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -760,6 +802,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 smartwooDeleteProduct(productId);
             });
         });
+
+    }
+
+    if (deleteServiceBtn) {
+        let siblings = deleteServiceBtn.parentElement.querySelectorAll('a button');
+        let serviceId = deleteServiceBtn.getAttribute('data-service-id');
+        siblings.forEach((Btn)=>{
+            Btn.style.border = "solid blue 1px";
+            Btn.style.margin = "3px";
+
+        });
+        deleteServiceBtn.style.border = "solid blue 1px";
+        deleteServiceBtn.addEventListener('click', ()=>{
+            smartwooDeleteService(serviceId);
+        } );
 
     }
 
