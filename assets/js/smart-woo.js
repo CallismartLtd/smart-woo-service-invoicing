@@ -515,62 +515,6 @@ function loadTransactionHistory() {
 		);
 }
 
-
-// Function to delete service
-jQuery( document ).ready(
-	function ($) {
-		// Event listener for the delete button
-		$( document ).on(
-			'click',
-			'.delete-service-button',
-			function () {
-				// Get the service ID from the data attribute
-				var serviceId = $( this ).data( 'service-id' );
-
-				// Display a confirmation dialog
-				var isConfirmed = confirm( 'Are you sure you want to delete this service? All invoices and assets alocated to it will be lost forever.' );
-
-				// If the user confirms, initiate the deletion process
-				if (isConfirmed) {
-					spinner = smartWooAddSpinner( 'sw-delete-button' );
-
-					// Perform an Ajax request to delete the invoice
-					$.ajax(
-						{
-							type: 'POST',
-							url: smart_woo_vars.ajax_url,
-							data: {
-								action: 'smartwoo_delete_service',
-								service_id: serviceId,
-								security: smart_woo_vars.security
-							},
-							success: function (response) {
-								if ( response.success) {
-
-									alert( response.data.message );
-									window.location.href = smart_woo_vars.sw_admin_page;
-								} else {
-									alert( response.data.message );
-								}
-
-							},
-
-							error: function (error) {
-								// Handle the error
-								alert( 'Error deleting service:', error );
-							},
-							complete: function() {
-								smartWooRemoveSpinner( spinner );
-							}
-						}
-					);
-				}
-			}
-		);
-	}
-);
-
-
 // Add click event listener to toggle the accordion
 document.addEventListener('DOMContentLoaded', function() {
     var acc = document.querySelectorAll('.sw-accordion-btn');
@@ -612,10 +556,7 @@ jQuery(document).ready(function($) {
                     security: smart_woo_vars.security
                 },
                 success: function(response) {
-                    // Hide the loader when the response is received
                     loader.css('display', 'none');
-
-                    // Update the generated service ID input
                     $('#generated-service-id').val(response);
                 },
                 error: function(xhr, status, error) {
@@ -628,28 +569,6 @@ jQuery(document).ready(function($) {
         });
     }
 });
-
-// Delete a product
-function deleteProduct(productId) {
-	var confirmDelete = confirm("Are you sure you want to delete this product?");
-	if (confirmDelete) {
-		// Perform AJAX deletion
-		var data = {
-			action: 'delete_sw_product',
-			security: smart_woo_vars.security,
-			product_id: productId
-		};
-
-		jQuery.post(ajaxurl, data, function(response) {
-			if (response.success) {
-				alert("Product deleted successfully!");
-				location.reload();
-			} else {
-				alert("Error deleting the product. Please try again.");
-			}
-		});
-	}
-}
 
 /**
  * Configure Product client Ajax handler.
