@@ -67,47 +67,6 @@ function smartwoo_db_schema() {
 	smartwoo_create_database_table( $invoice_table_name, $invoice_structure );
 
 	/**
-	 * Define the structure for the Service Log table.
-	 * This table is used to log renewed services informations.
-	 */
-	$auto_renew_table_name = SMARTWOO_SERVICE_LOG_TABLE;
-	$auto_renew_structure  = array(
-		'id mediumint(9) NOT NULL AUTO_INCREMENT',
-		'service_id varchar(255) NOT NULL',
-		'log_type varchar(255) NOT NULL',
-		'details text DEFAULT NULL',
-		'note text DEFAULT NULL',
-		'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-		'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-		'PRIMARY KEY  (id)',
-	);
-
-	smartwoo_create_database_table( $auto_renew_table_name, $auto_renew_structure );
-
-	/**
-	 * Defined the log table where 
-	 * all transaction related data are logged
-	 */
-	$service_logs_table_name = SMARTWOO_INVOICE_LOG_TABLE;
-	$service_logs_structure  = array(
-		'id mediumint(9) NOT NULL AUTO_INCREMENT',
-		'log_id varchar(255) NOT NULL',
-		'log_type varchar(60) DEFAULT NULL',
-		'amount decimal(10, 2) DEFAULT NULL',
-		'status varchar(20) DEFAULT NULL',
-		'details text DEFAULT NULL',
-		'note varchar(255) DEFAULT NULL',
-		'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-		'updated_at datetime DEFAULT NULL',
-		'PRIMARY KEY  (id)',
-		'INDEX log_id_index (log_id)',
-		'INDEX log_type_index (log_type)',
-		'INDEX status_index (status)',
-	);
-
-	smartwoo_create_database_table( $service_logs_table_name, $service_logs_structure );
-
-	/**
 	 * Assets Table
 	 */
 	$assets_table = SMARTWOO_ASSETS_TABLE;
@@ -143,8 +102,8 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
 
 	$query			= $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name );
     $table_exists 	= $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared --False positive 
-	$is_update		= 'running' === get_transient( 'smartwoo_db_update' );
-    if ( $table_exists !== $table_name ) {
+
+	if ( $table_exists !== $table_name ) {
         $charset_collate = smartwoo_get_charset_collate();
 
 		$sql = "CREATE TABLE $table_name (";
