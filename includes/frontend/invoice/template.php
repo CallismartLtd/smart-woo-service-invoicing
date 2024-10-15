@@ -237,19 +237,16 @@ function smartwoo_invoice_details() {
 		$invoice_content .= apply_filters( 'smartwoo_invoice_content', '', $invoice );
 
 		// Invoice Items section.
-		$invoice_items		= array();
-		$invoice_items[]	= array(
-			'description' => esc_html( $product_name ),
-			'amount'      => $invoice->getAmount(),
+		$invoice_items	=	apply_filters( 'smartwoo_invoice_items_display', 
+			array( 
+				$product_name => $invoice->getAmount(),
+				__( 'Fee', 'smart-woo-service-invoicing' ) =>	$invoice->getFee() 
+			),
+
+			$invoice
+			
 		);
 
-		$invoice_items[] = array(
-			'description' => esc_html__( 'Fee', 'smart-woo-service-invoicing' ),
-			'amount'      => $invoice->getFee(),
-		);
-
-		$items	= apply_filters( 'smartwoo_invoice_items', array(), $invoice );
-		$invoice_items	= array_merge( $invoice_items, $items );
 
 		$invoice_content .= '<section class="invoice-items">';
 		$invoice_content .= '<div class="invoice-card">';
@@ -258,21 +255,11 @@ function smartwoo_invoice_details() {
 		$invoice_content .= '<h4 class="amount-heading">' . esc_html__( 'Amount', 'smart-woo-service-invoicing' ) . '</h4>';
 		$invoice_content .= '</div>';
 
-		foreach ( $invoice_items as $item ) {
+		foreach ( (array) $invoice_items as $item_name => $item_value ) {
 			$invoice_content .= '<div class="invoice-item">';
-			$invoice_content .= '<p class="description">' . esc_html( $item['description'] ) . '</p>';
-			$invoice_content .= '<p class="amount">' . wc_price( $item['amount'] ) . '</p>';
+			$invoice_content .= '<p class="description">' . esc_html( $item_name ) . '</p>';
+			$invoice_content .= '<p class="amount">' . wc_price( $item_value ) . '</p>';
 			$invoice_content .= '</div>';
-		}
-
-		if (  class_exists( 'SmartWooPro' , false ) && 'Service Upgrade Invoice' === $invoice->getInvoiceType() || class_exists( 'SmartWooPro' , false ) && 'Service Downgrade Invoice' === $invoice->getInvoiceType() ) {
-			// Previous Service Balance.
-			$balance          = $invoice->get_balance();
-			$invoice_content .= '<div class="invoice-item">';
-			$invoice_content .= '<p class="description">' . esc_html__( 'Previous Service Balance', 'smart-woo-service-invoicing' ) . '</p>';
-			$invoice_content .= '<p class="amount">' . max( 0, wc_price( $balance ) ) . '</p>';
-			$invoice_content .= '</div>';
-
 		}
 
 		// Total.
