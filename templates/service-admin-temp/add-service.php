@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
         <hr><br> <br>
         <div class="sw-assets-div">
             <div class="sw-product-download-field-container">
-                <p><strong><?php esc_html_e( 'Set up downloadable assets', 'smart-service-invoicing' );?></strong></p>
+                <p><strong><?php esc_html_e( 'Set up downloadable assets', 'smart-woo-service-invoicing' );?></strong></p>
                 
                 <div class="sw-product-download-fields">
                     <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
@@ -61,7 +61,7 @@ defined( 'ABSPATH' ) || exit;
                 <div class="sw-form-row">
                     <label for="access-limit" class="sw-form-label"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
                     <span class="sw-field-description" title="<?php echo esc_attr__( 'Set access limit, leave empty for unlimited', 'smart-woo-service-invoicing' );?>">?</span>
-                    <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                    <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
                 </div>
             </div>
 
@@ -72,7 +72,7 @@ defined( 'ABSPATH' ) || exit;
                     <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                     <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
                     <input type="text" name="add_asset_values[]" placeholder="Asset Value" /> 
-                    <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).' ); ?>">
+                    <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
 
                 </div>
                 <button id="more-addi-assets"><?php esc_html_e( 'More Fields', 'smart-woo-service-invoicing' );?></button> 
