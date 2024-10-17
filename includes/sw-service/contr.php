@@ -165,7 +165,6 @@ function smartwoo_process_new_service_form() {
 				foreach ( $asset_data as $k => $v ) {
 					// Empty asset name or value will not be saved.
 					if ( empty( $k ) || empty( $v ) || empty( $asset_tpes[$index] ) ) {
-						var_dump( empty( $asset_tpes[$index] ) );
 						unset( $asset_data[$k] );
 						unset( $asset_tpes[$index] );
 						unset( $access_limit[$index] );
