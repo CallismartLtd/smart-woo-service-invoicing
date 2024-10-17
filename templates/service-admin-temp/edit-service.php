@@ -68,7 +68,7 @@ defined( 'ABSPATH' ) || exit;
                 <div class="sw-form-row">
                     <label for="access-limit" class="sw-form-label"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
                     <span class="sw-field-description" title="<?php echo esc_attr__( 'Set access limit, leave empty for unlimited', 'smart-woo-service-invoicing' );?>">?</span>
-                    <input type="number" name="access_limits[]" value="<?php echo esc_html( ! empty( $downloads_a_obj ) ? $downloads_a_obj->get_access_limit( 'edit' ): '' ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                    <input type="number" name="access_limits[]" value="<?php echo esc_html( ! empty( $downloads_a_obj ) ? $downloads_a_obj->get_access_limit( 'edit' ): '' ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
                 </div>
 
             </div>
@@ -85,7 +85,7 @@ defined( 'ABSPATH' ) || exit;
                             <input type="text" name="add_asset_names[]" value="<?php echo esc_attr( $name );?>" placeholder="Asset Name" />
                             <input type="text" name="add_asset_values[]" value="<?php echo esc_attr( $value );?>" placeholder="Asset Value" />
                             <input type="hidden" name="asset_ids[]" value="<?php echo absint( $main_asset->get_id() );?>"/>
-                            <input type="number" name="access_limits[]" class="sw-form-input" value="<?php echo esc_html( $main_asset->get_access_limit( 'edit' ) ); ?>" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                            <input type="number" name="access_limits[]" class="sw-form-input" value="<?php echo esc_html( $main_asset->get_access_limit( 'edit' ) ); ?>" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
 
                             <button class="remove-field" title="<?php esc_attr_e( 'Remove this field', 'smart-woo-service-invoicing' );?>" data-removed-id="<?php echo absint( $main_asset->get_id() );?>">&times;</button>
 
@@ -97,7 +97,7 @@ defined( 'ABSPATH' ) || exit;
                         <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                         <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
                         <input type="text" name="add_asset_values[]" placeholder="Asset Value" /> 
-                        <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.' ); ?>">
+                        <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
 
                     </div>
                 <?php endif;?>
