@@ -87,7 +87,7 @@ if ( ! function_exists( 'smartwoo_pdf_invoice_template' ) ) {
             <body>
             
             <!-- Header Section -->
-            <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin: 5px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 5px; position: relative;">
                 <div class="invoice-status" style="position: absolute; top: 0; right: 0; text-align: right;">
                     <span style="background-color: red; color: white; font-size: 20px; font-weight: bold; padding: 5px;">' . esc_html( ucfirst( $invoice_status ) ) . '</span>
                 </div>
@@ -169,8 +169,8 @@ if ( ! function_exists( 'smartwoo_pdf_invoice_template' ) ) {
 			$pdf->WriteHTML( wp_kses_post( $invoice_html ) );
 
 			$file_name = $invoice_id . '.pdf';
-			$pdf->Output( $file_name, 'D' );
-			exit;
+			$pdf->Output( $file_name, 'I' );
+
 
 		}
 	}
