@@ -61,7 +61,7 @@ function smartwoo_invoice_admin_page() {
 
 	switch ( $tab ) {
 		case 'add-new-invoice':
-			echo wp_kses( smartwoo_new_invoice_page(), smartwoo_allowed_form_html() );
+			include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
 			break;
 
 		case 'edit-invoice':
