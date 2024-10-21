@@ -11,6 +11,8 @@
 - New admin invoice and product table UX.
 - Admins can download invoices from backend.
 - Improved i18n button translations.
+- Client's services container UI changed.
+- Setting and tools UI changed.
 
 
 # [2.0.14] 2024-08-10
