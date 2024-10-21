@@ -5,31 +5,41 @@
  */
 function smartwooPrintinvoice() {
     let invoiceContainer = document.querySelector('.sw-invoice-template');
+    let closeIcon = `X`;
+    let closeBtn    = document.createElement('button');
+    closeBtn.classList.add('sw-cls-btn-no-print');
+    closeBtn.textContent = closeIcon;
     let invoiceArea = invoiceContainer.innerHTML;
 
+
     // Open a new blank window.
-    var printWindow = window.open('', '_blank');
-    var stylesheet = `<link rel="stylesheet" href="${smart_woo_vars.smartwoo_assets_url}css/smart-woo-invoice.css" type="text/css" />`;
+    let printWindow = window.open('', '_blank');
+    let stylesheet = `<link rel="stylesheet" href="${smart_woo_vars.smartwoo_assets_url}css/smart-woo-invoice.css" type="text/css" />`;
 
     // Write the HTML content and link the external stylesheet
-    printWindow.document.write('<html><head><title>Print</title>');
-    printWindow.document.write(stylesheet); // Add the stylesheet
+    printWindow.document.write('<html><head><title>Print Invoice</title>');
+    printWindow.document.write(stylesheet); // Add the stylesheet.
     printWindow.document.write('</head><body>');
-    printWindow.document.write(invoiceArea); // Add the element content
-    printWindow.document.querySelector('.sw-invoice-item-table').style.width = "80%";
+    printWindow.document.write(invoiceArea);
+    printWindow.document.querySelector('body').append(closeBtn);
+    printWindow.document.querySelector('.sw-invoice-item-table').style.width = "90%";
     printWindow.document.write('</body></html>');
     
     // Close the document to finish writing and initiate the print function
     printWindow.document.close();
     
-    // Focus the new window and print the content
-    // printWindow.focus();
+    // Focus the new window and print the content.
+    printWindow.focus();
     printWindow.print();
     
-    // Optional: close the print window after printing
-    printWindow.addEventListener( 'afterprint', function() {
-        // printWindow.close();
+    printWindow.addEventListener( 'afterprint', ()=> {
+        printWindow.close();
     });
+
+    closeBtn.addEventListener('click', ()=>{
+        printWindow.close();
+
+    })
 }
 
 
