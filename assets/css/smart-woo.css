@@ -351,17 +351,18 @@ border-radius: 5px;
 .smartwoo-container-item {
 	margin-bottom: 10px;
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	justify-items: center;
 	width: 100%;
 }
 
 .smartwoo-container-item p {
 	margin-left: 40%;
-	text-align: left;
+	text-align: right;
 }
 
 .smartwoo-container-item span {
+	justify-self: center;
 	font-weight: bold;
 	font-size: 16px;
 	width: 50%;
@@ -470,12 +471,6 @@ border-radius: 5px;
 /************************************************************************************/
 /**************************CSS for admin pages ends here*****************************/
 /************************************************************************************/
-
-
-
-
-
-
 
 /************************************************************************************/
 /**************************FrontEnd  CSS Starts here **********************************/
@@ -661,6 +656,11 @@ border-radius: 5px;
 
 /* Responsive Styles for mobile devices */
 @media only screen and (min-width: 320px) and (max-width: 720px) {
+	@media (max-width: 375px) {
+		.smartwoo-container-item {
+			flex-wrap: wrap;
+		}
+	}
 
     .sw-table {
         width: 90%;
