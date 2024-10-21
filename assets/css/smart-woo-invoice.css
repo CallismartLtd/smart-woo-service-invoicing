@@ -130,7 +130,7 @@
     gap: 5px;
 }
 
-.sw-invoice-footer p {
+.sw-invoice-footer .sw-thank-you {
     text-align: center;
     font-weight: bold;
 }
@@ -235,4 +235,23 @@
 .smartwoo-block-button:focus {
     color: yellow;
     background-color: #000;
+}
+
+.sw-cls-btn-no-print {
+    color: #ffffff;
+    background-color: red;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    position: fixed;
+    top: 10;
+    left: 90%;
+    z-index: 9999;
+}
+
+@media print {
+    .sw-cls-btn-no-print {
+        display: none;
+    }
+    
 }
