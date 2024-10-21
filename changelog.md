@@ -1,5 +1,18 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.0.15] YYYY-MM-DD
+
+### Added
+- A whole new UI on invoice frontend preview.
+- New Invoice preview card.
+- New PDF invoice design.
+- Awesome print feature for invoices.
+- New download buttons.
+- New admin invoice and product table UX.
+- Admins can download invoices from backend.
+- Improved i18n button translations.
+
+
 # [2.0.14] 2024-08-10
 
 ### Added
