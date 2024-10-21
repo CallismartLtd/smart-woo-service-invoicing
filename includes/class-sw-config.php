@@ -189,7 +189,6 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-        
     }
 
     /**
@@ -207,6 +206,15 @@ class SmartWoo_Config{
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
             wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         }
+        $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
+
+        if ( is_page( $invoice_page_id ) || is_account_page() ) {
+            wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice.css', array(), SMARTWOO_VER, 'all' );
+            if( isset( $_GET['view_invoice'] ) ) {
+                wp_enqueue_style( 'dashicons' );
+
+            }
+        } 
 
         if ( is_admin() ) {
             wp_enqueue_style( 'smartwoo-admin-utm-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin.css', array(), SMARTWOO_VER, 'all' );
@@ -219,6 +227,8 @@ class SmartWoo_Config{
      */
     public function load_scripts() {
         $l10n   =   array(
+            'smartwoo_plugin_url'       => SMARTWOO_DIR_URL,
+            'smartwoo_assets_url'       => SMARTWOO_DIR_URL . 'assets/',
             'ajax_url'                  => admin_url( 'admin-ajax.php' ),
             'woo_my_account_edit'       => wc_get_account_endpoint_url( 'edit-account' ),
             'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
@@ -231,6 +241,7 @@ class SmartWoo_Config{
             'sw_options_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-options' ) ),
             'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
             'home_url'                  => home_url( '/' ),
+            'is_account_page'           => is_account_page(),
             'never_expire_value'        => '',
             'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
             'smartwoo_plugin_page'      => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
@@ -238,13 +249,17 @@ class SmartWoo_Config{
         );
 
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
-    
+        wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
+        $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
+
+        if ( is_page( $invoice_page_id ) || is_account_page() ) {
+            wp_enqueue_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice.js', array( 'jquery' ), SMARTWOO_VER, true );
+        }
+
         if ( is_admin() ) {
             wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin.js', array( 'jquery' ), SMARTWOO_VER, true );
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
         }
-        wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
-
     }
 
     /**
