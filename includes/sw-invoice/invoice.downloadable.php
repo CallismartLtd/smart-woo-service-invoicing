@@ -212,9 +212,8 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0 ) {
 		// $pdf->showWatermarkImage = true;
 
 		$file_name = $invoice_id . '.pdf';
-		$pdf->Output( $file_name, 'I' );
-
-
+		$pdf->Output( $file_name, 'D' );
+		exit;
 	}
 }
 
