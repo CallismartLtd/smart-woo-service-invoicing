@@ -146,6 +146,9 @@ class SmartWoo_Invoice {
 	}
 
 	// Getter methods
+	public function get_id() {
+		return $this->id;
+	}
 	public function getServiceId() {
 		return $this->service_id;
 	}
@@ -215,6 +218,41 @@ class SmartWoo_Invoice {
 		return $this->total;
 	}
 
+	/**
+	 * Get invoice download URL
+	 * 
+	 * @param string $context Pass "admin"if in admin area.
+	 * @return string $ur formatted invoice download url.
+	 */
+	public function download_url( $context = 'frontend' ) {
+		if ( 'admin' === $context ) {
+			$url = wp_nonce_url( 
+				admin_url( 'admin-post.php?action=smartwoo_admin_download_invoice&invoice_id=' . $this->getInvoiceId() ), 
+				'_sw_download_token', '_sw_download_token' 
+			);
+		} else {
+			$url = wp_nonce_url( 
+				add_query_arg(
+					array(
+						'smartwoo_action'	=> 'sw_download_invoice',
+						'invoice_id'		=> $this->getInvoiceId(),
+						'user_id'			=> get_current_user_id(),
+					),
+					get_permalink()
+				),
+				'_sw_download_token', '_sw_download_token' 
+			);
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Retrieve customer's billing email
+	 */
+	public function get_billing_email() {
+		return smartwoo_get_client_billing_email( $this->getUserId() );
+	}
 	// Helper method to convert database results to SmartWoo_Invoice objects
 	public static function convert_array_to_invoice( $data ) {
 		return new SmartWoo_Invoice(
