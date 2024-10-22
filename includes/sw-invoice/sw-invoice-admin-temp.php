@@ -238,7 +238,7 @@ function smartwoo_invoice_dashboard() {
 	$table_html .= '<tbody>';	
 
 	foreach ( $all_invoices as $invoice ) {
-		$download_url = wp_nonce_url( admin_url( 'admin-post.php?action=smartwoo_admin_download_invoice&invoice_id=' . $invoice->getInvoiceId() ), '_sw_download_token', '_sw_download_token' );
+		$download_url = $invoice->download_url( 'admin' );
 		$table_html .= '<tr>';
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
 		$table_html .= '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
@@ -302,9 +302,9 @@ function smartwoo_view_invoice_page() {
 	$query_var  =  'tab=view-invoice&invoice_id=' . $invoice->getInvoiceId() .'&path';
 	$tabs		= array(
 		''					=> 'Dashboard',
-		'details' 	      => __( 'Invoice', 'smart-woo-service-invoicing' ),
-		'related-service' => __('Related Service', 'smart-woo-service-invoicing' ),
-		'log'             => __( 'Logs', 'smart-woo-service-invoicing' )
+		'details' 	      	=> __( 'Invoice', 'smart-woo-service-invoicing' ),
+		'related-service' 	=> __('Related Service', 'smart-woo-service-invoicing' ),
+		'log'             	=> __( 'Logs', 'smart-woo-service-invoicing' ),
 	);
 	$page_html .= smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var );
 
@@ -330,10 +330,11 @@ function smartwoo_view_invoice_page() {
 }
 
 function smartwoo_invoice_details_admin_temp( $invoice ) {
-	$download_url = wp_nonce_url( admin_url( 'admin-post.php?action=smartwoo_admin_download_invoice&invoice_id=' . $invoice->getInvoiceId() ), '_sw_download_token', '_sw_download_token' );
+	$download_url = $invoice->download_url( 'admin' );
 	$page_html  = '<h1>Invoice Details</h1>';
 	$page_html = '<div style="margin: 20px;">';
 	$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->getInvoiceId() ) ) . '"><button title="Edit Invoice"><span class="dashicons dashicons-edit"></span></button></a>';
+	// $page_html .= '<button title="Print Invoice" id="smartwoo-print-invoice-btn"><span class="dashicons dashicons-printer"></span></button>';
 	$page_html .= '<a href="'. esc_url( $download_url ) .'"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>';
 	$page_html .= smartwoo_delete_invoice_button( $invoice->getInvoiceId() );
 	$page_html .= '<span id="sw-delete-button" style="text-align:center;"></span>';
