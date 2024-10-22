@@ -132,6 +132,7 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	$store_address			= $biller_details->store_address;
 	$store_city				= $biller_details->store_city;
 	$default_country		= $biller_details->default_country;
+	$biller_email			= get_option( 'smartwoo_billing_email', 'N/A' );
 	$user 					= new WC_Customer( $user_id );
 	$first_name				= $user->get_first_name();
 	$last_name				= $user->get_last_name();
@@ -152,9 +153,9 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	$transaction_date 		= smartwoo_check_and_format( $invoice->getDatePaid(), true );
 	$invoice_due_date 		= smartwoo_check_and_format( $invoice->getDateDue(), true );
 	$invoice_total    		= $invoice->getTotal();
-	$payment_gateway 		= ! empty( $invoice->getPaymentGateway() ) ? $invoice->getPaymentGateway() : 'Not Available';
+	$payment_gateway 		= ! empty( $invoice->getPaymentGateway() ) ? $invoice->getPaymentGateway() : 'N/A';
 	$invoice_status			= $invoice->getPaymentStatus();
-	$transaction_id			= ! empty( $invoice->getTransactionId() ) ? $invoice->getTransactionId() : 'Not Available';
+	$transaction_id			= ! empty( $invoice->getTransactionId() ) ? $invoice->getTransactionId() : 'N/A';
 	
 	/**
 	 * @filter smartwoo_invoice_items_display add or remove items from invoice table.
@@ -183,17 +184,9 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 		$pay_button_url   = smartwoo_invoice_pay_url( $order_id );
 		$invoice_content .= '<a href="' . esc_url( $pay_button_url ) . '" class="invoice-pay-button">' . esc_html__( 'Pay Now', 'smart-woo-service-invoicing' ) . '</a>';
 	}
-	$download_url = add_query_arg(
-		array(
-			'download_invoice' => 'true',
-			'invoice_id'       => $invoice_id,
-			'user_id'          => $user_id,
-		),
-		get_permalink()
-	);
 
 	// Add nonce to the URL.
-	$download_url 		= wp_nonce_url( $download_url, 'download_invoice_nonce' );
+	$download_url 		= $invoice->download_url();
 	$invoice_content	.= '</div>'; // Close buttons div.
 
 	/**
