@@ -429,6 +429,13 @@ border-radius: 5px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 
 }
+
+.sw-right-column .image-section {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
 .sw-left-column ul {
 	list-style: none;
 	padding: 0;
