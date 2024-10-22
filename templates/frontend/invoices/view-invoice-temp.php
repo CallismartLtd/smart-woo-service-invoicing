@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 	    <span><?php echo esc_html__( 'Invoice #', 'smart-woo-service-invoicing' ) . esc_html( $invoice->getInvoiceId() ); ?></span>
 		<!--Invoice Date. -->
         <div class="sw-invoice-dates">
-            <p><?php echo esc_html__( 'Generated: ', 'smart-woo-service-invoicing' ) . esc_html( $invoice_date ); ?></p>
+            <p><?php echo esc_html__( 'Invoice Date: ', 'smart-woo-service-invoicing' ) . esc_html( $invoice_date ); ?></p>
 	        <p><?php echo esc_html__( 'Due On: ', 'smart-woo-service-invoicing' ) . esc_html( $invoice_due_date ); ?></p>
 	    </div>
     </div>
@@ -39,9 +39,9 @@ defined( 'ABSPATH' ) || exit;
 	        <div class="invoice-customer-info">
 	            <p><?php echo esc_html( $customer_company_name ); ?></p>
 	            <p><?php echo esc_html( $first_name ) . ' ' . esc_html( $last_name ); ?></p>
-                <p><?php echo esc_html__( 'Email: ', 'smart-woo-service-invoicing' ) . esc_html( $billing_email ); ?></p>
-	            <p><?php echo esc_html__( 'Phone: ', 'smart-woo-service-invoicing' ) . esc_html( $billing_phone ); ?></p>
 	            <p><?php echo esc_html( $user_address ); ?></p>
+				<p><?php echo esc_html__( 'Email: ', 'smart-woo-service-invoicing' ) . esc_html( $billing_email ); ?></p>
+	            <p><?php echo esc_html__( 'Phone: ', 'smart-woo-service-invoicing' ) . esc_html( $billing_phone ); ?></p>
 	        </div>
 	    </div>
 
@@ -50,8 +50,9 @@ defined( 'ABSPATH' ) || exit;
             <h3><?php echo esc_html__( 'Pay To', 'smart-woo-service-invoicing' ); ?></h3>
 	        <div class="invoice-business-info">
 	            <p><?php echo esc_html( $business_name ); ?></p>
-                <p><?php echo esc_html( $admin_phone_number ); ?></p>
 	            <p><?php echo esc_html( smartwoo_get_formatted_biller_address() ); ?></p>
+				<p><?php echo esc_html( $admin_phone_number ); ?></p>
+
 	        </div>
 	    </div>
 	</div>
