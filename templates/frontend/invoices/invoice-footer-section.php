@@ -19,28 +19,34 @@ defined( 'ABSPATH' ) || exit;
 	 </div>
 	<!-- invoice meta data. -->
 	<div class="sw-invoice-metadata">
-		<!-- Invoice Type. -->
+		<!-- Payment Method. -->
 		<div class="sw-invoice-meta-cards">
-			<p><?php echo esc_html__( 'Invoice Type:', 'smart-woo-service-invoicing' ); ?></p>
-			<p class="footer-value"><?php echo esc_html( $invoice->getInvoiceType() ); ?></p>
+			<p><?php echo esc_html__( 'Payment Method:', 'smart-woo-service-invoicing' ); ?></p>
+			<p class="sw-invoice-card-footer-value"><?php echo esc_html( ! empty( $invoice->getPaymentGateway() ) ? $invoice->getPaymentGateway() : 'N/A' ); ?></p>
 		</div>
 
 		<!-- Transaction Date. -->
 		<div class="sw-invoice-meta-cards">
 			<p><?php echo esc_html__( 'Transaction Date:', 'smart-woo-service-invoicing' ); ?></p>
-			<p class="footer-value"><?php echo esc_html( $transaction_date ); ?></p>
+			<p class="sw-invoice-card-footer-value"><?php echo esc_html( $transaction_date ); ?></p>
 		</div>
 
 		<!-- Transaction ID. -->
 		<div class="sw-invoice-meta-cards">
 			<p><?php echo esc_html__( 'Transaction ID:', 'smart-woo-service-invoicing' ); ?></p>
-			<p class="footer-value"><?php echo esc_html( $transaction_id ); ?></p>
+			<p class="sw-invoice-card-footer-value"><?php echo esc_html( $transaction_id ); ?></p>
+		</div>
+
+		<!-- Invoice Type. -->
+		<div class="sw-invoice-meta-cards">
+			<p><?php echo esc_html__( 'Invoice Type:', 'smart-woo-service-invoicing' ); ?></p>
+			<p class="sw-invoice-card-footer-value"><?php echo esc_html( $invoice->getInvoiceType() ); ?></p>
 		</div>
 
 		<!-- Related Service. -->
 		<div class="sw-invoice-meta-cards">
 			<p><?php echo esc_html__( 'Related Service', 'smart-woo-service-invoicing' ); ?></p>
-			<p class="footer-value"><?php echo esc_html( $service_id ); ?></p>
+			<p class="sw-invoice-card-footer-value"><?php echo ( ! empty( $service_id )? '<a href="'. esc_url_raw( smartwoo_service_preview_url( $service_id ) ) .'">'. esc_html( $service_id ) . '</a>': 'N/A' ); ?></p>
 		</div>
 
 	</div>
