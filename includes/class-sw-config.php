@@ -252,7 +252,7 @@ class SmartWoo_Config{
         wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
         $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
-        if ( is_page( $invoice_page_id ) || is_account_page() ) {
+        if ( is_page( $invoice_page_id ) || is_account_page() || is_admin() ) {
             wp_enqueue_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice.js', array( 'jquery' ), SMARTWOO_VER, true );
         }
 
@@ -442,7 +442,7 @@ class SmartWoo_Config{
      */
     private function add_actions() {
         
-        if ( isset( $_GET['smartwoo_action'] ) && has_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( isset( $_GET['smartwoo_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             do_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         }
     }
