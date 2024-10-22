@@ -70,28 +70,17 @@ function smartwoo_save_advanced_options(){
 	}
 
 	if ( isset( $_POST['sw_save_options'], $_POST['sw_option_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_option_nonce'] ) ), 'sw_option_nonce' ) ) {
-		
-		if ( isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) ) {
-			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 1 );
-		} elseif ( ! isset( $_POST['smartwoo_pay_pending_invoice_with_wallet'] ) ) {
-			update_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 );
-		}
-
-		if ( isset( $_POST['smartwoo_refund_to_wallet'] ) ) {
-			update_option( 'smartwoo_refund_to_wallet', 1 );
-		} elseif ( ! isset( $_POST['smartwoo_refund_to_wallet'] ) ) {
-			update_option( 'smartwoo_refund_to_wallet', 0 );
-		}
 
 		if ( isset( $_POST['smartwoo_product_text_on_shop'] ) ) {
 			$value =  ! empty( $_POST['smartwoo_product_text_on_shop'] ) ?  sanitize_text_field( wp_unslash( $_POST['smartwoo_product_text_on_shop'] ) ) : 'Configure';
 			update_option( 'smartwoo_product_text_on_shop', $value );
 		}
 
-		$checkboxes = array(
-			'smartwoo_enable_api_feature',
-			'smartwoo_allow_guest_invoicing',
-			'smartwoo_remove_plugin_data_during_uninstall'	
+		$checkboxes = apply_filters( 'smartwoo_advanced_options',
+			array(
+				'smartwoo_allow_invoice_tracking',
+				'smartwoo_remove_plugin_data_during_uninstall'
+			)
 		);
 
 		// Update checkbox options.
@@ -215,7 +204,7 @@ function smartwoo_options_main_page() {
 			<div class="sw-right-column">
 				<div id="first-display" class="image-section">
 					<h3> Smart Woo Service Invoicing</h3>
-					<p><img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;"></p>
+					<img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;">
 					<p>Here you will find useful information to get you started.</p>
 			    </div>
 			
@@ -488,14 +477,12 @@ function smartwoo_advanced_options() {
 	ob_start();
 	smartwoo_save_advanced_options();
 	$product_text = get_option( 'smartwoo_product_text_on_shop', 'Configure' );
-    $default_checkboxes = array(
-        'smartwoo_remove_plugin_data_during_uninstall'
+    $checkboxes = apply_filters( 'smartwoo_advanced_options',
+		array(
+			'smartwoo_allow_invoice_tracking',
+        	'smartwoo_remove_plugin_data_during_uninstall'
+		)
     );
-	/**
-	 * Rule for this filter: All array values to be passed to this filter must be prefixed with "smartwoo" 
-	 */
-	$more_checkboxes 	= apply_filters( 'smartwoo_advanced_options', array() );
-	$checkboxes			= array_merge( $default_checkboxes, $more_checkboxes );
 	
     ?>
     <div class="wrap">
