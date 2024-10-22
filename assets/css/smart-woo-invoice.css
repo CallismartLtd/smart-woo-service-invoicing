@@ -160,11 +160,21 @@
     min-width: 300px;
     height: 150px;
 }
+.sw-invoice-meta-cards p {
+    text-align: center;
+}
+
 .sw-invoice-meta-cards p:first-child {
     font-size: 16px;
     font-weight: bold;
 }
-
+.sw-invoice-meta-cards .sw-invoice-card-footer-value {
+    text-decoration: none;
+}
+.sw-invoice-meta-cards .sw-invoice-card-footer-value a {
+    color: #0073e6;
+    text-decoration: none;
+}
 @media (min-width: 280px) and (max-width:768px) {
     .sw-invoice-template {
         margin: 10px auto;
@@ -194,6 +204,9 @@
     }
 
     @media (min-width: 190px) and (max-width: 340px) {
+        .sw-invoice-template {
+            width: 99%;
+        }
         .sw-invoice-logo img{
             max-width: 80px;
             max-height: 80px;
