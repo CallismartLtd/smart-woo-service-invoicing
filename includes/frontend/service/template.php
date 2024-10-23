@@ -431,8 +431,8 @@ function smartwoo_buy_new_temp() {
 
 		$output .= '<div class="sw-product-container">';
 		$output .= '<h3>' . esc_html( $product_name ) . '</h3>';
-		$output .= '<p>Price: ' . wc_price( $product_price ) . '</p>';
-		$output .= '<p>Sign-Up Fee: ' . $sign_up_fee . '</p>';
+		$output .= '<p>Price: ' . smartwoo_price( $product_price ) . '</p>';
+		$output .= '<p>Sign-Up Fee: ' . smartwoo_price( $sign_up_fee ) . '</p>';
 		$output .= '<p><strong>' . esc_html( $billing_cycle ) . '</strong> Billing Cycle</p>';
 		$output .= '<div class="sw-description">';
 		$output .= 	wp_kses_post( $product_excerpt );
