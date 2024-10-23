@@ -181,7 +181,7 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	
 	if ( 'unpaid' ===  strtolower( $invoice_status ) ) {
 		$order_id         = $invoice->getOrderId();
-		$pay_button_url   = smartwoo_invoice_pay_url( $order_id );
+		$pay_button_url   = $invoice->pay_url();
 		$invoice_content .= '<a href="' . esc_url( $pay_button_url ) . '" class="invoice-pay-button">' . esc_html__( 'Pay Now', 'smart-woo-service-invoicing' ) . '</a>';
 	}
 
