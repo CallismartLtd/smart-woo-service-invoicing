@@ -473,10 +473,10 @@ class SmartWoo_Product extends WC_Product {
 			$billing_cycle = $product->get_billing_cycle();
 	
 			$notice_banner  = '<div class="smartwoo-sub-info">';
-			$notice_banner .= '<p class="main-price"> You will be charged  <strong>' . wc_price( $product->get_price() ) . ' ' . esc_html( ucfirst( $billing_cycle ) ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$notice_banner .= '<p class="main-price"> You will be charged  <strong>' . smartwoo_price( $product->get_price() ) . ' ' . esc_html( ucfirst( $billing_cycle ) ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	
 			if ( $sign_up_fee > 0 ) {
-				$notice_banner .=  '<p class="sign-up-fee">and a one-time sign-up fee of <strong>' . wc_price( $sign_up_fee ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$notice_banner .=  '<p class="sign-up-fee">and a one-time sign-up fee of <strong>' . smartwoo_price( $sign_up_fee ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$total_price = $product->get_price() + $sign_up_fee;
 	
 				$product->set_price( $total_price );
