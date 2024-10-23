@@ -476,7 +476,7 @@ function smartwoo_renewal_sucess_email( $service ) {
 		$message .= '<p>The details of your renewed service are as follows:</p>';
 		$message .= '<ul>';
 		$message .= '<li>Service Name: ' . esc_html( $product_name ) . ' - ' . esc_html( $service_name ) . '</li>';
-		$message .= '<li>Pricing: ' . wc_price( $service_pricing ) . '</li>';
+		$message .= '<li>Pricing: ' . smartwoo_price( $service_pricing ) . '</li>';
 		$message .= '<li>Service Type: ' . esc_html( $service_type ) . '</li>';
 		$message .= '<li>Start Date: ' . esc_html( $new_start_date ) . '</li>';
 		$message .= '<li>Next Payment Date: ' . esc_html( $new_next_payment_date ) . '</li>';
