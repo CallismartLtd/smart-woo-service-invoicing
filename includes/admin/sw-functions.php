@@ -192,17 +192,43 @@ function smartwoo_readable_duration( $duration ) {
  * Format a given price with WooCommerce currency settings and thousand separator.
  *
  * @param float $amount The amount to be formatted.
- * @return string The formatted price with currency symbol and thousand separator.
+ * @return string $formatted_price The formatted price with currency symbol and thousand separator.
  * @since 1.0.4
  */
 function smartwoo_price( $amount ) {
-    $decimals 			= wc_get_price_decimals();
-    $decimal_separator 	= wc_get_price_decimal_separator();
+    $decimals           = wc_get_price_decimals();
+    $decimal_separator  = wc_get_price_decimal_separator();
     $thousand_separator = wc_get_price_thousand_separator();
-    $price 				= number_format( $amount, $decimals, $decimal_separator, $thousand_separator );
-    $price 				= get_woocommerce_currency_symbol() . '' . $price;
+    $price              = number_format( abs( $amount ), $decimals, $decimal_separator, $thousand_separator );
 
-    return $price;
+	/**
+	 * Properly formats negative amount and uses currency position as set in WC settings.
+	 * @since 2.0.15
+	 */
+	$currency_pos       = get_option( 'woocommerce_currency_pos' );
+	$currency_symbol    = get_woocommerce_currency_symbol();
+	$is_negative        = $amount < 0;
+
+	// Format based on WooCommerce currency position.
+	switch ( $currency_pos ) {
+		case 'left':
+			$formatted_price = $is_negative ? '-' . $currency_symbol . $price : $currency_symbol . $price;
+			break;
+		case 'right':
+			$formatted_price = $is_negative ? '-' . $price . $currency_symbol : $price . $currency_symbol;
+			break;
+		case 'left_space':
+			$formatted_price = $is_negative ? '-' . $currency_symbol . ' ' . $price : $currency_symbol . ' ' . $price;
+			break;
+		case 'right_space':
+			$formatted_price = $is_negative ? '-' . $price . ' ' . $currency_symbol : $price . ' ' . $currency_symbol;
+			break;
+		default:
+			$formatted_price = $is_negative ? '-' . $currency_symbol . $price : $currency_symbol . $price;
+	}
+
+	// Allow further customization via filter.
+	return apply_filters( 'smartwoo_price', $formatted_price, $price, $amount );
 }
 
 
