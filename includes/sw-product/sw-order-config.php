@@ -37,7 +37,7 @@ function smartwoo_configure_query_var( $vars ) {
     // Check if the current page is the configure page.
     if ( get_query_var( 'configure' ) ) {
         // Define the path to the configure template file.
-        $product_configure_temp = SMARTWOO_PATH . '/templates/configure.php';
+        $product_configure_temp = SMARTWOO_PATH . 'templates/configure.php';
 
         if ( file_exists( $product_configure_temp ) ) {
 			function sw_configure_page_title( $title_parts ) {
