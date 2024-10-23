@@ -582,6 +582,7 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
 			var originalBtnText = buttonText.textContent;
             buttonText.textContent = 'Processing...';
+			buttonText.disabled = true;
             var formData = new FormData(configureProductForm);
             formData.append('action', 'smartwoo_configure_product');
             formData.append('security', smart_woo_vars.security);
@@ -793,18 +794,19 @@ document.addEventListener('DOMContentLoaded', function() {
 	if ( assetSubBtn ) {
 		var subContainer	= document.getElementById( 'smartwoo-sub-info' );
 		var assetsContainer = document.getElementById( 'smartwoo-sub-assets' );
-		var originalBtnText	= assetSubBtn.textContent;
+		var originalBtnText	= assetSubBtn.innerHTML;
 		var isClicked		= false;
 		
 		assetSubBtn.addEventListener( 'click', function( event ) {
 			if ( isClicked ) {
-				assetSubBtn.textContent			= originalBtnText;
-				subContainer.style.display		= "flex";
+				assetSubBtn.innerHTML			= originalBtnText;
+				jQuery(subContainer).fadeIn().css("display", "flex");
 				assetsContainer.style.display 	= "none";
 			} else {
-				assetSubBtn.textContent			= "Subscriptions";
+				assetSubBtn.innerHTML			= `<span class="dashicons dashicons-controls-repeat"></span> Subscription`;
 				subContainer.style.display		= "none";
-				assetsContainer.style.display 	= "block";
+				jQuery(assetsContainer).fadeIn().css("display", "block");
+
 			}
 			isClicked = !isClicked;
 		
