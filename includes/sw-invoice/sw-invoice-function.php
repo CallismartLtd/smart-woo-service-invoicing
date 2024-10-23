@@ -222,40 +222,33 @@ function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoi
 	$amount 			= wc_get_product( $product_id )->get_price();
 	$total 				= $amount + ( $fee ?? 0 );
 
-	// Create a new SmartWoo_Invoice instance.
-	$newInvoice = new SmartWoo_Invoice(
-		$invoice_id,
-		$product_id,
-		$amount,
-		$total,
-		$payment_status,
-		null, // Date Created will be set to the current date in the constructor.
-		$user_id,
-		$billing_address,
-		$invoice_type,
-		$service_id,
-		$fee
-	);
-
+	$newInvoice = new SmartWoo_Invoice();
+	$newInvoice->set_invoice_id( $invoice_id );
+	$newInvoice->set_product_id( $product_id );
+	$newInvoice->set_amount( $amount );
+	$newInvoice->set_total( $total );
+	$newInvoice->set_status( $payment_status );
+	$newInvoice->set_date_created( current_time( 'mysql' ) );
+	$newInvoice->set_user_id( $user_id );
+	$newInvoice->set_billing_address( $billing_address );
+	$newInvoice->set_type( $invoice_type );
+	$newInvoice->set_service_id( $service_id );
+	$newInvoice->set_fee( $fee );
 
 	if ( $date_due ) {
-		$newInvoice->setDateDue( $date_due );
+		$newInvoice->set_date_due( $date_due );
 	}
 
 	if ( 'paid' === $payment_status ) {
-		$newInvoice->setDatePaid( current_time( 'mysql' ) );
+		$newInvoice->set_date_paid( 'now' );
 	}
-
-	$invoice_id = SmartWoo_Invoice_Database::save( $newInvoice );
 
 	if ( 'unpaid' === strtolower( $payment_status ) ) {
 		$order_id = smartwoo_generate_pending_order( $user_id, $invoice_id );
-
-		$fields = array(
-			'order_id' => $order_id,
-		);
-		smartwoo_update_invoice_fields( $invoice_id, $fields );
+		$newInvoice->set_order_id( $order_id );
 	}
+
+	$invoice_id = $newInvoice->save();
 
 	return $invoice_id;
 }
@@ -560,24 +553,22 @@ function smartwoo_create_new_order_invoice( $order ) {
 				$date_due        = current_time( 'mysql' ); // New Service invoices are due same day
 
 				// generate an invoice for the order
-				$newInvoice = new SmartWoo_Invoice(
-					$invoice_id,
-					$product_id,
-					$amount,
-					$total,
-					$payment_status,
-					null, // Date Created will be set to the current date in the constructor
-					$user_id,
-					$billing_address,
-					$invoice_type,
-					$service_id,
-					$fee_amount,
-					$order_id
-				);
-				$newInvoice->setDateDue( $date_due );
+				$newInvoice = new SmartWoo_Invoice();
+				$newInvoice->set_invoice_id( $invoice_id );
+				$newInvoice->set_product_id( $product_id );
+				$newInvoice->set_amount( $amount );
+				$newInvoice->set_total( $total );
+				$newInvoice->set_status( $payment_status );
+				$newInvoice->set_date_created( 'now' );
+				$newInvoice->set_user_id( $user_id );
+				$newInvoice->set_billing_address( $billing_address );
+				$newInvoice->set_type( $invoice_type );
+				$newInvoice->set_service_id( $service_id );
+				$newInvoice->set_fee( $fee_amount );
+				$newInvoice->set_order_id( $order_id );
+				$newInvoice->set_date_due( 'now' );
 
-				// Call the save method to save the invoice to the database
-				$new_invoice_id = SmartWoo_Invoice_Database::save( $newInvoice );
+				$new_invoice_id = $newInvoice->save();
 
 				if ( $new_invoice_id ) {
 					$order->update_meta_data( '_sw_invoice_id', $invoice_id );
