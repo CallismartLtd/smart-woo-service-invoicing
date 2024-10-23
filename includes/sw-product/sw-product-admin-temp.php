@@ -41,8 +41,8 @@ function smartwoo_product_table() {
 	foreach ( $products_data as $product ) {
 		$page_html .= '<tr>';
 		$page_html .= '<td>' . esc_html( $product->get_name() ) . '</td>';
-		$page_html .= '<td>' . wc_price( $product->get_price() ) . '</td>';
-		$page_html .= '<td>' . wc_price( $product->get_sign_up_fee() ) . '</td>';
+		$page_html .= '<td>' . smartwoo_price( $product->get_price() ) . '</td>';
+		$page_html .= '<td>' . smartwoo_price( $product->get_sign_up_fee() ) . '</td>';
 		$page_html .= '<td>' . esc_html( $product->get_billing_cycle() ) . '</td>';
 		$page_html .= '<td>';
 		$page_html .= '<a href="' . esc_url( admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $product->get_id() ) ) . '"><button title="Edit Product"><span class="dashicons dashicons-edit"></span></button></a>';
