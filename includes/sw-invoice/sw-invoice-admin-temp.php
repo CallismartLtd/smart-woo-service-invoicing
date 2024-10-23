@@ -455,8 +455,8 @@ function smartwoo_invoice_by_status_temp() {
 			$table_html .= '<td>' . esc_html( $invoice->getInvoiceType() ) . '</td>';
 			$table_html .= '<td>' . esc_html( $invoice->getServiceId() ) . '</td>';
 			$table_html .= '<td>' . esc_html( $invoice->getAmount() ) . '</td>';
-			$table_html .= '<td>' . wc_price( $invoice->getFee() ) . '</td>';
-			$table_html .= '<td>' . wc_price( $invoice->getTotal() ) . '</td>';
+			$table_html .= '<td>' . smartwoo_price( $invoice->getFee() ) . '</td>';
+			$table_html .= '<td>' . smartwoo_price( $invoice->getTotal() ) . '</td>';
 			$table_html .= '<td><a class="sw-red-button" href="?page=sw-invoices&tab=view-invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '">' . __( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
 			$table_html .= '</tr>';
 		}
