@@ -353,6 +353,17 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function save( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
+		/**
+		 * @since 2.0.15 Proceeds to update invoice if invoice_id already exists in the DB.
+		 */
+		$table_name = SMARTWOO_INVOICE_TABLE;
+		$invoice_exists = $wpdb->get_var( 
+			$wpdb->prepare( "SELECT `invoice_id` FROM {$table_name} WHERE `invoice_id`= %s", $invoice->get_invoice_id() )
+		);
+
+		if ( $invoice_exists ) {
+			return self::update_invoice( $invoice );
+		}
 
 		// Data to be inserted.
 		$data = array(
@@ -553,8 +564,11 @@ class SmartWoo_Invoice_Database {
 			return false;
 		}
 
-		$deleted = $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		
+		$deleted		= $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$asso_order 	= $existing_invoice->get_order();
+		if ( ! empty( $asso_order ) ) {
+			$asso_order->delete( true );
+		}
 		return $deleted !== false;
 	}
 }
