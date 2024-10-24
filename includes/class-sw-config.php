@@ -190,7 +190,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
 
-        // var_dump( get_option( 'woocommerce_currency_pos' ) );
+        // var_dump( SmartWoo_Invoice_Database::query( array( 'service_id' => 'SID-SS671673d210b55'), 'all' ) );
     }
 
     /**
