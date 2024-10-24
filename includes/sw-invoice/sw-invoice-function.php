@@ -22,36 +22,6 @@ function smartwoo_is_service_invoice( $invoice_id ) {
 	return ! is_null( $service_id );
 }
 
-
-/**
- * Checks if a user has an invoice with a specific type of Invoice and Transaction status.
- *
- * @param int    $user_id            The user ID to check.
- * @param string $invoice_type       The invoice type to check.
- * @param string $transaction_status The desired transaction status.
- *
- * @return string|false The invoice_id if the user has such an invoice, false otherwise.
- *
- * @since 1.0.0
- */
-function smartwoo_evaluate_user_invoices( $user_id, $invoice_type, $payment_status ) {
-
-	$invoices = SmartWoo_Invoice_Database::get_invoices_by_criteria( 'user_id', $user_id );
-
-
-	foreach ( $invoices as $invoice ) {
-		if (
-			$invoice->getInvoiceType() === $invoice_type &&
-			$invoice->getPaymentStatus() === $payment_status
-		) {
-			return $invoice->getInvoiceId();
-		}
-	}
-
-	return false;
-}
-
-
 /**
  * Checks if a Service has an invoice with a specific invoice_type and transaction_status.
  *
@@ -65,7 +35,7 @@ function smartwoo_evaluate_user_invoices( $user_id, $invoice_type, $payment_stat
  */
 function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $payment_status ) {
 
-	$invoices 		= SmartWoo_Invoice_Database::get_invoices_by_service( $service_id );
+	$invoices	= SmartWoo_Invoice_Database::get_invoices_by_service( $service_id );
 
 	if ( empty( $invoices ) ) {
 		return false;
@@ -244,13 +214,12 @@ function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoi
 	}
 
 	if ( 'unpaid' === strtolower( $payment_status ) ) {
+		$newInvoice->save(); // Persist changes before order creation.
 		$order_id = smartwoo_generate_pending_order( $user_id, $invoice_id );
 		$newInvoice->set_order_id( $order_id );
 	}
 
-	$invoice_id = $newInvoice->save();
-
-	return $invoice_id;
+	return $newInvoice->save();
 }
 
 /**
