@@ -44,14 +44,8 @@ defined( 'ABSPATH' ) || exit;
         </nav>
 
         <!-- The notice container -->
-        <?php if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ):
-                echo wp_kses_post( smartwoo_notice( 'Expiring Today' ) );
-            elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ):
-                echo wp_kses_post( smartwoo_notice( 'Expiring Tomorrow' ) );
-            elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ):
-                echo wp_kses_post( smartwoo_notice( 'Expired Yesterday' ) );
-            endif;
-        ?>   
+        <?php $service->print_notice( 'expiry', true ); ?>   
+        <?php $service->print_notice( 'unpaid_invoice', true ); ?>   
     </div>
 
     <div class="smartwoo-assets-container" id="smartwoo-sub-info">
