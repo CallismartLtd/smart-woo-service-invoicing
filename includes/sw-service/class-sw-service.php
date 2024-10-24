@@ -412,7 +412,7 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Check whether a given product is a SmartWpp_Product
+	 * Check whether a given product is a SmartWoo_Product
 	 * 
 	 * @param mixed $product
 	 * @since 2.0.0
@@ -441,6 +441,108 @@ class SmartWoo_Service {
 		}
 
 		return false;
+	}
+    /**
+     * Service Expiry notice
+     * 
+     * @param bool $echo Whether to print or return notice
+     */
+    public function print_expiry_notice( $echo = false ) {
+
+        $output = get_transient( 'smartwoo_print_expiry_notice' );
+        if ( false === $output ) {
+            $output = '';
+            $expiry_date = smartwoo_get_service_expiration_date( $this );
+            if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ) {
+                $output .= smartwoo_notice( 'Expiring Today' );
+            } elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+                $output .= smartwoo_notice( 'Expiring Tomorrow' );
+            } elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
+                $output .= smartwoo_notice( 'Expired Yesterday' );
+            }
+			set_transient( 'smartwoo_print_expiry_notice', $output, 2 * MINUTE_IN_SECONDS );
+        }
+
+        if ( true === $echo ) {
+            echo wp_kses_post( $output );
+        } else {
+            return $output;
+        }
+
+    }
+
+	/**
+	 * Check and print notice of unpaid invoices for this service.
+	 * 
+	 * @param bool $echo Whether to print or return notice.
+	 */
+	public function unpaid_invoices_notice( $echo = false ) {
+		$notice = get_transient( 'smartwoo_unpaid_invoices_notice' );
+		if ( false === $notice ) {
+			$notice = '';
+			$args	= array(
+				'service_id' 		=> $this->service_id,
+				'payment_status'	=> 'unpaid'
+			);
+			$unpaid_invs	= SmartWoo_Invoice_Database::query( $args, 'all' );
+	
+			if ( ! empty( $unpaid_invs ) ) {
+				$count		= count( $unpaid_invs );
+				$pay_url 	= apply_filters( 'smartwoo_service_mass_pay_url', $unpaid_invs[0]->pay_url(), $unpaid_invs );
+				$notice 	= sprintf(
+					'<div class="sw-service-notice"><p>%s</p><a href="%s" class="pay-button">%s</a></div>',
+					sprintf(
+						/* translators: 1: number of unpaid invoices, 2: plural or singular form */
+						_n(
+							'You have %d unpaid invoice for this service.',
+							'You have %d unpaid invoices for this service.',
+							$count,
+							'smart-woo-service-invoicing'
+						),
+						$count
+					),
+					esc_url( $pay_url ),
+					__( 'Pay Now', 'smart-woo-service-invoicing' )
+				);
+				
+				set_transient( 'smartwoo_unpaid_invoices_notice', $notice, 2 * MINUTE_IN_SECONDS );
+			}
+		}
+
+		if ( true === $echo ) {
+			echo wp_kses_post( $notice );
+		} else {
+			return $notice;
+		}
+
+	}
+
+	/**
+	 * Print possible notice regarding a service.
+	 * 
+	 * @param string $type The notice type.
+	 * @param bool $echo Whether to print or return the notice.
+	 * @return string $notice.
+	 */
+	public function print_notice( $type = '', $echo = false ) {
+		$allowed_types = apply_filters( 'smartwoo_service_allowed_notice_types', array( 'expiry', 'unpaid_invoice', 'due_invoice' ) );
+		$notice = '';
+
+		if ( ! in_array( $type, $allowed_types ) ) {
+			return $notice;
+		}
+
+		if ( 'expiry' === $type ) {
+			$notice = $this->print_expiry_notice();
+		} elseif ( 'unpaid_invoice' ) {
+			$notice = $this->unpaid_invoices_notice();
+		}
+
+		if ( true === $echo ) {
+			echo wp_kses_post( $notice );
+		} else {
+			return $notice;
+		}
 	}
 
 	/*
