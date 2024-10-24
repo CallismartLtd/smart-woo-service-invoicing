@@ -159,20 +159,13 @@ function smartwoo_service_front_temp() {
 			$service_id   	= esc_html( $service->getServiceId() );
 			$view_link		= smartwoo_service_preview_url( $service->getServiceId() );
 			$status			= smartwoo_service_status( $service_id );
-			$expiry_date 	= smartwoo_get_service_expiration_date( $service );
 
 			// Add the status tag to the service name.
 			$service_name_with_status = $service_name . ' (' . $status . ')';
 
 			$output .= '<div class="main-page-card">';
 			$output .= '<h3>' . esc_html( $service_name_with_status ) . '</h3>';
-			if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ) {
-				$output .= smartwoo_notice( 'Expiring Today' );
-			} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
-				$output .= smartwoo_notice( 'Expiring Tomorrow' );
-			} elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
-				$output .= smartwoo_notice( 'Expired Yesterday' );
-			}
+			$output .= $service->print_expiry_notice();
 			$output .= '<p>Service ID: ' . esc_html( $service_id ) . '</p>';
 			$output .= '<a href="' . esc_url( $view_link ) . '" class="view-details-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a>';
 			$output .= '</div>';
