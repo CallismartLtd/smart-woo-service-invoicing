@@ -803,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				jQuery(subContainer).fadeIn().css("display", "flex");
 				assetsContainer.style.display 	= "none";
 			} else {
-				assetSubBtn.innerHTML			= `<span class="dashicons dashicons-controls-repeat"></span> Subscription`;
+				assetSubBtn.innerHTML			= `<span class="dashicons dashicons-info-outline"></span> Sub Info`;
 				subContainer.style.display		= "none";
 				jQuery(assetsContainer).fadeIn().css("display", "block");
 
