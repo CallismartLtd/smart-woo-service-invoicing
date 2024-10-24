@@ -104,6 +104,7 @@ class SmartWoo_Invoice_Database {
 	 * Get an Invoice by it's invoice_id.
 	 * 
 	 * @param string $invoice_id	The invoice id.
+	 * @return SmartWoo_Invoice|false
 	 */
 	public static function get_invoice_by_id( $invoice_id = '' ) {
 		global $wpdb;
@@ -133,6 +134,10 @@ class SmartWoo_Invoice_Database {
 	 * @param string $service_id The ID of the service to retrieve it's invoice.
 	 */
 	public static function get_invoices_by_service( $service_id = '' ) {
+		if ( empty( $service_id ) ) {
+			return false;
+		}
+
 		global $wpdb;
 
 		if ( $service_id instanceof SmartWoo_Service ) {
@@ -324,13 +329,91 @@ class SmartWoo_Invoice_Database {
 	}
 
 	/**
-	 * Helper Private function to convert database ARRAY_A result to SmartWoo_Invoice.
+	 * Query the invoice database table.
+	 * 
+	 * @param array $args {
+	 *     Array of key-value pairs, where the key is the column name and the value is the value to search for.
+	 * }
+	 * @param string $mode How we want the result to be retrieved, values can be(single, row, column, all) defaults to row.
+	 * @return array|null
+	 * @since 2.0.15
+	 */
+	public static function query( $args, $mode = 'row' ) {
+		global $wpdb;
+		$table_name = SMARTWOO_INVOICE_TABLE;
+
+		// List of allowed columns for filtering
+		$columns = array(
+			'service_id',
+			'user_id',
+			'billing_address',
+			'invoice_type',
+			'product_id',
+			'order_id',
+			'amount',
+			'fee',
+			'payment_status',
+			'payment_gateway',
+			'transaction_id',
+			'date_created',
+			'date_paid',
+			'date_due',
+			'total',
+		);
+
+		// Initialize where clause array.
+		$where = array();
+		$values = array();
+
+		// Loop through args and build the WHERE clause.
+		foreach ( $args as $column => $value ) {
+			if ( in_array( $column, $columns, true ) ) {
+				// Get the data format for this value using the get_data_format method.
+				$format		= self::get_data_format( $value );
+				$where[] 	= "$column = $format";
+				$values[] 	= $value;
+			}
+		}
+
+		// If we have valid where conditions, build the query
+		if ( ! empty( $where ) ) {
+			$query 			= "SELECT * FROM {$table_name} WHERE " . implode( ' AND ', $where );
+			$prepared_query = $wpdb->prepare( $query, $values );
+			if ( 'column' === $mode ) {
+				$results	= $wpdb->get_col( $prepared_query, ARRAY_A );
+			} elseif ( 'single' === $mode ) {
+				$results	= $wpdb->get_var( $prepared_query );
+			} elseif ( 'all' === $mode ) {
+				$results	= $wpdb->get_results( $prepared_query, ARRAY_A );
+			} else {
+				$results	= $wpdb->get_row( $prepared_query, ARRAY_A );
+
+			}
+
+			if ( ! empty( $results ) ) {
+				return self::convert_results_to_invoices( $results, $mode );
+
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * convert database result(s) to SmartWoo_Invoice object.
 	 * 
 	 * @param mixed|array can be array or anything else.
+	 * @param string $mode How results where gotten.
+	 * @return array|SmartWoo_Invoice|int|string An array collection of SmartWoo_Invoice or SmartWoo_Invoice object, intiger or string.
+	 * @since 2.0.15 Expanded support for data type args and return value.
 	 */
-	private static function convert_results_to_invoices( $results ) {
-		if ( ! is_array( $results ) ) {
-			$results = array( $results );
+	private static function convert_results_to_invoices( $results, $mode = 'all' ) {
+		if ( 'single' === $mode ) {
+			return $results;
+		}
+
+		if ( 'row' === $mode ) {
+			return SmartWoo_Invoice::convert_array_to_invoice( $results );
 		}
 
 		return array_map(
@@ -474,8 +557,11 @@ class SmartWoo_Invoice_Database {
 
 		$updated = $wpdb->update( SMARTWOO_INVOICE_TABLE, $data, $where, $data_format, $where_format ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-		// Return true on success, false on failure
-		return $updated !== false;
+		if ( $updated !== false ) {
+			return $invoice->getInvoiceId();
+		}
+
+		return false;
 	}
 
 
