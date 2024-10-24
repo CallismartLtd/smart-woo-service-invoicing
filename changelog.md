@@ -13,6 +13,7 @@
 - Improved i18n button translations.
 - Client's services container UI changed.
 - Setting and tools UI changed.
+- Unpaid invoice notice on client view subscription page(Improving your invoice revenue collection).
 
 
 # [2.0.14] 2024-08-10
