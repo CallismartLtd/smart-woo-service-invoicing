@@ -596,6 +596,7 @@ if( ! function_exists( 'smartwoo_kses_allowed' ) ){
 			'div' => array(
 				'class' => true,
 				'id' => true,
+				'style' => true,
 			),
 			'p' => array(
 				'class' => true,
