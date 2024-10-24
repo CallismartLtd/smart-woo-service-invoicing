@@ -621,4 +621,5 @@ class SmartWoo_Service_Assets {
         
         wp_send_json_error( array( 'message' => 'An error occured when deleting asset.' ) );
     }
+
 }
