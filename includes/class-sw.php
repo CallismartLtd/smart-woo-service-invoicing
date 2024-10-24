@@ -974,40 +974,34 @@ final class SmartWoo {
             
             $service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ): '';
             $service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
-            $product_id = $service->getProductId();
 
             if ( ! $service || $service->getUserId() !== get_current_user_id() ) {
                 wp_die( 'Error: Service does not exist.', 404 );
             }
 
-            $service_status = smartwoo_service_status( $service_id );
-
+            $service_status = smartwoo_service_status( $service );
             if ( 'Due for Renewal' === $service_status || 'Expired' === $service_status || 'Grace Period' === $service_status ) {
+                $invoice_type   = 'Service Renewal Invoice';
+                $has_invoice_id = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
                 
-                $payment_status		= 'unpaid';
-                $invoice_type		= 'Service Renewal Invoice';
-                $date_due			= current_time( 'mysql' );
-                $created_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
-                
-                if ( $created_invoice_id ) {
-                    smartwoo_redirect_to_invoice_preview( $created_invoice_id );
+                if ( $has_invoice_id ) {
+                    smartwoo_redirect_to_invoice_preview( $has_invoice_id );
                 }
 
+                $product_id     = $service->getProductId();
                 $payment_status = 'unpaid';
-                $invoice_type   = 'Service Renewal Invoice';
                 $date_due       = current_time( 'mysql' );
 
                 // Generate Unpaid invoice
-                $NewInvoiceID = smartwoo_create_invoice( get_current_user_id(), $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
+                $new_invoice_id = smartwoo_create_invoice( get_current_user_id(), $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
 
-                if ( $NewInvoiceID ) {
-                    $NewInvoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $NewInvoiceID );
-                    smartwoo_send_user_generated_invoice_mail( $NewInvoice, $service );
-                    $new_order_id = $NewInvoice->getOrderId();
-                    $new_order    = wc_get_order( $new_order_id );
-                    $checkout_url = smartwoo_invoice_pay_url( $new_order_id );
+                if ( $new_invoice_id ) {
+                    $the_invoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
+                    smartwoo_send_user_generated_invoice_mail( $the_invoice, $service );
+                    $checkout_url = $the_invoice->pay_url();
+                    error_log( 'New Invoice created Invoice ID ===>' . $checkout_url );
                     wp_safe_redirect( $checkout_url );
-                    exit();
+                    exit;
                 }
             }
         }
