@@ -418,6 +418,27 @@ border-radius: 5px;
 	text-align: center;
 	max-width: 100%;
 }
+.sw-service-notice {
+	display: flex;
+	flex-direction: row;
+	background-color: rgba(118, 248, 118, 0.479);
+	width: 80%;
+	border-left: solid red 3px;
+	color: #000000;
+	margin: 0 auto;
+	padding: 5px;
+	gap: 5px;
+	align-items: center;
+}
+.sw-service-notice p {
+	font-weight: bold;
+}
+.sw-service-notice a {
+	background-color: #fff;
+	padding: 5px;
+	border-radius: 5px;
+	font-size: 12px;
+}
 
 /* Settings and Documentation CSS */
 .sw-container {
