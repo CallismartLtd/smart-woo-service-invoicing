@@ -378,15 +378,15 @@ class SmartWoo_Invoice_Database {
 		// If we have valid where conditions, build the query
 		if ( ! empty( $where ) ) {
 			$query 			= "SELECT * FROM {$table_name} WHERE " . implode( ' AND ', $where );
-			$prepared_query = $wpdb->prepare( $query, $values );
+			$prepared_query = $wpdb->prepare( $query, $values );  // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared.
 			if ( 'column' === $mode ) {
-				$results	= $wpdb->get_col( $prepared_query, ARRAY_A );
+				$results	= $wpdb->get_col( $prepared_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- False positive, query is prepared.
 			} elseif ( 'single' === $mode ) {
-				$results	= $wpdb->get_var( $prepared_query );
+				$results	= $wpdb->get_var( $prepared_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- False positive, query is prepared.
 			} elseif ( 'all' === $mode ) {
-				$results	= $wpdb->get_results( $prepared_query, ARRAY_A );
+				$results	= $wpdb->get_results( $prepared_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- False positive, query is prepared.
 			} else {
-				$results	= $wpdb->get_row( $prepared_query, ARRAY_A );
+				$results	= $wpdb->get_row( $prepared_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery -- False positive, query is prepared.
 
 			}
 
@@ -440,8 +440,8 @@ class SmartWoo_Invoice_Database {
 		 * @since 2.0.15 Proceeds to update invoice if invoice_id already exists in the DB.
 		 */
 		$table_name = SMARTWOO_INVOICE_TABLE;
-		$invoice_exists = $wpdb->get_var( 
-			$wpdb->prepare( "SELECT `invoice_id` FROM {$table_name} WHERE `invoice_id`= %s", $invoice->get_invoice_id() )
+		$invoice_exists = $wpdb->get_var(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare( "SELECT `invoice_id` FROM {$table_name} WHERE `invoice_id`= %s", $invoice->get_invoice_id() ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- False positive, query is prepared.
 		);
 
 		if ( $invoice_exists ) {
