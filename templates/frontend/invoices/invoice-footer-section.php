@@ -51,5 +51,5 @@ defined( 'ABSPATH' ) || exit;
 
 	</div>
 	<!--  Thank you message. -->
-	<p class="sw-thank-you"><?php echo apply_filters( 'smartwoo_invoice_footer_text', esc_html__( 'Thank you for the continued business and support. We value you so much.', 'smart-woo-service-invoicing' ) ); ?></p>
+	<p class="sw-thank-you"><?php echo esc_html( apply_filters( 'smartwoo_invoice_footer_text',  'Thank you for the continued business and support. We value you so much.') ); ?></p>
 </div>
