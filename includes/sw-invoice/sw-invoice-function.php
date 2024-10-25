@@ -345,11 +345,11 @@ function smartwoo_client_total_spent( $user_id ) {
  * Retrieves client's billing email, when billing email is not available
  * the client's login email is used.
  *
- * @param int $user_id The user's ID 
+ * @param WC_Customer|int $user_id The user's ID 
  * @since 2.0.15
  */
 function smartwoo_get_client_billing_email( $user_id ) {
-	$user	= new WC_Customer( $user_id );
+	$user	= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
 	$billing_email	= $user->get_billing_email();
 
 	if ( empty( $billing_email ) ) {
