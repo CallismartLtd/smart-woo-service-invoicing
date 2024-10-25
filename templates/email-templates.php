@@ -29,7 +29,7 @@ function smartwoo_user_service_cancelled_mail( $service_id ) {
 		$image_header	= get_option( 'smartwoo_email_image_header' );
 		$user_id		= $service_details->getUserId();
 		$user_info      = get_userdata( $user_id );
-		$user_email     = $user_info->user_email;
+		$user_email     = smartwoo_get_client_billing_email( $user_id );
 		$user_firstname = $user_info->first_name;
 
 		$cancellation_date = current_time( smartwoo_datetime_format() );
