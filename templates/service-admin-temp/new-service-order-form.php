@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 
 <h1>Process New Service Order</h1>
+<?php do_action( 'smartwoo_process_new_order_form_header', $order, $product ); ?>
 <p>After processing, this order will be marked as completed.</p>
 <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
         <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
@@ -62,7 +63,7 @@ defined( 'ABSPATH' ) || exit;
                 
                 <div id="auth-token-div" class="smartwoo-hide">
                     <label for="assetKey" class="sw-form-label"><?php echo esc_html__( 'Authorizaton Token:', 'smart-woo-service-invoicing' );?></label>
-                    <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, ypu can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
+                    <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, you can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
                     <input type="text" id="assetKey" class="sw-form-input" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
                 </div>
 
@@ -159,7 +160,7 @@ defined( 'ABSPATH' ) || exit;
             </select>
         </div>
     
-        <input type="submit" name="smartwoo_process_new_service" class="sw-blue-button" id="create_new_service" value="Process">
+        <button type="submit" class="sw-blue-button" id="create_new_service">Finish Processing<span class="dashicons dashicons-yes"></span></button>
 
     </form>
 </div>
