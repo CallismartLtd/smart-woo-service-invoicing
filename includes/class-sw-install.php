@@ -208,7 +208,7 @@ class SmartWoo_Install {
         
         // Initialize the filesystem.
         if ( ! WP_Filesystem( $creds ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
-			error_log( 'WP_Filesystem cannot be initialized' );
+			error_log( 'WP_Filesystem cannot be initialized' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- False positive, WP_DEBUG status checked.
 			
         }
     
@@ -216,7 +216,7 @@ class SmartWoo_Install {
     
         if ( ! $wp_filesystem->is_dir( $upload_dir ) ) {
             if ( ! $wp_filesystem->mkdir( $upload_dir, 0755 ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
-				error_log( 'Unable to create upload directory' );
+				error_log( 'Unable to create upload directory' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- False positive, WP_DEBUG status checked.
 			}
         }
     
