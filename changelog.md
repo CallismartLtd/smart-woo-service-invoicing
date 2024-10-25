@@ -1,6 +1,6 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.0.15] YYYY-MM-DD
+# [2.0.15] 2024-10-25
 
 ### Added
 - A whole new UI on invoice frontend preview.
