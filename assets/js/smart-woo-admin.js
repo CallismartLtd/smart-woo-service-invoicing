@@ -659,6 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let deleteInvoiceBtns = document.querySelectorAll('.delete-invoice-button');
     let deleteProductIds = document.querySelectorAll('.sw-delete-product' );
     let deleteServiceBtn = document.querySelector('.delete-service-button');
+    let adminDashHeader = document.querySelector('.sw-admin-dash-header');
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -818,6 +819,21 @@ document.addEventListener('DOMContentLoaded', () => {
             smartwooDeleteService(serviceId);
         } );
 
+    }
+
+    if (adminDashHeader && window.innerWidth <= 600 ) {
+        console.log('We are in dashboard page');
+        document.addEventListener('scroll', ()=>{
+            let scrollUp = window.scrollY > 0;
+            if( scrollUp ) {
+                adminDashHeader.style.top = "0";
+                adminDashHeader.style.padding = "-5px";
+
+            } else {
+                adminDashHeader.style.top = "20px";
+
+            }
+        });
     }
 
 });

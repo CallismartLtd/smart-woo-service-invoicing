@@ -633,6 +633,11 @@ border-radius: 5px;
 	}
 }
 
+#smartwooNoticeDiv{
+	position:absolute;
+	z-index:1000;
+	width:80%;
+}
 
 
 /* Add some basic styling to the container */
