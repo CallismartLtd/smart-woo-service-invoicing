@@ -212,9 +212,8 @@ class SmartWoo_Config{
 
         if ( is_page( $invoice_page_id ) || is_account_page() ) {
             wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice.css', array(), SMARTWOO_VER, 'all' );
-            if( isset( $_GET['view_invoice'] ) ) {
+            if( isset( $_GET['view_invoice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- False positive, global array value not processed.
                 wp_enqueue_style( 'dashicons' );
-
             }
         } 
 
