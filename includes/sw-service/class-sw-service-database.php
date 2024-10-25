@@ -179,9 +179,9 @@ class SmartWoo_Service_Database {
 			// Prepare the query with necessary parameters.
 			if ( smartwoo_is_frontend() ) {
 				if ( ! empty( $limit ) ) {
-					$query = $wpdb->prepare( $query, 'Active', '', get_current_user_id(), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared --false positive
+					$query = $wpdb->prepare( $query, 'Active', '', get_current_user_id(), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive
 				} else {
-					$query = $wpdb->prepare( $query, 'Active', '', get_current_user_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared --false positive
+					$query = $wpdb->prepare( $query, 'Active', '', get_current_user_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive.
 				}
 			} else {
 				if ( ! empty( $limit ) ) {
