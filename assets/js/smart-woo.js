@@ -675,10 +675,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			let yesBtn = document.createElement('button');
 			yesBtn.classList.add('sw-blue-button');
-			yesBtn.textContent = "Yes";
+			yesBtn.innerHTML = `<span class="dashicons dashicons-yes"></span>`;
 			let noBtn  = document.createElement('button');
 			noBtn.classList.add('sw-red-button');
-			noBtn.textContent = "No";
+			noBtn.innerHTML = `<span class="dashicons dashicons-no-alt"></span>`;
 			btnDiv.append(noBtn, yesBtn);
 			actionModal.append(btnDiv);
 			if (clicked) {
