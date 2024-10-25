@@ -190,8 +190,8 @@ final class SmartWoo {
      * @since 2.0.0 Added support for service assets.
      */
     public function new_service_from_order() {
-    
-        if ( isset( $_POST['smartwoo_process_new_service'], $_POST['sw_process_new_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'] ) ), 'sw_process_new_service_nonce' ) ) {
+  
+        if ( isset( $_POST['sw_process_new_service_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_process_new_service_nonce'] ) ), 'sw_process_new_service_nonce' ) ) {
 
             $product_id        	= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
             $order_id          	= isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
@@ -368,6 +368,9 @@ final class SmartWoo {
                 exit;
             }
         }
+        smartwoo_set_form_error( 'We couldn\'t confirm the authenticity of this action.' );
+        wp_safe_redirect( wp_get_referer() );
+        exit;
     }
 
     /**
