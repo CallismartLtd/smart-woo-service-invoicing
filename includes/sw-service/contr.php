@@ -15,9 +15,6 @@ defined( 'ABSPATH' ) || exit;
  * service subscription in the admin area
  */
 function smartwoo_process_new_service_form() {
-	// echo '<pre>';
-    // var_dump( $_POST );
-    // echo '</pre>';return;
 
 	if ( isset( $_POST['add_new_service_submit'], $_POST['sw_add_new_service_nonce']  ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_service_nonce'] ) ), 'sw_add_new_service_nonce' ) ) {
 
