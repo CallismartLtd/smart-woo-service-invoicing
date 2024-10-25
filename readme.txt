@@ -82,14 +82,20 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
-= 2.0.14 - 2024-10-08 =
+= 2.0.15 - 2024-10-25 =
 
 *  Added 
-  - Shortcode for login form [smartwoo_login_form]
-
-* Fixed
-  - Invoice payment reminder not sending.
-  - Responsive layout for client menu.
+  - A whole new UI on invoice frontend preview.
+  - New Invoice preview card.
+  - New PDF invoice design.
+  - Awesome print feature for invoices.
+  - New download buttons.
+  - New admin invoice and product table UX.
+  - Admins can download invoices from backend.
+  - Improved i18n button translations.
+  - Client's services container UI changed.
+  - Setting and tools UI changed.
+  - Unpaid invoice notice on client view subscription page(Improving your invoice revenue collection).
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
