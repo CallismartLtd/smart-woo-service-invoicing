@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 /**
  * Call back function for new service order admin page
  * 
- * @param object $order WC_Order object.
+ * @param array $order  Array of WC_Order objects.
  */
 function smartwoo_service_order_table( $orders ) {
 
@@ -65,7 +65,7 @@ function smartwoo_service_order_table( $orders ) {
 		$page_html .= '<td>' . esc_html( $user_full_name ) . '</td>';
 
 		if ( 'processing' === $order_status ) {
-			$process_url = '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=process-new-service&order_id=' . $order_id ) ) . '" class="sw-red-button">' .__( 'Process Now', 'smart-woo-service-invoicing' ). '</a>';
+			$process_url = '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=process-new-service&order_id=' . $order_id ) ) . '"><button title="' .__( 'Process Now', 'smart-woo-service-invoicing' ). '"><span class="dashicons dashicons-yes-alt"></span></button></a>';
 		} elseif ( 'pending' === $order_status ) {
 			$process_url = 'Order is Unpaid';
 		} elseif ( 'completed' === $order_status ) {
@@ -96,7 +96,7 @@ function smartwoo_service_order_table( $orders ) {
  * @param int $order_id Order ID of the new service order.
  */
 function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
-
+	smartwoo_set_document_title( 'Process Orders' );
 	// Get order details and user data.
 	$order          = wc_get_order( $order_id );
 	$user_id        = $order->get_user_id();
