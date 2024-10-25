@@ -1002,7 +1002,6 @@ final class SmartWoo {
                     $the_invoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
                     smartwoo_send_user_generated_invoice_mail( $the_invoice, $service );
                     $checkout_url = $the_invoice->pay_url();
-                    error_log( 'New Invoice created Invoice ID ===>' . $checkout_url );
                     wp_safe_redirect( $checkout_url );
                     exit;
                 }
