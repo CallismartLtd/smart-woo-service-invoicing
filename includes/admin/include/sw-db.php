@@ -101,7 +101,7 @@ function smartwoo_create_database_table( string $table_name, array $table_struct
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 	$query			= $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name );
-    $table_exists 	= $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared --False positive 
+    $table_exists 	= $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive 
 
 	if ( $table_exists !== $table_name ) {
         $charset_collate = smartwoo_get_charset_collate();
@@ -167,7 +167,7 @@ function smartwoo_db_update_201_is_external() {
 		$result		= $wpdb->query( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		
 		if ( ! $result  && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( $wpdb->last_error );
+			error_log( $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- False positive, WP_DEBUG status checked.
 		}
 	}
 }
