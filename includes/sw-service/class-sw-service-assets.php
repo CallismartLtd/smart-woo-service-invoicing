@@ -325,7 +325,7 @@ class SmartWoo_Service_Assets {
         }
 
         global $wpdb;
-        $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared --false positive
+        $query  = $wpdb->prepare( "SELECT * FROM ". SMARTWOO_ASSETS_TABLE . " WHERE `service_id` =%s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive
         $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
         $assets = array();
