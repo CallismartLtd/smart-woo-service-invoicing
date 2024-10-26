@@ -6,7 +6,7 @@ Tested up to: 6.6.2
 Requires WooCommerce: 8.0  
 WooCommerce tested: 9.3.3
 Requires PHP: 7.4  
-Stable Tag: 2.0.15
+Stable Tag: 2.1.0
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -82,6 +82,12 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+
+= [2.1.0] 2024-10-26 =
+
+* Fixed
+  - An error of type E_ERROR: "Uncaught TypeError: abs(): Argument #1 ($num) must be of type int|float".
+
 = 2.0.15 - 2024-10-25 =
 
 *  Added 

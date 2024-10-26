@@ -1,5 +1,10 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.1.0] 2024-10-26
+
+### Fixed
+- An error of type E_ERROR: "Uncaught TypeError: abs(): Argument #1 ($num) must be of type int|float".
+
 # [2.0.15] 2024-10-25
 
 ### Added
