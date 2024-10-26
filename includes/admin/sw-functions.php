@@ -196,6 +196,14 @@ function smartwoo_readable_duration( $duration ) {
  * @since 1.0.4
  */
 function smartwoo_price( $amount ) {
+	if ( empty( $amount ) ) {
+		$amount = 0.00;
+	}
+
+	if ( is_string( $amount ) ) {
+		$amount = floatval( $amount );
+	}
+	
     $decimals           = wc_get_price_decimals();
     $decimal_separator  = wc_get_price_decimal_separator();
     $thousand_separator = wc_get_price_thousand_separator();
