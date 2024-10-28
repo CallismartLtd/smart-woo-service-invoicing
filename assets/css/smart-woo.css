@@ -99,6 +99,34 @@ use inline CSS to overide some styles
 	color: #000;
 }
 
+.smartwoo-icon-button-blue {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #0073e6;
+    border-radius: 3px;
+    color: #ffffff;
+    height: 20px;
+    width: 20px;
+}
+
+.smartwoo-icon-button-blue:hover {
+    background-color: #517aa3;
+
+}
+
+.smartwoo-icon-button-blue:focus {
+    color: yellow;
+    background-color: #000;
+}
+
+.sw-icon-button-admin {
+	border: 1px solid blue; 
+	margin: 3px;
+	cursor: pointer;
+}
+
 /************** Button CSS Ends here******************/
 
 /* Service Product form goes here*/
