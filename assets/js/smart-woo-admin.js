@@ -776,10 +776,9 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteInvoiceBtns.forEach((deleteInvoiceBtn)=>{
             let siblings = deleteInvoiceBtn.parentElement.querySelectorAll('a button');
             let invoiceId = deleteInvoiceBtn.getAttribute('data-invoice-id');
-            deleteInvoiceBtn.style.border = "solid blue 1px";
+            deleteInvoiceBtn.classList.add('sw-icon-button-admin');
             siblings.forEach((Btn)=>{
-                Btn.style.border = "solid blue 1px";
-                Btn.style.margin = "3px";
+                Btn.classList.add('sw-icon-button-admin');
     
             });
             deleteInvoiceBtn.addEventListener('click', ()=>{
@@ -793,10 +792,9 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteProductIds.forEach((deleteProductId)=>{
             let siblings = deleteProductId.parentElement.querySelectorAll('a button');
             let productId = deleteProductId.getAttribute('data-product-id');
-            deleteProductId.style.border = "solid blue 1px";
+            deleteProductId.classList.add('sw-icon-button-admin');
             siblings.forEach((Btn)=>{
-                Btn.style.border = "solid blue 1px";
-                Btn.style.margin = "3px";
+                Btn.classList.add('sw-icon-button-admin');
     
             });
             deleteProductId.addEventListener('click', ()=>{
@@ -810,11 +808,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let siblings = deleteServiceBtn.parentElement.querySelectorAll('a button');
         let serviceId = deleteServiceBtn.getAttribute('data-service-id');
         siblings.forEach((Btn)=>{
-            Btn.style.border = "solid blue 1px";
-            Btn.style.margin = "3px";
+            Btn.classList.add('sw-icon-button-admin');
 
         });
-        deleteServiceBtn.style.border = "solid blue 1px";
+        deleteServiceBtn.classList.add('sw-icon-button-admin');
         deleteServiceBtn.addEventListener('click', ()=>{
             smartwooDeleteService(serviceId);
         } );
