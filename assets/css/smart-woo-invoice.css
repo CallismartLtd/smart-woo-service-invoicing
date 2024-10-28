@@ -228,28 +228,6 @@
     }
 }
 
-.smartwoo-block-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    background-color: #0073e6;
-    border-radius: 3px;
-    color: #ffffff;
-    height: 20px;
-    width: 20px;
-}
-
-.smartwoo-block-button:hover {
-    background-color: #517aa3;
-
-}
-
-.smartwoo-block-button:focus {
-    color: yellow;
-    background-color: #000;
-}
-
 .sw-cls-btn-no-print {
     color: #ffffff;
     background-color: red;
