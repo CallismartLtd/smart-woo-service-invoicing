@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
 <div class="sw-invoice-footer">
 	<!-- Print Button -->
 	 <div class="sw-block-button-container">
-		<button class="smartwoo-block-button" id="smartwoo-print-invoice-btn" title="Print Invoice"><span class="dashicons dashicons-printer"></span></button>
-		<a href="<?php echo esc_url( $download_url ); ?>"><button class="smartwoo-block-button" id="smartwoo-print-invoice-btn" title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
+		<button class="smartwoo-icon-button-blue" id="smartwoo-print-invoice-btn" title="Print Invoice"><span class="dashicons dashicons-printer"></span></button>
+		<a href="<?php echo esc_url( $download_url ); ?>"><button class="smartwoo-icon-button-blue" id="smartwoo-print-invoice-btn" title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
 	 </div>
 	<!-- invoice meta data. -->
 	<div class="sw-invoice-metadata">
