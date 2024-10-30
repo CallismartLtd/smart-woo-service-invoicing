@@ -78,11 +78,11 @@ class SmartWoo_Config{
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
+        add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
-        add_filter( 'template_include', 'smartwoo_template_for_configure_page' );
-        add_action( 'wp_ajax_smartwoo_configure_product', 'smartwoo_configure_product_for_checkout' );
-        add_action( 'wp_ajax_nopriv_smartwoo_configure_product', 'smartwoo_configure_product_for_checkout' );
+        add_filter( 'template_include', array( __CLASS__, 'product_config_template' ) );
+
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
@@ -156,7 +156,6 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-functions.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/class-sw-product.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-functions.php';
-        require_once SMARTWOO_PATH . 'includes/sw-product/sw-order-config.php';
         require_once SMARTWOO_PATH . 'includes/sw-utm.php';
         require_once SMARTWOO_PATH . 'templates/email-templates.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
@@ -189,8 +188,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-
-        // var_dump( SmartWoo_Invoice_Database::query( array( 'service_id' => 'SID-SS671673d210b55'), 'all' ) );
+        
     }
 
     /**
@@ -206,20 +204,20 @@ class SmartWoo_Config{
     public function load_styles() {
 
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-            wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         }
         $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
         if ( is_page( $invoice_page_id ) || is_account_page() ) {
-            wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice-min.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice.css', array(), SMARTWOO_VER, 'all' );
             if( isset( $_GET['view_invoice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- False positive, global array value not processed.
                 wp_enqueue_style( 'dashicons' );
             }
         } 
 
         if ( is_admin() ) {
-            wp_enqueue_style( 'smartwoo-admin-utm-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin-min.css', array(), SMARTWOO_VER, 'all' );
-            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-min.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-admin-utm-style', SMARTWOO_DIR_URL . 'assets/css/sw-admin.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-admin-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo.css', array(), SMARTWOO_VER, 'all' );
         }
     }
 
@@ -243,22 +241,23 @@ class SmartWoo_Config{
             'security'                  => wp_create_nonce( 'smart_woo_nonce' ),
             'home_url'                  => home_url( '/' ),
             'is_account_page'           => is_account_page(),
-            'never_expire_value'        => '',
+            'cart_is_configured'        => apply_filters( 'cart_is_configured', false ),
+            'never_expire_value'        => apply_filters( 'smartwoo_never_expire_value', '' ),
             'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
             'smartwoo_plugin_page'      => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
             
         );
 
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo.js', array( 'jquery' ), SMARTWOO_VER, true );
         wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
         $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
         if ( is_page( $invoice_page_id ) || is_account_page() || is_admin() ) {
-            wp_enqueue_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+            wp_enqueue_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice.js', array( 'jquery' ), SMARTWOO_VER, true );
         }
 
         if ( is_admin() ) {
-            wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin-min.js', array( 'jquery' ), SMARTWOO_VER, true );
+            wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin.js', array( 'jquery' ), SMARTWOO_VER, true );
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
         }
     }
@@ -315,6 +314,15 @@ class SmartWoo_Config{
             flush_rewrite_rules();
             set_transient( '_smartwoo_flushed_rewrite_rules', true, WEEK_IN_SECONDS );
         }
+    }
+
+    /**
+     * Register query vars
+     */
+    public static function add_query_vars( $vars ) {
+        $vars[] = 'configure';
+
+        return $vars;
     }
 
     /**
@@ -471,5 +479,36 @@ class SmartWoo_Config{
         if ( smartwoo_check_if_configured( $order ) || $order->is_created_via( SMARTWOO ) ) {
             wp_cache_delete( 'smartwoo_count_unprocessed_orders', 'smartwoo_orders' );
         }
+    }
+
+    /**
+     * Set up product configuration page template.
+     *
+     * This function is a callback for the 'template_include' filter and returns
+     * the template file path for the configure page or the original template.
+     *
+     * @param string $template The original template file path.
+     * @return string The template file path for the configure page or the original template.
+     */
+
+    public static function product_config_template( $template ) {
+        // Check if the current page is the configure page.
+        if ( get_query_var( 'configure' ) ) {
+            // Define the path to the configure template file.
+            $filtered_template = apply_filters( 'smartwoo_product_config_template', '' );
+            add_filter( 'document_title_parts', function( $title_parts ){
+                $title_parts['title'] = 'Configure Product';
+                return $title_parts;
+            });
+
+            if ( file_exists( $filtered_template ) ) {
+                $template = $filtered_template;
+
+            } else {
+                $template = SMARTWOO_PATH . 'templates/configure.php';
+            }
+        }
+
+        return $template;
     }
 }
