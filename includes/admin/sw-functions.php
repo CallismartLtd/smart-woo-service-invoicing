@@ -961,3 +961,7 @@ function smartwoo_set_document_title( $title ) {
     </script>
     <?php
 }
+
+// add_action( 'woocommerce_after_cart_item_name', function(){
+// 	echo '<br> We are here';
+// } );
