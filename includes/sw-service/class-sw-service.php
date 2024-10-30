@@ -345,7 +345,7 @@ class SmartWoo_Service {
 	 */
 	public function save() {
 		if ( empty( $this->getServiceId() ) ) {
-			return false; // Service ID must be generated be saving.
+			return false; // Service ID must be generated before saving.
 		}
 		$id = SmartWoo_Service_Database::create_service( $this ); 
 		return $id;
@@ -356,6 +356,16 @@ class SmartWoo_Service {
 	| UTILITY METHODS
 	|-------------------
 	*/
+
+	/**
+	 * Get preview URL
+	 * 
+	 * @since 2.1.1
+	 */
+	public function preview_url() {
+		return smartwoo_service_preview_url( $this->getServiceId() );
+	}
+
 
 	/**
 	 * Get the Service product name.
