@@ -1455,3 +1455,20 @@ font-weight: 100;
 		top: 65%;
 	}
 }
+
+.smartwoo-cart-container {
+	display: block;
+}
+.smartwoo-cart-container .smartwoo-cart-items{
+	display: block;
+	border: solid #33333375 .5px;
+	padding: 5px;
+	border-radius: 4px;
+}
+.smartwoo-cart-items p {
+	font-weight: bold;
+}
+.smartwoo-cart-items span {
+	color: #0073e6;
+	text-decoration: underline;
+}
