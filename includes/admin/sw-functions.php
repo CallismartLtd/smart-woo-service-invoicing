@@ -945,9 +945,9 @@ function smartwoo_download_url( $resource_id, $key, $asset_id, $service_id ) {
  * @since 2.0.15
  */
 function smartwoo_set_document_title( $title ) {
-    $sep           = apply_filters( 'document_title_separator', '-' );
-    $title_parts   = array( 'title' => $title );
-    $title_parts['site'] = get_bloginfo( 'name', 'display' );
+    $sep           			= apply_filters( 'document_title_separator', '-' );
+    $title_parts   			= array( 'title' => $title );
+    $title_parts['site']	= get_bloginfo( 'name', 'display' );
 
     // Combine title and site name with the separator
     $final_title   = implode( " $sep ", array_filter( $title_parts ) );
@@ -955,13 +955,10 @@ function smartwoo_set_document_title( $title ) {
     // Output the script safely in the footer
     ?>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener( "DOMContentLoaded", function() {
             document.title = <?php echo wp_json_encode( $final_title ); ?>;
         });
     </script>
     <?php
 }
 
-// add_action( 'woocommerce_after_cart_item_name', function(){
-// 	echo '<br> We are here';
-// } );
