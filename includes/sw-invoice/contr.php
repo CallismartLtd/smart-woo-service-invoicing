@@ -71,14 +71,16 @@ function smartwoo_edit_invoice_page() {
 
 			// Check the result
 			if ( $updated ) {
+				if ( 'paid' === $payment_status ) {
+					$existingInvoice->get_order() ? $existingInvoice->get_order()->update_status( 'completed' ): '';
+				}
 				$page_html .= esc_html( "Invoice updated successfully! ID: $invoice_id" );
 			} else {
 				$page_html .= 'Failed to update the invoice.';
 			}
 		}
 	}
-
-	// Output the edit invoice form
+	smartwoo_set_document_title( 'Edit Invoice' );
 	$page_html .= smartwoo_edit_invoice_form( $existingInvoice );
 	return $page_html;
 }
