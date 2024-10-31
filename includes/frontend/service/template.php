@@ -47,6 +47,7 @@ function smartwoo_service_details() {
 	$product_info  		= wc_get_product( $product_id );
 	$product_name  		= $product_info ? $product_info->get_name() : 'Product Not Found';
 	$product_price 		= $product_info ? $product_info->get_price() : 0;
+	$GLOBALS['product'] = $product_info;
 	$billing_cycle     	= $service->getBillingCycle() ? $service->getBillingCycle() : 'Not Available';
 	$start_date        	= smartwoo_check_and_format( $service->getStartDate(), true );
 	$next_payment_date 	= smartwoo_check_and_format( $service->getNextPaymentDate() );
@@ -172,11 +173,12 @@ function smartwoo_service_front_temp() {
 		}
 	} else {
 		$buy_product_page = smartwoo_service_page_url() . 'buy-new/';
-		$output       .= '<div class="main-page-card">';
-		$output       .= '<p>No service found.</p>';
-		$output       .= '<a href="' . esc_url( $buy_product_page ) . '" class="sw-blue-button">' . esc_html__( 'Buy New Service', 'smart-woo-service-invoicing' ) . '</a>';
-		$output .= '</div>';
+		$output			 .= '<div class="main-page-card">';
+		$output			 .= '<p>No service found.</p>';
+		$output			 .= '<a href="' . esc_url( $buy_product_page ) . '" class="sw-blue-button">' . esc_html__( 'Buy New Service', 'smart-woo-service-invoicing' ) . '</a>';
+		$output			 .= '</div>';
 	}
+	
 	$output .= '</div>'; // Close the client-services div.
 	$output .= '<div id="swloader">Just a moment</div>';
 	$output .= '<div class="settings-tools-section">';
@@ -415,12 +417,13 @@ function smartwoo_buy_new_temp() {
 	$output .= '<div class="sw-products-container">';
 
 	foreach ( $smartwoo_products as $product ) {
-		$product_id      = $product->get_id();
-		$product_name    = $product->get_name();
-		$product_price   = $product->get_price();
-		$sign_up_fee     = $product->get_sign_up_fee();
-		$billing_cycle   = $product->get_billing_cycle();
-		$product_excerpt = $product->get_short_description();
+		$GLOBALS['product'] = $product;
+		$product_id			= $product->get_id();
+		$product_name    	= $product->get_name();
+		$product_price   	= $product->get_price();
+		$sign_up_fee     	= $product->get_sign_up_fee();
+		$billing_cycle   	= $product->get_billing_cycle();
+		$product_excerpt 	= $product->get_short_description();
 
 		$output .= '<div class="sw-product-container">';
 		$output .= '<h3>' . esc_html( $product_name ) . '</h3>';
