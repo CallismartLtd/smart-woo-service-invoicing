@@ -39,6 +39,7 @@ function smartwoo_product_table() {
 	$page_html .= '<tbody>';
 
 	foreach ( $products_data as $product ) {
+		$GLOBALS['product'] = $product;
 		$page_html .= '<tr>';
 		$page_html .= '<td>' . esc_html( $product->get_name() ) . '</td>';
 		$page_html .= '<td>' . smartwoo_price( $product->get_price() ) . '</td>';
