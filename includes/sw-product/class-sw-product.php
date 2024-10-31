@@ -192,12 +192,12 @@ class SmartWoo_Product extends WC_Product {
 		$smart_woo_products = array();
 
 		foreach ( $products as $product ) {
-			$smartwoo_products = new self( $product->get_id() );
+			$smartwoo_products 	= new self( $product->get_id() );
 			$smartwoo_products->set_sign_up_fee( $product->get_meta( '_smartwoo_sign_up_fee' ) );
 			$smartwoo_products->set_billing_cycle( $product->get_meta( '_smartwoo_billing_cycle' ) );
 			$smartwoo_products->set_grace_period_number( $product->get_meta( '_smartwoo_grace_period_number' ) );
 			$smartwoo_products->set_grace_period_unit( $product->get_meta( '_smartwoo_grace_period_unit' ) );
-
+			
 			$smart_woo_products[] = $smartwoo_products;
 		}
 
