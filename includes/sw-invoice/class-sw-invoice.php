@@ -401,7 +401,10 @@ class SmartWoo_Invoice {
 	 * @return SmartWoo_Product|WC_Product|false
 	 */
 	public function get_product() {
-		return wc_get_product( $this->product_id );
+		$product			= wc_get_product( $this->product_id );
+		$GLOBALS['product']	= $product;
+
+		return $product;
 	}
 	public function getProductId() {
 		return $this->get_product_id();
