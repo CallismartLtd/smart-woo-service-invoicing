@@ -343,7 +343,8 @@ function smartwoo_invoice_details_admin_temp( $invoice ) {
 	$page_html .= '<div class="invoice-details">';
 
 	$user_full_name = get_user_meta( $invoice->getUserId(), 'first_name', true ) . ' ' . get_user_meta( $invoice->getUserId(), 'last_name', true );
-	$product_name   = wc_get_product( $invoice->getProductId() ) ? wc_get_product( $invoice->getProductId() )->get_name() : 'Not Available';
+	$product		= $invoice->get_product();
+	$product_name   = $product ? $product->get_name() : 'Not Available';
 	$paymentStatus  = $invoice->getPaymentStatus();
 	$dateCreated    = $invoice->getDateCreated();
 	$datePaid       = $invoice->getDatePaid();
