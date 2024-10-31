@@ -26,7 +26,7 @@ function smartwoo_invoice_front_temp() {
 
 
 	/**
-	 * Start frontpage markup
+	 * Start frontpage markup.
 	 */
 	$output  = smartwoo_get_navbar( 'My Invoices', smartwoo_invoice_page_url() );
 	$output .= '<div class="site-content">';
@@ -53,6 +53,7 @@ function smartwoo_invoice_front_temp() {
 	}
 
 	foreach ( $invoices as $invoice ) {
+		$GLOBALS['product'] = $invoice->get_product();
 
 		$date_created = smartwoo_check_and_format( $invoice->getDateCreated(), true );
 		$datePaid     = $invoice->getDatePaid();
@@ -99,7 +100,7 @@ function smartwoo_invoice_front_temp() {
  * @return string HTML Post markup
  */
 function smartwoo_invoice_details( $invoice_id = '' ) {
-
+	smartwoo_set_document_title( 'View Invoice' );
 	if ( ! is_user_logged_in() ) {
 		woocommerce_login_form( array( 'message' => smartwoo_notice( __( 'You must be logged in to access this page', 'smart-woo-service-invoicing' ) ) ) );
 	   return;
@@ -147,7 +148,8 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 		$service_name 		= $service->getServiceName();
 	}
 
-	$product      			= wc_get_product( $invoice->getProductId() );
+	$product      			= $invoice->get_product();
+	
 	$product_name 			= $product ? $product->get_name() : 'Product Not Found';
 	$invoice_date			= smartwoo_check_and_format( $invoice->getDateCreated(), true );
 	$transaction_date 		= smartwoo_check_and_format( $invoice->getDatePaid(), true );
