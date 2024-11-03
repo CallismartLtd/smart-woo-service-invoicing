@@ -152,15 +152,16 @@ function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
 		}
 	}
 
-	$product		= wc_get_product( $product_id );
-	$product_name	= $product->get_name();
-	$status_options = array(
-		''                => esc_html__( 'Auto Calculate', 'smart-woo-service-invoicing' ),
-		'Pending'         => esc_html__( 'Pending', 'smart-woo-service-invoicing' ),
-		'Active (NR)'     => esc_html__( 'Active (NR)', 'smart-woo-service-invoicing' ),
-		'Suspended'       => esc_html__( 'Suspended', 'smart-woo-service-invoicing' ),
-		'Due for Renewal' => esc_html__( 'Due for Renewal', 'smart-woo-service-invoicing' ),
-		'Expired'         => esc_html__( 'Expired', 'smart-woo-service-invoicing' ),
+	$product			= wc_get_product( $product_id );
+	$GLOBALS['product']	= $product;
+	$product_name		= $product->get_name();
+	$status_options 	= array(
+		''					=> esc_html__( 'Auto Calculate', 'smart-woo-service-invoicing' ),
+		'Pending'			=> esc_html__( 'Pending', 'smart-woo-service-invoicing' ),
+		'Active (NR)'		=> esc_html__( 'Active (NR)', 'smart-woo-service-invoicing' ),
+		'Suspended'			=> esc_html__( 'Suspended', 'smart-woo-service-invoicing' ),
+		'Due for Renewal'	=> esc_html__( 'Due for Renewal', 'smart-woo-service-invoicing' ),
+		'Expired'			=> esc_html__( 'Expired', 'smart-woo-service-invoicing' ),
 	);
 
 	$is_downloadable	= $product->is_downloadable();
