@@ -6,7 +6,7 @@ Tested up to: 6.6.2
 Requires WooCommerce: 8.0  
 WooCommerce tested: 9.3.3
 Requires PHP: 7.4  
-Stable Tag: 2.1.0
+Stable Tag: 2.1.1
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -83,25 +83,16 @@ For more information on future releases, release notes, and feature requests, vi
 
 == Changelog ==
 
+= [2.1.1] 2024-11-03
+* Featured
+  - minor bug fixes
+
 = [2.1.0] 2024-10-26 =
 
 * Fixed
   - An error of type E_ERROR: "Uncaught TypeError: abs(): Argument #1 ($num) must be of type int|float".
 
-= 2.0.15 - 2024-10-25 =
 
-*  Added 
-  - A whole new UI on invoice frontend preview.
-  - New Invoice preview card.
-  - New PDF invoice design.
-  - Awesome print feature for invoices.
-  - New download buttons.
-  - New admin invoice and product table UX.
-  - Admins can download invoices from backend.
-  - Improved i18n button translations.
-  - Client's services container UI changed.
-  - Setting and tools UI changed.
-  - Unpaid invoice notice on client view subscription page(Improving your invoice revenue collection).
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
