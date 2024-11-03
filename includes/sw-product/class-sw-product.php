@@ -27,6 +27,11 @@ class SmartWoo_Product extends WC_Product {
 	private $grace_period_number = '';
 	private $grace_period_unit = '';
 
+	/**
+	 * @var self Static instance of current class.
+	 */
+	private static $instance = null;
+	
 	private $downloadable = false;
 	private $downloads = array();
 
@@ -57,15 +62,30 @@ class SmartWoo_Product extends WC_Product {
 
 	}
 
+	/**
+	 * Run Hooks.
+	 */
 	public static function init() {
-		$product_instance = new self();
-		$product_type = $product_instance->get_type();
 		add_filter( 'woocommerce_product_class', array( __CLASS__, 'map_product_class' ), 10, 2 );
+		add_filter( 'product_type_selector', array( __CLASS__, 'register_selector' ), 99 );
+		
 		add_action( 'woocommerce_single_product_summary', array( __CLASS__, 'sub_info' ), 10 );
 		add_action( 'woocommerce_cart_calculate_fees', array( __CLASS__, 'calculate_sign_up_fee_cart_totals' ) );
-		add_action( 'woocommerce_' . $product_type .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
+		add_action( 'woocommerce_' . self::instance()->get_type() .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
 		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
+	}
 
+	/**
+	 * Static instance of current SmartWoo_Product
+	 * 
+	 * @return SmartWoo_Product
+	 */
+	public static function instance() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
 	}
 	
 	/**********************************
@@ -446,9 +466,20 @@ class SmartWoo_Product extends WC_Product {
     }
 
 	/**
+	 * Register Class in the product selector.
+	 * 
+	 * @param array $selectors Associative array of product_type => fullname.
+	 * @since 2.1.1
+	 */
+	public static function register_selector( $selectors ){
+
+		$selectors['sw_product'] = 'Smart Woo Product';
+		return $selectors;
+	}
+
+	/**
 	 * Single Product add to cart text and url.
 	 */
-
 	public static function load_configure_button() {
 		global $product;
 
