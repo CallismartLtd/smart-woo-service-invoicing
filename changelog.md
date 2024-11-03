@@ -1,5 +1,11 @@
 ## Smart Woo Service Invoicing Changelog
 
+
+# [2.1.1] 2024-11-03
+
+### Featured
+- Minor bug fixes
+
 # [2.1.0] 2024-10-26
 
 ### Fixed
