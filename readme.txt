@@ -83,7 +83,7 @@ For more information on future releases, release notes, and feature requests, vi
 
 == Changelog ==
 
-= [2.1.1] 2024-11-04
+= [2.1.1] 2024-11-04 =
 * Featured
   - minor bug fixes
 
