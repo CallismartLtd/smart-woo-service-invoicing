@@ -87,7 +87,7 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
-# [2.1.1] 2024-11-03
+# [2.1.1] 2024-11-04
 
 ### Featured
 - Minor bug fixes
