@@ -489,6 +489,13 @@ class SmartWoo_Invoice_Database {
 		);
 
 		if ( $wpdb->insert( SMARTWOO_INVOICE_TABLE, $data, $data_format ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			/**
+			 * @hook smartwoo_new_invoice_created
+			 * @param SmartWoo_Invoice $invoice
+			 * @since 2.2.0
+			 */
+			do_action( 'smartwoo_new_invoice_created', $invoice );
+			
 			return $invoice->getInvoiceId();
 		}
 		return false;
