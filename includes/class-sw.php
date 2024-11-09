@@ -388,9 +388,9 @@ final class SmartWoo {
         if ( isset( $_POST['create_invoice'], $_POST['sw_create_invoice_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_create_invoice_nonce'] ) ), 'sw_create_invoice_nonce' ) ) {
             $user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
             $product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
-            $invoice_type   = isset( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : '';
+            $invoice_type   = ! empty( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : 'Billing';
             $service_id     = isset( $_POST['service_id'] ) ? sanitize_text_field( wp_unslash( $_POST['service_id'] ) ) : '';
-            $due_date       = isset( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( $_POST['due_date'] ) ) : '';				
+            $due_date       = isset( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( $_POST['due_date'] ) ) : current_time( 'mysql' );				
             $fee            = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
             $payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'unpaid';
             // Check for a duplicate unpaid invoice for a service.
@@ -403,7 +403,7 @@ final class SmartWoo {
             }
     
             if ( empty( $user_id ) ) {
-                $errors[] = 'User ID is required.';
+                $errors[] = 'Select a user.';
             }
     
             if ( empty( $product_id ) ) {
@@ -412,14 +412,6 @@ final class SmartWoo {
     
             if ( empty( $invoice_type ) ) {
                 $errors[] = 'Please select a valid Invoice Type.';
-            }
-    
-            if ( empty( $payment_status ) ) {
-                $errors[] = 'Please select Payment Status';
-            }
-    
-            if ( empty( $due_date ) ) {
-                $errors[] = 'Due Date is required';
             }
 
             $errors = apply_filters( 'smartwoo_handling_new_invoice_form_error', $errors );
@@ -1168,12 +1160,17 @@ final class SmartWoo {
 
         $invoice_type = $invoice->getInvoiceType();
 
+        /**
+         * Handle none existing service related invoice
+         */
         if ( 'New Service Invoice' ===  $invoice_type ) {
             /**
              * This action fires when order is for a new service order.
              */
             do_action( 'smartwoo_new_service_purchase_complete', $invoice_id );
             return;
+        } elseif ( 'Billing' === $invoice_type ) {
+            smartwoo_mark_invoice_as_paid( $invoice_id );
         }
 
         $service_id		= $invoice->getServiceId();
