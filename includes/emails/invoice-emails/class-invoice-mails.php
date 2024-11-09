@@ -59,6 +59,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
         '{{transaction_id}}',
         '{{auto_login_payment_link}}',
         '{{payment_link}}',
+        '{{invoice_items}}'
 
     );
 
@@ -146,7 +147,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
                     break;
                 case '{{invoice_date_paid}}':
                     $replace_values[$placeholder] = smartwoo_check_and_format( $this->invoice->get_date_paid() );
-                    break;  // Added break here
+                    break;
                 case '{{invoice_date_due}}':
                     $replace_values[$placeholder] = smartwoo_check_and_format( $this->invoice->get_date_due() );
                     break;
@@ -172,16 +173,20 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
                     $replace_values[$placeholder] = smartwoo_price( $this->invoice->get_fee() );
                     break;
                 case '{{payment_gateway}}':
-                    $replace_values[$placeholder] = $this->invoice->get_payment_gateway();
+                    $replace_values[$placeholder] = $this->invoice->get_payment_method();
                     break;
                 case '{{transaction_id}}':
                     $replace_values[$placeholder] = $this->invoice->get_transaction_id();
                     break;
                 case '{{auto_login_payment_link}}':
-                    $replace_values[$placeholder] = smartwoo_generate_invoice_payment_url( $this->invoice->get_invoice_id(), $this->invoice->get_billing_email() );
+                    $replace_values[$placeholder] = smartwoo_generate_invoice_payment_url( $this->invoice->get_invoice_id(), $this->invoice->get_user()->get_email() );
                     break;
                 case '{{payment_link}}':
                     $replace_values[$placeholder] = $this->invoice->pay_url();
+                    break;
+                case '{{invoice_items}}':
+                    $replace_values[$placeholder] = $this->get_items();
+
                     break;
                 default:
                     $replace_values[$placeholder] = ''; // Default to empty string for undefined placeholders
@@ -192,6 +197,9 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
 
         // Perform the replacements.
         foreach ( $replace_values as $placeholder => $value ) {
+            if ( empty( $value ) ){
+                continue;
+            }
             $formatted_body = str_replace( $placeholder, $value, $formatted_body );
         }
 
@@ -202,7 +210,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
      * Get email placeholders
      */
     public static function get_placeholders() {
-        return apply_filters( 'smartwoo_invoice_email_placeholders', self::placeholders );
+        return apply_filters( 'smartwoo_invoice_email_placeholders', self::$placeholders );
     }
 
     /**
@@ -217,4 +225,31 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
         return false;
     }
 
+    /**
+     * Format invoice items
+     */
+    public function get_items() {
+        /**
+         * @filter smartwoo_invoice_items_display add or remove items from invoice table.
+         * 
+         * @param array $items
+         * @param SmartWoo_Invoice Invoice Object.
+         */
+        $invoice_items	=	apply_filters( 'smartwoo_invoice_items_display', 
+        array( 
+            $this->invoice->get_product()->get_name()   => $this->invoice->get_amount(),
+            __( 'Fee', 'smart-woo-service-invoicing' )  =>	$this->invoice->get_fee() 
+            ),
+
+            $this->invoice
+            
+        );
+
+        $items = '';
+        foreach( $invoice_items as $name => $value ){
+            $items .= '<li>' . $name .':'. smartwoo_price( $value ). '</li>';
+        }
+
+        return $items;
+    }
 }
