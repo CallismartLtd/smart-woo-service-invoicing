@@ -96,7 +96,6 @@ class SmartWoo_Config{
         add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
         add_action( 'smartwoo_expired_service_activated', 'smartwoo_renewal_sucess_email' );
         add_action( 'smartwoo_auto_invoice_created', 'smartwoo_send_auto_renewal_email', 10, 2 );
-        add_action( 'smartwoo_invoice_is_paid', 'smartwoo_invoice_paid_mail' );  
         add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         
@@ -161,6 +160,10 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
         require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-assets.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
+        require_once SMARTWOO_PATH . 'includes/emails/class-smart-woo-mails.php';
+        require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/class-invoice-mails.php';
+        require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/new-invoice-mail.php';
+        require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/invoice-paid-mail.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
