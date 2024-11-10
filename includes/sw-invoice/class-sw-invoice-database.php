@@ -578,7 +578,7 @@ class SmartWoo_Invoice_Database {
 	 * @param string $invoice_id The ID of the invoice to update.
 	 * @param array  $fields     An associative array of fields to update and their new values.
 	 *
-	 * @return SmartWoo_Invoice|bool The updated SmartWoo_Invoicenvoice instance on success, false on failure.
+	 * @return SmartWoo_Invoice|false The updated SmartWoo_Invoicenvoice instance on success, false on failure.
 	 *
 	 * @since 1.0.0
 	 */
