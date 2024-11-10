@@ -586,8 +586,20 @@ class SmartWoo_Invoice {
 	 * Retrieve customer's billing email
 	 */
 	public function get_billing_email() {
-		return smartwoo_get_client_billing_email( $this->getUserId() );
+		return smartwoo_get_client_billing_email( $this->get_user_id() );
 	}
+
+	/**
+	 * Get the WC_Customer object of the invoice owner
+	 * 
+	 * @since 2.2.0
+	 * @return WC_Customer
+	 */
+	public function get_user() {
+		return new WC_Customer( $this->get_user_id() );
+	}
+
+
 	// Helper method to convert database results to SmartWoo_Invoice objects
 	public static function convert_array_to_invoice( $data ) {
 		$self = new SmartWoo_Invoice();
