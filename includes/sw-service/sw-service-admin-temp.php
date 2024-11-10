@@ -221,6 +221,7 @@ function smartwoo_edit_service_form() {
 	if ( empty( $service ) ) {
 		return smartwoo_error_notice( 'Service not found.' );
 	}
+	smartwoo_set_document_title( 'Edit ' . $service->getServiceName() );
 	$tabs = array(
 		''			=> 'Dashboard',
 		'details'   => 'View',
