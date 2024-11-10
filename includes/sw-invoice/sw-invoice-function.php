@@ -562,7 +562,7 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	// Check if the invoice is valid and payment_status is not 'paid'
-	if ( $invoice && $invoice->getPaymentStatus() !== 'paid' ) {
+	if ( $invoice && $invoice->get_status() !== 'paid' ) {
 		// Get the order associated with the invoice
 		$order = wc_get_order( $invoice->getOrderId() );
 
