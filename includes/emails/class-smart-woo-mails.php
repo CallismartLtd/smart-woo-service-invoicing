@@ -134,35 +134,75 @@ class SmartWoo_Mail {
     */
 
     /**
-     * Get the template header
+     * Get the template header.
      */
     protected function get_header() {
-        $header = apply_filters( 'smartwoo_email_template_header',
-           '<html><head>' . self::print_styles() . '</head>'
+        $lang_attr = get_bloginfo( 'language' );
+        $charset = get_bloginfo( 'charset' );
+
+        $header = apply_filters(
+            'smartwoo_email_template_header',
+            '<!DOCTYPE html>
+            <html lang="' . esc_attr( $lang_attr ) . '">
+            <head>
+                <meta charset="' . esc_attr( $charset ) . '">
+                <meta name="viewport" content="width=device-width,initial-scale=1">
+                <meta name="x-apple-disable-message-reformatting">
+                <title>' . esc_html( $this->subject ) . '</title>
+                <!--[if mso]> 
+                <noscript> 
+                <xml> 
+                <o:OfficeDocumentSettings> 
+                <o:PixelsPerInch>96</o:PixelsPerInch> 
+                </o:OfficeDocumentSettings> 
+                </xml> 
+                </noscript> 
+                <![endif]-->
+                ' . self::print_styles() . '
+            </head>'
         );
 
         return $header;
     }
 
     /**
-     * Get email body
+     * Get email body.
      */
     protected function get_body() {
-        $body = apply_filters( 'smartwoo_email_body',
-            '<body>
-                <div class="sw-email-image-container">
-                    <img src="'. esc_attr( get_option( 'smartwoo_email_image_header' ) ) . '" alt=" '. $this->business_name .' logo" />
-                </div>
-                <div class="sw-email-body-content">
-                    ' . $this->body . '
-                </div>
+        $header_image_url   = get_option( 'smartwoo_email_image_header' );
+        $header_image_alt   = $this->business_name . ' logo';
+        $body_content       = $this->body;
 
-                <footer class="sw-email-footer">' . $this->get_footer_text() . '</footer>
-            '
+        $body = apply_filters(
+            'smartwoo_email_body',
+            '<body style="margin: 0; padding: 0; background-color: #f5f5f5;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0; padding: 0; border-collapse: collapse; width: 100%;">
+                    <tr>
+                        <td align="center" style="padding: 20px 0; background-color: #ffffff;">
+                            <div class="sw-email-image-container">
+                                <img src="' . esc_attr( $header_image_url ) . '" alt="' . esc_attr( $header_image_alt ) . '" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border: 0;">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 20px; background-color: #ffffff;">
+                            <div class="sw-email-body-content" style="font-family: Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 768px; margin: auto;">
+                                ' . wp_kses_post( $body_content ) . '
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 20px 0; background-color: #ffffff;">
+                            <footer class="sw-email-footer" style="font-size: 0.9em; color: #555555; text-align: center; max-width: 600px; margin: auto;">
+                                ' . $this->get_footer_text() . '
+                            </footer>
+                        </td>
+                    </tr>'
         );
 
         return $body;
     }
+
 
     /**
      * Get the email footer text
@@ -178,34 +218,52 @@ class SmartWoo_Mail {
     }
 
     /**
-     * Get the footer
+     * Get the email footer.
      */
     public function get_footer() {
-        return apply_filters( 'smartwoo_email_footer', '</body></html>' );
+        // Close any necessary email content divs or elements for proper structure.
+        $footer = '
+            </table>
+        </body>
+    </html>';
+
+        return apply_filters( 'smartwoo_email_footer', $footer );
     }
+
 
     /**
      * Print email stylesheet
      */
     protected static function print_styles() {
         global $wp_filesystem;
+
+        // Ensure WP_Filesystem is loaded, else load it.
         if ( ! function_exists( 'WP_Filesystem' ) ) {
             require_once( ABSPATH . 'wp-admin/includes/file.php' );
         }
+
+        // Initialize the filesystem.
         WP_Filesystem();
 
-        $style_dir  = apply_filters( 'smartwoo_email_style_dir', SMARTWOO_PATH . 'assets/css/sw-email-styles.css' );
-        $raw_styles = $wp_filesystem->get_contents( $style_dir );
-        $style = '<style>';
-        if ( false !== $raw_styles ) {
-            $style .= $raw_styles;
+        $filtered_style_dir = apply_filters( 'smartwoo_email_style_dir', '' );
+
+        if ( ! empty( $filtered_style_dir ) && $wp_filesystem->exists( $filtered_style_dir ) ) {
+            $style_dir = $filtered_style_dir;
+        } else {
+            // Fall back to the default style directory.
+            $style_dir = SMARTWOO_PATH . 'assets/css/sw-email-styles.css';
         }
 
+        $raw_styles = $wp_filesystem->get_contents( $style_dir );
+
+        // Wrap the raw styles in a <style> block
+        $style = '<style>';
+        $style .= $raw_styles !== false ? $raw_styles : '';
         $style .= '</style>';
 
         return $style;
-    
     }
+
 
     /**
      * Send Email
@@ -224,16 +282,31 @@ class SmartWoo_Mail {
     }
 
     /**
-     * Print the entire template with psudo data
+     * Print the entire template with set properties for preview.
      */
     public function preview_template() {
-        ?>
-        $to         = $this->recipients;
-        $subject    = $this->subject;
-        $message    = $this->get_header();
-        $message   .= $this->get_body();
-        $message   .= $this->get_footer();
+        // Only output the preview if the script is being run in the admin area.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'You don\'t have the required permission to view this page.', 'Permission denied', array( 'response' => 401 ) );
+        }
 
-        <?php
+        $header   = $this->get_header();
+        $body     = $this->get_body();
+        $footer   = $this->get_footer();
+        echo ( $header );            
+        echo ( $body );
+        echo ( $footer );
+         
     }
+
+    /**
+     * Get email preview url
+     * 
+     * @param string $id Mail option name
+     */
+    public static function get_preview_url( $id ) {
+
+        return admin_url( 'admin-post.php?action=' . $id );
+    }
+
 }
