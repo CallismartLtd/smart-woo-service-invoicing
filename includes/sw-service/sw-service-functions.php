@@ -27,45 +27,40 @@ defined( 'ABSPATH' ) ||exit; // Prevent direct access.
  * @return SmartWoo_Service|false The generated SmartWoo_Service object or false on failure.
  */
 function smartwoo_generate_service(
-	int $user_id,
-	int $product_id,
-	?string $service_name = null,
-	?string $service_url = null,
-	?string $service_type = null,
-	?string $invoice_id = null,
-	?string $start_date = null,
-	?string $end_date = null,
-	?string $next_payment_date = null,
-	?string $billing_cycle = null,
-	?string $status = null
+	$user_id, $product_id,
+	$service_name = null,
+	$service_url = null,
+	$service_type = null,
+	$invoice_id = null,
+	$start_date = null,
+	$end_date = null,
+	$next_payment_date = null,
+	$billing_cycle = null,
+	$status = null
 ) {
 	// Generate service ID using the provided service_name or any other logic
 	$service_id = smartwoo_generate_service_id( $service_name );
 
 	// Create a new SmartWoo_Service object
-	$new_service = new SmartWoo_Service(
-		$user_id,
-		$product_id,
-		$service_id,
-		$service_name,
-		$service_url,
-		$service_type,
-		$invoice_id,
-		$start_date,
-		$end_date,
-		$next_payment_date,
-		$billing_cycle,
-		$status
-	);
+	$service = new SmartWoo_Service();
+	$service->set_user_id( $user_id );
+	$service->set_product_id( $product_id );
+	$service->set_service_id( $service_id );
+	$service->set_name( $service_name );
+	$service->set_service_url( $service_url );
+	$service->set_type( $service_type );
+	$service->set_start_date( $start_date );
+	$service->set_end_date( $end_date );
+	$service->set_next_payment_date( $next_payment_date );
+	$service->set_billing_cycle( $billing_cycle,);
+	$service->set_status( $status );
+	$saved = $service->save();
 
-	$saved_service_id = $new_service->save();
-
-	if ( $saved_service_id !== false ) {
-		$new_service = SmartWoo_Service_Database::get_service_by_id( $saved_service_id );
+	if ( $saved ) {
 		// Trigger  action after service is created.
-		do_action( 'smartwoo_new_service_created', $new_service );
+		do_action( 'smartwoo_new_service_created', $service );
 
-		return $new_service;
+		return $service;
 	}
 
 	return false;
