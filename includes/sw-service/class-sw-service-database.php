@@ -582,6 +582,12 @@ class SmartWoo_Service_Database {
 		if ( $saved ) {
 			SmartWoo::count_all_services();
 			$service->set_id( $wpdb->insert_id );
+
+			/**
+			 * @action_hook smartwoo_new_service_created Fires when a new service is inserted into the database.
+			 * 				@param SmartWoo_Service
+			 */
+			do_action( 'smartwoo_new_service_created', $service );
 			return true;
 
 		}
