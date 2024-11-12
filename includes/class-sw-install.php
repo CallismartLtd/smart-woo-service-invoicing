@@ -47,15 +47,13 @@ class SmartWoo_Install {
 	 * Deactivation. 
 	 */
 	public static function deactivate() {
-
 		wp_clear_scheduled_hook( 'smartwoo_auto_service_renewal' );
 		wp_clear_scheduled_hook( 'smartwoo_5_minutes_task' );
 		wp_clear_scheduled_hook( 'smartwoo_daily_task' );
 		wp_clear_scheduled_hook( 'smartwoo_once_in48hrs_task' );
+		wp_clear_scheduled_hook( 'smartwoo_five_hourly' );
 		wp_clear_scheduled_hook( 'smartwoo_twice_daily_task' );
-		wp_clear_scheduled_hook( 'smartwoo_refund_task' );
-		wp_clear_scheduled_hook( 'smartwoo_refund_task' );
-		wp_clear_scheduled_hook( 'smartwoo_refund_task' );
+		wp_clear_scheduled_hook( 'smartwoo_service_scan' );
 		flush_rewrite_rules();
 	}
 
@@ -144,11 +142,6 @@ class SmartWoo_Install {
 		if ( ! wp_next_scheduled( 'smartwoo_auto_service_renewal' ) ) {
 			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_auto_service_renewal' );
 
-		}
-
-		/** Schedule some dynamic task to run five minutely. */
-		if ( ! wp_next_scheduled( 'smartwoo_5_minutes_task' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_minutes', 'smartwoo_5_minutes_task' );
 		}
 
 		/** Daily task automation. */
