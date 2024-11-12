@@ -1,7 +1,7 @@
 <?php
 /**
  * File name sw-service-functions.php
- * Utility function to interact with service data.
+ * Utility function to interact with service args.
  *
  * @author Callistus
  * @package SmartWoo\functions
@@ -12,58 +12,29 @@ defined( 'ABSPATH' ) ||exit; // Prevent direct access.
 /**
  * Generate a new SmartWoo_Service object and save it to the database.
  *
- * @param int         $user_id            User ID associated with the service.
- * @param int         $product_id         Product ID for the service.
- * @param string|null $service_name       Name of the service (optional).
- * @param string|null $service_url        URL associated with the service (optional).
- * @param string|null $service_type       Type or category of the service (optional).
- * @param string|null $invoice_id         Invoice ID associated with the service (optional).
- * @param string|null $start_date         Start date of the service (optional).
- * @param string|null $end_date           End date of the service (optional).
- * @param string|null $next_payment_date  Date of the next payment for the service (optional).
- * @param string|null $billing_cycle      Billing cycle for the service (optional).
- * @param string|null $status             Status of the service (optional).
- *
+ * @param array $args
  * @return SmartWoo_Service|false The generated SmartWoo_Service object or false on failure.
  */
-function smartwoo_generate_service(
-	$user_id, $product_id,
-	$service_name = null,
-	$service_url = null,
-	$service_type = null,
-	$invoice_id = null,
-	$start_date = null,
-	$end_date = null,
-	$next_payment_date = null,
-	$billing_cycle = null,
-	$status = null
-) {
+function smartwoo_create_service( $args ) {
 	// Generate service ID using the provided service_name or any other logic
 	$service_id = smartwoo_generate_service_id( $service_name );
 
 	// Create a new SmartWoo_Service object
 	$service = new SmartWoo_Service();
-	$service->set_user_id( $user_id );
-	$service->set_product_id( $product_id );
-	$service->set_service_id( $service_id );
-	$service->set_name( $service_name );
-	$service->set_service_url( $service_url );
-	$service->set_type( $service_type );
-	$service->set_start_date( $start_date );
-	$service->set_end_date( $end_date );
-	$service->set_next_payment_date( $next_payment_date );
-	$service->set_billing_cycle( $billing_cycle,);
-	$service->set_status( $status );
-	$saved = $service->save();
-
-	if ( $saved ) {
-		// Trigger  action after service is created.
-		do_action( 'smartwoo_new_service_created', $service );
-
-		return $service;
-	}
-
-	return false;
+	$service->set_id( isset( $args['id'] ) ? $args['id'] : 0 );
+	$service->set_user_id( isset( $args['user_id'] ) ? $args['user_id'] : 0 );
+	$service->set_product_id( isset( $args['product_id'] ) ? $args['product_id'] : 0 );
+	$service->set_service_id( isset( $args['service_id'] ) ? $args['service_id'] : '' );
+	$service->set_name( isset( $args['service_name'] ) ? $args['service_name'] : '' );
+	$service->set_service_url( isset( $args['service_url'] ) ? $args['service_url'] : '' );
+	$service->set_type( isset( $args['service_type'] ) ? $args['service_type'] : '' );
+	$service->set_start_date( isset( $args['start_date'] ) ? $args['start_date'] : '' );
+	$service->set_end_date( isset( $args['end_date'] ) ? $args['end_date'] : '' );
+	$service->set_next_payment_date( isset( $args['next_payment_date'] ) ? $args['next_payment_date'] : '' );
+	$service->set_billing_cycle( isset( $args['billing_cycle'] ) ? $args['billing_cycle'] : '' );
+	$service->set_status( isset( $args['status'] ) ? $args['status'] : null );
+	
+	return $service->save() ? $service : false;
 }
 
 /**
@@ -608,7 +579,7 @@ function smartwoo_delete_service_button( string $service_id ) {
 	if ( ! is_admin() ) {
 		return '';
 	}
-	return '<button class="delete-service-button" data-service-id="' . esc_attr( $service_id ) . '" title="Delete Service"><span class="dashicons dashicons-trash"></span></button>';
+	return '<button class="delete-service-button" args-service-id="' . esc_attr( $service_id ) . '" title="Delete Service"><span class="dashicons dashicons-trash"></span></button>';
 }
 
 function smartwoo_delete_service() {
@@ -619,7 +590,7 @@ function smartwoo_delete_service() {
 	
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( array( 'message' => 'You don\'t have the required permission to delete this data.' ) );
+		wp_send_json_error( array( 'message' => 'You don\'t have the required permission to delete this args.' ) );
 	}
 
 	$service_id = isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
