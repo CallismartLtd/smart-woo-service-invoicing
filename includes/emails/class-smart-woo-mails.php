@@ -304,7 +304,7 @@ class SmartWoo_Mail {
      */
     public static function get_preview_url( $id ) {
 
-        return admin_url( 'admin-post.php?action=' . $id );
+        return wp_nonce_url( admin_url( 'admin-post.php?action=smartwoo_mail_preview&temp=' . $id ) );
     }
 
 }
