@@ -71,7 +71,7 @@ function smartwoo_process_new_service_form() {
 			exit;
 		}
 
-		// Create a new SmartWoo_Service object
+		// Create new service
 		$newservice = smartwoo_generate_service(
 			$user_id,
 			$product_id,
@@ -87,7 +87,7 @@ function smartwoo_process_new_service_form() {
 		);
 
 		if ( ! $newservice ) {
-			smartwoo_set_form_error('Unable to save to the database, use the help tab above if the issue persists.' );
+			smartwoo_set_form_error( 'Unable to save to the database, use the help tab above if the issue persists.' );
 			wp_redirect( admin_url( 'admin.php/?page=sw-admin&action=add-new-service' ) );
 			exit;
 
