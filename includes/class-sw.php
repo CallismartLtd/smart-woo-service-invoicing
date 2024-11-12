@@ -51,6 +51,8 @@ final class SmartWoo {
         add_filter( 'woocommerce_cart_item_name', array( __CLASS__, 'cart_items' ), 10, 3 );
 
         add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
+        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
+
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
 
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
@@ -936,9 +938,9 @@ final class SmartWoo {
 
             // Check if the service is due for renewal
             if ( 'Due for Renewal' === $service_status ) {
-                $existing_invoice_id = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
+                $has_invoice = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
                 
-                if ( $existing_invoice_id ) {
+                if ( $has_invoice ) {
                     continue; // Skip if unpaid renewal invoice already exists
                 }
 
@@ -951,10 +953,9 @@ final class SmartWoo {
                 $new_invoice_id = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
                 
                 if ( $new_invoice_id ) {
-                    // Retrieve invoice object and trigger action
                     $newInvoice = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
                     do_action( 'smartwoo_auto_invoice_created', $newInvoice, $service );
-                    $invoices_created = true; // Mark that an invoice was created
+                    $invoices_created = true;
                 }
             }
         }
@@ -1008,6 +1009,43 @@ final class SmartWoo {
             }
         }
         
+    }
+
+    /**
+     * Invoice payment reminder email action trigger.
+     * 
+     * @return void
+     */
+    public static function payment_reminder() {
+        $last_checked = get_transient( 'smartwoo_checked_payment_reminder' );
+
+        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
+            return;
+        }
+
+		if ( wp_doing_cron() ) {
+			add_filter( 'smartwoo_is_frontend', '__return_false' );
+            $page = get_transient( 'smartwoo_payment_reminder_page' );
+
+            if ( false === $page ) {
+                $page = 1;
+            }
+            $_GET['limit'] = 20;
+            $_GET['paged'] = absint( $page );
+		}
+
+        $unpaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
+        if ( empty( $unpaid_invoices ) ) {
+            set_transient( 'smartwoo_checked_payment_reminder', time(), 2 * DAY_IN_SECONDS );
+            delete_transient( 'smartwoo_payment_reminder_page' ); // Reset the pagination.
+            return;
+        }
+
+        foreach( $unpaid_invoices as $invoice ) {
+            do_action( 'smartwoo_invoice_payment_reminder', $invoice );
+        }
+        set_transient( 'smartwoo_payment_reminder_page', $page++, DAY_IN_SECONDS );
+
     }
 
     /**
