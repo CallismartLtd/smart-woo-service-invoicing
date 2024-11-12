@@ -543,7 +543,7 @@ class SmartWoo_Service_Database {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function create_service( SmartWoo_Service $service ) {
+	public static function create_service( SmartWoo_Service &$service ) {
 		global $wpdb;
 
 		$data = array(
@@ -577,9 +577,15 @@ class SmartWoo_Service_Database {
 		);
 
 		
-		$wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		SmartWoo::count_all_services();
-		return $service->getServiceId();
+		$saved = $wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		
+		if ( $saved ) {
+			SmartWoo::count_all_services();
+			$service->set_id( $wpdb->insert_id );
+			return true;
+
+		}
+		return false;
 	}
 
 	/**
@@ -591,7 +597,7 @@ class SmartWoo_Service_Database {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function update_service( SmartWoo_Service $service ) {
+	public static function update_service( SmartWoo_Service &$service ) {
 		global $wpdb;
 
 		$data 		= array(
