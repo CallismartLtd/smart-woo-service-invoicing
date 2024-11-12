@@ -190,3 +190,15 @@ function smartwoo_migrate_options_201() {
 function smartwoo_2012_update_service_count() {
 	SmartWoo::count_all_services();
 }
+
+/**
+ * Mail option name update
+ * 
+ * @since 2.2.0
+ */
+function smartwoo_220_mail_option_update() {
+	wp_clear_scheduled_hook( 'smartwoo_5_minutes_task' );
+	$options = array(
+		''
+	);
+}
