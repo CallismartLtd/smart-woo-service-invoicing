@@ -454,6 +454,7 @@ function smartwoo_email_options() {
 						<?php echo esc_html( ucwords( str_replace( array( '_', 'smartwoo' ), ' ', $checkbox_name ) ) ); ?>
 					</label>
 					<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
+					<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
 				</div>
 				<hr>
 			<?php endforeach; ?>
