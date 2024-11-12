@@ -69,9 +69,8 @@ delete_option( 'smartwoo_all_services_count' );
  */
 
 wp_clear_scheduled_hook( 'smartwoo_auto_service_renewal' );
-wp_clear_scheduled_hook( 'smartwoo_5_minutes_task' );
 wp_clear_scheduled_hook( 'smartwoo_daily_task' );
 wp_clear_scheduled_hook( 'smartwoo_once_in48hrs_task' );
-wp_clear_scheduled_hook( 'move_old_renewal_orders_to_trash_event' );
-wp_clear_scheduled_hook( 'smartwoo_daily_task' );
-wp_clear_scheduled_hook( 'smartwoo_refund_task' );
+wp_clear_scheduled_hook( 'smartwoo_five_hourly' );
+wp_clear_scheduled_hook( 'smartwoo_twice_daily_task' );
+wp_clear_scheduled_hook( 'smartwoo_service_scan' );
