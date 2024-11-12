@@ -158,7 +158,7 @@ class SmartWoo_Mail {
                 </xml> 
                 </noscript> 
                 <![endif]-->
-                ' . self::print_styles() . '
+                
             </head>'
         );
 
@@ -175,25 +175,23 @@ class SmartWoo_Mail {
 
         $body = apply_filters(
             'smartwoo_email_body',
-            '<body style="margin: 0; padding: 0; background-color: #f5f5f5;">
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0; padding: 0; border-collapse: collapse; width: 100%;">
+            '<body style="margin: 0; padding: 0; background-color: #f9f9f9; width: 100%">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="80%" style="background-color: #f9f9f9; margin: 0 auto; padding: 0; border-collapse: collapse; width: 80%;">
                     <tr>
-                        <td align="center" style="padding: 20px 0; background-color: #ffffff;">
-                            <div class="sw-email-image-container">
-                                <img src="' . esc_attr( $header_image_url ) . '" alt="' . esc_attr( $header_image_alt ) . '" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border: 0;">
-                            </div>
+                        <td align="center" style="padding: 5px 0; background-color: #f1f1f1; border: 0;">
+                                <img src="' . esc_attr( $header_image_url ) . '" alt="' . esc_attr( $header_image_alt ) . '" style="max-width: 350px; display: block; margin: 0 auto; border: 0;">
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="padding: 20px; background-color: #ffffff;">
-                            <div class="sw-email-body-content" style="font-family: Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 768px; margin: auto;">
+                        <td style="padding: 10px; background-color: #ffffff;">
+                            <div style="text-decoration:none; font-family: Arial, sans-serif; line-height: 1.6; color: #333333; margin: auto; border: 1px solid #ddd; padding: 10px;box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); border-radius: 4px;">
                                 ' . wp_kses_post( $body_content ) . '
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="padding: 20px 0; background-color: #ffffff;">
-                            <footer class="sw-email-footer" style="font-size: 0.9em; color: #555555; text-align: center; max-width: 600px; margin: auto;">
+                        <td align="center" style="padding: 20px 0; background-color: #f1f1f1;">
+                            <footer style="font-size: 0.9em; color: #555555; text-align: center; max-width: 600px; margin: auto;">
                                 ' . $this->get_footer_text() . '
                             </footer>
                         </td>
@@ -211,7 +209,7 @@ class SmartWoo_Mail {
         $text = apply_filters( 'smartwoo_email_footer_text',
             '<p>Thank you for the continued business and support. We value you so much.</p>
             <p>Kind regards. </p>
-            <p>' . esc_html( $this->business_name ) . '</p>'
+            <p><strong><a style="text-decoration: none; color: black;" href="' . esc_attr( site_url() ) . '">' . esc_html( $this->business_name ) . '</a></strong></p>'
         );
 
         return $text;
