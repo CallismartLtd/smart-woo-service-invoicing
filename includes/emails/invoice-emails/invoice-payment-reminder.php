@@ -33,7 +33,7 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_invoice_payment_reminder', array( __CLASS__, 'send_mail' ) );
-        add_action( 'admin_post_smartwoo_email_preview_payment_reminder', array( __CLASS__, 'start_preview_buffer' ) );
+        add_action( 'admin_post_smartwoo_payment_reminder_to_client', array( __CLASS__, 'start_preview_buffer' ) );
     }
 
     /**
@@ -52,7 +52,11 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
     public function get_template() {
         $message  = '<h1>Important: Unpaid Invoice Reminder for "{{invoice_id}}"</h1>';
         $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
-        $message .= '<p>We are writing to remind you of an outstanding invoice associated with your account. To maintain uninterrupted service and avoid potential late fees, we kindly request your prompt attention to this matter.</p>';
+        $message .= '<p>We hope this email finds you well. We would like to bring to your attention an outstanding invoice associated with your account.</p>';
+        
+        if ( ! empty( $this->invoice->get_service_id() ) ){
+            $message .= '<p>To maintain uninterrupted service and avoid potential late fees, we kindly request your prompt attention to this matter.</p>';
+        }
         $message .= '<p>Invoice Details:</p>';
         $message .= '<ul>';
         $message .= '<li>Balance Due: {{invoice_total}}</li>';
@@ -80,6 +84,7 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
         $invoice->set_product_id( self::get_random_product_id() );
         $invoice->set_amount( wp_rand( 200, 500 ) );
         $invoice->set_total( wp_rand( 200, 500 ) );
+        $invoice->set_service_id( smartwoo_generate_service_id( 'Awesome Service' ) );
         $invoice->set_status( 'unpaid' );
         $invoice->set_date_created( 'now' );
         $invoice->set_date_paid( 'now' );
