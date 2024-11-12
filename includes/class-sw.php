@@ -52,6 +52,7 @@ final class SmartWoo {
 
         add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
+        add_action( 'admin_post_smartwoo_mail_preview', array( __CLASS__, 'mail_preview' ) );
 
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
 
@@ -249,22 +250,19 @@ final class SmartWoo {
                 exit;
             }
 
-            $new_service = new SmartWoo_Service(
-                $user_id,
-                $product_id,
-                $service_id,
-                $service_name,
-                $service_url,
-                $service_type,
-                null, // Invoice ID is null.
-                $start_date,
-                $end_date,
-                $next_payment_date,
-                $billing_cycle,
-                $status
-            );
-
-                $saved_service_id = $new_service->save();
+            $service = new SmartWoo_Service();
+            $service->set_user_id( $user_id );
+            $service->set_product_id( $product_id );
+            $service->set_service_id( $service_id );
+            $service->set_name( $service_name );
+            $service->set_service_url( $service_url );
+            $service->set_type( $service_type );
+            $service->set_start_date( $start_date );
+            $service->set_end_date( $end_date );
+            $service->set_next_payment_date( $next_payment_date );
+            $service->set_billing_cycle( $billing_cycle,);
+            $service->set_status( $status );
+            $saved_service_id = $service->save();
 
             if ( $saved_service_id ) {
 
@@ -1159,10 +1157,13 @@ final class SmartWoo {
 
             /**
              * @action_hook smartwoo_user_cancelled_service Fires When service is cancelled.
-             * @action_hook smartwoo_service_deactivated Separate hooks which fire when Service 
-             * is deactivated should be simulated.
+             *              @param string $service_id
+             *              @param SmartWoo_Service $service @since 2.2.0
+             * @action_hook smartwoo_service_deactivated Fires when Service is deactivated.
+             *              @param SmartWoo_Service $service
+             *                                           
              */
-            do_action( 'smartwoo_user_cancelled_service', $service_id );
+            do_action( 'smartwoo_user_cancelled_service', $service_id, $service );
             do_action( 'smartwoo_service_deactivated', $service );
 
         } elseif ( $user_opted_out ) {
@@ -1521,6 +1522,56 @@ final class SmartWoo {
         if ( isset( $values['service_url'] ) ) {
             $item->add_meta_data( 'Service URL', $values['service_url'], true );
         }
+    }
+
+    /**
+     * Mail template preview
+     */
+    public static function mail_preview() {
+        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) ) ) {
+            wp_die( 'Action failed basic authentication', 'Permission Denied', array( 'response' => 401 ) );
+        }
+        $template = isset( $_GET['temp'] ) ? sanitize_text_field( wp_unslash( $_GET['temp'] ) ) : wp_die( 'Please provide template' );
+        $doing_invoice = false;
+        $doing_service = false;
+        switch( $template ) {
+            case 'smartwoo_payment_reminder_to_client':
+                $temp_class_name    = 'SmartWoo_Invoice_Payment_Reminder';
+                $obj_class_name     = 'SmartWoo_Invoice';
+                $doing_invoice      = true;
+                break;
+            case 'smartwoo_new_invoice_mail':
+                $temp_class_name    = 'SmartWoo_New_Invoice_Mail';
+                $obj_class_name     = 'SmartWoo_Invoice';
+                $doing_invoice      = true;
+                break;
+            case 'smartwoo_invoice_paid_mail':
+                $temp_class_name    = 'SmartWoo_Invoice_Paid_Mail';
+                $obj_class_name     = 'SmartWoo_Invoice';
+                $doing_invoice      = true;
+                break;
+            
+        }
+
+        if ( $doing_invoice ) {
+            $invoice = new $obj_class_name();
+            $invoice->set_invoice_id( smartwoo_generate_invoice_id() );
+            $invoice->set_user_id( get_current_user_id() );
+            $invoice->set_product_id( $temp_class_name::get_random_product_id() );
+            $invoice->set_amount( wp_rand( 200, 500 ) );
+            $invoice->set_total( wp_rand( 200, 500 ) );
+            $invoice->set_service_id( smartwoo_generate_service_id( 'Awesome Service' ) );
+            $invoice->set_status( 'unpaid' );
+            $invoice->set_date_created( 'now' );
+            $invoice->set_date_paid( 'now' );
+            $invoice->set_billing_address( smartwoo_get_client_billing_email( get_current_user_id() ) );
+            $invoice->set_type( 'Billing' );
+            $invoice->set_fee( wp_rand( 200, 500 ) );
+            $invoice->set_date_due( 'now' );
+            $temp   = new $temp_class_name( $invoice );
+            $temp->preview_template();
+        }
+    
     }
 }
 
