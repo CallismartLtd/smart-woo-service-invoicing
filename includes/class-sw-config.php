@@ -90,7 +90,6 @@ class SmartWoo_Config{
         add_action( 'smartwoo_user_cancelled_service', 'smartwoo_user_service_cancelled_mail', 100 );
         add_action( 'smartwoo_user_cancelled_service', 'smartwoo_service_cancelled_mail_to_admin', 100 );
         add_action( 'smartwoo_user_opted_out', 'smartwoo_user_service_optout_mail', 100 );
-        add_action( 'smartwoo_once_in48hrs_task', 'smartwoo_payment_reminder' );
         add_action( 'smartwoo_service_expired', 'smartwoo_send_service_expiration_email' );
         add_action( 'smartwoo_daily_task', 'smartwoo_send_expiry_mail_to_admin' );
         add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
@@ -164,6 +163,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/class-invoice-mails.php';
         require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/new-invoice-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/invoice-paid-mail.php';
+        require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/invoice-payment-reminder.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
@@ -399,12 +399,16 @@ class SmartWoo_Config{
 
 		/**
 		 * Schedule the auto-renewal event.
-		 *
-		 * This function checks if the 'smartwoo_auto_service_renewal' is not already scheduled
-		 * and schedules it to run every 5 hours using the 'smartwoo_5_hours' cron interval.
 		 */
 		if ( ! wp_next_scheduled( 'smartwoo_auto_service_renewal' ) ) {
 			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_auto_service_renewal' );
+		}
+
+        /**
+         * Five Hourly schedule
+         */
+		if ( ! wp_next_scheduled( 'smartwoo_five_hourly' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_five_hourly' );
 		}
 
         /**
@@ -414,11 +418,6 @@ class SmartWoo_Config{
          */
         if ( ! wp_next_scheduled( 'smartwoo_service_scan' ) ) {
 			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_service_scan' );
-		}
-
-		/** Schedule some dynamic task to run five minutely. */
-		if ( ! wp_next_scheduled( 'smartwoo_5_minutes_task' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_minutes', 'smartwoo_5_minutes_task' );
 		}
 
 		/** Daily task automation. */
@@ -436,10 +435,6 @@ class SmartWoo_Config{
 			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_12_hours', 'smartwoo_twice_daily_task' );
 		}
 
-		/** Automate refunds */
-		if ( ! wp_next_scheduled( 'smartwoo_refund_task' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'once_every_two_days', 'smartwoo_refund_task' );
-		}
         if ( false === get_option( '__smartwoo_automation_last_scheduled_date', false ) ) {
     		update_option( '__smartwoo_automation_last_scheduled_date', current_time( 'timestamp' ) );
         
