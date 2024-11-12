@@ -71,26 +71,26 @@ function smartwoo_process_new_service_form() {
 			exit;
 		}
 
-		// Create new service
-		$newservice = smartwoo_generate_service(
-			$user_id,
-			$product_id,
-			$service_name,
-			$service_url,
-			$service_type,
-			$invoice_id,
-			$start_date,
-			$end_date,
-			$next_payment_date,
-			$billing_cycle,
-			$status
+		// Create new service.
+		$args = array(
+			'user_id'		=> $user_id,
+			'product_id' 	=> $product_id,
+			'service_name'	=> $service_name,
+			'service_url'	=> $service_url,
+			'service_type'	=> $service_type,
+			'invoice_id'	=> $invoice_id,
+			'start_date'	=> $start_date,
+			'end_date'		=> $end_date,
+			'next_payment_date'	=> $next_payment_date,
+			'billing_cycle'	=> $billing_cycle,
+			'status'		=> $status
 		);
+		$newservice = smartwoo_create_service( $args );
 
 		if ( ! $newservice ) {
 			smartwoo_set_form_error( 'Unable to save to the database, use the help tab above if the issue persists.' );
 			wp_redirect( admin_url( 'admin.php/?page=sw-admin&action=add-new-service' ) );
 			exit;
-
 		}
 
 		$saved_service_id = $newservice->getServiceId();
