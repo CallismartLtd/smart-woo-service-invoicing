@@ -28,6 +28,10 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
 
         '2.0.12' => array(
             'smartwoo_2012_update_service_count'
+        ),
+
+        '2.2.0' => array(
+            'smartwoo_220_mail_option_update'
         )
     );
 
