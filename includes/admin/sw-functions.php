@@ -466,13 +466,17 @@ function smartwoo_get_configured_orders_for_service( $order_id = null, $current_
 /**
  * Check if an order has configured products.
  *
- * @param WC_Order $order The WooCommerce order object.
+ * @param WC_Order|int $order The WooCommerce order object.
  * @return bool True if the order has configured products, false otherwise.
  */
 function smartwoo_check_if_configured( $order ) {
 
 	if ( is_int( $order ) ) {
 		$order = wc_get_order( $order );
+	}
+
+	if ( ! $order ) {
+		return false;
 	}
 
 	$items = $order->get_items();
