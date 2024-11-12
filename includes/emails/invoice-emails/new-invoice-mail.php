@@ -33,6 +33,8 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_new_invoice_created', array( __CLASS__, 'send_mail' ) );
+        add_action( 'admin_post_smartwoo_new_invoice_mail', array( __CLASS__, 'start_preview_buffer' ) );
+
     }
 
     /**
@@ -78,6 +80,30 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
 		
         $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message );
         return $template;
+    }
+
+    /**
+     * Email preview buffer
+     */
+    public static function start_preview_buffer() {
+        
+        $invoice    = new SmartWoo_Invoice();
+      
+        $invoice->set_invoice_id( smartwoo_generate_invoice_id() );
+        $invoice->set_user_id( get_current_user_id() );
+        $invoice->set_product_id( self::get_random_product_id() );
+        $invoice->set_amount( wp_rand( 200, 500 ) );
+        $invoice->set_total( wp_rand( 200, 500 ) );
+        $invoice->set_service_id( smartwoo_generate_service_id( 'Awesome Service' ) );
+        $invoice->set_status( 'unpaid' );
+        $invoice->set_date_created( 'now' );
+        $invoice->set_date_paid( 'now' );
+        $invoice->set_billing_address( smartwoo_get_client_billing_email( get_current_user_id() ) );
+        $invoice->set_type( 'Billing' );
+        $invoice->set_fee( wp_rand( 200, 500 ));
+        $invoice->set_date_due( 'now' );
+        $self       = new self( $invoice );
+        $self->preview_template();
     }
 }
 
