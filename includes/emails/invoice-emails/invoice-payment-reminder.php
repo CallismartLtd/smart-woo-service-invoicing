@@ -90,9 +90,9 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
         $invoice->set_date_paid( 'now' );
         $invoice->set_billing_address( smartwoo_get_client_billing_email( get_current_user_id() ) );
         $invoice->set_type( 'Billing' );
-        $invoice->set_fee( wp_rand( 200, 500 ));
+        $invoice->set_fee( wp_rand( 200, 500 ) );
         $invoice->set_date_due( 'now' );
-        $self       = new self( $invoice );
+        $self   = new self( $invoice );
         $self->preview_template();
     }
 }
