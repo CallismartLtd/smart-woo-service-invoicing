@@ -78,7 +78,6 @@ function smartwoo_process_new_service_form() {
 			'service_name'	=> $service_name,
 			'service_url'	=> $service_url,
 			'service_type'	=> $service_type,
-			'invoice_id'	=> $invoice_id,
 			'start_date'	=> $start_date,
 			'end_date'		=> $end_date,
 			'next_payment_date'	=> $next_payment_date,
