@@ -252,33 +252,4 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
 
         return $items;
     }
-
-    /**
-     * Get a random product ID email template preview.
-     *
-     * @return int|false The random product ID, or false if no products are found.
-     */
-    public static function get_random_product_id() {
-        $args = array(
-            'status'         => 'publish',
-            'limit'          => 1,
-            'return'         => 'ids',
-            'orderby'        => 'rand',
-        );
-
-        // Create the product query
-        $product_query = new WC_Product_Query( $args );
-
-        // Get the product IDs
-        $products = $product_query->get_products();
-
-        // If there are no products, return false
-        if ( empty( $products ) ) {
-            return false;
-        }
-
-        // Return the single random product ID
-        return $products[0];
-    }
-
 }
