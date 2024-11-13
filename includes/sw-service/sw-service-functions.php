@@ -16,15 +16,24 @@ defined( 'ABSPATH' ) ||exit; // Prevent direct access.
  * @return SmartWoo_Service|false The generated SmartWoo_Service object or false on failure.
  */
 function smartwoo_create_service( $args ) {
-	// Generate service ID using the provided service_name or any other logic
-	$service_id = smartwoo_generate_service_id( $service_name );
+	if ( ! isset( $args['service_name'] ) 
+		|| ! isset( $args['product_id'] ) 
+		|| ! isset( $args['start_date'] ) 
+		|| ! isset( $args['user_id'] ) 
+		|| ! isset( $args['next_payment_date'] ) 
+		|| ! isset( $args['end_date'] ) 
+		|| ! isset( $args['billing_cycle'] )
+	) {
+		return false;
+	}
+
+	$service_id = smartwoo_generate_service_id( sanitize_text_field( wp_unslash( $args['service_name'] ) ) );
 
 	// Create a new SmartWoo_Service object
 	$service = new SmartWoo_Service();
-	$service->set_id( isset( $args['id'] ) ? $args['id'] : 0 );
 	$service->set_user_id( isset( $args['user_id'] ) ? $args['user_id'] : 0 );
 	$service->set_product_id( isset( $args['product_id'] ) ? $args['product_id'] : 0 );
-	$service->set_service_id( isset( $args['service_id'] ) ? $args['service_id'] : '' );
+	$service->set_service_id( $service_id );
 	$service->set_name( isset( $args['service_name'] ) ? $args['service_name'] : '' );
 	$service->set_service_url( isset( $args['service_url'] ) ? $args['service_url'] : '' );
 	$service->set_type( isset( $args['service_type'] ) ? $args['service_type'] : '' );
