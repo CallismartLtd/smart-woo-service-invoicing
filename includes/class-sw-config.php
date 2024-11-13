@@ -87,9 +87,6 @@ class SmartWoo_Config{
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
         add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
-        add_action( 'smartwoo_user_cancelled_service', 'smartwoo_user_service_cancelled_mail', 100 );
-        add_action( 'smartwoo_user_cancelled_service', 'smartwoo_service_cancelled_mail_to_admin', 100 );
-        add_action( 'smartwoo_user_opted_out', 'smartwoo_user_service_optout_mail', 100 );
         add_action( 'smartwoo_service_expired', 'smartwoo_send_service_expiration_email' );
         add_action( 'smartwoo_daily_task', 'smartwoo_send_expiry_mail_to_admin' );
         add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
@@ -164,6 +161,9 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/new-invoice-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/invoice-paid-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/invoice-emails/invoice-payment-reminder.php';
+        require_once SMARTWOO_PATH . 'includes/emails/service-emails/class-service-mails.php';
+        require_once SMARTWOO_PATH . 'includes/emails/service-emails/cancelled-service-mail.php';
+        require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-opt-out-mail.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
