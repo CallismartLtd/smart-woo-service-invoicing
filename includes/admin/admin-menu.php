@@ -67,7 +67,7 @@ function smartwoo_reg_admin_menu() {
 	// Add submenu "Settings".
 	$options = add_submenu_page(
 		'sw-admin',
-		'Settings',
+		'General Settings',
 		'Settings',
 		'manage_options',
 		'sw-options',
