@@ -1550,6 +1550,17 @@ final class SmartWoo {
                 $obj_class_name     = 'SmartWoo_Invoice';
                 $doing_invoice      = true;
                 break;
+            case 'smartwoo_cancellation_mail_to_user':
+            case 'smartwoo_service_cancellation_mail_to_admin':
+                $temp_class_name    = 'SmartWoo_Cancelled_Service_Mail';
+                $obj_class_name     = 'SmartWoo_Service';
+                $doing_service      = true;
+                break;
+            case 'smartwoo_service_opt_out_mail':
+                $temp_class_name    = 'SmartWoo_Service_Optout_Mail';
+                $obj_class_name     = 'SmartWoo_Service';
+                $doing_service      = true;
+                break;
             
         }
 
@@ -1569,6 +1580,35 @@ final class SmartWoo {
             $invoice->set_fee( wp_rand( 200, 500 ) );
             $invoice->set_date_due( 'now' );
             $temp   = new $temp_class_name( $invoice );
+            $temp->preview_template();
+        } elseif ( $doing_service ) {
+            $service    = new $obj_class_name();
+            $service->set_user_id( get_current_user_id() );
+            $service->set_product_id( $temp_class_name::get_random_product_id() );
+            $service->set_service_id( smartwoo_generate_service_id( 'Awesome Service' ) );
+            $service->set_name( 'Awesome Service' );
+            $service->set_service_url( site_url() );
+            $service->set_type( 'Web Service' );
+            $service->set_start_date( current_time( 'mysql' ) );
+            $service->set_end_date( wp_date( 'Y-m-d', time() + MONTH_IN_SECONDS ) );
+            $service->set_next_payment_date( wp_date( 'Y-m-d', strtotime( 'tomorrow' ) ) );
+            $service->set_billing_cycle( 'Monthly' );
+            $service->set_status( 'Active' );
+            if ( 'smartwoo_cancellation_mail_to_user' === $template ) {
+                $service->set_status( 'Cancelled' );
+                $temp   = new $temp_class_name( $service, 'user' );
+            } elseif( 'smartwoo_service_cancellation_mail_to_admin' === $template ) {
+                $temp   = new $temp_class_name( $service );
+                $service->set_status( 'Cancelled' );
+            } elseif( 'smartwoo_service_opt_out_mail' === $template ) {
+                $service->set_status( 'Active(NR)' );
+                $temp   = new $temp_class_name( $service );
+                
+            } else {
+                $temp   = new $temp_class_name( $service );
+
+            }
+
             $temp->preview_template();
         }
     
