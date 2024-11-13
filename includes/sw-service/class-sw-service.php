@@ -494,7 +494,7 @@ class SmartWoo_Service {
 	 * Insert into the database.
 	 */
 	public function save() {
-		if ( empty( $this->getServiceId() ) ) {
+		if ( empty( $this->get_service_id() ) ) {
 			return false; // Service ID must be generated before saving.
 		}
 		$this->id = SmartWoo_Service_Database::create_service( $this );
@@ -507,6 +507,34 @@ class SmartWoo_Service {
 	| UTILITY METHODS
 	|-------------------
 	*/
+
+	/**
+	 * Get the WC_Customer object of the service owner
+	 * 
+	 * @since 2.2.0
+	 * @return WC_Customer
+	 */
+	public function get_user() {
+		return new WC_Customer( $this->get_user_id() );
+	}
+
+	/**
+	 * Retrieve customer's billing email.
+	 * 
+	 * @since 2.2.0
+	 */
+	public function get_billing_email() {
+		return smartwoo_get_client_billing_email( $this->get_user_id() );
+	}
+
+	/**
+	 * Get billing address.
+	 * @return string.
+	 */
+	public function get_billing_address() {
+		return smartwoo_get_user_billing_address( $this->user_id );
+
+	}
 
 	/**
 	 * Get preview URL
@@ -531,7 +559,7 @@ class SmartWoo_Service {
 	 * Get the cost of service ( Excluding sign up fee)
 	 */
 	public function get_pricing() {
-		$product = wc_get_product( $this->getProductId() );
+		$product = wc_get_product( $this->get_product_id() );
 		$price = ! empty( $product ) ? $product->get_price() : 0;
 		return $price;
 	}
