@@ -591,6 +591,7 @@ class SmartWoo_Service_Database {
 			return true;
 
 		}
+		
 		return false;
 	}
 
