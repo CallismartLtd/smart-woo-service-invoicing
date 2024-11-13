@@ -181,7 +181,6 @@ function smartwoo_save_options() {
  * Admin Settings Main page
  */
 function smartwoo_options_main_page() {
-
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
@@ -245,7 +244,7 @@ function smartwoo_options_main_page() {
  * Admin Service Settings Page
  */
 function smartwoo_service_options() {
-
+	smartwoo_set_document_title( 'Business Settings' );
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
@@ -320,7 +319,7 @@ function smartwoo_service_options() {
  * Admin Invoice Settings page.
  */
 function smartwoo_invoice_options() {
-
+	smartwoo_set_document_title( 'Invoice Settings' );
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
@@ -390,7 +389,7 @@ function smartwoo_invoice_options() {
  * Admin Email Settings page
  */
 function smartwoo_email_options() {
-
+	smartwoo_set_document_title( 'Email Settings' );
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
@@ -470,7 +469,7 @@ function smartwoo_email_options() {
 }
 
 function smartwoo_advanced_options() {
-
+	smartwoo_set_document_title( 'Advanced Settings' );
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
