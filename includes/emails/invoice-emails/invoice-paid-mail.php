@@ -61,7 +61,7 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
         $message .= '<li>Total: {{invoice_total}}</li>';
         $message .= '</ul>';
 		
-        $template = apply_filters( 'smartwoo_invoice_paid_mail_template', $message );
+        $template = apply_filters( 'smartwoo_invoice_paid_mail_template', $message, $this );
         return $template;
     }
 
