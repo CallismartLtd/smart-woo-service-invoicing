@@ -1042,7 +1042,8 @@ final class SmartWoo {
         foreach( $unpaid_invoices as $invoice ) {
             do_action( 'smartwoo_invoice_payment_reminder', $invoice );
         }
-        set_transient( 'smartwoo_payment_reminder_page', $page++, DAY_IN_SECONDS );
+        $page++;
+        set_transient( 'smartwoo_payment_reminder_page', $page, DAY_IN_SECONDS );
 
     }
 
@@ -1561,6 +1562,11 @@ final class SmartWoo {
                 $obj_class_name     = 'SmartWoo_Service';
                 $doing_service      = true;
                 break;
+            case 'smartwoo_service_expiration_mail':
+            case 'smartwoo_service_expiration_mail_to_admin':
+                $temp_class_name    = 'SmartWoo_Service_Expiration_Mail';
+                $obj_class_name     = 'SmartWoo_Service';
+                $doing_service      = true;
             
         }
 
@@ -1603,7 +1609,10 @@ final class SmartWoo {
             } elseif( 'smartwoo_service_opt_out_mail' === $template ) {
                 $service->set_status( 'Active(NR)' );
                 $temp   = new $temp_class_name( $service );
-                
+            } elseif( 'smartwoo_service_expiration_mail' === $template ) {
+                $service->set_status( 'Expired' );
+                $temp   = new $temp_class_name( $service, 'user' );
+
             } else {
                 $temp   = new $temp_class_name( $service );
 
