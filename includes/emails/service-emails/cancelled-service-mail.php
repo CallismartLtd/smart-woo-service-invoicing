@@ -98,7 +98,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 		$message .= '<p>Kindly note that our refund policy and terms of service apply to this cancellation.</p>';
 
-        return apply_filters( 'smartwoo_user_cancelled_service_mail_template', $message, $this->service );
+        return apply_filters( 'smartwoo_user_cancelled_service_mail_template', $message, $this );
     }
 
     /**
@@ -126,7 +126,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 		$message .= '<p>Client Email: {{client_billing_email}}</p>';
 		$message .= '<p>Address: {{client_billing_address}}</p>';
 		$message .= '</div>';
-        return apply_filters( 'smartwoo_admin_cancelled_service_mail_template', $message, $this->service );
+        return apply_filters( 'smartwoo_admin_cancelled_service_mail_template', $message, $this );
     }
 
 }
