@@ -68,32 +68,8 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
         $message .= '<a href="{{auto_login_payment_link}}">{{auto_login_payment_link}}</a>';
         $message .= '<p>Please note: This link will expire in 24 hours. After that, you may need to log into your account manually to make the payment.</p>';
 
-        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message );
+        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, $this );
         return $template;
-    }
-
-    /**
-     * Email preview buffer
-     */
-    public static function start_preview_buffer() {
-        
-        $invoice    = new SmartWoo_Invoice();
-      
-        $invoice->set_invoice_id( smartwoo_generate_invoice_id() );
-        $invoice->set_user_id( get_current_user_id() );
-        $invoice->set_product_id( self::get_random_product_id() );
-        $invoice->set_amount( wp_rand( 200, 500 ) );
-        $invoice->set_total( wp_rand( 200, 500 ) );
-        $invoice->set_service_id( smartwoo_generate_service_id( 'Awesome Service' ) );
-        $invoice->set_status( 'unpaid' );
-        $invoice->set_date_created( 'now' );
-        $invoice->set_date_paid( 'now' );
-        $invoice->set_billing_address( smartwoo_get_client_billing_email( get_current_user_id() ) );
-        $invoice->set_type( 'Billing' );
-        $invoice->set_fee( wp_rand( 200, 500 ) );
-        $invoice->set_date_due( 'now' );
-        $self   = new self( $invoice );
-        $self->preview_template();
     }
 }
 
