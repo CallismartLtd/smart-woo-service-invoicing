@@ -78,7 +78,7 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
 
         }
 		
-        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message );
+        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, $this );
         return $template;
     }
 
