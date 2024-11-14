@@ -459,7 +459,7 @@ function smartwoo_ajax_service_id_callback() {
 	$service_name = isset( $_POST['service_name']) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ): '';
 	$generated_service_id = smartwoo_generate_service_id( $service_name );
 	echo esc_html( $generated_service_id );
-	wp_die();
+	die();
 }
 
 
