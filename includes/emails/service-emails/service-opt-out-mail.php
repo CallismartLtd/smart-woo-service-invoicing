@@ -58,7 +58,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
     public function get_template() {
         $message  = '<h1>Auto Renewal for "{{service_name}}" has been disabled</h1>';
 		$message .= '<p><strong>Dear {{client_fullname}}</strong>,</p>';
-		$message .= '<p>You have successfully opted out of auto renewal for the service "{{service_name}}". The service is currently "<strong>{{status}}</strong>" but will not renew at the end of the billing cycle.</p>';
+		$message .= '<p>You have successfully opted out of auto renewal for the service "{{service_name}}". The service is currently "<strong>{{status}}</strong>" and will "<strong>Not Renew</strong>" at the end of the billing cycle.</p>';
 		$message .= '<h3>Service Details</h3>';
         $message .= '<ul>';
         $message .= '<li>Service Name: {{service_name}}</li>';
@@ -68,7 +68,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
         $message .= '</ul><br>';
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_service_optout_mail_template', $message, $this->service );
+        return apply_filters( 'smartwoo_service_optout_mail_template', $message, $this );
     }
 
 }
