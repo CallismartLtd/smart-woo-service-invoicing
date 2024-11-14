@@ -87,7 +87,6 @@ class SmartWoo_Config{
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
         add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
-        add_action( 'smartwoo_service_expired', 'smartwoo_send_service_expiration_email' );
         add_action( 'smartwoo_daily_task', 'smartwoo_send_expiry_mail_to_admin' );
         add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
         add_action( 'smartwoo_expired_service_activated', 'smartwoo_renewal_sucess_email' );
@@ -164,6 +163,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/class-service-mails.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/cancelled-service-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-opt-out-mail.php';
+        require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-expiration-mail.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
