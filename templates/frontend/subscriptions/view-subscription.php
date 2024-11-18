@@ -45,7 +45,7 @@ defined( 'ABSPATH' ) || exit;
 
         <!-- The notice container -->
         <?php $service->print_notice( 'expiry', true ); ?>   
-        <?php $service->print_notice( 'unpaid_invoice', true ); ?>   
+        <?php $service->print_notice( 'unpaid_invoice', true ); ?>
     </div>
 
     <div class="smartwoo-assets-container" id="smartwoo-sub-info">
