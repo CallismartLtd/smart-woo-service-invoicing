@@ -33,7 +33,6 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_invoice_payment_reminder', array( __CLASS__, 'send_mail' ) );
-        add_action( 'admin_post_smartwoo_payment_reminder_to_client', array( __CLASS__, 'start_preview_buffer' ) );
     }
 
     /**
