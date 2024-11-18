@@ -67,6 +67,8 @@ final class SmartWoo {
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
         add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'add_order_line_items' ), 10, 4 );
 
+        add_action( 'smartwoo_daily_task', array( __CLASS__, 'regulate_service_status' ) );
+        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'check_expired_today' ) );
         add_action( 'smartwoo_service_scan', array( __CLASS__, 'count_all_services' ) );
         add_action( 'smartwoo_auto_service_renewal', array( __CLASS__, 'auto_renew_due' ) );
         add_action( 'template_redirect', array( __CLASS__, 'manual_renew_due' ) );
@@ -88,6 +90,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_ajax_logout', array( __CLASS__, 'ajax_logout' ) );
         add_action( 'wp_ajax_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
+        add_action( 'wp_ajax_smartwoo_service_id_ajax', array( __CLASS__, 'ajax_generate_service_id' ) );
     }
 
     /** Service Subscription */
@@ -95,6 +98,100 @@ final class SmartWoo {
 
     /** Invoice */
     public function invoice() {}
+    
+    /**
+     * Normalize the status of a service before expiration date, this is
+     * used to handle 'Cancelled', 'Active NR' and other custom service, it ensures
+     * the service is autocalculated at the end of each billing period.
+     * 
+     * If the service has already expired, it's automatically suspend in 7days time
+     */
+    public static function regulate_service_status() {
+        $last_checked = get_transient( 'smartwoo_regulate_service_status' );
+
+        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
+            return;
+        }
+
+        $cache_key = 'smartwoo_regulate_service_status_loop';
+        $loop_args = get_transient( $cache_key );
+
+        if ( false === $loop_args ) {
+            $loop_args = array( 'page' => 1, 'limit' => 40 );
+        }
+
+        $services = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit'] );
+    
+        if ( empty( $services ) ) {
+            set_transient( 'smartwoo_regulate_service_status', time(), DAY_IN_SECONDS );
+            delete_transient( $cache_key );
+            return;
+        }
+    
+        foreach ( $services as $service ) {
+            if ( empty( $service->get_status() ) ) {
+                continue;
+            }
+            $expiry_date    = smartwoo_get_service_expiration_date( $service );
+            $service_status = smartwoo_service_status( $service );
+    
+            if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+    
+                $field = array(
+                    'status' => null, // Will be calculated on script.
+                );
+                SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
+    
+            } elseif ( 'Expired' === $service_status && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
+                $field = array(
+                    'status' => 'Suspended',
+                );
+                SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
+            }
+        }
+
+        $loop_args['page']++;
+        set_transient( $cache_key, $loop_args, 6 * HOUR_IN_SECONDS );
+    }
+
+    /**
+     * Check services for expiration today and trigger 'smartwoo_service_expired' action if found.
+     *
+     * @return void
+     */
+    public static function check_expired_today() {
+        $last_checked = get_transient( 'smartwoo_expired_service_check' );
+
+        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
+            return;
+        }
+
+        $cache_key = 'smartwoo_expired_service_loop';
+        $loop_args = get_transient( $cache_key );
+
+        if ( false === $loop_args ) {
+            $loop_args = array( 'page' => 1, 'limit' => 40 );
+        }
+
+        $on_expiry_threshold    = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit']  );
+        if ( empty( $on_expiry_threshold ) ) {
+            set_transient( 'smartwoo_expired_service_check', time(), DAY_IN_SECONDS );
+            delete_transient( $cache_key );
+            return;
+        }
+
+        foreach ( $on_expiry_threshold as $service ) {
+            $current_date		= smartwoo_extract_only_date( current_time( 'mysql' ) );
+            $expiration_date	= $service->get_expiry_date();
+
+            if ( $current_date === $expiration_date ) {
+                // Trigger the 'smartwoo_service_expired' action with the current service.
+                do_action( 'smartwoo_service_expired', $service );
+            }
+        }
+        $loop_args['page']++;
+        set_transient( $cache_key, $loop_args, HOUR_IN_SECONDS );
+    }
 
     /**
      * Add useful links to our plugin row meta
@@ -999,7 +1096,7 @@ final class SmartWoo {
 
                 if ( $new_invoice_id ) {
                     $the_invoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
-                    smartwoo_send_user_generated_invoice_mail( $the_invoice, $service );
+                    do_action( 'smartwoo_service_reactivation_initiated', $the_invoice, $service );
                     $checkout_url = $the_invoice->pay_url();
                     wp_safe_redirect( $checkout_url );
                     exit;
@@ -1364,8 +1461,6 @@ final class SmartWoo {
             $expired_service->setEndDate( $new_end_date );
             $expired_service->setStatus( null );
             $updated = SmartWoo_Service_Database::update_service( $expired_service );
-            smartwoo_renewal_sucess_email( $expired_service );
-
             // Add Action Hook After Service Activation.
             do_action( 'smartwoo_expired_service_activated', $expired_service );
             return true;
@@ -1423,7 +1518,7 @@ final class SmartWoo {
         return $check;
     }
     
-        /**
+    /**
      * Display configured product data in cart and checkout.
      *
      * This function is hooked into 'woocommerce_get_item_data' to add custom data related to the
@@ -1567,6 +1662,12 @@ final class SmartWoo {
                 $temp_class_name    = 'SmartWoo_Service_Expiration_Mail';
                 $obj_class_name     = 'SmartWoo_Service';
                 $doing_service      = true;
+                break;
+            case 'smartwoo_renewal_mail':
+                $temp_class_name    = 'SmartWoo_Service_Reactivation_Mail';
+                $obj_class_name     = 'SmartWoo_Service';
+                $doing_service      = true;
+                break;
             
         }
 
@@ -1612,6 +1713,23 @@ final class SmartWoo {
             } elseif( 'smartwoo_service_expiration_mail' === $template ) {
                 $service->set_status( 'Expired' );
                 $temp   = new $temp_class_name( $service, 'user' );
+            } elseif( 'smartwoo_service_expiration_mail_to_admin' === $template ) {
+                $service->set_status( 'Expired' );
+                $services = array( $service );
+                $service2    = new $obj_class_name();
+                $service2->set_user_id( get_current_user_id() );
+                $service2->set_product_id( $temp_class_name::get_random_product_id() );
+                $service2->set_service_id( smartwoo_generate_service_id( 'Awesome Service 2' ) );
+                $service2->set_name( 'Awesome Service 2' );
+                $service2->set_service_url( site_url() );
+                $service2->set_type( 'Web Service' );
+                $service2->set_start_date( current_time( 'mysql' ) );
+                $service2->set_end_date( wp_date( 'Y-m-d', time() + MONTH_IN_SECONDS ) );
+                $service2->set_next_payment_date( wp_date( 'Y-m-d', strtotime( 'tomorrow' ) ) );
+                $service2->set_billing_cycle( 'Monthly' );
+                $service2->set_status( 'Expired' );
+                $services[] = $service2;
+                $temp   = new $temp_class_name( $services, 'admin' );
 
             } else {
                 $temp   = new $temp_class_name( $service );
@@ -1621,6 +1739,20 @@ final class SmartWoo {
             $temp->preview_template();
         }
     
+    }
+    /**
+     * Generarte service ID via ajax.
+     */
+    public static function ajax_generate_service_id() { 
+
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
+            wp_die( -1, 403 );
+        }
+
+        $service_name = isset( $_POST['service_name']) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ): '';
+        $generated_service_id = smartwoo_generate_service_id( $service_name );
+        echo esc_html( $generated_service_id );
+        die();
     }
 }
 
