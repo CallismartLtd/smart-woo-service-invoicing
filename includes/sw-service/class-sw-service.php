@@ -484,6 +484,15 @@ class SmartWoo_Service {
 		return $this->get_status();
 	}
 
+	/**
+	 * Get the service expiry date
+	 * 
+	 * @since 2.2.0
+	 */
+	public function get_expiry_date() {
+		return smartwoo_get_service_expiration_date( $this );
+	}
+
 	/*
 	|-----------------
 	| CRUD METHODS
@@ -596,7 +605,6 @@ class SmartWoo_Service {
 		$self->set_next_payment_date( isset( $data['next_payment_date'] ) ? $data['next_payment_date'] : '' );
 		$self->set_billing_cycle( isset( $data['billing_cycle'] ) ? $data['billing_cycle'] : '' );
 		$self->set_status( isset( $data['status'] ) ? $data['status'] : null );
-
 		return $self;
 	}
 
@@ -637,8 +645,8 @@ class SmartWoo_Service {
      * @param bool $echo Whether to print or return notice
      */
     public function print_expiry_notice( $echo = false ) {
-
-        $output = get_transient( 'smartwoo_print_expiry_notice' );
+		$cache_key = 'smartwoo_print_expiry_notice_' . $this->get_id();
+        $output = get_transient( $cache_key );
         if ( false === $output ) {
             $output = '';
             $expiry_date = smartwoo_get_service_expiration_date( $this );
@@ -649,7 +657,7 @@ class SmartWoo_Service {
             } elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
                 $output .= smartwoo_notice( 'Expired Yesterday' );
             }
-			set_transient( 'smartwoo_print_expiry_notice', $output, 2 * MINUTE_IN_SECONDS );
+			set_transient( $cache_key, $output, 2 * MINUTE_IN_SECONDS );
         }
 
         if ( true === $echo ) {
