@@ -34,8 +34,9 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
      * Class constructor
      */
     public function __construct( $service, $context = 'admin' ) {
-        if ( is_array( $service ) ){
-            $this->services = $service;
+        if ( is_array( $service ) && 'admin' === $context ){
+            $this->services     = $service;
+            $this->recipients   = apply_filters( 'smartwoo_admin_billing_email', get_option( 'smartwoo_billing_email' ) );
         } else {
             $this->service = $service;
 
@@ -51,6 +52,7 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_service_expired', array( __CLASS__, 'send_mail' ), 100 );
+        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'send_to_admin' ) );
     }
 
     /**
@@ -60,12 +62,51 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
      */
     public static function send_mail( $service ) {
 
-        if ( apply_filters( 'smartwoo_service_expiration_mail', true ) ) {
+        if ( apply_filters( 'smartwoo_service_expiration_mail', get_option( 'smartwoo_service_expiration_mail' ) ) ) {
 
-            $self = new self( $service );
+            $self = new self( $service, 'user' );
             $self->send();
 
         }
+    }
+
+    /**
+     * Send service expiry mail to admin a day prior toexpiration date.
+     */
+    public static function send_to_admin() {
+        $last_checked = get_transient( 'smartwoo_admin_expiry_service_mail_sent' );
+
+        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
+            return;
+        }
+
+        $cache_key = 'smartwoo_admin_expiry_service_mail_loop';
+        $loop_args = get_transient( $cache_key );
+
+        if ( false === $loop_args ) {
+            $loop_args = array( 'page' => 1, 'limit' => 40 );
+        }
+
+        $on_expiry_threshold    = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit']  );
+        if ( empty( $on_expiry_threshold ) ) {
+            set_transient( 'smartwoo_admin_expiry_service_mail_sent', time(), DAY_IN_SECONDS );
+            delete_transient( $cache_key );
+            return;
+        }
+
+        $services = array();
+        foreach ( $on_expiry_threshold as $the_service ){
+            if ( $the_service->get_expiry_date() === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+                $services[] = $the_service;
+            }
+        }
+
+        if ( ! empty( $services ) && apply_filters( 'smartwoo_send_expiry_mail_to_admin', get_option( 'smartwoo_service_expiration_mail_to_admin', false ) ) ) {
+            $self = new self( $services, 'admin' );
+            $self->send();
+        }
+        $loop_args['page']++;
+        set_transient( $cache_key, $loop_args, DAY_IN_SECONDS );
     }
 
     /**
@@ -108,29 +149,36 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
         $message .= '<p>Dear Site Admin,</p>';
         $message .= '<p>This is to notify you that the following services are due to end tomorrow:</p>';
         $message .= '<h3>Service Details</h3>';
+        $number = 1;
         
         foreach ( $this->services as $service ) {
-            $this->service = $service;
-            $message .= '<ul>';
-            $message .= '<li>Service Name: {{product_name}} - {{service_name}}</li>';
-            $message .= '<li>Service ID: {{service_id}}</li>';
-            $message .= '<li>Billing Cycle: {{billing_cycle}}</li>';
-            $message .= '<li>Start Date: {{start_date}}</li>';
-            $message .= '<li>Next Payment Date: {{next_payment_date}}</li>';
-            $message .= '<li>End Date: {{end_date}}</li>';
-            $message .= '</ul><br>';
 
+            $client =  $service->get_user();
+            $message .= '<h2>' . $number . '</h2>';
+            $message .= '<ul>';
+            $message .= '<li>Service Name: ' . $service->get_product_name() . ' - ' . $service->get_name() . '</li>';
+            $message .= '<li>Service ID: ' . $service->get_service_id() . '</li>';
+            $message .= '<li>Billing Cycle: ' . $service->get_billing_cycle() . '</li>';
+            $message .= '<li>Start Date: ' . smartwoo_check_and_format( $service->get_start_date() ) . '</li>';
+            $message .= '<li>Next Payment Date: ' . smartwoo_check_and_format( $service->get_next_payment_date() ) . '</li>';
+            $message .= '<li>End Date: ' . smartwoo_check_and_format( $service->get_end_date() ) . '</li>';
+            $message .= '</ul><br>';
+            // Billing details.
+            $message .= '<div style="border: 1px solid #ccc; padding: 10px; margin-top: 20px;">';
+            $message .= '<p><strong>Customer Billing Details</strong></p>';
+            $message .= '<p>Name: ' . $client->get_first_name() . ' ' . $client->get_last_name() . '</p>';
+            $message .= '<p>Client Email: ' . $client->get_billing_email() . '</p>';
+            $message .= '<p>Address: ' . $service->get_billing_address() . '</p>';
+            $message .= '</div>';
+            $message .= '<br>';
+            $message .= '<hr>';
+            $message .= '<hr>';
+            $number++;
         }
 
-		$message .= 'Pro rata refund is currently <strong>{{prorata_status}}</strong>';
+		$message .= 'Sent on <strong>' . smartwoo_check_and_format( current_time( 'mysql' ), true ) .'</strong>';
 
-        // Billing details.
-		$message .= '<div style="border: 1px solid #ccc; padding: 10px; margin-top: 20px;">';
-		$message .= '<p><strong>Customer Billing Details</strong></p>';
-		$message .= '<p>Name: {{client_fullname}}</p>';
-		$message .= '<p>Client Email: {{client_billing_email}}</p>';
-		$message .= '<p>Address: {{client_billing_address}}</p>';
-		$message .= '</div>';
+
         return apply_filters( 'smartwoo_admin_service_expiration_mail_template', $message, $this );
     }
 }
