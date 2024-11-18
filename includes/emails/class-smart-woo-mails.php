@@ -291,9 +291,9 @@ class SmartWoo_Mail {
         $header   = $this->get_header();
         $body     = $this->get_body();
         $footer   = $this->get_footer();
-        echo ( $header );            
-        echo ( $body );
-        echo ( $footer );
+        echo ( $header ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped       
+        echo wp_kses_post( $body );
+        echo wp_kses_post( $footer );
          
     }
 
@@ -314,10 +314,11 @@ class SmartWoo_Mail {
      */
     public static function get_random_product_id() {
         $args = array(
-            'status'         => 'publish',
-            'limit'          => 1,
-            'return'         => 'ids',
-            'orderby'        => 'rand',
+            'status'    => 'publish',
+            'type'      => 'sw_product',
+            'limit'     => 1,
+            'return'    => 'ids',
+            'orderby'   => 'rand',
         );
 
         // Create the product query
