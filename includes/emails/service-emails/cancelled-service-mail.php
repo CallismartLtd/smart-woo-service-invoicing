@@ -62,7 +62,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 
             if ( $send_to_admin ) {
                 $self = new self( $service );
-                $self->recipients = get_option( 'smartwoo_billing_email' );
+                $self->recipients = apply_filters( 'smartwoo_admin_billing_email', get_option( 'smartwoo_billing_email' ) );
 
                 $self->send();
             }
