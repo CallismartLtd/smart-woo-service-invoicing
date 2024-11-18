@@ -87,10 +87,6 @@ class SmartWoo_Config{
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
         add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
-        add_action( 'smartwoo_daily_task', 'smartwoo_send_expiry_mail_to_admin' );
-        add_action( 'smartwoo_service_renewed', 'smartwoo_renewal_sucess_email' );
-        add_action( 'smartwoo_expired_service_activated', 'smartwoo_renewal_sucess_email' );
-        add_action( 'smartwoo_auto_invoice_created', 'smartwoo_send_auto_renewal_email', 10, 2 );
         add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         
@@ -151,7 +147,6 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-product/class-sw-product.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-functions.php';
         require_once SMARTWOO_PATH . 'includes/sw-utm.php';
-        require_once SMARTWOO_PATH . 'templates/email-templates.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
         require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-assets.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
@@ -164,6 +159,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/cancelled-service-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-opt-out-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-expiration-mail.php';
+        require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-reactivation-mail.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
@@ -191,6 +187,7 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
+      
     }
 
     /**
