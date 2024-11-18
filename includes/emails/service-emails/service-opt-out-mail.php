@@ -44,7 +44,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
     public static function send_mail( $service_id ) {
 
         $service = SmartWoo_Service_Database::get_service_by_id( $service_id );
-        if ( $service && apply_filters( 'smartwoo_service_optout_mail', true ) ) {
+        if ( $service && apply_filters( 'smartwoo_service_optout_mail', get_option( 'smartwoo_service_opt_out_mail', false ) ) ) {
 
             $self = new self( $service );
             $self->send();
