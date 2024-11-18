@@ -198,11 +198,8 @@ function smartwoo_is_service_active( SmartWoo_Service $service ) {
 	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
 	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
-	if ( $next_payment_date > $current_date && $end_date > $current_date ) {
-		return true;
-	} else {
-		return false;
-	}
+	return ( $next_payment_date > $current_date && $end_date > $current_date || $end_date === $current_date );
+	
 }
 
 /**
@@ -220,12 +217,7 @@ function smartwoo_is_service_due( SmartWoo_Service $service ) {
 	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
 	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
 	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
-	if ( $next_payment_date <= $current_date && $end_date > $current_date ) {
-		return true;
-
-	} else {
-		return false;
-	}
+	return ( $next_payment_date <= $current_date && $end_date > $current_date );
 }
 
 /**
@@ -246,9 +238,7 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 		$product_id			= $service->getProductId();
 		$grace_period_date 	= smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
-		if ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) ) {
-			return true;
-		}
+		return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
 	}
 
 	return false;
@@ -271,11 +261,7 @@ function smartwoo_has_service_expired( SmartWoo_Service $service ) {
 	$expiration_date	= smartwoo_get_service_expiration_date( $service );
 
 	// Check if the current date has passed the expiration date.
-	if ( $current_date > $expiration_date ) {
-		return true;
-	}
-
-	return false;
+	return ( $current_date > $expiration_date );
 }
 
 
@@ -301,7 +287,7 @@ function smartwoo_service_status( $service_id ) {
 	if ( ! empty( $overriding_status ) ) {
 		return $overriding_status;
 	}
-	
+
 	$status = get_transient( 'smartwoo_status_'. $service->getServiceId() );
 
 	if ( false === $status ) {
@@ -324,7 +310,7 @@ function smartwoo_service_status( $service_id ) {
 			$status	= 'Unknown';
 		}
 
-		set_transient( 'smartwoo_status_' . $service->getServiceId(), $status, 6 * HOUR_IN_SECONDS );
+		set_transient( 'smartwoo_status_' . $service->getServiceId(), $status, 5 * MINUTE_IN_SECONDS );
 	}
 
 	
@@ -385,42 +371,6 @@ function smartwoo_count_suspended_services() {
 }
 
 /**
- * Normalize the status of a service before expiration date, this is
- * used to handle 'Cancelled', 'Active NR' and other custom service, it ensures
- * the service is autocalculated at the end of each billing period.
- * 
- * If the service has already expired, it's automatically suspend in 7days time
- */
-function smartwoo_regulate_service_status() {
-	$services = SmartWoo_Service_Database::get_all_services();
-
-	if ( empty( $services ) ) {
-		return;
-	}
-
-	foreach ( $services as $service ) {
-		$expiry_date    = smartwoo_get_service_expiration_date( $service );
-		$service_status = smartwoo_service_status( $service );
-
-		if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
-
-			$field = array(
-				'status' => null,
-			);
-			SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
-
-		} elseif ( 'Expired' === $service_status && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
-			$field = array(
-				'status' => 'Suspended',
-			);
-			SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
-		}
-	}
-}
-// Hook to run daily.
-add_action( 'smartwoo_daily_task', 'smartwoo_regulate_service_status' );
-
-/**
  * Generate a unique service ID based on the provided service name.
  *
  * @param string $service_name The name of the service.
@@ -444,25 +394,6 @@ function smartwoo_generate_service_id( string $service_name ) {
 	return $generated_service_id;
 }
 
-
-// AJAX action to generate service ID
-add_action( 'wp_ajax_smartwoo_service_id_ajax', 'smartwoo_ajax_service_id_callback' );
-/**
- * Generarte service ID via ajax.
- */
-function smartwoo_ajax_service_id_callback() { 
-
-	if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
-		wp_die( -1, 403 );
-	}
-
-	$service_name = isset( $_POST['service_name']) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ): '';
-	$generated_service_id = smartwoo_generate_service_id( $service_name );
-	echo esc_html( $generated_service_id );
-	die();
-}
-
-
 /**
  * Get the expiration date for a service based on its end date and grace period.
  *
@@ -477,38 +408,6 @@ function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
 
 	return $expiration_date;
 }
-
-
-/**
- * Service Expiration Action Trigger
- *
- * This function is hooked into _event' action to check for services
- * that have expired today (end date is today) and trigger the 'smartwoo_service_expired' action.
- *
- * @return void
- */
-add_action( 'smartwoo_daily_task', 'smatwoo_check_services_expired_today' );
-
-/**
- * Check services for expiration today and trigger 'smartwoo_service_expired' action if found.
- *
- * @return void
- */
-function smatwoo_check_services_expired_today() {
-	$services = SmartWoo_Service_Database::get_all_services();
-
-	foreach ( $services as $service ) {
-		$current_date		= smartwoo_extract_only_date( current_time( 'mysql' ) );
-		$expiration_date	= smartwoo_get_service_expiration_date( $service );
-
-		if ( $current_date === $expiration_date ) {
-			// Trigger the 'smartwoo_service_expired' action with the current service.
-			do_action( 'smartwoo_service_expired', $service );
-		}
-	}
-}
-
-
 
 /**
  * Get the price of a service
