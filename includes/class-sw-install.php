@@ -122,7 +122,6 @@ class SmartWoo_Install {
 		add_option( 'smartwoo_service_expiration_mail', 1 );
 		add_option( 'smartwoo_new_invoice_mail', 1 );
 		add_option( 'smartwoo_renewal_mail', 1 );
-		add_option( 'smartwoo_reactivation_mail', 1 );
 		add_option( 'smartwoo_invoice_paid_mail', 1 );
 		add_option( 'smartwoo_service_cancellation_mail_to_admin', 1 );
 		add_option( 'smartwoo_service_expiration_mail_to_admin', 1 );
