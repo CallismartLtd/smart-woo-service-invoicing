@@ -61,12 +61,12 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
         '{{product_id}}',
         '{{product_name}}',
         '{{product_price}}',
-        '{{bisnuess_name}}',
         '{{current_date}}',
         '{{status}}',
         '{{sender_mail}}',
         '{{business_name}}',
-        '{{prorata_status}}'
+        '{{prorata_status}}',
+        '{{expiry_date}}'
     );
 
     /**
@@ -92,7 +92,12 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
      * @param string $body Email body
      */
     public function set_object( $service, $body ) {
-        $this->service  = ( $service instanceof SmartWoo_Service ) ? $service : SmartWoo_Service_Database::get_service_by_id( $service );
+        if( is_array( $service ) ) {
+            $this->service = $service[0];
+        } else {
+            $this->service  = ( $service instanceof SmartWoo_Service ) ? $service : SmartWoo_Service_Database::get_service_by_id( $service );
+
+        }
         $this->body     = $body;
         if ( $this->service ) {
             $this->client = new WC_Customer( $this->service->get_user_id() );
@@ -182,8 +187,8 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
                 case '{{product_price}}':
                     $replace_values[$placeholder] = smartwoo_price( $this->service->get_pricing() );
                     break;
-                case '{{bisnuess_name}}':
-                    $replace_values[$placeholder] = get_option( 'smartwoo_business_name', get_bloginfo( 'name' ) );
+                case '{{expiry_date}}':
+                    $replace_values[$placeholder] = $this->service->get_expiry_date();
                     break;
                 case '{{current_date}}':
                     $replace_values[$placeholder] = smartwoo_check_and_format( current_time( 'mysql' ) );
