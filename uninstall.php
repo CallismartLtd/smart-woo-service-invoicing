@@ -47,7 +47,6 @@ delete_option( 'smartwoo_payment_reminder_to_client' );
 delete_option( 'smartwoo_service_expiration_mail' );
 delete_option( 'smartwoo_new_invoice_mail' );
 delete_option( 'smartwoo_renewal_mail' );
-delete_option( 'smartwoo_reactivation_mail' );
 delete_option( 'smartwoo_invoice_paid_mail' );
 delete_option( 'smartwoo_service_cancellation_mail_to_admin' );
 delete_option( 'smartwoo_service_expiration_mail_to_admin' );
