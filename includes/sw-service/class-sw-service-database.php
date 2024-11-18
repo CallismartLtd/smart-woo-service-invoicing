@@ -535,6 +535,29 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
+	 * Get services that are within expiry threshold.
+	 * 
+	 * @param int $page Current request page.
+	 * @param int $limit Current request limit
+	 */
+	public static function get_on_expiry_threshold( $page =  1, $limit = 10 ) {
+		global $wpdb;
+		$table_name = SMARTWOO_SERVICE_TABLE;
+
+		$offset 		= ( absint( $page ) - 1 ) * absint( $limit );
+
+		$query = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `end_date` >= CURDATE() AND `next_payment_date` < CURDATE() LIMIT %d OFFSET %d", $limit, $offset );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		$services = array();
+		if ( ! empty( $results ) ) {
+			$services = self::convert_results_to_services( $results );
+
+		}
+
+		return $services;
+	}
+
+	/**
 	 * Creates and saves a new service in the database.
 	 *
 	 * @param SmartWoo_Service $service The SmartWoo_Service object to be created and saved.
@@ -552,7 +575,7 @@ class SmartWoo_Service_Database {
 			'service_name'      => sanitize_text_field( $service->getServiceName() ),
 			'service_url'       => sanitize_url( $service->getServiceUrl(), array( 'http', 'https') ),
 			'service_type'      => sanitize_text_field( $service->getServiceType() ),
-			'service_id'        => sanitize_text_field( $service->getServiceId() ),
+			'service_id'        => sanitize_text_field( $service->get_service_id() ),
 			'invoice_id'        => sanitize_text_field( $service->getInvoiceId() ),
 			'start_date'        => sanitize_text_field( $service->getStartDate() ),
 			'end_date'          => sanitize_text_field( $service->getEndDate() ),
@@ -636,7 +659,7 @@ class SmartWoo_Service_Database {
 		);
 
 		$where = array(
-			'service_id' => sanitize_text_field( $service->getServiceId() ),
+			'service_id' => sanitize_text_field( $service->get_service_id() ),
 		);
 
 		$where_format = array(
@@ -644,8 +667,9 @@ class SmartWoo_Service_Database {
 		);
 
 		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		delete_transient( 'smartwoo_status_' . $service->getServiceId() );
-		wp_cache_delete( 'smartwoo_status_' . $service->getServiceId() );
+		delete_transient( 'smartwoo_print_expiry_notice_' . $service->get_id() );
+		delete_transient( 'smartwoo_status_' . $service->get_service_id() );
+		wp_cache_delete( 'smartwoo_status_' . $service->get_service_id() );
 		return $updated !== false;
 	}
 
