@@ -41,7 +41,6 @@ function smartwoo_save_email_options() {
 			'smartwoo_service_expiration_mail',
 			'smartwoo_new_invoice_mail',
 			'smartwoo_renewal_mail',
-			'smartwoo_reactivation_mail',
 			'smartwoo_invoice_paid_mail',
 			'smartwoo_service_cancellation_mail_to_admin',
 			'smartwoo_service_expiration_mail_to_admin',
@@ -408,7 +407,6 @@ function smartwoo_email_options() {
 		'smartwoo_service_expiration_mail',
 		'smartwoo_new_invoice_mail',
 		'smartwoo_renewal_mail',
-		'smartwoo_reactivation_mail',
 		'smartwoo_invoice_paid_mail',
 		'smartwoo_service_cancellation_mail_to_admin',
 		'smartwoo_service_expiration_mail_to_admin',
@@ -418,7 +416,7 @@ function smartwoo_email_options() {
 	?>
 	<div class="wrap">
 		<h1><span class="dashicons dashicons-email-alt"></span> Emails</h1>
-		<p><?php esc_html_e( 'If you notice emails are not being sent, consider setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
+		<p><span style="color: red;" class="dashicons dashicons-warning"></span><?php esc_html_e( 'If you notice emails are not being sent, consider setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
 		<form method="post" class="inv-settings-form">
 
 		<?php wp_nonce_field( 'sw_email_option_nonce', 'sw_email_option_nonce' ); ?>
