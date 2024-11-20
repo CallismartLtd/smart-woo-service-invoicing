@@ -13,10 +13,14 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * Check pdf invoice download request.
  */
 function smartwoo_invoice_download() {
+	if (  ! is_user_logged_in() ) {
+		return;
+	}
+	
 	if ( isset( $_GET['_sw_download_token'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_sw_download_token'] ) ), '_sw_download_token' ) ) {
 
 		// Get user ID and invoice ID url param
-		$user_id    = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
+		$user_id    = get_current_user_id();
 		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : '';
 
 		smartwoo_pdf_invoice_template( $invoice_id, $user_id );
@@ -25,12 +29,20 @@ function smartwoo_invoice_download() {
 
 add_action( 'sw_download_invoice', 'smartwoo_invoice_download' );
 
-
-function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0 ) {
-
-	if (  ! is_user_logged_in() ) {
-		return;
-	}
+/**
+ * Invoice PDF generation handler.
+ * 
+ * @param string $invoice_id 	The public Invoice ID.
+ * @param int $user_id			The user ID of the invoice owner.
+ * @param string $dest			The download destination. Possible values:
+ *                              I = inline: send the PDF to the browser for preview.
+ *                              D = download: send the PDF to the browser for download.
+ *                              F = file: save the PDF to a file (e.g., for email attachments).
+ *                              E = email: generate the PDF and return the file path for attachment.
+ * 
+ * @return string|void          File path for email ('E') or exits for inline/download ('I', 'D').
+ */
+function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' ) {
 
 	if ( 0 === $user_id ) {
 		$user_id = get_current_user_id();
@@ -39,7 +51,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0 ) {
 	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( ! $invoice || $user_id !== $invoice->getUserId() ) {
-		return;
+		wp_die( 'Invalid or deleted invoice.' );
 	}
 
 	$biller_details		= smartwoo_biller_details();
@@ -210,9 +222,22 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0 ) {
 	$pdf->WriteHTML( $spacer );
 	$pdf->Cell( 40, 10, 'Transaction ID: ' . $transaction_id . ' | Payment Method: ' . $payment_method . ' | Date Paid: ' . smartwoo_check_and_format( $transaction_date ) );
 
-	$file_name = $invoice_id . '.pdf';
-	$pdf->Output( $file_name, 'D' );
-	exit;
+    // Handle destination
+    $file_name = $invoice_id . '.pdf';
+    if ( 'D' === $dest ) {
+        $pdf->Output( $file_name, 'D' );
+        exit;
+    } elseif ( 'I' === $dest ) {
+        $pdf->Output( $file_name, 'I' );
+        exit;
+    } elseif ( 'F' === $dest || 'E' === $dest ) {
+        $file_path  = trailingslashit( SMARTWOO_UPLOAD_DIR ) . $file_name;
+        $pdf->Output( $file_path, 'F' );
+
+        if ( 'E' === $dest ) {
+            return $file_path; // Return the file path for email attachment
+        }
+    }
 	
 }
 
