@@ -689,7 +689,7 @@ final class SmartWoo {
             header( 'Content-Length: ' . $file_size );
             header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
             header( 'Pragma: public' );
-            header( 'Expires: 0' );
+            header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
 
             // Output the file content using WP_Filesystem
             $file_content = $wp_filesystem->get_contents( $file );
@@ -1492,7 +1492,7 @@ final class SmartWoo {
             $invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
             if ( empty( $invoice ) ) {
-                wp_die( 'Invalid or deleted invoice' );
+                wp_die( 'Invalid or deleted invoice.' );
             }
 
             smartwoo_pdf_invoice_template( $invoice_id, $invoice->getUserId() );
