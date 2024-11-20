@@ -98,7 +98,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$pdf = new \Mpdf\Mpdf();
 	$pdf->AddPage();
 	$spacer = '<br><br><br>';
-	// Write the invoice logo and other elements before rotating the status
+	
 	$invoice_header = '
 	<!-- Header Section -->
 	<div style="display: flex; justify-content: space-between; align-items: center; margin: 5px; position: relative;">
@@ -109,20 +109,15 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 
 	// Write the header first.
 	$pdf->WriteHTML( $invoice_header );
+	$pdf->SetXY(150, 0);
 
-	// Set the position where you want the status to appear (right corner)
-	$pdf->SetXY(150, 0); // Adjust X and Y based on your layout needs
-
-	// Rotate the status text by 40 degrees counterclockwise
+	// Rotate the status text by 40 degrees counterclockwise.
 	$pdf->Rotate(-40, -1, -35);
-	$pdf->SetFont('Arial', 'B', 20); // Set the font, style, and size for the status text
-	$pdf->SetTextColor(0, 0, 0); // Set text color to black
-	$pdf->SetFillColor(241, 241, 241); // Set background color to Anti-Flash White.
+	$pdf->SetFont('Arial', 'B', 20);
+	$pdf->SetTextColor(0, 0, 0);
+	$pdf->SetFillColor(241, 241, 241);
 
-	// Increase the width from 50 to, for example, 80 to make the background color wider
-	$pdf->Cell(119, 10, ucfirst( $invoice_status ), 0, 1, 'C', true); // Output status text with red background
-
-	// Reset rotation after rotating the status
+	$pdf->Cell(119, 10, ucfirst( $invoice_status ), 0, 1, 'C', true); 
 	$pdf->Rotate(0);
 
 	$pdf->WriteHTML( $spacer );
@@ -222,7 +217,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$pdf->WriteHTML( $spacer );
 	$pdf->Cell( 40, 10, 'Transaction ID: ' . $transaction_id . ' | Payment Method: ' . $payment_method . ' | Date Paid: ' . smartwoo_check_and_format( $transaction_date ) );
 
-    // Handle destination
+    // Handle destination.
     $file_name = $invoice_id . '.pdf';
     if ( 'D' === $dest ) {
         $pdf->Output( $file_name, 'D' );
@@ -235,7 +230,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
         $pdf->Output( $file_path, 'F' );
 
         if ( 'E' === $dest ) {
-            return $file_path; // Return the file path for email attachment
+            return $file_path; // Return the file path for email attachment.
         }
     }
 	
