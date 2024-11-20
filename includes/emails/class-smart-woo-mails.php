@@ -100,7 +100,7 @@ class SmartWoo_Mail {
      */
     public function set_headers() {
         $this->headers = array(
-            'Content-Type: text/html; charset=UTF-8',
+            'Content-Type: text/html; charset=' . get_bloginfo( 'charset' ),
 			'From: ' . esc_html( $this->sender_name ) . ' <' . esc_html( $this->sender_email ) . '>',
         );
     }
