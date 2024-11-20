@@ -561,7 +561,6 @@ class SmartWoo_Invoice {
 					array(
 						'smartwoo_action'	=> 'sw_download_invoice',
 						'invoice_id'		=> $this->getInvoiceId(),
-						'user_id'			=> get_current_user_id(),
 					),
 					get_permalink()
 				),
