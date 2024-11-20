@@ -48,6 +48,7 @@ class SmartWoo_Config{
         define( 'SMARTWOO_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
         define( 'SMARTWOO_ASSETS_TABLE', $wpdb->prefix . 'sw_assets' );
         define( 'SMARTWOO_PLUGIN_BASENAME', plugin_basename( SMARTWOO_FILE ) );
+        define( 'SMARTWOO_UPLOAD_DIR', trailingslashit( wp_upload_dir()['basedir'] ) . 'smartwoo-uploads' );
         $this->init();
     }
 
@@ -187,7 +188,6 @@ class SmartWoo_Config{
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_styles' ), 22 );
         add_action( 'admin_enqueue_scripts', array( $this, 'load_styles' ), 22 );
-      
     }
 
     /**
