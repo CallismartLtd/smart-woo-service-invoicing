@@ -202,7 +202,7 @@ class SmartWoo_Install {
 			
         }
     
-        $upload_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'smartwoo-uploads';
+        $upload_dir = SMARTWOO_UPLOAD_DIR;
     
         if ( ! $wp_filesystem->is_dir( $upload_dir ) ) {
             if ( ! $wp_filesystem->mkdir( $upload_dir, 0755 ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
