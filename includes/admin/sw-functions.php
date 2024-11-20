@@ -957,8 +957,6 @@ function smartwoo_set_document_title( $title ) {
 
     // Combine title and site name with the separator
     $final_title   = implode( " $sep ", array_filter( $title_parts ) );
-
-    // Output the script safely in the footer
     ?>
     <script>
         document.addEventListener( "DOMContentLoaded", function() {
