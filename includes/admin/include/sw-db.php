@@ -199,6 +199,7 @@ function smartwoo_2012_update_service_count() {
 function smartwoo_220_mail_option_update() {
 	wp_clear_scheduled_hook( 'smartwoo_5_minutes_task' );
 	delete_option( 'smartwoo_reactivation_mail' );
+	SmartWoo_Install::create_upload_dir();
 	$options = array(
 		''
 	);
