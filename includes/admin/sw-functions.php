@@ -697,7 +697,9 @@ function smartwoo_allowed_form_html() {
 			'class'		=> true,
 			'id'		=> true,
 			'smartwoo-product-id' => true,
-			'target'	=> true
+			'target'	=> true,
+			'title'		=> true,
+			'style'		=> true
 		),
         'h1'		=> array(),
 		'h2'		=> array(),
