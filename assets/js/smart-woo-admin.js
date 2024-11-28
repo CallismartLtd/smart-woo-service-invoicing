@@ -643,23 +643,70 @@ function smartwooDeleteService(serviceId) {
 
 }
 
+/**
+ * Fetch pro feature template
+ */
+function smartwoo_pro_ad(title, message) {
+    let initDiv = document.querySelector('.sw-pro-div');
+    if (initDiv) {
+        initDiv.remove();
+    }
+
+    let mainDiv         = document.querySelector('.inv-settings-form');
+    let proDiv          = document.createElement('div');
+    proDiv.classList.add('sw-pro-div');
+    let close           = document.createElement('span');
+    close.classList.add('dashicons', 'dashicons-remove');
+    close.style.position   = 'absolute';
+    close.style.right   = '5px';
+    close.style.top   = '2px';
+    close.style.color   = 'red';
+    close.style.cursor   = 'pointer';
+    let h2              = document.createElement('h2');
+    h2.textContent      = title;
+    let bodyDiv         = document.createElement('div');
+    bodyDiv.classList.add('sw-pro-body');
+    bodyDiv.innerHTML   = message;
+    let actionBtn    = document.createElement('span');
+    actionBtn.classList.add('sw-pro-action-btn');
+    actionBtn.textContent = 'Get Pro Now';
+
+    proDiv.append(h2);
+    proDiv.append(close);
+    proDiv.append(bodyDiv);
+    proDiv.append(actionBtn);
+    mainDiv.prepend(proDiv);
+    jQuery(proDiv).fadeIn('slow').css('display', 'flex');
+
+    close.addEventListener('click', ()=>{
+        proDiv.remove();
+    });
+
+    actionBtn.addEventListener('click', ()=>{
+        window.open(smartwoo_admin_vars.smartwoo_pro_page, '_blank');
+    });
+
+
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    let contentDiv = document.querySelector('.sw-dash-content-container');
-    let skeletonContent = document.querySelectorAll('.sw-dash-content');
-    let ordersBtn = document.getElementById('dashOrderBtn');
-    let addNewBtn = document.getElementById('dashAddNew');
-    let invoicesBtn = document.getElementById('dashInvoicesBtn');
-    let productsBtn = document.getElementById('dashProductBtn');
-    let settingsBtn = document.getElementById('dashSettingsBtn');
-    let proBtn = document.querySelector('.sw-upgrade-to-pro');
-    let searchField = document.getElementById('sw_service_search');
-    let searchbtn = document.getElementById('swSearchBtn');
+    let contentDiv          = document.querySelector('.sw-dash-content-container');
+    let skeletonContent     = document.querySelectorAll('.sw-dash-content');
+    let ordersBtn           = document.getElementById('dashOrderBtn');
+    let addNewBtn           = document.getElementById('dashAddNew');
+    let invoicesBtn         = document.getElementById('dashInvoicesBtn');
+    let productsBtn         = document.getElementById('dashProductBtn');
+    let settingsBtn         = document.getElementById('dashSettingsBtn');
+    let proBtn              = document.querySelector('.sw-upgrade-to-pro');
+    let searchField         = document.getElementById('sw_service_search');
+    let searchbtn           = document.getElementById('swSearchBtn');
     const notificationTooltip = document.getElementById('search-notification');
-    let menuButton = document.querySelector('.sw-admin-menu-icon');
-    let deleteInvoiceBtns = document.querySelectorAll('.delete-invoice-button');
-    let deleteProductIds = document.querySelectorAll('.sw-delete-product' );
-    let deleteServiceBtn = document.querySelector('.delete-service-button');
-    let adminDashHeader = document.querySelector('.sw-admin-dash-header');
+    let menuButton          = document.querySelector('.sw-admin-menu-icon');
+    let deleteInvoiceBtns   = document.querySelectorAll('.delete-invoice-button');
+    let deleteProductIds    = document.querySelectorAll('.sw-delete-product' );
+    let deleteServiceBtn    = document.querySelector('.delete-service-button');
+    let adminDashHeader     = document.querySelector('.sw-admin-dash-header');
+    let editMailBtns        = document.querySelectorAll('.sw-edit-mail-nopro');
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -718,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (proBtn) {
         proBtn.addEventListener('click', ()=>{
-            window.open(smartwoo_admin_vars.smartwoo_plugin_page, '_blank');
+            window.open(smartwoo_admin_vars.smartwoo_pro_page, '_blank');
         });
     }
 
@@ -831,6 +878,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             }
         });
+    }
+
+    if (editMailBtns) {
+        editMailBtns.forEach((editMailBtn)=>{
+            editMailBtn.addEventListener('click', ()=>{
+                console.log('Pro not installed');
+                smartwoo_pro_ad('Email Template Edit', 'Email template editing is exclusively available in Smart Woo Pro');
+            });
+        });
+
     }
 
 });
