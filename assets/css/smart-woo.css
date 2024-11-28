@@ -127,6 +127,10 @@ use inline CSS to overide some styles
 	cursor: pointer;
 }
 
+.sw-icon-button-admin.sw-not-allowed {
+    cursor: not-allowed;
+}
+
 /************** Button CSS Ends here******************/
 
 /* Service Product form goes here*/
