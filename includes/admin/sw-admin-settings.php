@@ -398,6 +398,8 @@ function smartwoo_email_options() {
 	$billing_email = get_option( 'smartwoo_billing_email' );
 	$sender_name   = get_option( 'smartwoo_email_sender_name' );
 	$email_image   = get_option( 'smartwoo_email_image_header' );
+	$pro_installed = class_exists( 'SmartWoo_Pro', false );
+
 
 	// Define an array of checkbox names
 	$checkboxes = apply_filters( 'smartwoo_mail_options', array(
@@ -452,7 +454,12 @@ function smartwoo_email_options() {
 					</label>
 					<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
 					<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
-				</div>
+					<?php if ( 'smartwoo_service_expiration_mail_to_admin' !== $checkbox_name ): ?>
+						<a title="Edit template" class="sw-icon-button-admin <?php echo ( $pro_installed ) ? 'sw-edit-mail' : 'sw-edit-mail-nopro' ?>"><span class="dashicons dashicons-edit"></span></a>
+					<?php else: ?>
+						<a class="sw-icon-button-admin sw-not-allowed"><span class="dashicons dashicons-edit"></span></a>
+					<?php endif; ?>
+						</div>
 				<hr>
 			<?php endforeach; ?>
 			<?php echo wp_kses_post( smartwoo_pro_feature( 'more-email-options' ) ) ;?>
