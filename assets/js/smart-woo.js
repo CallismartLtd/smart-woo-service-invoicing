@@ -142,21 +142,24 @@ jQuery( document ).ready(
 
 /**
  * Quick Action button on Service page
- *
- * @param {*} serviceName
- * @returns
  */
-
 document.addEventListener( 'DOMContentLoaded', function() {
-    var quickActionButton = document.getElementById( 'sw-service-quick-action' );
+    let quickActionButton = document.getElementById( 'sw-service-quick-action' );
+	let forgotPwdBtn = document.getElementById('sw-forgot-pwd-btn')
 
     if ( quickActionButton ) {
         quickActionButton.addEventListener( 'click', function() {
-            var serviceName = quickActionButton.dataset.serviceName;
-            var serviceId   = quickActionButton.dataset.serviceId;
+            let serviceName = quickActionButton.dataset.serviceName;
+            let serviceId   = quickActionButton.dataset.serviceId;
             openCancelServiceDialog( serviceName, serviceId );
         });
     }
+
+	if ( forgotPwdBtn ) {
+		forgotPwdBtn.addEventListener('click', ()=>{
+
+		});
+	}
 });
 
 function openCancelServiceDialog( serviceName, serviceId ) {
@@ -387,10 +390,26 @@ function loadBillingDetails() {
  * Event Listener for my details button
  */
 document.addEventListener('DOMContentLoaded', function() {
-	var detailsButton = document.getElementById( 'sw-load-user-details' );
+	let detailsButton = document.getElementById( 'sw-load-user-details' );
 	if ( detailsButton ) {
 		detailsButton.addEventListener( 'click', function() {
 			loadMyDetails();
+		});
+	}
+
+	let accountLogButton = document.getElementById( 'sw-account-log' );
+
+    if ( accountLogButton ) {
+        accountLogButton.addEventListener( 'click', function() {
+            loadAccountLogs();
+        });
+    }
+
+	let trButton = document.getElementById('sw-load-transaction-history');
+
+	if (trButton) {
+		trButton.addEventListener('click', function () {
+			loadTransactionHistory();
 		});
 	}
 });
@@ -435,18 +454,6 @@ function loadMyDetails() {
 	);
 }
 
-/**
- * Event listener for account log button
- */
-document.addEventListener( 'DOMContentLoaded', function() {
-    var accountLogButton = document.getElementById( 'sw-account-log' );
-
-    if ( accountLogButton ) {
-        accountLogButton.addEventListener( 'click', function() {
-            loadAccountLogs();
-        });
-    }
-});
 
 /**
  * Show a modal for account logs.
@@ -475,19 +482,6 @@ function loadAccountLogs() {
 		}
 	);
 }
-
-/**
- * Event listener for transaction history
- */
-document.addEventListener('DOMContentLoaded', function() {
-	var trButton = document.getElementById('sw-load-transaction-history');
-
-	if (trButton) {
-		trButton.addEventListener('click', function () {
-			loadTransactionHistory();
-		});
-	}
-});
 
 /**
  * Show a modal for transaction history.
