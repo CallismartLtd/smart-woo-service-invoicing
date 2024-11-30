@@ -674,6 +674,7 @@ function smartwoo_allowed_form_html() {
         'label'		=> array(
             'for'		=> true,
             'class'		=> true,
+            'style'		=> true,
         ),
         'span'		=> array(
             'class'		=> true,
@@ -699,7 +700,8 @@ function smartwoo_allowed_form_html() {
 			'smartwoo-product-id' => true,
 			'target'	=> true,
 			'title'		=> true,
-			'style'		=> true
+			'style'		=> true,
+			'tempname'	=> true
 		),
         'h1'		=> array(),
 		'h2'		=> array(),
@@ -859,7 +861,11 @@ function smartwoo_login_form( $options ) {
 	$form .= '<input type="hidden" name="action" value="smartwoo_login_form" />';
 	$form .= '<input type="hidden" name="redirect" value="' . esc_url( $parsed_args['redirect'] ) . '" />';
 	$form .= '<input type="hidden" name="referer" value="' . esc_url( wp_get_referer() ) . '" />';
+	$form .= '<div style="display:flex; flex-direction: row; justify-content: space-between;">';
+	$form .= '';
+	$form .= '<label style="margin-left:10px;" for="remember_me"> <input id="remember_me" type="checkbox" name="remember_me"/> Remember Me</label>';
 	$form .= '<button type="submit" class="sw-blue-button">' . apply_filters( 'smartwoo_login_button_text', __( 'login', 'smart-woo-service-invoicing' ) ) . '</button>';
+	$form .= '</div>';
 	$form .= '</div>';
 	$form .= '</form>';
 
