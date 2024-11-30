@@ -185,8 +185,7 @@ function smartwoo_options_page() {
 			 * NB: All html returned by the output
 			 * function are properly escaped.
 			 */
-			$output = smartwoo_email_options();
-			echo wp_kses( $output, smartwoo_allowed_form_html() );
+			smartwoo_email_options();
 			break;
 
 		case 'advanced':
