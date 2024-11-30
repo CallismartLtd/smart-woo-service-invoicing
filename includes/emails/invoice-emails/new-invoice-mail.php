@@ -19,13 +19,19 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
     protected $invoice;
 
     /**
+     * Static instance
+     * 
+     * @var SmartWoo_New_Invoice_Mail $instance
+     */
+    public static $instance = null;
+
+    /**
      * Class constructor
      */
     public function __construct( $invoice ) {
-        $this->invoice = $invoice;
-
-        parent::__construct( 'New Invoice', $this->get_template(), $invoice );
-
+        $this->invoice  = $invoice;
+        self::$instance = $this;
+        parent::__construct( 'New Invoice', self::$instance->get_template(), $invoice );
     }
 
     /**
@@ -48,14 +54,14 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
     /**
      * Default email template
      */
-    public function get_template() {
+    public static function get_template() {
         $message  = '<h1>New invoice "{{invoice_id}}"</h1>';
 		$message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
 		$message .= '<p>New invoice has been generated for you</p>';
         $message .= '<p>Status: {{invoice_status}}</p>';
         $message .= '<p>Due On: {{invoice_date_due}}</p>';
         $message .= '<p>Invoice Date: {{invoice_date_created}}</p>';
-        if ( 'paid' === $this->invoice->get_status() ) {
+        if ( 'paid' === self::$instance->invoice->get_status() ) {
             $message .= '<p>Date Paid: {{invoice_date_paid}}</p>';
 
         }
@@ -66,7 +72,7 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
         $message .= '{{invoice_items}}';
         $message .= '<li>Total: {{invoice_total}}</li>';
         $message .= '</ul>';
-        if ( 'unpaid' === $this->invoice->get_status() ) {
+        if ( 'unpaid' === self::$instance->invoice->get_status() ) {
 
             $message .= '<p>To proceed with the payment, please click the button below:</p>';
             $message .= '<p><a class="button" href="{{auto_login_payment_link}}">Pay Now</a></p>';
@@ -76,7 +82,7 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
 
         }
 		
-        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, $this );
+        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, self::$instance );
         return $template;
     }
 }
