@@ -19,12 +19,19 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
     protected $invoice;
 
     /**
+     * Static instance
+     * 
+     * @var SmartWoo_Invoice_Payment_Reminder $instance
+     */
+    public static $instance = null;
+
+    /**
      * Class constructor
      */
     public function __construct( $invoice ) {
         $this->invoice = $invoice;
-
-        parent::__construct( 'Payment Reminder', $this->get_template(), $invoice );
+        self::$instance = $this;
+        parent::__construct( 'Payment Reminder', self::get_template(), $invoice );
 
     }
 
@@ -48,12 +55,12 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
     /**
      * Default email template for payment reminder
      */
-    public function get_template() {
+    public static function get_template() {
         $message  = '<h1>Important: Unpaid Invoice Reminder for "{{invoice_id}}"</h1>';
         $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
         $message .= '<p>We hope this email finds you well. We would like to bring to your attention an outstanding invoice associated with your account.</p>';
         
-        if ( ! empty( $this->invoice->get_service_id() ) ){
+        if ( ! empty( self::$instance->invoice->get_service_id() ) ){
             $message .= '<p>To maintain uninterrupted service and avoid potential late fees, we kindly request your prompt attention to this matter.</p>';
         }
         $message .= '<p>Invoice Details:</p>';
@@ -67,7 +74,7 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
         $message .= '<a href="{{auto_login_payment_link}}">{{auto_login_payment_link}}</a>';
         $message .= '<p>Please note: This link will expire in 24 hours. After that, you may need to log into your account manually to make the payment.</p>';
 
-        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, $this );
+        $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, self::$instance );
         return $template;
     }
 }
