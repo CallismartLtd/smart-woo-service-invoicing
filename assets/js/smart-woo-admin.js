@@ -685,8 +685,6 @@ function smartwoo_pro_ad(title, message) {
     actionBtn.addEventListener('click', ()=>{
         window.open(smartwoo_admin_vars.smartwoo_pro_page, '_blank');
     });
-
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -883,7 +881,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editMailBtns) {
         editMailBtns.forEach((editMailBtn)=>{
             editMailBtn.addEventListener('click', ()=>{
-                console.log('Pro not installed');
                 smartwoo_pro_ad('Email Template Edit', 'Email template editing is exclusively available in Smart Woo Pro');
             });
         });
