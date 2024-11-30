@@ -24,11 +24,17 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     private $context = 'admin';
 
     /**
+     * Static instance
+     */
+    public static $instance = null;
+
+    /**
      * Class constructor
      */
     public function __construct( $service, $context = 'admin' ) {
-        $this->service = $service;
-        $this->context = $context;
+        $this->service  = $service;
+        $this->context  = $context;
+        self::$instance = $this;
 
         parent::__construct( 'Service Cancellation Confirmation', $this->get_template(), $service );
 
@@ -73,18 +79,20 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     /**
      * Default email template
      */
-    public function get_template() {
-        if ( 'user' === $this->context ) {
-            return $this->user_mail_template();
+    public static function get_template( $context = '' ) {
+        $context = empty( $context ) ? self::$instance->context : $context;
+
+        if ( 'user' === $context ) {
+            return self::user_mail_template( self::$instance );
         } else {
-            return $this->admin_mail_template();
+            return self::admin_mail_template( self::$instance );
         }
     }
 
     /**
      * User Email template
      */
-    public function user_mail_template() {
+    public static function user_mail_template( $self ) {
         $message  = '<h1>Service Cancellation Confirmation</h1>';
 		$message .= '<p><strong>Dear {{client_fullname}}</strong>,</p>';
 		$message .= '<p>We regret to inform you that your service with {{business_name}} has been cancelled as requested. We appreciate your past support and patronage.</p>';
@@ -98,13 +106,13 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 		$message .= '<p>Kindly note that our refund policy and terms of service apply to this cancellation.</p>';
 
-        return apply_filters( 'smartwoo_user_cancelled_service_mail_template', $message, $this );
+        return apply_filters( 'smartwoo_user_cancelled_service_mail_template', $message, $self );
     }
 
     /**
      * Admin mail template
      */
-    public function admin_mail_template() {
+    public static function admin_mail_template( $self ) {
 		$message  = '<h1>Service Cancellation</h1>';
 		$message .= '<p>Hi, <strong>{{client_fullname}}</strong> has cancelled their service. Find details below.</p>';
 		$message .= '<h3>Service Details</h3>';
@@ -126,7 +134,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 		$message .= '<p>Client Email: {{client_billing_email}}</p>';
 		$message .= '<p>Address: {{client_billing_address}}</p>';
 		$message .= '</div>';
-        return apply_filters( 'smartwoo_admin_cancelled_service_mail_template', $message, $this );
+        return apply_filters( 'smartwoo_admin_cancelled_service_mail_template', $message, $self );
     }
 
 }
