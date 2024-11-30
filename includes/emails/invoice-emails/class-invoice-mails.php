@@ -109,7 +109,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
      * Invoice Email attachement
      * @filters Allows to add attachment to email
      *              @param string[] $attachments
-     *              @param SmartWoo_Invoice
+     *              @param SmartWoo_Invoice $invoice
      */
     public function attachments() {
         return apply_filters( 'smartwoo_invoice_email_attachments', [], $this->invoice );
