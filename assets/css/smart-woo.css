@@ -1406,6 +1406,12 @@ font-weight: 100;
 	width: 100%;
 }
 
+.smartwoo-login-form-notice a {
+	color: #0073e6;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
 .smartwoo-login-form-body {
 	position:relative;
 	display: flex;
