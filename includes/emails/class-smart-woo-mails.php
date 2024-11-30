@@ -273,9 +273,12 @@ class SmartWoo_Mail {
         $message   .= $this->get_body();
         $message   .= $this->get_footer();
         $headers    = $this->headers;
+        $attachments = $this->attachments;
 
         if ( apply_filters( 'smartwoo_send_mail', true ) ) {
-            wp_mail( $to, $subject, $message, $headers, $this->attachments );
+            if ( wp_mail( $to, $subject, $message, $headers, $attachments ) ) {
+                do_action( 'smartwoo_mail_sent', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) );
+            }
         }
     }
 
