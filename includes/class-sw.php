@@ -278,7 +278,13 @@ final class SmartWoo {
             $user = wp_signon( $credentials, false );
 
             if ( is_wp_error( $user ) ) {
-                set_transient( 'smartwoo_login_error', $user->get_error_message(), 15 );
+                if ( 'incorrect_password' === $user->get_error_code() ) {
+                    $message = 'Error: The password you entered for the username ' . sanitize_text_field( wp_unslash( $_POST['user_login'] ) ) . ' is incorrect. <a id="sw-forgot-pwd-btn">Forgot password?</a>';
+                    set_transient( 'smartwoo_login_error', $message, 15 );
+                } else {
+                    set_transient( 'smartwoo_login_error', $user->get_error_message(), 15 );
+                }
+
                 wp_redirect( esc_url_raw( wp_get_referer() ) );
                 exit;
 
