@@ -61,26 +61,13 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
         $message .= '<p>Status: {{invoice_status}}</p>';
         $message .= '<p>Due On: {{invoice_date_due}}</p>';
         $message .= '<p>Invoice Date: {{invoice_date_created}}</p>';
-        if ( 'paid' === self::$instance->invoice->get_status() ) {
-            $message .= '<p>Date Paid: {{invoice_date_paid}}</p>';
-
-        }
-
+        
         $message .= '<br><h3>Invoice Details</h3>';
         $message .= '<ul>';
         $message .= '<li>Invoice ID: {{invoice_id}}</li>';
         $message .= '{{invoice_items}}';
         $message .= '<li>Total: {{invoice_total}}</li>';
         $message .= '</ul>';
-        if ( 'unpaid' === self::$instance->invoice->get_status() ) {
-
-            $message .= '<p>To proceed with the payment, please click the button below:</p>';
-            $message .= '<p><a class="button" href="{{auto_login_payment_link}}">Pay Now</a></p>';
-            $message .= '<p>If the button above is not working, you can use the following link to make the payment:</p>';
-            $message .= '<p><strong>{{auto_login_payment_link}}</strong></p>';
-            $message .= '<p>Please note: the above link will expire after 24hrs, you may need to log into your account manually when it expires</p>';
-
-        }
 		
         $template = apply_filters( 'smartwoo_new_invoice_mail_template', $message, self::$instance );
         return $template;
