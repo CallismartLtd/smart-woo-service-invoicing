@@ -19,12 +19,20 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
     protected $service;
 
     /**
+     * Class instance
+     * 
+     * @var SmartWoo_Service_Optout_Mail $instance
+     */
+    public static $instance = null;
+
+    /**
      * Class constructor
      */
     public function __construct( $service ) {
-        $this->service = $service;
+        $this->service  = $service;
+        self::$instance = $this;
 
-        parent::__construct( 'Auto Renewal Disabled', $this->get_template(), $service );
+        parent::__construct( 'Auto Renewal Disabled', self::get_template(), $service );
 
     }
 
@@ -55,7 +63,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
     /**
      * Default email template
      */
-    public function get_template() {
+    public static function get_template() {
         $message  = '<h1>Auto Renewal for "{{service_name}}" has been disabled</h1>';
 		$message .= '<p><strong>Dear {{client_fullname}}</strong>,</p>';
 		$message .= '<p>You have successfully opted out of auto renewal for the service "{{service_name}}". The service is currently "<strong>{{status}}</strong>" and will "<strong>Not Renew</strong>" at the end of the billing cycle.</p>';
@@ -68,7 +76,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
         $message .= '</ul><br>';
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_service_optout_mail_template', $message, $this );
+        return apply_filters( 'smartwoo_service_optout_mail_template', $message, self::$instance );
     }
 
 }
