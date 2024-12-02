@@ -207,6 +207,38 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
     }
 
     /**
+     * Get placeholder descriptions
+     * 
+     * @return array $data Associative array of placeholder => description
+     */
+    public static function get_placeholders_decription() {
+        return array(
+            '{{client_firstname}}'          => 'Client\'s first name',
+            '{{client_lastname}}'           => 'Client\'s last name',
+            '{{client_fullname}}'           => 'Client\'s full name',
+            '{{client_billing_address}}'    => 'Client\'s billing address',
+            '{{invoice_id}}'                => 'Unique identifier of the invoice',
+            '{{invoice_type}}'              => 'Type of invoice (e.g., service or product)',
+            '{{invoice_date_created}}'      => 'Date when the invoice was created',
+            '{{invoice_date_paid}}'         => 'Date when the invoice was paid',
+            '{{invoice_date_due}}'          => 'Due date for the invoice payment',
+            '{{invoice_status}}'            => 'Current status of the invoice (e.g., paid, unpaid)',
+            '{{invoice_total}}'             => 'Total amount of the invoice',
+            '{{order_id}}'                  => 'Order ID associated with the invoice',
+            '{{product_id}}'                => 'Product ID related to the invoice',
+            '{{service_id}}'                => 'Service ID related to the invoice',
+            '{{amount}}'                    => 'Amount charged in the invoice',
+            '{{fee}}'                       => 'Additional fees applied to the invoice',
+            '{{payment_gateway}}'           => 'Payment gateway used for the transaction',
+            '{{transaction_id}}'            => 'Transaction ID generated for the payment',
+            '{{auto_login_payment_link}}'   => 'Login-free payment link for the client',
+            '{{payment_link}}'              => 'Payment link for the invoice',
+            '{{invoice_items}}'             => 'List of items included in the invoice'
+        );
+        
+    }
+
+    /**
      * Get email placeholders
      */
     public static function get_placeholders() {
