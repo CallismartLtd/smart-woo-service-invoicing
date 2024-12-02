@@ -60,9 +60,6 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
         $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
         $message .= '<p>We hope this email finds you well. We would like to bring to your attention an outstanding invoice associated with your account.</p>';
         
-        if ( ! empty( self::$instance->invoice->get_service_id() ) ){
-            $message .= '<p>To maintain uninterrupted service and avoid potential late fees, we kindly request your prompt attention to this matter.</p>';
-        }
         $message .= '<p>Invoice Details:</p>';
         $message .= '<ul>';
         $message .= '<li>Balance Due: {{invoice_total}}</li>';
