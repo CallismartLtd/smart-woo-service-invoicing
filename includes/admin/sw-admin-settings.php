@@ -393,6 +393,14 @@ function smartwoo_email_options() {
 		return;
 	}
 
+	$action = isset( $_GET['section'] ) ? sanitize_text_field( wp_unslash( $_GET['section'] ) ): '';
+	$action = 'smartwoo_email_option_' . $action . '_section';
+
+	if ( has_action( $action ) ) {
+		do_action( $action );
+		return;
+	}
+
 	smartwoo_save_email_options();
 	$billing_email = get_option( 'smartwoo_billing_email' );
 	$sender_name   = get_option( 'smartwoo_email_sender_name' );
@@ -402,14 +410,14 @@ function smartwoo_email_options() {
 
 	// Define an array of checkbox names
 	$checkboxes = apply_filters( 'smartwoo_mail_options', array(
-		'smartwoo_cancellation_mail_to_user',
-		'smartwoo_service_opt_out_mail',
-		'smartwoo_payment_reminder_to_client',
-		'smartwoo_service_expiration_mail',
 		'smartwoo_new_invoice_mail',
-		'smartwoo_renewal_mail',
+		'smartwoo_payment_reminder_to_client',
 		'smartwoo_invoice_paid_mail',
+		'smartwoo_renewal_mail',
+		'smartwoo_service_opt_out_mail',
+		'smartwoo_cancellation_mail_to_user',
 		'smartwoo_service_cancellation_mail_to_admin',
+		'smartwoo_service_expiration_mail',
 		'smartwoo_service_expiration_mail_to_admin',
 	) );
 
@@ -452,12 +460,13 @@ function smartwoo_email_options() {
 					<label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
 						<?php echo esc_html( ucwords( str_replace( array( '_', 'smartwoo' ), ' ', $checkbox_name ) ) ); ?>
 					</label>
-					<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
-					<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
+					<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input sw-checkboxes" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
 					<?php if ( ! in_array( $checkbox_name, $not_editables, true ) ): ?>
+						<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
 						<a tempname="<?php echo esc_attr( $checkbox_name ); ?>" title="Edit template" class="sw-icon-button-admin <?php echo ( $pro_installed ) ? 'sw-edit-mail' : 'sw-edit-mail-nopro' ?>"><span class="dashicons dashicons-edit"></span></a>
-					<?php else: ?>
-						<a class="sw-icon-button-admin sw-not-allowed"><span class="dashicons dashicons-edit"></span></a>
+					<?php elseif ( 'smartwoo_service_expiration_mail_to_admin' === $checkbox_name ): ?>
+						<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
+
 					<?php endif; ?>
 				</div>
 				<hr>
