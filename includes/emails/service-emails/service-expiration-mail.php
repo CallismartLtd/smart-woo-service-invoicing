@@ -31,6 +31,13 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
     private $context = 'admin';
 
     /**
+     * Class instance
+     * 
+     * @var SmartWoo_Service_Expiration_Mail $instance
+     */
+    public static $instance = null;
+
+    /**
      * Class constructor
      */
     public function __construct( $service, $context = 'admin' ) {
@@ -42,8 +49,9 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
 
         }
         $this->context = $context;
+        self::$instance = $this;
 
-        parent::__construct( 'Service Expiration Notification', $this->get_template(), $service );
+        parent::__construct( 'Service Expiration Notification', self::get_template(), $service );
 
     }
 
@@ -112,18 +120,21 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
     /**
      * Default email template
      */
-    public function get_template() {
-        if ( 'user' === $this->context ) {
-            return $this->user_mail_template();
+    public static function get_template( $context = '' ) {
+        if ( empty( $context ) ) {
+            $context = self::$instance->context;
+        }
+        if ( 'user' === $context ) {
+            return self::user_mail_template();
         } else {
-            return $this->admin_mail_template();
+            return self::$instance->admin_mail_template();
         }
     }
 
     /**
      * User email template
      */
-    public function user_mail_template() {
+    public static function user_mail_template() {
         $message  = '<h1>Service Expiration Notification</h1>';
         $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
         $message .= '<p>Your service "{{service_name}}" has expired due to the end of the "{{billing_cycle}}" billing cycle. Unfortunately, no renewal action was taken in time.</p>';
@@ -138,7 +149,7 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
 
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_user_service_expiration_mail_template', $message, $this );
+        return apply_filters( 'smartwoo_user_service_expiration_mail_template', $message, self::$instance );
     }
 
     /**
