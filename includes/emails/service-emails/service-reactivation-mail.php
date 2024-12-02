@@ -16,6 +16,13 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
     protected $service;
 
     /**
+     * Static instance
+     * 
+     * @var SmartWoo_Service_Reactivation_Mail $instance
+     */
+    public static $instance = null;
+
+    /**
      * Class constructor
      * 
      * @param SmartWoo_Service $service
@@ -23,7 +30,7 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
     public function __construct( $service ) {
         $this->service = $service;
 
-        parent::__construct( $this->get_subject(), $this->get_template(), $service );
+        parent::__construct( $this->get_subject(), self::get_template(), $service );
     }
 
     /**
@@ -44,7 +51,7 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
     /**
      * Get the email template
      */
-    public function get_template() {
+    public static function get_template() {
         $message  = '<h1>{{service_name}} has been renewed</h1>';
 		$message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
 		$message .= '<p>Your service "{{service_name}}"  with {{business_name}} has successfully been renewed.</p>';
@@ -59,7 +66,7 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
 		$message .= '</ul>';
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_service_reactivation_mail_template', $message, $this );
+        return apply_filters( 'smartwoo_service_reactivation_mail_template', $message, self::$instance );
     }
 
     /**
