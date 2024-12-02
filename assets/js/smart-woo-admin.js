@@ -657,6 +657,7 @@ function smartwoo_pro_ad(title, message) {
     proDiv.classList.add('sw-pro-div');
     let close           = document.createElement('span');
     close.classList.add('dashicons', 'dashicons-remove');
+    close.setAttribute('title', 'close');
     close.style.position   = 'absolute';
     close.style.right   = '5px';
     close.style.top   = '2px';
@@ -705,6 +706,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let deleteServiceBtn    = document.querySelector('.delete-service-button');
     let adminDashHeader     = document.querySelector('.sw-admin-dash-header');
     let editMailBtns        = document.querySelectorAll('.sw-edit-mail-nopro');
+    let swCheckBoxes        = document.querySelectorAll('.sw-checkboxes');
+    let swHideBtn          = document.getElementById('sw-hide');
 
     if ( contentDiv ) {
         // Clone the skeleton loader for each statistic
@@ -885,6 +888,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+    }
+
+    if (swCheckBoxes) {
+        swCheckBoxes.forEach((checkbox)=>{
+            checkbox.addEventListener('mouseover', ()=>{
+                if(!checkbox.checked) {
+                    checkbox.setAttribute('title', 'enable');
+                } else {
+                    checkbox.setAttribute('title', 'disable');
+                }
+            });
+        });
+    }
+
+    if (swHideBtn) {
+        swHideBtn.style.cursor = 'pointer';
+        swHideBtn.addEventListener('click', (e)=>{
+            e.preventDefault();
+            jQuery(swHideBtn.parentElement).fadeOut();
+        });
     }
 
 });
