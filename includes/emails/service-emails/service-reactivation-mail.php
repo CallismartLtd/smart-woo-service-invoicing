@@ -10,6 +10,12 @@
 defined( 'ABSPATH' ) || exit;
 
 class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
+        /**
+     * Email ID
+     * 
+     * @var string $id
+     */
+    public static $id = 'smartwoo_renewal_mail';
     /**
      * @var SmartWoo_Service $service
      */
@@ -20,7 +26,7 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
      * 
      * @var SmartWoo_Service_Reactivation_Mail $instance
      */
-    public static $instance = null;
+    public static $instance = 'SmartWoo_Service_Reactivation_Mail';
 
     /**
      * Class constructor
@@ -66,7 +72,7 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
 		$message .= '</ul>';
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_service_reactivation_mail_template', $message, self::$instance );
+        return apply_filters( 'smartwoo_renewal_mail_template', $message, self::$instance );
     }
 
     /**
