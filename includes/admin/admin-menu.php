@@ -75,6 +75,8 @@ function smartwoo_reg_admin_menu() {
 	);
 
 	add_action( 'load-' . $dashboard, 'smartwoo_help_screen' );
+	add_action( 'load-' . $invoices, 'smartwoo_help_screen' );
+	add_action( 'load-' . $service_order, 'smartwoo_help_screen' );
 	add_action( 'load-' . $products, 'smartwoo_help_screen' );
 	add_action( 'load-' . $options, 'smartwoo_help_screen' );
 
