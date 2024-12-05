@@ -656,7 +656,7 @@ function smartwoo_pro_ad(title, message) {
     let proDiv          = document.createElement('div');
     proDiv.classList.add('sw-pro-div');
     let close           = document.createElement('span');
-    close.classList.add('dashicons', 'dashicons-remove');
+    close.classList.add('dashicons', 'dashicons-dismiss');
     close.setAttribute('title', 'close');
     close.style.position   = 'absolute';
     close.style.right   = '5px';
@@ -670,7 +670,7 @@ function smartwoo_pro_ad(title, message) {
     bodyDiv.innerHTML   = message;
     let actionBtn    = document.createElement('span');
     actionBtn.classList.add('sw-pro-action-btn');
-    actionBtn.textContent = 'Get Pro Now';
+    actionBtn.textContent = 'Activate Pro Feature';
 
     proDiv.append(h2);
     proDiv.append(close);
@@ -710,6 +710,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let swHideBtn          = document.getElementById('sw-hide');
 
     if ( contentDiv ) {
+        let wpHelpTab = document.getElementById('contextual-help-link-wrap');
+        let wpHelpDiv = document.getElementById('contextual-help-wrap');
+        let wpScreen  = document.getElementById('contextual-help-columns');
+        if (wpHelpTab) {
+            
+            wpHelpTab.style.zIndex = '9999';
+            wpHelpDiv.style.zIndex = '9999';
+            wpHelpTab.style.top = '110px';
+            wpHelpTab.style.right = '1px';
+            wpScreen.style.backgroundColor = '#f9f9f9';
+            wpScreen.style.border = 'solid blue 1px';
+            wpHelpTab.style.position = 'absolute';
+        }
         // Clone the skeleton loader for each statistic
         for (let i = 0; i < 8; i++) {
             contentDiv.append(skeletonContent[0].cloneNode(true));
@@ -867,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (adminDashHeader && window.innerWidth <= 600 ) {
-        console.log('We are in dashboard page');
+       
         document.addEventListener('scroll', ()=>{
             let scrollUp = window.scrollY > 0;
             if( scrollUp ) {
