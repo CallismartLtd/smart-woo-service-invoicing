@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 
         <?php if( ! class_exists( 'SmartWooPro', false ) ):?>
             <div class="sw-upgrade-to-pro">
-                <a><?php echo esc_html( apply_filters( 'smartwoo_dash_pro_button_text', __( 'Upgrade to Pro', 'smart-woo-service-invoicing' ) ) );?></a>
+                <a><?php echo esc_html( apply_filters( 'smartwoo_dash_pro_button_text', __( 'Activate Pro Features', 'smart-woo-service-invoicing' ) ) );?></a>
             </div>
         <?php endif;?>
 
