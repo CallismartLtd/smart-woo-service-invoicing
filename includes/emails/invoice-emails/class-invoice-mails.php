@@ -59,7 +59,8 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
         '{{transaction_id}}',
         '{{auto_login_payment_link}}',
         '{{payment_link}}',
-        '{{invoice_items}}'
+        '{{invoice_items}}',
+        '{{preview_url}}'
 
     );
 
@@ -186,7 +187,9 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
                     break;
                 case '{{invoice_items}}':
                     $replace_values[$placeholder] = $this->get_items();
-
+                    break;
+                case '{{preview_url}}':
+                    $replace_values[$placeholder] = $this->invoice->preview_url( 'frontend' );
                     break;
                 default:
                     $replace_values[$placeholder] = ''; // Default to empty string for undefined placeholders
@@ -206,37 +209,38 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
         return $formatted_body;
     }
 
-    /**
-     * Get placeholder descriptions
-     * 
-     * @return array $data Associative array of placeholder => description
-     */
-    public static function get_placeholders_decription() {
-        return array(
-            '{{client_firstname}}'          => 'Client\'s first name',
-            '{{client_lastname}}'           => 'Client\'s last name',
-            '{{client_fullname}}'           => 'Client\'s full name',
-            '{{client_billing_address}}'    => 'Client\'s billing address',
-            '{{invoice_id}}'                => 'Unique identifier of the invoice',
-            '{{invoice_type}}'              => 'Type of invoice (e.g., service or product)',
-            '{{invoice_date_created}}'      => 'Date when the invoice was created',
-            '{{invoice_date_paid}}'         => 'Date when the invoice was paid',
-            '{{invoice_date_due}}'          => 'Due date for the invoice payment',
-            '{{invoice_status}}'            => 'Current status of the invoice (e.g., paid, unpaid)',
-            '{{invoice_total}}'             => 'Total amount of the invoice',
-            '{{order_id}}'                  => 'Order ID associated with the invoice',
-            '{{product_id}}'                => 'Product ID related to the invoice',
-            '{{service_id}}'                => 'Service ID related to the invoice',
-            '{{amount}}'                    => 'Amount charged in the invoice',
-            '{{fee}}'                       => 'Additional fees applied to the invoice',
-            '{{payment_gateway}}'           => 'Payment gateway used for the transaction',
-            '{{transaction_id}}'            => 'Transaction ID generated for the payment',
-            '{{auto_login_payment_link}}'   => 'Login-free payment link for the client',
-            '{{payment_link}}'              => 'Payment link for the invoice',
-            '{{invoice_items}}'             => 'List of items included in the invoice'
-        );
-        
-    }
+/**
+ * Get placeholder descriptions.
+ * 
+ * @return array Associative array of placeholder => description.
+ */
+public static function get_placeholders_description() {
+    return array(
+        '{{client_firstname}}'          => 'Client\'s first name',
+        '{{client_lastname}}'           => 'Client\'s last name',
+        '{{client_fullname}}'           => 'Client\'s full name',
+        '{{client_billing_address}}'    => 'Client\'s billing address',
+        '{{invoice_id}}'                => 'Unique identifier of the invoice',
+        '{{invoice_type}}'              => 'Type of invoice (e.g., service or product)',
+        '{{invoice_date_created}}'      => 'Date when the invoice was created',
+        '{{invoice_date_paid}}'         => 'Date when the invoice was paid',
+        '{{invoice_date_due}}'          => 'Due date for the invoice payment',
+        '{{invoice_status}}'            => 'Current status of the invoice (e.g., paid, unpaid)',
+        '{{invoice_total}}'             => 'Total amount of the invoice',
+        '{{order_id}}'                  => 'Order ID associated with the invoice',
+        '{{product_id}}'                => 'Product ID related to the invoice',
+        '{{service_id}}'                => 'Service ID related to the invoice',
+        '{{amount}}'                    => 'Amount charged in the invoice',
+        '{{fee}}'                       => 'Additional fees applied to the invoice',
+        '{{payment_gateway}}'           => 'Payment gateway used for the transaction',
+        '{{transaction_id}}'            => 'Transaction ID generated for the payment',
+        '{{auto_login_payment_link}}'   => 'Login-free payment link for the client',
+        '{{payment_link}}'              => 'Payment link for the invoice',
+        '{{invoice_items}}'             => 'Table of items included in the invoice',
+        '{{preview_url}}'               => 'The invoice preview url'
+    );
+}
+
 
     /**
      * Get email placeholders
@@ -257,31 +261,47 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
         return false;
     }
 
+/**
+ * Format invoice items as a table
+ */
+public function get_items() {
     /**
-     * Format invoice items
+     * @filter smartwoo_invoice_items_display add or remove items from the invoice table.
+     * 
+     * @param array $items
+     * @param SmartWoo_Invoice Invoice Object.
      */
-    public function get_items() {
-        /**
-         * @filter smartwoo_invoice_items_display add or remove items from invoice table.
-         * 
-         * @param array $items
-         * @param SmartWoo_Invoice Invoice Object.
-         */
-        $invoice_items	=	apply_filters( 'smartwoo_invoice_items_display', 
+    $invoice_items = apply_filters(
+        'smartwoo_invoice_items_display',
         array( 
             $this->invoice->get_product()->get_name()   => $this->invoice->get_amount(),
-            __( 'Fee', 'smart-woo-service-invoicing' )  =>	$this->invoice->get_fee() 
-            ),
+            __( 'Fee', 'smart-woo-service-invoicing' ) => $this->invoice->get_fee()
+        ),
+        $this->invoice
+    );
 
-            $this->invoice
-            
-        );
+    // Initialize the table
+    $items = '<table style="width: 80%; border-collapse: collapse;" align="center">';
+    $items .= '<thead>
+                <tr>
+                    <th style="text-align: left; border-bottom: 1px solid #ccc;">Item Name</th>
+                    <th style="text-align: right; border-bottom: 1px solid #ccc;">Value</th>
+                </tr>
+              </thead>';
+    $items .= '<tbody>';
 
-        $items = '';
-        foreach( $invoice_items as $name => $value ){
-            $items .= '<li>' . $name .': '. smartwoo_price( $value ). '</li>';
-        }
-
-        return $items;
+    // Add each item as a row
+    foreach ( $invoice_items as $name => $value ) {
+        $items .= '<tr>';
+        $items .= '<td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html( $name ) . '</td>';
+        $items .= '<td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">' . esc_html( smartwoo_price( $value ) ) . '</td>';
+        $items .= '</tr>';
     }
+
+    $items .= '</tbody>';
+    $items .= '</table>';
+
+    return $items;
+}
+
 }
