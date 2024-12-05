@@ -510,8 +510,8 @@ function smartwoo_count_all_invoices_by_status() {
 	$output = '<div class="invoice-status-counts">';
 	foreach ( $status_counts as $status => $count ) {
 		$url     = admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status );
-		$output .= '<div class="status-item">';
-		$output .= '<h2><a class="sw-blue-button" href="' . esc_url( $url ) . '">' . ucfirst( $status ) . ' (' . $count . ')</a></h2>';
+		$output .= '<div class="sw-admin-status-item">';
+		$output .= '<h2><a href="' . esc_url( $url ) . '">' . ucfirst( $status ) . ' <small>' . $count . '</small></a></h2>';
 		$output .= '</div>';
 	}
 	$output .= '</div>';
