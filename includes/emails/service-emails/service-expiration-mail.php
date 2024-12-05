@@ -12,6 +12,11 @@ defined( 'ABSPATH' ) || exit;
 class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
 
     /**
+     * Mail ID
+     */
+    public static $id = 'smartwoo_service_expiration_mail';
+
+    /**
      * The service
      * 
      * @var SmartWoo_Service $service
@@ -35,7 +40,7 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
      * 
      * @var SmartWoo_Service_Expiration_Mail $instance
      */
-    public static $instance = null;
+    public static $instance = 'SmartWoo_Service_Expiration_Mail';
 
     /**
      * Class constructor
@@ -149,7 +154,7 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
 
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_user_service_expiration_mail_template', $message, self::$instance );
+        return apply_filters( 'smartwoo_service_expiration_mail_template', $message, self::$instance );
     }
 
     /**
