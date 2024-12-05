@@ -12,6 +12,11 @@ defined( 'ABSPATH' ) || exit;
 class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 
     /**
+     * Email id
+     */
+    public static $id = 'smartwoo_cancelled_mail';
+
+    /**
      * The service
      * 
      * @var SmartWoo_Service $service
@@ -26,7 +31,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     /**
      * Static instance
      */
-    public static $instance = null;
+    public static $instance = 'SmartWoo_Cancelled_Service_Mail';
 
     /**
      * Class constructor
@@ -56,7 +61,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     public static function send_mail( $service_id, $service ) {
 
         $send_to_user   = get_option( 'smartwoo_cancellation_mail_to_user', false );
-        $send_to_admin  = get_option( 'smartwoo_cancellation_mail_to_user', false );
+        $send_to_admin  = get_option( 'smartwoo_service_cancellation_mail_to_admin', false );
 
         if ( apply_filters( 'smartwoo_cancelled_service_mail', true ) ) {
 
@@ -83,8 +88,10 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
         $context = empty( $context ) ? self::$instance->context : $context;
 
         if ( 'user' === $context ) {
+            self::$id = 'smartwoo_cancellation_mail_to_user';
             return self::user_mail_template( self::$instance );
         } else {
+            self::$id = 'smartwoo_service_cancellation_mail_to_admin';
             return self::admin_mail_template( self::$instance );
         }
     }
@@ -106,7 +113,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 		$message .= '<p>Kindly note that our refund policy and terms of service apply to this cancellation.</p>';
 
-        return apply_filters( 'smartwoo_user_cancelled_service_mail_template', $message, $self );
+        return apply_filters( 'smartwoo_cancellation_mail_to_user_template', $message, $self );
     }
 
     /**
@@ -134,7 +141,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 		$message .= '<p>Client Email: {{client_billing_email}}</p>';
 		$message .= '<p>Address: {{client_billing_address}}</p>';
 		$message .= '</div>';
-        return apply_filters( 'smartwoo_admin_cancelled_service_mail_template', $message, $self );
+        return apply_filters( 'smartwoo_service_cancellation_mail_to_admin_template', $message, $self );
     }
 
 }
