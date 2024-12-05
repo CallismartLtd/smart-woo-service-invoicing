@@ -71,6 +71,9 @@
     border-radius: 9px;
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
+.sw-default-overlay {
+    padding: 15px;
+}
 .sw-round-up {
     background-color: red;
     align-items: center;
@@ -160,7 +163,7 @@
     height: 120px;
     left: 0;
     top: 20px;
-    z-index: 999;
+    z-index: 1.1;
 
 }
 
