@@ -601,41 +601,41 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
  * @param string $context      The context in which the HTML is being sanitized.
  * @return array               The modified array of allowed HTML tags and attributes.
  */ 
-if( ! function_exists( 'smartwoo_kses_allowed' ) ){
-	function smartwoo_kses_allowed( $allowed_tags, $context ) {
+function smartwoo_kses_allowed( $allowed_tags, $context ) {
 	
-		$smartwoo_allowed = apply_filters( 'smartwoo_kses_allowed', array(
-			'div' => array(
-				'class' => true,
-				'id' => true,
-				'style' => true,
-			),
-			'p' => array(
-				'class' => true,
-			),
-			'input' => array(
-				'class' => true,
-				'type' => true,
-				'id' => true,
-				'checked' => true,
-				'data-option' => true,
-			),
-			'label' => array(
-				'for' => true,
-				'class' => true,
-			),
-			'script' => array(
-				'type' => true,
-				'src' => true,
-			),
-			'style' => array(),
-			'ul'	=> array(),
-			'li'	=> array(),
-		) );
-	
-		return array_merge( $allowed_tags, $smartwoo_allowed );
-	}
-	
+	$smartwoo_allowed = apply_filters( 'smartwoo_kses_allowed', array(
+		'div' => array(
+			'class' => true,
+			'id' => true,
+			'style' => true,
+		),
+		'p' => array(
+			'class' => true,
+		),
+		'input' => array(
+			'class' => true,
+			'type' => true,
+			'id' => true,
+			'checked' => true,
+			'data-option' => true,
+		),
+		'label' => array(
+			'for' => true,
+			'class' => true,
+		),
+		'script' => array(
+			'type' => true,
+			'src' => true,
+		),
+		'style' => array(),
+		'ul'	=> array(
+			'style'		=> true,
+			'class'		=> true
+		),
+		'li'	=> array(),
+	) );
+
+	return array_merge( $allowed_tags, $smartwoo_allowed );
 }	
 
 /**
@@ -729,7 +729,10 @@ function smartwoo_allowed_form_html() {
 			'span'		=> true,
 			'strong'	=> true,
 		),
-		'ul'		=> array(),
+		'ul'		=> array(
+			'style'		=> true,
+			'class'		=> true
+		),
 		'li'		=> array(),
     ) );
 }
