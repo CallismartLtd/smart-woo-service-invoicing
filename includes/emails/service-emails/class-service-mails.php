@@ -222,6 +222,38 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
     }
 
     /**
+     * Get placeholder descriptions
+     * 
+     * @return array $data Associative array of placeholder => description
+     */
+    public static function get_placeholders_description() {
+        return array(
+            '{{client_firstname}}'          => 'Client\'s first name',
+            '{{client_lastname}}'           => 'Client\'s last name',
+            '{{client_fullname}}'           => 'Client\'s full name',
+            '{{client_billing_address}}'    => 'Client\'s billing address',
+            '{{client_billing_email}}'      => 'Client\'s billing email address',
+            '{{service_id}}'                => 'Unique identifier for the service',
+            '{{service_name}}'              => 'Name of the service',
+            '{{service_type}}'              => 'Type of service (e.g., subscription, one-time)',
+            '{{billing_cycle}}'             => 'Billing cycle of the service (e.g., monthly, annually)',
+            '{{start_date}}'                => 'Service start date',
+            '{{end_date}}'                  => 'Service end date',
+            '{{next_payment_date}}'         => 'Next payment due date for the service',
+            '{{product_id}}'                => 'Product ID associated with the service',
+            '{{product_name}}'              => 'Name of the associated product',
+            '{{product_price}}'             => 'Price of the associated product',
+            '{{current_date}}'              => 'The current date when the placeholder is used',
+            '{{status}}'                    => 'Current status of the service or product',
+            '{{sender_mail}}'               => 'Email address of the sender',
+            '{{business_name}}'             => 'Name of the business or organization',
+            '{{prorata_status}}'            => 'Indicates whether prorata billing is active',
+            '{{expiry_date}}'               => 'Expiration date of the service or product'
+        );
+    }
+
+
+    /**
      * Get email placeholders
      */
     public static function get_placeholders() {
