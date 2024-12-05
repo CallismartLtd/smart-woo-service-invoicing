@@ -66,7 +66,7 @@ function smartwoo_pro_feature( $feature = '' ) {
 			<div class="sw-pro-content-overlay">
 				<p><?php echo esc_html( $description ); ?></p>
 				<p><?php echo esc_html( $benefits ); ?></p>
-				<a href="<?php echo esc_url( smartwoo_utm_campaign_url() ); ?>" class="sw-pro-upgrade-button">Purchase Pro Version</a>
+				<a href="<?php echo esc_url( smartwoo_utm_campaign_url() ); ?>" class="sw-pro-upgrade-button">Activate Pro Feature</a>
 			</div>
 		</div>
 		<?php
@@ -79,17 +79,19 @@ function smartwoo_pro_feature( $feature = '' ) {
 	<div class="sw-pro-sell">
 		<div class="sw-default-overlay">
 			<h2>Unlock more features only available on Smart Woo Pro.</h2>
-			<ul>
-				<li>Get detailed insight into service usage.</li>
-				<li>Access to Service and Invoice logs.</li>
-				<li>Robust Refund and Pro-Rata service subscription.</li>
-				<li>Allow clients perform service migrations.</li>
-				<li>Easy REST API integration for client subscriptions and management.</li>
-				<li>Have clients pay outstanding invoices with Smart Woo integration with Tera Wallet.</li>
-				<li>Support services made easy with Smart Woo Integration with fluent support.</li>
-				<li>Attach PDF invoice to mails.</li>
+			<ul style="list-style: square;">
+				<li><strong>Advanced Stats</strong>: Get detailed insights and visual stats (bar charts, graphs) on service subscription usage.</li>
+				<li><strong>Service Logs</strong>: Track how clients interact with their subscriptions, including detailed activity insights.</li>
+				<li><strong>Invoice Logs</strong>: Gain insights into all invoice interactions, including payment failures and successful payments.</li>
+				<li><strong>Refund Feature</strong>: Automatically handle prorated refunds when a client cancels a subscription.</li>
+				<li><strong>Service Migration</strong>: Easily manage subscription migrations, including prorated billing during changes, with detailed logs for tracking.</li>
+				<li><strong>Email Template Customization</strong>: Customize the templates for available emails to meet your business requirements.</li>
+				<li><strong>REST API Access</strong>: Access subscription data via a powerful REST API (currently read-only, with future write support planned).</li>
+				<li><strong>PDF Invoice Attachments</strong>: Automatically attach PDF invoices to email notifications for seamless client communication.</li>
+				<li><strong>Dedicated Support</strong>: Receive dedicated support for both the free and premium versions of Smart Woo.</li>
+				<li><strong>Automatic Updates</strong>: Ensure your plugin remains up-to-date with the latest features and security fixes.</li>
 			</ul>
-			<a href="<?php echo esc_url( smartwoo_utm_campaign_url() ); ?>" class="sw-pro-upgrade-button" id="pro-upgrade-button">Purchase Pro Version</a>
+			<a href="<?php echo esc_url( smartwoo_utm_campaign_url() ); ?>" class="sw-pro-upgrade-button" id="pro-upgrade-button">Activate Pro Feature</a>
 		</div>
 	</div>
 	<?php
@@ -100,7 +102,7 @@ function smartwoo_pro_feature( $feature = '' ) {
  * Smart Woo UTM campaign function.
  */
 function smartwoo_utm_campaign_url( $utm_url = '' ) {
-	$utm_url		= empty( $utm_url ) ? 'https://callismart.com.ng/smart-woo-service-invoicing' : $utm_url;
+	$utm_url		= empty( $utm_url ) ? apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/#go-pro/' ) : $utm_url;
 	$utm_source 	= SMARTWOO;
 	$utm_medium 	= 'upgrade button';
 	$utm_campaign 	= 'pro-upgrade';
