@@ -582,6 +582,53 @@ class SmartWoo_Invoice {
 	}
 
 	/**
+	 * Get invoice preview URL.
+	 * 
+	 * @param string $context	The context to which the url is returned,
+	 * 							values includes admin 		= The admin area invoice preview.
+	 * 											frontend	= The client portal invoice preview.
+	 * 											account		= The WooCommerce account page invoice preview.
+	 * 
+	 * @return string $preview_url The preview url.
+	 * @see smartwoo_invoice_preview_url().
+	 */
+	public function preview_url( $context = '' ) {
+		if ( 'admin' === $context ) {
+			$preview_url = add_query_arg( 
+				array( 
+					'page' 			=> 'sw-invoices', 
+					'tab' 			=> 'view-invoice', 
+					'invoice_id'	=> $invoice_id 
+				), 
+					admin_url( 'admin.php' ) 
+			);
+		} elseif ( 'frontend' === $context ) {
+			$invoice_page_id	= get_option( 'smartwoo_invoice_page_id', 0 );
+			$invoice_page_url 	= get_permalink( $invoice_page_id );
+			$preview_url 		= add_query_arg(
+				array(
+					'invoice_page' => 'view_invoice',
+					'invoice_id'   => $this->get_invoice_id(),
+				),
+				$invoice_page_url
+			);
+		} elseif ( 'account' === $context ) {
+			$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
+			$preview_url = add_query_arg(
+				array(
+					'view_invoice' => true,
+					'invoice_id'   => $invoice_id,
+				),
+				$endpoint_url
+			);
+		} else {
+			$preview_url = smartwoo_invoice_preview_url( $this->get_invoice_id() );
+		}
+
+		return $preview_url;
+	}
+
+	/**
 	 * Retrieve customer's billing email
 	 */
 	public function get_billing_email() {
