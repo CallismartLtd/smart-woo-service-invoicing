@@ -431,7 +431,7 @@ function smartwoo_invoice_page_url() {
 	if ( is_account_page () ){
 		return wc_get_account_endpoint_url( 'smartwoo-invoice' );
 	}
-	return esc_url_raw( get_permalink( $invoice_page ) );
+	return get_permalink( $invoice_page );
 }
 
  /**
