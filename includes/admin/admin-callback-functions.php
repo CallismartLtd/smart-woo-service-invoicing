@@ -238,3 +238,10 @@ function smartwoo_register_page_states( $post_states, $post ) {
 	return $post_states;
 }
 add_filter( 'display_post_states', 'smartwoo_register_page_states', 30, 2 );
+
+/**
+ * Smart Woo Admin footer text
+ */
+function smartwoo_admin_footer( $text ) {
+	return 'Callismart writing codes';
+}
