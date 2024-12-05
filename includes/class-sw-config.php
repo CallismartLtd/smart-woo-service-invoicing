@@ -245,7 +245,7 @@ class SmartWoo_Config{
             'never_expire_value'        => apply_filters( 'smartwoo_never_expire_value', '' ),
             'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
             'smartwoo_plugin_page'      => apply_filters( 'smartwoo_plugin_url', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
-            'smartwoo_pro_page'         => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/#buy-pro' ),
+            'smartwoo_pro_page'         => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/#go-pro' ),
             
         );
 
