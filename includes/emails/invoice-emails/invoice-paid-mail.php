@@ -12,6 +12,13 @@ defined( 'ABSPATH' ) || exit;
 class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
 
     /**
+     * Email ID
+     * 
+     * @var string $id
+     */
+    public static $id = 'smartwoo_invoice_paid_mail';
+
+    /**
      * The invoice
      * 
      * @var SmartWoo_Invoice $invoice
@@ -23,7 +30,7 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
      * 
      * @var SmartWoo_Invoice_Paid_Mail $instance
      */
-    public static $instance = null;
+    public static $instance = 'SmartWoo_Invoice_Paid_Mail';
 
     /**
      * Class constructor
@@ -62,13 +69,13 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
 		$message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
 		$message .= '<p>This is a payment receipt for invoice #{{invoice_id}} paid on {{invoice_date_paid}}.</p>';
         $message .= '<br><h3>Invoice Details</h3>';
-
         $message .= '<ul>';
-        $message .= '<li>Invoice ID: {{invoice_id}}</li>';
-        $message .= '{{invoice_items}}';
-        $message .= '<li>Total: {{invoice_total}}</li>';
+        $message .= '<li>Invoice ID: <strong>{{invoice_id}}</strong></li>';
         $message .= '</ul>';
-		
+        $message .= '{{invoice_items}}';
+        $message .= '<p style="text-align:right; margin-right:10%;"><strong>Total</strong>: {{invoice_total}}</p>';
+        $message .= '<p><strong>View invoice:</strong> <a href="{{preview_url}}">{{preview_url}}</a></p>';
+
         $template = apply_filters( 'smartwoo_invoice_paid_mail_template', $message, self::$instance );
         return $template;
     }
