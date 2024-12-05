@@ -12,6 +12,11 @@ defined( 'ABSPATH' ) || exit;
 class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
 
     /**
+     * Email ID
+     */
+    public static $id = 'smartwoo_service_opt_out_mail';
+
+    /**
      * The service
      * 
      * @var SmartWoo_Service $service
@@ -23,7 +28,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
      * 
      * @var SmartWoo_Service_Optout_Mail $instance
      */
-    public static $instance = null;
+    public static $instance = 'SmartWoo_Service_Optout_Mail';
 
     /**
      * Class constructor
@@ -76,7 +81,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
         $message .= '</ul><br>';
 		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
-        return apply_filters( 'smartwoo_service_optout_mail_template', $message, self::$instance );
+        return apply_filters( 'smartwoo_service_opt_out_mail_template', $message, self::$instance );
     }
 
 }
