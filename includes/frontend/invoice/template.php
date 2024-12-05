@@ -395,7 +395,7 @@ function smartwoo_all_user_invoices_count() {
 	$output = '<div class="invoice-status-counts">';
 	foreach ( $counts as $status => $count ) {
 		$nav_url = add_query_arg( array( 'invoice_page' => 'invoices_by_status', 'status' => $status ) );
-		$output .= '<div class="status-item">';
+		$output .= '<div class="sw-user-status-item">';
 		$output .= '<p><a href="' . esc_url( $nav_url ) .'">' . ucfirst( $status ) . ' <small>' . $count . '</small></a></p>';
 		$output .= '</div>';
 	}
