@@ -509,23 +509,6 @@ function loadTransactionHistory() {
 		);
 }
 
-// Add click event listener to toggle the accordion
-document.addEventListener('DOMContentLoaded', function() {
-    var acc = document.querySelectorAll('.sw-accordion-btn');
-    for (var i = 0; i < acc.length; i++) {
-        acc[i].addEventListener('click', function() {
-            this.classList.toggle('active');
-            var panel = this.nextElementSibling;
-            if (panel.style.display === 'block') {
-                panel.style.display = 'none';
-            } else {
-                panel.style.display = 'block';
-            }
-        });
-    }
-});
-
-
 jQuery(document).ready(function($) {
     var generateServiceIdBtn = $('#generate-service-id-btn');
     var loader = $('#swloader');
