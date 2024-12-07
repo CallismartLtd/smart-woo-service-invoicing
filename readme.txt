@@ -6,7 +6,7 @@ Tested up to: 6.6.2
 Requires WooCommerce: 8.0  
 WooCommerce tested: 9.3.3
 Requires PHP: 7.4  
-Stable Tag: 2.1.1
+Stable Tag: 2.2.0
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -82,6 +82,17 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+
+= [2.2.0] 2024-12-07 =
+
+* Added
+  - Email Template preview.
+
+* Refactored
+  - Email handling.
+  - Email option name: You may need to check your email option if certain mails are not sent.
+  - Email Template Editing(pro): You can now edit email templates sent by Smart Woo Service Invoicing.
+
 
 = [2.1.1] 2024-11-04 =
 * Featured
