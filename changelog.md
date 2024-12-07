@@ -1,6 +1,6 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.2.0] YYYY-MM-DD
+# [2.2.0] 2024-12-07
 
 ### Added
 - Email Template preview.
@@ -8,7 +8,7 @@
 ### Refactored
 - Email handling.
 - Email option name: You may need to check your email option if certain mails are not sent.
-
+- Email Template Editing(pro): You can now edit email templates sent by Smart Woo Service Invoicing.
 
 # [2.1.1] 2024-11-04
 
