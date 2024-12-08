@@ -230,7 +230,7 @@ function smartwoo_options_main_page() {
 				<div id="step3" class="instruction">
 					<h3>All Done 🎉🎉</h3>
 					<p><strong>Your service product is now listed on the WooCommerce product page. You can view all service orders <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>">here</a> and process them as needed.</strong></p>
-					<?php 	echo ( smartwoo_pro_feature() ); ?>
+					<?php 	echo wp_kses_post( smartwoo_pro_feature() ); ?>
 				</div>
 
 			</div>
