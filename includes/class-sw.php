@@ -185,7 +185,10 @@ final class SmartWoo {
             $expiration_date	= $service->get_expiry_date();
 
             if ( $current_date === $expiration_date ) {
-                // Trigger the 'smartwoo_service_expired' action with the current service.
+                /**
+                 * @hook 'smartwoo_service_expired' fires the day a service is expiring.
+                 * @param SmartWoo_Service $service
+                 */
                 do_action( 'smartwoo_service_expired', $service );
             }
         }
@@ -489,6 +492,10 @@ final class SmartWoo {
      */
     public static function new_invoice_form_handler() {
         if ( isset( $_POST['create_invoice'], $_POST['sw_create_invoice_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_create_invoice_nonce'] ) ), 'sw_create_invoice_nonce' ) ) {
+            if ( ! isset( $_POST['smartwoo_send_new_invoice_mail'] ) ) {
+                remove_action( 'smartwoo_new_invoice_created', array( 'SmartWoo_New_Invoice_Mail', 'send_mail' ) );
+            }
+            
             $user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
             $product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
             $invoice_type   = ! empty( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : 'Billing';
@@ -497,12 +504,12 @@ final class SmartWoo {
             $fee            = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
             $payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'unpaid';
             // Check for a duplicate unpaid invoice for a service.
-            $existing_invoice_type_for_a_service = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
+            $invoice_type_exists = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
     
             // Validate inputs.
             $errors = array();
-            if ( $existing_invoice_type_for_a_service ) {
-                $errors[] = 'This Service has "' . $invoice_type . '" That is ' . $payment_status;
+            if ( $invoice_type_exists ) {
+                $errors[] = 'This Service has "' . $invoice_type . '" that is ' . $payment_status;
             }
     
             if ( empty( $user_id ) ) {
@@ -1309,8 +1316,11 @@ final class SmartWoo {
         if ( 'New Service Invoice' ===  $invoice_type ) {
             /**
              * This action fires when order is for a new service order.
+             * 
+             * @param string $invoice_id Invoice public ID.
+             * @param WC_Order $order WooCommerce order added @since 2.2.1
              */
-            do_action( 'smartwoo_new_service_purchase_complete', $invoice_id );
+            do_action( 'smartwoo_new_service_purchase_complete', $invoice_id, $order );
             return;
         } elseif ( 'Billing' === $invoice_type ) {
             smartwoo_mark_invoice_as_paid( $invoice_id );
@@ -1565,7 +1575,7 @@ final class SmartWoo {
      */
     public static function configure_and_add_to_cart() {
         // Verify the nonce.
-        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
             wp_send_json_error( array( 'message' => smartwoo_notice( 'Basic authentication failed, please refresh current page.' ) ) );
         }
 
@@ -1674,7 +1684,11 @@ final class SmartWoo {
                 $obj_class_name     = 'SmartWoo_Service';
                 $doing_service      = true;
                 break;
-            
+            case 'smartwoo_new_service_order':
+                $temp_class_name    = 'Smartwoo_New_Service_Order';
+                $obj_class_name     = 'SmartWoo_Service';
+                $doing_service      = true;
+                break;
         }
 
         if ( $doing_invoice ) {
@@ -1736,6 +1750,20 @@ final class SmartWoo {
                 $service2->set_status( 'Expired' );
                 $services[] = $service2;
                 $temp   = new $temp_class_name( $services, 'admin' );
+            } elseif( 'smartwoo_new_service_order' === $template ) {
+                $order      = $temp_class_name::create_pseudo_wc_order();
+                $product_id = ( function() use ( $order ) {
+                    foreach ( $order->get_items() as $item ) {
+                        if ( $item->is_type( 'line_item' ) ) {
+                            return $item->get_product_id();
+                        }
+                    }
+                    return null;
+                } )();
+                
+                $service->set_status( 'Pending' );
+                $service->set_product_id( $product_id );
+                $temp   = new $temp_class_name( $service, $order );
 
             } else {
                 $temp   = new $temp_class_name( $service );
