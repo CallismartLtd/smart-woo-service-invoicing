@@ -97,50 +97,52 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     }
 
     /**
-     * User Email template
+     * Template for service cancellation mail sent to the client.
      */
     public static function user_mail_template( $self ) {
         $message  = '<h1>Service Cancellation Confirmation</h1>';
-		$message .= '<p><strong>Dear {{client_fullname}}</strong>,</p>';
-		$message .= '<p>We regret to inform you that your service with {{business_name}} has been cancelled as requested. We appreciate your past support and patronage.</p>';
-		$message .= '<h3>Service Details</h3>';
+        $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
+        $message .= '<p>We regret to confirm that your service with <strong>{{business_name}}</strong> has been cancelled as requested. We truly appreciate your support and patronage in the past.</p>';
+        $message .= '<h3>Service Details</h3>';
         $message .= '<ul>';
-        $message .= '<li>Service Name: {{service_name}}</li>';
-        $message .= '<li>Billing Cycle: {{billing_cycle}}</li>';
-        $message .= '<li>Start Date: {{start_date}}</li>';
-        $message .= '<li>End Date: {{end_date}}</li>';
+        $message .= '<li><strong>Service Name:</strong> {{service_name}}</li>';
+        $message .= '<li><strong>Billing Cycle:</strong> {{billing_cycle}}</li>';
+        $message .= '<li><strong>Start Date:</strong> {{start_date}}</li>';
+        $message .= '<li><strong>End Date:</strong> {{end_date}}</li>';
         $message .= '</ul><br>';
-		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
-		$message .= '<p>Kindly note that our refund policy and terms of service apply to this cancellation.</p>';
+        $message .= '<p>If you have any questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
+        $message .= '<p>Please note that our refund policy and terms of service apply to this cancellation. For further clarification, feel free to reach out.</p>';
 
         return apply_filters( 'smartwoo_cancellation_mail_to_user_template', $message, $self );
     }
 
     /**
-     * Admin mail template
+     * Template for service cancellation mail sent to the admin.
      */
     public static function admin_mail_template( $self ) {
-		$message  = '<h1>Service Cancellation</h1>';
-		$message .= '<p>Hi, <strong>{{client_fullname}}</strong> has cancelled their service. Find details below.</p>';
-		$message .= '<h3>Service Details</h3>';
+        $message  = '<h1>Service Cancellation Notice</h1>';
+        $message .= '<p>Hi,</p>';
+        $message .= '<p><strong>{{client_fullname}}</strong> has cancelled their service. Below are the service details:</p>';
+        $message .= '<h3>Service Details</h3>';
         $message .= '<ul>';
-		$message .= '<li>Service Name: {{product_name}} - {{service_name}}</li>';
-		$message .= '<li>Service ID: {{service_id}}</li>';
-		$message .= '<li>Billing Cycle: {{billing_cycle}}</li>';
-		$message .= '<li>Start Date: {{start_date}}</li>';
-		$message .= '<li>Next Payment Date: {{next_payment_date}}</li>';
-		$message .= '<li>End Date: {{end_date}}</li>';
-        $message .= '</ul><br>';
+        $message .= '<li><strong>Service Name:</strong> {{product_name}} - {{service_name}}</li>';
+        $message .= '<li><strong>Service ID:</strong> {{service_id}}</li>';
+        $message .= '<li><strong>Billing Cycle:</strong> {{billing_cycle}}</li>';
+        $message .= '<li><strong>Start Date:</strong> {{start_date}}</li>';
+        $message .= '<li><strong>Next Payment Date:</strong> {{next_payment_date}}</li>';
+        $message .= '<li><strong>End Date:</strong> {{end_date}}</li>';
+        $message .= '</ul>';
 
-		$message .= 'Pro rata refund is currently <strong>{{prorata_status}}</strong>';
+        $message .= '<p>Pro-rata refund status: <strong>{{prorata_status}}</strong></p>';
 
-        // Billing details.
-		$message .= '<div style="border: 1px solid #ccc; padding: 10px; margin-top: 20px;">';
-		$message .= '<p><strong>Customer Billing Details</strong></p>';
-		$message .= '<p>Name: {{client_fullname}}</p>';
-		$message .= '<p>Client Email: {{client_billing_email}}</p>';
-		$message .= '<p>Address: {{client_billing_address}}</p>';
-		$message .= '</div>';
+        // Billing details section
+        $message .= '<div style="border: 1px solid #ccc; padding: 10px; margin-top: 20px;">';
+        $message .= '<h3>Customer Billing Details</h3>';
+        $message .= '<p><strong>Name:</strong> {{client_fullname}}</p>';
+        $message .= '<p><strong>Email:</strong> {{client_billing_email}}</p>';
+        $message .= '<p><strong>Address:</strong> {{client_billing_address}}</p>';
+        $message .= '</div>';
+
         return apply_filters( 'smartwoo_service_cancellation_mail_to_admin_template', $message, $self );
     }
 
