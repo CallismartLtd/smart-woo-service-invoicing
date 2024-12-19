@@ -146,9 +146,10 @@ class SmartWoo_Mail {
             <html lang="' . esc_attr( $lang_attr ) . '">
             <head>
                 <meta charset="' . esc_attr( $charset ) . '">
-                <meta name="viewport" content="width=device-width,initial-scale=1">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
                 <meta name="x-apple-disable-message-reformatting">
-                <title>' . esc_html( $this->subject ) . '</title>
+                <title>' . esc_html( $this->subject ) . '</title>'
+                . apply_filters( 'smartwoo_maybe_add_script', '' ) . '
                 <!--[if mso]> 
                 <noscript> 
                 <xml> 
@@ -159,7 +160,8 @@ class SmartWoo_Mail {
                 </noscript> 
                 <![endif]-->
                 
-            </head>'
+            </head>',
+            $this
         );
 
         return $header;
@@ -176,7 +178,7 @@ class SmartWoo_Mail {
         $body = apply_filters(
             'smartwoo_email_body',
             '<body style="margin: 0; padding: 0; background-color: #f9f9f9; width: 100%">
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="80%" style="background-color: #f9f9f9; margin: 0 auto; padding: 0; border-collapse: collapse; width: 80%;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="80%" style="background-color: #f9f9f9; margin: 0 auto; padding: 0; border-collapse: collapse; width: 90%;">
                     <tr>
                         <td align="center" style="padding: 5px 0; background-color: #f1f1f1; border: 0;">
                                 <img src="' . esc_attr( $header_image_url ) . '" alt="' . esc_attr( $header_image_alt ) . '" style="max-width: 350px; display: block; margin: 0 auto; border: 0;">
@@ -195,7 +197,8 @@ class SmartWoo_Mail {
                                 ' . $this->get_footer_text() . '
                             </footer>
                         </td>
-                    </tr>'
+                    </tr>',
+            $this
         );
 
         return $body;
@@ -221,10 +224,9 @@ class SmartWoo_Mail {
     public function get_footer() {
         // Close any necessary email content divs or elements for proper structure.
         $footer = '
-            </table>
-        </body>
-    </html>';
-
+                </table>
+            </body>
+        </html>';
         return apply_filters( 'smartwoo_email_footer', $footer );
     }
 
@@ -295,8 +297,8 @@ class SmartWoo_Mail {
         $body     = $this->get_body();
         $footer   = $this->get_footer();
         echo ( $header ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped       
-        echo wp_kses_post( $body );
-        echo wp_kses_post( $footer );
+        echo ( $body ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped  
+        echo ( $footer ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped  
          
     }
 
@@ -338,5 +340,67 @@ class SmartWoo_Mail {
         // Return the single random product ID
         return $products[0];
     }
+
+/**
+ * Create a pseudo WooCommerce order with pre-populated properties.
+ *
+ * @return WC_Order The pseudo WooCommerce order object.
+ */
+public static function create_pseudo_wc_order() {
+
+    // Create a new WC_Order object.
+    $order = new WC_Order();
+    $user_id = get_current_user_id();
+    $user = new WC_Customer( $user_id );
+
+    // Populate order properties.
+    $order->set_customer_id( $user->get_id() );
+    $order->set_billing_first_name( $user->get_billing_first_name() );
+    $order->set_billing_last_name( $user->get_billing_last_name() );
+    $order->set_billing_address_1( $user->get_billing_address_1() );
+    $order->set_billing_city( $user->get_billing_city() );
+    $order->set_billing_postcode( $user->get_billing_postcode() );
+    $order->set_billing_country( $user->get_billing_country() );
+    $order->set_billing_email( $user->get_billing_email() );
+    $order->set_payment_method( 'bacs' );
+    $order->set_payment_method_title( 'Bank Transfer' );
+    $order->set_currency( get_woocommerce_currency() );
+    $order->set_created_via( SMARTWOO );
+    $order->set_date_created( new WC_DateTime() );
+
+    // Add a dummy line item to the order.
+    $product_id = self::get_random_product_id();
+    if ( $product_id ) {
+        $The_product = wc_get_product( $product_id );
+        if ( $The_product ) {
+            $item = new WC_Order_Item_Product();
+            $item->set_product( $The_product );
+            $item->set_quantity( 1 ); // Set quantity.
+            $item->set_total( $The_product->get_price() ); // Set total based on price.
+            $order->add_item( $item );
+
+            if ( ( $The_product instanceof SmartWoo_Product ) ) {
+                $fee = new WC_Order_Item_Fee();
+                $fee->set_props(
+                    array(
+                        'name'      => 'Sign-up Fee',
+                        'tax_class' => '',
+                        'total'     => $The_product->get_sign_up_fee(),
+                    )
+                );
+                $order->add_item( $fee );
+            }
+        }
+    }
+
+    // Set total order price based on line items.
+    $order->calculate_totals();
+
+    // Generate a pseudo transaction ID for testing.
+    $order->set_transaction_id( 'WC|' . wp_rand( 1, 10000 ) . '|' . time() );
+
+    return $order;
+}
+
 
 }
