@@ -66,24 +66,23 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
     }
 
     /**
-     * Default email template
+     * Default email template for auto-renewal cancellation.
      */
     public static function get_template() {
-        $message  = '<h1>Auto Renewal for "{{service_name}}" has been disabled</h1>';
-		$message .= '<p><strong>Dear {{client_fullname}}</strong>,</p>';
-		$message .= '<p>You have successfully opted out of auto renewal for the service "{{service_name}}". The service is currently "<strong>{{status}}</strong>" and will "<strong>Not Renew</strong>" at the end of the billing cycle.</p>';
-		$message .= '<h3>Service Details</h3>';
+        $message  = '<h1>Auto Renewal Disabled for "{{service_name}}"</h1>';
+        $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
+        $message .= '<p>You have successfully opted out of auto-renewal for the service "<strong>{{service_name}}</strong>". The service is currently "<strong>{{status}}</strong>" and will <strong>not renew</strong> at the end of the billing cycle.</p>';
+        $message .= '<h3>Service Details</h3>';
         $message .= '<ul>';
-        $message .= '<li>Service Name: {{service_name}}</li>';
-        $message .= '<li>Billing Cycle: {{billing_cycle}}</li>';
-        $message .= '<li>Start Date: {{start_date}}</li>';
-        $message .= '<li>End Date: {{end_date}}</li>';
+        $message .= '<li><strong>Service Name:</strong> {{service_name}}</li>';
+        $message .= '<li><strong>Billing Cycle:</strong> {{billing_cycle}}</li>';
+        $message .= '<li><strong>Start Date:</strong> {{start_date}}</li>';
+        $message .= '<li><strong>End Date:</strong> {{end_date}}</li>';
         $message .= '</ul><br>';
-		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
+        $message .= '<p>If you have any questions or require assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
         return apply_filters( 'smartwoo_service_opt_out_mail_template', $message, self::$instance );
     }
-
 }
 
 SmartWoo_Service_Optout_Mail::init();
