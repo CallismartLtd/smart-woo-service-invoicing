@@ -137,28 +137,30 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
     }
 
     /**
-     * User email template
+     * Template for service expiration mail sent to the client.
      */
     public static function user_mail_template() {
         $message  = '<h1>Service Expiration Notification</h1>';
         $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
-        $message .= '<p>Your service "{{service_name}}" has expired due to the end of the "{{billing_cycle}}" billing cycle. Unfortunately, no renewal action was taken in time.</p>';
+        $message .= '<p>We wish to notify you that your service, "<strong>{{service_name}}</strong>", has expired following the conclusion of the "<strong>{{billing_cycle}}</strong>" billing cycle. Unfortunately, no renewal action was taken before the expiration date.</p>';
+
         $message .= '<h3>Service Details</h3>';
         $message .= '<ul>';
-        $message .= '<li>Service Name: {{service_name}}</li>';
-        $message .= '<li>Billing Cycle: {{billing_cycle}}</li>';
-        $message .= '<li>Start Date: {{start_date}}</li>';
-        $message .= '<li>End Date: {{end_date}}</li>';
-        $message .= '</ul><br>';
-        $message .= '<p>You can always log into your account and reactivate this service before it is finally suspended.</p>';
+        $message .= '<li><strong>Service Name:</strong> {{service_name}}</li>';
+        $message .= '<li><strong>Billing Cycle:</strong> {{billing_cycle}}</li>';
+        $message .= '<li><strong>Start Date:</strong> {{start_date}}</li>';
+        $message .= '<li><strong>End Date:</strong> {{end_date}}</li>';
+        $message .= '</ul>';
 
-		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
+        $message .= '<p>To avoid suspension or data loss, you can log into your account and reactivate this service as soon as possible.</p>';
+        $message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
         return apply_filters( 'smartwoo_service_expiration_mail_template', $message, self::$instance );
     }
 
     /**
-     * Admin mail template
+     * Template for service expiration mail sent to the admin before the actual expiration date.
+     * This allows the admin to take actions like engaging the client before their service expiration.
      */
     public function admin_mail_template() {
         $message  = '<h1>End Date Notification for Services Due Tomorrow</h1>';
@@ -168,17 +170,17 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
         $number = 1;
         
         foreach ( $this->services as $service ) {
-
             $client =  $service->get_user();
             $message .= '<h2>' . $number . '</h2>';
             $message .= '<ul>';
-            $message .= '<li>Service Name: ' . $service->get_product_name() . ' - ' . $service->get_name() . '</li>';
-            $message .= '<li>Service ID: ' . $service->get_service_id() . '</li>';
-            $message .= '<li>Billing Cycle: ' . $service->get_billing_cycle() . '</li>';
-            $message .= '<li>Start Date: ' . smartwoo_check_and_format( $service->get_start_date() ) . '</li>';
-            $message .= '<li>Next Payment Date: ' . smartwoo_check_and_format( $service->get_next_payment_date() ) . '</li>';
-            $message .= '<li>End Date: ' . smartwoo_check_and_format( $service->get_end_date() ) . '</li>';
+            $message .= '<li><strong>Service Name:</strong> ' . $service->get_product_name() . ' - ' . $service->get_name() . '</li>';
+            $message .= '<li><strong>Service ID:</strong> ' . $service->get_service_id() . '</li>';
+            $message .= '<li><strong>Billing Cycle:</strong> ' . $service->get_billing_cycle() . '</li>';
+            $message .= '<li><strong>Start Date:</strong> ' . smartwoo_check_and_format( $service->get_start_date() ) . '</li>';
+            $message .= '<li><strong>Next Payment Date:</strong> ' . smartwoo_check_and_format( $service->get_next_payment_date() ) . '</li>';
+            $message .= '<li><strong>End Date:</strong> ' . smartwoo_check_and_format( $service->get_end_date() ) . '</li>';
             $message .= '</ul><br>';
+
             // Billing details.
             $message .= '<div style="border: 1px solid #ccc; padding: 10px; margin-top: 20px;">';
             $message .= '<p><strong>Customer Billing Details</strong></p>';
@@ -192,11 +194,11 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
             $number++;
         }
 
-		$message .= 'Sent on <strong>' . smartwoo_check_and_format( current_time( 'mysql' ), true ) .'</strong>';
-
+        $message .= 'Sent on <strong>' . smartwoo_check_and_format( current_time( 'mysql' ), true ) .'</strong>';
 
         return apply_filters( 'smartwoo_admin_service_expiration_mail_template', $message, $this );
     }
+
 }
 
 SmartWoo_Service_Expiration_Mail::init();
