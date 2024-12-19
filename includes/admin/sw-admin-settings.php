@@ -34,17 +34,21 @@ function smartwoo_save_email_options() {
 		}
 
 		// Define an array of checkbox names.
-		$checkboxes = apply_filters( 'smartwoo_mail_options', array(
-			'smartwoo_cancellation_mail_to_user',
-			'smartwoo_service_opt_out_mail',
-			'smartwoo_payment_reminder_to_client',
-			'smartwoo_service_expiration_mail',
-			'smartwoo_new_invoice_mail',
-			'smartwoo_renewal_mail',
-			'smartwoo_invoice_paid_mail',
-			'smartwoo_service_cancellation_mail_to_admin',
-			'smartwoo_service_expiration_mail_to_admin',
-		) );
+		$checkboxes = apply_filters( 'smartwoo_mail_options', 
+			array(
+				'smartwoo_cancellation_mail_to_user',
+				'smartwoo_service_opt_out_mail',
+				'smartwoo_payment_reminder_to_client',
+				'smartwoo_service_expiration_mail',
+				'smartwoo_new_invoice_mail',
+				'smartwoo_renewal_mail',
+				'smartwoo_invoice_paid_mail',
+				'smartwoo_service_cancellation_mail_to_admin',
+				'smartwoo_service_expiration_mail_to_admin',
+				'smartwoo_new_service_order'
+			),
+			'save_options'
+		);
 
 		// Update checkbox options
 		foreach ( $checkboxes as $checkbox_name ) {
@@ -410,29 +414,63 @@ function smartwoo_email_options() {
 
 
 	// Define an array of checkbox names
-	$checkboxes = apply_filters( 'smartwoo_mail_options', array(
-		'smartwoo_new_invoice_mail',
-		'smartwoo_payment_reminder_to_client',
-		'smartwoo_invoice_paid_mail',
-		'smartwoo_renewal_mail',
-		'smartwoo_service_opt_out_mail',
-		'smartwoo_cancellation_mail_to_user',
-		'smartwoo_service_cancellation_mail_to_admin',
-		'smartwoo_service_expiration_mail',
-		'smartwoo_service_expiration_mail_to_admin',
-	) );
+	$checkboxes = apply_filters( 'smartwoo_mail_options', 
+		array(
+			'smartwoo_new_invoice_mail' 					=> 'Client',
+			'smartwoo_new_service_order' 					=> 'Admin',
+			'smartwoo_payment_reminder_to_client'			=> 'Client',
+			'smartwoo_invoice_paid_mail'					=> 'Client',
+			'smartwoo_renewal_mail'							=> 'Client',
+			'smartwoo_service_opt_out_mail'					=> 'Client',
+			'smartwoo_cancellation_mail_to_user'			=> 'Client',
+			'smartwoo_service_cancellation_mail_to_admin'	=> $billing_email,
+			'smartwoo_service_expiration_mail'				=> 'Client',
+			'smartwoo_service_expiration_mail_to_admin'		=> $billing_email,
+		),
+		
+		'list_options'
+	);
 
-	$not_editables = apply_filters( 'smartwoo_temp_option_uneditables', array( 'smartwoo_service_expiration_mail_to_admin') );
-
-
+	$not_editables = apply_filters( 'smartwoo_temp_option_uneditables', array( 'smartwoo_service_expiration_mail_to_admin'), 'not_editable' );
 	?>
 	<div class="wrap">
-		<h1><span class="dashicons dashicons-email-alt"></span> Emails</h1>
-		<p><span style="color: red;" class="dashicons dashicons-warning"></span><?php esc_html_e( 'If you notice emails are not being sent, consider setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
+		<h1><span class="dashicons dashicons-email-alt"></span> Email notifications</h1>
+		<p><span style="color: red;" class="dashicons dashicons-warning"></span><?php esc_html_e( 'If you notice emails are not being sent or delivered to the intended recipient(s), we recommend connecting your email address to your domain and  setting up SMTP for your site.', 'smart-woo-service-invoicing' );?></p>
 		<?php do_action( 'smartwoo_before_email_options' ) ?>
 		
 		<form method="post" class="inv-settings-form">
-		<?php wp_nonce_field( 'sw_email_option_nonce', 'sw_email_option_nonce' ); ?>
+
+			<h3 style="text-align: center;"><?php esc_html_e( 'Configure which Email is sent', 'smart-woo-service-invoicing' )?></h3>
+			<!-- Checkboxes -->
+			<table class="sw-table" style="box-shadow: none;border-radius: 0px; width: 100%">
+				<thead >
+					<tr>
+						<th>Email</th>
+						<th>Recipient(s)</th>
+						<th></th>
+					</tr>
+				</thead>
+
+				<?php foreach ( $checkboxes as  $checkbox_name => $recipient  ) : ?>
+					<tr>
+						<td><strong><?php echo esc_html( ucwords( str_replace( array( '_', 'smartwoo' ), ' ', $checkbox_name ) ) ); ?></strong></td>
+						<td><?php echo esc_html( $recipient ); ?></td>
+						<td>
+							<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input sw-checkboxes" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
+							<?php if ( ! in_array( $checkbox_name, $not_editables, true ) ): ?>
+								<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
+								<a tempname="<?php echo esc_attr( $checkbox_name ); ?>" title="Edit template" class="sw-icon-button-admin <?php echo ( $pro_installed ) ? 'sw-edit-mail' : 'sw-edit-mail-nopro' ?>"><span class="dashicons dashicons-edit"></span></a>
+							<?php elseif ( 'smartwoo_service_expiration_mail_to_admin' === $checkbox_name ): ?>
+								<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
+
+							<?php endif; ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+			<?php echo wp_kses_post( smartwoo_pro_feature( 'more-email-options' ) ) ;?>
+
+			<?php wp_nonce_field( 'sw_email_option_nonce', 'sw_email_option_nonce' ); ?>
 			<!-- Sender Name -->
 			<div class="sw-form-row">
 				<label for="smartwoo_email_sender_name" class="sw-form-label"><?php esc_html_e( 'Sender Name','smart-woo-service-invoicing' ); ?></label>
@@ -453,26 +491,6 @@ function smartwoo_email_options() {
 				<span class="sw-field-description" title="This email will be used to send emails to the clients">?</span>
 				<input type="email" name="smartwoo_billing_email" id="smartwoo_billing_email" value="<?php echo esc_attr( $billing_email ); ?>" placeholder="eg, billing@domain.com" class="sw-form-input">
 			</div>
-
-			<h3 style="text-align: center;"><?php esc_html_e( 'Configure which Email is sent', 'smart-woo-service-invoicing' )?></h3>
-			<!-- Checkboxes -->
-			<?php foreach ( $checkboxes as $checkbox_name ) : ?>
-				<div class="sw-form-row">
-					<label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
-						<?php echo esc_html( ucwords( str_replace( array( '_', 'smartwoo' ), ' ', $checkbox_name ) ) ); ?>
-					</label>
-					<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input sw-checkboxes" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
-					<?php if ( ! in_array( $checkbox_name, $not_editables, true ) ): ?>
-						<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
-						<a tempname="<?php echo esc_attr( $checkbox_name ); ?>" title="Edit template" class="sw-icon-button-admin <?php echo ( $pro_installed ) ? 'sw-edit-mail' : 'sw-edit-mail-nopro' ?>"><span class="dashicons dashicons-edit"></span></a>
-					<?php elseif ( 'smartwoo_service_expiration_mail_to_admin' === $checkbox_name ): ?>
-						<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
-
-					<?php endif; ?>
-				</div>
-				<hr>
-			<?php endforeach; ?>
-			<?php echo wp_kses_post( smartwoo_pro_feature( 'more-email-options' ) ) ;?>
 
 			<?php do_action( 'smartwoo_after_email_options' ) ?>
 
