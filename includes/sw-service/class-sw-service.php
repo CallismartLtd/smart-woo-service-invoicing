@@ -577,8 +577,8 @@ class SmartWoo_Service {
 	 * Get sign up fee
 	 */
 	public function get_sign_up_fee() {
-		$product = wc_get_product( $this->getProductId() );
-		$fee = ! empty( $product ) ? $product->get_sign_up_fee() : 0;
+		$product 	= wc_get_product( $this->get_product_id() );
+		$fee 		= ! empty( $product ) ? $product->get_sign_up_fee() : 0;
 		return $fee;
 	}
 
