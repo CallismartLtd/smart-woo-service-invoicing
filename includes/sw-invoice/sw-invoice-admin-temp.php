@@ -177,6 +177,9 @@ function smartwoo_edit_invoice_form( $existingInvoice ) {
 			<input type="number" name="fee" class="sw-form-input" id="fee" step="0.01" value="<?php echo esc_attr( $existingInvoice->getFee() ); ?>">
 		</div>
 
+		<?php do_action( 'smartwoo_invoice_form_item_section' ); ?>
+
+
 		<!-- Payment status -->
 		<div class="sw-form-row">
 			<label for="payment_status" class="sw-form-label"><?php esc_html_e( 'Payment Status', 'smart-woo-service-invoicing' ); ?></label>
@@ -330,6 +333,7 @@ function smartwoo_view_invoice_page() {
 }
 
 function smartwoo_invoice_details_admin_temp( $invoice ) {
+	smartwoo_set_document_title( 'Invoice Details');
 	$download_url = $invoice->download_url( 'admin' );
 	$page_html  = '<h1>Invoice Details</h1>';
 	$page_html = '<div style="margin: 20px;">';
@@ -410,7 +414,7 @@ function smartwoo_invoice_service_related( $invoice ){
  * Invoice by status template
  */
 function smartwoo_invoice_by_status_temp() {
-	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_key( $_GET['payment_status'] ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$payment_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( wp_unslash( $_GET['payment_status'] ) ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$table_html  = '<div class="sw-table-wrapper">';
 	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$tabs = array(
@@ -420,6 +424,8 @@ function smartwoo_invoice_by_status_temp() {
 	);
 
 	$table_html   .= smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
+
+	smartwoo_set_document_title( ucfirst( $payment_status ) . ' Invoices' );
 
 	if ( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid' ), true ) ) {
 		return smartwoo_notice( 'Status Parameter cannot be manipulated!' );
