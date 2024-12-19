@@ -524,31 +524,30 @@ class SmartWoo_Product extends WC_Product {
 	 * @param object $cart the woocommerce cart object
 	 * @return null stops execution when cart is empty
 	 */
-	public static function calculate_sign_up_fee_cart_totals( $cart ) {
+	public static function calculate_sign_up_fee_cart_totals( $cart ) {		
 		if ( $cart->is_empty() ) {
 			return;
 		}
 	
 		$total_sign_up_fee = 0;
+		$add_fee = false;
 	
 		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
 			$product = $cart_item['data'];
 
-			if ( $product && 'sw_product' !== $product->get_type() ) {
-				return;
+			if ( $product && 'sw_product' === $product->get_type() ) {
+				$quantity		= $cart_item['quantity'];
+				$sign_up_fee	= (float) $product->get_sign_up_fee() * $quantity;
+				$total_sign_up_fee += $sign_up_fee;
+				$add_fee		= true;
 			}
-	
-			$quantity = $cart_item['quantity'];
-
-			$sign_up_fee = (float) $product->get_sign_up_fee() * $quantity;
-
-			// Add the sign-up fee for the current product to the total sign-up fee
-			$total_sign_up_fee += $sign_up_fee;
 			
 		}
 	
-		// Add total sign-up fee to cart total.
-		$cart->add_fee( 'Sign-up Fee', $total_sign_up_fee );
+		if ( $add_fee ) {
+			$cart->add_fee( 'Sign-up Fee', $total_sign_up_fee );
+
+		}
 	}
 	
 	/**
