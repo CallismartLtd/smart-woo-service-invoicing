@@ -1,5 +1,8 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.2.1] YYYY-MM-DD
+- Fixed Sign-up fee calculation when other items are added in cart.
+
 # [2.2.0] 2024-12-07
 
 ### Added
