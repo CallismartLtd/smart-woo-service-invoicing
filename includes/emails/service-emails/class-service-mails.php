@@ -66,7 +66,9 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
         '{{sender_mail}}',
         '{{business_name}}',
         '{{prorata_status}}',
-        '{{expiry_date}}'
+        '{{expiry_date}}',
+        '{{sign_up_fee}}',
+        '{{total_service_cost}}'
     );
 
     /**
@@ -88,7 +90,7 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
     /**
      * Set up this object
      * 
-     * @param SmartWoo_Service|string $service Invoice ID or object.
+     * @param SmartWoo_Service|string $service Service ID or object.
      * @param string $body Email body
      */
     public function set_object( $service, $body ) {
@@ -117,7 +119,7 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
             $this->recipients = $this->service->get_billing_email();
         }
         
-        return apply_filters( 'smartwoo_invoice_email_recipients', $this->recipients, $this->service );
+        return apply_filters( 'smartwoo_service_email_recipients', $this->recipients, $this->service );
     }
 
     /**
@@ -202,8 +204,15 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
                 case '{{prorata_status}}':
                     $replace_values[$placeholder] = smartwoo_is_prorate();
                     break;
+                case '{{sign_up_fee}}':
+                    $replace_values[$placeholder] = smartwoo_price( $this->service->get_sign_up_fee() );
+                    break;
+                case '{{total_service_cost}}':
+                    $replace_values[$placeholder] = smartwoo_price( $this->service->get_total_cost() );
+
+                    break;
                 default:
-                    $replace_values[$placeholder] = ''; // Default to empty string for undefined placeholders
+                $replace_values[$placeholder] = apply_filters( 'smartwoo_service_mail_placeholder_value', '', $placeholder );
             }
         }
 
@@ -227,7 +236,7 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
      * @return array $data Associative array of placeholder => description
      */
     public static function get_placeholders_description() {
-        return array(
+        $data = array(
             '{{client_firstname}}'          => 'Client\'s first name',
             '{{client_lastname}}'           => 'Client\'s last name',
             '{{client_fullname}}'           => 'Client\'s full name',
@@ -248,8 +257,12 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
             '{{sender_mail}}'               => 'Email address of the sender',
             '{{business_name}}'             => 'Name of the business or organization',
             '{{prorata_status}}'            => 'Indicates whether prorata billing is active',
-            '{{expiry_date}}'               => 'Expiration date of the service or product'
+            '{{expiry_date}}'               => 'Expiration date of the service or product',
+            '{{sign_up_fee}}'               => 'Service sign-up fee',
+            '{{total_service_cost}}'        => 'The actual service cost including signup fee',
         );
+
+        return apply_filters( 'smartwoo_service_mail_placeholders_description', $data );
     }
 
 
