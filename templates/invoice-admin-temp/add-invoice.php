@@ -7,6 +7,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+smartwoo_set_document_title( 'Add New Invoice' );
 ?>
 <div class="wrap">
     <h1>Create New Invoice</h1>
