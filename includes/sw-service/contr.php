@@ -401,7 +401,7 @@ function smartwoo_process_new_service_order_page() {
 
 	$is_configured_order = smartwoo_check_if_configured( $order_id );
 
-	if ( $order_id > 0 && true === $is_configured_order ) {
+	if ( $order_id && $is_configured_order ) {
 		if ( 'processing' !== wc_get_order( $order_id )->get_status() ) {
 			return smartwoo_error_notice( 'This order can no longer be processed.' );
 		}
