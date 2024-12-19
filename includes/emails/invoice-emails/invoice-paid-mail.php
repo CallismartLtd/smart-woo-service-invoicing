@@ -62,24 +62,31 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
     }
 
     /**
-     * Default email template
+     * Default email template for paid invoice mails.
      */
     public static function get_template() {
-        $message  = '<h1>Payment Receipt "{{invoice_id}}"</h1>';
-		$message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
-		$message .= '<p>This is a payment receipt for invoice #{{invoice_id}} paid on {{invoice_date_paid}}.</p>';
-        $message .= '<br><h3>Invoice Details</h3>';
+        $message  = '<h1>Payment Receipt for Invoice "{{invoice_id}}"</h1>';
+        $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
+        $message .= '<p>This is a payment receipt for Invoice #{{invoice_id}}, successfully paid on {{invoice_date_paid}}.</p>';
+        
+        $message .= '<br><h3>Invoice Details:</h3>';
         $message .= '<ul>';
-        $message .= '<li>Invoice ID: <strong>{{invoice_id}}</strong></li>';
+        $message .= '<li><strong>Invoice ID:</strong> {{invoice_id}}</li>';
+        $message .= '<li><strong>Invoice Type:</strong> {{invoice_type}}</li>';
+        $message .= '<li><strong>Status:</strong> {{invoice_status}}</li>';
+        $message .= '<li><strong>Invoice Date:</strong> {{invoice_date_created}}</li>';
+        $message .= '<li><strong>Paid On:</strong> {{invoice_date_paid}}</li>';
         $message .= '</ul>';
-        $message .= '{{invoice_items}}';
-        $message .= '<p style="text-align:right; margin-right:10%;"><strong>Total</strong>: {{invoice_total}}</p>';
-        $message .= '<p><strong>View invoice:</strong> <a href="{{preview_url}}">{{preview_url}}</a></p>';
-
+        
+        $message .= '{{invoice_items}}'; // Placeholder for dynamically inserted invoice items
+        
+        $message .= '<p style="text-align: right; margin-right: 10%;"><strong>Total:</strong> {{invoice_total}}</p>';
+        $message .= '<p><strong>View Invoice:</strong> <a href="{{preview_url}}">{{preview_url}}</a></p>';
+        
         $template = apply_filters( 'smartwoo_invoice_paid_mail_template', $message, self::$instance );
+        
         return $template;
     }
-
 }
 
 SmartWoo_Invoice_Paid_Mail::init();
