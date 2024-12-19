@@ -55,22 +55,22 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
     }
 
     /**
-     * Get the email template
+     * Get the email template for service reactivation/renewal mail.
      */
     public static function get_template() {
-        $message  = '<h1>{{service_name}} has been renewed</h1>';
-		$message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
-		$message .= '<p>Your service "{{service_name}}"  with {{business_name}} has successfully been renewed.</p>';
-		$message .= '<p>The details of your renewed service are as follows:</p>';
-		$message .= '<ul>';
-		$message .= '<li>Service Name: {{product_name}} - {{service_name}}</li>';
-		$message .= '<li>Pricing: {{product_price}}</li>';
-		$message .= '<li>Service Type: {{service_type}}</li>';
-		$message .= '<li>Start Date: {{start_date}}</li>';
-		$message .= '<li>Next Payment Date: {{next_payment_date}}</li>';
-		$message .= '<li>Expiration Date: {{expiry_date}}</li>';
-		$message .= '</ul>';
-		$message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
+        $message  = '<h1>{{service_name}} Renewal Confirmation</h1>';
+        $message .= '<p>Dear <strong>{{client_fullname}}</strong>,</p>';
+        $message .= '<p>We are pleased to inform you that your service, <strong>"{{service_name}}"</strong>, with {{business_name}} has been successfully renewed.</p>';
+        $message .= '<p>The details of your renewed service are as follows:</p>';
+        $message .= '<ul>';
+        $message .= '<li><strong>Service Name:</strong> {{product_name}} - {{service_name}}</li>';
+        $message .= '<li><strong>Pricing:</strong> {{product_price}}</li>';
+        $message .= '<li><strong>Service Type:</strong> {{service_type}}</li>';
+        $message .= '<li><strong>Start Date:</strong> {{start_date}}</li>';
+        $message .= '<li><strong>Next Payment Date:</strong> {{next_payment_date}}</li>';
+        $message .= '<li><strong>Expiration Date:</strong> {{expiry_date}}</li>';
+        $message .= '</ul>';
+        $message .= '<p>If you have any questions or require assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
         return apply_filters( 'smartwoo_renewal_mail_template', $message, self::$instance );
     }
