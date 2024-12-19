@@ -261,47 +261,47 @@ public static function get_placeholders_description() {
         return false;
     }
 
-/**
- * Format invoice items as a table
- */
-public function get_items() {
     /**
-     * @filter smartwoo_invoice_items_display add or remove items from the invoice table.
-     * 
-     * @param array $items
-     * @param SmartWoo_Invoice Invoice Object.
+     * Format invoice items as a table
      */
-    $invoice_items = apply_filters(
-        'smartwoo_invoice_items_display',
-        array( 
-            $this->invoice->get_product()->get_name()   => $this->invoice->get_amount(),
-            __( 'Fee', 'smart-woo-service-invoicing' ) => $this->invoice->get_fee()
-        ),
-        $this->invoice
-    );
+    public function get_items() {
+        /**
+         * @filter smartwoo_invoice_items_display add or remove items from the invoice table.
+         * 
+         * @param array $items
+         * @param SmartWoo_Invoice Invoice Object.
+         */
+        $invoice_items = apply_filters(
+            'smartwoo_invoice_items_display',
+            array( 
+                $this->invoice->get_product()->get_name()   => $this->invoice->get_amount(),
+                __( 'Fee', 'smart-woo-service-invoicing' ) => $this->invoice->get_fee()
+            ),
+            $this->invoice
+        );
 
-    // Initialize the table
-    $items = '<table style="width: 80%; border-collapse: collapse;" align="center">';
-    $items .= '<thead>
-                <tr>
-                    <th style="text-align: left; border-bottom: 1px solid #ccc;">Item Name</th>
-                    <th style="text-align: right; border-bottom: 1px solid #ccc;">Value</th>
-                </tr>
-              </thead>';
-    $items .= '<tbody>';
+        // Initialize the table
+        $items = '<table style="width: 80%; border-collapse: collapse;" align="center">';
+        $items .= '<thead>
+                    <tr>
+                        <th style="text-align: left; border-bottom: 1px solid #ccc;">Item</th>
+                        <th style="text-align: right; border-bottom: 1px solid #ccc;">Value</th>
+                    </tr>
+                </thead>';
+        $items .= '<tbody>';
 
-    // Add each item as a row
-    foreach ( $invoice_items as $name => $value ) {
-        $items .= '<tr>';
-        $items .= '<td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html( $name ) . '</td>';
-        $items .= '<td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">' . esc_html( smartwoo_price( $value ) ) . '</td>';
-        $items .= '</tr>';
+        // Add each item as a row
+        foreach ( $invoice_items as $name => $value ) {
+            $items .= '<tr>';
+            $items .= '<td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html( $name ) . '</td>';
+            $items .= '<td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">' . esc_html( smartwoo_price( $value ) ) . '</td>';
+            $items .= '</tr>';
+        }
+
+        $items .= '</tbody>';
+        $items .= '</table>';
+
+        return $items;
     }
-
-    $items .= '</tbody>';
-    $items .= '</table>';
-
-    return $items;
-}
 
 }
