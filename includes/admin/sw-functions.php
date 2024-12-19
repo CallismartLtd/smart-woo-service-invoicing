@@ -887,7 +887,7 @@ function smartwoo_set_form_error( $data ) {
 		return false;
 	}
 	
-	return set_transient( 'smartwoo_form_validation_error_'. get_current_user_id(), $data, 10 );
+	return set_transient( 'smartwoo_form_validation_error_'. get_current_user_id(), $data, 30 );
 }
 
 /**
@@ -916,7 +916,7 @@ function smartwoo_set_form_success( $message ) {
 		return false;
 	}
 	
-	return set_transient( 'smartwoo_form_validation_success_'. get_current_user_id(), $message, 10 );
+	return set_transient( 'smartwoo_form_validation_success_'. get_current_user_id(), $message, 30 );
 }
 
 /**
