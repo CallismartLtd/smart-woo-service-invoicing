@@ -1,75 +1,98 @@
 <?php
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
+
 require_once 'smart-woo-service-invoicing.php';
 
 $delete = get_option( 'smartwoo_remove_plugin_data_during_uninstall', false );
 if ( ! $delete ) {
     return;
 }
+
 /**
- * Drop database table on uninstall
+ * Drop database tables on uninstall
  */
 global $wpdb;
 
 $table_names = array(
     SMARTWOO_SERVICE_TABLE,
     SMARTWOO_INVOICE_TABLE,
-    SMARTWOO_ASSETS_TABLE
+    SMARTWOO_ASSETS_TABLE,
 );
 
 foreach ( $table_names as $table_name ) {
-    // phpcs:disable
-    $sql = "DROP TABLE IF EXISTS {$table_name}";
+    // Use $wpdb->prepare to avoid SQL injection risks
+    $sql = $wpdb->prepare( "DROP TABLE IF EXISTS %s", $table_name );
     $wpdb->query( $sql );
 }
 
 /**
- * Delete pluigin settings during uninstall
+ * Delete plugin options during uninstall
  */
-delete_option( 'smartwoo_invoice_id_prefix' );
-delete_option( 'smartwoo_invoice_page_id' );
-delete_option( 'smartwoo_invoice_logo_url' );
-delete_option( 'smartwoo_invoice_watermark_url' );
-delete_option( 'smartwoo_business_name' );
-delete_option( 'smartwoo_admin_phone_numbers' );
-delete_option( 'smartwoo_service_page_id' );
-delete_option( 'smartwoo_billing_email' );
-delete_option( 'smartwoo_email_sender_name' );
-delete_option( 'smartwoo_upgrade_product_cat' );
-delete_option( 'smartwoo_downgrade_product_cat' );
-delete_option( 'smartwoo_prorate' );
-delete_option( 'smartwoo_allow_migration' );
-delete_option( 'smartwoo_service_id_prefix' );
-delete_option( 'smartwoo_cancellation_mail_to_user' );
-delete_option( 'smartwoo_service_opt_out_mail' );
-delete_option( 'smartwoo_payment_reminder_to_client' );
-delete_option( 'smartwoo_service_expiration_mail' );
-delete_option( 'smartwoo_new_invoice_mail' );
-delete_option( 'smartwoo_renewal_mail' );
-delete_option( 'smartwoo_invoice_paid_mail' );
-delete_option( 'smartwoo_service_cancellation_mail_to_admin' );
-delete_option( 'smartwoo_service_expiration_mail_to_admin' );
-delete_option( 'smartwoo_pay_pending_invoice_with_wallet' );
-delete_option( 'smartwoo_refund_to_wallet' );
-delete_option( 'smartwoo_product_text_on_shop' );
-delete_option( 'smartwoo_enable_api_feature' );
-delete_option( 'smartwoo_allow_guest_invoicing' );
-delete_option( 'smartwoo_remove_plugin_data_during_uninstall' );
-delete_option( 'smartwoo_email_image_header' );
-delete_option( '__smartwoo_installed' );
-delete_option( '__smartwoo_added_rule' );
-delete_option( '__smartwoo_automation_scheduled_date' );
-delete_option( 'smartwoo_db_version' );
-delete_option( 'smartwoo_all_services_count' );
+$options = array(
+    'smartwoo_invoice_id_prefix',
+    'smartwoo_invoice_page_id',
+    'smartwoo_invoice_logo_url',
+    'smartwoo_invoice_watermark_url',
+    'smartwoo_business_name',
+    'smartwoo_admin_phone_numbers',
+    'smartwoo_service_page_id',
+    'smartwoo_billing_email',
+    'smartwoo_email_sender_name',
+    'smartwoo_upgrade_product_cat',
+    'smartwoo_downgrade_product_cat',
+    'smartwoo_prorate',
+    'smartwoo_allow_migration',
+    'smartwoo_service_id_prefix',
+    'smartwoo_cancellation_mail_to_user',
+    'smartwoo_service_opt_out_mail',
+    'smartwoo_payment_reminder_to_client',
+    'smartwoo_service_expiration_mail',
+    'smartwoo_new_invoice_mail',
+    'smartwoo_renewal_mail',
+    'smartwoo_invoice_paid_mail',
+    'smartwoo_service_cancellation_mail_to_admin',
+    'smartwoo_service_expiration_mail_to_admin',
+    'smartwoo_pay_pending_invoice_with_wallet',
+    'smartwoo_refund_to_wallet',
+    'smartwoo_product_text_on_shop',
+    'smartwoo_enable_api_feature',
+    'smartwoo_allow_guest_invoicing',
+    'smartwoo_remove_plugin_data_during_uninstall',
+    'smartwoo_email_image_header',
+    '__smartwoo_installed',
+    '__smartwoo_added_rule',
+    '__smartwoo_automation_scheduled_date',
+    'smartwoo_db_version',
+    'smartwoo_all_services_count',
+    'smartwoo_pro_sell_intrest',
+    'smartwoo_allow_invoice_tracking',
+    '_smartwoo_flushed_rewrite_rules',
+    '__smartwoo_automation_last_scheduled_date',
+);
+
+foreach ( $options as $option ) {
+    delete_option( $option );
+}
 
 /**
  * Clear scheduled events
  */
+$schedule_hooks = array(
+    'smartwoo_auto_service_renewal',
+    'smartwoo_daily_task',
+    'smartwoo_once_in48hrs_task',
+    'smartwoo_five_hourly',
+    'smartwoo_twice_daily_task',
+    'smartwoo_service_scan',
+);
 
-wp_clear_scheduled_hook( 'smartwoo_auto_service_renewal' );
-wp_clear_scheduled_hook( 'smartwoo_daily_task' );
-wp_clear_scheduled_hook( 'smartwoo_once_in48hrs_task' );
-wp_clear_scheduled_hook( 'smartwoo_five_hourly' );
-wp_clear_scheduled_hook( 'smartwoo_twice_daily_task' );
-wp_clear_scheduled_hook( 'smartwoo_service_scan' );
+foreach ( $schedule_hooks as $hook ) {
+    wp_clear_scheduled_hook( $hook );
+}
+
+
+// Delete Smart Woo Upload directory if defined
+if ( defined( 'SMARTWOO_UPLOAD_DIR' ) ) {
+    smartwoo_delete_directory( SMARTWOO_UPLOAD_DIR );
+}
