@@ -523,7 +523,7 @@ function smartwoo_advanced_options() {
         <form method="post" class="inv-settings-form">
             <?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
 			<div class="sw-form-row">
-				<label for="smartwoo_product_text_on_shop" class="sw-form-label"><?php esc_html_e( 'Product Button Text', 'smart-woo-service-invoicing' ); ?></label>
+				<label for="smartwoo_product_text_on_shop" class="sw-form-label"><?php esc_html_e( 'Product add to cart text', 'smart-woo-service-invoicing' ); ?></label>
 				<span class="sw-field-description" title="Set the text that will be shown on each Smart Woo Product on shop page">?</span>
 				<input type="type" name="smartwoo_product_text_on_shop" id="smartwoo_product_text_on_shop" value="<?php echo esc_attr( $product_text ); ?>" placeholder="eg, View Product, add to cart, configure" class="sw-form-input">
 			</div>
