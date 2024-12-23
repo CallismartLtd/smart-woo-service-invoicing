@@ -977,3 +977,29 @@ function smartwoo_set_document_title( $title ) {
     <?php
 }
 
+/**
+ * Recursively delete a directory and its contents.
+ *
+ * @param string $dir Directory path.
+ * @return bool True on success, false on failure.
+ * @since 2.2.1
+ */
+function smartwoo_delete_directory( $dir ) {
+    if ( ! is_dir( $dir ) ) {
+        return false;
+    }
+
+    $items = array_diff( scandir( $dir ), array( '.', '..' ) );
+
+    foreach ( $items as $item ) {
+        $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+        if ( is_dir( $path ) ) {
+            smartwoo_delete_directory( $path );
+        } else {
+            @unlink( $path );
+        }
+    }
+
+    return @rmdir( $dir );
+}
