@@ -6,12 +6,13 @@ function smartWooAddSpinner(targetId) {
 	const targetElement = document.getElementById(targetId);
 
 	targetElement.appendChild(loadingSpinner);
+	targetElement.parentElement.style.cursor = 'progress';
   
 	return loadingSpinner; // Return the created element for potential removal
 }
   
 function smartWooRemoveSpinner(spinnerElement) {
-spinnerElement.remove();
+	spinnerElement.remove();
 }
 
 function showNotification(message, duration) {
