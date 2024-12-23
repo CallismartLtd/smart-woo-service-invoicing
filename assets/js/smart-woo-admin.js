@@ -564,6 +564,65 @@ function smartwooDeleteInvoice(invoiceId) {
 	}
 }
 
+/**
+ * Handles pro button actions
+ */
+function smartwooProBntAction(action_name) {
+    let spinner = smartWooAddSpinner('sw-loader');
+    jQuery.ajax({
+        type: 'GET',
+        url: smart_woo_vars.ajax_url,
+        data: {
+            action: 'smartwoo_pro_button_action',
+            security: smart_woo_vars.security,
+            real_action: action_name
+        },
+
+        success: (response)=>{
+            if (response.success) {
+                let adDiv = document.querySelector('.sw-pro-sell-content');
+                adDiv.innerHTML = ''; // Clear existing content
+                
+                // Create and append the check icon
+                let checkIcon = document.createElement('span');
+                checkIcon.className = 'dashicons dashicons-yes-alt';
+                let respMessage = document.createElement('h2');
+                respMessage.textContent = response.data.message;
+                adDiv.append(checkIcon);
+                adDiv.append(respMessage);
+                
+                // Toggle the 'loaded' class every second
+                setInterval(() => checkIcon.classList.toggle('loaded'), 1000);
+                
+                // Fade out and remove the adDiv
+                setTimeout(() => {
+                    jQuery(adDiv.parentElement).fadeOut(() => adDiv.remove());
+                }, 3000);
+            } else {
+                showNotification(response.data.message, 3000);
+                window.location.reload();
+            }
+
+            
+        },
+
+        error: function(error) {
+            let message = 'Error fetching data: ';
+            if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
+                message += error.responseJSON.data.message;
+            } else if (error.responseText) {
+                message += error.responseText;
+            } else {
+                message += error;
+            }
+            console.error(message);
+        },
+        complete: ()=>{
+            smartWooRemoveSpinner(spinner);
+        }
+    });
+}
+
 function smartwooDeleteProduct(productId) {
     let isConfirmed = confirm( 'Are you sure you want to permanently delete this product? This action cannot be reversed!' );
     if (isConfirmed) {
@@ -696,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let invoicesBtn         = document.getElementById('dashInvoicesBtn');
     let productsBtn         = document.getElementById('dashProductBtn');
     let settingsBtn         = document.getElementById('dashSettingsBtn');
-    let proBtn              = document.querySelector('.sw-upgrade-to-pro');
+    let proBtns             = document.querySelectorAll('.sw-upgrade-to-pro');
     let searchField         = document.getElementById('sw_service_search');
     let searchbtn           = document.getElementById('swSearchBtn');
     const notificationTooltip = document.getElementById('search-notification');
@@ -707,7 +766,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let adminDashHeader     = document.querySelector('.sw-admin-dash-header');
     let editMailBtns        = document.querySelectorAll('.sw-edit-mail-nopro');
     let swCheckBoxes        = document.querySelectorAll('.sw-checkboxes');
-    let swHideBtn          = document.getElementById('sw-hide');
+    let swHideBtn           = document.getElementById('sw-hide');
+    let noSbmtBtn           = document.querySelectorAll('.smartwoo-prevent-default' );
+    let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
+    let proDismissFornow   = document.querySelector('#smartwoo-pro-dismiss-fornow');
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -741,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchServiceCount(8, 'total_suspended_services', 'Suspended Services')
         ];
 
-        // Use Promise.all to wait for all fetchServiceCount promises to resolve
+        // Using Promise.all to wait for all fetchServiceCount promises to resolve.
         Promise.allSettled(dashBoardLoad).finally(() => {
             document.dispatchEvent(new CustomEvent('SmartWooDashboardLoaded'));
         });
@@ -777,10 +839,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (proBtn) {
-        proBtn.addEventListener('click', ()=>{
-            window.open(smartwoo_admin_vars.smartwoo_pro_page, '_blank');
-        });
+    if (proBtns) {
+        proBtns.forEach((proBtn)=>{
+            proBtn.addEventListener('click', ()=>{
+                window.open(smartwoo_admin_vars.smartwoo_pro_page, '_blank');
+            });
+        })
+
     }
 
     if (searchField && searchbtn && notificationTooltip) {
@@ -923,15 +988,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (noSbmtBtn) {
+        noSbmtBtn.forEach((btn)=>{
+            let newWindow = null;
+            btn.addEventListener('click', (e)=>{
+                e.preventDefault();
+                newWindow = window.open('', '_blank');
+                newWindow.location.href = btn.getAttribute( 'href' );
+                btn.disabled = true;
+                let enableBtnFnc = ()=>{
+                    if (newWindow && newWindow.closed) {
+                        btn.disabled = false;
+                        btn.style.cursor = 'pointer';
+                        document.removeEventListener('scroll', enableBtnFnc);
+
+                    }
+                }
+                document.addEventListener('scroll', enableBtnFnc);
+
+                if(btn.disabled) {
+                    btn.style.cursor = 'not-allowed';
+                }
+            });
+            
+        });
+    }
+
+    if(proRemindLaterBtn) {
+        proRemindLaterBtn.addEventListener('click', ()=>{
+            smartwooProBntAction('remind_later');
+        });
+    }
+
+    if(proDismissFornow) {
+        proDismissFornow.addEventListener('click', ()=>{
+            smartwooProBntAction('dismiss_fornow');
+        });
+    }
+
 });
 
 /**
  * Dashboard event listener.
  */
 document.addEventListener('SmartWooDashboardLoaded', () => {
-    let dashboardCount = document.querySelectorAll('.sw-dash-content');
-    let dashboardBtn = document.getElementById('dashboardBtn');
-    let contentDiv = document.querySelector('.sw-dash-content-container');
+    let dashboardCount  = document.querySelectorAll('.sw-dash-content');
+    let dashboardBtn    = document.getElementById('dashboardBtn');
+    let contentDiv      = document.querySelector('.sw-dash-content-container');
+    let proDiv          = document.querySelector('.sw-dash-pro-sell-bg');
 
     // Loop through each dashboard statistic container and attach event listener
     dashboardCount.forEach((stat, index) => {
@@ -949,6 +1053,10 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
         smartwooRemoveTable();  // Remove table when dashboard button is clicked
         jQuery(contentDiv).fadeIn().css('display', 'flex');// Show dashboard content
     });
+
+    if (proDiv) {
+        jQuery(proDiv).fadeIn();
+    }
 });
 
 
