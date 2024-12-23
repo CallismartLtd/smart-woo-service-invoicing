@@ -20,14 +20,14 @@ defined( 'ABSPATH' ) || exit;
 
         <!-- Navigation buttons -->
         <div class="sw-admin-dash-nav">
-        <a id="dashboardBtn">Dashboard</a>
-        <a id="dashAddNew">Add New</a>
-        <a id="dashOrderBtn">Orders</a>
+            <a id="dashboardBtn">Dashboard</a>
+            <a id="dashAddNew">Add New</a>
+            <a id="dashOrderBtn">Orders</a>
             <a id="dashInvoicesBtn">Invoices</a>
             <a id="dashProductBtn">Products</a>
             <a id="dashSettingsBtn">Settings</a>
         </div>
-       <div class="sw-admin-menu-icon">
+        <div class="sw-admin-menu-icon">
 	        <span class="dashicons dashicons-menu"></span>
 	    </div>
 
@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 
     </div>
 
-    <div id="swloader">Just a moment</div>
+    <div id="swloader"><?php esc_html_e( 'Just a moment', 'smart-woo-service-invoicing' ); ?></div>
     <div class="sw-admin-dash-body">
         <div class="sw-search-container">
             <input type="search" name="sw_service_search" id="sw_service_search" placeholder="Search service">
@@ -49,7 +49,6 @@ defined( 'ABSPATH' ) || exit;
 
         <div class="sw-dash-content-container">            
             <div class="sw-dash-content">
-
                 <div class="sw-skeleton sw-skeleton-text"></div>
                 <div class="sw-skeleton sw-skeleton-text"></div>
             </div>
@@ -58,6 +57,6 @@ defined( 'ABSPATH' ) || exit;
     </div>
 
     <div class="sw-admin-dash-footer">
-
+        <?php do_action( 'smartwoo_admin_dash_footer' ); ?>        
     </div>
 </div>
