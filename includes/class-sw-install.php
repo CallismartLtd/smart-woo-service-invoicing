@@ -35,6 +35,8 @@ class SmartWoo_Install {
 		if ( true === self::is_new_installation() ) {
 			self::create_tables();
 			self::create_options();
+			self::create_client_pages();
+			self::create_upload_dir();
 			add_option( '__smartwoo_installed', true );
 		} else {
 			self::update();
@@ -109,8 +111,6 @@ class SmartWoo_Install {
 		
 		add_option( 'smartwoo_invoice_id_prefix', 'SmartWoo' );
 		add_option( 'smartwoo_service_id_prefix', 'SmartWoo' );
-		add_option( 'smartwoo_invoice_page_id', 0 );
-		add_option( 'smartwoo_service_page_id', 0 );
 		add_option( 'smartwoo_business_name', get_bloginfo( 'name' ) );
 		add_option( 'smartwoo_email_sender_name', get_bloginfo( 'name' )  );
 		add_option( 'smartwoo_prorate', 0 );
@@ -220,4 +220,77 @@ class SmartWoo_Install {
         }
 
 	}
+
+	/**
+	 * Create plugin frontend pages
+	 * 
+	 * @since 2.2.1
+	 */
+	public static function create_client_pages() {
+		$service_page_id = get_option( 'smartwoo_invoice_page_id', false );
+		$invoice_page_id = get_option( 'smartwoo_service_page_id', false );
+		$pages = compact( 'service_page_id', 'invoice_page_id' );
+
+		if ( ! $service_page_id ) {
+			$page_title = 'My Services';
+			$page_content = '[smartwoo_service_page]';
+
+			$page_exists = self::page_exists( $page_title );
+
+			if ( ! $page_exists ) {
+				$pages['service_page_id'] = wp_insert_post( array(
+					'post_title'   => $page_title,
+					'post_content' => $page_content,
+					'post_status'  => 'publish',
+					'post_type'    => 'page',
+				) );
+
+				// Save the page ID in the database
+				update_option( 'smartwoo_service_page_id', $pages['service_page_id'] );
+			}
+		}
+
+		if ( ! $invoice_page_id ) {
+			$page_title = 'My Invoices';
+			$page_content = '[smartwoo_invoice_page]';
+
+			$page_exists = self::page_exists( $page_title );
+
+			if ( ! $page_exists ) {
+				$pages['invoice_page_id'] = wp_insert_post( array(
+					'post_title'   => $page_title,
+					'post_content' => $page_content,
+					'post_status'  => 'publish',
+					'post_type'    => 'page',
+				) );
+
+				// Save the page ID in the database
+				update_option( 'smartwoo_invoice_page_id', $pages['invoice_page_id'] );
+			}
+		}
+
+		return $pages;
+	}
+
+	/**
+	 * Check if a page with a specific title already exists.
+	 *
+	 * @since 2.2.1
+	 * 
+	 * @param string $page_title The title of the page to check.
+	 * @return bool True if the page exists, false otherwise.
+	 */
+	private static function page_exists( $page_title ) {
+		$query = new WP_Query( array(
+			'post_type'   => 'page',
+			'title'       => $page_title,
+			'post_status' => 'any',
+		) );
+
+		$exists = $query->have_posts();
+		wp_reset_postdata();
+
+		return $exists;
+	}
+
 }
