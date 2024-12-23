@@ -91,6 +91,9 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
         add_action( 'wp_ajax_smartwoo_service_id_ajax', array( __CLASS__, 'ajax_generate_service_id' ) );
+        add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
+
+        add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
 
     /** Service Subscription */
@@ -1787,6 +1790,73 @@ final class SmartWoo {
         $generated_service_id = smartwoo_generate_service_id( $service_name );
         echo esc_html( $generated_service_id );
         die();
+    }
+
+    /**
+     * Sell smart woo pro with discounts.
+     */
+    public static function sell_pro() {
+        if ( class_exists( 'SmartWooPro' ) ) {
+            return;
+        }
+        $user_options = get_option( 'smartwoo_pro_sell_intrest' );
+        $show_notification = true;
+
+        if ( is_array( $user_options ) ) {
+
+            $value  = wp_unslash( $user_options['user_option'] );
+            $time   = intval( $user_options['time'] );
+
+            if ( 'dismiss_fornow' === $value && $time + ( 3 * MONTH_IN_SECONDS ) > time() ) {
+                $show_notification = false;
+            } elseif ( 'remind_later' === $value && $time + ( 3 * DAY_IN_SECONDS ) > time() ) {
+                $show_notification = false;
+            }
+
+        }
+
+        if ( ! $show_notification ) {
+            return;
+        }
+        ?>
+        <div class="sw-dash-pro-sell-bg">
+            <div class="sw-pro-sell-content">
+                <h2>Exciting Offer!</h2>
+                <p>Get 20% off the original price of Smart Woo Pro when you use the code <strong>PROLAUNCH20</strong> at checkout.</p>
+                <p>Hurry now, this offer is only available during this launch period.</p>
+                <div class="sw-pro-sell-buttons">
+                    <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss for now</button>
+                    <button id="smartwoo-pro-remind-later" style="border: solid .5px blue;">Remind me later</button>
+                    <button class="sw-upgrade-to-pro" style="border: solid .5px green;">Let's go</button>
+                </div>
+                <div id="sw-loader"></div>
+                
+
+            </div>
+        </div>
+        
+        <?php
+    }
+
+    /**
+     * Handle pro upsell button actions
+     */
+    public static function pro_button_action() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+        $allowed_actions    = array( 'remind_later', 'dismiss_fornow' );
+        $action             = isset( $_GET['real_action'] ) ? sanitize_text_field( wp_unslash( $_GET['real_action'] ) ) : '';
+        
+        if ( ! in_array( $action, $allowed_actions, true ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid request.' ) );
+
+        }
+        $message        = ( 'dismiss_fornow' === $action ) ? 'Dismissed for now' : 'Reminder has been set.';
+        $user_option    = ( 'dismiss_fornow' === $action ) ? 'dismiss_fornow' : 'remind_later';
+        update_option( 'smartwoo_pro_sell_intrest', array( 'user_option' => $user_option, 'time' => time() ) );
+
+        wp_send_json_success( array( 'message' => $message ) );
     }
 }
 
