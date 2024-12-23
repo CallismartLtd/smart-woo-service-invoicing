@@ -334,7 +334,7 @@ class SmartWoo_Mail {
 
         // If there are no products, return false
         if ( empty( $products ) ) {
-            return false;
+            wp_die( 'No product found, please <a href="'. esc_url( admin_url( 'admin.php?page=sw-products&action=add-new' ) ) .'">create a product</a> first', 'Product not found', array( 'response' => 404 ) );
         }
 
         // Return the single random product ID
