@@ -45,7 +45,8 @@ function smartwoo_save_email_options() {
 				'smartwoo_invoice_paid_mail',
 				'smartwoo_service_cancellation_mail_to_admin',
 				'smartwoo_service_expiration_mail_to_admin',
-				'smartwoo_new_service_order'
+				'smartwoo_new_service_order',
+				'smartwoo_service_processed_mail'
 			),
 			'save_options'
 		);
@@ -418,6 +419,7 @@ function smartwoo_email_options() {
 		array(
 			'smartwoo_new_invoice_mail' 					=> 'Client',
 			'smartwoo_new_service_order' 					=> 'Admin',
+			'smartwoo_service_processed_mail'				=> 'Client',
 			'smartwoo_payment_reminder_to_client'			=> 'Client',
 			'smartwoo_invoice_paid_mail'					=> 'Client',
 			'smartwoo_renewal_mail'							=> 'Client',
