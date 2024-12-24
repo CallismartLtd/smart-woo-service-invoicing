@@ -138,8 +138,9 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
     public static function is_preview() {
         $is_edit    = isset( $_GET['tab'], $_GET['section'] ) && 'edit' === $_GET['section'];
         $is_preview = isset( $_GET['action'] ) && 'smartwoo_mail_preview' === $_GET['action'];
+        $for_this   = isset( $_GET['temp_name'] ) && $_GET['temp_name'] === self::$id;
 
-        return $is_preview || $is_edit;
+        return ( $is_preview || $is_edit ) && $for_this;
     }
 
     /**
@@ -169,6 +170,10 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
      * @param array $main description The default description for the parent class.
      */
     public static function add_descriptions( $main ) {
+        if ( ! self::is_preview() ) {
+            return $main;
+        }
+
         $to_add = array(
             '{{order_id}}'          => 'Order ID',
             '{{order_date}}'        => 'Order creation date',
@@ -183,7 +188,10 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
      * Provide placeholder values
      */
     public static function placeholder_values( $value, $placeholder ) {
-       
+        
+        if ( ! isset( self::$instance->order ) ) {
+            return $value;
+        }
         switch( $placeholder ) {
             case '{{order_id}}':
                 $value = self::$instance->order->get_id();
@@ -215,6 +223,10 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
     public static function send_mail( $invoice_id, $order ) {
         if ( ! smartwoo_check_if_configured( $order ) ) {
             return;
+        }
+
+        if ( 'completed' === $order->get_status() ) {
+            return; // Mail already sent before processing.
         }
 
         $mail_is_enabled    = get_option( 'smartwoo_new_service_order', false );
