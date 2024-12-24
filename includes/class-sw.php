@@ -211,22 +211,22 @@ final class SmartWoo {
         /**
          * Smart Woo Pro URL
          */
-        $smartwoo_pro_url = apply_filters( 'smartwoopro_purchase_link', 'https://callismart.com.ng/smart-woo-service-invoicing' );
+        $smartwoo_pro_url = apply_filters( 'smartwoopro_purchase_link', 'https://callismart.com.ng/smart-woo-service-invoicing/' );
 
         /**
          * Plugin support link.
          */
-        $support_url = apply_filters( 'smartwoo_support_url', 'https://callismart.com.ng/support-portal' );
+        $support_url = apply_filters( 'smartwoo_support_url', 'https://callismart.com.ng/support-portal/' );
 
         /**
          * Our github repository
          */
-        $source_code    = apply_filters( 'smartwoo_source_code', 'https://github.com/CallismartLtd/smart-woo-service-invoicing' );
+        $source_code    = apply_filters( 'smartwoo_source_code', 'https://github.com/CallismartLtd/smart-woo-service-invoicing/' );
 
         /**
          * Other Products URL
          */
-        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/pricing' );
+        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/pricing/' );
 
         $smartwoo_row_meta = array(
             'smartwoo_pro'      => '<a href="' . esc_url( $smartwoo_pro_url ) . '" title="' . esc_attr__( 'Get Pro Version', 'smart-woo-service-invoicing' ) . '">' . esc_html__( 'Smart Woo Pro', 'smart-woo-service-invoicing' ) . '</a>',
@@ -371,7 +371,7 @@ final class SmartWoo {
             $service->set_next_payment_date( $next_payment_date );
             $service->set_billing_cycle( $billing_cycle,);
             $service->set_status( $status );
-            $saved_service_id = $service->save();
+            $saved_service_id = $service->save() ? $service_id: '';
 
             if ( $saved_service_id ) {
 
@@ -473,13 +473,13 @@ final class SmartWoo {
                 $order = wc_get_order( $order_id );
                 
                 if ( $order && 'processing' === $order->get_status()  ) {
-                    $order->update_status( 'completed' );
                     $invoice_id = $order->get_meta( '_sw_invoice_id' );
                     SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, array( 'service_id' => $saved_service_id ) );
+                    $order->update_status( 'completed' );
                 }
 
                 do_action( 'smartwoo_new_service_is_processed', $saved_service_id );
-                wp_safe_redirect( esc_url_raw( smartwoo_service_preview_url( $saved_service_id ) ) );
+                wp_safe_redirect( smartwoo_service_preview_url( $saved_service_id ) );
                 exit;
             }
         }
@@ -1689,6 +1689,11 @@ final class SmartWoo {
                 break;
             case 'smartwoo_new_service_order':
                 $temp_class_name    = 'Smartwoo_New_Service_Order';
+                $obj_class_name     = 'SmartWoo_Service';
+                $doing_service      = true;
+                break;
+            case 'smartwoo_service_processed_mail':
+                $temp_class_name    = 'SmartWoo_Service_Processed_Mail';
                 $obj_class_name     = 'SmartWoo_Service';
                 $doing_service      = true;
                 break;
