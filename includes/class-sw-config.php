@@ -162,6 +162,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-expiration-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-reactivation-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/new-service-order-mail.php';
+        require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-processed-mail.php';
 
 
         /** Only load admin menu and subsequent files in admin page. */ 
