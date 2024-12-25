@@ -271,24 +271,26 @@ class SmartWoo_Config{
      * Show notice when WooCommerce is not active.
      */
     public function woocommerce_dependency_nag() {
-       if ( ! $this->woocommerce_loaded ) {
-           $woo_plugin_url = 'https://wordpress.org/plugins/woocommerce/';
-           $notice         = sprintf(
-               'Smart Woo Service Invoicing requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a> or deactivate the plugin to avoid a fatal error.',
-               esc_url( $woo_plugin_url )
-           );
-           add_action(
-               'admin_notices',
-               function () use ( $notice ) {
-                   echo '<div class="notice notice-error"><p>' . wp_kses( $notice, array(
-                        'a' => array(
-                            'href' => array(),
-                            'class' => array()
-                        )
-                       ) ) . '</p></div>';
-               }
-           );
-       }
+        if ( ! $this->woocommerce_loaded ) {
+            $woo_plugin_url = 'https://wordpress.org/plugins/woocommerce/';
+            $notice         = sprintf(
+                'Smart Woo Service Invoicing requires WooCommerce to be active. Please <a href="%s" class="activate-link" target="_blank">activate WooCommerce</a> or deactivate the plugin to avoid a fatal error.',
+                esc_url( $woo_plugin_url )
+            );
+            add_action(
+                'admin_notices',
+                function () use ( $notice ) {
+                    echo '<div class="notice notice-error"><p>' . wp_kses( $notice, 
+                        array(
+                            'a' => array(
+                                'href' => array(),
+                                'class' => array()
+                            )
+                        ) 
+                    ) . '</p></div>';
+                }
+            );
+        }
    }
 
    /**
