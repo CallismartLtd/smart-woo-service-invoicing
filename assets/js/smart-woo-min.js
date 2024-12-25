@@ -1,4 +1,4 @@
-function smartWooAddSpinner(e){let t=document.createElement("div");t.classList.add("loading-spinner"),t.innerHTML='<img src=" '+smart_woo_vars.wp_spinner_gif_loader+'" alt="Loading...">';let n=document.getElementById(e);return n.appendChild(t),t}function smartWooRemoveSpinner(e){e.remove()}function showNotification(e,t){let n=document.createElement("div");n.classList.add("notification"),n.innerHTML=`
+function smartWooAddSpinner(e){let t=document.createElement("div");t.classList.add("loading-spinner"),t.innerHTML='<img src=" '+smart_woo_vars.wp_spinner_gif_loader+'" alt="Loading...">';let n=document.getElementById(e);return n.appendChild(t),n.parentElement.style.cursor="progress",t}function smartWooRemoveSpinner(e){e.remove()}function showNotification(e,t){let n=document.createElement("div");n.classList.add("notification"),n.innerHTML=`
     <div class="notification-content">
         <span style="float:right; cursor:pointer; font-weight:bold;" class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</span>
         <p>${e}</p>
