@@ -87,6 +87,11 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
+# [2.2.1] 2024-12-25
+- Fixed Sign-up fee calculation when other items are added in cart.
+- Added service processed mail.
+- Minor bug fixes
+
 # [2.2.0] 2024-12-07
 
 ### Added
