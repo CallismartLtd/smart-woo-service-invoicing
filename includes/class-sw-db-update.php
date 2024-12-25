@@ -73,7 +73,12 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
      * Add database update notice
      */
     public function add_update_notice() {
-        if ( $this->is_updating ) {
+        $screen             = get_current_screen();
+        $is_our_dash        = isset( $_GET['page'] ) && 'sw-admin' === $_GET['page'];
+        $is_plugin_page     = 'plugins' === $screen->id;
+        $is_wp_dashboard    = 'dashboard' === $screen->id;
+        $show_notice        = $is_our_dash || $is_plugin_page || $is_wp_dashboard;
+        if ( $this->is_updating || ! $show_notice ) {
             return;
         }
 
@@ -109,12 +114,14 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
     }
 
     /**
-     * Single instance of current SmartWoo_DB_Update
+     * Single instance of SmartWoo_DB_Update class.
      */
     public static function instance() {
         if ( is_null( self::$instance ) ) {
             self::$instance = new self();
         }
+
+        return self::$instance;
     }
 
     /**
