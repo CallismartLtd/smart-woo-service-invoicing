@@ -2,11 +2,11 @@
 Contributors: callismartltd  
 Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicing, automated billing plugin  
 Requires at least: 6.0  
-Tested up to: 6.6.2  
+Tested up to: 6.7.1  
 Requires WooCommerce: 8.0  
-WooCommerce tested: 9.3.3
+WooCommerce tested up to: 9.5.1
 Requires PHP: 7.4  
-Stable Tag: 2.2.0
+Stable Tag: 2.2.1
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -16,11 +16,11 @@ More Than Just A Subscription Plugin!
 Smart Woo Service Invoicing simplifies your subscription-based business by automating invoicing at the end of a billing cycle. Perfect for freelancers and agencies, it offers robust features to efficiently manage recurring services without breaking the bank.
 
 == Features ==
-- **Professional Client Portal**: A modern frontend UI to allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
+- **Professional Client Portal**: A modern frontend UI that allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
 - **Automatic Invoice Generation**: Automatically generates and issues invoices at the end of each billing cycle, making the management process seamless.
 - **Flexible Payment Options**: Smart Woo works with any payment method supported by WooCommerce, making invoice payments easier for your clients.
 - **Flexible Billing Cycles**: Charge for Monthly, Quarterly, Six-Monthly, and Yearly service subscription periods.
-- **User-Friendly Interface**: Empower customers to set their service name, billing cycle, and other relevant data during the purchase (sign-up) process.
+- **User-Friendly Interface**: Empowers customers to set their service name, billing cycle, and other relevant data during the purchase (sign-up) process.
 - **Robust Subscription Assets**: Supports downloadable, remote-protected (resource), digital, and physical asset subscriptions.
 - **Customized Notifications**: Choose how to receive notifications about service purchases, renewals, expirations, and stay informed about your subscriptions.
 - **Stats and Usage**: Monitor service subscription performance directly from the admin dashboard.
@@ -29,8 +29,7 @@ Smart Woo Service Invoicing simplifies your subscription-based business by autom
 - **Service Subscription Migration**: Flexible options allow clients to migrate from their current subscription to another, directly from their dashboard.
 
 == License ==
-
-This project is licensed under the GPL- v3.0+ License.
+This project is licensed under the GPL v3.0+ License.
 
 == Screenshots ==
 ![Screenshot 1](assets/images/smart-woo-img.png)
@@ -82,6 +81,10 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+= [2.2.1] 2024-12-25
+  - Fixed Sign-up fee calculation when other items are added in cart.
+  - Added service processed mail.
+  - Minor bug fixes
 
 = [2.2.0] 2024-12-07 =
 
