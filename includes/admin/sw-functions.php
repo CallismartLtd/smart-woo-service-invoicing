@@ -962,6 +962,7 @@ function smartwoo_download_url( $resource_id, $key, $asset_id, $service_id ) {
  * @since 2.0.15
  */
 function smartwoo_set_document_title( $title ) {
+	$title					= strip_tags( sanitize_text_field( wp_unslash( $title ) ) );
     $sep           			= apply_filters( 'document_title_separator', '-' );
     $title_parts   			= array( 'title' => $title );
     $title_parts['site']	= get_bloginfo( 'name', 'display' );
