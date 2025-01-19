@@ -100,7 +100,7 @@ function smartwoo_utm_campaign_url( $utm_url = '' ) {
     $default_url = esc_url_raw( apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/' ) );
 
     // Validate and assign the base URL.
-    $utm_url = wp_http_validate_url( $utm_url ) ? $utm_url : $default_url;
+    $utm_url = ! empty( $utm_url ) ? $utm_url : $default_url;
 
     // Define UTM parameters.
     $utm_params = array(
