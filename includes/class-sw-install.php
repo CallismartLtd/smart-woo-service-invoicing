@@ -194,7 +194,9 @@ class SmartWoo_Install {
         }
     
         // Request filesystem credentials (this will handle FTP/SSH details if required).
+		ob_start();
         $creds = request_filesystem_credentials( '', '', false, false, null );
+		ob_get_clean(); // Hide the form.
         
         // Initialize the filesystem.
         if ( ! WP_Filesystem( $creds ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
