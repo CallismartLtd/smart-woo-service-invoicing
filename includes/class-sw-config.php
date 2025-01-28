@@ -71,7 +71,9 @@ class SmartWoo_Config{
      */
     public function before_init() {
         if ( class_exists( WP_CONSENT_API::class ) ) {
-            add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );            
+            add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );
+            add_action( 'wp_consent_api_consent_changed', array( __CLASS__, 'revoke_tracking' ) );
+                      
         }
 
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
@@ -510,4 +512,17 @@ class SmartWoo_Config{
 
         return $template;
     }
+
+    /**
+     * Revoke cookie tracking for form submission when user withdraws their conscent.
+     * 
+     */
+    public static function revoke_tracking( $consent_status ) {
+        $cookie_name = 'smartwoo_user_tracker';
+    
+        // If consent is revoked we, delete the cookie.
+        if ( isset( $consent_status['functional'] ) && ! $consent_status['functional'] ) {
+            setcookie( $cookie_name, '', time() - HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+        }
+    } 
 }
