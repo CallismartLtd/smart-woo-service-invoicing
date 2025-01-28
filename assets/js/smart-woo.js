@@ -157,8 +157,66 @@ document.addEventListener( 'DOMContentLoaded', function() {
     }
 
 	if ( forgotPwdBtn ) {
-		forgotPwdBtn.addEventListener('click', ()=>{
+		forgotPwdBtn.addEventListener( 'click', ()=>{
+			let formTitle			= document.querySelector( '.sw-notice' ).querySelector( 'p' );
+			let resetBtn			= document.querySelector( '#sw-login-btn' );
+			formTitle.textContent	= 'Password Reset';
+			resetBtn.textContent	= 'Reset Password';
 
+			let usernameField	= document.querySelector( '#sw-user-login' );
+			let pwdField		= document.querySelector( '#sw-user-password' );
+			let rememberMeField = document.querySelector( '#remember_me' );
+			usernameField ? usernameField.parentElement.remove() : '';
+			pwdField ? pwdField.parentElement.remove() : '';
+			rememberMeField ? rememberMeField.parentElement.remove() : '';
+
+			let parentDiv = document.querySelector( '.smartwoo-login-form-notice' );
+			let emailField		= document.createElement( 'div' );
+			let theLabel		= document.createElement( 'label' );
+			let textInput		= document.createElement( 'input' );
+			let erroDiv			= this.documentElement.querySelector( '#sw-error-div' );
+
+			emailField.classList.add( 'smartwoo-login-form-body' );
+			theLabel.classList.add( 'smartwoo-login-form-label' );
+			theLabel.setAttribute( 'for', 'sw-user-login' );
+			theLabel.textContent = 'Email Address';
+			textInput.setAttribute( 'type', 'text' );
+			textInput.setAttribute( 'id', 'sw-user-login' );
+			textInput.setAttribute( 'class', 'smartwoo-login-input' );
+			textInput.setAttribute( 'name', 'user_login' );
+			
+			emailField.appendChild( theLabel );
+			emailField.appendChild( textInput );
+			parentDiv.append( emailField );
+			erroDiv.innerHTML = `Enter your email address to request a password reset or you can <a id="sw-login-instead">Login</a> instead.`;
+			loginInstead = document.getElementById( 'sw-login-instead' );
+			if ( loginInstead ) {
+				loginInstead.addEventListener( 'click', ()=>{ window.location.reload() });
+			}
+
+			resetBtn.addEventListener( 'click', async (e)=>{
+				e.preventDefault();
+
+				if ( ! textInput.value.length ){
+					showNotification( 'Email should not be empty' );
+					return;
+				}
+				let url = new URL( smart_woo_vars.ajax_url );
+				url.searchParams.set( 'action', 'smartwoo_password_reset' );
+				url.searchParams.set( 'user_login', textInput.value );
+				url.searchParams.set( 'security', smart_woo_vars.security );
+				formTitle.innerHTML = `Password Reset processed <span class="dashicons dashicons-yes-alt" style="color: green; font-size: 25px;"></span>`
+				emailField.remove();
+				erroDiv.innerHTML = "A password reset email will be sent to the account if it exists.";
+				resetBtn.remove();
+				try {
+					let response = await fetch( url, {method: 'GET'} );
+					if ( ! response.ok ) {
+						throw new Error(`Response status: ${response.status}`);
+					}
+				} catch {}
+
+			});
 		});
 	}
 });
