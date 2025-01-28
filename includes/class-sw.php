@@ -92,6 +92,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_nopriv_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
         add_action( 'wp_ajax_smartwoo_service_id_ajax', array( __CLASS__, 'ajax_generate_service_id' ) );
         add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
+        add_action( 'wp_ajax_nopriv_smartwoo_password_reset', array( __CLASS__, 'ajax_password_reset' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
@@ -286,9 +287,9 @@ final class SmartWoo {
             if ( is_wp_error( $user ) ) {
                 if ( 'incorrect_password' === $user->get_error_code() ) {
                     $message = 'Error: The password you entered for the username ' . sanitize_text_field( wp_unslash( $_POST['user_login'] ) ) . ' is incorrect. <a id="sw-forgot-pwd-btn">Forgot password?</a>';
-                    set_transient( 'smartwoo_login_error', $message, 15 );
+                    smartwoo_set_form_error( $message );
                 } else {
-                    set_transient( 'smartwoo_login_error', $user->get_error_message(), 15 );
+                    smartwoo_set_form_error( $user->get_error_message() );
                 }
 
                 wp_redirect( esc_url_raw( wp_get_referer() ) );
@@ -1795,6 +1796,22 @@ final class SmartWoo {
         $generated_service_id = smartwoo_generate_service_id( $service_name );
         echo esc_html( $generated_service_id );
         die();
+    }
+
+    /**
+     * Ajax Password Reset handler
+     */
+    public static function ajax_password_reset() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication' ) );
+        }
+
+        $user_login = isset( $_GET['user_login'] ) ? sanitize_text_field( wp_unslash( $_GET['user_login'] ) ) : wp_die( -1, 400 );
+        if ( is_wp_error( $user = retrieve_password( $user_login ) ) ) {
+            wp_send_json_error( array( 'message' => $user->get_error_message() ) );
+        }
+
+        wp_send_json_success( array( 'message' => 'Password Reset email sent' ), 200 );
     }
 
     /**
