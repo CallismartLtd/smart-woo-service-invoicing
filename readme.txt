@@ -6,7 +6,7 @@ Tested up to: 6.7.1
 Requires WooCommerce: 8.0  
 WooCommerce tested up to: 9.5.1
 Requires PHP: 7.4  
-Stable Tag: 2.2.1
+Stable Tag: 2.2.2
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -30,11 +30,6 @@ Smart Woo Service Invoicing simplifies your subscription-based business by autom
 
 == License ==
 This project is licensed under the GPL v3.0+ License.
-
-== Screenshots ==
-![Screenshot 1](assets/images/smart-woo-img.png)
-![Screenshot 2](assets/images/service-page.png)
-![Screenshot 3](assets/images/invoice-sample.png)
 
 == Prerequisites ==
 
@@ -81,7 +76,11 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
-= [2.2.1] 2024-12-25
+= [2.2.2] 2025-01-28 =
+  - Minor bug fixes and performance inprovement.
+  - Login form now supports password reset feature.
+
+= [2.2.1] 2024-12-25 =
   - Fixed Sign-up fee calculation when other items are added in cart.
   - Added service processed mail.
   - Minor bug fixes
