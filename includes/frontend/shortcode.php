@@ -83,8 +83,8 @@ function smartwoo_render_login_form( $atts ) {
 
 	// Prepare options for the login form
 	$options = array(
-		'notice'   => esc_html( $atts['notice'] ),   // Sanitize and set the notice
-		'redirect' => esc_url( $atts['redirect_url'] ), // Sanitize and set the redirect URL
+		'notice'   => ! empty( $atts['notice'] ) ? smartwoo_notice( esc_html( $atts['notice'] ) ): esc_html( $atts['notice'] ),
+		'redirect' => esc_url( $atts['redirect_url'] ),
 	);
 
 	// Return the login form with the provided options
