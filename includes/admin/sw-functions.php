@@ -827,9 +827,17 @@ function smartwoo_get_last_login_date( $user_id ) {
  * Smart Woo login form
  * 
  * @param array $options assosciative array of options.
+ * @param bool $hide_logged_in Whether to hide the form when current user is logged in?
  * @since 1.1.0
  */
-function smartwoo_login_form( $options ) {
+function smartwoo_login_form( $options, $hide_logged_in = false ) {
+	/**
+	 * @since 2.2.2 Hides form.
+	 */
+	if ( $hide_logged_in && is_user_logged_in() ) {
+		return '';
+	}
+
 	wp_enqueue_style( 'dashicons' );
 	$default_options = array(
 		'notice'	=> '',
@@ -842,9 +850,8 @@ function smartwoo_login_form( $options ) {
 	$form .= '<div class="smartwoo-login-form-content">';
 	$form .= '<div class="smartwoo-login-form-notice">';
 	$form .= wp_kses_post( $parsed_args['notice'] );
-	if ( get_transient( 'smartwoo_login_error' ) ) {
-		$form .= wp_kses_post( get_transient( 'smartwoo_login_error' ) );
-		delete_transient( 'smartwoo_login_error' );
+	if ( $error = smartwoo_get_form_error() ) {
+		$form .= '<div id="sw-error-div">' . wp_kses_post( $error ) . '</div>';
 	}
 	$form .= '</div>';
 
@@ -867,12 +874,54 @@ function smartwoo_login_form( $options ) {
 	$form .= '<div style="display:flex; flex-direction: row; justify-content: space-between;">';
 	$form .= '';
 	$form .= '<label style="margin-left:10px;" for="remember_me"> <input id="remember_me" type="checkbox" name="remember_me"/> Remember Me</label>';
-	$form .= '<button type="submit" class="sw-blue-button">' . apply_filters( 'smartwoo_login_button_text', __( 'login', 'smart-woo-service-invoicing' ) ) . '</button>';
+	$form .= '<button type="submit" class="sw-blue-button" id="sw-login-btn">' . apply_filters( 'smartwoo_login_button_text', __( 'login', 'smart-woo-service-invoicing' ) ) . '</button>';
 	$form .= '</div>';
 	$form .= '</div>';
 	$form .= '</form>';
 
 	return $form;
+}
+
+/**
+ * Get the current user's session id for Smart Woo
+ * 
+ * @return string $session_id
+ * @since 2.2.2
+ */
+function smartwoo_get_user_session_id() {
+    if ( ! isset( $_COOKIE['smartwoo_user_session'] ) ) {
+        // Generate a unique session ID for the user
+        $session_id = smartwoo_secure_uuid4();
+		if ( ! headers_sent() ) {
+			setcookie( 'smartwoo_user_session', $session_id, time() + MINUTE_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+		}
+		
+        $_COOKIE['smartwoo_user_session'] = $session_id;
+    }
+    return sanitize_text_field( wp_unslash( $_COOKIE['smartwoo_user_session'] ) );
+}
+
+/**
+ * Generate a scure uuid.
+ * 
+ * @since 2.2.2
+ */
+function smartwoo_secure_uuid4() {
+	// Generate 16 bytes (128 bits) of random data.
+	$data = random_bytes(16);
+
+	// Ensure that the version and variant bits are correctly set.
+	$data[6] = chr( (ord($data[6] ) & 0x0f ) | 0x40 ); // Set version to 4 (0100).
+	$data[8] = chr( ( ord( $data[8] ) & 0x3f ) | 0x80 ); // Set variant to 10xx.
+
+	// Split the binary data into segments for UUID formatting.
+	$parts = unpack( 'N1a/n1b/n1c/n1d/N1e', $data );
+
+	// Format the UUID using the unpacked values.
+	return sprintf(
+		'%08x-%04x-%04x-%04x-%012x',
+		$parts['a'], $parts['b'], $parts['c'], $parts['d'], $parts['e']
+	);
 }
 
 /**
@@ -886,8 +935,10 @@ function smartwoo_set_form_error( $data ) {
 	if ( empty( $data ) ) {
 		return false;
 	}
+
+	$user_id = is_user_logged_in() ? get_current_user_id() : smartwoo_get_user_session_id();
 	
-	return set_transient( 'smartwoo_form_validation_error_'. get_current_user_id(), $data, 30 );
+	return set_transient( 'smartwoo_form_validation_error_' . $user_id, $data, MINUTE_IN_SECONDS );
 }
 
 /**
@@ -897,9 +948,11 @@ function smartwoo_set_form_error( $data ) {
  * @since 2.0.0
  */
 function smartwoo_get_form_error() {
-	$error = get_transient( 'smartwoo_form_validation_error_'. get_current_user_id() );
+	$user_id = is_user_logged_in() ? get_current_user_id() : smartwoo_get_user_session_id();
+
+	$error = get_transient( 'smartwoo_form_validation_error_'. $user_id );
 	if ( false !== $error ) {
-		delete_transient( 'smartwoo_form_validation_error_'. get_current_user_id() );
+		delete_transient( 'smartwoo_form_validation_error_'. $user_id );
 	}
 
 	return $error;
@@ -916,16 +969,20 @@ function smartwoo_set_form_success( $message ) {
 		return false;
 	}
 	
-	return set_transient( 'smartwoo_form_validation_success_'. get_current_user_id(), $message, 30 );
+	$user_id = is_user_logged_in() ? get_current_user_id() : smartwoo_get_user_session_id();
+
+	return set_transient( 'smartwoo_form_validation_success_'. $user_id, $message, 30 );
 }
 
 /**
  * Get form success message
  */
 function smartwoo_get_form_success() {
-	$message = get_transient( 'smartwoo_form_validation_success_'. get_current_user_id() );
+	$user_id = is_user_logged_in() ? get_current_user_id() : smartwoo_get_user_session_id();
+
+	$message = get_transient( 'smartwoo_form_validation_success_'. $user_id );
 	if ( false !== $message ) {
-		delete_transient( 'smartwoo_form_validation_success_'. get_current_user_id() );
+		delete_transient( 'smartwoo_form_validation_success_'. $user_id );
 	}
 
 	return $message;
