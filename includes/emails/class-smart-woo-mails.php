@@ -268,7 +268,7 @@ class SmartWoo_Mail {
     /**
      * Send Email
      */
-    protected function send() {
+    public function send() {
         $to         = $this->recipients;
         $subject    = $this->subject;
         $message    = $this->get_header();
@@ -280,6 +280,7 @@ class SmartWoo_Mail {
         if ( apply_filters( 'smartwoo_send_mail', true ) ) {
             if ( wp_mail( $to, $subject, $message, $headers, $attachments ) ) {
                 do_action( 'smartwoo_mail_sent', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) );
+                return true;
             }
         }
     }
