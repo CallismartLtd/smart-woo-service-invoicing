@@ -55,17 +55,17 @@ function smartwoo_invoice_front_temp() {
 	foreach ( $invoices as $invoice ) {
 		$GLOBALS['product'] = $invoice->get_product();
 
-		$date_created = smartwoo_check_and_format( $invoice->getDateCreated(), true );
-		$datePaid     = $invoice->getDatePaid();
-		$date_due     = smartwoo_check_and_format( $invoice->getDateDue() );
+		$date_created = smartwoo_check_and_format( $invoice->get_date_created(), true );
+		$datePaid     = $invoice->get_date_paid();
+		$date_due     = smartwoo_check_and_format( $invoice->get_date_due() );
 		// Table content.
 		$output .= '<tr>';
-		$output .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
+		$output .= '<td>' . esc_html( $invoice->get_invoice_id() ) . '</td>';
 		$output .= '<td>' . esc_html( $date_created ) . '</td>';
 		$output .= '<td>' . esc_html( $date_due ) . '</td>';
-		$output .= '<td>' . smartwoo_price( $invoice->getTotal() ) . '</td>';
-		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->getPaymentStatus() ) ) . '</td>';
-		$output .= '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
+		$output .= '<td>' . smartwoo_price( apply_filters( 'smartwoo_display_invoice_total', $invoice->get_total(), $invoice ) ) . '</td>';
+		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->get_status() ) ) . '</td>';
+		$output .= '<td><a href="' . esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ) .'" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$output .= '</tr>';
 	}
 
