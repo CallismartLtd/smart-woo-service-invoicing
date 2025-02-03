@@ -85,7 +85,7 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
         $stored_version = get_option( 'smartwoo_db_version', 0 );
         if ( $this->db_version !== $stored_version ) {
             $notice = '<div id="smartwooNoticeDiv" class="notice notice-warning"><p>' . smartwoo_notice( 'Smart Woo database requires an update' ) . '</p>';
-            $notice .= '<p>Smart Woo Service Invoicing need to update its database <a class="sw-admin-btn" id="smartwooUpdateBtn">Run Backgroud Update</a></p>';
+            $notice .= '<p>Smart Woo Service Invoicing need to update its database <a class="sw-icon-button-admin" id="smartwooUpdateBtn">Run Backgroud Update</a></p>';
             $notice .= '</div>';
 
             echo wp_kses_post( $notice );
