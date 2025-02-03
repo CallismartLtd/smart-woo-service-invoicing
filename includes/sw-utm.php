@@ -73,6 +73,7 @@ function smartwoo_pro_feature( $feature = '' ) {
                 <li><strong>Advanced Stats</strong>: Gain detailed insights and visual stats on service subscription usage.</li>
                 <li><strong>Service Logs</strong>: Track detailed subscription activity logs.</li>
                 <li><strong>Invoice Logs</strong>: Manage invoices with detailed logging and tracking.</li>
+                <li><strong>Invoice Items</strong>: Add custom items to an invoice.</li>
                 <li><strong>Refund Features</strong>: Automate prorated refunds for subscription cancellations.</li>
                 <li><strong>Service Migration</strong>: Enable seamless subscription migrations and prorated billing.</li>
                 <li><strong>Email Template Customization</strong>: Customize email templates for your business needs.</li>
