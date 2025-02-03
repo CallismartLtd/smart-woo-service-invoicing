@@ -42,6 +42,7 @@ class SmartWoo_Config{
         global $wpdb;
         define( 'SMARTWOO_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
         define( 'SMARTWOO_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
+        define( 'SMARTWOO_INVOICE_META_TABLE', $wpdb->prefix . 'sw_invoice_meta' );
         define( 'SMARTWOO_SERVICE_LOG_TABLE', $wpdb->prefix . 'sw_service_logs' );
         define( 'SMARTWOO_INVOICE_LOG_TABLE', $wpdb->prefix . 'sw_invoice_logs' );
         define( 'SMARTWOO_ASSETS_TABLE', $wpdb->prefix . 'sw_assets' );
