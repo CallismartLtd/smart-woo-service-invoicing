@@ -40,7 +40,7 @@ function smartwoo_db_schema() {
 
 	/**
 	 * Define the structure for the 'sw_invoice' table.
-	 * This table contains the main information pertaining to invoices.
+	 * This table contains the main invoice data.
 	 */
 	$invoice_table_name = SMARTWOO_INVOICE_TABLE;
 	$invoice_structure  = array(
@@ -50,7 +50,7 @@ function smartwoo_db_schema() {
 		'billing_address text DEFAULT NULL',
 		'invoice_id varchar(255) NOT NULL',
 		'invoice_type varchar(255) DEFAULT NULL',
-		'product_id mediumint(9) NOT NULL',
+		'product_id mediumint(9) DEFAULT NULL',
 		'order_id mediumint(9) DEFAULT NULL',
 		'amount decimal(10, 2) NOT NULL',
 		'fee decimal(10, 2) DEFAULT NULL',
@@ -65,6 +65,22 @@ function smartwoo_db_schema() {
 	);
 
 	smartwoo_create_database_table( $invoice_table_name, $invoice_structure );
+
+	/**
+	 * Invoice meta table.
+	 * 
+	 * @since 2.2.3
+	 */
+	$invoice_meta_table = SMARTWOO_INVOICE_META_TABLE;
+	$invoice_meta_table_structure = array(
+		'meta_id MEDIUMINT(9) UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+		'invoice_id VARCHAR(255) DEFAULT NULL',
+		'meta_name VARCHAR(255) DEFAULT NULL',
+		'meta_value TEXT DEFAULT NULL',
+	);
+
+	smartwoo_create_database_table( $invoice_meta_table, $invoice_meta_table_structure );
+
 
 	/**
 	 * Assets Table
