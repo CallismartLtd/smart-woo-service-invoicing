@@ -18,10 +18,10 @@ $table_names = array(
     SMARTWOO_SERVICE_TABLE,
     SMARTWOO_INVOICE_TABLE,
     SMARTWOO_ASSETS_TABLE,
+    SMARTWOO_INVOICE_META_TABLE
 );
 
 foreach ( $table_names as $table_name ) {
-    // Use $wpdb->prepare to avoid SQL injection risks
     $sql = $wpdb->prepare( "DROP TABLE IF EXISTS %s", $table_name );
     $wpdb->query( $sql );
 }
