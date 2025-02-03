@@ -57,8 +57,8 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
      */
     public function __construct() {
 
-        $this->is_updating = 'running' === get_transient( 'smartwoo_db_update' );
-        $this->db_version       = SMARTWOO_DB_VER;
+        $this->is_updating  = 'running' === get_transient( 'smartwoo_db_update' );
+        $this->db_version   = SMARTWOO_DB_VER;
 
         if ( parent::is_new_installation() || parent::is_installing() ) {
             return;
@@ -85,7 +85,7 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
         $stored_version = get_option( 'smartwoo_db_version', 0 );
         if ( $this->db_version !== $stored_version ) {
             $notice = '<div id="smartwooNoticeDiv" class="notice notice-warning"><p>' . smartwoo_notice( 'Smart Woo database requires an update' ) . '</p>';
-            $notice .= '<p>Smart Woo Service Invoicing need to update its database <a class="button" id="smartwooUpdateBtn">Run Backgroud Update</a></p>';
+            $notice .= '<p>Smart Woo Service Invoicing need to update its database <a class="sw-admin-btn" id="smartwooUpdateBtn">Run Backgroud Update</a></p>';
             $notice .= '</div>';
 
             echo wp_kses_post( $notice );
@@ -103,7 +103,7 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
             $echo = true;
             delete_transient( 'smartwoo_db_update' );
         } elseif ( $this->is_updating ) {
-            $notice = '<div class="notice notice-info"><p>Smart Database update in progress</p></div>';
+            $notice = '<div class="notice notice-info"><p>Smart Woo Database update in progress</p></div>';
             $echo = true;
         }
         
@@ -132,7 +132,7 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
             wp_send_json_error( array( 'message' => 'Action failed basic authentication' ), 401 );
         }
 
-        set_transient( 'smartwoo_db_update', 'running', 90 );
+        set_transient( 'smartwoo_db_update', 'running', 2 * MINUTE_IN_SECONDS );
         // Create table that do not exist.
         parent::create_tables();
         // Run column update since dbDelta() might be unreliable for this.
