@@ -69,6 +69,7 @@ class SmartWoo_Install {
 			SMARTWOO_SERVICE_TABLE,
 			SMARTWOO_INVOICE_TABLE,
 			SMARTWOO_ASSETS_TABLE,
+			SMARTWOO_INVOICE_META_TABLE
 		);
 
 		foreach ( $table_names as $table_name ) {
