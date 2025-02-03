@@ -151,7 +151,11 @@ function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null )
 	// Save order.
 	$order->save();
 
-	// Trigger an action for new invoice orders.
+	/**
+	 * Fires after we create new invoice orders.
+	 * 
+	 * @param WC_Order $order
+	 */
 	do_action( 'smartwoo_new_invoice_order', $order );
 
 	// Return the ID of the newly created order.
