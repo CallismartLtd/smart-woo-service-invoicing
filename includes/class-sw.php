@@ -581,7 +581,7 @@ final class SmartWoo {
         
         $asset_id       = ! empty( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
         $resource_id    = ! empty( $_GET['resource_id'] ) ? absint( wp_unslash( $_GET['resource_id'] ) ) : '';
-        $asset_key      = ! empty( $_GET['key'] ) ? sanitize_key( wp_unslash( $_GET['key'] ) ): '';
+        $asset_key      = ! empty( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ): '';
         $service_id     = ! empty( $_GET['service_id'] ) ? sanitize_key( wp_unslash( $_GET['service_id'] ) ) : '';
         if ( empty( $resource_id ) || empty( $service_id ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
             wp_die( 'Unable to validate requested resource.', 403 );
@@ -1844,7 +1844,7 @@ final class SmartWoo {
         <div class="sw-dash-pro-sell-bg">
             <div class="sw-pro-sell-content">
                 <h2>Exciting Offer!</h2>
-                <p>Get 20% off the original price of Smart Woo Pro when you use the code <strong>PROLAUNCH20</strong> at checkout.</p>
+                <p>Get 20% off the original price of Smart Woo Pro when you use the coupon code <strong>PROLAUNCH20</strong>.</p>
                 <p>Hurry now, this offer is only available during this launch period.</p>
                 <div class="sw-pro-sell-buttons">
                     <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss for now</button>
