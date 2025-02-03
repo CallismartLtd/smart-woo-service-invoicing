@@ -586,7 +586,7 @@ class SmartWoo_Service_Assets {
 
         // }
 
-
+        
         $asset_data = array_values( (array) maybe_unserialize( $result['asset_data'] ) );
 
         return array_key_exists( $data_index - 1, $asset_data );
