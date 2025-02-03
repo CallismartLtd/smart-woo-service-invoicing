@@ -1,5 +1,10 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.2.3] YYYY-MM-DD
+
+### Fixed
+- Asset key verification bug when downloading files associated with a subscription.
+
 # [2.2.2] 2025-01-28
 
 ### Fixed
