@@ -769,7 +769,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let swHideBtn           = document.getElementById('sw-hide');
     let noSbmtBtn           = document.querySelectorAll('.smartwoo-prevent-default' );
     let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
-    let proDismissFornow   = document.querySelector('#smartwoo-pro-dismiss-fornow');
+    let proDismissFornow    = document.querySelector('#smartwoo-pro-dismiss-fornow');
+    let userDataDropDown    = document.querySelector( '#user_data' );
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1023,6 +1024,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if(proDismissFornow) {
         proDismissFornow.addEventListener('click', ()=>{
             smartwooProBntAction('dismiss_fornow');
+        });
+    }
+
+    if ( userDataDropDown ){
+        userDataDropDown.addEventListener( 'change', (e)=>{
+            let selectedOption = e.target.options[e.target.selectedIndex];
+            let theText = selectedOption.textContent;
+    
+            if ( 'smartwoo_guest' === e.target.value ) {
+    
+                let theValue = prompt( 'Enter The Guest\'s Email Address' );
+    
+                if ( ! theValue ) {
+                    userDataDropDown.value = "";
+                    return;
+                }
+    
+                theValue = theValue.trim();
+                let existingOption = userDataDropDown.querySelector( `option[value="${theValue}"]` );
+    
+                if ( existingOption ) {
+                    userDataDropDown.value = theValue;
+                    return;
+                }
+    
+                let newOption = document.createElement( 'option' );
+                newOption.value = `0|${theValue}`;
+                newOption.text = `${theText} (${theValue})`;
+                userDataDropDown.prepend(newOption);
+                userDataDropDown.value = newOption.value;
+            }
+            console.log( userDataDropDown.value );
+
         });
     }
 
