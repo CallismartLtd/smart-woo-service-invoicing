@@ -27,16 +27,9 @@ smartwoo_set_document_title( 'Add New Invoice' );
             
         <!-- Choose a Client -->
         <div class="sw-form-row">
-            <label for="user_id" class="sw-form-label">Choose a Client *</label>
+            <label for="user_data" class="sw-form-label">Choose a Client *</label>
             <span class="sw-field-description" title="Choose a user from WordPress.(required)">?</span>
-            
-            <?php wp_dropdown_users(
-                array(
-                    'name'             => 'user_id',
-                    'show_option_none' => 'Select User',
-                    'class'            => 'sw-form-input',
-                )
-            );?> 
+            <?php smartwoo_dropdown_users(); ?> 
         </div>
 
         <!-- Service Products -->
@@ -82,6 +75,16 @@ smartwoo_set_document_title( 'Add New Invoice' );
             <label for="due_date" class="sw-form-label">Date Due *</label>
             <span class="sw-field-description" title="Choose the date due.">?</span>
             <input type="datetime-local" class="sw-form-input" name="due_date" id="due_date">
+        </div>
+
+        
+        <div class="sw-form-row">
+            <label for="send_mail" class="sw-form-label">Send New Invoice Mail</label>
+            <span class="sw-field-description" title="Send mail to user after invoice creation.">?</span>
+            <select class="sw-form-input" name="smartwoo_send_new_invoice_mail" id="send_mail">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
         </div>
 
         <input type="submit" class="sw-blue-button" name ="create_invoice" value="Create Invoice">
