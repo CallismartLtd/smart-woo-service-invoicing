@@ -91,7 +91,7 @@ function smartwoo_product_dropdown( $selected_product_id = null, $required = fal
 	);
 
 	// Initialize the dropdown HTML.
-	$dropdown_html = '<select class="sw-form-input" name="product_id" ' . ( $required ? 'required' : '' ) . '>';
+	$dropdown_html = '<select class="sw-form-input" name="product_id" ' . ( $required ? 'required' : '' ) . ' id="service_products">';
 	$dropdown_html .= '<option value="">Select Service Product</option>';
 
 	foreach ( $products as $product ) {
