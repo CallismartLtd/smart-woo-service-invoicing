@@ -61,7 +61,6 @@ final class SmartWoo {
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
         add_action( 'admin_post_smartwoo_add_service', 'smartwoo_process_new_service_form' );
         add_action( 'admin_post_smartwoo_edit_service', 'smartwoo_process_edit_service_form' );
-        add_action( 'admin_post_smartwoo_admin_create_invoice_from_form', array( __CLASS__, 'new_invoice_form_handler' ), 10 );
         add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
@@ -486,68 +485,6 @@ final class SmartWoo {
         }
         smartwoo_set_form_error( 'We couldn\'t confirm the authenticity of this action.' );
         wp_safe_redirect( wp_get_referer() );
-        exit;
-    }
-
-    /**
-     * New invoice form handler.
-     * 
-     * @since 2.0.15
-     */
-    public static function new_invoice_form_handler() {
-        if ( isset( $_POST['create_invoice'], $_POST['sw_create_invoice_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_create_invoice_nonce'] ) ), 'sw_create_invoice_nonce' ) ) {
-            if ( ! isset( $_POST['smartwoo_send_new_invoice_mail'] ) ) {
-                remove_action( 'smartwoo_new_invoice_created', array( 'SmartWoo_New_Invoice_Mail', 'send_mail' ) );
-            }
-            
-            $user_id        = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
-            $product_id     = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
-            $invoice_type   = ! empty( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : 'Billing';
-            $service_id     = isset( $_POST['service_id'] ) ? sanitize_text_field( wp_unslash( $_POST['service_id'] ) ) : '';
-            $due_date       = isset( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( $_POST['due_date'] ) ) : current_time( 'mysql' );				
-            $fee            = isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
-            $payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'unpaid';
-            // Check for a duplicate unpaid invoice for a service.
-            $invoice_type_exists = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
-    
-            // Validate inputs.
-            $errors = array();
-            if ( $invoice_type_exists ) {
-                $errors[] = 'This Service has "' . $invoice_type . '" that is ' . $payment_status;
-            }
-    
-            if ( empty( $user_id ) ) {
-                $errors[] = 'Select a user.';
-            }
-    
-            if ( empty( $product_id ) ) {
-                $errors[] = 'Service Product is required.';
-            }
-    
-            if ( empty( $invoice_type ) ) {
-                $errors[] = 'Please select a valid Invoice Type.';
-            }
-
-            $errors = apply_filters( 'smartwoo_handling_new_invoice_form_error', $errors );
-    
-            if ( ! empty( $errors ) ) {
-                smartwoo_set_form_error( $errors );
-                wp_safe_redirect( admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) );
-                exit;
-            }
-
-            $createdInvoiceID = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, $fee, $due_date );
-
-            if ( $createdInvoiceID ) {
-                do_action( 'smartwoo_handling_new_invoice_form_success', $createdInvoiceID );
-                $detailsPageURL = esc_url( admin_url( "admin.php?page=sw-invoices&tab=view-invoice&invoice_id=$createdInvoiceID" ) );
-                smartwoo_set_form_success( 'Invoice created successfully! <a href="' . esc_url( $detailsPageURL ) .'">' . __( 'View Invoice Details', 'smart-woo-service-invoicing' ) .'</a>' );
-            }
-            wp_safe_redirect( admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) );
-            exit; 
-        }
-        smartwoo_set_form_error( 'Something went wrong' );
-        wp_safe_redirect( admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) );
         exit;
     }
 
@@ -1183,11 +1120,6 @@ final class SmartWoo {
             if ( ! $user ) {
                 wp_die( 'User not found', 403 );
             }
-                
-            // Make sure the SmartWoo_Invoice_Database class is defined and loaded.
-            if ( ! class_exists( 'SmartWoo_Invoice_Database' ) ) {
-                wp_die( 'Invoice is not fully loaded', 425 );
-            }
 
             $invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
@@ -1818,7 +1750,7 @@ final class SmartWoo {
      * Sell smart woo pro with discounts.
      */
     public static function sell_pro() {
-        if ( class_exists( 'SmartWooPro' ) ) {
+        if ( self::pro_is_installed() ) {
             return;
         }
         $user_options = get_option( 'smartwoo_pro_sell_intrest' );
@@ -1879,6 +1811,15 @@ final class SmartWoo {
         update_option( 'smartwoo_pro_sell_intrest', array( 'user_option' => $user_option, 'time' => time() ) );
 
         wp_send_json_success( array( 'message' => $message ) );
+    }
+
+    /**
+     * Check whether pro version is installed.
+     * 
+     * @return bool True if Smart Woo Pro is installed and activated, false otherwise.
+     */
+    public static function pro_is_installed() {
+        return class_exists( 'SmartWooPro' );
     }
 }
 
