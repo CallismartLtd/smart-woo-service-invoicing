@@ -1035,3 +1035,27 @@ function smartwoo_set_document_title( $title ) {
     <?php
 }
 
+/**
+ * Construct a dropdown of all WordPress users and add option for guest users.
+ * 
+ * @param bool $echo Whether to print the markup or return, defaults to true.
+ * @return string $dropdown	The HTML markup.
+ * @since 2.2.3
+ */
+function smartwoo_dropdown_users( $echo = true ) {
+	$users = get_users( array( 'fields' => array( 'display_name', 'user_email', 'ID' ) ) );
+
+	$dropdown = '<select class="sw-form-input" name="user_data" id="user_data">';
+	$dropdown .= '<option value="">' . __( 'Select User', 'smart-woo-service-invoicing' ). '</option>';
+	$dropdown .= '<option value="smartwoo_guest">' . __( 'Guest', 'smart-woo-service-invoicing' ). '</option>';
+	foreach ( $users as $user ) {
+		$dropdown .= '<option value="'. absint( $user->ID ) . '|' . esc_attr( $user->user_email) .'">' . esc_html( $user->display_name ) . ' (' . esc_html( $user->user_email ) . ')</option>';
+	}
+	$dropdown .= '</select>';
+
+	if ( $echo ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+	} else {
+		return $dropdown;
+	}
+}
