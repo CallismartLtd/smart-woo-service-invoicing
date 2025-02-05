@@ -367,7 +367,7 @@ function smartwoo_is_migration() {
  * @return string HTML markup for the notice message.
  */
 function smartwoo_notice( $message, $dismisable = false ) {
-	$class = ( true === $dismisable ) ? 'sw-notice notice notice-info is-dismissible' : 'sw-notice';
+	$class = ( true === $dismisable ) ? 'sw-notice notice-info is-dismissible' : 'sw-notice';
 	$output  = '<div class="' . esc_attr( $class ) . '">';
 	$output .= '<p>' . esc_html( $message ) . '</p>'; 
 	$output .= '</div>';
@@ -376,37 +376,40 @@ function smartwoo_notice( $message, $dismisable = false ) {
 }
 
 
-if ( ! function_exists( 'smartwoo_error_notice' ) ) {
-	/**
-	 * Display an error notice to the user.
-	 *
-	 * @param string|array $messages Error message(s) to display.
-	 */
-	function smartwoo_error_notice( $messages, $dismisable = false ) {
 
-		if ( "" === $messages ) {
-			return $message; // message is required.
-		}
-		$class = ( true === $dismisable ) ? 'sw-error-notice notice notice-error is-dismissible' : 'sw-error-notice';
-		$error = '<div class="' . esc_attr ( $class ) .'">';
+/**
+ * Display an error notice to the user.
+ *
+ * @param string|array $messages Error message(s) to display.
+ */
+function smartwoo_error_notice( $messages, $dismisable = false ) {
 
-		if ( is_array( $messages ) ) {
-			$error .= smartwoo_notice( 'Errors !!' );
-
-			$error_number = 1;
-
-			foreach ( $messages as $message ) {
-				$error .= '<p>' . esc_html( $error_number . '. ' . $message ) . '</p>';
-				++$error_number;
-			}
-		} else {
-			$error .= smartwoo_notice( 'Error !!' );
-			$error .= '<p>' . esc_html( $messages ) . '</p>';
-		}
-
-		$error .= '</div>';
-		return $error;
+	if ( "" === $messages ) {
+		return $message; // message is required.
 	}
+	$class = ( true === $dismisable ) ? 'sw-error-notice  is-dismissible' : 'sw-error-notice';
+	$error = '<div class="' . esc_attr ( $class ) .'">';
+	if ( $dismisable ) {
+		$error .= '<span class="dashicons dashicons-no" style="color: #ffffff; float: right; font-weight: 600; background-color: red; margin-right: 10px; padding: 5px; border-radius: 50%;
+		cursor: pointer;" title="dismiss" onclick="parentElement.remove()"></span>';
+	}
+
+	if ( is_array( $messages ) ) {
+		$error .= smartwoo_notice( 'Errors !!' );
+
+		$error_number = 1;
+
+		foreach ( $messages as $message ) {
+			$error .= '<p>' . esc_html( $error_number . '. ' . $message ) . '</p>';
+			++$error_number;
+		}
+	} else {
+		$error .= smartwoo_notice( 'Error !!' );
+		$error .= '<p>' . esc_html( $messages ) . '</p>';
+	}
+
+	$error .= '</div>';
+	return $error;
 }
 
 /**
@@ -681,6 +684,7 @@ function smartwoo_allowed_form_html() {
             'title'		=> true,
 			'id'		=> true,
 			'style'		=> true,
+			'onclick'	=> true,
         ),
         'div'		=> array(
             'class'		=> true,
