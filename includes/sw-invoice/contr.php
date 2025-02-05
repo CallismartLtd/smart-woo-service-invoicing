@@ -106,29 +106,42 @@ class SmartWoo_Invoice_Form_Controller{
 
 		if ( ! empty( $errors ) ) {
 			smartwoo_set_form_error( $errors );
-			wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $errors, true ) ), 200 );
+			wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $errors, true ) ), 30 );
 		}
 
-		$createdInvoiceID = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, $fee, $due_date );
+		$createdInvoiceID = self::create_invoice( compact( 'user_id', 'product_id', 'payment_status', 'invoice_type', 'service_id', 'fee', 'due_date' ) );
 
 		if ( $createdInvoiceID ) {
 			do_action( 'smartwoo_handling_new_invoice_form_success', $createdInvoiceID );
 			$detailsPageURL = esc_url( admin_url( "admin.php?page=sw-invoices&tab=view-invoice&invoice_id=$createdInvoiceID" ) );
-			smartwoo_set_form_success( 'Invoice created successfully! <a href="' . esc_url( $detailsPageURL ) .'">' . __( 'View Invoice Details', 'smart-woo-service-invoicing' ) .'</a>' );
+			wp_send_json_success( array( 'redirect_url' => $detailsPageURL ) );
 		}
-		wp_safe_redirect( admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) );
-		exit; 
+		smartwoo_set_form_error( 'Something went wrong.' );
+		wp_send_json_error( array( 'redirect_url' => admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) ) );
+		 
         
     }
 
 
 	/**
-	 * Helper method to validate invoice form submission.
+	 * Helper method to create invoice.
 	 * 
+	 * @param array $args
 	 * @return true|WP_Error True when the submision is valid, WP_Error otherwise
 	 */
-	private static function validate_form_post() {
+	private static function create_invoice( array $args ) {
+		$default_args = array(
+			'user_id'		=> -1, // Guest.
+			'product_id'	=> 0,
+			'status'		=> 'unpaid',
+			'invoice_type'	=> '',
+			'service_id'	=> '',
+			'fee'			=> 0,
+			'due_date'		=> current_time( 'mysql' )
+		);
 
+		$parsed_args = wp_parse_args( $args, $default_args );
+		$invoice		= new SmartWoo_Invoice();
 	}
 }
 
