@@ -1,21 +1,24 @@
-function smartWooAddSpinner(targetId) {
+function smartWooAddSpinner(targetId, large = false) {
+	let spinnerImage		= large ? smart_woo_vars.wp_spinner_gif_2x : smart_woo_vars.wp_spinner_gif;
 	const loadingSpinner = document.createElement('div');
 	loadingSpinner.classList.add('loading-spinner');
-	loadingSpinner.innerHTML = '<img src=" ' + smart_woo_vars.wp_spinner_gif_loader +'" alt="Loading...">';
+	loadingSpinner.innerHTML = '<img src=" ' + spinnerImage +'" alt="Loading...">';
   
 	const targetElement = document.getElementById(targetId);
 
 	targetElement.appendChild(loadingSpinner);
 	targetElement.parentElement.style.cursor = 'progress';
+	targetElement.style.display = 'block';
   
 	return loadingSpinner; // Return the created element for potential removal
 }
   
 function smartWooRemoveSpinner(spinnerElement) {
+	spinnerElement.parentElement.parentElement.style.cursor = '';
 	spinnerElement.remove();
 }
 
-function showNotification(message, duration) {
+function showNotification(message, duration = 1000) {
     // Create a div element for the notification
     const notification = document.createElement('div');
     notification.classList.add('notification');
