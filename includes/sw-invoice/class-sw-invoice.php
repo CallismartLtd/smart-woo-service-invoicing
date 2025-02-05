@@ -18,25 +18,98 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * @package SmartWooInvoice
  */
 class SmartWoo_Invoice {
-
-	// Properties
+	/**
+	 * @var int $id The Database ID for an invoice.
+	 */
 	private $id;
+
+	/**
+	 * @var string $service_id The public service ID associated with an invoice.
+	 */
 	private $service_id;
+
+	/**
+	 * @var int $user_id The ID of the user associated with an invoice.
+	 */
 	private $user_id;
+
+	/**
+	 * @var string $billing_address A formatted billing address of the user.
+	 */
 	private $billing_address;
+
+	/**
+	 * @var string $invoice_id The public invoice ID
+	 */
 	private $invoice_id;
+
+	/**
+	 * @var string $invoice_type The type of invoice.
+	 */
 	private $invoice_type;
+
+	/**
+	 * @var int $product_id The ID of the product associated with the invoice.
+	 */
 	private $product_id;
+
+	/**
+	 * @var int $order_id The ID of the order associated with the invoice.
+	 */
 	private $order_id;
+
+	/**
+	 * @var float $amount The primary price of the single product assciated witht he invoice.
+	 */
 	private $amount;
+
+	/**
+	 * @var float $fee The primary fee charged for the invoice.
+	 */
 	private $fee;
+
+	/**
+	 * @var string $payment_status The payment status of the invoice.
+	 */
 	private $payment_status;
+
+	/**
+	 * @var string $payment_gateway The payment option used to pay for the invoice.
+	 */
 	private $payment_gateway;
+
+	/**
+	 * @var string|int $transaction_id The transction ID used for invoice payment.
+	 */
 	private $transaction_id;
+
+	/**
+	 * @var string $date_created The date which the invoice was created.
+	 */
 	private $date_created;
+
+	/**
+	 * @var string $date_paid Teh date the invoce was paid.
+	 */
 	private $date_paid;
+
+	/**
+	 * @var string $date_due The date when the invoice is due.
+	 */
 	private $date_due;
+
+	/**
+	 * @var float $total The sum of the entire items in the invoice.
+	 */
 	private $total;
+
+	/**
+	 * Invoice meta data
+	 * 
+	 * @var array $meta_data An associative array of meta_name and meta_value
+	 * @since 2.2.3
+	 */
+	protected $meta_data = array();
 
 	// Constructor
 	public function __construct() {}
@@ -552,7 +625,7 @@ class SmartWoo_Invoice {
 	public function download_url( $context = 'frontend' ) {
 		if ( 'admin' === $context ) {
 			$url = wp_nonce_url( 
-				admin_url( 'admin-post.php?action=smartwoo_admin_download_invoice&invoice_id=' . $this->getInvoiceId() ), 
+				admin_url( 'admin-post.php?action=smartwoo_admin_download_invoice&invoice_id=' . $this->get_invoice_id() ), 
 				'_sw_download_token', '_sw_download_token' 
 			);
 		} else {
@@ -560,7 +633,7 @@ class SmartWoo_Invoice {
 				add_query_arg(
 					array(
 						'smartwoo_action'	=> 'sw_download_invoice',
-						'invoice_id'		=> $this->getInvoiceId(),
+						'invoice_id'		=> $this->get_invoice_id(),
 					),
 					get_permalink()
 				),
@@ -673,12 +746,31 @@ class SmartWoo_Invoice {
 	 |--------------------
 	 | CRUD METHODS
 	 |--------------------
+	*/
+	/**
+	 * Save invoice to the database.
 	 */
-
-	 /**
-	  * Save invoice to the database
-	  */
-	  public function save() {
+	public function save() {
 		return SmartWoo_Invoice_Database::save( $this );
-	  }
+	}
+
+	/**
+	 * Set Meta Data.
+	 * 
+	 * @param int|string $meta_name The name of the meta data.
+	 * @param int|string $meta_value The value of the meta data.
+	 */
+	public function set_meta( $meta_name, $meta_value ) {
+		$this->meta_data[sanitize_key( $meta_name )] = sanitize_text_field( wp_unslash( $meta_value ) );
+	}
+
+	/**
+	 * Get meta data
+	 * @param int|string $meta_name
+	 * @return mixed
+	 */
+	public function get_meta( $meta_name ) {
+		return isset( $this->meta_data[$meta_name] ) ? $this->meta_data[$meta_name] : false;
+	}
+
 }
