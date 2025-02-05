@@ -250,7 +250,8 @@ class SmartWoo_Config{
             'is_account_page'           => is_account_page(),
             'cart_is_configured'        => apply_filters( 'cart_is_configured', false ),
             'never_expire_value'        => apply_filters( 'smartwoo_never_expire_value', '' ),
-            'wp_spinner_gif_loader'     => admin_url('images/spinner.gif'),
+            'wp_spinner_gif'            => admin_url('images/spinner.gif'),
+            'wp_spinner_gif_2x'         => admin_url('images/spinner-2x.gif'),
             'smartwoo_plugin_page'      => apply_filters( 'smartwoo_plugin_url', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
             'smartwoo_pro_page'         => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/#go-pro' ),
             
