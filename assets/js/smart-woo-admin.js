@@ -771,6 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
     let proDismissFornow    = document.querySelector('#smartwoo-pro-dismiss-fornow');
     let userDataDropDown    = document.querySelector( '#user_data' );
+    let createInvoiceForm    = document.querySelector( '#createInvoiceForm' );
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1050,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
     
                 let newOption = document.createElement( 'option' );
-                newOption.value = `0|${theValue}`;
+                newOption.value = `-1|${theValue}`;
                 newOption.text = `${theText} (${theValue})`;
                 userDataDropDown.prepend(newOption);
                 userDataDropDown.value = newOption.value;
@@ -1060,6 +1061,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if ( createInvoiceForm ) {
+        createInvoiceForm.addEventListener( 'submit', (e)=>{
+            e.preventDefault();
+            console.log( 'Form submitted' );
+            let loader =smartWooAddSpinner( 'swloader', true)
+            // Remove existing error messages before adding new ones.
+            let existingErrors = document.getElementById('invoice-errors');
+            if (existingErrors) {
+                existingErrors.remove();
+            }
+            let formData = new FormData( createInvoiceForm );
+            formData.append( 'security', smartwoo_admin_vars.security );
+            fetch( smartwoo_admin_vars.ajax_url, { 'method': 'POST', 'body': formData } )
+                .then( response =>{
+                    if ( ! response.ok ) {
+                        showNotification( response.statusText, 6000 );
+                        throw new Error(`Error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then( responseData=>{
+                    if ( ! responseData.success ) {
+                        // Create a wrapper div for errors
+                        let errorContainer = document.createElement('div');
+                        errorContainer.id = 'invoice-errors';
+                        errorContainer.innerHTML = responseData.data.htmlContent;
+        
+                        // Insert error messages above the form
+                        createInvoiceForm.parentElement.insertBefore(errorContainer, createInvoiceForm);
+                        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                    } else {
+                        showNotification( responseData.data.message ? responseData.data.message : 'Invoice Created', 3000 );
+                        setTimeout( ()=>{ window.location.href = responseData.data.redirect_url}, 3000)
+                    }
+                })
+                .catch( error => console.error('Fetch error:', error))
+                .finally( ()=>{
+                    smartWooRemoveSpinner(loader);
+                });
+
+        });
+    }
 });
 
 /**
