@@ -1057,6 +1057,16 @@ function smartwoo_dropdown_users( $echo = true ) {
 	}
 	$dropdown .= '</select>';
 
+	$dropdown .= '<div class="sw-invoice-form-meta">
+		<input type="hidden" name="is_guest_invoice" value="no"/>
+		<input type="hidden" name="first_name" />
+		<input type="hidden" name="last_name" />
+		<input type="hidden" name="billing_email" />
+		<input type="hidden" name="billing_company" />
+		<input type="hidden" name="billing_address" />
+		<input type="hidden" name="phone" />
+    </div>';
+
 	if ( $echo ) {
 		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
 	} else {
