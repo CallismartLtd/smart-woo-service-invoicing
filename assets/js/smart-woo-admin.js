@@ -747,6 +747,68 @@ function smartwoo_pro_ad(title, message) {
     });
 }
 
+/**
+ * Get guest data for `GUEST` invoice.
+ * 
+ * @param heading The Input form heading.
+ */
+async function smartwooPromptGuestInvoiceData(heading) {
+    return new Promise( (resolve)=>{
+        let data    = { 
+            "first_name": "",
+            "last_name": "",
+            "billing_email": "",
+            "billing_company": "",
+            "phone": "",
+            "billing_address": "",
+        };
+        let form        = document.createElement('div');
+        let formFields  = 
+            `<span class="smartwoo-remove dashicons dashicons-no" title="Close"></span>
+            <h2>${heading}</h2>
+            <div class="sw-guest-name-row">
+                <input type="text" name="first_name" placeholder="First Name" id="first_name"/>
+                <input type="text" name="last_name" placeholder="Last Name" id="last_name"/>
+            </div>
+            <div class="sw-guest-other-row">
+                <input type="text" name="billing_email" placeholder="Billing Email" id="billing_email"/>
+                <input type="text" name="billing_company" placeholder="Billing Company" id="billing_company"/>
+                <input type="text" name="phone" placeholder="Phone" id="phone">
+                <input type="text" name="billing_address" placeholder="Full address" id="billing_address"/>
+                <button class="sw-blue-button" style="width: 80%; margin: 10px;">Add Guest</button>
+
+            </div>
+        `;
+        form.classList.add( 'sw-guest-invoice-container' );
+        form.innerHTML = formFields;
+        let mainDiv = document.querySelector('#smartwooInvoiceForm').parentElement;
+        let mainForm = document.querySelector('#smartwooInvoiceForm');
+        mainDiv.insertBefore(form, mainForm);
+        let removebtn = form.querySelector('.smartwoo-remove');
+        removebtn.addEventListener('click', ()=>{
+            form.remove();
+            resolve(false);
+
+        });
+        
+        let submitBtn = form.querySelector('.sw-blue-button');
+
+        submitBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            data.first_name         = form.querySelector('input[name="first_name"]').value;
+            data.last_name          = form.querySelector('input[name="last_name"]').value;
+            data.billing_address    = form.querySelector('input[name="billing_address"]').value;
+            data.phone              = form.querySelector('input[name="phone"]').value;
+            data.billing_company    = form.querySelector('input[name="billing_company"]').value;
+            data.billing_email      = form.querySelector('input[name="billing_email"]').value;
+
+            resolve(data);
+            form.remove();
+        });
+
+    })
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     let contentDiv          = document.querySelector('.sw-dash-content-container');
     let skeletonContent     = document.querySelectorAll('.sw-dash-content');
@@ -771,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
     let proDismissFornow    = document.querySelector('#smartwoo-pro-dismiss-fornow');
     let userDataDropDown    = document.querySelector( '#user_data' );
-    let createInvoiceForm    = document.querySelector( '#createInvoiceForm' );
+    let createInvoiceForm    = document.querySelector( '#smartwooInvoiceForm' );
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1029,34 +1091,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( userDataDropDown ){
-        userDataDropDown.addEventListener( 'change', (e)=>{
-            let selectedOption = e.target.options[e.target.selectedIndex];
-            let theText = selectedOption.textContent;
-    
+        let addedElement = false;
+
+        userDataDropDown.addEventListener( 'change', async (e)=>{    
             if ( 'smartwoo_guest' === e.target.value ) {
+                let guestData   = await smartwooPromptGuestInvoiceData( 'Enter Guest Details' );
+                let metaDiv     = document.querySelector( '.sw-invoice-form-meta' );
+
+                let removeElement = () =>{
+                    if ( addedElement ) {
+                        let element = userDataDropDown.querySelector( `option[value="${addedElement}"]` );
+                        element.remove();
+                        metaDiv.querySelectorAll('input').forEach(input=>{
+                            if ( 'is_guest_invoice' === input.name ) {
+                                input.value = '';
+                                input.value = 'no';
+                            } else {
+                                input.value = '';
+                            }
+                        });
+                        addedElement = !addedElement;
+                    }
+                }
     
-                let theValue = prompt( 'Enter The Guest\'s Email Address' );
-    
-                if ( ! theValue ) {
+                if ( ! guestData ) {
                     userDataDropDown.value = "";
+                    removeElement();
+                    return;
+                }
+
+                if ( ! guestData.billing_email.length ) {
+                    showNotification('The billing email is required.', 5000);
+                    userDataDropDown.value = "";
+                    removeElement();
                     return;
                 }
     
-                theValue = theValue.trim();
-                let existingOption = userDataDropDown.querySelector( `option[value="${theValue}"]` );
+                let optionText = `${guestData.first_name ? guestData.first_name + ' ' + guestData.last_name: 'Guest' } (${guestData.billing_email})`;
+                let optionValue = `-1|${guestData.billing_email }`;
+                let existingOption = userDataDropDown.querySelector( `option[value="${optionValue}"]` );
     
                 if ( existingOption ) {
-                    userDataDropDown.value = theValue;
+                    userDataDropDown.value = optionValue;
                     return;
                 }
     
                 let newOption = document.createElement( 'option' );
-                newOption.value = `-1|${theValue}`;
-                newOption.text = `${theText} (${theValue})`;
+                newOption.value = optionValue;
+                newOption.text = optionText;
                 userDataDropDown.prepend(newOption);
                 userDataDropDown.value = newOption.value;
+                removeElement();
+                addedElement = optionValue;
+
+                metaDiv.querySelector('input[name="first_name"]').value         = guestData.first_name;
+                metaDiv.querySelector('input[name="last_name"]').value          = guestData.last_name;
+                metaDiv.querySelector('input[name="billing_address"]').value    = guestData.billing_address;
+                metaDiv.querySelector('input[name="phone"]').value              = guestData.phone;
+                metaDiv.querySelector('input[name="billing_company"]').value    = guestData.billing_company;
+                metaDiv.querySelector('input[name="billing_email"]').value      = guestData.billing_email;
+                metaDiv.querySelector('input[name="is_guest_invoice"]').value   = 'yes';
             }
-            console.log( userDataDropDown.value );
+            
 
         });
     }
