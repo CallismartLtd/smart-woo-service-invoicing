@@ -671,7 +671,7 @@ class SmartWoo_Invoice {
 				array( 
 					'page' 			=> 'sw-invoices', 
 					'tab' 			=> 'view-invoice', 
-					'invoice_id'	=> $invoice_id 
+					'invoice_id'	=> $this->get_invoice_id() 
 				), 
 					admin_url( 'admin.php' ) 
 			);
@@ -690,7 +690,7 @@ class SmartWoo_Invoice {
 			$preview_url = add_query_arg(
 				array(
 					'view_invoice' => true,
-					'invoice_id'   => $invoice_id,
+					'invoice_id'   => $this->get_invoice_id(),
 				),
 				$endpoint_url
 			);
@@ -739,6 +739,17 @@ class SmartWoo_Invoice {
 		$self->set_transaction_id( $data['transaction_id'] );
 		$self->set_date_paid( $data['date_paid'] );
 		$self->set_date_due( $data['date_due'] );
+
+		/**
+		 * Set up metadata
+		 */
+		$all_meta = SmartWoo_Invoice_Database::get_all_metadata( $self );
+		$metadata = [];
+		foreach( $all_meta as $meta ) {
+			$metadata[$meta['meta_name']] = $meta['meta_value'];
+		}
+
+		$self->meta_data = $metadata;
 		return $self;
 	}
 
@@ -755,7 +766,7 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Set Meta Data.
+	 * Set Meta Data on the object.
 	 * 
 	 * @param int|string $meta_name The name of the meta data.
 	 * @param int|string $meta_value The value of the meta data.
@@ -765,7 +776,7 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Get meta data
+	 * Get a meta data on an invoice object.
 	 * @param int|string $meta_name
 	 * @return mixed
 	 */
@@ -773,4 +784,19 @@ class SmartWoo_Invoice {
 		return isset( $this->meta_data[$meta_name] ) ? $this->meta_data[$meta_name] : false;
 	}
 
+	/**
+	 * Get all the metadata on an invoice object.
+	 * 
+	 * @return array An associative array of meta_name => meta_value
+	 */
+	public function get_all_meta() {
+		return $this->meta_data;
+	}
+
+	/**
+	 * Delete All Meta data from the database.
+	 */
+	public function delete_all_meta() {
+		return SmartWoo_Invoice_Database::delete_all_meta( $this );
+	}
 }
