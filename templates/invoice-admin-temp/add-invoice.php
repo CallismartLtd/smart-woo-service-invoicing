@@ -18,8 +18,8 @@ smartwoo_set_document_title( 'Add New Invoice' );
     <?php elseif ( $success = smartwoo_get_form_success() ): ?>
         <?php echo wp_kses_post( $success );?>
     <?php endif;?>
-    
-    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ) ?>" class="sw-form-container" id="createInvoiceForm">
+   
+    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ) ?>" class="sw-form-container" id="smartwooInvoiceForm">
         <div id="swloader" style="background-color:rgba(255, 255, 255, 0.1)"></div>
         <?php wp_nonce_field( 'sw_create_invoice_nonce', 'sw_create_invoice_nonce' ); ?>
         <input type="hidden" name="action" value="smartwoo_admin_create_invoice_from_form">
@@ -28,7 +28,7 @@ smartwoo_set_document_title( 'Add New Invoice' );
         <div class="sw-form-row">
             <label for="user_data" class="sw-form-label"><?php esc_html_e( 'Invoice To', 'smart-woo-service-invoicing' ); ?></label>
             <span class="sw-field-description" title="<?php esc_html_e('Select a registered user or add a guest.', 'smart-woo-service-invoicing' ); ?>">?</span>
-            <?php smartwoo_dropdown_users(); ?> 
+            <?php smartwoo_dropdown_users(); ?>
         </div>
 
         <!-- Service Products -->
