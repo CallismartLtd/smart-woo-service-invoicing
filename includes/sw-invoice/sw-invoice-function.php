@@ -90,6 +90,7 @@ function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null )
 	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( ! $invoice ) {
+		error_log( 'invoice does not exist' );
 		return false;
 	}
 
