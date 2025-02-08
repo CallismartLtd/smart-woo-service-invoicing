@@ -5,6 +5,11 @@
 ### Fixed
 - Asset key verification bug when downloading files associated with a subscription.
 
+### Added
+- Option to send new invoice email when creating a new invoice.
+- Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website.
+- Generate invoice payment **LINK** and send choose to copy or send it directly to the user's billing email address.
+
 # [2.2.2] 2025-01-28
 
 ### Fixed
