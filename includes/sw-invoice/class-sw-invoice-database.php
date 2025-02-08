@@ -489,6 +489,7 @@ class SmartWoo_Invoice_Database {
 		);
 
 		if ( $wpdb->insert( SMARTWOO_INVOICE_TABLE, $data, $data_format ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			self::save_all_metadata( $invoice );
 			/**
 			 * @hook smartwoo_new_invoice_created
 			 * @param SmartWoo_Invoice $invoice
@@ -564,13 +565,70 @@ class SmartWoo_Invoice_Database {
 
 		$updated = $wpdb->update( SMARTWOO_INVOICE_TABLE, $data, $where, $data_format, $where_format ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
+		
 		if ( $updated !== false ) {
+			self::save_all_metadata( $invoice );
 			return $invoice->getInvoiceId();
 		}
 
 		return false;
 	}
 
+	/**
+	 * Save or update all invoice meta data into the database.
+	 * 
+	 * @param SmartWoo_Invoice $invoice
+	 */
+	public static function save_all_metadata( SmartWoo_Invoice $invoice ) {
+		global $wpdb;
+		$table_name = SMARTWOO_INVOICE_META_TABLE;
+		$meta_data	= $invoice->get_all_meta();
+		$updated = 0;
+		foreach( $meta_data as $name => $value ) {
+			$data = array(
+				'meta_name'		=> $name,
+				'meta_value'	=> $value,
+				'invoice_id'	=> $invoice->get_invoice_id()
+			);
+
+			$data_format = [];
+			foreach( $data as $v ) {
+				$data_format[] = self::get_data_format( $v );
+			}
+
+			$data_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( "SELECT `meta_id` FROM {$table_name} WHERE `invoice_id` = %s AND `meta_name` = %s", $invoice->get_invoice_id(), $name )
+			);
+
+			if ( $data_exists ) {
+				$where = array( 'invoice_id' => $invoice->get_invoice_id(), 'meta_name' => $name );
+				if ( $wpdb->update( $table_name, $data, $where, $data_format, array( '%s' ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$updated++;
+				}
+
+				continue;
+			} elseif ( $wpdb->insert( $table_name, $data, $data_format ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$updated++;
+	
+			}
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * Get All Metadata.
+	 * 
+	 * @return array
+	 */
+	public static function get_all_metadata( SmartWoo_Invoice $invoice ) {
+		global $wpdb;
+		$table_name = SMARTWOO_INVOICE_META_TABLE;
+		$query		= $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `invoice_id` = %s", $invoice->get_invoice_id() );
+		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		return ( ! empty( $results ) ) ?  $results : array();
+	}
 
 	/**
 	 * Updates specified fields of an existing invoice in the database.
@@ -657,11 +715,27 @@ class SmartWoo_Invoice_Database {
 			return false;
 		}
 
-		$deleted		= $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$asso_order 	= $existing_invoice->get_order();
+		/**
+		 * delete the invoice.
+		 */
+		$deleted	= $wpdb->delete( SMARTWOO_INVOICE_TABLE, array( 'invoice_id' => $invoice_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// Delete all metadata.
+		self::delete_all_meta( $existing_invoice );
+
+		// Delete associated order.
+		$asso_order	= $existing_invoice->get_order();
 		if ( ! empty( $asso_order ) ) {
 			$asso_order->delete( true );
 		}
+		return $deleted !== false;
+	}
+
+	/**
+	 * Delete All Metadata
+	 */
+	public static function delete_all_meta( SmartWoo_Invoice $invoice ) {
+		global $wpdb;
+		$deleted	= $wpdb->delete( SMARTWOO_INVOICE_META_TABLE, array( 'invoice_id' => $invoice->get_invoice_id() ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $deleted !== false;
 	}
 }
