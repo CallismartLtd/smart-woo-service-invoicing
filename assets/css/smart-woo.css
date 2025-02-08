@@ -1421,3 +1421,12 @@ font-weight: 100;
 	color: #0073e6;
 	text-decoration: underline;
 }
+
+.smartwoo-remove {
+	color: #ffffff;
+	float: right;
+	background-color: red;
+	cursor: pointer;
+	margin: 10px;
+	border-radius: 5px;
+}
