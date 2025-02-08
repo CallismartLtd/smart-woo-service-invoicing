@@ -455,3 +455,45 @@
         width: 80%;
     }
 }
+
+.sw-guest-invoice-container {
+    position: absolute;
+    left: 25%;
+    right: 25%;
+    max-width: 80%;
+    background-color: #000000;
+    border-radius: 8px;
+    z-index: 10;
+}
+.sw-guest-invoice-container h2 {
+    text-align: center;
+    color: #ffffff;
+}
+.sw-guest-invoice-container input {
+    height: 40px;
+}
+.sw-guest-name-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 10px auto;
+}
+.sw-guest-name-row input {
+    width: 40%;
+    max-width: 90%;
+}
+
+.sw-guest-other-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+}
+
+.sw-guest-other-row input {
+    width: 90%;
+    margin: 5px;
+}
