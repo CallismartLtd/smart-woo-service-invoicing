@@ -759,7 +759,7 @@ async function smartwooPromptGuestInvoiceData(heading) {
             "last_name": "",
             "billing_email": "",
             "billing_company": "",
-            "phone": "",
+            "billing_phone": "",
             "billing_address": "",
         };
         let form        = document.createElement('div');
@@ -773,13 +773,14 @@ async function smartwooPromptGuestInvoiceData(heading) {
             <div class="sw-guest-other-row">
                 <input type="text" name="billing_email" placeholder="Billing Email" id="billing_email"/>
                 <input type="text" name="billing_company" placeholder="Billing Company" id="billing_company"/>
-                <input type="text" name="phone" placeholder="Phone" id="phone">
+                <input type="text" name="billing_phone" placeholder="Billing Phone" id="billing_phone">
                 <input type="text" name="billing_address" placeholder="Full address" id="billing_address"/>
                 <button class="sw-blue-button" style="width: 80%; margin: 10px;">Add Guest</button>
 
             </div>
         `;
         form.classList.add( 'sw-guest-invoice-container' );
+      
         form.innerHTML = formFields;
         let mainDiv = document.querySelector('#smartwooInvoiceForm').parentElement;
         let mainForm = document.querySelector('#smartwooInvoiceForm');
@@ -798,7 +799,7 @@ async function smartwooPromptGuestInvoiceData(heading) {
             data.first_name         = form.querySelector('input[name="first_name"]').value;
             data.last_name          = form.querySelector('input[name="last_name"]').value;
             data.billing_address    = form.querySelector('input[name="billing_address"]').value;
-            data.phone              = form.querySelector('input[name="phone"]').value;
+            data.billing_phone      = form.querySelector('input[name="billing_phone"]').value;
             data.billing_company    = form.querySelector('input[name="billing_company"]').value;
             data.billing_email      = form.querySelector('input[name="billing_email"]').value;
 
@@ -1147,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 metaDiv.querySelector('input[name="first_name"]').value         = guestData.first_name;
                 metaDiv.querySelector('input[name="last_name"]').value          = guestData.last_name;
                 metaDiv.querySelector('input[name="billing_address"]').value    = guestData.billing_address;
-                metaDiv.querySelector('input[name="phone"]').value              = guestData.phone;
+                metaDiv.querySelector('input[name="billing_phone"]').value      = guestData.billing_phone;
                 metaDiv.querySelector('input[name="billing_company"]').value    = guestData.billing_company;
                 metaDiv.querySelector('input[name="billing_email"]').value      = guestData.billing_email;
                 metaDiv.querySelector('input[name="is_guest_invoice"]').value   = 'yes';
@@ -1160,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ( createInvoiceForm ) {
         createInvoiceForm.addEventListener( 'submit', (e)=>{
             e.preventDefault();
-            console.log( 'Form submitted' );
+            
             let loader =smartWooAddSpinner( 'swloader', true)
             // Remove existing error messages before adding new ones.
             let existingErrors = document.getElementById('invoice-errors');
@@ -1231,5 +1232,3 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
         jQuery(proDiv).fadeIn();
     }
 });
-
-
