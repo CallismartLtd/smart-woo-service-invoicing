@@ -90,7 +90,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
         $this->invoice  = ( $invoice_id instanceof SmartWoo_Invoice ) ? $invoice_id : SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
         $this->body     = $body;
         if ( $this->invoice ) {
-            $this->client = new WC_Customer( $this->invoice->get_user_id() );
+            $this->client = $this->invoice->get_user();
             $this->object_ready = true;
         }
     }
@@ -180,7 +180,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
                     $replace_values[$placeholder] = $this->invoice->get_transaction_id();
                     break;
                 case '{{auto_login_payment_link}}':
-                    $replace_values[$placeholder] = smartwoo_generate_invoice_payment_url( $this->invoice->get_invoice_id(), $this->invoice->get_user()->get_email() );
+                    $replace_values[$placeholder] = smartwoo_generate_invoice_payment_url( $this->invoice );
                     break;
                 case '{{payment_link}}':
                     $replace_values[$placeholder] = $this->invoice->pay_url();
