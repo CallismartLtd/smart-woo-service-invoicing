@@ -114,7 +114,7 @@ class SmartWoo_Invoice_Database {
 		}
 
 		if ( $invoice_id instanceof SmartWoo_Invoice ) {
-			$invoice_id = $invoice_id->getInvoiceId();
+			$invoice_id = $invoice_id->get_invoice_id();
 		}
 		
 		$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
@@ -450,22 +450,22 @@ class SmartWoo_Invoice_Database {
 
 		// Data to be inserted.
 		$data = array(
-			'service_id'      => sanitize_text_field( $invoice->getServiceId() ),
-			'user_id'         => absint( $invoice->getUserId() ),
-			'billing_address' => sanitize_text_field( $invoice->getBillingAddress() ),
-			'invoice_id'      => sanitize_text_field( $invoice->getInvoiceId() ),
-			'invoice_type'    => sanitize_text_field( $invoice->getInvoiceType() ),
-			'product_id'      => absint( $invoice->getProductId() ),
-			'order_id'        => absint( $invoice->getOrderId() ),
-			'amount'          => floatval( $invoice->getAmount() ),
-			'fee'             => absint( $invoice->getFee() ),
-			'payment_status'  => is_null( $invoice->getPaymentStatus() ) ? null : sanitize_text_field( $invoice->getPaymentStatus() ),
-			'payment_gateway' => is_null( $invoice->getPaymentGateway() ) ? null : sanitize_text_field( $invoice->getPaymentGateway() ),
-			'transaction_id'  => is_null( $invoice->getTransactionId() ) ? null : sanitize_text_field( $invoice->getTransactionId() ),
+			'service_id'      => $invoice->get_service_id(),
+			'user_id'         => $invoice->get_user_id(),
+			'billing_address' => $invoice->get_billing_address(),
+			'invoice_id'      => $invoice->get_invoice_id(),
+			'invoice_type'    => $invoice->get_type(),
+			'product_id'      => $invoice->get_product_id(),
+			'order_id'        => $invoice->get_order_id(),
+			'amount'          => $invoice->get_amount(),
+			'fee'             => $invoice->get_fee(),
+			'payment_status'  => is_null( $invoice->get_status() ) ? null : $invoice->get_status(),
+			'payment_gateway' => is_null( $invoice->get_payment_method() ) ? null : $invoice->get_payment_method(),
+			'transaction_id'  => is_null( $invoice->get_transaction_id() ) ? null : $invoice->get_transaction_id(),
 			'date_created'    => current_time( 'mysql' ),
-			'date_paid'       => is_null( $invoice->getDatePaid() ) ? null : sanitize_text_field( $invoice->getDatePaid() ),
-			'date_due'        => is_null( $invoice->getDateDue() ) ? null : sanitize_text_field( $invoice->getDateDue() ),
-			'total'           => absint( $invoice->getTotal() ),
+			'date_paid'       => is_null( $invoice->get_date_paid() ) ? null : $invoice->get_date_paid(),
+			'date_due'        => is_null( $invoice->get_date_due() ) ? null : sanitize_text_field( $invoice->get_date_due() ),
+			'total'           => $invoice->get_total(),
 		);
 
 		// Data format (for %s, %d, etc.)
@@ -497,7 +497,7 @@ class SmartWoo_Invoice_Database {
 			 */
 			do_action( 'smartwoo_new_invoice_created', $invoice );
 			
-			return $invoice->getInvoiceId();
+			return $invoice->get_invoice_id();
 		}
 		return false;
 	}
@@ -517,21 +517,21 @@ class SmartWoo_Invoice_Database {
 
 		// Data to be updated.
 		$data = array(
-			'service_id'      => sanitize_text_field( $invoice->getServiceId() ),
-			'user_id'         => absint( $invoice->getUserId() ),
-			'billing_address' => sanitize_text_field( $invoice->getBillingAddress() ),
-			'invoice_type'    => sanitize_text_field( $invoice->getInvoiceType() ),
-			'product_id'      => absint( $invoice->getProductId() ),
-			'order_id'        => absint( $invoice->getOrderId() ),
-			'amount'          => floatval( $invoice->getAmount() ),
-			'fee'             => floatval( $invoice->getFee() ),
-			'payment_status'  => sanitize_text_field( $invoice->getPaymentStatus() ),
-			'payment_gateway' => sanitize_text_field( $invoice->getPaymentGateway() ),
-			'transaction_id'  => sanitize_text_field( $invoice->getTransactionId() ),
-			'date_created'    => sanitize_text_field( $invoice->getDateCreated() ),
-			'date_paid'       => is_null( $invoice->getDatePaid() ) ? null : sanitize_text_field( $invoice->getDatePaid() ),
-			'date_due'        => sanitize_text_field( $invoice->getDateDue() ),
-			'total'           => floatval( $invoice->getTotal() ),
+			'service_id'      => $invoice->get_service_id(),
+			'user_id'         => $invoice->get_user_id(),
+			'billing_address' => $invoice->get_billing_address(),
+			'invoice_type'    => $invoice->get_type(),
+			'product_id'      => $invoice->get_product_id(),
+			'order_id'        => $invoice->get_order_id(),
+			'amount'          => $invoice->get_amount(),
+			'fee'             => $invoice->get_fee(),
+			'payment_status'  => $invoice->get_status(),
+			'payment_gateway' => $invoice->get_payment_method(),
+			'transaction_id'  => $invoice->get_transaction_id(),
+			'date_created'    => $invoice->get_date_created(),
+			'date_paid'       => $invoice->get_date_paid(),
+			'date_due'        => $invoice->get_date_due(),
+			'total'           => $invoice->get_total(),
 		);
 
 		// Data format (for %s, %d, etc.)
@@ -555,7 +555,7 @@ class SmartWoo_Invoice_Database {
 
 		// Where condition.
 		$where = array(
-			'invoice_id' => sanitize_text_field( $invoice->getInvoiceId() ),
+			'invoice_id' => sanitize_text_field( $invoice->get_invoice_id() ),
 		);
 
 		// Where format
@@ -568,7 +568,7 @@ class SmartWoo_Invoice_Database {
 		
 		if ( $updated !== false ) {
 			self::save_all_metadata( $invoice );
-			return $invoice->getInvoiceId();
+			return $invoice->get_invoice_id();
 		}
 
 		return false;
@@ -647,14 +647,14 @@ class SmartWoo_Invoice_Database {
 		$data        = array();
 		$data_format = array();
 
-		foreach ( $fields as $field => $value ) {
-			$data[ $field ] = sanitize_text_field( $value ); // Sanitize data before updating
+		foreach ( $fields as $value ) {
+			$data[ $field ] = sanitize_text_field( wp_unslash( $value ) );
 			$data_format[]  = self::get_data_format( $value );
 		}
 
 		// Where condition.
 		$where = array(
-			'invoice_id' => sanitize_text_field( $invoice_id ),
+			'invoice_id' => sanitize_text_field( wp_unslash( $invoice_id ) ),
 		);
 
 		// Where format.
@@ -688,11 +688,9 @@ class SmartWoo_Invoice_Database {
 		if ( is_numeric( $value ) ) {
 			return is_float( $value ) ? '%f' : '%d';
 		} elseif ( is_bool( $value ) ) {
-			return '%d'; // Assuming boolean values are stored as integers (0 or 1)
-		} elseif ( $value instanceof DateTime ) {
-			return '%s'; // Assuming DateTime values are stored as strings
+			return '%d';
 		} else {
-			return is_string( $value ) ? '%s' : '%s'; // Default to string if the type is unknown
+			return '%s';
 		}
 	}
 
