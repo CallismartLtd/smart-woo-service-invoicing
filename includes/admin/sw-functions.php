@@ -281,17 +281,20 @@ function smartwoo_generate_token() {
 /**
  * Generates a unique payment link based on invoice details and stores necessary information in transients.
  *
- * @param string $invoice_id  The Service ID associated with the Invoice.
- * @param string $user_email  The email address of the user associated with the order.
- *
- * @return string The generated payment link with a unique URL structure.
+ * @param SmartWoo_Invoice|string $invoice  The SmartWoo_Invoice object or the invoice ID.
+ * @return string The generated payment link.
  */
-function smartwoo_generate_invoice_payment_url( $invoice_id, $user_email ) {
+function smartwoo_generate_invoice_payment_url( $invoice ) {
+	$invoice = ( $invoice instanceof SmartWoo_Invoice ) ? $invoice : SmartWoo_Invoice_Database::get_invoice_by_id( $invoice );
+
+	if ( ! $invoice ) {
+		return '';
+	}
 
 	// Generate a unique token.
 	$token 		= smartwoo_generate_token();
-	$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
-	$user_email = sanitize_email( $user_email );
+	$invoice_id = $invoice->get_invoice_id();
+	$user_email = $invoice->get_user()->get_email();
 
 	// Store the information in a transient with a 24-hour expiration.
 	set_transient(
@@ -1064,7 +1067,7 @@ function smartwoo_dropdown_users( $echo = true ) {
 		<input type="hidden" name="billing_email" />
 		<input type="hidden" name="billing_company" />
 		<input type="hidden" name="billing_address" />
-		<input type="hidden" name="phone" />
+		<input type="hidden" name="billing_phone" />
     </div>';
 
 	if ( $echo ) {
