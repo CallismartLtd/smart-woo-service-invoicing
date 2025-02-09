@@ -990,7 +990,7 @@ final class SmartWoo {
                 $has_invoice = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
                 
                 if ( $has_invoice ) {
-                    continue; // Skip if unpaid renewal invoice already exists
+                    continue; // Skip if unpaid renewal invoice already exists.
                 }
 
                 // Prepare invoice data
@@ -1244,7 +1244,7 @@ final class SmartWoo {
             return;
         }
 
-        $invoice_type = $invoice->getInvoiceType();
+        $invoice_type = $invoice->get_type();
 
         /**
          * Handle none existing service related invoice
@@ -1262,7 +1262,7 @@ final class SmartWoo {
             smartwoo_mark_invoice_as_paid( $invoice_id );
         }
 
-        $service_id		= $invoice->getServiceId();
+        $service_id = $invoice->get-service_id();
 
         // If Service ID is available, this indicates an invoice for existing service.
         if ( ! empty( $service_id ) ) {
@@ -1317,7 +1317,11 @@ final class SmartWoo {
 
         if ( $service ) {
 
-            // Add Action Hook Before Updating Service Information.
+            /**
+             * Add Action Hook Before Updating Service Information.
+             * 
+             * @param SmartWoo_Service $service
+             */
             do_action( 'smartwoo_before_service_renew', $service );
 
             // Calculate Renewal Dates based on Billing Cycle.
