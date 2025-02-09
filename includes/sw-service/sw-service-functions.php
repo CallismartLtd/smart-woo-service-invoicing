@@ -376,6 +376,7 @@ function smartwoo_count_suspended_services() {
  * @param string $service_name The name of the service.
  *
  * @return string The generated service ID.
+ * @since 2.2.3 Deprecated the use of uniqid() function for generating service ID.
  */
 function smartwoo_generate_service_id( string $service_name ) {
 	$service_id_prefix = get_option( 'smartwoo_service_id_prefix', 'SID' );
@@ -387,12 +388,14 @@ function smartwoo_generate_service_id( string $service_name ) {
 		explode( ' ', $service_name )
 	);
 
-	$unique_id = uniqid();
+	// Generate a more secure unique identifier
+	$unique_id = bin2hex( random_bytes(4) ) . dechex( time() );
 
 	$generated_service_id = $service_id_prefix . '-' . implode( '', $first_alphabets ) . $unique_id;
 
 	return $generated_service_id;
 }
+
 
 /**
  * Get the expiration date for a service based on its end date and grace period.
