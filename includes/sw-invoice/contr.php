@@ -70,7 +70,7 @@ class SmartWoo_Invoice_Form_Controller{
         }
 
 		if ( ! isset( $_POST['smartwoo_send_new_invoice_mail'] ) || 'yes' !== $_POST['smartwoo_send_new_invoice_mail'] ) {
-			remove_action( 'smartwoo_new_invoice_created', array( 'SmartWoo_New_Invoice_Mail', 'send_mail' ) );
+			add_filter( 'smartwoo_new_invoice_mail', '__return_false' );
 		}
 		
 		$errors = apply_filters( 'smartwoo_invoice_form_error', self::instance()->check_errors() );
@@ -127,15 +127,20 @@ class SmartWoo_Invoice_Form_Controller{
 			foreach( $guest_data as $key => $value ) {
 				$invoice->set_meta( $key, $value );
 			}
+
+			$invoice->set_user_id( 0 );
+			$invoice->set_billing_address( $guest_data['billing_address'] );
+
+
 		} else {
-			// Billing Address is typically set for guests
-			$invoice->set_billing_address( smartwoo_get_client_billing_email( $args['user_id'] ) );
+			// Billing Address is typically set for guests.
+			$invoice->set_billing_address( smartwoo_get_user_billing_address( $args['user_id'] ) );
 
 		}
 
 		if ( 'unpaid' === $args['payment_status'] ) {
 			$invoice->save(); // Persist changes before order creation.
-			$order_id = smartwoo_generate_pending_order( $args['user_id'], $invoice->get_invoice_id() );
+			$order_id = smartwoo_generate_pending_order( $invoice->get_invoice_id() );
 			$invoice->set_order_id( $order_id );
 		}
 
@@ -162,9 +167,10 @@ class SmartWoo_Invoice_Form_Controller{
 			'first_name'		=> isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['first_name'] ) ) : '',
 			'last_name'			=> isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['last_name'] ) ) : '',
 			'billing_address'	=> isset( $_POST['billing_address'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_address'] ) ) : '',
-			'phone'				=> isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '',
+			'billing_phone'		=> isset( $_POST['billing_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_phone'] ) ) : '',
 			'billing_company'	=> isset( $_POST['billing_company'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_company'] ) ) : '',
 			'billing_email'		=> isset( $_POST['billing_email'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_email'] ) ) : '',
+			'is_guest_invoice'	=> isset( $_POST['is_guest_invoice'] ) ? sanitize_text_field( wp_unslash( $_POST['is_guest_invoice'] ) ) : '',
 		);
 
 		return $guest_data;
