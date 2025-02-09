@@ -43,6 +43,6 @@ function smartwoo_invoice_shortcode() {
 			break;
 	}
 
-	// Return the output
+	// Return the output.
 	return wp_kses_post( $output );
 }
