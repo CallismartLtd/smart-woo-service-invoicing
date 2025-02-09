@@ -102,8 +102,7 @@ function smartwoo_invoice_front_temp() {
 function smartwoo_invoice_details( $invoice_id = '' ) {
 	smartwoo_set_document_title( 'View Invoice' );
 	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( __( 'You must be logged in to access this page', 'smart-woo-service-invoicing' ) ) ) );
-	   return;
+		return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'Login to view invoices.' ), 'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     }
 	$invoice_content	= '<div class="smartwoo-page">';
 	$invoice_content	.= smartwoo_get_navbar( 'My Invoice', smartwoo_invoice_page_url() );
@@ -119,7 +118,7 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	$invoice	= ! empty( $invoice_id ) ? SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id ) : false;
 
 	
-	if ( ! $invoice || $invoice->getUserId() !== get_current_user_id() ) {
+	if ( ! $invoice || ! $invoice->current_user_can_access() ) {
 		$invoice_content .= smartwoo_notice( 'Invalid or deleted Invoice' );
 		$invoice_content .= '</div>';
 		return $invoice_content;
@@ -134,7 +133,7 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	$store_city				= $biller_details->store_city;
 	$default_country		= $biller_details->default_country;
 	$biller_email			= get_option( 'smartwoo_billing_email', 'N/A' );
-	$user 					= new WC_Customer( $user_id );
+	$user 					= $invoice->get_user();
 	$first_name				= $user->get_first_name();
 	$last_name				= $user->get_last_name();
 	$billing_email			= $user->get_billing_email();
