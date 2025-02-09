@@ -78,26 +78,25 @@ function smartwoo_update_invoice_fields( $invoice_id, $fields ) {
 /**
  * Generates a pending WooCommerce order for the payment of an unpaid invoice.
  *
- * @param int        $user_id    The user ID associated with the order.
- * @param int        $invoice_id The ID of the unpaid invoice.
+ * @param SmartWoo_Invoice|string        $invoice The ID of the unpaid invoice.
  * @param float|null $total     The total for the order. If not provided (null), invoice total will be used.
  *
  * @return int|false The ID of the newly created order or false on failure.
  *
  * @since 1.1.0
  */
-function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null ) {
-	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+function smartwoo_generate_pending_order( $invoice, $total = null ) {
+	$invoice = ( $invoice instanceof SmartWoo_Invoice ) ? $invoice : SmartWoo_Invoice_Database::get_invoice_by_id( $invoice );
 
 	if ( ! $invoice ) {
-		error_log( 'invoice does not exist' );
 		return false;
 	}
 
-	$order = wc_create_order( array( 'customer_id' => $user_id ) );
+
+	$order = wc_create_order( array( 'customer_id' => $invoice->get_user_id() ) );
 
 	// Add fees from invoice as a line item.
-	$fee_amount = $invoice->getFee();
+	$fee_amount = $invoice->get_fee();
 	$fee_name   = 'Invoice Fee';
 	$fee        = new WC_Order_Item_Fee();
 	$fee->set_props(
@@ -110,9 +109,9 @@ function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null )
 	$order->add_item( $fee );
 
 	// Use line item with pseudo product name, and use real price to prevents SKU deduction.
-	$product_name         = wc_get_product( $invoice->getProductId() )->get_name();
+	$product_name         = $invoice->get_product() ? $invoice->get_product()->get_name() : '';
 	$pseudo_product_name  = $product_name;
-	$pseudo_product_price = $invoice->getAmount();
+	$pseudo_product_price = $invoice->get_amount();
 
 	$product = new WC_Order_Item_Product();
 	$product->set_props(
@@ -126,18 +125,18 @@ function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null )
 	$order->add_item( $product );
 
 	// Set the order total based on the provided parameter or use the invoice total.
-	$order_total = ( $total !== null ) ? $total : $invoice->getTotal();
+	$order_total = ( $total !== null ) ? $total : $invoice->get_total();
 	$order->set_total( $order_total );
 	$order->update_status( 'pending' );
 
 	// Set order signatures.
 	$order->set_created_via( SMARTWOO );
-	$order->update_meta_data( '_sw_invoice_id', $invoice_id );
+	$order->update_meta_data( '_sw_invoice_id', $invoice->get_invoice_id() );
 	$order->update_meta_data( '_wc_order_attribution_utm_source', SMARTWOO );
 	$order->update_meta_data( '_wc_order_attribution_source_type', 'utm' );
 
 	// Set client billing addresses.
-	$customer = new WC_Customer( $user_id );
+	$customer = $invoice->get_user();
 	$order->set_billing_first_name( $customer->get_billing_first_name() );
 	$order->set_billing_last_name( $customer->get_billing_last_name() );
 	$order->set_billing_company( $customer->get_billing_company() );
@@ -167,13 +166,12 @@ function smartwoo_generate_pending_order( $user_id, $invoice_id, $total = null )
 /**
  * Generate invoice ID
  *
- * @return string $invoice_id   The new Generated Invoice ID
+ * @return string $invoice_id   The new Generated Invoice ID.
+ * @since 2.2.3 Deprecated the use of uniqid() function for generating invoice ID.
  */
 function smartwoo_generate_invoice_id() {
-	$invoice_id = uniqid( smartwoo_get_invoice_id_prefix() . '-' );
-	if ( $invoice_id ) {
-		return $invoice_id;
-	}
+	// $invoice_id		= uniqid( smartwoo_get_invoice_id_prefix() . '-' );
+	return smartwoo_get_invoice_id_prefix() . '-' . bin2hex( random_bytes(4) ) . dechex( time() );
 }
 
 /**
@@ -220,7 +218,7 @@ function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoi
 
 	if ( 'unpaid' === strtolower( $payment_status ) ) {
 		$newInvoice->save(); // Persist changes before order creation.
-		$order_id = smartwoo_generate_pending_order( $user_id, $invoice_id );
+		$order_id = smartwoo_generate_pending_order( $invoice_id );
 		$newInvoice->set_order_id( $order_id );
 	}
 
@@ -372,7 +370,7 @@ function smartwoo_get_client_billing_email( $user_id ) {
  * @param int $order_id WooCommerce order ID
  * @return string The generated order-pay URL
  */
-function smartwoo_invoice_pay_url( int $order_id ) {
+function smartwoo_invoice_pay_url( $order_id ) {
 	$order = wc_get_order( $order_id );
 
 	if ( $order && $order->get_meta( '_sw_invoice_id' ) ) {
@@ -559,26 +557,29 @@ function smartwoo_create_new_order_invoice( $order ) {
  * Marks invoice as paid.
  *
  * @param  string $invoice_id   The ID of the invoice to be updated
- * @do_action @param object $invoice  Triggers "smartwoo_invoice_is_paid" action with the invoice instance
  * @return bool     false if the invoice is already 'Paid' | true if update is successful
  */
 function smartwoo_mark_invoice_as_paid( $invoice_id ) {
-	// Get the invoice associated with the service
 	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-	// Check if the invoice is valid and payment_status is not 'paid'
-	if ( $invoice && $invoice->get_status() !== 'paid' ) {
-		// Get the order associated with the invoice
-		$order = wc_get_order( $invoice->getOrderId() );
+	if ( $invoice && 'paid' !== $invoice->get_status() ) {
+		$order = $invoice->get_order();
+		if ( ! $order ) {
+			return false;
+		}
 
 		// Update additional fields in the invoice
-		$fields          = array(
+		$fields	= array(
 			'payment_status'  => 'paid',
 			'date_paid'       => current_time( 'mysql' ),
 			'transaction_id'  => $order->get_transaction_id(),
 			'payment_gateway' => $order->get_payment_method_title(),
 		);
 		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
+		/**
+		 * Fires after an invoice is marked as paid.
+		 * @param SmartWoo_Invoice $updated_invoice The updated invoice object.
+		 */
 		do_action( 'smartwoo_invoice_is_paid', $updated_invoice );
 
 		return true;
