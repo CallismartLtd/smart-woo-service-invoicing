@@ -166,7 +166,7 @@ class SmartWoo_Invoice {
 		} elseif( $user instanceof WC_Customer ) {
 			$this->user_id = $user->get_id();
 		} else {
-			$this->user_id = absint( $user );
+			$this->user_id = intval( $user );
 		}
 	}
 	
@@ -437,6 +437,8 @@ class SmartWoo_Invoice {
 	public function get_billing_address( $context = 'view' ) {
 		if ( empty( $this->billing_address ) && 'edit' === $context ) {
 			$this->billing_address = smartwoo_get_user_billing_address( $this->user_id );
+		} elseif ( empty( $this->billing_address ) && $this->is_guest_invoice() ) {
+			$this->billing_address = $this->get_meta( 'billing_address' );
 		}
 
 		return $this->billing_address;
@@ -702,22 +704,77 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Retrieve customer's billing email
+	 * Retrieve customer's billing email.
+	 * 
+	 * @return string $email The customer's billing email.
 	 */
 	public function get_billing_email() {
-		return smartwoo_get_client_billing_email( $this->get_user_id() );
+		return smartwoo_get_client_billing_email( $this->get_user() );
 	}
 
 	/**
 	 * Get the WC_Customer object of the invoice owner
 	 * 
-	 * @since 2.2.0
 	 * @return WC_Customer
+	 * @since 2.2.0
+	 * @since 2.2.3 Added support for guest invoices.
 	 */
 	public function get_user() {
-		return new WC_Customer( $this->get_user_id() );
+		$user = new WC_Customer( $this->get_user_id() );
+
+		if ( $this->is_guest_invoice() ) {
+			$user->set_email( $this->get_meta( 'billing_email' ) );
+			$user->set_first_name( $this->get_meta( 'first_name' ) );
+			$user->set_last_name( $this->get_meta( 'last_name' ) );
+			
+			// Set billing data.
+			$user->set_billing_company( $this->get_meta( 'billing_company' ) );
+			$user->set_billing_first_name( $this->get_meta( 'first_name' ) );
+			$user->set_billing_last_name( $this->get_meta( 'last_name' ) );
+			$user->set_billing_address( $this->get_meta( 'billing_address' ) );
+			$user->set_billing_email( $this->get_meta( 'billing_email' ) );
+			$user->set_billing_phone( $this->get_meta( 'billing_phone' ) );
+		}
+
+		return $user;
 	}
 
+	/*
+	|--------------------------------
+	| UTILITY METHODS
+	|--------------------------------
+	*/
+	
+	/**
+	 * Check wether current user can access invoice.
+	 * 
+	 * @return bool True if current user can view invoice, false otherwise.
+	 */
+	public function current_user_can_access() {
+		if ( $this->get_user_id() === get_current_user_id() ) {
+			return true;
+		}
+
+		if ( $this->get_billing_email() === get_user_meta( get_current_user_id(), '_billing_email', true ) ) {
+			return true;
+		}
+
+		// By default, a guest invoice is only accessible by guest users with the invoice link.
+		if ( $this->is_guest_invoice() ) {
+			return apply_filters( 'smartwoo_guest_invoice_access', true, $this );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check whether an invoice is a guest invoice?
+	 * 
+	 * @return bool True if it's guest invoice, false otherwise
+	 */
+	public function is_guest_invoice() {
+		return 'yes' === $this->get_meta( 'is_guest_invoice' );
+	}
 
 	// Helper method to convert database results to SmartWoo_Invoice objects
 	public static function convert_array_to_invoice( $data ) {
@@ -745,8 +802,11 @@ class SmartWoo_Invoice {
 		 */
 		$all_meta = SmartWoo_Invoice_Database::get_all_metadata( $self );
 		$metadata = [];
-		foreach( $all_meta as $meta ) {
-			$metadata[$meta['meta_name']] = $meta['meta_value'];
+
+		if ( ! empty( $all_meta ) ) {
+			foreach( $all_meta as $meta ) {
+				$metadata[$meta['meta_name']] = $meta['meta_value'];
+			}
 		}
 
 		$self->meta_data = $metadata;
