@@ -50,8 +50,12 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 
 	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-	if ( ! $invoice || $user_id !== $invoice->getUserId() ) {
-		wp_die( 'Invalid or deleted invoice.' );
+	if ( ! $invoice || ! $invoice->current_user_can_access() ) {
+		if ( wp_doing_ajax() ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid invoice ID.', 'smart-woo-service-invoicing' ) ), 200 );
+		} else {
+			wp_die( new WP_Error( 'invalid_invoice', 'Invalid or unauthorized invoice ID.', array( 'status' => 404 ) ) );
+		}
 	}
 
 	$biller_details		= smartwoo_biller_details();
