@@ -1262,7 +1262,7 @@ final class SmartWoo {
             smartwoo_mark_invoice_as_paid( $invoice_id );
         }
 
-        $service_id = $invoice->get-service_id();
+        $service_id = $invoice->get_service_id();
 
         // If Service ID is available, this indicates an invoice for existing service.
         if ( ! empty( $service_id ) ) {
