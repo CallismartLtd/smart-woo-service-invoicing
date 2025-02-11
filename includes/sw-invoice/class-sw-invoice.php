@@ -859,4 +859,24 @@ class SmartWoo_Invoice {
 	public function delete_all_meta() {
 		return SmartWoo_Invoice_Database::delete_all_meta( $this );
 	}
+
+	/**
+	 * Delete a single meta data from the invoice object, the caller should save the object to persist the changes
+	 *  or pass `true` to the second parameter to delete the meta data from the database.
+	 * 
+	 * @param string $meta_name The name of the meta data to delete.
+	 * @param bool $deep Whether to delete the meta data from the database.
+	 * @return bool True if the meta data was deleted, false otherwise.
+	 */
+	public function delete_meta( $meta_name, $deep = false ) {
+		if ( isset( $this->meta_data[$meta_name] ) ) {
+			unset( $this->meta_data[$meta_name] );
+
+			if ( true === $deep ) {
+				return SmartWoo_Invoice_Database::delete_meta( $this->get_invoice_id(), $meta_name );
+			}
+		}
+
+		return false;
+	}
 }
