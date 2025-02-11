@@ -1,6 +1,6 @@
 <?php
 /**
- * Edit invoice form template
+ * Edit invoice form template.
  * 
  * @author Callistus.
  * @package SmartWoo\templates
