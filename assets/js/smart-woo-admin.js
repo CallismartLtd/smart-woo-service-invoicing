@@ -834,7 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
     let proDismissFornow    = document.querySelector('#smartwoo-pro-dismiss-fornow');
     let userDataDropDown    = document.querySelector( '#user_data' );
-    let createInvoiceForm    = document.querySelector( '#smartwooInvoiceForm' );
+    let theInvoiceAdminForm   = document.querySelector( '#smartwooInvoiceForm' );
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1092,59 +1092,75 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( userDataDropDown ){
-        let addedElement = false;
+        let addedElement    = false;
+        let customOption    = document.querySelector( '.sw-guest-option' );
+        let metaDiv         = document.querySelector( '.sw-invoice-form-meta' );
 
-        userDataDropDown.addEventListener( 'change', async (e)=>{    
+        let removeElement = () =>{
+            metaDiv.querySelectorAll('input').forEach(input=>{
+                if ( 'is_guest_invoice' === input.name ) {
+                    input.value = '';
+                    input.value = 'no';
+                } else {
+                    input.value = '';
+                }
+            });
+
+            if ( addedElement ) {
+                let element = userDataDropDown.querySelector( `option[value="${addedElement}"]` );
+                element.remove();
+                addedElement = !addedElement;
+            }
+
+            if ( customOption ) {
+                customOption.remove();
+                showNotification('The origial invoice owner has been changed', 7000);
+            }
+        }
+
+        userDataDropDown.addEventListener( 'change', async (e)=>{
+            if ( ! e.target.value.length || ( customOption && customOption.value ) === e.target.value ) {
+                return;
+            }
+
+            if ( 'smartwoo_guest' !== e.target.value ) {
+                removeElement();
+            }
+  
             if ( 'smartwoo_guest' === e.target.value ) {
                 let guestData   = await smartwooPromptGuestInvoiceData( 'Enter Guest Details' );
-                let metaDiv     = document.querySelector( '.sw-invoice-form-meta' );
-
-                let removeElement = () =>{
-                    if ( addedElement ) {
-                        let element = userDataDropDown.querySelector( `option[value="${addedElement}"]` );
-                        element.remove();
-                        metaDiv.querySelectorAll('input').forEach(input=>{
-                            if ( 'is_guest_invoice' === input.name ) {
-                                input.value = '';
-                                input.value = 'no';
-                            } else {
-                                input.value = '';
-                            }
-                        });
-                        addedElement = !addedElement;
-                    }
-                }
     
                 if ( ! guestData ) {
-                    userDataDropDown.value = "";
+                    if ( customOption ) {
+                        userDataDropDown.value = customOption.value;
+                        return;
+                    }
                     removeElement();
+                    userDataDropDown.value = "";
                     return;
                 }
 
                 if ( ! guestData.billing_email.length ) {
                     showNotification('The billing email is required.', 5000);
+                    if ( customOption ) {
+                        userDataDropDown.value = customOption.value;
+                        return;
+                    }
                     userDataDropDown.value = "";
-                    removeElement();
                     return;
                 }
     
                 let optionText = `${guestData.first_name ? guestData.first_name + ' ' + guestData.last_name: 'Guest' } (${guestData.billing_email})`;
                 let optionValue = `-1|${guestData.billing_email }`;
-                let existingOption = userDataDropDown.querySelector( `option[value="${optionValue}"]` );
-    
-                if ( existingOption ) {
-                    userDataDropDown.value = optionValue;
-                    return;
-                }
-    
+
+                removeElement();
                 let newOption = document.createElement( 'option' );
                 newOption.value = optionValue;
                 newOption.text = optionText;
                 userDataDropDown.prepend(newOption);
                 userDataDropDown.value = newOption.value;
-                removeElement();
                 addedElement = optionValue;
-
+                
                 metaDiv.querySelector('input[name="first_name"]').value         = guestData.first_name;
                 metaDiv.querySelector('input[name="last_name"]').value          = guestData.last_name;
                 metaDiv.querySelector('input[name="billing_address"]').value    = guestData.billing_address;
@@ -1158,17 +1174,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if ( createInvoiceForm ) {
-        createInvoiceForm.addEventListener( 'submit', (e)=>{
+    if ( theInvoiceAdminForm ) {
+        theInvoiceAdminForm.addEventListener( 'submit', (e)=>{
             e.preventDefault();
-            
-            let loader =smartWooAddSpinner( 'swloader', true)
+            let loader = smartWooAddSpinner( 'swloader', true);
             // Remove existing error messages before adding new ones.
             let existingErrors = document.getElementById('invoice-errors');
             if (existingErrors) {
                 existingErrors.remove();
             }
-            let formData = new FormData( createInvoiceForm );
+            let formData = new FormData( theInvoiceAdminForm );
             formData.append( 'security', smartwoo_admin_vars.security );
             fetch( smartwoo_admin_vars.ajax_url, { 'method': 'POST', 'body': formData } )
                 .then( response =>{
@@ -1186,7 +1201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         errorContainer.innerHTML = responseData.data.htmlContent;
         
                         // Insert error messages above the form
-                        createInvoiceForm.parentElement.insertBefore(errorContainer, createInvoiceForm);
+                        theInvoiceAdminForm.parentElement.insertBefore(errorContainer, theInvoiceAdminForm);
                         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
                     } else {
                         showNotification( responseData.data.message ? responseData.data.message : 'Invoice Created', 3000 );
