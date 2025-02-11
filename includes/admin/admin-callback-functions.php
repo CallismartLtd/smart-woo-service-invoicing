@@ -65,7 +65,7 @@ function smartwoo_invoice_admin_page() {
 			break;
 
 		case 'edit-invoice':
-			echo wp_kses( smartwoo_edit_invoice_page(), smartwoo_allowed_form_html() );
+			SmartWoo_Invoice_Form_Controller::edit_form();
 			break;
 
 		case 'invoice-by-status':
