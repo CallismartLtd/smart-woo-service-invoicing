@@ -41,3 +41,44 @@ function smartwoo_admin_product_url( $action = '', $product_id = 0 ) {
 
 	return $page;
 }
+
+/**
+ * Dropdown for Smart Woo Product with filter for custom options.
+ *
+ * @param int $product_id The selected Product ID (optional).
+ *
+ * @since 1.0.0
+ */
+function smartwoo_product_dropdown( $selected_product_id = null, $required = false, $echo = true ) {
+	
+	$products = wc_get_products(
+		array(
+			'type'   => 'sw_product',
+			'status' => 'publish',
+		)
+	);
+
+	// Initialize the dropdown HTML.
+	$dropdown_html = '<select class="sw-form-input" name="product_id" ' . ( $required ? 'required' : '' ) . ' id="service_products">';
+	$dropdown_html .= '<option value="">Select Service Product</option>';
+
+	foreach ( $products as $product ) {
+		// Get the product ID and name
+		$product_id   = $product->get_id();
+		$product_name = $product->get_name();
+
+		// Check if the current product is selected
+		$selected = ( $product_id == $selected_product_id ) ? 'selected' : '';
+
+		// Add the option to the dropdown
+		$dropdown_html .= '<option value="' . esc_attr( $product_id ) . '" ' . $selected . '>' . esc_html( $product_name ) . '</option>';
+	}
+
+	$dropdown_html .= '</select>';
+
+	if ( true === $echo ) {
+		echo wp_kses( $dropdown_html, smartwoo_allowed_form_html() );
+	} 
+	return $dropdown_html;
+
+}
