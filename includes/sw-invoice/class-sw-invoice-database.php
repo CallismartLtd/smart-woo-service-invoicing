@@ -647,8 +647,8 @@ class SmartWoo_Invoice_Database {
 		$data        = array();
 		$data_format = array();
 
-		foreach ( $fields as $value ) {
-			$data[ $field ] = sanitize_text_field( wp_unslash( $value ) );
+		foreach ( $fields as $column => $value ) {
+			$data[ $column ] = sanitize_text_field( wp_unslash( $value ) );
 			$data_format[]  = self::get_data_format( $value );
 		}
 
@@ -734,6 +734,18 @@ class SmartWoo_Invoice_Database {
 	public static function delete_all_meta( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
 		$deleted	= $wpdb->delete( SMARTWOO_INVOICE_META_TABLE, array( 'invoice_id' => $invoice->get_invoice_id() ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $deleted !== false;
+	}
+
+	/**
+	 * Delete a single metadata from the database.
+	 * 
+	 * @param string $invoice_id The invoice ID.
+	 * @param string $meta_name The meta name.
+	 */
+	public static function delete_meta( $invoice_id, $meta_name ) {
+		global $wpdb;
+		$deleted	= $wpdb->delete( SMARTWOO_INVOICE_META_TABLE, array( 'invoice_id' => $invoice_id, 'meta_name' => $meta_name ), array( '%s', '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $deleted !== false;
 	}
 }
