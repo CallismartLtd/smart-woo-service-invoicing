@@ -497,3 +497,40 @@
     width: 90%;
     margin: 5px;
 }
+
+.smartwoo-admin-invoice-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    background-color: #ffffff;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
+}
+
+.smartwoo-invoice-header-data {
+    height: 30%;
+    width: 25%;
+    background-color: #f1f1f1;
+    margin: 20px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.smartwoo-invoice-header-data p:first-child{
+    font-weight: 500;
+    font-size: 20px;
+    color: #000000;
+}
+.smartwoo-admin-invoice-billing-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 98%;
+}
+
+.smartwoo-admin-invoice-body .sw-invoice-metadata {
+    background-color: #ffffff;
+}
