@@ -223,6 +223,8 @@ class SmartWoo_Config{
             $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
             wp_enqueue_style( 'smartwoo-admin-utm-style', $utm_style_uri, array(), SMARTWOO_VER, 'all' );
             wp_enqueue_style( 'smartwoo-admin-style', $admin_style, array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+
         }
     }
 
