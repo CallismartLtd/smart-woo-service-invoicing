@@ -8,6 +8,69 @@
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
+
+/**
+ * Dropdown for Invoice Type with filter for custom options.
+ *
+ * @param string $selected The selected invoice type (optional).
+ * @param bool $echo Whether to print or return output.
+ *
+ * @since 1.0.0
+ */
+function smartwoo_invoice_type_dropdown( $selected = null, $echo = true ) {
+	// Default options
+	$options = apply_filters( 'smartwoo_invoice_type_dropdown',
+		array(
+			''                          => __( 'Select Invoice Type', 'smart-woo-service-invoicing' ),
+			'New Service Invoice'       => __( 'New Service Invoice', 'smart-woo-service-invoicing' ),
+			'Service Renewal Invoice'   => __( 'Service Renewal Invoice', 'smart-woo-service-invoicing' ),
+		)
+	);
+
+	$dropdown = '<select class="sw-form-input" name="invoice_type" id="service_type">';
+	foreach ( $options as $value => $label ) {
+		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
+		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
+	}
+	$dropdown .= '</select>';
+	if ( true === $echo ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+	}
+	return $dropdown;
+}
+
+/**
+ * Dropdown for Invoice Payment Status with filter for custom options.
+ *
+ * @param string $selected The selected invoice status (optional).
+ * @param bool 	$echo		Whether or not to print to screen (Defaults to true).
+ *
+ * @since 1.0.0
+ */
+function smartwoo_invoice_payment_status_dropdown( $selected = null, $echo = true ) {
+	
+	$options = apply_filters( 'smartwoo_payment_status',
+		array(
+			''			=> __( 'Select Payment Status', 'smart-woo-service-invoicing' ),
+			'paid'		=> __( 'Paid', 'smart-woo-service-invoicing' ),
+			'unpaid'	=> __( 'Unpaid', 'smart-woo-service-invoicing' ),
+			'due'		=> __( 'Due', 'smart-woo-service-invoicing' ),
+			'cancelled'	=> __( 'Cancel', 'smart-woo-service-invoicing' ),
+		)
+	);
+
+	$dropdown = '<select class="sw-form-input" name="payment_status" id="payment_status">';
+	foreach ( $options as $value => $label ) {
+		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
+		$dropdown .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
+	}
+	$dropdown .= '</select>';
+	if ( true === $echo ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+	}
+	return $dropdown;
+}
+
 /**
  * Checks if an invoice is associated with a service.
  *
