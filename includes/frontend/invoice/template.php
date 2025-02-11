@@ -116,7 +116,6 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	}
 	
 	$invoice	= ! empty( $invoice_id ) ? SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id ) : false;
-
 	
 	if ( ! $invoice || ! $invoice->current_user_can_access() ) {
 		$invoice_content .= smartwoo_notice( 'Invalid or deleted Invoice' );
@@ -124,7 +123,6 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 		return $invoice_content;
 	}
 
-	$user_id				= get_current_user_id();
 	$biller_details			= smartwoo_biller_details();
 	$business_name			= $biller_details->business_name;
 	$invoice_logo_url		= $biller_details->invoice_logo_url;
@@ -139,51 +137,35 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	$billing_email			= $user->get_billing_email();
 	$billing_phone			= $user->get_billing_phone();
 	$customer_company_name	= $user->get_billing_company();
-	$user_address			= $invoice->getBillingAddress();
-	$service_id 			= $invoice->getServiceId();
+	$user_address			= $invoice->get_billing_address();
+	$service_id 			= $invoice->get_service_id();
 	$service    			= ! empty( $service_id ) ? SmartWoo_Service_Database::get_service_by_id( $service_id ) : false;
 
 	if ( $service ) {
-		$service_name 		= $service->getServiceName();
+		$service_name 		= $service->get_service_name();
 	}
 
 	$product      			= $invoice->get_product();
-	
 	$product_name 			= $product ? $product->get_name() : 'Product Not Found';
-	$invoice_date			= smartwoo_check_and_format( $invoice->getDateCreated(), true );
-	$transaction_date 		= smartwoo_check_and_format( $invoice->getDatePaid(), true );
-	$invoice_due_date 		= smartwoo_check_and_format( $invoice->getDateDue(), true );
-	$invoice_total    		= $invoice->getTotal();
-	$payment_gateway 		= ! empty( $invoice->getPaymentGateway() ) ? $invoice->getPaymentGateway() : 'N/A';
-	$invoice_status			= $invoice->getPaymentStatus();
-	$transaction_id			= ! empty( $invoice->getTransactionId() ) ? $invoice->getTransactionId() : 'N/A';
-	
-	/**
-	 * @filter smartwoo_invoice_items_display add or remove items from invoice table.
-	 * 
-	 * @param array $items
-	 * @param SmartWoo_Invoice Invoice Object.
-	 */
-	$invoice_items	=	apply_filters( 'smartwoo_invoice_items_display', 
-		array( 
-			$product_name 								=> $invoice->getAmount(),
-			__( 'Fee', 'smart-woo-service-invoicing' ) =>	$invoice->getFee() 
-		),
-
-		$invoice
-		
-	);
+	$invoice_date			= smartwoo_check_and_format( $invoice->get_date_created(), true );
+	$transaction_date 		= smartwoo_check_and_format( $invoice->get_date_paid(), true );
+	$invoice_due_date 		= smartwoo_check_and_format( $invoice->get_date_due(), true );
+	$invoice_total    		= $invoice->get_total();
+	$payment_gateway 		= ! empty( $invoice->get_payment_method() ) ? $invoice->get_payment_method() : 'N/A';
+	$invoice_status			= $invoice->get_status();
+	$transaction_id			= ! empty( $invoice->get_transaction_id() ) ? $invoice->get_transaction_id() : 'N/A';
+	$invoice_items			= $invoice->get_items();
 	
 	/**
 	 * Start building the page content.
 	 */
 	$invoice_content	.= '<div style="margin: 20px">';
-	$invoice_content	.= '<a href="' . esc_url( smartwoo_invoice_page_url() ) . '" class="sw-blue-button">' . esc_html__( 'Back to invoices', 'smart-woo-service-invoicing' ) . '</a>';
+	$invoice_content	.= '<a href="' . esc_url( smartwoo_invoice_page_url() ) . '" class="sw-blue-button"><span class="dashicons dashicons-admin-home"></span> ' . esc_html__( 'Invoices', 'smart-woo-service-invoicing' ) . '</a>';
 	
 	if ( 'unpaid' ===  strtolower( $invoice_status ) ) {
-		$order_id         = $invoice->getOrderId();
+		$order_id         = $invoice->get_order_id();
 		$pay_button_url   = $invoice->pay_url();
-		$invoice_content .= '<a href="' . esc_url( $pay_button_url ) . '" class="invoice-pay-button">' . esc_html__( 'Pay Now', 'smart-woo-service-invoicing' ) . '</a>';
+		$invoice_content .= '<a href="' . esc_url( $pay_button_url ) . '" class="invoice-pay-button"><span class="dashicons dashicons-money-alt"></span> ' . esc_html__( 'Pay Now', 'smart-woo-service-invoicing' ) . '</a>';
 	}
 
 	// Add nonce to the URL.
@@ -266,17 +248,17 @@ function smartwoo_invoices_by_status() {
 
 	foreach ( $invoices as $invoice ) {
 
-		$date_created = smartwoo_check_and_format( $invoice->getDateCreated(), true );
-		$datePaid     = $invoice->getDatePaid();
-		$date_due     = smartwoo_check_and_format( $invoice->getDateDue() );
+		$date_created = smartwoo_check_and_format( $invoice->get_date_created(), true );
+		$datePaid     = $invoice->get_date_paid();
+		$date_due     = smartwoo_check_and_format( $invoice->get_date_due() );
 		// Table content.
 		$output .= '<tr>';
-		$output .= '<td>' . esc_html( $invoice->getInvoiceId() ) . '</td>';
+		$output .= '<td>' . esc_html( $invoice->get_invoice_id() ) . '</td>';
 		$output .= '<td>' . esc_html( $date_created ) . '</td>';
 		$output .= '<td>' . esc_html( $date_due ) . '</td>';
-		$output .= '<td>' . smartwoo_price( $invoice->getTotal() ) . '</td>';
-		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->getPaymentStatus() ) ) . '</td>';
-		$output .= '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->getInvoiceId() ) . '" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
+		$output .= '<td>' . smartwoo_price( $invoice->get_total() ) . '</td>';
+		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->get_status() ) ) . '</td>';
+		$output .= '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->get_invoice_id() ) . '" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$output .= '</tr>';
 	}
 
@@ -330,9 +312,9 @@ function smartwoo_invoice_mini_card() {
 
         foreach ( $all_invoices as $invoice ) {
 
-            $invoice_id     = esc_html( $invoice->getInvoiceId() );
-            $generated_date = esc_html( smartwoo_check_and_format( $invoice->getDateCreated() ) );
-            $order_id       = esc_html( $invoice->getOrderId() );
+            $invoice_id     = esc_html( $invoice->get_invoice_id() );
+            $generated_date = esc_html( smartwoo_check_and_format( $invoice->get_date_created() ) );
+            $order_id       = esc_html( $invoice->get_order_id() );
             $table_html    .= '<tr>
                 <td class="invoice-table-heading">' . esc_html__( 'Invoice ID:', 'smart-woo-service-invoicing' ) . '</td>
                 <td class="invoice-table-value">' . esc_html( $invoice_id ) . '</td>
@@ -343,15 +325,15 @@ function smartwoo_invoice_mini_card() {
                 <td class="invoice-table-value">' . esc_html__( 'Generated on - ', 'smart-woo-service-invoicing' ) . $generated_date. '</td>
             </tr>';
 
-            $preview_invoice_url = smartwoo_invoice_preview_url( $invoice->getInvoiceId() );
+            $preview_invoice_url = smartwoo_invoice_preview_url( $invoice->get_invoice_id() );
 
             $table_html .= '<tr>
                 <td class="invoice-table-heading">' . esc_html__( 'Action:', 'smart-woo-service-invoicing' ) . '</td>
                 <td class="invoice-table-value"><a href="' . esc_url( $preview_invoice_url ) .'" class="invoice-preview-button">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a>';
 
             // Show the "Pay" button beside the "View" button only if the order is pending.
-            if ( 'unpaid' === $invoice->getPaymentStatus() ) {
-                $checkout_url  = smartwoo_invoice_pay_url( $invoice->getOrderID() );
+            if ( 'unpaid' === $invoice->get_status() ) {
+                $checkout_url  = smartwoo_invoice_pay_url( $invoice->get_order_id() );
                 $table_html   .= '<a href="' . esc_url( $checkout_url ) .'" class="invoice-pay-button">' . esc_html__( 'Pay', 'smart-woo-service-invoicing' ) . '</a>';
             }
 
@@ -428,52 +410,48 @@ function smartwoo_transactions_shortcode() {
 	$output		= "";
 
 	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
-	   return;
+	   return $output;
     }
 
 	$orders = smartwoo_get_configured_orders_for_service( null, true );
 
-	if ( $orders ) {
-		$output	.= '<div class="sw-table-wrapper">';
-		$output	.= '<table class="sw-table">';
-		$output	.= '<thead>';
-		$output	.= '<tr>';
-		$output	.= '<th>' . esc_html__( 'Status', 'smart-woo-service-invoicing' ) . '</th>';
-		$output	.= '<th>' . esc_html__( 'Amount', 'smart-woo-service-invoicing' ) . '</th>';
-		$output	.= '<th>' . esc_html__( 'Date', 'smart-woo-service-invoicing' ) . '</th>';
-		$output	.= '<th>' . esc_html__( 'Action', 'smart-woo-service-invoicing' ) .'</th>';
-		$output	.= '</tr>';
-		$output	.= '<tbody>';
-
-		foreach ( $orders as $order ) {
-
-			$order_id		= $order->get_id();
-			$amount         = $order->get_total();
-			$order_status   = $order->get_status();
-			$order_date     = smartwoo_check_and_format( $order->get_date_created(), true );
-			$payment_method = $order->get_payment_method_title();
-			$product_names  = array();
-			$output	.= '<tr>';
-			$output	.= '<td>' . esc_html( $order_status ) . '</td>';
-			$output	.= '<td>' . smartwoo_price( $amount ) . '</td>';
-			$output	.= '<td>' . esc_html( $order_date ) . '</td>';
-			$view_url = $order->get_view_order_url();
-			$output	.= '<td><a href="' . esc_url( $view_url ) . '" class="invoice-preview-button">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
-			$output	.= '</tr>';
-		}
-
-		$output	.= '</tbody>';
-		$output	.= '</table>';
-		$view_all_url = wc_get_account_endpoint_url( 'orders' );
-		$output	.= '<p><a href="' . esc_url( $view_all_url ) . '" class="sw-blue-button">' . esc_html__( 'View Older Transactions', 'smart-woo-service-invoicing' ) . '</a></p>';
-		$output	.= '</div>';
-		$output	.= '</div>';
-
-	} else {
+	if ( ! $orders ) {
 		$output	.= '<p>' . esc_html__( 'Transaction histories will appear here','smart-woo-service-invoicing' ) . '</p>';
+		return $output;
 	}
-	
+	$output	.= '<div class="sw-table-wrapper">';
+	$output	.= '<table class="sw-table">';
+	$output	.= '<thead>';
+	$output	.= '<tr>';
+	$output	.= '<th>' . esc_html__( 'Status', 'smart-woo-service-invoicing' ) . '</th>';
+	$output	.= '<th>' . esc_html__( 'Amount', 'smart-woo-service-invoicing' ) . '</th>';
+	$output	.= '<th>' . esc_html__( 'Date', 'smart-woo-service-invoicing' ) . '</th>';
+	$output	.= '<th>' . esc_html__( 'Action', 'smart-woo-service-invoicing' ) .'</th>';
+	$output	.= '</tr>';
+	$output	.= '<tbody>';
+
+	foreach ( $orders as $order ) {
+
+		$order_id		= $order->get_id();
+		$amount         = $order->get_total();
+		$order_status   = $order->get_status();
+		$order_date     = smartwoo_check_and_format( $order->get_date_created(), true );
+		$payment_method = $order->get_payment_method_title();
+		$product_names  = array();
+		$output	.= '<tr>';
+		$output	.= '<td>' . esc_html( $order_status ) . '</td>';
+		$output	.= '<td>' . smartwoo_price( $amount ) . '</td>';
+		$output	.= '<td>' . esc_html( $order_date ) . '</td>';
+		$output	.= '<td><a href="' . esc_url( $order->get_view_order_url() ) . '" class="invoice-preview-button">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
+		$output	.= '</tr>';
+	}
+
+	$output	.= '</tbody>';
+	$output	.= '</table>';
+	$view_all_url = wc_get_account_endpoint_url( 'orders' );
+	$output	.= '<p><a href="' . esc_url( $view_all_url ) . '" class="sw-blue-button">' . esc_html__( 'View Older Transactions', 'smart-woo-service-invoicing' ) . '</a></p>';
+	$output	.= '</div>';
+	$output	.= '</div>';
 
 	return $output;
 }
@@ -488,9 +466,6 @@ function smartwoo_transaction_status_shortcode() {
 	if ( is_user_logged_in() ) {
 		return $output;
 	}
-
-	$user    = wp_get_current_user();
-	$user_id = $user->ID;
 
 	$defualt_statuses = array(
 		'completed'  => 'Complete',
@@ -508,7 +483,7 @@ function smartwoo_transaction_status_shortcode() {
 		$count = wc_get_orders(
 			array(
 				'status'   => $status,
-				'customer' => $user_id,
+				'customer' => get_current_user_id(),
 			)
 		);
 		$status_counts[ $label ] = count( $count );
