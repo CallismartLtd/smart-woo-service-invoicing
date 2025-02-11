@@ -73,7 +73,7 @@ function smartwoo_invoice_admin_page() {
 			break;
 
 		case 'view-invoice':
-			echo wp_kses_post( smartwoo_view_invoice_page() );
+			SmartWoo_Invoice_Admin_Templates::view_invoice();
 			break;
 
 		default:
