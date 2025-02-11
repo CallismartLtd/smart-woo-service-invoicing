@@ -265,25 +265,7 @@ public static function get_placeholders_description() {
      * Format invoice items as a table
      */
     public function get_items() {
-        $data = array();
-        if ( ! empty( $this->invoice->get_product() ) ) {
-            $data[$this->invoice->get_product()->get_name()] = $this->invoice->get_amount();
-        }
-        if ( ! empty( $this->invoice->get_fee() ) ) {
-            $data[__( 'Fee', 'smart-woo-service-invoicing' )] = $this->invoice->get_fee();
-        }
-
-        /**
-         * @filter smartwoo_invoice_items_display add or remove items from the invoice table.
-         * 
-         * @param array $data Array of items to be displayed in the invoice table.
-         * @param SmartWoo_Invoice Invoice Object.
-         */
-        $invoice_items = apply_filters(
-            'smartwoo_invoice_items_display',
-            $data,
-            $this->invoice
-        );
+        $invoice_items = $this->invoice->get_items();
 
         // Initialize the table
         $items = '<table style="width: 80%; border-collapse: collapse;" align="center">';
