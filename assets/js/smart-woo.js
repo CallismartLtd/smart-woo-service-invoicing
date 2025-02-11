@@ -26,7 +26,7 @@ function showNotification(message, duration = 1000) {
     // Set the notification message
     notification.innerHTML = `
         <div class="notification-content">
-            <span style="float:right; cursor:pointer; font-weight:bold;" class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</span>
+            <span style="float:right; cursor:pointer; font-weight:bold; color: red;" class="dashicons dashicons-dismiss" onclick="this.parentElement.parentElement.remove()"></span>
             <p>${message}</p>
         </div>
     `;
