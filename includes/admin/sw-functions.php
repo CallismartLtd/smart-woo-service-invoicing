@@ -676,6 +676,8 @@ function smartwoo_allowed_form_html() {
         'option'		=> array(
             'value'		=> true,
             'selected'	=> true,
+			'class'		=> true,
+			'id'		=> true,
         ),
         'label'		=> array(
             'for'		=> true,
@@ -1045,30 +1047,40 @@ function smartwoo_set_document_title( $title ) {
 /**
  * Construct a dropdown of all WordPress users and add option for guest users.
  * 
+ * @param string $selected The selected value.
  * @param bool $echo Whether to print the markup or return, defaults to true.
+ * @param bool $required Whether the dropdown is required or not.
  * @return string $dropdown	The HTML markup.
  * @since 2.2.3
  */
-function smartwoo_dropdown_users( $echo = true ) {
-	$users = get_users( array( 'fields' => array( 'display_name', 'user_email', 'ID' ) ) );
-
-	$dropdown = '<select class="sw-form-input" name="user_data" id="user_data">';
+function smartwoo_dropdown_users( $selected = '', $echo = true, $required = false ) {
+	$users	= get_users( array( 'fields' => array( 'display_name', 'user_email', 'ID' ) ) );
+	
+	$dropdown = '<select class="sw-form-input" name="user_data" id="user_data" ' . ( $required ? 'required' : '' ) . '>';
 	$dropdown .= '<option value="">' . __( 'Select User', 'smart-woo-service-invoicing' ). '</option>';
 	$dropdown .= '<option value="smartwoo_guest">' . __( 'Guest', 'smart-woo-service-invoicing' ). '</option>';
-	foreach ( $users as $user ) {
-		$dropdown .= '<option value="'. absint( $user->ID ) . '|' . esc_attr( $user->user_email) .'">' . esc_html( $user->display_name ) . ' (' . esc_html( $user->user_email ) . ')</option>';
+	foreach ( $users as $wp_user ) {
+		$attr = selected( $selected, $wp_user->ID . '|' . $wp_user->user_email, false );
+		$dropdown .= '<option value="' . $wp_user->ID . '|' . $wp_user->user_email . '" ' . $attr . '>' . $wp_user->display_name . ' (' . $wp_user->user_email . ')</option>';
 	}
+
+	/**
+	 * Filter to add more options to the dropdown, does not modify the existing options.
+	 */
+	$dropdown .= apply_filters( 'smartwoo_dropdown_users_add', '' );
 	$dropdown .= '</select>';
 
-	$dropdown .= '<div class="sw-invoice-form-meta">
-		<input type="hidden" name="is_guest_invoice" value="no"/>
-		<input type="hidden" name="first_name" />
-		<input type="hidden" name="last_name" />
-		<input type="hidden" name="billing_email" />
-		<input type="hidden" name="billing_company" />
-		<input type="hidden" name="billing_address" />
-		<input type="hidden" name="billing_phone" />
-    </div>';
+	$dropdown .= apply_filters( 'smartwoo_dropdown_user_meta', 
+		'<div class="sw-invoice-form-meta">
+			<input type="hidden" name="is_guest_invoice" value="no"/>
+			<input type="hidden" name="first_name" />
+			<input type="hidden" name="last_name" />
+			<input type="hidden" name="billing_email" />
+			<input type="hidden" name="billing_company" />
+			<input type="hidden" name="billing_address" />
+			<input type="hidden" name="billing_phone" />
+		</div>' 
+	);
 
 	if ( $echo ) {
 		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
