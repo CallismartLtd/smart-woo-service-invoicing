@@ -80,21 +80,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$invoice_status          	= $invoice->getPaymentStatus();
 	$transaction_id          	= ! empty( $invoice->getTransactionId() ) ? $invoice->getTransactionId() : 'N/A';
 	$invoice_total           	= $invoice->getTotal();
-
-	/**
-	 * @filter smartwoo_invoice_items_display add or remove items from invoice table.
-	 * 
-	 * @param array $items
-	 * @param SmartWoo_Invoice Invoice Object.
-	 */
-	$invoice_items	=	apply_filters( 'smartwoo_invoice_items_display', 
-		array( 
-			$product_name 								=> $invoice->getAmount(),
-			__( 'Fee', 'smart-woo-service-invoicing' )	=>	$invoice->getFee() 
-		),
-
-		$invoice
-	);
+	$invoice_items				= $invoice->getItems();
 
 	// Include mPDF library.
 	include_once SMARTWOO_PATH . 'vendor/autoload.php';
