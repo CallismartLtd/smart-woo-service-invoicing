@@ -201,6 +201,7 @@ class SmartWoo_Invoice_Form_Controller{
 		}
 
 		if ( 'unpaid' === $args['payment_status'] ) {
+			$invoice->save();
 			$order_id = smartwoo_generate_pending_order( $invoice );
 			$invoice->set_order_id( $order_id );
 		}
@@ -253,6 +254,7 @@ class SmartWoo_Invoice_Form_Controller{
 
 		// Pending orders are created only when invoice is unpaid and no pending order exists for it.
 		if ( 'unpaid' === $args['payment_status'] && ! $invoice->get_order() ) {
+			$invoice->save();
 			$order_id = smartwoo_generate_pending_order( $invoice );
 			$invoice->set_order_id( $order_id );
 		}
@@ -348,7 +350,7 @@ class SmartWoo_Invoice_Form_Controller{
 		/**
 		 * Check invoice Type
 		 */
-		$invoice_type	= ! empty( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : 'Billing';
+		$invoice_type	= ! empty( $_POST['invoice_type'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_type'] ) ) : '';
 		if ( empty( $invoice_type ) ) {
 			$errors[] = 'Please select a valid Invoice Type.';
 		}
@@ -370,7 +372,7 @@ class SmartWoo_Invoice_Form_Controller{
 		$fee	= isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
 		$this->form_fields['fee'] = $fee;
 
-		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'unpaid';
+		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : '';
 		$this->form_fields['payment_status'] = $payment_status;
 
 		if ( isset( $_POST['invoice_id'] ) ) {
