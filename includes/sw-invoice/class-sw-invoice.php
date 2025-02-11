@@ -619,6 +619,39 @@ class SmartWoo_Invoice {
 	}
 
 	/**
+	 * Get all items in the invoice.
+	 * 
+	 * @return array An associative array of item_name => `array` $data.
+	 */
+	public function get_items() {
+		$items = array();
+		// We only add valid items this this array.
+		if ( $product = $this->get_product() ) {
+			$items[ $product->get_name() ] = array(
+				'quantity'	=> 1,
+				'price'		=> $this->get_amount(),
+				'total'		=> $this->get_amount() * 1,
+			);
+		}
+
+		if ( $this->get_fee() > 0 ) {
+			$items[__( 'Fee', 'smart-woo-service-invoicing')] = array(
+				'quantity'	=> 1,
+				'price'		=> $this->get_fee(),
+				'total'		=> $this->get_fee() * 1,
+			);
+		}
+
+		/**
+		 * Filters the items added to the invoice.
+		 * 
+		 * @param array $items An associative array of item_name => `array` $data.
+		 * @param SmartWoo_Invoice $this The invoice object.
+		 */
+		return apply_filters( 'smartwoo_invoice_items_display', $items, $this );
+	}
+
+	/**
 	 * Get invoice download URL
 	 * 
 	 * @param string $context Pass "admin"if in admin area.
