@@ -584,8 +584,7 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 
 		return true;
 
-	} else {
-		// Invoice is already paid, terminate further execution.
-		return false;
 	}
+	// Invoice is already paid, terminate further execution.
+	return false;
 }
