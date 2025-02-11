@@ -1198,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Create a wrapper div for errors
                         let errorContainer = document.createElement('div');
                         errorContainer.id = 'invoice-errors';
-                        errorContainer.innerHTML = responseData.data.htmlContent;
+                        errorContainer.innerHTML = responseData.data.htmlContent ? responseData.data.htmlContent : responseData.data.message;
         
                         // Insert error messages above the form
                         theInvoiceAdminForm.parentElement.insertBefore(errorContainer, theInvoiceAdminForm);
