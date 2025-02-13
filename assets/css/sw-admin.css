@@ -497,7 +497,13 @@
     width: 90%;
     margin: 5px;
 }
-
+.smartwoo-admin-invoice-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 10px;
+    gap: 10px;
+}
 .smartwoo-admin-invoice-header {
     display: flex;
     flex-direction: row;
