@@ -200,7 +200,7 @@ function smartwoo_price( $amount ) {
 		$amount = 0.00;
 	}
 
-	if ( is_string( $amount ) ) {
+	if ( ! is_numeric( $amount ) ) {
 		$amount = floatval( $amount );
 	}
 	
