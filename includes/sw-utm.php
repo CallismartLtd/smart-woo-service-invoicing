@@ -183,3 +183,15 @@ function smartwoo_help_container( $echo = true) {
 		return $content;
 	}
 }
+
+/**
+ * Function to return pro feature template file.
+ */
+function smartwoo_pro_feature_template( $feature = '' ) {
+    add_filter( 'smartwoo_pro_template_arg', function() use ( $feature ) {
+       return $feature;
+   
+    } );
+
+    return SMARTWOO_PATH . 'templates/pro-feature.php';
+}
