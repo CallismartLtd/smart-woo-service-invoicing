@@ -64,7 +64,7 @@ defined( 'ABSPATH' ) || exit;
 	        <table class="sw-invoice-item-table">
                 <thead>
                     <tr>
-                    <th>Description</th>
+                    <th>Item(s)</th>
                     <th>Amount</th>
                     </tr>
                 </thead>
@@ -78,7 +78,7 @@ defined( 'ABSPATH' ) || exit;
                     
                     <tr style="height:90px;">
                     <th><?php echo esc_html__( 'Total', 'smart-woo-service-invoicing' );?></th>
-                    <td><?php echo esc_html( smartwoo_price( apply_filters( 'smartwoo_display_invoice_total', $invoice_total, $invoice ) ) ); ?></td>
+                    <td><?php echo esc_html( smartwoo_price( $invoice->get_totals() ) ); ?></td>
                 </tr>
                 </tbody>
             </table>
