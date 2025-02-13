@@ -21,7 +21,7 @@ function smartwoo_invoice_download() {
 
 		// Get user ID and invoice ID url param
 		$user_id    = get_current_user_id();
-		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : '';
+		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : '';
 
 		smartwoo_pdf_invoice_template( $invoice_id, $user_id );
 	}
@@ -43,7 +43,6 @@ add_action( 'sw_download_invoice', 'smartwoo_invoice_download' );
  * @return string|void          File path for email ('E') or exits for inline/download ('I', 'D').
  */
 function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' ) {
-
 	if ( 0 === $user_id ) {
 		$user_id = get_current_user_id();
 	} 
@@ -64,29 +63,32 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$admin_phone_number = $biller_details->admin_phone_number;
 
 	$invoice_watermark_url		= get_option( 'smartwoo_invoice_watermark_url', '' );
-	$user_data					= new WC_Customer( $user_id );
-	$first_name					= $user_data->get_first_name();
-	$last_name					= $user_data->get_last_name();
+	$user_data					= $invoice->get_user();
+	$first_name					= $user_data->get_billing_first_name();
+	$last_name					= $user_data->get_billing_last_name();
 	$billing_email				= $invoice->get_billing_email();
 	$billing_phone				= $user_data->get_billing_phone();
 	$customer_company_name		= $user_data->get_billing_company();
-	$customer_billing_address	= $invoice->getBillingAddress();
-	$product      				= wc_get_product( $invoice->getProductId() );
-	$product_name 				= $product ? $product->get_name() : 'Product Not Found';
-	$date_created     			= $invoice->getDateCreated();
-	$transaction_date 			= $invoice->getDatePaid();
-	$due_date					= $invoice->getDateDue();
-	$payment_method 			= ! empty( $invoice->getPaymentGateway() ) ? $invoice->getPaymentGateway() : 'N/A';
-	$invoice_status          	= $invoice->getPaymentStatus();
-	$transaction_id          	= ! empty( $invoice->getTransactionId() ) ? $invoice->getTransactionId() : 'N/A';
-	$invoice_total           	= $invoice->getTotal();
-	$invoice_items				= $invoice->getItems();
+	$customer_billing_address	= $invoice->get_billing_address();
+	$product_name 				= $invoice->get_product() ? $invoice->get_product()->get_name() : 'Product Not Found';
+	$date_created     			= $invoice->get_date_created();
+	$transaction_date 			= $invoice->get_date_paid();
+	$due_date					= $invoice->get_date_due();
+	$payment_method 			= ! empty( $invoice->get_payment_method() ) ? $invoice->get_payment_method() : 'N/A';
+	$invoice_status          	= $invoice->get_status();
+	$transaction_id          	= ! empty( $invoice->get_transaction_id() ) ? $invoice->get_transaction_id() : 'N/A';
+	$invoice_total           	= $invoice->get_total();
+	$invoice_items				= $invoice->get_items();
 
 	// Include mPDF library.
 	include_once SMARTWOO_PATH . 'vendor/autoload.php';
 	// Create a new mPDF instance.
 	$pdf = new \Mpdf\Mpdf();
 	$pdf->AddPage();
+	if ( ! empty( $invoice_watermark_url ) ) {
+		$pdf->SetWatermarkImage( $invoice_watermark_url );
+		$pdf->showWatermarkImage = true;
+	}
 	$spacer = '<br><br><br>';
 	
 	$invoice_header = '
@@ -107,7 +109,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$pdf->SetTextColor(0, 0, 0);
 	$pdf->SetFillColor(241, 241, 241);
 
-	$pdf->Cell(119, 10, ucfirst( $invoice_status ), 0, 1, 'C', true); 
+	$pdf->Cell(119, 10, ucfirst( $invoice_status ), 0, 1, 'C', true ); 
 	$pdf->Rotate(0);
 
 	$pdf->WriteHTML( $spacer );
@@ -148,25 +150,28 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$pdf->WriteHTML( $spacer );
 
 	$invoice_items_table_open = '
-	<table style="width: 70%; margin: 0 auto; border-collapse: collapse; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+	<table style="width: 100%; margin: 0 auto; border-collapse: collapse; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 		<!-- Invoice Items Header -->
 		<thead style="background-color: #f2f2f2;">
 			<tr>
-				<th style="text-align: left; padding: 5px 10px; font-weight: bold; background-color: #f2f2f2;">Description</th>
-				<th style="text-align: right; padding: 5px 10px; font-weight: bold; background-color: #f2f2f2;">Amount</th>
+				<th style="border-bottom: 1px solid #ccc; text-align: left; padding: 5px 10px; font-weight: bold; background-color: #f2f2f2;">Item(s)</th>
+				<th style="border-bottom: 1px solid #ccc;text-align: left; padding: 5px 10px; font-weight: bold; background-color: #f2f2f2;">Qty</th>
+				<th style="border-bottom: 1px solid #ccc;text-align: left; padding: 5px 10px; font-weight: bold; background-color: #f2f2f2;">Unit Price</th>
+				<th style="border-bottom: 1px solid #ccc;text-align: left; padding: 5px 10px; font-weight: bold; background-color: #f2f2f2;">Total</th>
 			</tr>
 		</thead>
 		
 		<tbody>';
 		$pdf->WriteHTML( $invoice_items_table_open );
 
-			foreach( $invoice_items as $item_name => $item_value ) {
+			foreach( $invoice_items as $item_name => $data ) {
 				$invoice_items_list = '
-				<!-- Invoice Items -->
-
-				<tr style="border-bottom: 1px solid #ccc;">
-					<td style="text-align: left; padding: 10px;">' . esc_html( $item_name ) . '</td>
-					<td style="text-align: right; padding: 10px;">' . smartwoo_price( $item_value ) . '</td>
+				<!-- Invoice Item -->
+				<tr>
+					<td style="border: 1px solid #eee; text-align: left; padding: 10px;">' . esc_html( $item_name ) . '</td>
+					<td style="border: 1px solid #eee; text-align: left; padding: 10px;">' . absint( $data['quantity'] ) . '</td>
+					<td style="border: 1px solid #eee; text-align: left; padding: 10px;">' . smartwoo_price( $data['price'] ) . '</td>
+					<td style="border: 1px solid #eee; text-align: left; padding: 10px;">' . smartwoo_price( $data['total'] ) . '</td>
 				</tr>';
 				$pdf->WriteHTML( $invoice_items_list );
 
@@ -174,12 +179,27 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 			
 			$table_closure = '
 		</tbody>
-	
+		
+		<!-- Subtotal -->
+		<tfoot>
+			<tr>
+				<td colspan="3" style="border: 1px solid #eee; padding: 10px; font-weight: bold; background-color: #f2f2f2; text-align: center">Subtotal</td>
+				<td style="border: 1px solid #eee; text-align: right; padding: 10px; background-color: #f2f2f2;">' . smartwoo_price( $invoice->get_subtotal() ) . '</td>
+			</tr>
+		</tfoot>
+
+		<!-- Discount -->
+		<tfoot>
+			<tr>
+				<td colspan="3" style="border: 1px solid #eee; padding: 10px; font-weight: bold; background-color: #f2f2f2; text-align: center">Discount</td>
+				<td style="border: 1px solid #eee; text-align: right; padding: 10px; background-color: #f2f2f2;">' . smartwoo_price( $invoice->get_discount() ) . '</td>
+			</tr>
+		</tfoot>
 		<!-- Total -->
 		<tfoot>
-			<tr style="border-top: 1px solid #ccc;">
-				<td style="padding: 10px; font-weight: bold; background-color: #f2f2f2;">Total</td>
-				<td style="text-align: right; padding: 10px; background-color: #f2f2f2;">' . smartwoo_price( $invoice->get_totals() ) . '</td>
+			<tr>
+				<td colspan="3" style="border: 1px solid #eee; padding: 10px; font-weight: bold; background-color: #f2f2f2; text-align: center">Total</td>
+				<td style="border: 1px solid #eee; text-align: right; padding: 10px; background-color: #f2f2f2;">' . smartwoo_price( $invoice->get_totals() ) . '</td>
 			</tr>
 		</tfoot>
 	</table>';
@@ -189,11 +209,6 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$pdf->SetHTMLFooter( $invoice_footer_section );
 
 	$invoice_id = esc_html( $invoice->getInvoiceId() );
-
-	if ( ! empty( $invoice_watermark_url ) ) {
-		$pdf->SetWatermarkImage( $invoice_watermark_url );
-		$pdf->showWatermarkImage = true;
-	}
 
 	if ( get_option( 'smartwoo_allow_invoice_tracking', false ) ) {
 		$pdf->SetTitle( $invoice->getInvoiceType() );
