@@ -95,7 +95,7 @@ smartwoo_set_document_title( 'Invoice Details');
                 </table>
             </div>
 
-            <div class="smartwoo-admin-invoice-items smartwoo-hid">
+            <div class="smartwoo-admin-invoice-items smartwoo-hide">
                 <table class="sw-admin-invoice-item-table">
                     <thead class="smartwoo-admin-invoice-item-table">
                         <tr>
