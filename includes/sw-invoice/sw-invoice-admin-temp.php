@@ -25,27 +25,23 @@ class SmartWoo_Invoice_Admin_Templates {
 			'related-service' 	=> __('Related Service', 'smart-woo-service-invoicing' ),
 			'log'             	=> __( 'Logs', 'smart-woo-service-invoicing' ),
 		);
-	
+
+		$service = SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
+
 		switch ( $args ){
 			case 'related-service':
-				$page_html .= smartwoo_invoice_service_related( $invoice );
+				$page_file = SMARTWOO_PATH .'templates/invoice-admin-temp/view-related-services.php';
 				break;
 	
 			case 'log':
-				if ( class_exists( 'SmartWooPro', false ) ) {
-					$maybe_content	= apply_filters( 'smartwoo_invoice_log', array(), $invoice_id );
-					foreach( (array) $maybe_content as $content ) {
-						$page_html .= $content;
-					}
-				} else {
-					$page_html .= smartwoo_pro_feature( 'invoice logs');
-				}
+				echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) );
+				$page_file = has_filter( 'smartwoo_invoice_log_template' ) ? apply_filters( 'smartwoo_invoice_log_template', '', $invoice ) :smartwoo_pro_feature_template( 'invoice logs' );
 				break;
 			default:
 				$page_file = SMARTWOO_PATH . 'templates/invoice-admin-temp/view-invoice.php';
 		}
 
-		include_once $page_file;
+		file_exists( $page_file) ? include_once $page_file : '';
 	}
 
 }
@@ -130,30 +126,6 @@ function smartwoo_invoice_dashboard() {
 	return $table_html;
 }
 
-
-function smartwoo_invoice_service_related( $invoice ){
-	$service_details = SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
-	$page_html = '<div class="serv-details-card">';
-
-	if ( $service_details ) {
-		$service_name  = $service_details->getServiceName();
-		$billing_cycle = $service_details->getBillingCycle();
-		$end_date      = smartwoo_check_and_format( $service_details->getEndDate() ) ;
-		$service_id    = $invoice->get_service_id();
-		$page_html .= '<h3>' . esc_html__( 'Related Service Details', 'smart-woo-service-invoicing' ) . '</h3>';
-		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Service Name:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $service_name ) . '</p>';
-		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'Billing Cycle:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $billing_cycle ) . '</p>';
-		$page_html .= '<p class="smartwoo-container-item"><span>' . esc_html__( 'End Date:', 'smart-woo-service-invoicing' ) . '</span>' . esc_html( $end_date ) . '</p>';
-		$page_html .= '<a class="sw-blue-button" href="' . esc_url( smartwoo_service_preview_url( $service_id ) ) . '">';
-		$page_html .= esc_html__( 'More about Service ', 'smart-woo-service-invoicing' );
-		$page_html .= '<span class="dashicons dashicons-controls-forward"></span>';
-		$page_html .= '</a>';
-	} else {
-		$page_html .= smartwoo_notice( __( 'Not associated with any service yet.', 'smart-woo-service-invoicing' ) ); 
-	}
-	$page_html .= '</div>';
-	return $page_html;
-}
 
 /**
  * Invoice by status template
