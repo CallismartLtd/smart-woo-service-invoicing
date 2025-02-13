@@ -834,7 +834,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
     let proDismissFornow    = document.querySelector('#smartwoo-pro-dismiss-fornow');
     let userDataDropDown    = document.querySelector( '#user_data' );
-    let theInvoiceAdminForm   = document.querySelector( '#smartwooInvoiceForm' );
+    let theInvoiceAdminForm = document.querySelector( '#smartwooInvoiceForm' );
+    let invoicePageToggle   = document.querySelectorAll( '.sw-toggle-btn' );
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1213,6 +1214,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     smartWooRemoveSpinner(loader);
                 });
 
+        });
+    }
+
+    if ( invoicePageToggle.length ) {
+        let billingBtn      = invoicePageToggle[0];
+        let invoiceItemsBtn = invoicePageToggle[1];
+        let billingTable    = document.querySelector( '.smartwoo-admin-invoice-billing-info' );
+        let invoiceItemDiv  = document.querySelector( '.smartwoo-admin-invoice-items' );
+        
+        billingBtn.addEventListener( 'click', ()=>{
+            if ( billingTable.classList.contains( 'smartwoo-hide' ) ) {
+                billingTable.classList.remove( 'smartwoo-hide' );
+                billingBtn.style.borderBottom = "solid #000000";
+            } else {
+                billingTable.classList.add( 'smartwoo-hide' );
+                billingBtn.style.borderBottom = "none";
+
+            }
+        });
+        invoiceItemsBtn.addEventListener( 'click', ()=>{
+            if ( invoiceItemDiv.classList.contains( 'smartwoo-hide' ) ) {
+                invoiceItemDiv.classList.remove( 'smartwoo-hide' );
+                invoiceItemsBtn.style.borderBottom = "solid #000000";
+            } else {
+                invoiceItemDiv.classList.add( 'smartwoo-hide' );
+                invoiceItemsBtn.style.borderBottom = "none";
+
+            }
         });
     }
 });
