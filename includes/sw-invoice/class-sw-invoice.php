@@ -847,6 +847,10 @@ class SmartWoo_Invoice {
 	 * @return bool True if current user can view invoice, false otherwise.
 	 */
 	public function current_user_can_access() {
+		if ( is_admin() ) {
+			return current_user_can( 'manage_options' );
+		}
+		
 		if ( $this->get_user_id() === get_current_user_id() ) {
 			return true;
 		}
