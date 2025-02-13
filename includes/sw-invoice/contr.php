@@ -42,6 +42,10 @@ class SmartWoo_Invoice_Form_Controller{
 	 * Class constructor
 	 */
 	public function __construct() {
+		// Test purposes
+		// add_action( 'admin_post_smartwoo_admin_create_invoice_from_form',  array( __CLASS__, 'new_form_submit' ), 10 );
+		
+		
 		add_action( 'wp_ajax_smartwoo_admin_create_invoice_from_form', array( __CLASS__, 'new_form_submit' ), 10 );
 		add_action( 'wp_ajax_smartwoo_admin_edit_invoice_from_form', array( __CLASS__, 'edit_form_submit' ), 10 );
 	}
@@ -216,7 +220,7 @@ class SmartWoo_Invoice_Form_Controller{
 	 * @param bool $is_guest_invoice Whether we are handling a guest invoice update or not?
 	 * @return SmartWoo_Invoice|WP_Error SmartWoo_Invoice object when the submision is valid, WP_Error otherwise
 	 */
-	public static function update_invoice( $is_guest_invoice ) {
+	private static function update_invoice( $is_guest_invoice ) {
 		$args		= self::instance()->get_form_data();
 		$invoice	= SmartWoo_Invoice_Database::get_invoice_by_id( $args['invoice_id'] );
 
@@ -224,7 +228,7 @@ class SmartWoo_Invoice_Form_Controller{
 			return new WP_Error( 'invalid_invoice_id', 'The invoice does not exist.', array( 'status' => 404 ) );
 		}
 
-		$amount		= wc_get_product( $args['product_id'] )->get_price();
+		$amount		= wc_get_product( $args['product_id'] ) ? wc_get_product( $args['product_id'] )->get_price() : 0;
 		$total		= $amount + $args['fee'];
 
 		$invoice->set_product_id( $args['product_id'] );
