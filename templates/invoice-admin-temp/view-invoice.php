@@ -49,28 +49,37 @@ smartwoo_set_document_title( 'Invoice Details');
                 </div>
             </div>
 
-            <div class="smartwoo-admin-invoice-billing-info">
+            <div class="smartwoo-admin-invoice-toggle">
+                <div class="sw-toggle-btn">
+                    <p>Billing Details</p> 
+                </div>
+                <div class="sw-toggle-btn">
+                    <p>Invoice Items</p>
+                </div>
+            </div>
+
+            <div class="smartwoo-admin-invoice-billing-info smartwoo-hide">
                 <table class="sw-table" style="width:100%;">
-                    <thead onclick="this.parentElement.querySelector('tbody').classList.toggle('smartwoo-hide');">
+                    <thead>
                         <tr col-span="2">
-                            <th style="text-align:center; font-size: 19px; cursor: pointer" colspan="2">Billing Details <span class="dashicons dashicons-arrow-right-alt2"></span></th>
+                            <th style="text-align:center; font-size: 19px; cursor: pointer" colspan="2">Billing Details</th>
                             
                         </tr>
                     </thead>
-                    <tbody class="smartwoo-hide">
+                    <tbody>
                         <tr>
-                            <td><?php echo esc_html__( 'Name:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_first_name() .' '. $invoice->get_user()->get_billing_last_name(): 'N/A' ); ?></td>
+                            <td><strong><?php echo esc_html__( 'Name:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                            <td><a href="<?php echo esc_url( get_edit_user_link( $invoice->get_user_id() ) ) ?>"><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_first_name() .' '. $invoice->get_user()->get_billing_last_name(): 'N/A' ); ?></a></td>
                         </tr>
 
                         <tr>
-                            <td><?php echo esc_html__( 'Company:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_company() .' '. $invoice->get_user()->get_billing_company(): 'N/A' ); ?></td>
+                            <td><strong><?php echo esc_html__( 'Company:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                            <td><?php echo esc_html( $invoice->get_user() ?  $invoice->get_user()->get_billing_company() : 'N/A' ); ?></td>
                         </tr>
 
                         <tr>
                             <td><?php echo esc_html__( 'Email:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_billing_email() ); ?></td>
+                            <td><a href="<?php echo esc_url( 'mailto:' . $invoice->get_billing_email() ); ?>"><?php echo esc_html( $invoice->get_billing_email() ); ?></a></td>
                         </tr>
 
                         <tr>
@@ -86,31 +95,42 @@ smartwoo_set_document_title( 'Invoice Details');
                 </table>
             </div>
 
-            <div class="smartwoo-admin-invoice-items">
-                <table class="sw-table" style="width: 97%;">
-                    <thead onclick="this.parentElement.querySelectorAll('.smartwoo-admin-invoice-item-table').forEach((table) => table.classList.toggle('smartwoo-hide'));">
-                        <tr>
-                            <th style="text-align:center; font-size: 19px; cursor: pointer" colspan="4">Invoice Items <span class="dashicons dashicons-arrow-right-alt2"></span></th>
-                            
-                        </tr>
-                    </thead>
+            <div class="smartwoo-admin-invoice-items smartwoo-hid">
+                <table class="sw-admin-invoice-item-table">
                     <thead class="smartwoo-admin-invoice-item-table">
                         <tr>
-                            <th><?php echo esc_html__( 'Item', 'smart-woo-service-invoicing' ); ?></th>
-                            <th><?php echo esc_html__( 'Quantity', 'smart-woo-service-invoicing' ); ?></th>
-                            <th><?php echo esc_html__( 'Price', 'smart-woo-service-invoicing' ); ?></th>
-                            <th><?php echo esc_html__( 'Total', 'smart-woo-service-invoicing' ); ?></th>
+                            <th><?php echo esc_html__( 'Item(s)', 'smart-woo-service-invoicing' ); ?></th>
+                            <th width="25x"><?php echo esc_html__( 'Quantity', 'smart-woo-service-invoicing' ); ?></th>
+                            <th width="95px"><?php echo esc_html__( 'Unit Price', 'smart-woo-service-invoicing' ); ?></th>
+                            <th width="150px"><?php echo esc_html__( 'Total', 'smart-woo-service-invoicing' ); ?></th>
                         </tr>
                     </thead>
                     <tbody class="smartwoo-admin-invoice-item-table">
-                        <?php foreach ( $invoice->get_items() as $item => $data ) : ?>
+                        <?php if( empty( $invoice->get_items() ) ): ?>
                             <tr>
-                                <td><?php echo esc_html( $item ); ?></td>
-                                <td><?php echo esc_html( $data['quantity'] ); ?></td>
-                                <td><?php echo esc_html( $data['price'] ); ?></td>
-                                <td><?php echo esc_html( $data['total'] ); ?></td>
+                                <td colspan="4" style="text-align:center;"><?php echo esc_html__( 'No items found', 'smart-woo-service-invoicing' ); ?></td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ( $invoice->get_items() as $item => $data ) : ?>
+                                <tr>
+                                    <td><?php echo esc_html( $item ); ?></td>
+                                    <td><?php echo esc_html( $data['quantity'] ); ?></td>
+                                    <td><?php echo esc_html( smartwoo_price( $data['price'] ) ); ?></td>
+                                    <td><?php echo esc_html( smartwoo_price( $data['total'] ) ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr>
+                                <td colspan="3" style="text-align:right;"><strong><?php echo esc_html__( 'Subtotal:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_subtotal() ) ); ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align:right;"><strong><?php echo esc_html__( 'Discount:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_discount() ) ); ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align:right;"><strong><?php echo esc_html__( 'Total:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_totals() ) ); ?></td>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
