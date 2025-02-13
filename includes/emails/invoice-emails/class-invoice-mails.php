@@ -156,7 +156,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
                     $replace_values[$placeholder] = $this->invoice->get_status();
                     break;
                 case '{{invoice_total}}':
-                    $replace_values[$placeholder] = smartwoo_price( apply_filters( 'smartwoo_display_invoice_total', $this->invoice->get_total(), $this->invoice ) );
+                    $replace_values[$placeholder] = smartwoo_price( $this->invoice->get_totals() );
                     break;
                 case '{{order_id}}':
                     $replace_values[$placeholder] = $this->invoice->get_order_id();
