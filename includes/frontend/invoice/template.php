@@ -63,7 +63,7 @@ function smartwoo_invoice_front_temp() {
 		$output .= '<td>' . esc_html( $invoice->get_invoice_id() ) . '</td>';
 		$output .= '<td>' . esc_html( $date_created ) . '</td>';
 		$output .= '<td>' . esc_html( $date_due ) . '</td>';
-		$output .= '<td>' . smartwoo_price( apply_filters( 'smartwoo_display_invoice_total', $invoice->get_total(), $invoice ) ) . '</td>';
+		$output .= '<td>' . smartwoo_price( $invoice->get_totals() ) . '</td>';
 		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->get_status() ) ) . '</td>';
 		$output .= '<td><a href="' . esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ) .'" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$output .= '</tr>';
