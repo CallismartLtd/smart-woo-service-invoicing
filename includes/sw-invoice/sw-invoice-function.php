@@ -27,7 +27,7 @@ function smartwoo_invoice_type_dropdown( $selected = null, $echo = true ) {
 		)
 	);
 
-	$dropdown = '<select class="sw-form-input" name="invoice_type" id="service_type">';
+	$dropdown = '<select class="sw-form-input" name="invoice_type" id="invoice_type">';
 	foreach ( $options as $value => $label ) {
 		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
 		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
