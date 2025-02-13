@@ -15,7 +15,7 @@ smartwoo_set_document_title( 'Related Service');
     <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid or deleted invoice' ) ); ?>
     <?php return; ?>
 <?php elseif( empty( $service ) ): ?>
-    <?php echo wp_kses_post( smartwoo_error_notice( 'There is not service associated with this invoice' ) ); ?>
+    <?php echo wp_kses_post( smartwoo_notice( 'Invoice is not related to any service.' ) ); ?>
     <?php return; ?>
     <?php else: ?>
 	<div class="serv-details-card">'
