@@ -271,17 +271,21 @@ public static function get_placeholders_description() {
         $items = '<table style="width: 80%; border-collapse: collapse;" align="center">';
         $items .= '<thead>
                     <tr>
-                        <th style="text-align: left; border-bottom: 1px solid #ccc;">Item</th>
-                        <th style="text-align: right; border-bottom: 1px solid #ccc;">Value</th>
+                        <th style="height: 45px; text-align: left; border-top-left-radius: 9px; border-bottom: 1px solid #ccc; background-color: #ffe1f5; padding-left: 10px;">Item(s)</th>
+                        <th style="height: 45px; text-align: left; border-bottom: 1px solid #ccc; background-color: #ffe1f5;">Qty</th>
+                        <th style="height: 45px; text-align: left; border-bottom: 1px solid #ccc; background-color: #ffe1f5;">Unit Price</th>
+                        <th style="height: 45px; text-align: left; border-top-right-radius: 9px; border-bottom: 1px solid #ccc; background-color: #ffe1f5;">Total</th>
                     </tr>
                 </thead>';
         $items .= '<tbody>';
 
         // Add each item as a row
-        foreach ( $invoice_items as $name => $value ) {
+        foreach ( $invoice_items as $name => $data ) {
             $items .= '<tr>';
-            $items .= '<td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html( $name ) . '</td>';
-            $items .= '<td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">' . esc_html( smartwoo_price( $value ) ) . '</td>';
+            $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . esc_html( $name ) . '</td>';
+            $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . absint( $data['quantity'] ) . '</td>';
+            $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . esc_html( smartwoo_price( $data['price'] ) ) . '</td>';
+            $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . esc_html( smartwoo_price( $data['total'] ) ) . '</td>';
             $items .= '</tr>';
         }
 
