@@ -179,7 +179,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 		<tfoot>
 			<tr style="border-top: 1px solid #ccc;">
 				<td style="padding: 10px; font-weight: bold; background-color: #f2f2f2;">Total</td>
-				<td style="text-align: right; padding: 10px; background-color: #f2f2f2;">' . smartwoo_price( apply_filters( 'smartwoo_display_invoice_total', $invoice_total, $invoice ) ) . '</td>
+				<td style="text-align: right; padding: 10px; background-color: #f2f2f2;">' . smartwoo_price( $invoice->get_totals() ) . '</td>
 			</tr>
 		</tfoot>
 	</table>';
