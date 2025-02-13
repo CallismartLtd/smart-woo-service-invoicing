@@ -619,13 +619,67 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Get all items in the invoice.
+	 * The appropriate method to get all invoice item totals.
+	 * @since 2.2.3
+	 */
+	public function get_totals() {
+		/**
+		 * Allows all items to be calculated added to the invoice total.
+		 * 
+		 * @param float $pre_total The total before any other items are added.
+		 * @param SmartWoo_Invoice $this The invoice object.
+		 */
+		$pre_total	= apply_filters( 'smartwoo_invoice_pre_total', (float) 0, $this );
+		
+		/**
+		 * Let's calculate the default invoice total.
+		 * The items calculated here are the product and fee which are the core items in the invoice.
+		 */
+		$fee = $this->get_fee();
+		$product_amount = $this->get_product() ? $this->get_amount() : 0;
+
+		// Since the product and fee has 1 quantity each, I calculated the total by adding the product amount and fee.
+		$this_total = $product_amount + $fee;
+
+		// In this method, notice that the actual total stored in the database is ignored, this is intended to allow
+		// the total to be recalculated at runtime.
+
+		$total = $pre_total + $this_total;
+
+		/**
+		 * Filter the invoice total.
+		 * 
+		 * @param float $total The total amount of the invoice.
+		 * @param SmartWoo_Invoice $this The invoice object.
+		 */
+		return apply_filters( 'smartwoo_display_invoice_total', $total, $this );
+	}
+
+	/**
+	 * Get subtotal
+	 */
+	public function get_subtotal() {
+		$subtotal = 0;
+		$items = $this->get_items();
+
+		foreach( $items as $item ) {
+			$subtotal += $item['total'];
+		}
+
+		return $subtotal;
+	}
+
+	/**
+	 * Get invoice items, this is the core method to get and list invoice items by default.
+	 * An invoice item has it's unique data structures which must be met in other to add an an item to an invoice.
 	 * 
-	 * @return array An associative array of item_name => `array` $data.
+	 * @return array $items A nested associative array of item_name => `array` $data; where $data is an 
+	 * 						associative array of quantity, price and total.
 	 */
 	public function get_items() {
 		$items = array();
-		// We only add valid items this this array.
+		// The core items in the invoice are product and fee.
+		// We add a product if it exists.
 		if ( $product = $this->get_product() ) {
 			$items[ $product->get_name() ] = array(
 				'quantity'	=> 1,
@@ -634,6 +688,7 @@ class SmartWoo_Invoice {
 			);
 		}
 
+		// We add a fee if it exists.
 		if ( $this->get_fee() > 0 ) {
 			$items[__( 'Fee', 'smart-woo-service-invoicing')] = array(
 				'quantity'	=> 1,
@@ -649,6 +704,14 @@ class SmartWoo_Invoice {
 		 * @param SmartWoo_Invoice $this The invoice object.
 		 */
 		return apply_filters( 'smartwoo_invoice_items_display', $items, $this );
+	}
+
+	/**
+	 * Get discount total.
+	 */
+	public function get_discount() {
+		//Not implemented yet.
+		return apply_filters( 'smartwoo_invoice_discount_total', 0, $this );
 	}
 
 	/**
