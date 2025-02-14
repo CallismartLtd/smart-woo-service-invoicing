@@ -22,6 +22,17 @@ smartwoo_set_document_title( 'Invoice Details');
             <a href="<?php echo esc_url( $invoice->download_url( 'admin' ) ); ?>"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
             <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ); ?>
             <span id="sw-delete-button" style="text-align:center;"></span>
+            <button class="sw-icon-button-admin smartwoo-admin-invoice-actions" title="Invoice action links"><span class="dashicons dashicons-admin-links"></span></button>
+        </div>
+        <div class="smartwoo-admin-invoice-action-div">
+            <span style="float: right; color: red;" class="dashicons dashicons-dismiss" onclick="document.querySelector('.smartwoo-admin-invoice-actions').click()"></span>
+            <h3 style="text-align: center">Action Links</h3>
+            <button title="Send new invoice email" data-value="send_new_email"><span class="dashicons dashicons-email-alt"></span></button>
+            <button title="Send payment reminder" data-value="send_payment_reminder" <?php echo ('unpaid' === $invoice->get_status() ) ?:'disabled style="cursor: not-allowed;"' ?>><span style="font-size: 16px; font-weight: 900; color: red; position:absolute; right: 225px" class="dashicons dashicons-money-alt"></span><span class="dashicons dashicons-email-alt"></span></button>
+            <button title="Generate payment url" data-value="paymen_url"><span class="dashicons dashicons-money-alt"></span></button>
+            <button title="Generate checkout url" data-value="checkout_order_pay"><span class="dashicons dashicons-cart"></span></button>
+            <div id="swSpinner" style="text-align: center;"></div>
+            <div id="response-div" data-invoice-id="<?php echo esc_attr( $invoice->get_invoice_id() ) ?>" style="margin: 20px;"></div>
         </div>
 
         <div class="smartwoo-admin-invoice-body">
@@ -69,7 +80,7 @@ smartwoo_set_document_title( 'Invoice Details');
                     <tbody>
                         <tr>
                             <td><strong><?php echo esc_html__( 'Name:', 'smart-woo-service-invoicing' ); ?></strong></td>
-                            <td><a href="<?php echo esc_url( get_edit_user_link( $invoice->get_user_id() ) ) ?>"><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_first_name() .' '. $invoice->get_user()->get_billing_last_name(): 'N/A' ); ?></a></td>
+                            <td><a style="text-decoration: none; font-size: 16px; font-weight: 600;" href="<?php echo esc_url( get_edit_user_link( $invoice->get_user_id() ) ) ?>"><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_first_name() .' '. $invoice->get_user()->get_billing_last_name(): 'N/A' ); ?></a></td>
                         </tr>
 
                         <tr>
@@ -79,7 +90,7 @@ smartwoo_set_document_title( 'Invoice Details');
 
                         <tr>
                             <td><?php echo esc_html__( 'Email:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><a href="<?php echo esc_url( 'mailto:' . $invoice->get_billing_email() ); ?>"><?php echo esc_html( $invoice->get_billing_email() ); ?></a></td>
+                            <td><a style="text-decoration: none;" href="<?php echo esc_url( 'mailto:' . $invoice->get_billing_email() ); ?>"><?php echo esc_html( $invoice->get_billing_email() ); ?></a></td>
                         </tr>
 
                         <tr>
