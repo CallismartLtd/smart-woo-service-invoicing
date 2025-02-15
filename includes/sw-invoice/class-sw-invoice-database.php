@@ -563,11 +563,24 @@ class SmartWoo_Invoice_Database {
 			'%s', // invoice_id
 		);
 
+		/**
+		 * @hook `smartwoo_before_update_invoice` Fires before an invoice is updated.
+		 * 
+		 * @param string $invoice_id	The invoice ID
+		 */
+		do_action( 'smartwoo_before_update_invoice', $invoice->get_invoice_id() );
+
 		$updated = $wpdb->update( SMARTWOO_INVOICE_TABLE, $data, $where, $data_format, $where_format ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		
 		if ( $updated !== false ) {
 			self::save_all_metadata( $invoice );
+			/**
+			 * @hook `smartwoo_invoice_updated` Fires after an invoice is updated.
+			 * 
+			 * @param SmartWoo_Invoice $invoice_id
+			 */
+			do_action( 'smartwoo_invoice_updated', $invoice );
 			return $invoice->get_invoice_id();
 		}
 
@@ -725,6 +738,13 @@ class SmartWoo_Invoice_Database {
 		if ( ! empty( $asso_order ) ) {
 			$asso_order->delete( true );
 		}
+
+		/**
+		 * Fires when an invoice is deleted
+		 * 
+		 * @param SmartWoo_Invoice $existing_invoice
+		 */
+		do_action( 'smartwoo_invoice_deleted', $existing_invoice );
 		return $deleted !== false;
 	}
 
