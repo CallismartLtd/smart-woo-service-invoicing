@@ -19,15 +19,10 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  */
 function smartwoo_invoice_type_dropdown( $selected = null, $echo = true ) {
 	// Default options
-	$options = apply_filters( 'smartwoo_invoice_type_dropdown',
-		array(
-			''                          => __( 'Select Invoice Type', 'smart-woo-service-invoicing' ),
-			'New Service Invoice'       => __( 'New Service Invoice', 'smart-woo-service-invoicing' ),
-			'Service Renewal Invoice'   => __( 'Service Renewal Invoice', 'smart-woo-service-invoicing' ),
-		)
-	);
+	$options = smartwoo_supported_invoice_types();
 
 	$dropdown = '<select class="sw-form-input" name="invoice_type" id="invoice_type">';
+	$dropdown .= '<option value="">' . __( 'Select Invoice Type', 'smart-woo-service-invoicing' );
 	foreach ( $options as $value => $label ) {
 		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
 		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
@@ -37,6 +32,20 @@ function smartwoo_invoice_type_dropdown( $selected = null, $echo = true ) {
 		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
 	}
 	return $dropdown;
+}
+
+/**
+ * Get supported invoice types
+ * 
+ * @return array $data An associative array of type => title
+ */
+function smartwoo_supported_invoice_types() {
+	return apply_filters( 'smartwoo_supported_invoice_types',
+		array(
+			'New Service Invoice'       => __( 'New Service Invoice', 'smart-woo-service-invoicing' ),
+			'Service Renewal Invoice'   => __( 'Service Renewal Invoice', 'smart-woo-service-invoicing' ),
+		)
+	);
 }
 
 /**
