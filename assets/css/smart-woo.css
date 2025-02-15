@@ -126,6 +126,7 @@ use inline CSS to overide some styles
 	margin: 3px;
 	cursor: pointer;
 	text-decoration: none;
+	border-radius: 2px;
 }
 
 .sw-icon-button-admin.sw-not-allowed {
