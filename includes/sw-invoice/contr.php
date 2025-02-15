@@ -110,7 +110,7 @@ class SmartWoo_Invoice_Form_Controller{
 			wp_send_json_error( array( 'message' => 'You do not have permission to perform this action.' ), 403 );
 		}
 
-		$errors = apply_filters( 'smartwoo_invoice_form_error', self::instance()->check_errors() );
+		$errors = apply_filters( 'smartwoo_invoice_form_error', self::instance()->check_errors( 'edit invoice' ) );
 
 		if ( ! empty( $errors ) ) {
 			wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $errors, true ) ), 200 );
@@ -136,26 +136,40 @@ class SmartWoo_Invoice_Form_Controller{
 		$invoice	= SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 		$selected	= $invoice ? $invoice->get_user_id() . '|' . $invoice->get_user()->get_email() : '';
 		
-		if ( $invoice && $invoice->is_guest_invoice() ) {
-			$selected = -1 . '|' . $invoice->get_billing_email();
-			add_filter( 'smartwoo_dropdown_users_add', function() use( $selected, $invoice ) {
-				return '<option class="sw-guest-option" value="' . esc_attr( $selected ) .'"' . selected( $selected, $selected, false ) . '>' . esc_html( $invoice->get_user()->get_first_name() . ' ' . $invoice->get_user()->get_last_name() . ' ('. $invoice->get_billing_email() . ')' ) .'</option>';
-			});
+		if ( $invoice ) {
 
-			add_filter( 'smartwoo_dropdown_user_meta', function() use( $invoice ){
-				return 
-					'<div class="sw-invoice-form-meta">
-						<input type="hidden" name="is_guest_invoice" value="yes"/>
-						<input type="hidden" name="first_name"  value="' . esc_attr( $invoice->get_user()->get_billing_first_name() ) . '"/>
-						<input type="hidden" name="last_name" value="' . esc_attr( $invoice->get_user()->get_billing_last_name() ) . '"/>
-						<input type="hidden" name="billing_email" value="' . esc_attr( $invoice->get_billing_email() ) . '"/>
-						<input type="hidden" name="billing_company" value="' . esc_attr( $invoice->get_user()->get_billing_company() ) . '"/>
-						<input type="hidden" name="billing_address" value="' . esc_attr( $invoice->get_billing_address() ) . '"/>
-						<input type="hidden" name="billing_phone" value="' . esc_attr( $invoice->get_user()->get_billing_phone() ) . '"/>
-					</div>' 
-				;
-			});
+			if ( ! in_array( $invoice->get_type(), smartwoo_supported_invoice_types() ) ) {
+				add_filter( 'smartwoo_supported_invoice_types', function( $types ) use ( $invoice ){
+					$types[$invoice->get_type()] = $invoice->get_type() . ' (Custom Invoice type)';
+	
+					return $types;
+				});
+			}
+
+
+			if ( $invoice->is_guest_invoice() ) {
+				$selected = -1 . '|' . $invoice->get_billing_email();
+				add_filter( 'smartwoo_dropdown_users_add', function() use( $selected, $invoice ) {
+					return '<option class="sw-guest-option" value="' . esc_attr( $selected ) .'"' . selected( $selected, $selected, false ) . '>' . esc_html( $invoice->get_user()->get_first_name() . ' ' . $invoice->get_user()->get_last_name() . ' ('. $invoice->get_billing_email() . ')' ) .'</option>';
+				});
+	
+				add_filter( 'smartwoo_dropdown_user_meta', function() use( $invoice ){
+					return 
+						'<div class="sw-invoice-form-meta">
+							<input type="hidden" name="is_guest_invoice" value="yes"/>
+							<input type="hidden" name="first_name"  value="' . esc_attr( $invoice->get_user()->get_billing_first_name() ) . '"/>
+							<input type="hidden" name="last_name" value="' . esc_attr( $invoice->get_user()->get_billing_last_name() ) . '"/>
+							<input type="hidden" name="billing_email" value="' . esc_attr( $invoice->get_billing_email() ) . '"/>
+							<input type="hidden" name="billing_company" value="' . esc_attr( $invoice->get_user()->get_billing_company() ) . '"/>
+							<input type="hidden" name="billing_address" value="' . esc_attr( $invoice->get_billing_address() ) . '"/>
+							<input type="hidden" name="billing_phone" value="' . esc_attr( $invoice->get_user()->get_billing_phone() ) . '"/>
+						</div>' 
+					;
+				});
+			}
+
 		}
+
 		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/edit-invoice.php';
 	}
 
@@ -299,7 +313,7 @@ class SmartWoo_Invoice_Form_Controller{
 	 * 
 	 * @return array|false An array of errors or false when no error is found.
 	 */
-	public function check_errors() {
+	public function check_errors( $context = 'new invoice' ) {
 		$errors = array();
 		/**
 		 * Check user data.
@@ -366,7 +380,10 @@ class SmartWoo_Invoice_Form_Controller{
 			$invoice_type_exists = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
 		}
 
-		if ( $invoice_type_exists ) {
+		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : '';
+		$this->form_fields['payment_status'] = $payment_status;
+
+		if ( $invoice_type_exists && 'new invoice' === $context ) {
 			$errors[] = 'This Service has "' . $invoice_type . '" that is ' . $payment_status;
 		}
 
@@ -376,8 +393,6 @@ class SmartWoo_Invoice_Form_Controller{
 		$fee	= isset( $_POST['fee'] ) ? floatval( $_POST['fee'] ) : 0;
 		$this->form_fields['fee'] = $fee;
 
-		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : '';
-		$this->form_fields['payment_status'] = $payment_status;
 
 		if ( isset( $_POST['invoice_id'] ) ) {
 			$this->form_fields['invoice_id'] = sanitize_text_field( wp_unslash( $_POST['invoice_id'] ) );
