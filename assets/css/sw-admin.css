@@ -497,12 +497,41 @@
     width: 90%;
     margin: 5px;
 }
+/* .smartwoo-admin-invoice-view {
+    overflow: hidden;
+} */
 .smartwoo-admin-invoice-options {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin: 10px;
+    margin: 20px 10px 20px 10px;
     gap: 10px;
+}
+.smartwoo-admin-invoice-actions {
+    position: absolute;
+    right: 10%;
+    width: 60px;
+    height: 60px;
+    background-color: #ffffff;
+    color: blue;
+}
+
+.smartwoo-admin-invoice-action-div {
+    position: fixed;
+    right: 200%;
+    top: 16%;
+    background-color: #ffffff;
+    min-height: 250px;
+    width: 350px;
+    border: .5px solid rgba(68, 25, 25, 0.288);
+    border-radius: 4px;
+    overflow: auto;
+    
+}
+.smartwoo-admin-invoice-action-div button {
+    padding: 10px;
+    margin: 20px 10px 10px 10px;
+    cursor: pointer;
 }
 .smartwoo-admin-invoice-header {
     display: flex;
