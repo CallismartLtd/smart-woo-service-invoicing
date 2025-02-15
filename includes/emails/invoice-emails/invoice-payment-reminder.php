@@ -54,7 +54,7 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
     public static function send_mail( $invoice ) {
         if ( apply_filters( 'smartwoo_invoice_payment_reminder_mail', get_option( 'smartwoo_new_invoice_mail', 0 ) ) ) {
             $self = new self( $invoice );
-            $self->send();
+            return $self->send();
         }
     }
 
