@@ -836,6 +836,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let userDataDropDown    = document.querySelector( '#user_data' );
     let theInvoiceAdminForm = document.querySelector( '#smartwooInvoiceForm' );
     let invoicePageToggle   = document.querySelectorAll( '.sw-toggle-btn' );
+    let invoiceActionBtns   = document.querySelectorAll( '.smartwoo-admin-invoice-action-div button' );
+    let invoiceLinkActions  = document.querySelector( '.smartwoo-admin-invoice-action-div' );
+    let invoiceLinksToggle  = document.querySelector( '.smartwoo-admin-invoice-actions' );
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1241,6 +1244,95 @@ document.addEventListener('DOMContentLoaded', () => {
                 invoiceItemDiv.classList.add( 'smartwoo-hide' );
                 invoiceItemsBtn.style.borderBottom = "none";
 
+            }
+        });
+    }
+
+    if ( invoiceActionBtns.length ) {
+        invoiceActionBtns.forEach( (btn)=>{
+            btn.addEventListener( 'click', ()=>{
+                let responseDiv     = document.querySelector( '#response-div' );
+                let invoiceID       = responseDiv.getAttribute( 'data-invoice-id' );
+                let action          = btn.getAttribute( 'data-value' );
+                responseDiv.innerHTML = '';
+                if ( 'send_payment_reminder' === action ) {
+                    let confirmed = confirm( 'Are you sure you want to send a payment reminder email to the user?' );
+                    if ( ! confirmed ) {
+                        return;
+                    }
+                }
+                if ( 'send_new_email' === action ) {
+                    let confirmed = confirm( 'Are you sure you want to send a new invoice email to the user?' );
+                    if ( ! confirmed ) {
+                        return;
+                    }
+                }
+
+                spinner = smartWooAddSpinner( 'swSpinner', true );
+                let url = new URL( smartwoo_admin_vars.ajax_url );
+                url.searchParams.append( 'action', 'smartwoo_admin_invoice_action' );
+                url.searchParams.append( 'real_action', action );
+                url.searchParams.append( 'invoice_id', invoiceID );
+                url.searchParams.append( 'security', smartwoo_admin_vars.security );
+                fetch( url, { method: 'GET' } )
+                    .then( response =>{
+                        if ( ! response.ok ) {
+                            showNotification( response.statusText, 6000 );
+                            throw new Error(`Error: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    }).then( responseData =>{
+                        if ( ! responseData.success ) {
+                            responseDiv.innerHTML = responseData.data.message;
+                            showNotification( responseData.data.message, 6000 );
+                        } else {
+
+                            if ( 'checkout_order_pay' === action || 'paymen_url' === action ) {
+                                let heading = document.createElement( 'h3' );
+                                let inputField  = document.createElement( 'input' );
+                                let h3title = 'checkout_order_pay' === action ? 'Checkout Link' : 'Payment Link';
+                                
+                                heading.textContent         = h3title;
+                                heading.style.textAlign     = "center";
+                                inputField.readOnly         = true;
+                                inputField.style.width      = "80%";
+                                let copyBtn                 = document.createElement( 'span' );
+                                copyBtn.classList.add( 'dashicons', 'dashicons-admin-page' );
+                                copyBtn.setAttribute( 'title', 'copy to clipboard' );
+                                copyBtn.style.cursor = "pointer";
+                                inputField.value = responseData.data.message;
+                                
+                                responseDiv.appendChild(heading);
+                                responseDiv.appendChild(inputField);
+                                responseDiv.appendChild(copyBtn);
+
+                                copyBtn.addEventListener( 'click', async ()=>{
+                                    navigator.clipboard.writeText( inputField.value );
+                                    showNotification( 'Copied' );
+                                   
+                                });
+
+                            } else{
+                                responseDiv.innerHTML = responseData.data.message;
+                            }
+                        }
+                    }).catch( (error) =>{
+                        console.error('Fetch error:', error)
+                    }).finally(()=>{
+                    });
+            });
+        });
+    }
+
+    if ( invoiceLinksToggle && invoiceLinkActions ) {
+        let clicked = false;
+        invoiceLinksToggle.addEventListener( 'click', ()=>{
+            if ( clicked ) {
+                invoiceLinkActions.style.right = "200%";
+                clicked = !clicked;
+            } else {
+                invoiceLinkActions.style.right = "0";
+                clicked = !clicked;
             }
         });
     }
