@@ -92,6 +92,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_service_id_ajax', array( __CLASS__, 'ajax_generate_service_id' ) );
         add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_password_reset', array( __CLASS__, 'ajax_password_reset' ) );
+        add_action( 'wp_ajax_smartwoo_admin_invoice_action', array( __CLASS__, 'admin_invoice_ajax_actions' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
@@ -930,6 +931,80 @@ final class SmartWoo {
 
 
         wp_send_json_success( array('message' => $message ) );
+    }
+
+    /**
+     * Admin invoice ajax action handler.
+     * 
+     * @since 2.2.3
+     */
+    public static function admin_invoice_ajax_actions() {
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
+
+        }
+
+        add_filter( 'smartwoo_is_frontend', '__return_false' );
+        $allowed_actions    = array(
+            'mark_paid',
+            'mark_unpaid',
+            'mark_cancelled',
+            'delete',
+            'checkout_order_pay',
+            'paymen_url',
+            'send_new_email',
+            'send_payment_reminder'
+        );
+
+        $real_action = isset( $_GET['real_action'] ) ? sanitize_text_field( wp_unslash( $_GET['real_action'] ) ) : '';
+        
+        if ( ! in_array( $real_action, $allowed_actions, true ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid action' ) );
+        }
+
+        $invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : wp_send_json_error( array( 'message' => 'Missing Invoice ID' ) );
+        $invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+        if ( ! $invoice ) {
+            wp_send_json_error( array( 'message' => 'This invoice does not exist.' ) );
+        }
+
+        switch( $real_action ) {
+            case 'send_new_email':
+                $mail_sent  = SmartWoo_New_Invoice_Mail::send_mail( $invoice );
+                $response   = 'Email not sent <span class="dashicons dashicons-no" style="color: red;"></span>';
+
+                if ( $mail_sent ) {
+                    $response = 'Email is has been sent <span class="dashicons dashicons-yes-alt" style="color: red;"></span>';
+                }
+                break;
+            case 'paymen_url':
+                $response = esc_url_raw( $invoice->payment_link() );
+                break;
+            case 'checkout_order_pay':
+                $response = 'This invoice does not have any pending order';
+                if ( ( $invoice->get_order() && 'pending' === $invoice->get_order()->get_status() ) || 'unpaid' === $invoice->get_status() ){
+                    $response = esc_url_raw( $invoice->pay_url() );
+                }
+                break;
+            case 'send_payment_reminder':
+                $mail_sent = SmartWoo_Invoice_Payment_Reminder::send_mail( $invoice );
+                $response   = 'Email not sent <span class="dashicons dashicons-no" style="color: red;"></span>';
+
+                if ( $mail_sent ) {
+                    $response = 'Email is has been sent <span class="dashicons dashicons-yes-alt" style="color: red;"></span>';
+                }
+                break;
+        }
+
+        if ( ! empty( $response ) ) {
+            wp_send_json_success( array( 'message' => $response ), 200 );
+        }
+
+        wp_send_json_error( array( 'message' => 'Unable to handle to request at the moment.' ) );
     }
 
     /**
