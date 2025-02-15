@@ -743,13 +743,20 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Get invoice pay url
+	 * Get invoice order pay url.
 	 */
 	public function pay_url() {
 		if ( empty( $this->order_id ) ) {
 			return '';
 		}
 		return smartwoo_invoice_pay_url( $this->order_id  );
+	}
+
+	/**
+	 * Get the auto-login invoice payment URL
+	 */
+	public function payment_link() {
+		return smartwoo_generate_invoice_payment_url( $this );
 	}
 
 	/**
