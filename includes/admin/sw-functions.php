@@ -317,7 +317,7 @@ function smartwoo_generate_invoice_payment_url( $invoice ) {
 		home_url()
 	);
 
-	return esc_url( $payment_link );
+	return $payment_link;
 }
 
 /**
