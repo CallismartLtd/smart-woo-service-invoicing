@@ -50,11 +50,13 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
 
     /**
      * Handle Email sending.
+     * 
+     * @param SmartWoo_Invoice $invoice
      */
     public static function send_mail( $invoice ) {
         if ( apply_filters( 'smartwoo_new_invoice_mail', get_option( 'smartwoo_new_invoice_mail', 0 ) ) ) {
             $self = new self( $invoice );
-            $self->send();
+            return $self->send();
         }
     }
 
