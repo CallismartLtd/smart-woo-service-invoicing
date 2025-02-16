@@ -25,7 +25,7 @@ smartwoo_set_document_title( 'Invoice Details');
             <button class="sw-icon-button-admin smartwoo-admin-invoice-actions" title="Invoice action links"><span class="dashicons dashicons-admin-links"></span></button>
         </div>
         <div class="smartwoo-admin-invoice-action-div">
-            <span style="float: right; color: red;" class="dashicons dashicons-dismiss" onclick="document.querySelector('.smartwoo-admin-invoice-actions').click()"></span>
+            <span style="float: right; color: red; cursor: pointer;" class="dashicons dashicons-dismiss" onclick="document.querySelector('.smartwoo-admin-invoice-actions').click(); document.querySelector('#response-div').innerHTML = '';"></span>
             <h3 style="text-align: center">Action Links</h3>
             <button title="Send new invoice email" data-value="send_new_email"><span class="dashicons dashicons-email-alt"></span></button>
             <button title="Send payment reminder" data-value="send_payment_reminder" <?php echo ('unpaid' === $invoice->get_status() ) ?:'disabled style="cursor: not-allowed;"' ?>><span style="font-size: 16px; font-weight: 900; color: red; position:absolute; right: 225px" class="dashicons dashicons-money-alt"></span><span class="dashicons dashicons-email-alt"></span></button>
