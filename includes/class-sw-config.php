@@ -138,7 +138,7 @@ class SmartWoo_Config{
     public function include() {
 
         require_once SMARTWOO_PATH . 'includes/admin/sw-functions.php';
-        require_once SMARTWOO_PATH . 'includes/class-sw.php';
+        require_once SMARTWOO_PATH . 'includes/class-smartwoo.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice-database.php';
