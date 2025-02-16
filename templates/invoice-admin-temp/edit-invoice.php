@@ -53,7 +53,7 @@ defined( 'ABSPATH' ) || exit;
             <div class="sw-form-row">
                 <label for="fee" class="sw-form-label"><?php esc_html_e( 'Fee (optional)', 'smart-woo-service-invoicing' ); ?></label>
                 <span class="sw-field-description" title="<?php esc_html_e( 'charge a fee for the invoice', 'smart-woo-service-invoicing' ); ?>">?</span>
-                <input type="number" class="sw-form-input" name="fee" id="fee" step="0.01" value="<?php echo esc_html( $invoice->get_fee() ) ?> "/>
+                <input type="number" class="sw-form-input" name="fee" id="fee" step="0.01" value="<?php echo esc_html( $invoice->get_fee() ) ?>"/>
             </div>
 
             <?php do_action( 'smartwoo_invoice_form_item_section' ); ?>
