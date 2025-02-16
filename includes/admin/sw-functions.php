@@ -332,17 +332,9 @@ function smartwoo_verify_token( $token ) {
 	$payment_info = get_transient( 'smartwoo_payment_token' . $token );
 
 	if ( $payment_info ) {
-
-		$invoice_id = $payment_info['invoice_id'];
-		$user_email = $payment_info['user_email'];
-
 		// Delete the transient to ensure one-time use.
 		delete_transient( 'smartwoo_payment_token' . $token );
-
-		return array(
-			'invoice_id' => $invoice_id,
-			'user_email' => $user_email,
-		);
+		return $payment_info;
 	}
 
 	// Token is invalid or expired.
