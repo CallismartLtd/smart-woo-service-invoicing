@@ -689,7 +689,7 @@ class SmartWoo_Invoice {
 		}
 
 		// We add a fee if it exists.
-		if ( $this->get_fee() > 0 ) {
+		if ( $this->get_fee() !== floatval( 0 ) ) {
 			$items[__( 'Fee', 'smart-woo-service-invoicing')] = array(
 				'quantity'	=> 1,
 				'price'		=> $this->get_fee(),
@@ -703,6 +703,7 @@ class SmartWoo_Invoice {
 		 * @param array $items An associative array of item_name => `array` $data.
 		 * @param SmartWoo_Invoice $this The invoice object.
 		 */
+		
 		return apply_filters( 'smartwoo_invoice_items_display', $items, $this );
 	}
 
@@ -710,7 +711,12 @@ class SmartWoo_Invoice {
 	 * Get discount total.
 	 */
 	public function get_discount() {
-		//Not implemented yet.
+		/**
+		 * @Hook `smartwoo_invoice_discount_total`
+		 * 
+		 * @param float $discount The discount amount.
+		 * @param self
+		 */
 		return apply_filters( 'smartwoo_invoice_discount_total', 0, $this );
 	}
 
@@ -753,7 +759,7 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Get the auto-login invoice payment URL
+	 * Get the auto-login invoice payment URL.
 	 */
 	public function payment_link() {
 		return smartwoo_generate_invoice_payment_url( $this );
@@ -881,6 +887,16 @@ class SmartWoo_Invoice {
 	 */
 	public function is_guest_invoice() {
 		return 'yes' === $this->get_meta( 'is_guest_invoice' );
+	}
+
+	/**
+	 * Check whether an invoice needs payment.
+	 * 
+	 * @return bool True when invoice need payment, false oitherwise.
+	 */
+	public function needs_payment() {
+		return ( 'unpaid' === $this->get_status() && $this->get_order() && 'pending' === $this->get_order()->get_status() );
+
 	}
 
 	// Helper method to convert database results to SmartWoo_Invoice objects
