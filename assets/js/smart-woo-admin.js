@@ -1181,6 +1181,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if ( theInvoiceAdminForm ) {
         theInvoiceAdminForm.addEventListener( 'submit', (e)=>{
             e.preventDefault();
+            let submitBtn = theInvoiceAdminForm.querySelector('input[type="submit"]');
+            submitBtn.setAttribute( 'disabled', true );
             let loader = smartWooAddSpinner( 'swloader', true);
             // Remove existing error messages before adding new ones.
             let existingErrors = document.getElementById('invoice-errors');
@@ -1207,12 +1209,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Insert error messages above the form
                         theInvoiceAdminForm.parentElement.insertBefore(errorContainer, theInvoiceAdminForm);
                         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                        submitBtn.removeAttribute( 'disabled' );
+
                     } else {
                         showNotification( responseData.data.message ? responseData.data.message : 'Invoice Created', 3000 );
                         setTimeout( ()=>{ window.location.href = responseData.data.redirect_url}, 3000)
                     }
                 })
-                .catch( error => console.error('Fetch error:', error))
+                .catch( error =>{
+                    console.error('Fetch error:', error);
+                    submitBtn.removeAttribute( 'disabled' );
+                })
                 .finally( ()=>{
                     smartWooRemoveSpinner(loader);
                 });
@@ -1319,6 +1326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }).catch( (error) =>{
                         console.error('Fetch error:', error)
                     }).finally(()=>{
+                        smartWooRemoveSpinner(spinner);
                     });
             });
         });
