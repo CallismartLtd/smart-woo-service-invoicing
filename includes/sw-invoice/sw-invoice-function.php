@@ -164,40 +164,44 @@ function smartwoo_generate_pending_order( $invoice, $total = null ) {
 		return false;
 	}
 
-
 	$order = wc_create_order( array( 'customer_id' => $invoice->get_user_id() ) );
 
 	// Add fees from invoice as a line item.
-	$fee_amount = $invoice->get_fee();
-	$fee_name   = 'Invoice Fee';
-	$fee        = new WC_Order_Item_Fee();
-	$fee->set_props(
-		array(
-			'name'      => $fee_name,
-			'tax_class' => '',
-			'total'     => $fee_amount,
-		)
-	);
-	$order->add_item( $fee );
+	if ( $invoice->get_fee() > 0 || $invoice->get_fee() < 0 ) {
+		$fee_amount = $invoice->get_fee();
+		$fee_name   = 'Invoice Fee';
+		$fee        = new WC_Order_Item_Fee();
+		$fee->set_props(
+			array(
+				'name'      => $fee_name,
+				'tax_class' => '',
+				'total'     => $fee_amount,
+			)
+		);
+		$order->add_item( $fee );
+	}
+
 
 	// Use line item with pseudo product name, and use real price to prevents SKU deduction.
-	$product_name         = $invoice->get_product() ? $invoice->get_product()->get_name() : '';
-	$pseudo_product_name  = $product_name;
-	$pseudo_product_price = $invoice->get_amount();
-
-	$product = new WC_Order_Item_Product();
-	$product->set_props(
-		array(
-			'name'     => $pseudo_product_name,
-			'quantity' => 1,
-			'subtotal' => $pseudo_product_price,
-			'total'    => $pseudo_product_price,
-		)
-	);
-	$order->add_item( $product );
+	if ( $invoice->get_product() ) {
+		$product_name         = $invoice->get_product()->get_name();
+		$pseudo_product_name  = $product_name;
+		$pseudo_product_price = $invoice->get_amount();
+	
+		$product = new WC_Order_Item_Product();
+		$product->set_props(
+			array(
+				'name'     => $pseudo_product_name,
+				'quantity' => 1,
+				'subtotal' => $pseudo_product_price,
+				'total'    => $pseudo_product_price,
+			)
+		);
+		$order->add_item( $product );
+	}
 
 	// Set the order total based on the provided parameter or use the invoice total.
-	$order_total = ( $total !== null ) ? $total : $invoice->get_total();
+	$order_total = ( ! is_null( $total ) ) ? $total : $invoice->get_total();
 	$order->set_total( $order_total );
 	$order->update_status( 'pending' );
 
