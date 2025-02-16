@@ -7,8 +7,9 @@
 
 ### Added
 - Option to send new invoice email when creating a new invoice.
-- Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website.
-- Generate invoice payment **LINK** and send choose to copy or send it directly to the user's billing email address.
+- Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
+Invoice Payment Links: You can now generate an "**auto-login**" payment link or a direct invoice order payment link from the admin "**view invoice**" page.
+- New Invoice Admin UI: The admin's "view-invoice" page design has been enhanced to be more sleek and modern, while the invoice creation and update form user interface has been upgraded to give you a seamless ajax experience.
 
 # [2.2.2] 2025-01-28
 
