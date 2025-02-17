@@ -2,11 +2,11 @@
 Contributors: callismartltd  
 Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicing, automated billing plugin  
 Requires at least: 6.0  
-Tested up to: 6.7.1  
+Tested up to: 6.7.2
 Requires WooCommerce: 8.0  
-WooCommerce tested up to: 9.6.0
+WooCommerce tested up to: 9.6.2
 Requires PHP: 7.4  
-Stable Tag: 2.2.2
+Stable Tag: 2.2.3
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -76,6 +76,17 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+= [2.2.3] 2025-02-17 =
+- ** Fixed **
+  - Asset key verification bug when downloading files associated with a subscription.
+
+- ** Added **
+  - Option to send new invoice email when creating a new invoice.
+  - Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
+  Invoice Payment Links: You can now generate an "**auto-login**" payment link or a direct invoice order payment link from the admin "**view invoice**" page.
+  - New Invoice Admin UI: The admin's "view-invoice" page design has been enhanced to be more sleek and modern, while the invoice creation and update form user interface has been upgraded to give you a seamless ajax experience.
+
+
 = [2.2.2] 2025-01-28 =
   - Minor bug fixes and performance inprovement.
   - Login form now supports password reset feature.
