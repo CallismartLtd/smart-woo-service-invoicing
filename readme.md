@@ -87,20 +87,19 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
-# [2.2.1] 2024-12-25
-- Fixed Sign-up fee calculation when other items are added in cart.
-- Added service processed mail.
-- Minor bug fixes
-
-# [2.2.0] 2024-12-07
+### Fixed
+- Asset key verification bug when downloading files associated with a subscription.
 
 ### Added
-- Email Template preview.
+- Option to send new invoice email when creating a new invoice.
+- Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
+Invoice Payment Links: You can now generate an "**auto-login**" payment link or a direct invoice order payment link from the admin "**view invoice**" page.
+- New Invoice Admin UI: The admin's "view-invoice" page design has been enhanced to be more sleek and modern, while the invoice creation and update form user interface has been upgraded to give you a seamless ajax experience.
 
-### Refactored
-- Email handling.
-- Email option name: You may need to check your email option if certain mails are not sent.
-- Email Template Editing(pro): You can now edit email templates sent by Smart Woo Service Invoicing.
+# [2.2.2] 2025-01-28
+
+### Fixed
+- Minor bug fixes
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
