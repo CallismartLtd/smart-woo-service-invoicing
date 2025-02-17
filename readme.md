@@ -33,6 +33,43 @@ Smart Woo Service Invoicing simplifies your subscription-based business by autom
 - **Prorated Service Subscriptions**: Option to prorate subscriptions and reflect this in the invoicing system.
 - **Service Subscription Migration**: Flexible options allow clients to migrate from their current subscription to another, directly from their dashboard.
 
+## Every Smart Woo Pro Plan Includes:
+
+### Advanced Stats  
+Get detailed insights and visual statistics (bar charts, graphs) on service subscription usage.
+
+### Service Logs  
+Track how clients interact with their subscriptions, including detailed activity insights.
+
+### Invoice Logs  
+Monitor all invoice interactions, including payment failures and successful transactions.
+
+### Invoice Items  
+Add custom items to invoices as needed.
+
+### Refund Feature  
+Automatically handle prorated refunds when a client cancels a subscription.
+
+### Service Migration  
+Easily manage subscription migrations, including prorated billing adjustments during changes, with detailed logs for tracking.
+
+### Email Template Customization  
+Customize email templates to align with your business requirements.
+
+### REST API Access  
+Access subscription data via a powerful REST API (currently read-only, with future write support planned).
+
+### PDF Invoice Attachments  
+Automatically attach PDF invoices to email notifications for seamless client communication.
+
+### Dedicated Support  
+Receive dedicated support for both the free and premium versions of Smart Woo.
+
+### Automatic Updates  
+Ensure your plugin remains up to date with the latest features and security enhancements.
+
+#### [Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)
+
 
 ## License
 
