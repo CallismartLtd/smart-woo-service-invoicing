@@ -87,6 +87,8 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
+# [2.2.3] 2025-02-17
+
 ### Fixed
 - Asset key verification bug when downloading files associated with a subscription.
 
