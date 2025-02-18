@@ -23,7 +23,7 @@ $table_names = array(
 
 foreach ( $table_names as $table_name ) {
     $sql = $wpdb->prepare( "DROP TABLE IF EXISTS %s", $table_name );
-    $wpdb->query( $sql );
+    $wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive
 }
 
 /**
