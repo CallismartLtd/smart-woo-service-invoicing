@@ -42,7 +42,7 @@ Smart Woo Service Invoicing simplifies your subscription-based business by autom
 - **Dedicated Support**: Receive dedicated support for both the free and premium versions of Smart Woo.  
 - **Automatic Updates**: Ensure your plugin remains up-to-date with the latest features and security fixes.
 
-= [Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro) =
+[Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)
 
 == License ==
 This project is licensed under the GPL v3.0+ License.
@@ -93,10 +93,10 @@ For more information on future releases, release notes, and feature requests, vi
 
 == Changelog ==
 = [2.2.3] 2025-02-17 =
-- ** Fixed **
+- **Fixed**
   - Asset key verification bug when downloading files associated with a subscription.
 
-- ** Added **
+- **Added**
   - Option to send new invoice email when creating a new invoice.
   - Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
   Invoice Payment Links: You can now generate an "**auto-login**" payment link or a direct invoice order payment link from the admin "**view invoice**" page.
