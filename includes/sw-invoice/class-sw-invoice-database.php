@@ -600,7 +600,7 @@ class SmartWoo_Invoice_Database {
 		foreach( $meta_data as $name => $value ) {
 			$data = array(
 				'meta_name'		=> $name,
-				'meta_value'	=> $value,
+				'meta_value'	=> $value, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 				'invoice_id'	=> $invoice->get_invoice_id()
 			);
 
