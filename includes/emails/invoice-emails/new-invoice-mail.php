@@ -128,8 +128,7 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
      * Print scripts for template preview
      */
     public static function print_scripts() {
-        return '<script src="' . SMARTWOO_DIR_URL .'assets/js/smart-woo-template-preview.js">
-        </script>';
+        return '<script src="' . SMARTWOO_DIR_URL .'assets/js/smart-woo-template-preview.js"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Dynamic utility function.
     }
 }
 
