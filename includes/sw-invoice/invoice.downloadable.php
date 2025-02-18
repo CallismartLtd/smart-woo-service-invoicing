@@ -53,7 +53,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 		if ( wp_doing_ajax() ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid invoice ID.', 'smart-woo-service-invoicing' ) ), 200 );
 		} else {
-			wp_die( new WP_Error( 'invalid_invoice', 'Invalid or unauthorized invoice ID.', array( 'status' => 404 ) ) );
+			wp_die( 'invalid_invoice', esc_html__( 'Invalid or unauthorized invoice ID.', 'smart-woo-service-invoicing' ), array( 'response' => 404 ) );
 		}
 	}
 
