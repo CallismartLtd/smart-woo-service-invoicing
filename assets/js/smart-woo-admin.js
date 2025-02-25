@@ -1191,7 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             let formData = new FormData( theInvoiceAdminForm );
             formData.append( 'security', smartwoo_admin_vars.security );
-            fetch( smartwoo_admin_vars.ajax_url, { 'method': 'POST', 'body': formData } )
+            fetch( smartwoo_admin_vars.ajax_url, { method: 'POST', 'body': formData } )
                 .then( response =>{
                     if ( ! response.ok ) {
                         showNotification( response.statusText, 6000 );
