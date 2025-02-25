@@ -70,7 +70,6 @@ class SmartWoo_Product extends WC_Product {
 		add_filter( 'product_type_selector', array( __CLASS__, 'register_selector' ), 99 );
 		
 		add_action( 'woocommerce_single_product_summary', array( __CLASS__, 'sub_info' ), 10 );
-		add_action( 'woocommerce_cart_calculate_fees', array( __CLASS__, 'calculate_sign_up_fee_cart_totals' ) );
 		add_action( 'woocommerce_' . self::instance()->get_type() .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
 		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
 	}
@@ -515,38 +514,6 @@ class SmartWoo_Product extends WC_Product {
 			$notice_banner .=  '</div>';
 			echo wp_kses_post( $notice_banner );
 	
-		}
-	}
-
-	/**
-	 * Calculate the sum of sign-up fee and product price and set as cart subtotal
-	 *
-	 * @param object $cart the woocommerce cart object
-	 * @return null stops execution when cart is empty
-	 */
-	public static function calculate_sign_up_fee_cart_totals( $cart ) {		
-		if ( $cart->is_empty() ) {
-			return;
-		}
-	
-		$total_sign_up_fee = 0;
-		$add_fee = false;
-	
-		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
-			$product = $cart_item['data'];
-
-			if ( $product && 'sw_product' === $product->get_type() ) {
-				$quantity		= $cart_item['quantity'];
-				$sign_up_fee	= (float) $product->get_sign_up_fee() * $quantity;
-				$total_sign_up_fee += $sign_up_fee;
-				$add_fee		= true;
-			}
-			
-		}
-	
-		if ( $add_fee ) {
-			$cart->add_fee( 'Sign-up Fee', $total_sign_up_fee );
-
 		}
 	}
 	
