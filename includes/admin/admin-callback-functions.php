@@ -21,10 +21,6 @@ function smartwoo_service_admin_page() {
 	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	switch ( $action ) {
-		case 'process-new-service':
-			echo wp_kses( smartwoo_process_new_service_order_page(), smartwoo_allowed_form_html() );
-			break;
-
 		case 'view-service':
 			echo wp_kses_post( smartwoo_admin_view_service_details() );
 			break;
@@ -48,40 +44,8 @@ function smartwoo_service_admin_page() {
  */
 function smartwoo_service_orders() {
 	
-	$orders = smartwoo_get_configured_orders_for_service();
 	echo wp_kses_post( smartwoo_service_order_table( $orders ) );
 }
-
-/**
- * Invoice admin invoice page
- */
-function smartwoo_invoice_admin_page() {
-
-	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	switch ( $tab ) {
-		case 'add-new-invoice':
-			include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
-			break;
-
-		case 'edit-invoice':
-			SmartWoo_Invoice_Controller::edit_form();
-			break;
-
-		case 'invoice-by-status':
-			echo wp_kses_post ( smartwoo_invoice_by_status_temp() );
-			break;
-
-		case 'view-invoice':
-			SmartWoo_Invoice_Admin_Templates::view_invoice();
-			break;
-
-		default:
-			echo wp_kses_post( smartwoo_invoice_dashboard() );
-			break;
-	}
-}
-
 
 /**
  * Callback function for "Product" submenu page
