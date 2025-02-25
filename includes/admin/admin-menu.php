@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 require_once SMARTWOO_PATH . 'includes/admin/admin-callback-functions.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-admin-temp.php';
+require_once SMARTWOO_PATH . 'includes/sw-orders/contr.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-new-service-processing.php';
 require_once SMARTWOO_PATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-admin-temp.php';
@@ -41,7 +42,7 @@ function smartwoo_reg_admin_menu() {
 		! empty( $new_order_count ) ? 'Service Orders <span class="awaiting-mod">' . $new_order_count . '</span>': 'Service Orders',
 		'manage_options',
 		'sw-service-orders',
-		'smartwoo_service_orders'
+		array( 'SmartWoo_Order_Controller', 'menu_controller' )
 	);
 
 	// Add submenu "Invoices".
@@ -51,7 +52,7 @@ function smartwoo_reg_admin_menu() {
 		'Invoices',
 		'manage_options',
 		'sw-invoices',
-		'smartwoo_invoice_admin_page',
+		array( 'SmartWoo_Invoice_Controller', 'menu_controller' ),
 	);
 
 	// Add submenu "Service Products".
