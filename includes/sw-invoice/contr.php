@@ -9,7 +9,8 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
- * Invoice controller class for handling all action hooks, form templates, invoice/order relationship management.
+ * Invoice controller class for handling all action hooks, form templates, invoice/order relationship management
+ * and admin menus.
  * 
  * @since 2.2.3
  */
@@ -60,6 +61,35 @@ class SmartWoo_Invoice_Controller {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Admin menu controller
+	 */
+	public static function menu_controller() {
+		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		switch ( $tab ) {
+			case 'add-new-invoice':
+				include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
+				break;
+	
+			case 'edit-invoice':
+				SmartWoo_Invoice_Controller::edit_form();
+				break;
+	
+			case 'invoice-by-status':
+				echo wp_kses_post ( smartwoo_invoice_by_status_temp() );
+				break;
+	
+			case 'view-invoice':
+				SmartWoo_Invoice_Admin_Templates::view_invoice();
+				break;
+	
+			default:
+				echo wp_kses_post( smartwoo_invoice_dashboard() );
+				break;
+		}
 	}
 	/**
      * New invoice form submission handler.
