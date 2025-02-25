@@ -48,7 +48,6 @@ final class SmartWoo {
      */
     public function __construct() {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
-        add_filter( 'woocommerce_cart_item_name', array( __CLASS__, 'cart_items' ), 10, 3 );
 
         add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
@@ -64,7 +63,6 @@ final class SmartWoo {
         add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
-        add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'add_order_line_items' ), 10, 4 );
 
         add_action( 'smartwoo_daily_task', array( __CLASS__, 'regulate_service_status' ) );
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'check_expired_today' ) );
@@ -87,8 +85,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_dashboard', array( $this, 'dashboard_ajax' ) );
         add_action( 'wp_ajax_smartwoo_dashboard_bulk_action', array( $this, 'dashboard_ajax_bulk_action' ) );
         add_action( 'wp_ajax_smartwoo_ajax_logout', array( __CLASS__, 'ajax_logout' ) );
-        add_action( 'wp_ajax_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
-        add_action( 'wp_ajax_nopriv_smartwoo_configure_product', array( __CLASS__, 'configure_and_add_to_cart' ) );
+        
         add_action( 'wp_ajax_smartwoo_service_id_ajax', array( __CLASS__, 'ajax_generate_service_id' ) );
         add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_password_reset', array( __CLASS__, 'ajax_password_reset' ) );
@@ -1564,108 +1561,6 @@ final class SmartWoo {
         }
 
         return $check;
-    }
-    
-    /**
-     * Display configured product data in cart and checkout.
-     *
-     * This function is hooked into 'woocommerce_get_item_data' to add custom data related to the
-     * configured product for display in the cart and checkout.
-     *
-     * @param array $cart_data The existing cart item data.
-     * @param array $cart_item The cart item being displayed.
-     * @return array The modified cart item data with added service_name and service_url.
-     */
-
-     public static function cart_items( $product_name, $cart_data, $cart_item ) {
-        $container = $product_name;
-
-        if( isset( $cart_data['service_name'] ) ) {
-            $product    = wc_get_product( $cart_data['product_id'] );
-
-            $container  = '<div class="smartwoo-cart-container">';
-            $container .= '<p class="sw-product-name">' . $product_name . '</p>';
-            $container .= '<div class="smartwoo-cart-items">';
-            $container .= '<h5>' . apply_filters( 'smartwoo_cart_item_header', 'Subscription Items' ). '</h5>';
-            if ( $product && ( $product instanceof SmartWoo_Product ) && apply_filters( 'smartwoo_show_product_meta', true, $product ) ) {
-                $container .= '<p>Sign-Up Fee: <span>' . esc_html( smartwoo_price( $product->get_sign_up_fee() ) ) . '</span></p>';
-                $container .= '<p>Billing Cycle: <span>' . esc_html( $product->get_billing_cycle() ) . '</span></p>';
-            }
-            $container .= '<p>Service Name: <span>' . esc_html( $cart_data['service_name'] ) . '</span></p>';
-            if( ! empty( $cart_data['service_url'] ) ) {
-                $container .= '<p>Service URL: <span>' . esc_html( $cart_data['service_url'] ) . '</span></p>';
-            }
-            $container .= '</div>';
-            $container .= '</div>';
-        }
-
-        return $container;
-    }
-
-    /**
-     * Ajax product configuration and add to cart callback.
-     */
-    public static function configure_and_add_to_cart() {
-        // Verify the nonce.
-        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
-            wp_send_json_error( array( 'message' => smartwoo_notice( 'Basic authentication failed, please refresh current page.' ) ) );
-        }
-
-        $validation_errors = array();
-        $service_name	= isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
-        if ( empty( $service_name ) ) {
-            $validation_errors[] = 'Service Name is required to configure your subscription.';
-        }
-
-        $service_url	=	isset( $_POST['service_url'] ) ? sanitize_url(  wp_unslash( $_POST['service_url'] ), array( 'http', 'https' ) ) : '';
-        if ( ! empty( $_POST['service_url'] ) && empty( $service_url ) ) {
-            $validation_errors[] = 'Enter a valid website URL.';
-        }
-
-        $product_id		= isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
-
-        if ( empty( $product_id ) ) {
-            $validation_errors[] = 'Product ID could not be found.';
-
-        }
-
-        if ( ! empty( $validation_errors ) ) {
-            wp_send_json_error( array( 'message' => smartwoo_error_notice( $validation_errors ) ) );
-
-        }
-
-        $cart_item_data = array(
-            'service_name' => $service_name,
-            'service_url'  => $service_url,
-        );
-
-        $cart = new WC_Cart();
-        $cart->add_to_cart( $product_id, 1, 0, array(), $cart_item_data );
-        wp_send_json_success( array( 'checkout' => wc_get_checkout_url() ) );
-    }
-
-    /**
-     * Configure the order with the data the customer provided during product configuration,
-     * and save it to order item meta.
-     *
-     * This function is hooked into 'woocommerce_checkout_create_order_line_item' to add
-     * custom meta data related to the configured product to the order item.
-     *
-     * @param WC_Order_Item_Product $item The order item.
-     * @param string $cart_item_key The key of the cart item.
-     * @param array $values The session data for the cart item.
-     * @param WC_Order $order The order object.
-     */
-    public static function add_order_line_items( $item, $cart_item_key, $values, $order ) {
-
-        if ( isset( $values['service_name'] ) ) {
-            $item->add_meta_data( 'Service Name', $values['service_name'], true );
-        }
-
-        // Check if 'sw_service_url' is set in the cart item data and add it to order item meta
-        if ( isset( $values['service_url'] ) ) {
-            $item->add_meta_data( 'Service URL', $values['service_url'], true );
-        }
     }
 
     /**
