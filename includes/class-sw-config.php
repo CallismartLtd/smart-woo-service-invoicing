@@ -147,6 +147,8 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-database.php';
         require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-functions.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/class-sw-product.php';
+        require_once SMARTWOO_PATH . 'includes/class-sw-cart.php';
+        require_once SMARTWOO_PATH . 'includes/class-sw-checkout.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-functions.php';
         require_once SMARTWOO_PATH . 'includes/sw-utm.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
