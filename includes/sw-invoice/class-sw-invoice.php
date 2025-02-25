@@ -682,18 +682,18 @@ class SmartWoo_Invoice {
 		// We add a product if it exists.
 		if ( $product = $this->get_product() ) {
 			$items[ $product->get_name() ] = array(
-				'quantity'	=> 1,
+				'quantity'	=> $this->get_meta( 'product_quantity', 1 ),
 				'price'		=> $this->get_amount(),
-				'total'		=> $this->get_amount() * 1,
+				'total'		=> $this->get_amount() * $this->get_meta( 'product_quantity', 1 ),
 			);
 		}
 
 		// We add a fee if it exists.
 		if ( $this->get_fee() !== floatval( 0 ) ) {
 			$items[__( 'Fee', 'smart-woo-service-invoicing')] = array(
-				'quantity'	=> 1,
+				'quantity'	=> $this->get_meta( 'fee_quantity', 1 ),
 				'price'		=> $this->get_fee(),
-				'total'		=> $this->get_fee() * 1,
+				'total'		=> $this->get_fee() * $this->get_meta( 'fee_quantity', 1 ),
 			);
 		}
 
@@ -960,11 +960,12 @@ class SmartWoo_Invoice {
 
 	/**
 	 * Get a meta data on an invoice object.
-	 * @param int|string $meta_name
+	 * @param int|string $meta_name The meta name.
+	 * @param mixed $return The default value to return, defaults to false.
 	 * @return mixed
 	 */
-	public function get_meta( $meta_name ) {
-		return isset( $this->meta_data[$meta_name] ) ? $this->meta_data[$meta_name] : false;
+	public function get_meta( $meta_name, $return = false ) {
+		return isset( $this->meta_data[$meta_name] ) ? $this->meta_data[$meta_name] : $return;
 	}
 
 	/**
