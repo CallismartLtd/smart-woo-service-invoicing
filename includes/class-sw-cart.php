@@ -48,14 +48,22 @@ class SmartWoo_Cart {
             $container .= '<p class="sw-product-name">' . $product_name . '</p>';
             $container .= '<div class="smartwoo-cart-items">';
             $container .= '<h5>' . apply_filters( 'smartwoo_cart_item_header', 'Subscription Items' ). '</h5>';
-            if ( $product && ( $product instanceof SmartWoo_Product ) && apply_filters( 'smartwoo_show_product_meta', true, $product ) ) {
-                $container .= '<p>Sign-Up Fee: <span>' . esc_html( smartwoo_price( $product->get_sign_up_fee() ) ) . '</span></p>';
+            $container .= '<p>Service Name: <span>' . esc_html( $cart_data['service_name'] ) . '</span></p>';
+        
+            $has_product = $product && ( $product instanceof SmartWoo_Product ) && apply_filters( 'smartwoo_show_product_meta', true, $product );
+            if ( $has_product ) {
                 $container .= '<p>Billing Cycle: <span>' . esc_html( $product->get_billing_cycle() ) . '</span></p>';
             }
-            $container .= '<p>Service Name: <span>' . esc_html( $cart_data['service_name'] ) . '</span></p>';
+
             if( ! empty( $cart_data['service_url'] ) ) {
                 $container .= '<p>Service URL: <span>' . esc_html( $cart_data['service_url'] ) . '</span></p>';
             }
+            
+            if ( $has_product ) {
+                $container .= '<p>Sign-Up Fee: <span>' . esc_html( smartwoo_price( $product->get_sign_up_fee() ) ) . '</span></p>';
+            }
+
+
             $container .= '</div>';
             $container .= '</div>';
         }
