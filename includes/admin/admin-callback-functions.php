@@ -65,7 +65,7 @@ function smartwoo_invoice_admin_page() {
 			break;
 
 		case 'edit-invoice':
-			SmartWoo_Invoice_Form_Controller::edit_form();
+			SmartWoo_Invoice_Controller::edit_form();
 			break;
 
 		case 'invoice-by-status':
