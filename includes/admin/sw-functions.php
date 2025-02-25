@@ -479,11 +479,13 @@ function smartwoo_check_if_configured( $order ) {
 
 	$items = $order->get_items();
 
-	foreach ( $items as $item_id => $item ) {
-		$service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
-		if ( ! empty( $service_name ) ) {
+	foreach ( $items as $item ) {
+		if ( $item->get_meta( '_smartwoo_service_name' ) 
+		|| $item->get_meta( 'Service Name' ) 
+		|| $item->get_meta( '_smartwoo_service_url' ) 
+		|| $item->get_meta( '_smartwoo_sign_up_fee' ) ) {
 			return true;
-		}
+		} 
 	}
 
 	return false;
