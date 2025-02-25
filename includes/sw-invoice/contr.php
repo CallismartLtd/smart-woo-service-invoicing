@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice form controller object.
+ * Invoice controller object.
  *
  * @author  Callistus
  * @package SmartWoo\classes
@@ -9,13 +9,13 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
- * Invoice form controller
+ * Invoice controller class for handling all action hooks, form templates, invoice/order relationship management.
  * 
  * @since 2.2.3
  */
-class SmartWoo_Invoice_Form_Controller{
+class SmartWoo_Invoice_Controller {
 	/**
-	 * @var SmartWoo_Invoice_Form_Controller
+	 * @var SmartWoo_Invoice_Controller
 	 */
 	private static $instance = null;
 
@@ -44,8 +44,7 @@ class SmartWoo_Invoice_Form_Controller{
 	public function __construct() {
 		// Test purposes
 		// add_action( 'admin_post_smartwoo_admin_create_invoice_from_form',  array( __CLASS__, 'new_form_submit' ), 10 );
-		
-		
+			
 		add_action( 'wp_ajax_smartwoo_admin_create_invoice_from_form', array( __CLASS__, 'new_form_submit' ), 10 );
 		add_action( 'wp_ajax_smartwoo_admin_edit_invoice_from_form', array( __CLASS__, 'edit_form_submit' ), 10 );
 	}
@@ -400,6 +399,8 @@ class SmartWoo_Invoice_Form_Controller{
 
 		return ( ! empty( $errors ) ) ? $errors : false;
 	}
+
+
 }
 
-SmartWoo_Invoice_Form_Controller::instance();
+SmartWoo_Invoice_Controller::instance();
