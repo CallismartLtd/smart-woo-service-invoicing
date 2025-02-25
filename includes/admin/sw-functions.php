@@ -192,10 +192,12 @@ function smartwoo_readable_duration( $duration ) {
  * Format a given price with WooCommerce currency settings and thousand separator.
  *
  * @param float $amount The amount to be formatted.
+ * @param array $args List of arguments to overide.
  * @return string $formatted_price The formatted price with currency symbol and thousand separator.
  * @since 1.0.4
+ * @since 2.3.0 Add the $args parameter.
  */
-function smartwoo_price( $amount ) {
+function smartwoo_price( $amount, $args = array() ) {
 	if ( empty( $amount ) ) {
 		$amount = 0.00;
 	}
@@ -203,10 +205,23 @@ function smartwoo_price( $amount ) {
 	if ( ! is_numeric( $amount ) ) {
 		$amount = floatval( $amount );
 	}
+
+	$args = apply_filters(
+		'smartwoo_price_args',
+		wp_parse_args(
+			$args,
+			array(
+				'currency'           => '',
+				'decimal_separator'  => wc_get_price_decimal_separator(),
+				'thousand_separator' => wc_get_price_thousand_separator(),
+				'decimals'           => wc_get_price_decimals(),
+			)
+		)
+	);
 	
-    $decimals           = wc_get_price_decimals();
-    $decimal_separator  = wc_get_price_decimal_separator();
-    $thousand_separator = wc_get_price_thousand_separator();
+    $decimals           = $args['decimals'];
+    $decimal_separator  = $args['decimal_separator'];
+    $thousand_separator = $args['thousand_separator'];
     $price              = number_format( abs( $amount ), $decimals, $decimal_separator, $thousand_separator );
 
 	/**
@@ -214,7 +229,7 @@ function smartwoo_price( $amount ) {
 	 * @since 2.0.15
 	 */
 	$currency_pos       = get_option( 'woocommerce_currency_pos' );
-	$currency_symbol    = get_woocommerce_currency_symbol();
+	$currency_symbol    = get_woocommerce_currency_symbol( $args['currency'] );
 	$is_negative        = $amount < 0;
 
 	// Format based on WooCommerce currency position.
