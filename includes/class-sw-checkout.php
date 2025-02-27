@@ -24,27 +24,6 @@ class SmartWoo_Checkout {
     public static function listen() {
         add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'create_order_line_item' ), 10, 3 );
 		add_action( 'woocommerce_checkout_order_created', array( __CLASS__, 'maybe_create_invoice' ), 30, 1 );
-		
-        add_filter( 'woocommerce_order_item_display_meta_key', function( $value ){
-            if ( '_smartwoo_sign_up_fee' === $value ) {
-                $value = 'Sign-up Fee';
-            } elseif ( '_smartwoo_service_name' === $value ) {
-                $value = 'Service Name';
-            } elseif ( '_smartwoo_service_url' === $value ) {
-                $value = 'Service URL';
-            }
-            return $value;
-        }, 10 );
-
-        add_filter( 'woocommerce_order_item_display_meta_value', function( $value, $meta, $item ){
-            if ( str_starts_with( $meta->key, '_smartwoo_' ) && is_numeric( $value ) ){
-                $value = smartwoo_price( $value, array( 'currency' => $item->get_order()->get_currency() ) );
-            }
-
-            return $value;
-        }, 10, 3 );
-
-
         add_action( 'woocommerce_store_api_checkout_order_processed', array( __CLASS__, 'maybe_create_invoice' ), 30, 1 );
 	
     }
