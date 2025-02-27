@@ -40,14 +40,6 @@ function smartwoo_service_admin_page() {
 }
 
 /**
- * Service order page.
- */
-function smartwoo_service_orders() {
-	
-	echo wp_kses_post( smartwoo_service_order_table( $orders ) );
-}
-
-/**
  * Callback function for "Product" submenu page
  */
 function smartwoo_products_page() {
