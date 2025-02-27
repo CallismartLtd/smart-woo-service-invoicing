@@ -99,6 +99,13 @@ class SmartWoo_Order {
         }
     }
 
+    /**
+     * Action hook runner
+     */
+    public static function listen() {
+
+        add_filter( 'woocommerce_order_item_get_formatted_meta_data', array( __CLASS__, 'display_meta' ), 10, 2);
+    }
 
     /**
      * Set up the object property.
@@ -125,7 +132,7 @@ class SmartWoo_Order {
         $self->orders['order_item_id']  = $order_item_id;
         $self->orders['order_id']       = $self->order->get_id();
         $self->sign_up_fee              = floatval( $self->order_item->get_meta( '_smartwoo_sign_up_fee' ) );
-        $self->service_name             = $self->order_item->get_meta( '_smartwoo_service_name' );
+        $self->service_name             = $self->order_item->get_meta( '_smartwoo_service_name' ) ? $self->order_item->get_meta( '_smartwoo_service_name' ) : $self->order_item->get_meta( 'Service Name' ) ;
         $self->service_url              = $self->order_item->get_meta( '_smartwoo_service_url' );
         $self->date_created             = $self->order->get_date_created();
         $self->date_paid                = $self->order->get_date_paid();
@@ -257,6 +264,15 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get the product associated with this order
+     * 
+     * @return SmartWoo_Product|false
+     */
+    public function get_product() {
+        return $this->order_item->get_product();
+    }
+
+    /**
      * Get the order Item object.
      * 
      * @return WC_Order_Item_Product $order_item
@@ -264,22 +280,118 @@ class SmartWoo_Order {
     public function get_order_item() {
         return $this->order_item;
     }
+    /*
+    |-------------------------
+    | UTILITY METHODS
+    |-------------------------
+    */
+
+    /**
+     * Check whether this order has already been processed.
+     */
+    public function is_processed() {
+        return 'processed' === $this->get_status();
+    }
+
+    /**
+     * Mark an order as completed - The method should be called when the order processing 
+     * is completed
+     * 
+     * @return bool
+     */
+    public function processing_complete() {
+        $this->order_item->update_meta_data( '_smartwoo_order_item_status', 'complete' );
+        $this->order_item->save();
+        delete_transient( 'smartwoo_count_unprocessed_orders' );
+        return $this->maybe_update_parent_order();
+    }
+
+    /**
+     * Check whether the parent order still has items not processed, and update
+     * the order status when all items has been processed.
+     */
+    public function maybe_update_parent_order() {
+        $has_pending_item   = $this->has_pending_item( $parent );
+        if ( ! $has_pending_item ) {
+            $parent->set_status( 'completed' );
+            $parent->save();
+            error_log( "Order Status is updated" );
+        }
+
+        return !$has_pending_item;
+    }
+
+    /**
+     * Check whether the parent order still has items not processed, and updates
+     * the order status when all items has been processed.
+    */
+    public function has_pending_item( &$parent ) {
+        $parent = wc_get_order( $this->get_order_id() );
+        $has_pending_item = false;
+        foreach( $parent->get_items() as $item ) {
+            if ( ! is_a( $item->get_product(), 'SmartWoo_Product' ) ) {
+                continue;
+            }
+
+            if ( ! $item->get_meta( '_smartwoo_order_item_status' ) || 'complete' !==  $item->get_meta( '_smartwoo_order_item_status' ) ) {
+                $has_pending_item = true;
+                break;
+            }
+        }
+
+        return $has_pending_item;
+    }
 
     /**
      * Get the status of an order, we should add a `completed` string value to the order_item meta after processing.
      */
     public function get_status() {
-        $status = 'awaiting payment';
-        if ( 'completed' !== $this->order_item->get_meta( 'status' ) ) {
-            $status = 'awaiting processing';
-        } elseif ( $this->order_item->get_meta( 'Service Name' ) ) { // Backwd comp.
-            if ( $this->get_order() && 'processing' === $this->get_order()->get_status() ){
-                $status = 'awaiting processing';
-            }elseif( $this->get_order() && 'complete' === $this->get_order()->get_status() ) {
+        $status = 'awaiting payment'; // Assuming order is not paid;
+        $parent_order_status =  $this->get_parent_order() ? $this->get_parent_order()->get_status() : '';
+        if ( in_array( $parent_order_status, wc_get_is_pending_statuses(), true ) ) {
+            return $status;
+        } elseif ( in_array( $parent_order_status, wc_get_is_paid_statuses(), true ) ) {
+            if ( 'complete' === $this->order_item->get_meta( '_smartwoo_order_item_status' ) ) {
                 $status = 'processed';
+            } elseif ( $this->order_item->get_meta( 'Service Name' ) ) { // Backwd comp.
+                if ( $this->get_parent_order() && 'processing' === $this->get_parent_order()->get_status() ){
+                    $status = 'awaiting processing';
+                } elseif( $this->get_parent_order() && 'complete' === $this->get_parent_order()->get_status() ) {
+                    $status = 'processed';
+                }
+            } else {
+                $status = 'awaiting processing';
             }
         }
-        return 'processed';
+
+        return $status;
+    }
+
+    /**
+     * Control the display of internal meta data on Order page and tables.
+     * 
+     * @param array $formatted_meta All formated item meta data.
+     * @param WC_Order_Item $order_item The Order item base class.
+     */
+    public static function display_meta( $formatted_meta, $order_item ){
+        if ( ! is_a( $order_item->get_product(), 'SmartWoo_Product' ) ) {
+            $formatted_meta;
+        }
+        
+        foreach( $formatted_meta as $id => &$data ) {
+            if ( '_smartwoo_sign_up_fee' === $data->key ) {
+                $data->display_value = smartwoo_price( $data->value, array( 'currency' => $order_item->get_order()->get_currency() ) );
+                $data->display_key = 'Sign-up Fee';
+            } elseif ( '_smartwoo_service_name' === $data->key ) {
+                $data->display_key = 'Service Name';
+            } elseif ( '_smartwoo_service_url' === $data->key ) {
+                $data->display_key = 'Service URL';
+            } else {
+                unset( $formatted_meta[$id] );
+            }
+        }
+
+        return $formatted_meta;
     }
 
     /**
@@ -338,7 +450,7 @@ class SmartWoo_Order {
 		$offset = ( $page - 1 ) * $limit;
 
         $query = $wpdb->prepare( 
-            "SELECT DISTINCT `order_item_id` FROM {$wpdb->prefix}woocommerce_order_itemmeta WHERE 
+            "SELECT DISTINCT `order_item_id` FROM `{$wpdb->prefix}woocommerce_order_itemmeta` WHERE 
             `meta_key` = %s OR 
             `meta_key` = %s OR 
             `meta_key` = %s OR 
@@ -356,6 +468,12 @@ class SmartWoo_Order {
         $data = array();
         $results = $wpdb->get_results( $query, ARRAY_A );
         if ( ! empty( $results ) ) {
+            usort( $results, function( $a, $b ){
+                if ( $a['order_item_id'] < $b['order_item_id'] ) {
+                    
+                    return $b;
+                }
+            });
             foreach( $results as $result ) {
                 $self   = self::convert_to_self( $result );
                 if ( ! $self ) {
@@ -365,7 +483,24 @@ class SmartWoo_Order {
                 $data[] = $self;
             }
         }
+
         return $data;
+    }
+
+    /**
+     * Recommended way to get a SmartWoo_Order
+     * 
+     * @param int $id The order item id.
+     * @return self
+     */
+    public static function get_order( $id ) {
+        $self = new self( $id );
+
+        if ( ! $self->is_valid() ) {
+            return false;
+        }
+
+        return $self;
     }
 
     /**
@@ -373,7 +508,7 @@ class SmartWoo_Order {
      * 
      * @param array $result
      */
-    private  static function convert_to_self( $result ) {
+    private static function convert_to_self( $result ) {
         if ( isset( $result['order_item_id'] ) ) {
             $self = new self( absint( $result['order_item_id'] ) );
             if ( $self->is_valid() ) {
@@ -383,3 +518,5 @@ class SmartWoo_Order {
         return false;
     }
 }
+
+SmartWoo_Order::listen();
