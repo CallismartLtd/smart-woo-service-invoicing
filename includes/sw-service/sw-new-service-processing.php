@@ -9,80 +9,7 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
  
-/**
- * Call back function for new service order admin page
- * 
- * @param array $order  Array of WC_Order objects.
- */
-function smartwoo_service_order_table( $orders ) {
 
-	$page_html  = '';
-	$page_html .= '<h1 class="wp-heading-inline">Service Orders</h1>';
-
-
-	if ( empty( $orders ) ) {
-		return $page_html .= smartwoo_notice( 'All Service orders will appear here when a customer purchases a service product.' );
-		
-	}
-
-	$page_html .= '<table class="sw-table">';
-	$page_html .= '<thead>';
-	$page_html .= '<tr>';
-	$page_html .= '<th>Order ID</th>';
-	$page_html .= '<th> Date Created</th>';
-	$page_html .= '<th>Status</th>';
-	$page_html .= '<th>Service Name</th>';
-	$page_html .= '<th>Client\'s Name</th>';
-	$page_html .= '<th>Action</th>';
-	$page_html .= '</tr>';
-	$page_html .= '</thead>';
-	$page_html .= '<tbody>';
-
-	foreach ( $orders as $order ) {
-
-		$order_status 	= $order->get_status();
-		$order_id		= $order->get_id();
-		$created_date 	= smartwoo_check_and_format( $order->get_date_created(), true );
-		$user_full_name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
-		$service_name 	= '';
-		$process_url  	= '';
-		$items 			= $order->get_items();
-
-		foreach ( $items as $item_id => $item ) {
-			$service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
-
-			if ( $service_name ) {
-				break;
-			}
-		}
-
-		// Display row.
-		$page_html .= '<tr>';
-		$page_html .= '<td>' . esc_html( $order_id ) . '</td>';
-		$page_html .= '<td>' . esc_html( $created_date ) . '</td>';
-		$page_html .= '<td>' . esc_html( ucwords( $order_status ) ) . '</td>';
-		$page_html .= '<td>' . esc_html( $service_name ) . '</td>';
-		$page_html .= '<td>' . esc_html( $user_full_name ) . '</td>';
-
-		if ( 'processing' === $order_status ) {
-			$process_url = '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin&action=process-new-service&order_id=' . $order_id ) ) . '"><button class="sw-icon-button-admin" title="' .__( 'Process Now', 'smart-woo-service-invoicing' ). '"><span class="dashicons dashicons-ellipsis"></span></button></a>';
-		} elseif ( 'pending' === $order_status ) {
-			$process_url = 'Order is Unpaid';
-		} elseif ( 'completed' === $order_status ) {
-			$process_url = 'Completed';
-		} else {
-			$process_url = 'Cannot be proceesed';
-		}
-
-		$page_html .= '<td>' . $process_url . '</td>';
-		$page_html .= '</tr>';
-	}
-
-	$page_html .= '</tbody>';
-	$page_html .= '</table>';
-	$page_html .= '<p style="text-align: right;">' . count( $orders ) . ' items</p>';
-	return $page_html;
-}
 
 /**
  * Conversion of WooCommerce Order to Smart Woo Service subscription
@@ -94,6 +21,7 @@ function smartwoo_service_order_table( $orders ) {
  * This function can be used to check if the order contains configured 'sw_product' types.
  *
  * @param int $order_id Order ID of the new service order.
+ * @deprecated This function has been deprecated @since 2.3.0.
  */
 function smartwoo_convert_wc_order_to_smartwoo_service( $order_id ) {
 	smartwoo_set_document_title( 'Process Orders' );
