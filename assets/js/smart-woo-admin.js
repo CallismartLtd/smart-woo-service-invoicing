@@ -391,7 +391,7 @@ function fetchServiceCount(index, action, label) {
                 clearInterval(fetchIntervals[index]);
             }
 
-            // Perform auto data update every five minutes.
+            // Perform auto data update every fifteen minutes.
             fetchIntervals[index] = setInterval(() => {
                 fetchServiceCount(index, action, label);
             }, 900000); // 900,000 ms = 15 minutes
