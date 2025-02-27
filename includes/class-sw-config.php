@@ -94,7 +94,9 @@ class SmartWoo_Config{
         
         add_action( 'admin_post_smartwoo_create_product', 'smartwoo_process_new_product' );
         add_action( 'admin_post_smartwoo_edit_product', 'smartwoo_process_product_edit' );
+        
         add_action( 'woocommerce_new_order', array( $this, 'clear_order_cache' ), 20, 2 );
+        add_action( 'smartwoo_new_service_purchase_complete', array( $this, 'clear_order_cache' ), 20, 2 );
 
     }
 
@@ -488,7 +490,7 @@ class SmartWoo_Config{
      */
     public function clear_order_cache( $order_id, $order ) {
         if ( smartwoo_check_if_configured( $order ) || $order->is_created_via( SMARTWOO ) ) {
-            wp_cache_delete( 'smartwoo_count_unprocessed_orders', 'smartwoo_orders' );
+            delete_transient( 'smartwoo_count_unprocessed_orders' );
         }
     }
 
