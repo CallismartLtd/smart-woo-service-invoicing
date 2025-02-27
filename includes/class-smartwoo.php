@@ -324,8 +324,13 @@ final class SmartWoo {
             $process_downloadable   = ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] );
             $process_more_assets    = ! empty( $_POST['add_asset_types'][0] ) && ! empty( $_POST['add_asset_names'][0] ) && ! empty( $_POST['add_asset_values'][0] );
 
+            $order              = SmartWoo_Order::get_order( $order_id );
             // Validation.
             $validation_errors 	= array();
+
+            if ( ! $order ) {
+                $validation_errors[] = 'This order does not exist, perhaps it has been deleted';
+            }
 
             if ( ! preg_match( '/^[A-Za-z0-9 ]+$/', $service_name ) ) {
                 $validation_errors[] = 'Service name should only contain letters, and numbers.';
@@ -350,10 +355,10 @@ final class SmartWoo {
             if ( empty( $start_date ) || empty( $end_date ) || empty( $next_payment_date ) || empty( $billing_cycle ) ) {
                 $validation_errors[] = 'All Dates must correspond to the billing circle';
             }
-
+ 
             if ( ! empty( $validation_errors ) ) {
                 smartwoo_set_form_error( $validation_errors );
-                wp_redirect( esc_url_raw( admin_url( 'admin.php?page=sw-admin&action=process-new-service&order_id=' . $order_id ) ) );
+                wp_redirect( esc_url_raw( admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id=' . $order_id ) ) );
                 exit;
             }
 
@@ -468,13 +473,14 @@ final class SmartWoo {
                     }
                 }
                 
-                $order = wc_get_order( $order_id );
+                // Handle parent order status
+                $parent_order   = $order->get_parent_order();
+                $invoice_id     = $parent_order->get_meta( '_sw_invoice_id' );
+
+                // This may become a bug for orders with too many items.
+                SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, array( 'service_id' => $saved_service_id ) );
                 
-                if ( $order && 'processing' === $order->get_status()  ) {
-                    $invoice_id = $order->get_meta( '_sw_invoice_id' );
-                    SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, array( 'service_id' => $saved_service_id ) );
-                    $order->update_status( 'completed' );
-                }
+                $order->processing_complete();
 
                 do_action( 'smartwoo_new_service_is_processed', $saved_service_id );
                 wp_safe_redirect( smartwoo_service_preview_url( $saved_service_id ) );
