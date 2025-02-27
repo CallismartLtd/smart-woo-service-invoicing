@@ -379,7 +379,7 @@ function smartwoo_is_migration() {
 function smartwoo_notice( $message, $dismisable = false ) {
 	$class = ( true === $dismisable ) ? 'sw-notice notice-info is-dismissible' : 'sw-notice';
 	$output  = '<div class="' . esc_attr( $class ) . '">';
-	$output .= '<p>' . esc_html( $message ) . '</p>'; 
+	$output .= '<p>' . wp_kses_post( $message ) . '</p>'; 
 	$output .= '</div>';
 
 	return $output;
@@ -405,7 +405,7 @@ function smartwoo_error_notice( $messages, $dismisable = false ) {
 	}
 
 	if ( is_array( $messages ) ) {
-		$error .= smartwoo_notice( 'Errors !!' );
+		$error .= smartwoo_notice( 'Errors!' );
 
 		$error_number = 1;
 
@@ -414,8 +414,8 @@ function smartwoo_error_notice( $messages, $dismisable = false ) {
 			++$error_number;
 		}
 	} else {
-		$error .= smartwoo_notice( 'Error !!' );
-		$error .= '<p>' . esc_html( $messages ) . '</p>';
+		$error .= smartwoo_notice( 'Error!' );
+		$error .= '<p>' . wp_kses_post( $messages ) . '</p>';
 	}
 
 	$error .= '</div>';
@@ -513,7 +513,7 @@ function smartwoo_check_if_configured( $order ) {
  * @since 2.0.0
  */
 function smartwoo_count_unprocessed_orders() {
-	$count		= wp_cache_get( 'smartwoo_count_unprocessed_orders' );
+	$count	= get_transient( 'smartwoo_count_unprocessed_orders' );
 	if ( false === $count ) {
 		$count	= 0;
 
@@ -530,16 +530,27 @@ function smartwoo_count_unprocessed_orders() {
 		
 	
 		if ( empty( $wc_orders ) ) {
+			set_transient( 'smartwoo_count_unprocessed_orders', $count, HOUR_IN_SECONDS );
 			return $count;
 		}
 		
 	
 		foreach ( $wc_orders as $order ) {
-			if ( smartwoo_check_if_configured( $order ) ) {
-				$count++;
+			if ( ! smartwoo_check_if_configured( $order ) ) {
+				continue;
+			}
+			
+			foreach ( $order->get_items() as $item ) {
+				if ( ! is_a( $item->get_product(), 'SmartWoo_Product' ) ) {
+					continue;
+				}
+
+				if ( ! $item->get_meta( '_smartwoo_order_item_status' ) || 'complete' !==  $item->get_meta( '_smartwoo_order_item_status' ) ) {
+					$count++;
+				}
 			}
 		}
-		wp_cache_set( 'smartwoo_count_unprocessed_orders', $count, 'smartwoo_orders', HOUR_IN_SECONDS );
+		set_transient( 'smartwoo_count_unprocessed_orders', $count, HOUR_IN_SECONDS );
 	}
 	return $count;
 }
