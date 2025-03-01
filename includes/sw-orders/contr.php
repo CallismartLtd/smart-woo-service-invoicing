@@ -32,14 +32,22 @@ class SmartWoo_Order_Controller {
      * The Dashboard page
      */
     private static function dashboard() {
-        $orders = SmartWoo_Order::get_all();
-        $process_btn    = ( function( $status, $order_id ) {
+        $paged      = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+        $limit      = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 20;
+        $all_orders = SmartWoo_Order::count_all();
+        $total      = ceil( $all_orders / $limit );
+        $prev       = $paged > 1 ? $paged - 1 : 1;
+        $next       = $paged < $total ? $paged + 1 : $total;
+        $orders     = SmartWoo_Order::get_all( $paged, $limit );
+        $btn_text   = ( function( $status, $order_id ) {
             if ( 'awaiting processing' === $status ) {
                 return '<a href="' . esc_url( admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id=' . $order_id ) ) . '"><button class="sw-icon-button-admin" title="' .__( 'Process Now', 'smart-woo-service-invoicing' ). '"><span class="dashicons dashicons-ellipsis"></span></button></a>';
             }elseif( 'processed' === $status ) {
-                return '<button class="sw-icon-button-admin sw-not-allowed" title="' .__( 'Order has been processed', 'smart-woo-service-invoicing' ). '"><span class="dashicons dashicons-cloud-saved"></span></button>';
+                return '<button class="sw-icon-button-admin sw-not-allowed" title="' . __( 'Order has been processed', 'smart-woo-service-invoicing' ) . '"><span style="color:#f0a607" class="dashicons dashicons-cloud-saved"></span></button>';
+            }elseif( 'awaiting payment' === $status ) {
+                return '<button class="sw-icon-button-admin sw-not-allowed" title="' . __( 'The order has been received, but no payment has been made', 'smart-woo-service-invoicing' ) . '"><span style="color: #2217ee" class="dashicons dashicons-info"></span></button>';
             } else {
-                return 'Cannot be processed';
+                return '<button class="sw-icon-button-admin sw-not-allowed" title="' . __( 'Cannot be processed', 'smart-woo-service-invoicing' ) . '"><span style="color: #2217ee" class="dashicons dashicons-info"></span></button>';
             }
         });
         include_once SMARTWOO_PATH . 'templates/order-admin/dashboard.php';
