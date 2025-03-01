@@ -87,10 +87,33 @@ class SmartWoo_Invoice_Controller {
 				break;
 	
 			default:
-				echo wp_kses_post( smartwoo_invoice_dashboard() );
+				self::dashboard();
 				break;
 		}
 	}
+
+	/**
+	 * Invoice management dashboard.
+	 */
+	public static function dashboard(){
+		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tabs = array(
+			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
+			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
+		);
+		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 20; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$all_invoices 	= SmartWoo_Invoice_Database::get_all_invoices( $page, $limit );
+		$all_inv_count 	= SmartWoo_Invoice_Database::count_all();
+		$total			= ceil( $all_inv_count / $limit );
+		$paged 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$prev			= $paged - 1;
+		$next			= $paged + 1;
+		
+		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
+	}
+
 	/**
      * New invoice form submission handler.
      * 
