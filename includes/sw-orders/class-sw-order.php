@@ -33,6 +33,13 @@ class SmartWoo_Order {
     protected $service_name = '';
 
     /**
+     * Invoice ID
+     * 
+     * @var string $invoice_id
+     */
+    protected $invoice_id = '';
+
+    /**
      * Service URL
      * 
      * @var string $service_url
@@ -103,7 +110,8 @@ class SmartWoo_Order {
      * Action hook runner
      */
     public static function listen() {
-
+        add_action( 'smartwoo_order_table_actions', array( __CLASS__, 'ajax_table_callback' ), 20, 2 );
+        add_filter( 'smartwoo_allowed_table_actions', array( __CLASS__, 'register_table_actions' ), 99 );
         add_filter( 'woocommerce_order_item_get_formatted_meta_data', array( __CLASS__, 'display_meta' ), 10, 2);
     }
 
@@ -133,6 +141,7 @@ class SmartWoo_Order {
         $self->orders['order_id']       = $self->order->get_id();
         $self->sign_up_fee              = floatval( $self->order_item->get_meta( '_smartwoo_sign_up_fee' ) );
         $self->service_name             = $self->order_item->get_meta( '_smartwoo_service_name' ) ? $self->order_item->get_meta( '_smartwoo_service_name' ) : $self->order_item->get_meta( 'Service Name' ) ;
+        $self->invoice_id               = $self->order_item->get_meta( '_sw_invoice_id' );
         $self->service_url              = $self->order_item->get_meta( '_smartwoo_service_url' );
         $self->date_created             = $self->order->get_date_created();
         $self->date_paid                = $self->order->get_date_paid();
@@ -179,6 +188,15 @@ class SmartWoo_Order {
      */
     public function get_service_name() {
         return $this->service_name;
+    }
+
+    /**
+     * Get the invoice ID
+     * 
+     * @return string $invoice_id
+     */
+    public function get_invoice_id() {
+        return $this->invoice_id;
     }
 
     /**
@@ -315,7 +333,6 @@ class SmartWoo_Order {
         if ( ! $has_pending_item ) {
             $parent->set_status( 'completed' );
             $parent->save();
-            error_log( "Order Status is updated" );
         }
 
         return !$has_pending_item;
@@ -395,6 +412,48 @@ class SmartWoo_Order {
     }
 
     /**
+     * Ajax callback for order table actions
+     * 
+     * @param string $selected_action The selected action.
+     * @param mixed $data The data to be processed.
+     */
+    public static function ajax_table_callback( $selected_action, $data ) {
+        if ( ! is_array( $data ) ) {
+            $data = (array) $data;
+        }
+        $response = array( 'message' => 'Invalid action' );
+        foreach ( $data as $id ) {
+            $order = new self( $id );
+            if ( ! $order->is_valid() ) {
+                continue;
+            }
+
+            switch( $selected_action ) {
+                case 'delete':
+                    $response['message'] = $order->delete() ? 'Order deleted' : 'Failed to delete order';
+                    break;
+                case 'complete':
+                    $response['message'] = $order->processing_complete() ? 'Order processed' : 'Failed to process order';
+                    break;
+            }
+
+            wp_send_json_success( $response );
+        }
+    }
+
+    /**
+     * Register list of allowed sw-table actions.
+     * 
+     * @param array $actions The list of actions in the filter.
+     */
+    public static function register_table_actions( $actions ) {
+        $actions[] = 'delete';
+        $actions[] = 'complete';
+        
+        return $actions;
+    }
+
+    /**
     |------------------------
     | CRUD METHODS
     |------------------------
@@ -468,11 +527,8 @@ class SmartWoo_Order {
         $data = array();
         $results = $wpdb->get_results( $query, ARRAY_A );
         if ( ! empty( $results ) ) {
-            usort( $results, function( $a, $b ){
-                if ( $a['order_item_id'] < $b['order_item_id'] ) {
-                    
-                    return $b;
-                }
+            usort( $results, function( $a, $b ) {
+                return $b['order_item_id'] <=> $a['order_item_id'];
             });
             foreach( $results as $result ) {
                 $self   = self::convert_to_self( $result );
@@ -488,6 +544,30 @@ class SmartWoo_Order {
     }
 
     /**
+     * Count All Service Orders
+     * 
+     * @return int The total number of service orders.
+     */
+    public static function count_all() {
+        global $wpdb;
+        $query = $wpdb->prepare( 
+            "SELECT COUNT(DISTINCT `order_item_id`) FROM `{$wpdb->prefix}woocommerce_order_itemmeta` WHERE
+            `meta_key` = %s OR
+            `meta_key` = %s OR
+            `meta_key` = %s OR
+            `meta_key` = %s OR
+            `meta_key` = %s",
+            "_smartwoo_sign_up_fee",
+            "_smartwoo_service_name",
+            "_smartwoo_service_url",
+            "Service Name", // Backwd compt.
+            "Service URL" // Backwd compt.
+        );
+
+        return $wpdb->get_var( $query );
+    }
+
+    /**
      * Recommended way to get a SmartWoo_Order
      * 
      * @param int $id The order item id.
@@ -498,6 +578,24 @@ class SmartWoo_Order {
 
         if ( ! $self->is_valid() ) {
             return false;
+        }
+
+        return $self;
+    }
+
+    /**
+     * Get all valid items from a WC_Order.
+     * 
+     * @param WC_Order $order The order object.
+     * @return self[]
+     */
+    public static function extract_items( WC_Order $order ) {
+        $self = array();
+        foreach( $order->get_items() as $item_id => $item ) {
+            if ( ! is_a( $item->get_product(), 'SmartWoo_Product' ) ) {
+                continue;
+            }
+            $self[] = self::convert_to_self( array( 'order_item_id' => $item_id ) );
         }
 
         return $self;
