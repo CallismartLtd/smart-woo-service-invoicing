@@ -303,7 +303,7 @@ class SmartWoo_Service {
 	 * @param string|null $status Status of the service. Use null to clear the status.
 	 */
 	public function set_status( $status ) {
-		$this->status = sanitize_text_field( wp_unslash( $status ) );
+		$this->status = ( is_null( $status ) || '' === $status ) ? null : sanitize_text_field( wp_unslash( $status ) );
 	}
 
 	public function setStatus( $status ) {
