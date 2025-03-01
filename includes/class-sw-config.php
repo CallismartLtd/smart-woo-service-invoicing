@@ -61,6 +61,7 @@ class SmartWoo_Config{
         add_action( 'smartwoo_loaded', array( $this, 'before_init' ) );
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'remove_order_again_button' ) );
+        add_action( 'admin_menu', array( __CLASS__, 'modify_sw_menu' ), 999 );
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
         register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
     }
@@ -210,7 +211,7 @@ class SmartWoo_Config{
     }
 
     public function load_styles() {
-        $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '-min';
+        $suffix = self::script_suffix();
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
             wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
         }
@@ -237,7 +238,7 @@ class SmartWoo_Config{
      * JavaScript registeration.
      */
     public function load_scripts() {
-        $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '-min';
+        $suffix = self::script_suffix();
 
         $l10n   =   array(
             'smartwoo_plugin_url'       => SMARTWOO_DIR_URL,
@@ -261,7 +262,7 @@ class SmartWoo_Config{
             'wp_spinner_gif_2x'         => admin_url('images/spinner-2x.gif'),
             'smartwoo_plugin_page'      => apply_filters( 'smartwoo_plugin_url', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
             'smartwoo_pro_page'         => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/#go-pro' ),
-            
+            'currentScreen'            => self::get_current_screen(),
         );
 
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
@@ -276,6 +277,18 @@ class SmartWoo_Config{
             wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
         }
+    }
+
+    /**
+     * Script suffix
+     */
+    private static function script_suffix() {
+        if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+            return '-min';
+        } elseif ( defined( 'SMARTWOO_SCRIPT_DEBUG ' ) && SMARTWOO_SCRIPT_DEBUG ) {
+            return '-min';
+        }
+        return '';
     }
 
     /**
@@ -533,5 +546,43 @@ class SmartWoo_Config{
         if ( isset( $consent_status['functional'] ) && ! $consent_status['functional'] ) {
             setcookie( $cookie_name, '', time() - HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
         }
-    } 
+    }
+
+    /**
+     * Rename First menu item to Dashboard.
+     */
+    public static function modify_sw_menu() {
+        global $submenu;
+
+        if ( isset( $submenu['sw-admin'] ) ) {
+            $submenu['sw-admin'][0][0] = 'Dashboard';
+        }
+    }
+
+    /**
+     * Get the current Smart Woo Admin page.
+     */
+    public static function get_current_screen() {
+        if ( ! is_admin() ) {
+            return '';
+        }
+        $id = 'smart-woo';
+        $our_pages = array(
+            'toplevel_page_sw-admin'        => 'Dashboard',
+            $id . '_page_sw-invoices'       => 'Invoices',
+            $id . '_page_sw-service-orders' => 'Service Orders',
+            $id . '_page_sw-products'       => 'Products',
+            $id . '_page_sw-options'        => 'Settings',
+        );
+        
+        $screen = get_current_screen();
+        $current_screen = $screen->id;
+
+        if ( array_key_exists( $current_screen, $our_pages ) ) {
+            return $our_pages[ $current_screen ];
+        }
+
+        return '';
+
+    }
 }
