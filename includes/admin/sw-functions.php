@@ -492,6 +492,10 @@ function smartwoo_check_if_configured( $order ) {
 		return false;
 	}
 
+	if ( $order->get_meta( '_smartwoo_is_service_order' ) ) {
+		return true;
+	}
+
 	$items = $order->get_items();
 
 	foreach ( $items as $item ) {
@@ -1107,4 +1111,33 @@ function smartwoo_dropdown_users( $selected = '', $echo = true, $required = fals
 	} else {
 		return $dropdown;
 	}
+}
+
+/**
+ * Add an input field to control the limit of items displayed on sw table or any table
+ * that uses the `$_GET['limit']` to render items.
+ */
+function smartwoo_table_limit_field( $limit = 25 ) {
+	?>
+		<div class="sw-table-limit-container">
+			<input type="number" id="smartwooChangeLimitValue" placeholder="Change Limit" min="0" max="100" value="<?php echo absint( $limit ); ?>"><input type="button" id="smartwooChangeLimitBtn" value="Change Limit">
+		</div>
+		<script>
+			let changeTableLimitbtn = document.querySelector( '#smartwooChangeLimitBtn' );
+
+			if ( changeTableLimitbtn ) {
+				changeTableLimitbtn.addEventListener( 'click', ()=>{
+					let url = new URL( window.location.href );
+					let limitValue = document.querySelector( '#smartwooChangeLimitValue' ).value;
+					if ( limitValue > 0 ) {
+						url.searchParams.set( 'limit', limitValue );
+						window.location.href = url;
+					} else {
+						url.searchParams.delete( 'limit' );
+						window.location.href = url;
+					}
+				});
+			}
+		</script>
+	<?php
 }
