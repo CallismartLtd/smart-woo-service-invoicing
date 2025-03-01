@@ -48,35 +48,13 @@ class SmartWoo_Invoice_Admin_Templates {
 
 function smartwoo_invoice_dashboard() {
 
-	$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$tabs = array(
-		''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
-		'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
-	);
-
-	$table_html		= smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' );
-	$all_invoices 	= SmartWoo_Invoice_Database::get_all_invoices();
-	$all_inv_count 	= SmartWoo_Invoice_Database::count_all();
-	$limit = 10;
-	$total_pages = ceil( $all_inv_count / $limit );
-	$page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	$table_html  .= '<div class="sw-table-wrapper">';
-	$table_html  .= '<h2>Invoice Dashboard</h2>';
-	$table_html  .= smartwoo_count_all_invoices_by_status();
-
-	if ( empty( $all_invoices ) ) {
-		$table_html .= smartwoo_notice( 'All invoices will appear here' );
-		return $table_html;
-	}
-
 	/**
 	 * Invoice Table markup.
 	 */
 	$table_html .= '<table class="sw-table">';
 	$table_html .= '<thead>';
 	$table_html .= '<tr>';
-	$table_html .= '<th>' . esc_html__( 'Invoice ID', 'smart-woo-service-invoicing' ) . '</th>';
+	$table_html .= 
 	$table_html .= '<th>' . esc_html__( 'Invoice Type', 'smart-woo-service-invoicing' ) . '</th>';
 	$table_html .= '<th>' . esc_html__( 'Payment Status', 'smart-woo-service-invoicing' ) . '</th>';
 	$table_html .= '<th>' . esc_html__( 'Date Created', 'smart-woo-service-invoicing' ) . '</th>';
@@ -86,7 +64,7 @@ function smartwoo_invoice_dashboard() {
 	$table_html .= '<tbody>';	
 
 	foreach ( $all_invoices as $invoice ) {
-		$download_url = $invoice->download_url( 'admin' );
+		$download_url	= $invoice->download_url( 'admin' );
 		$table_html .= '<tr>';
 		$table_html .= '<td>' . esc_html( $invoice->get_invoice_id() ) . '</td>';
 		$table_html .= '<td>' . esc_html( $invoice->get_type() ) . '</td>';
