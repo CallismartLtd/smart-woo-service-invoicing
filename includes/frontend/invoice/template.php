@@ -142,7 +142,7 @@ function smartwoo_invoice_details( $invoice_id = '' ) {
 	$service    			= ! empty( $service_id ) ? SmartWoo_Service_Database::get_service_by_id( $service_id ) : false;
 
 	if ( $service ) {
-		$service_name 		= $service->get_service_name();
+		$service_name 		= $service->get_name();
 	}
 
 	$product      			= $invoice->get_product();
