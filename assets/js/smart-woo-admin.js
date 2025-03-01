@@ -318,10 +318,6 @@ function smartwooShowActionDialog(selectedRows) {
         let actionBtn = document.createElement('button');
         actionBtn.classList.add('sw-action-btn');
         actionBtn.textContent = "Apply Action";
-        actionBtn.style.backgroundColor = "#f1f1f1f1";
-        actionBtn.style.marginLeft = "-2px";
-        actionBtn.style.height = "30px";
-        actionBtn.style.border = "solid .5px blue";
         if ( 'Choose Action' !== selectedAction ) {
             actionDiv.append(actionBtn);
             jQuery(actionBtn).fadeIn();
@@ -810,6 +806,108 @@ async function smartwooPromptGuestInvoiceData(heading) {
     })
 }
 
+/**
+ * Post the Smart Woo Table Bulk Action.
+ * 
+ * @param {Object} actions The action to perform and the related hook name.
+ * @param {Array} values The values to perform the action on.
+ */
+function smartwooPostswTableBulkAction( actions = {hook_name: '', value: ''}, values = [] ) {
+    console.log( values );
+    if ( 'delete' === actions.value ) {
+        let confirmed = confirm( 'You are about to delete the selected items! click ok to confirm.' );
+        if ( ! confirmed ) {
+            return;
+        }
+    }
+    let loader = smartWooAddSpinner( 'swloader', true );
+    url = new URL( smartwoo_admin_vars.ajax_url );
+    url.searchParams.append( 'action', 'smartwoo_table_bulk_action' );
+    let body = new FormData();
+    body.append( 'payload', values );
+    body.append( 'security', smartwoo_admin_vars.security );
+    body.append( 'real_action', actions.hook_name );
+    body.append( 'selected_action', actions.value );
+
+    fetch( url, {
+        method: 'POST',
+        body: body
+    }).then( response => {
+        if ( ! response.ok ) {
+            showNotification( `An error occured: [${response.statusText}]`, 6000 );
+            throw new Error( 'Network response was not ok' );
+        }
+        return response.json()
+    })
+    .then( data => {
+        if ( data.success ) {
+            showNotification( data.data.message, 3000 );
+            setTimeout(()=>{
+                window.location.reload();
+            }, 3000);
+        } else {
+            showNotification( data.data.message, 6000 );
+        }
+    }).catch( error => {
+        console.error( 'Error:', error );
+    }).finally( ()=>{
+        smartWooRemoveSpinner( loader );
+    });
+
+}
+/**
+ * Smart Woo Utility function to add a bulk action to the sw-table.
+ * @param {Object} params The parameters for the bulk action.
+ * @param {Array} params.options The options for the bulk action.
+ * @param {Array} params.selectedRows The selected rows for the bulk action.
+ * @param {String} params.hookName The hook name that will be used to process action submission.
+ * @returns void
+ */
+function smartwooBulkActionForTable( params = { options: [], selectedRows: [], hookName } ) {
+    let prevDiv = document.querySelector('.sw-action-container');
+    let swTable = document.querySelector('.sw-table');
+    
+    // Remove previouse divs
+    if( prevDiv ) {
+        prevDiv.remove();
+    }
+
+    const actionDiv = document.createElement('div');
+    actionDiv.classList.add('sw-action-container');
+    let selectElement  = document.createElement('select');
+    selectElement.id   = 'sw-action-select';
+    selectElement.name = 'dash_bulk_action';
+
+    selectElement.innerHTML = '<option value="">Choose Action</option>';
+    params.options.forEach( ( option )=>{
+        optElement          = document.createElement( 'option' );
+        optElement.value    = option.value;
+        optElement.text     = option.text;
+        selectElement.appendChild( optElement );
+    });
+
+    let values = params.selectedRows;
+    let applyBtn = document.createElement('button');
+    applyBtn.classList.add('sw-action-btn');
+    applyBtn.textContent = 'Apply Action';
+    actionDiv.append( selectElement );
+    swTable.prepend( actionDiv );
+    jQuery( actionDiv ).fadeIn().css('display', 'flex');
+
+    selectElement.addEventListener( 'change', () => {
+        if ( ! selectElement.value ) {
+            applyBtn.remove();
+        }else {
+            actionDiv.append( applyBtn );
+            jQuery( applyBtn ).fadeIn();
+        }
+    });
+
+    applyBtn.addEventListener( 'click', ()=>{
+        smartwooPostswTableBulkAction( { hook_name: params.hookName, value: selectElement.value }, values );
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     let contentDiv          = document.querySelector('.sw-dash-content-container');
     let skeletonContent     = document.querySelectorAll('.sw-dash-content');
@@ -839,6 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let invoiceActionBtns   = document.querySelectorAll( '.smartwoo-admin-invoice-action-div button' );
     let invoiceLinkActions  = document.querySelector( '.smartwoo-admin-invoice-action-div' );
     let invoiceLinksToggle  = document.querySelector( '.smartwoo-admin-invoice-actions' );
+    let swTable             = document.querySelector('.sw-table');
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1344,6 +1443,59 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    if ( swTable ) {
+        let masterCheckbox  = swTable.querySelector( '#swTableCheckMaster' );
+        let checkboxes      = swTable.querySelectorAll( '.sw-table-body-checkbox' );
+        let actionData       = [];
+        let removeActionDiv = ()=>{
+            let actionDiv = document.querySelector( '.sw-action-container' );
+            if ( actionDiv ) {
+                actionDiv.remove();
+            }
+        }
+
+        let dispatchEvent = ()=>{
+            if ( actionData.length ) {
+                actionData = [...new Set( actionData )];
+                document.dispatchEvent( new CustomEvent( 'smartwooTableChecked', { detail: actionData } ) );
+            }
+        }
+
+        masterCheckbox.addEventListener( 'change', ()=>{
+            removeActionDiv();
+            checkboxes.forEach( ( checkbox ) =>{
+                isChecked = masterCheckbox.checked;
+                if ( isChecked ) {
+                    checkbox.checked = true;
+                    actionData.push( checkbox.getAttribute( 'data-value' ) );
+                    dispatchEvent();
+                } else {
+                    checkbox.checked = false;
+                    actionData = actionData.filter( ( row )=> row !== checkbox.getAttribute( 'data-value' ) );
+                }
+                
+            });
+        });
+
+        checkboxes.forEach( ( checkbox )=>{
+            checkbox.addEventListener( 'change', ()=>{
+                removeActionDiv();
+                if ( checkbox.checked ) {
+                    actionData.push( checkbox.getAttribute( 'data-value' ) );
+                    dispatchEvent();
+                } else {
+                    actionData = actionData.filter( ( row )=> row !== checkbox.getAttribute( 'data-value' ) );
+                }
+
+                if ( checkboxes.length === actionData.length ) {
+                    masterCheckbox.checked = true;
+                } else {
+                    masterCheckbox.checked = false;
+                }
+            });
+        })
+    }
 });
 
 /**
@@ -1375,4 +1527,38 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
     if (proDiv) {
         jQuery(proDiv).fadeIn();
     }
+});
+
+/**
+ * Smart Woo Table Checkbox event listener.
+ */
+document.addEventListener( 'smartwooTableChecked', (e)=>{
+    // Get the page where this action is fired.
+    let adminPage = smart_woo_vars.currentScreen;
+    if ( 'Service Orders' === adminPage ) {
+        smartwooBulkActionForTable({
+            options: [
+                { value: 'delete', text: 'Delete' },
+                { value: 'complete', text: 'Complete' },
+            ],
+            selectedRows: e.detail,
+            hookName: 'order_table_actions'
+        });
+    }
+
+    if ( 'Invoices' === adminPage ) {
+        smartwooBulkActionForTable({
+            options: [
+                {value: 'paid', text: 'Paid'},
+                {value: 'unpaid', text: 'Unpaid'},
+                {value: 'due', text: 'Due'},
+                {value: 'cancelled', text: 'Cancelled'},
+                {value: 'delete', text: 'Delete'},
+
+            ],
+            selectedRows: e.detail,
+            hookName: 'invoice_table_actions'
+        });
+    }
+
 });
