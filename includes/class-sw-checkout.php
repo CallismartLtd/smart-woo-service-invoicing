@@ -22,7 +22,7 @@ class SmartWoo_Checkout {
      * Hook runner.
      */
     public static function listen() {
-        add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'create_order_line_item' ), 10, 3 );
+        add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'create_order_line_item' ), 10, 4 );
 		add_action( 'woocommerce_checkout_order_created', array( __CLASS__, 'maybe_create_invoice' ), 30, 1 );
         add_action( 'woocommerce_store_api_checkout_order_processed', array( __CLASS__, 'maybe_create_invoice' ), 30, 1 );
 	
@@ -38,15 +38,18 @@ class SmartWoo_Checkout {
      * @param WC_Order_Item_Product $item The order item.
      * @param string $cart_item_key The key of the cart item.
      * @param array $values The session data for the cart item.
+	 * @param WC_Order $order The order object.
      */
-    public static function create_order_line_item( $item, $cart_item_key, $values ) {
-        $product = $values['data'];
+    public static function create_order_line_item( $item, $cart_item_key, $values, $order ) {
+        $product = isset($values['data'] ) ? $values['data'] : null;
         if ( ! $product || ! is_a( $product, 'SmartWoo_Product' ) )  {
             return;
         }
         
         $item->add_meta_data( '_smartwoo_sign_up_fee', $product->get_sign_up_fee(), true );
-        if ( isset( $values['service_name'] ) ) {
+		$order->add_meta_data( '_smartwoo_is_service_order', true, true );
+        
+		if ( isset( $values['service_name'] ) ) {
             $item->add_meta_data( '_smartwoo_service_name', $values['service_name'], true );
         }
 
@@ -62,7 +65,6 @@ class SmartWoo_Checkout {
 	 * @param WC_Order $order
 	 */
 	public static function maybe_create_invoice( $order ) {
-
 		$configured = smartwoo_check_if_configured( $order );
 	
 		if ( ! $configured ) {
@@ -70,9 +72,12 @@ class SmartWoo_Checkout {
 		}
 
 		$order_items	= $order->get_items();
-		$order_id		= $order->get_id();
 		$index			= 0;
 
+		/**
+		 * For new service orders, we create invoices for each item in the 
+		 * order that is a service product.
+		 */
 		foreach ( $order_items as $item_id => $item ) {
 			// Handles service products only.
 			if ( ! $item->get_product() || ! is_a( $item->get_product(), 'SmartWoo_Product' )) {
@@ -108,10 +113,9 @@ class SmartWoo_Checkout {
 			$new_invoice_id = $invoice->save();
 
 			if ( $new_invoice_id ) {
-				$order->update_meta_data( '_sw_invoice_id', $invoice->get_invoice_id() );
-			
-				// Save the order to persist the changes.
-				$order->save();
+				// The invoice ID for new service orders is saved to the order item meta.
+				$item->update_meta_data( '_sw_invoice_id', $invoice->get_invoice_id() );
+				$item->save(); // Persist the invoice ID to the order item.
 			}
 		}
 		
