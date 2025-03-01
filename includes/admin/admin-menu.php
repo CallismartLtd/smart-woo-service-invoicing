@@ -21,12 +21,10 @@ require_once SMARTWOO_PATH . 'includes/admin/sw-admin-settings.php';
 /**
  * Defined function callback for admin menus.
  */
-function smartwoo_reg_admin_menu() {
-	global $menu;
-	
+function smartwoo_reg_admin_menu() {	
 	$dashboard = add_menu_page(
 		'Smart Woo',
-		'Dashboard',
+		'Smart Woo',
 		'manage_options',
 		'sw-admin',
 		'smartwoo_service_admin_page',
@@ -81,12 +79,6 @@ function smartwoo_reg_admin_menu() {
 	add_action( 'load-' . $products, 'smartwoo_help_screen' );
 	add_action( 'load-' . $options, 'smartwoo_help_screen' );
 
-    foreach ( $menu as $index => $data ) {
-        if ( $data[2] === 'sw-admin' ) {
-            $menu[$index][0] = 'Smart Woo';
-            break;
-        }
-    }
 }
 
 add_action( 'admin_menu', 'smartwoo_reg_admin_menu' );
