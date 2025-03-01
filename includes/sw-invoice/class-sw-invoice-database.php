@@ -24,11 +24,8 @@ class SmartWoo_Invoice_Database {
 	 *
 	 * @return array|bool Array of SmartWoo_Invoice object, false otherwise.
 	 */
-	public static function get_all_invoices() {
+	public static function get_all_invoices( $page = 1, $limit = 20 ) {
 		global $wpdb;
-
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
