@@ -74,7 +74,6 @@ final class SmartWoo {
         // Service renewal action hooks.
         add_action( 'woocommerce_order_status_completed', array( __CLASS__, 'paid_invoice_order_manager' ), 50, 1 );
         add_action( 'woocommerce_payment_complete', array( __CLASS__, 'paid_invoice_order_manager' ), 55, 1 );
-        add_action( 'smartwoo_new_service_purchase_complete', array( __CLASS__, 'new_service_order_paid' ) );
 
         // Add Ajax actions.
         add_action( 'wp_ajax_smartwoo_cancel_or_optout', array( __CLASS__, 'cancel_or_optout' ) );
@@ -85,7 +84,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_dashboard', array( $this, 'dashboard_ajax' ) );
         add_action( 'wp_ajax_smartwoo_dashboard_bulk_action', array( $this, 'dashboard_ajax_bulk_action' ) );
         add_action( 'wp_ajax_smartwoo_ajax_logout', array( __CLASS__, 'ajax_logout' ) );
-        
+        add_action( 'wp_ajax_smartwoo_table_bulk_action', array( __CLASS__, 'table_bulk_action' ) );
         add_action( 'wp_ajax_smartwoo_service_id_ajax', array( __CLASS__, 'ajax_generate_service_id' ) );
         add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_password_reset', array( __CLASS__, 'ajax_password_reset' ) );
@@ -250,13 +249,28 @@ final class SmartWoo {
     /**
      * Display Dashboard nav button when a configured order is checked out.
      * 
-     * @param WC_Order
+     * @param WC_Order $order
      */
-    public function before_order_table( $order ) {
+    public function before_order_table( WC_Order $order ) {
         $our_order  = apply_filters( 'smartwoo_order_details_buttons', smartwoo_check_if_configured( $order ) || $order->is_created_via( SMARTWOO ) );
+
         if ( $our_order ) {
             echo '<a href="' . esc_url( smartwoo_service_page_url() ) .'" class="sw-blue-button">Dashbaord</a>';
-            echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $order->get_meta( '_sw_invoice_id' ) ) ) .'" class="sw-blue-button">Invoice</a>';
+            
+            $smartwoo_orders    = SmartWoo_Order::extract_items( $order );
+            $total_orders       = count( $smartwoo_orders );
+
+            if ( $total_orders > 1 ) {
+                $numb = 1;
+                foreach ( $smartwoo_orders as $smartwoo_order ) {
+                    echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_order->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice ' . $numb .'</a>';
+                    $numb++;
+                }
+            } else {
+                echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_orders[0]->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice</a>';
+
+            }
+            
         }
     
     }
@@ -473,15 +487,15 @@ final class SmartWoo {
                     }
                 }
                 
-                // Handle parent order status
-                $parent_order   = $order->get_parent_order();
-                $invoice_id     = $parent_order->get_meta( '_sw_invoice_id' );
-
-                // This may become a bug for orders with too many items.
+                $invoice_id     = $order->get_invoice_id();
                 SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, array( 'service_id' => $saved_service_id ) );
-                
                 $order->processing_complete();
 
+                /**
+                 * Fires after a new service order has been processed.
+                 * 
+                 * @param string $service_id
+                 */
                 do_action( 'smartwoo_new_service_is_processed', $saved_service_id );
                 wp_safe_redirect( smartwoo_service_preview_url( $saved_service_id ) );
                 exit;
@@ -931,9 +945,40 @@ final class SmartWoo {
             }
         }
 
-
-
         wp_send_json_success( array('message' => $message ) );
+    }
+
+    /**
+     * Relay Smart Woo Table Ajax action to appropriate handler.
+     */
+    public static function table_bulk_action() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
+        }
+
+        $selected_action = isset( $_POST['selected_action'] ) ? sanitize_text_field( wp_unslash( $_POST['selected_action'] ) ) : false;
+        $allowed_table_action = apply_filters( 'smartwoo_allowed_table_actions',
+            array()
+        );
+
+        if ( ! in_array( $selected_action, $allowed_table_action, true ) ) {
+            wp_send_json_error( array( 'message' => 'Action is not allowed' ), 400 );
+        }
+
+        $action     = isset( $_POST['real_action'] ) ? sanitize_text_field( wp_unslash( $_POST['real_action'] ) ) : false;
+        $payload    = isset( $_POST['payload'] ) ? $_POST['payload'] : array();
+        
+        if ( has_action( 'smartwoo_' . $action ) ) {
+            do_action( 'smartwoo_' . $action, $selected_action, explode( ',', $payload ) );
+            wp_die();
+        }
+
+        wp_send_json_error( array( 'message' => 'Invalid Action Handler', 'payload' => $_POST['payload'] ) );
+
     }
 
     /**
@@ -1318,41 +1363,37 @@ final class SmartWoo {
      * @param int $order_id    The paid invoice order.
      */
     public static function paid_invoice_order_manager( $order_id ) {
-        $order		= wc_get_order( $order_id );
-        $invoice_id = $order->get_meta( '_sw_invoice_id' );
+        $order                  = wc_get_order( $order_id );
+        $invoice_id             = $order->get_meta( '_sw_invoice_id' );
+        $is_new_service_order   = $order->get_meta( '_smartwoo_is_service_order' );
 
         // Early termination if the order is not related to our plugin.
-        if ( empty( $invoice_id ) ) {
+        if ( ! $is_new_service_order && empty( $invoice_id ) ) {
             return;
         }
-        // Prevent multiple function execution on single load
+        // Prevent multiple function execution on single load.
         if ( defined( 'SMARTWOO_PAID_INVOICE_MANAGER' ) && SMARTWOO_PAID_INVOICE_MANAGER ) {
             return;
         }
         define( 'SMARTWOO_PAID_INVOICE_MANAGER', true );
 
+        /**
+         * Handle new service order differently.
+         */
+        if ( $is_new_service_order ) {
+            self::new_service_order_paid( $order );
+            return;
+        }
+
         $invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
-        // Terminate if no invoice is gotten with the ID, which indicates invalid invoice ID.
+        // Bail early when invoice doesn't exists.
         if ( empty( $invoice ) ) {
             return;
         }
 
         $invoice_type = $invoice->get_type();
-
-        /**
-         * Handle none existing service related invoice
-         */
-        if ( 'New Service Invoice' ===  $invoice_type ) {
-            /**
-             * This action fires when order is for a new service order.
-             * 
-             * @param string $invoice_id Invoice public ID.
-             * @param WC_Order $order WooCommerce order added @since 2.2.1
-             */
-            do_action( 'smartwoo_new_service_purchase_complete', $invoice_id, $order );
-            return;
-        } elseif ( ! in_array( $invoice_type, smartwoo_supported_invoice_types(), true ) ) {
+        if ( ! in_array( $invoice_type, smartwoo_supported_invoice_types(), true ) ) {
             smartwoo_mark_invoice_as_paid( $invoice_id );
             return;
         }
@@ -1405,9 +1446,8 @@ final class SmartWoo {
         // Mark the invoice as paid before renewing the service.
         $invoice_is_paid = smartwoo_mark_invoice_as_paid( $invoice_id );
 
-        if ( false === $invoice_is_paid ) {
-            // Invoice is already paid, or something went wrong.
-            return;
+        if ( ! $invoice_is_paid ) {
+            return; // Invoice is already paid, or something went wrong.
         }
 
         if ( $service ) {
@@ -1420,10 +1460,13 @@ final class SmartWoo {
             do_action( 'smartwoo_before_service_renew', $service );
 
             // Calculate Renewal Dates based on Billing Cycle.
-            $billing_cycle = $service->getBillingCycle();
-            $old_end_date  = strtotime( $service->getEndDate() );
+            $billing_cycle = $service->get_billing_cycle();
+            $old_end_date  = strtotime( $service->get_end_date() );
 
             switch ( $billing_cycle ) {
+                case 'Weekly':
+                    $interval = '+1 week';
+                    break;
                 case 'Monthly':
                     $interval = '+1 month';
                     break;
@@ -1444,10 +1487,10 @@ final class SmartWoo {
             $new_start_date        = date_i18n( 'Y-m-d', $old_end_date );
             $new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, $old_end_date ) );
             $new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
-            $service->setStartDate( $new_start_date );
-            $service->setNextPaymentDate( $new_next_payment_date );
-            $service->setEndDate( $new_end_date );
-            $service->setStatus( null ); // Renewed service will be automatically calculated.
+            $service->set_start_date( $new_start_date );
+            $service->set_next_payment_date( $new_next_payment_date );
+            $service->set_end_date( $new_end_date );
+            $service->set_status( null ); // Renewed service should be automatically calculated.
             $updated = SmartWoo_Service_Database::update_service( $service );
             do_action( 'smartwoo_service_renewed', $service );
 
@@ -1469,24 +1512,28 @@ final class SmartWoo {
         $invoice         = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
         $invoice_is_paid = smartwoo_mark_invoice_as_paid( $invoice_id );
 
-        if ( $invoice_is_paid === false ) {
-            // Invoice is already paid or something went wrong.
-            return;
+        if ( ! $invoice_is_paid ) { 
+            return; // Invoice is already paid or something went wrong.
         }
 
         if ( $expired_service ) {
 
-            // Add Action Hook Before Updating Service Information.
+            /**
+             * Fires before an expired service is reactivated.
+             * 
+             * @param SmartWoo_Service $expired_service
+             */ 
             do_action( 'smartwoo_before_activate_expired_service', $expired_service );
 
-            $order_id        = $invoice->getOrderId();
-            $order           = wc_get_order( $order_id );
-            $order_paid_date = $order->get_date_paid()->format( 'Y-m-d H:i:s' );
+            $order           = $invoice->get_order();
+            $order_paid_date = $order->get_date_paid()->format( 'Y-m-d' );
 
-            // 4. Calculate Activation Dates based on Billing Cycle.
-            $billing_cycle = $expired_service->getBillingCycle();
+            $billing_cycle = $expired_service->get_billing_cycle();
 
             switch ( $billing_cycle ) {
+                case 'Weekly':
+                    $interval = '+1 week';
+                    break;
                 case 'Monthly':
                     $interval = '+1 month';
                     break;
@@ -1503,16 +1550,19 @@ final class SmartWoo {
                     break;
             }
 
-            // Calculate new dates and implement.
             $new_start_date        = $order_paid_date;
             $new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, strtotime( $new_start_date ) ) );
             $new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
-            $expired_service->setStartDate( $new_start_date );
-            $expired_service->setNextPaymentDate( $new_next_payment_date );
-            $expired_service->setEndDate( $new_end_date );
-            $expired_service->setStatus( null );
+            $expired_service->set_start_date( $new_start_date );
+            $expired_service->set_next_payment_date( $new_next_payment_date );
+            $expired_service->set_end_date( $new_end_date );
+            $expired_service->set_status( null );
             $updated = SmartWoo_Service_Database::update_service( $expired_service );
-            // Add Action Hook After Service Activation.
+            /**
+             * Fires after an expired service is renewed.
+             * 
+             * @param SmartWoo_Service $expired_service.
+             */
             do_action( 'smartwoo_expired_service_activated', $expired_service );
             return true;
         }
@@ -1523,11 +1573,24 @@ final class SmartWoo {
     /**
      * Perform action when a new service purchase is complete
      *
-     * @param string $invoice_id The invoice ID.
+     * @param WC_Order $order The order object.
      */
-    public static function new_service_order_paid( $invoice_id ) {
-        // Mark invoice as paid.
-        smartwoo_mark_invoice_as_paid( $invoice_id );
+    public static function new_service_order_paid( WC_Order $order ) {
+        $smartwoo_orders = SmartWoo_Order::extract_items( $order );
+
+        foreach( $smartwoo_orders as $sw_order ) {
+            $invoice_id = $sw_order->get_invoice_id();
+            smartwoo_mark_invoice_as_paid( $invoice_id );
+
+            /**
+             * This action fires when order is for a new service order.
+             * 
+             * @param string $invoice_id Invoice public ID.
+             * @param WC_Order $order WooCommerce order added @since 2.2.1
+             */
+            do_action( 'smartwoo_new_service_purchase_complete', $invoice_id, $order );
+        }
+
     }
 
     /**
