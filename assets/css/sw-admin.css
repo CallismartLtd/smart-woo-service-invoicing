@@ -641,3 +641,59 @@
 .sw-admin-invoice-item-table tbody {
     background-color: #ffffff;
 }
+
+.smartwoo-blank-state {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: space-evenly; */
+    /* gap: 30px; */
+    height: 100vh;
+}
+.smartwoo-invoice-svg::before {
+    position: absolute;
+    left: 40%;
+    top: 10px;
+    bottom: -20px;
+    content: "";
+    display: block;
+    width: 200px;
+    height: 200px;
+    background-image: url( '../images/invoice-sample.svg' );
+    opacity: 0.09;
+    fill-opacity: #f1f1f1;
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: solid #333333 .1px
+}
+.smartwoo-blank-state h1 {
+    font-size: 150px;
+    width: 100px;
+    text-align: center;
+    height: 100px;
+    color: #4d444480;
+    text-align: center;
+}
+
+.smartwoo-div-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px;
+    max-width:  100%;
+    width: 350px;
+    background-color: #ffffff;
+    border: .1px solid blue;
+    height: 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.smartwoo-div-button:hover {
+    background-color: #f1f1f1;
+}
