@@ -949,6 +949,13 @@ class SmartWoo_Invoice {
 	}
 
 	/**
+	 * Delete an invoice from the database.
+	 */
+	public function delete() {
+		return SmartWoo_Invoice_Database::delete_invoice( $this->get_invoice_id() );
+	}
+
+	/**
 	 * Set Meta Data on the object.
 	 * 
 	 * @param int|string $meta_name The name of the meta data.
