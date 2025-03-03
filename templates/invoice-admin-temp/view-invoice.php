@@ -21,7 +21,7 @@ smartwoo_set_document_title( 'Invoice Details');
             <button title="Print Invoice" id="smartwoo-print-invoice-btn" style="cursor: not-allowed;" disabled><span class="dashicons dashicons-printer"></span></button>
             <a href="<?php echo esc_url( $invoice->download_url( 'admin' ) ); ?>"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
             <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ); ?>
-            <span id="sw-delete-button" style="text-align:center;"></span>
+            <div id="swloader" style="background-color:#f1f1f100"></div>
             <button class="sw-icon-button-admin smartwoo-admin-invoice-actions" title="Invoice action links"><span class="dashicons dashicons-admin-links"></span></button>
         </div>
         <div class="smartwoo-admin-invoice-action-div">
