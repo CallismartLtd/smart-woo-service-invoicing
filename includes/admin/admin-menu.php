@@ -14,7 +14,6 @@ require_once SMARTWOO_PATH . 'includes/admin/admin-callback-functions.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/sw-orders/contr.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-new-service-processing.php';
-require_once SMARTWOO_PATH . 'includes/sw-invoice/sw-invoice-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/admin/sw-admin-settings.php';
 
@@ -60,7 +59,7 @@ function smartwoo_reg_admin_menu() {
 		'Service Products',
 		'manage_options',
 		'sw-products',
-		'smartwoo_products_page'
+		array( 'SmartWoo_Product_Controller', 'menu_controller' )
 	);
 
 	// Add submenu "Settings".
