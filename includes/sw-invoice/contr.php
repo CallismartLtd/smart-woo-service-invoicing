@@ -48,6 +48,8 @@ class SmartWoo_Invoice_Controller {
 			
 		add_action( 'wp_ajax_smartwoo_admin_create_invoice_from_form', array( __CLASS__, 'new_form_submit' ), 10 );
 		add_action( 'wp_ajax_smartwoo_admin_edit_invoice_from_form', array( __CLASS__, 'edit_form_submit' ), 10 );
+		add_filter( 'smartwoo_allowed_table_actions', array( __CLASS__, 'allowed_table_actions' ) );
+		add_action( 'smartwoo_invoice_table_actions', array( __CLASS__, 'ajax_table_callback' ), 10, 2 );
 	}
 
 	/**
@@ -79,11 +81,11 @@ class SmartWoo_Invoice_Controller {
 				break;
 	
 			case 'invoice-by-status':
-				echo wp_kses_post ( smartwoo_invoice_by_status_temp() );
+				self::invoices_by_status();
 				break;
 	
 			case 'view-invoice':
-				SmartWoo_Invoice_Admin_Templates::view_invoice();
+				self::view_invoice();
 				break;
 	
 			default:
@@ -95,23 +97,94 @@ class SmartWoo_Invoice_Controller {
 	/**
 	 * Invoice management dashboard.
 	 */
-	public static function dashboard(){
+	private static function dashboard(){
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tabs = array(
 			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
 			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 		);
 		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 20; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 25; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
+		$page_title 	= 'All Invoices';
 		$all_invoices 	= SmartWoo_Invoice_Database::get_all_invoices( $page, $limit );
 		$all_inv_count 	= SmartWoo_Invoice_Database::count_all();
 		$total			= ceil( $all_inv_count / $limit );
 		$paged 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$prev			= $paged - 1;
 		$next			= $paged + 1;
+		$status_counts	= array(
+			'paid'      => SmartWoo_Invoice_Database::count_this_status( 'paid' ),
+			'unpaid'    => SmartWoo_Invoice_Database::count_this_status( 'unpaid' ),
+			'cancelled' => SmartWoo_Invoice_Database::count_this_status( 'cancelled' ),
+			'due'       => SmartWoo_Invoice_Database::count_this_status( 'due' ),
+		);
 		
 		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
+	}
+
+	/**
+	 * View Invoices by status template
+	 */
+	private static function invoices_by_status() {
+		$payment_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( wp_unslash( $_GET['payment_status'] ) ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab			= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tabs			= array(
+			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
+			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
+		);
+		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 20; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid' ), true ) ) {
+			echo wp_kses_post( smartwoo_error_notice( 'Status parameter should not be manipulated! <a href="' . esc_url( admin_url( 'admin.php?page=sw-invoices' ) ) . '">Back</>' ) );
+			return;
+		}
+
+		$page_title = ucfirst( $payment_status ) . ' Invoices';
+		smartwoo_set_document_title( $page_title );
+
+		$all_invoices	= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $payment_status );
+		$all_inv_count 	= absint( SmartWoo_Invoice_Database::count_this_status( $payment_status ) );
+		$total			= ceil( $all_inv_count / $limit );
+		$paged 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$prev			= $paged - 1;
+		$next			= $paged + 1;
+		
+		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
+	}
+
+	/**
+	 * View Invoice Template
+	 */
+	private static function view_invoice() {
+		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+		$args       = isset( $_GET['path'] ) ? sanitize_key( $_GET['path'] ) : 'details'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$query_var  =  'tab=view-invoice&invoice_id=' . $invoice_id .'&path';
+		$tabs		= array(
+			''					=> 'Dashboard',
+			'details' 	      	=> __( 'Invoice', 'smart-woo-service-invoicing' ),
+			'related-service' 	=> __('Related Service', 'smart-woo-service-invoicing' ),
+			'log'             	=> __( 'Logs', 'smart-woo-service-invoicing' ),
+		);
+
+		$service = SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
+
+		switch ( $args ){
+			case 'related-service':
+				$page_file = SMARTWOO_PATH .'templates/invoice-admin-temp/view-related-services.php';
+				break;
+	
+			case 'log':
+				echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) );
+				$page_file = has_filter( 'smartwoo_invoice_log_template' ) ? apply_filters( 'smartwoo_invoice_log_template', '', $invoice ) :smartwoo_pro_feature_template( 'invoice logs' );
+				break;
+			default:
+				$page_file = SMARTWOO_PATH . 'templates/invoice-admin-temp/view-invoice.php';
+		}
+
+		file_exists( $page_file) ? include_once $page_file : '';
 	}
 
 	/**
@@ -453,6 +526,105 @@ class SmartWoo_Invoice_Controller {
 		return ( ! empty( $errors ) ) ? $errors : false;
 	}
 
+	/**
+	 * Add allowed table actions to the sw-table.
+	 * 
+	 * @param array $actions Allowed actions from the filter.
+	 * @return array $actions
+	 */
+	public static function allowed_table_actions( $actions ) {
+		$actions[] = 'paid';
+		$actions[] = 'unpaid';
+		$actions[] = 'cancelled';
+		$actions[] = 'due';
+		$actions[] = 'delete';
+
+		return $actions;
+	}
+
+    /**
+     * Ajax callback for order table actions
+     * 
+     * @param string $selected_action The selected action.
+     * @param mixed $data The data to be processed.
+     */
+    public static function ajax_table_callback( $selected_action, $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = (array) $data;
+		}
+
+		$response = array( 'message' => 'Invalid actions' );
+
+		foreach ( $data as $invoice_id ) {
+			$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+
+			if ( ! $invoice ) {
+				continue;
+			}
+			switch( $selected_action ) {
+
+				case 'paid':
+					$paid = false;
+					if ( 'paid' !== $invoice->get_status() ) {
+						$order = $invoice->get_order();
+						if ( $order ) {
+							$transction_id = $order->get_transaction_id() ? $order->get_transaction_id() : 'smartwoo|' . $order->get_id() . '|' . time();
+							$order->payment_complete( $transction_id ); // Actions fired by this method should handle invoice statucs update.
+							$paid = true;
+						} else {
+							$invoice->set_status( 'paid' );
+							$paid = true;
+						}
+
+						// Manually update invoice if these actions did not updated the invoice status.
+						if ( $paid && 'paid' !== $invoice->get_status() ) {
+							$invoice->set_status( 'paid' );
+							$invoice->set_date_paid( 'now' );
+							$invoice->save();
+
+						}
+					}
+
+					if ( $paid ) {
+						$response['message'] = 'The selected invoice' . ( count( $data ) > 1 ? 's' : '' ) . ' has been marked as paid';
+					}
+					break;
+				case 'unpaid':
+					if ( 'unpaid' !== $invoice->get_status() ) {
+						$invoice->set_status( 'unpaid' );
+						$invoice->save();
+					}
+					$response['message'] = 'The selected invoice' . ( count( $data ) > 1 ? 's' : '' ) . ' has been marked as unpaid';
+					break;
+				case 'due':
+					if ( 'due' !== $invoice->get_status() ) {
+						$invoice->set_status( 'due' );
+						$invoice->save();
+					}
+					$response['message'] = 'The selected invoice' . ( count( $data ) > 1 ? 's' : '' ) . ' has been marked as due';
+					break;
+				case 'cancelled': 
+					if ( 'cancelled' !== $invoice->get_status() ) {
+						$invoice->set_status( 'cancelled' );
+						$invoice->save();
+					}
+					$response['message'] = 'The selected invoice' . ( count( $data ) > 1 ? 's' : '' ) . ' has been cancelled';
+					break;
+				case 'delete':
+					if ( $invoice->delete() ) {
+						$response['message'] = 'The selected invoice' . ( count( $data ) > 1 ? 's' : '' ) . ' has been deleted';
+					} else {
+						$response['message'] = 'The selected invoice' . ( count( $data ) > 1 ? 's' : '' ) . ' cannot be deleted.';
+					}
+					break;
+
+
+			}
+		}
+
+		wp_send_json_success( $response );
+
+	}
 
 }
 
