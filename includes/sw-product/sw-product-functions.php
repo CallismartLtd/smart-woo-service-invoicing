@@ -36,7 +36,7 @@ function smartwoo_admin_product_url( $action = '', $product_id = 0 ) {
 	if ( 'add-new' === $action ) {
 		$page = $page. '&action=' . $action;
 	} elseif ( 'edit' === $action && ! empty( $product_id ) ) {
-		$page = $page. '&action=' . $action . '&product_id=' . $product_id;
+		$page = $page. '&tab=' . $action . '&product_id=' . $product_id;
 	}
 
 	return $page;
