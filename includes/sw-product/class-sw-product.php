@@ -1,6 +1,5 @@
 <?php
 /**
- * File name class-sw-product.php.
  * Class file for Smart Woo Product.
  * 
  * @since 1.0.0
@@ -204,23 +203,40 @@ class SmartWoo_Product extends WC_Product {
 	 *
 	 * @return object All product matching the type property of this class.
 	 */
-	public static function get_all_products() {
+	public static function get_all( $page = 1, $limit = 25 ) {
 
-		$query    			= new WC_Product_Query( array( 'type' => 'sw_product', 'status' => 'publish' ) );
-		$products 			= $query->get_products();
-		$smart_woo_products = array();
+		$query = new WC_Product_Query( 
+			array( 
+				'type'	=> 'sw_product',
+				'limit' => absint( $limit ),
+				'page' 	=>  absint( $page ),
+			)
+		);
 
-		foreach ( $products as $product ) {
-			$smartwoo_products 	= new self( $product->get_id() );
-			$smartwoo_products->set_sign_up_fee( $product->get_meta( '_smartwoo_sign_up_fee' ) );
-			$smartwoo_products->set_billing_cycle( $product->get_meta( '_smartwoo_billing_cycle' ) );
-			$smartwoo_products->set_grace_period_number( $product->get_meta( '_smartwoo_grace_period_number' ) );
-			$smartwoo_products->set_grace_period_unit( $product->get_meta( '_smartwoo_grace_period_unit' ) );
-			
-			$smart_woo_products[] = $smartwoo_products;
+		return $query->get_products();
+	}
+
+	/**
+	 * Count all products of this class.
+	 * 
+	 * @param $visibility The visibility of the product.
+	 * @return int The total number of sw_products in the database.
+	 */
+	public static function count_all( $visibility = '' ) {
+		$allowed_visibilities = array( 'publish', 'private', 'draft', 'pending', 'trash' );
+		$args = array(
+			'type'		=> 'sw_product',
+			'limit'		=> -1,
+			'return' 	=> 'ids',
+		);
+
+		if ( in_array( $visibility, $allowed_visibilities, true ) ) {
+			$args['status'] = $visibility;
 		}
 
-		return $smart_woo_products;
+		$query = new WC_Product_Query( $args );
+
+		return count( $query->get_products() );
 	}
 
 	/**
@@ -424,7 +440,7 @@ class SmartWoo_Product extends WC_Product {
 	
 			if ( $product && $product->is_type( 'sw_product' ) ) {
 	
-				$link = esc_url( smartwoo_admin_product_url( $action = 'edit', $product->get_id() ) );
+				$link = smartwoo_admin_product_url( $action = 'edit', $product->get_id() );
 			}
 		}
 	
