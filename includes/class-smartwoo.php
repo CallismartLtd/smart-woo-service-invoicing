@@ -1363,6 +1363,7 @@ final class SmartWoo {
      * @param int $order_id    The paid invoice order.
      */
     public static function paid_invoice_order_manager( $order_id ) {
+       
         $order                  = wc_get_order( $order_id );
         $invoice_id             = $order->get_meta( '_sw_invoice_id' );
         $is_new_service_order   = $order->get_meta( '_smartwoo_is_service_order' );
