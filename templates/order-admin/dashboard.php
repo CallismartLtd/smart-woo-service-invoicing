@@ -10,7 +10,12 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <h1 class="wp-heading-inline">Service Orders</h1>
 <?php if ( empty( $orders ) ): ?>
-    <?php echo wp_kses_post( smartwoo_notice( 'All Service orders will appear here when a customer purchases a service product.' ) ); ?>
+    <div class="smartwoo-blank-state">
+        <h1 class="dashicons dashicons-cart"></h1>
+        <h2>When you receive a new service order, it will appear here.</h2>
+        <a href="<?php echo esc_url( 'https://callismart.com.ng/smart-woo-usage-guide/#managing-orders' ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing orders</a>
+    </div>
+
 <?php else: ?>
     <?php smartwoo_table_limit_field( $limit ); ?>
     <div class="sw-table-wrapper">
