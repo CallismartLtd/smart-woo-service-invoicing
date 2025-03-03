@@ -13,8 +13,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * Display a table of  products.
  */
 function smartwoo_product_table() {
-
-	$products_data 	= SmartWoo_Product::get_all_products();
+	
 	$page_html 		= '<div class="wrap"><h2>Service Products</h2>';
 
 	// Check if there are any products
