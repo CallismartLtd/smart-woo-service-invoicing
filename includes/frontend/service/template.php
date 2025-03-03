@@ -399,7 +399,7 @@ function smartwoo_active_service_count_shortcode() {
 function smartwoo_buy_new_temp() {
 	smartwoo_set_document_title( apply_filters( 'smartwoo_buy_new_product_page_title', 'Buy New' ) );
 	// Get Smart Woo Products.
-	$smartwoo_products = SmartWoo_Product::get_all_products();
+	$smartwoo_products = SmartWoo_Product::get_all();
 	$output		= '<div class="smartwoo-page">';
 	$output	   .= smartwoo_get_navbar( 'Buy New Service', get_permalink( wc_get_page_id( 'shop' ) ) );
 
