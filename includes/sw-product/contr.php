@@ -1,13 +1,92 @@
 <?php
 /**
- * File name    :   contr.php
+ * Smart Woo Product admin page controller class file.
  *
- * @author      :   Callistus
- * Description  :   Controller file for SmartWoo_Product
+ * @author Callistus
+ * @package SmartWoo\admin\templates
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
- 
+
+/**
+ * SmartWoo Product Controller class.
+ */
+class SmartWoo_Product_Controller{
+    /**
+     * The submenu page controller.
+     */
+    public static function menu_controller() {
+        $tab    = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    
+        // Handle different tabs.
+        switch ( $tab ) {
+            case 'add-new':
+                include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-add-product.php';
+                break;
+            case 'edit':
+                $product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    
+                if ( empty( $product_id ) ) {
+                    echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
+                    return;
+                }
+                    
+                $product_data = wc_get_product( $product_id );
+    
+                if ( empty( $product_data ) ) {
+                    echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) );
+                    return;
+                }
+    
+                if ( ! $product_data instanceof SmartWoo_Product ) {
+                    echo wp_kses_post( smartwoo_error_notice( 'This is not a service product' ) );
+                    return;
+                }
+    
+                $is_downloadable = $product_data->is_downloadable();
+                include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-edit-product.php';
+                break;
+            default:
+                self::dashboard();
+                break;
+        }
+    }
+
+    /**
+     * The Product admin dashboard.
+     */
+    private static function dashboard() {
+        $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $paged          = isset( $_GET[ 'paged' ] ) ? absint( $_GET[ 'paged' ] ) : 1;
+        $limit          = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 25;
+        $all_prod_count = SmartWoo_Product::count_all();
+        $total			= ceil( $all_prod_count / $limit );
+        $next			= $paged + 1;
+        $prev			= $paged - 1;
+
+        $products    	= SmartWoo_Product::get_all( $paged, $limit );
+        $tabs           = array(
+            ''        => 'Products',
+            'add-new' => 'Add New',
+    
+        );
+
+        $status_counts  = array(
+            'publish'   => SmartWoo_Product::count_all( 'publish' ),
+            'private'   => SmartWoo_Product::count_all( 'private' ),
+            'draft'     => SmartWoo_Product::count_all( 'draft' ),
+            'trash'     => SmartWoo_Product::count_all( 'trash' ),
+            'pending'   => SmartWoo_Product::count_all( 'pending' ),
+        );
+    
+        include_once SMARTWOO_PATH . 'templates/product-admin-temp/dashboard.php';
+    }
+}
+
+
+
+
+
 /**
  * Controls the new service product creation form submission
  */
@@ -88,7 +167,7 @@ function smartwoo_process_new_product() {
 
 		// Show success message with product links
 		$product_link = get_permalink( $result->get_id() );
-		$edit_link    = admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $result->get_id() );
+		$edit_link    = admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $result->get_id() );
 		$success = '<div class="notice notice-success is-dismissible"><p>New product created successfully! View your product <a href="' . esc_url( $product_link ) . '" target="_blank">here</a>.</p>
 		<p>Edit the product <a href="' . esc_url( $edit_link ) . '">here</a>.</p></div>';
 		smartwoo_set_form_success( $success );
@@ -190,7 +269,7 @@ function smartwoo_process_product_edit() {
 
 		// Show success message with product links
 		$product_link = get_permalink( $result->get_id() );
-		$edit_link    = admin_url( 'admin.php?page=sw-products&action=edit&product_id=' . $result->get_id() );
+		$edit_link    = admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $result->get_id() );
 		$success = '<div class="notice notice-success is-dismissible"><p>Updated! View your product <a href="' . esc_url( $product_link ) . '" target="_blank">here</a>.</p></div>';
 		smartwoo_set_form_success( $success );
         wp_redirect( smartwoo_admin_product_url( 'edit', $product_id ) );
