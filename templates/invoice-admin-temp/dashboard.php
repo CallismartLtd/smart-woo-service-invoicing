@@ -9,60 +9,67 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice', 'sw-invoices', $tab, 'tab' ) ); ?>
-<div class="wrap">
-    <h2>Invoice Dashboard</h2>
-    <?php echo wp_kses_post( smartwoo_count_all_invoices_by_status() ); ?>
-    <?php if ( empty( $all_invoices ) ) : ?>
-        <?php echo wp_kses_post( smartwoo_notice( 'All invoices will appear here' ) ); ?>
-    <?php else: ?>
-        <?php smartwoo_table_limit_field( $limit ); ?>
-        <div class="sw-table-wrapper">
-            <table class="sw-table" width="95%">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" name="" id="swTableCheckMaster"></th>
-                        <th><?php echo esc_html__( 'Invoice ID', 'smart-woo-service-invoicing' ); ?> </th>
-                        <th><?php echo esc_html__( 'Invoice Type', 'smart-woo-service-invoicing' ); ?> </th>
-                        <th><?php echo esc_html__( 'Status', 'smart-woo-service-invoicing' ); ?> </th>
-                        <th><?php echo esc_html__( 'Date Created', 'smart-woo-service-invoicing' ); ?> </th>
-                        <th><?php echo esc_html__( 'Actions', 'smart-woo-service-invoicing' ); ?> </th>
-                    </tr>
-                </thead>
-
+<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, $page_title, 'sw-invoices', $tab, 'tab' ) ); ?>
+<?php if ( empty( $all_invoices ) ) : ?>
+    <div class="smartwoo-blank-state">
+        <h1 class="smartwoo-invoice-svg"></h1>
+        <h2>All invoices will appear here.</h2>
+        <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) ); ?>" class="smartwoo-div-button">Create Invoice</a>
+    </div>
+<?php else: ?>
+    <div class="invoice-status-counts">
+        <?php foreach ( $status_counts as $status => $count ) : ?>
+            <div class="sw-admin-status-item">
+                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status ) ); ?>"><?php echo esc_html( ucfirst( $status ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php smartwoo_table_limit_field( $limit ); ?>
+    <div class="sw-table-wrapper">
+        <table class="sw-table" width="95%">
+            <thead>
                 <tr>
-                    <tbody>
-                        <?php foreach ( $all_invoices as $invoice ) : ?>
-                            <tr>
-                                <td><input type="checkbox" data-value="<?php echo esc_html( $invoice->get_invoice_id() );?>" class="sw-table-body-checkbox"></td>
-                                <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
-                                <td><?php echo esc_html( $invoice->get_type() ); ?></td>
-                                <td><?php echo esc_html( $invoice->get_status() ); ?></td>
-                                <td><?php echo esc_html( $invoice->get_date_created() ); ?></td>
-                                <td>
-                                    <a href="<?php echo esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ); ?>"><button title="Preview"><span class="dashicons dashicons-visibility"></span></button></a>
-                                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>"><button title="Edit Invoice"><span class="dashicons dashicons-edit"></span></button></a>
-                                    <a href="<?php echo esc_url( $invoice->download_url() ); ?>"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
-                                    <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ) ?>
-                                    <span id="sw-delete-button" style="text-align:center;"></span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                    <th><input type="checkbox" name="" id="swTableCheckMaster"></th>
+                    <th><?php echo esc_html__( 'Invoice ID', 'smart-woo-service-invoicing' ); ?> </th>
+                    <th><?php echo esc_html__( 'Invoice Type', 'smart-woo-service-invoicing' ); ?> </th>
+                    <th><?php echo esc_html__( 'Status', 'smart-woo-service-invoicing' ); ?> </th>
+                    <th><?php echo esc_html__( 'Date Created', 'smart-woo-service-invoicing' ); ?> </th>
+                    <th><?php echo esc_html__( 'Actions', 'smart-woo-service-invoicing' ); ?> </th>
                 </tr>
-            </table>
-        </div>
-        <div id="swloader" style="background-color:#f1f1f100"></div>
-        <div class="sw-pagination-buttons">
-            <p><?php echo esc_html( count( $all_invoices ) . ' item' . ( ( count( $all_invoices ) > 1 ) ? 's' : '' ) ); ?></p>
-            <?php if ( $paged > 1 ) : ?>
-                <a href="<?php echo esc_url( add_query_arg( 'paged', $prev ) ); ?>" class="sw-pagination-button"><button><span class="dashicons dashicons-arrow-left-alt2"></span></button></a>
-            <?php endif; ?>
-            <p><?php echo absint( $paged ) . ' of ' . absint( $total ) ?></p>
-            <?php if ( $paged < $total ) : ?>
-                <a href="<?php echo esc_url( add_query_arg( 'paged', $next ) ); ?>" class="sw-pagination-button"><button><span class="dashicons dashicons-arrow-right-alt2"></span></button></a>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
+            </thead>
+
+            <tr>
+                <tbody>
+                    <?php foreach ( $all_invoices as $invoice ) : ?>
+                        <tr>
+                            <td><input type="checkbox" data-value="<?php echo esc_html( $invoice->get_invoice_id() );?>" class="sw-table-body-checkbox"></td>
+                            <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
+                            <td><?php echo esc_html( $invoice->get_type() ); ?></td>
+                            <td><?php echo esc_html( $invoice->get_status() ); ?></td>
+                            <td><?php echo esc_html( $invoice->get_date_created() ); ?></td>
+                            <td>
+                                <a href="<?php echo esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ); ?>"><button title="Preview"><span class="dashicons dashicons-visibility"></span></button></a>
+                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>"><button title="Edit Invoice"><span class="dashicons dashicons-edit"></span></button></a>
+                                <a href="<?php echo esc_url( $invoice->download_url() ); ?>"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
+                                <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ) ?>
+                                <span id="sw-delete-button" style="text-align:center;"></span>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </tr>
+        </table>
+    </div>
+    <div id="swloader" style="background-color:#f1f1f100"></div>
+    <div class="sw-pagination-buttons">
+        <p><?php echo esc_html( count( $all_invoices ) . ' item' . ( ( count( $all_invoices ) > 1 ) ? 's' : '' ) ); ?></p>
+        <?php if ( $paged > 1 ) : ?>
+            <a href="<?php echo esc_url( add_query_arg( 'paged', $prev ) ); ?>" class="sw-pagination-button"><button><span class="dashicons dashicons-arrow-left-alt2"></span></button></a>
+        <?php endif; ?>
+        <p><?php echo absint( $paged ) . ' of ' . absint( $total ) ?></p>
+        <?php if ( $paged < $total ) : ?>
+            <a href="<?php echo esc_url( add_query_arg( 'paged', $next ) ); ?>" class="sw-pagination-button"><button><span class="dashicons dashicons-arrow-right-alt2"></span></button></a>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
     
-</div>
