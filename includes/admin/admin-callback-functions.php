@@ -40,56 +40,6 @@ function smartwoo_service_admin_page() {
 }
 
 /**
- * Callback function for "Product" submenu page
- */
-function smartwoo_products_page() {
-
-	$action     = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	$tabs = array(
-		''        => 'Products',
-		'add-new' => 'Add New',
-
-	);
-
-	echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $action, 'action' ) );
-
-	// Handle different actions.
-	switch ( $action ) {
-		case 'add-new':
-			include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-add-product.php';
-			break;
-		case 'edit':
-
-			$product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				
-			if ( empty( $product_id ) ) {
-				echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
-				return;
-			}
-				
-			$product_data = wc_get_product( $product_id );
-
-			if ( empty( $product_data ) ) {
-				echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) );
-				return;
-			}
-
-			if ( ! $product_data instanceof SmartWoo_Product ) {
-				echo wp_kses_post( smartwoo_error_notice( 'This is not a service product' ) );
-				return;
-			}
-
-			$is_downloadable = $product_data->is_downloadable();
-			include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-edit-product.php';
-			break;
-		default:
-			echo wp_kses_post( smartwoo_product_table() );
-			break;
-	}
-}
-
-/**
  * Callback controller for Settings Page
  */
 function smartwoo_options_page() {
