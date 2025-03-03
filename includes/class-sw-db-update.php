@@ -32,6 +32,9 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
 
         '2.2.0' => array(
             'smartwoo_220_mail_option_update'
+        ),
+        '2.3.0' => array(
+            'smartwoo_230_alter_product_id_column'
         )
     );
 
