@@ -50,7 +50,7 @@ function smartwoo_db_schema() {
 		'billing_address text DEFAULT NULL',
 		'invoice_id varchar(255) NOT NULL',
 		'invoice_type varchar(255) DEFAULT NULL',
-		'product_id mediumint(9) DEFAULT NULL',
+		'product_id TEXT DEFAULT NULL',
 		'order_id mediumint(9) DEFAULT NULL',
 		'amount decimal(10, 2) NOT NULL',
 		'fee decimal(10, 2) DEFAULT NULL',
@@ -170,9 +170,9 @@ function smartwoo_db_update_201_is_external() {
 	$table_name = SMARTWOO_ASSETS_TABLE;
 	$new_col 	= 'is_external';
 	$constrnts	= 'varchar(20) DEFAULT NULL';
-	$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
+	$columns	= $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$column_names = array();
+
 	foreach ( $columns as $column ) {
 		$column_names[] = $column['Field'];
 	}
@@ -219,4 +219,37 @@ function smartwoo_220_mail_option_update() {
 	$options = array(
 		''
 	);
+}
+
+/**
+ * Modify product_id column to TEXT if necessary.
+ * 
+ * @since 2.3.0
+ */
+function smartwoo_230_alter_product_id_column() {
+	global $wpdb;
+	$table_name  = SMARTWOO_INVOICE_TABLE;
+	$column_name = 'product_id';
+	$column_type = 'TEXT DEFAULT NULL';
+
+	// Check if the column exists and its current type.
+	$current_column_type = $wpdb->get_var( 
+		$wpdb->prepare( 
+			"SELECT DATA_TYPE 
+			 FROM INFORMATION_SCHEMA.COLUMNS 
+			 WHERE TABLE_NAME = %s 
+			 AND COLUMN_NAME = %s",
+			$table_name,
+			$column_name
+		) 
+	);
+
+	// Only alter the column if it's not already TEXT.
+	if ( $current_column_type && 'text' !== strtolower( $current_column_type ) ) {
+		$wpdb->query( "ALTER TABLE {$table_name} MODIFY COLUMN {$column_name} {$column_type};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! empty( $wpdb->last_error ) ) {
+			error_log( "Database error modifying {$column_name}: " . $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+	}
 }
