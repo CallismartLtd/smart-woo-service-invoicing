@@ -527,7 +527,7 @@ function fetchDashboardData(index, queryVars = {}) {
 function smartwooDeleteInvoice(invoiceId) {
     let isConfirmed = confirm('Do you realy want to delete this invoice? This action cannot be reversed!');
 	if (isConfirmed) {
-		spinner = smartWooAddSpinner( 'sw-delete-button' );
+		spinner = smartWooAddSpinner( 'swloader', true );
 
 		jQuery.ajax(
 			{
@@ -815,7 +815,7 @@ async function smartwooPromptGuestInvoiceData(heading) {
 function smartwooPostswTableBulkAction( actions = {hook_name: '', value: ''}, values = [] ) {
     console.log( values );
     if ( 'delete' === actions.value ) {
-        let confirmed = confirm( 'You are about to delete the selected items! click ok to confirm.' );
+        let confirmed = confirm( `You are about to delete the selected item${ ( values.length > 1 ? 's' : '' ) }! click ok to confirm.` );
         if ( ! confirmed ) {
             return;
         }
