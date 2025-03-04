@@ -6,29 +6,28 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $tab, 'tab' ) ); ?>
-
-<?php if ( empty( $products ) ) : ?>
-    <div class="smartwoo-blank-state">
-        <h1 class="dashicons dashicons-cart"></h1>
-        <h2>When you create a new service product, it will appear here.</h2>
-        <a href="<?php echo esc_url( 'https://callismart.com.ng/smart-woo-usage-guide/#managing-products' ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing products</a>
-    </div>
-<?php else : ?>
     <div class="invoice-status-counts">
-        <?php foreach ( $status_counts as $status => $count ) : ?>
-            <div class="sw-admin-status-item">
-                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status ) ); ?>"><?php echo esc_html( ucfirst( $status ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
+        <?php foreach ( $status_counts as $name => $count ) : ?>
+            <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
+                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
             </div>
         <?php endforeach; ?>
     </div>
+<?php if ( empty( $products ) ) : ?>
+    <div class="smartwoo-blank-state">
+        <h1 class="smartwoo-service-icon"></h1>
+        <h2><?php echo esc_html( $not_found_text ) ?></h2>
+        <a href="<?php echo esc_url( 'https://callismart.com.ng/smart-woo-usage-guide/#managing-products' ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing products</a>
+    </div>
+<?php else : ?>
     <?php smartwoo_table_limit_field( $limit ); ?>
     <div class="sw-table-wrapper">
         <table class="sw-table">
             <thead>
                 <tr>
                     <th><input type="checkbox" name="" id="swTableCheckMaster"></th>
-                    <th>Product</th>
-                    <th>Product Price</th>
+                    <th>Name</th>
+                    <th>Price</th>
                     <th>Sign Up Fee</th>
                     <th>Billing Circle</th>
                     <th>Action</th>
@@ -38,7 +37,12 @@ defined( 'ABSPATH' ) || exit;
                 <?php foreach ( $products as $product ) : ?>
                     <tr>
                         <td><input type="checkbox" data-value="<?php echo absint( $product->get_id() );?>" class="sw-table-body-checkbox"></td>
-                        <td><?php echo esc_html( $product->get_name() ); ?></td>
+                        <td>
+                            <div class="smartwoo-product-table-name">
+                                <p><?php echo esc_html( $product->get_name() ); ?></p>
+                                <small>ID: <?php echo esc_html( $product->get_id() ); ?></small>
+                            </div>
+                        </td>
                         <td><?php echo smartwoo_price( $product->get_price() ); ?></td>
                         <td><?php echo smartwoo_price( $product->get_sign_up_fee() ); ?></td>
                         <td><?php echo esc_html( $product->get_billing_cycle() ); ?></td>
@@ -46,7 +50,6 @@ defined( 'ABSPATH' ) || exit;
                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $product->get_id() ) ); ?>"><button title="Edit Product"><span class="dashicons dashicons-edit"></span></button></a>
                             <a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>"><button title="Preview"><span class="dashicons dashicons-visibility"></span></button></a>
                             <button class="sw-delete-product" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"><span class="dashicons dashicons-trash"></span></button>
-                            <span id="sw-delete-button"></span>
                         </td>
                     </tr>
                 <?php endforeach; ?>
