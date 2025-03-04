@@ -48,7 +48,7 @@ class SmartWoo_Invoice_Controller {
 			
 		add_action( 'wp_ajax_smartwoo_admin_create_invoice_from_form', array( __CLASS__, 'new_form_submit' ), 10 );
 		add_action( 'wp_ajax_smartwoo_admin_edit_invoice_from_form', array( __CLASS__, 'edit_form_submit' ), 10 );
-		add_filter( 'smartwoo_allowed_table_actions', array( __CLASS__, 'allowed_table_actions' ) );
+		add_filter( 'smartwoo_allowed_table_actions', array( __CLASS__, 'register_table_actions' ) );
 		add_action( 'smartwoo_invoice_table_actions', array( __CLASS__, 'ajax_table_callback' ), 10, 2 );
 	}
 
@@ -80,7 +80,7 @@ class SmartWoo_Invoice_Controller {
 				SmartWoo_Invoice_Controller::edit_form();
 				break;
 	
-			case 'invoice-by-status':
+			case 'sort-by':
 				self::invoices_by_status();
 				break;
 	
@@ -119,6 +119,8 @@ class SmartWoo_Invoice_Controller {
 			'cancelled' => SmartWoo_Invoice_Database::count_this_status( 'cancelled' ),
 			'due'       => SmartWoo_Invoice_Database::count_this_status( 'due' ),
 		);
+
+		$status = ''; // For template compatibility.
 		
 		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
 	}
@@ -127,30 +129,37 @@ class SmartWoo_Invoice_Controller {
 	 * View Invoices by status template
 	 */
 	private static function invoices_by_status() {
-		$payment_status = isset( $_GET['payment_status'] ) ? sanitize_text_field( wp_unslash( $_GET['payment_status'] ) ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab			= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tabs			= array(
+		$status	= isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab	= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tabs	= array(
 			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
 			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 		);
 		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 20; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! in_array( $payment_status, array( 'due', 'cancelled', 'paid', 'unpaid' ), true ) ) {
+		if ( ! in_array( $status, array( 'due', 'cancelled', 'paid', 'unpaid' ), true ) ) {
 			echo wp_kses_post( smartwoo_error_notice( 'Status parameter should not be manipulated! <a href="' . esc_url( admin_url( 'admin.php?page=sw-invoices' ) ) . '">Back</>' ) );
 			return;
 		}
 
-		$page_title = ucfirst( $payment_status ) . ' Invoices';
+		$page_title = ucfirst( $status ) . ' Invoices';
 		smartwoo_set_document_title( $page_title );
 
-		$all_invoices	= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $payment_status );
-		$all_inv_count 	= absint( SmartWoo_Invoice_Database::count_this_status( $payment_status ) );
+		$all_invoices	= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status );
+		$all_inv_count 	= absint( SmartWoo_Invoice_Database::count_this_status( $status ) );
 		$total			= ceil( $all_inv_count / $limit );
 		$paged 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$prev			= $paged - 1;
 		$next			= $paged + 1;
 		
+		$status_counts	= array(
+			'paid'      => SmartWoo_Invoice_Database::count_this_status( 'paid' ),
+			'unpaid'    => SmartWoo_Invoice_Database::count_this_status( 'unpaid' ),
+			'cancelled' => SmartWoo_Invoice_Database::count_this_status( 'cancelled' ),
+			'due'       => SmartWoo_Invoice_Database::count_this_status( 'due' ),
+		);
+
 		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
 	}
 
@@ -532,7 +541,7 @@ class SmartWoo_Invoice_Controller {
 	 * @param array $actions Allowed actions from the filter.
 	 * @return array $actions
 	 */
-	public static function allowed_table_actions( $actions ) {
+	public static function register_table_actions( $actions ) {
 		$actions[] = 'paid';
 		$actions[] = 'unpaid';
 		$actions[] = 'cancelled';
