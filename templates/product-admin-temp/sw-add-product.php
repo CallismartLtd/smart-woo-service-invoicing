@@ -95,7 +95,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <option value="" selected>Select Billing Cycle</option>
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
-                <option value="Six Monthly">Six Monthly</option>
+                <option value="Six Monthly">Semiannually</option>
                 <option value="Yearly">Yearly</option>
             </select>
         </div>
