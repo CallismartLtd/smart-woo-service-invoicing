@@ -10,6 +10,13 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, $page_title, 'sw-invoices', $tab, 'tab' ) ); ?>
+    <div class="invoice-status-counts">
+        <?php foreach ( $status_counts as $name => $count ) : ?>
+            <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
+                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
+            </div>
+        <?php endforeach; ?>
+    </div>
 <?php if ( empty( $all_invoices ) ) : ?>
     <div class="smartwoo-blank-state">
         <h1 class="smartwoo-invoice-svg"></h1>
@@ -17,13 +24,6 @@ defined( 'ABSPATH' ) || exit;
         <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ) ); ?>" class="smartwoo-div-button">Create Invoice</a>
     </div>
 <?php else: ?>
-    <div class="invoice-status-counts">
-        <?php foreach ( $status_counts as $status => $count ) : ?>
-            <div class="sw-admin-status-item">
-                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=invoice-by-status&payment_status=' . $status ) ); ?>"><?php echo esc_html( ucfirst( $status ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
-            </div>
-        <?php endforeach; ?>
-    </div>
     <?php smartwoo_table_limit_field( $limit ); ?>
     <div class="sw-table-wrapper">
         <table class="sw-table" width="95%">
