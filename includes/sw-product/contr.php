@@ -24,6 +24,8 @@ class SmartWoo_Product_Controller{
                 include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-add-product.php';
                 break;
             case 'edit':
+                self::edit_product();
+                break;
                 $product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                     
                 if ( empty( $product_id ) ) {
@@ -46,6 +48,9 @@ class SmartWoo_Product_Controller{
                 $is_downloadable = $product_data->is_downloadable();
                 include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-edit-product.php';
                 break;
+            case 'sort-by':
+                self::sort_by();
+                break;
             default:
                 self::dashboard();
                 break;
@@ -64,7 +69,7 @@ class SmartWoo_Product_Controller{
         $next			= $paged + 1;
         $prev			= $paged - 1;
 
-        $products    	= SmartWoo_Product::get_all( $paged, $limit );
+        $products    	= SmartWoo_Product::get_all( array( 'page' => $paged, 'limit' => $limit ) );
         $tabs           = array(
             ''        => 'Products',
             'add-new' => 'Add New',
@@ -75,15 +80,49 @@ class SmartWoo_Product_Controller{
             'publish'   => SmartWoo_Product::count_all( 'publish' ),
             'private'   => SmartWoo_Product::count_all( 'private' ),
             'draft'     => SmartWoo_Product::count_all( 'draft' ),
-            'trash'     => SmartWoo_Product::count_all( 'trash' ),
             'pending'   => SmartWoo_Product::count_all( 'pending' ),
+            'trash'     => SmartWoo_Product::count_all( 'trash' )
         );
+
+        $status = ''; // For compatibility with the sort_by method.
+        $not_found_text = __( 'When you create a new service product, it will appear here.', 'smart-woo-service-invoicing' );
+    
+        include_once SMARTWOO_PATH . 'templates/product-admin-temp/dashboard.php';
+    }
+
+    /**
+     * Sort products by status/visibility.
+     */
+    private static function sort_by() {
+        $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $status         = isset( $_GET['status'] ) ? sanitize_key( $_GET['status'] ) : 'publish';
+        $paged          = isset( $_GET[ 'paged' ] ) ? absint( $_GET[ 'paged' ] ) : 1;
+        $limit          = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 25;
+        $all_prod_count = SmartWoo_Product::count_all( $status );
+        $total			= ceil( $all_prod_count / $limit );
+        $next			= $paged + 1;
+        $prev			= $paged - 1;
+
+        $products    	= SmartWoo_Product::get_all( array( 'page' => $paged, 'limit' => $limit, 'status' => $status ) );
+        $tabs           = array(
+            ''        => 'Products',
+            'add-new' => 'Add New',
+    
+        );
+
+        $status_counts  = array(
+            'publish'   => SmartWoo_Product::count_all( 'publish' ),
+            'private'   => SmartWoo_Product::count_all( 'private' ),
+            'draft'     => SmartWoo_Product::count_all( 'draft' ),
+            'pending'   => SmartWoo_Product::count_all( 'pending' ),
+            'trash'     => SmartWoo_Product::count_all( 'trash' )
+        );
+
+        $not_found_text = 'No "' . ucfirst( $status ) . '" product found.';
     
         include_once SMARTWOO_PATH . 'templates/product-admin-temp/dashboard.php';
     }
 }
-
-
 
 
 
@@ -210,10 +249,6 @@ function smartwoo_process_product_edit() {
 
 		if ( empty( $product_name ) ) {
 			$validation_errors[] = 'Product Name is required';
-		}
-
-		if ( ! preg_match( '/^[A-Za-z0-9\s]+$/', $product_name ) ) {
-			$validation_errors[] = 'Product name should only contain letters, and numbers.';
 		}
 
 		if ( ! empty( $validation_errors ) ) {
