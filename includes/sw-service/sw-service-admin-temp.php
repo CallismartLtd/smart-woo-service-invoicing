@@ -391,7 +391,7 @@ function smartwoo_new_service_order_form( $user_id, $order_id, $service_name, $s
 	$page .= '<option value="">' . esc_html__( 'Select billing cycle', 'smart-woo-service-invoicing' ) . '</option>';
 	$page .= '<option value="Monthly" ' . selected( 'Monthly', $billing_cycle, false ) . '>' . esc_html__( 'Monthly', 'smart-woo-service-invoicing' ) . '</option>';
 	$page .= '<option value="Quarterly" ' . selected( 'Quarterly', $billing_cycle, false ) . '>' . esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ) . '</option>';
-	$page .= '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle, false ) . '>' . esc_html__( '6 Months', 'smart-woo-service-invoicing' ) . '</option>';
+	$page .= '<option value="Six Monthly" ' . selected( 'Six Monthly', $billing_cycle, false ) . '>' . esc_html__( 'Semiannually', 'smart-woo-service-invoicing' ) . '</option>';
 	$page .= '<option value="Yearly" ' . selected( 'Yearly', $billing_cycle, false ) . '>' . esc_html__( 'Yearly', 'smart-woo-service-invoicing' ) . '</option>';
 	$page .= '</select>';
 	$page .= '</div>';
