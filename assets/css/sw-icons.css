@@ -1,0 +1,50 @@
+.smartwoo-invoice-svg::before {
+    position: absolute;
+    left: 40%;
+    top: 10px;
+    bottom: -20px;
+    content: "";
+    display: block;
+    width: 200px;
+    height: 200px;
+    background-image: url( '../images/invoice-sample.svg' );
+    opacity: 0.09;
+    fill-opacity: #f1f1f1;
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: fill;
+    border: solid #333333 .1px
+}
+
+.smartwoo-service-icon::before {
+    position: absolute;
+    left: 40%;
+    top: 10px;
+    bottom: -20px;
+    content: "";
+    display: block;
+    width: 200px;
+    height: 200px;
+    background-image: url( '../images/service-icon.svg' );
+    opacity: 0.09;
+    fill-opacity: #f1f1f1;
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: fill;
+}
+
+/** The admin dashicon */
+.smartwoo-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0 5px;
+    vertical-align: middle;
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.smartwoo-icon::before {
+    background-image: url( '../images/smartwoo-logo.svg' );
+
+}
