@@ -143,7 +143,7 @@ defined( 'ABSPATH' ) || exit;
 				<option value=""><?php esc_html_e( 'Select billing cycle', 'smart-woo-service-invoicing' ); ?></option>
 				<option value="Monthly"><?php esc_html_e( 'Monthly', 'smart-woo-service-invoicing' ); ?></option>
 				<option value="Quarterly"><?php esc_html_e( 'Quarterly', 'smart-woo-service-invoicing' ); ?></option>
-				<option value="Six Monthly"><?php esc_html_e( 'Six Monthly', 'smart-woo-service-invoicing' ); ?></option>
+				<option value="Six Monthly"><?php esc_html_e( 'Semiannually', 'smart-woo-service-invoicing' ); ?></option>
 				<option value="Yearly"><?php esc_html_e( 'Yearly', 'smart-woo-service-invoicing' ); ?></option>
 			</select>
 		</div>
