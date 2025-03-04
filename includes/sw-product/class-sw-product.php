@@ -62,12 +62,14 @@ class SmartWoo_Product extends WC_Product {
 	}
 
 	/**
-	 * Run Hooks.
+	 * Run Action hooks.
 	 */
-	public static function init() {
+	public static function listen() {
 		add_filter( 'woocommerce_product_class', array( __CLASS__, 'map_product_class' ), 10, 2 );
 		add_filter( 'product_type_selector', array( __CLASS__, 'register_selector' ), 99 );
+		add_filter( 'smartwoo_allowed_table_actions', array( __CLASS__, 'register_table_actions' ), 20 );
 		
+		add_action( 'smartwoo_product_table_actions', array( __CLASS__, 'ajax_table_callback' ), 10, 2 );
 		add_action( 'woocommerce_single_product_summary', array( __CLASS__, 'sub_info' ), 10 );
 		add_action( 'woocommerce_' . self::instance()->get_type() .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
 		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
@@ -201,17 +203,21 @@ class SmartWoo_Product extends WC_Product {
 	/**
 	 * Retrieve all products of this class.
 	 *
+	 * @param array $args Arguments to pass to the query.
 	 * @return object All product matching the type property of this class.
 	 */
-	public static function get_all( $page = 1, $limit = 25 ) {
-
-		$query = new WC_Product_Query( 
-			array( 
-				'type'	=> 'sw_product',
-				'limit' => absint( $limit ),
-				'page' 	=>  absint( $page ),
-			)
+	public static function get_all( $args = array() ) {
+		$defaults = array(
+			'limit'		=> 10,
+			'page'		=> 1,
+			'visibility' => '',
 		);
+
+		$parsed_args = wp_parse_args( $args, $defaults );
+		// Make sure the product type is not overidden.
+		$parsed_args['type'] = self::instance()->get_type();
+
+		$query = new WC_Product_Query( $parsed_args );
 
 		return $query->get_products();
 	}
@@ -381,7 +387,7 @@ class SmartWoo_Product extends WC_Product {
 	/**
 	 * Update Billing Cycle.
 	 * 
-	 * @param string $data The billing cycle(Monthly, Quarterly, Six Monthly and Yearly).
+	 * @param string $data The billing cycle(Weekly, Monthly, Quarterly, Semiannually and Yearly).
 	 */
 	public function update_billing_cycle( $data ) {
 		$this->billing_cycle = $this->update_meta_data( '_smartwoo_billing_cycle', $data );
@@ -488,7 +494,7 @@ class SmartWoo_Product extends WC_Product {
 	 */
 	public static function register_selector( $selectors ){
 
-		$selectors['sw_product'] = 'Smart Woo Product';
+		$selectors[self::instance()->get_type()] = 'Smart Woo Product';
 		return $selectors;
 	}
 
@@ -498,38 +504,46 @@ class SmartWoo_Product extends WC_Product {
 	public static function load_configure_button() {
 		global $product;
 
-		if ( $product && 'sw_product' === $product->get_type() ) {
-
-			$button  = '<div class="configure-product-button">';
-			$button .= '<a href="' . esc_url( smartwoo_configure_page( $product->get_id() ) ) . '" class="sw-blue-button alt">' . esc_html( smartwoo_product_text_on_shop() ) . '</a>';
-			$button .= '</div>';
-			echo wp_kses_post( $button );
+		if ( $product && self::instance()->get_type() === $product->get_type() ) {
+			$product->get_add_to_cart_button();
 		}
 	}
 
+	/**
+	 * Get the add to cart button
+	 */
+	public function get_add_to_cart_button() {
+		?>
+		<div class="configure-product-button">
+			<a href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>" class="button" product-Id="<?php echo absint( $this->get_id() ); ?>"><?php echo esc_html( smartwoo_product_text_on_shop() ); ?></a>
+		</div>
+		<?php
+	}
 	/**
 	 * Subscription Details on single product page.
 	 */
 	public static function sub_info() {
 		global $product;
 	
-		if ( $product && 'sw_product'  === $product->get_type() ) {
+		if ( $product && self::instance()->get_type()  === $product->get_type() ) {
 	
-			$sign_up_fee   = $product->get_sign_up_fee();
-			$billing_cycle = $product->get_billing_cycle();
-	
-			$notice_banner  = '<div class="smartwoo-sub-info">';
-			$notice_banner .= '<p class="main-price"><strong>' . smartwoo_price( $product->get_price() ) . '</strong> Billed <strong>' . esc_html( ucfirst( $billing_cycle ) ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	
-			if ( $sign_up_fee > 0 ) {
-				$notice_banner .=  '<p class="sign-up-fee">and a one-time sign-up fee of <strong>' . smartwoo_price( $sign_up_fee ) . '</strong></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				$total_price = $product->get_price() + $sign_up_fee;
-	
-				$product->set_price( $total_price );
+			$sign_up_fee	= $product->get_sign_up_fee();
+			if ( $sign_up_fee ) {
+				$billing_cycle 	= $product->get_billing_cycle();
+				$billed_txt		= '';
+				if ( ! empty( $billing_cycle ) ) {
+					$billed_txt = 'Billed';
+				}
+				?>
+				<div class="smartwoo-sub-info">
+					<p class="main-price"><strong><?php echo esc_html( smartwoo_price( $product->get_price() ) ); ?> </strong><?php echo esc_html( $billed_txt ); ?> <strong><?php echo esc_html( ucfirst( $billing_cycle ) ); ?></strong></p>
+		
+					<?php if ( $sign_up_fee > 0 ) : ?>
+						<p class="sign-up-fee">and a one-time sign-up fee of <strong><?php echo esc_html( smartwoo_price( $sign_up_fee ) ); ?></strong></p>
+					<?php endif; ?>
+				</div>
+				<?php
 			}
-			$notice_banner .=  '</div>';
-			echo wp_kses_post( $notice_banner );
-	
 		}
 	}
 	
@@ -558,5 +572,88 @@ class SmartWoo_Product extends WC_Product {
 
 		wp_send_json_error( array( 'message' => 'Error deleting the product.' ) );
 	}
+
+	/**
+	 * Handle Smart Woo Ajax Table actions
+	 * 
+	 * @param string $selected_action The selected action.
+	 * @param array $data The data to be processed.
+	 */
+	public static function ajax_table_callback( $selected_action, $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = explode( ',', $data );
+		}
+
+		$response = array( 'message' => 'Invalid action' );
+		foreach( $data as $id ) {
+			$self = wc_get_product( $id );
+			if ( ! $self || ( ! $self instanceof self ) ) {
+				continue;
+			}
+
+			switch( $selected_action ) {
+				case 'publish':
+					if ( 'publish' !== $self->get_status() ) {
+						$self->set_status( 'publish' );
+						$self->save();
+						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been published.';
+					}
+					break;
+				case 'draft':
+					if ( 'draft' !== $self->get_status() ) {
+						$self->set_status( 'draft' );
+						$self->save();
+						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been drafted.';
+					}
+					break;
+				case 'trash':
+					if ( 'trash' !== $self->get_status() ) {
+						$self->set_status( 'trash' );
+						$self->save();
+						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been trashed.';
+					}
+					break;
+				case 'pending':
+					if ( 'pending' !== $self->get_status() ) {
+						$self->set_status( 'pending' );
+						$self->save();
+						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been set to pending.';
+					}
+					break;
+				case 'private':
+					if ( 'private' !== $self->get_status() ) {
+						$self->set_status( 'private' );
+						$self->save();
+						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been set to private.';
+					}
+					break;
+				case 'delete':
+					if ( $self->delete( true ) ) {
+						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been deleted.';
+					}
+					break;
+					
+			}
+
+		}
+
+		wp_send_json_success( $response );
+	}
+
+	/**
+	 * Add allowed product actions on sw-table.
+	 * 
+	 * @param array $actions The allowed actions passed by the filter.
+	 * @return array $actions The modified actions.
+	 */
+	public static function register_table_actions( $actions ) {
+		$actions[] 	= 'delete';
+		$actions[]	= 'publish';
+		$actions[]	= 'draft';
+		$actions[]	= 'trash';
+		$actions[]	= 'pending';
+		$actions[]	= 'private';
+		return $actions;
+	}
 }
-SmartWoo_Product::init();
+SmartWoo_Product::listen();
