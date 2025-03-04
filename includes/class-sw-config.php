@@ -227,10 +227,11 @@ class SmartWoo_Config{
         if ( is_admin() ) {
             $utm_style_uri  = SMARTWOO_DIR_URL . 'assets/css/sw-admin' . $suffix . '.css';
             $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
+            $icon_styles    = SMARTWOO_DIR_URL . 'assets/css/sw-icons' . $suffix . '.css';
             wp_enqueue_style( 'smartwoo-admin-utm-style', $utm_style_uri, array(), SMARTWOO_VER, 'all' );
             wp_enqueue_style( 'smartwoo-admin-style', $admin_style, array(), SMARTWOO_VER, 'all' );
             wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
-
+            wp_enqueue_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
         }
     }
 
@@ -571,7 +572,7 @@ class SmartWoo_Config{
             'toplevel_page_sw-admin'        => 'Dashboard',
             $id . '_page_sw-invoices'       => 'Invoices',
             $id . '_page_sw-service-orders' => 'Service Orders',
-            $id . '_page_sw-products'       => 'Products',
+            $id . '_page_sw-products'       => 'Service Products',
             $id . '_page_sw-options'        => 'Settings',
         );
         
