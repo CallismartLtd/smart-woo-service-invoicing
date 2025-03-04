@@ -113,7 +113,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                     <option value="" <?php selected( '', $product_data->get_billing_cycle(), true ); ?>>Select Billing Cycle</option>
                     <option value="Monthly" <?php selected( 'Monthly', $product_data->get_billing_cycle(), true ); ?>>Monthly</option>
                     <option value="Quarterly" <?php selected( 'Quarterly', $product_data->get_billing_cycle(), true ); ?>>Quarterly</option>
-                    <option value="Six Monthly" <?php selected( 'Six Monthly', $product_data->get_billing_cycle(), true ); ?>>Six Monthly</option>
+                    <option value="Six Monthly" <?php selected( 'Six Monthly', $product_data->get_billing_cycle(), true ); ?>>Semiannually</option>
                     <option value="Yearly" <?php selected( 'Yearly', $product_data->get_billing_cycle(), true ); ?>>Yearly</option>
                 </select>
             </div>
