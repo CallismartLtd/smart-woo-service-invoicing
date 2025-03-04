@@ -136,7 +136,7 @@ defined( 'ABSPATH' ) || exit;
                 <option value=""><?php echo esc_html__( 'Select billing cycle', 'smart-woo-service-invoicing' );?></option>
                 <option value="Monthly" <?php selected( 'Monthly', $billing_cycle ); ?>><?php echo esc_html__( 'Monthly', 'smart-woo-service-invoicing' );?></option>
                 <option value="Quarterly" <?php selected( 'Quarterly', $billing_cycle ); ?>><?php echo esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ); ?></option>
-                <option value="Six Monthly" <?php selected( 'Six Monthly', $billing_cycle ); ?>><?php echo esc_html__( '6 Months', 'smart-woo-service-invoicing' );?></option>
+                <option value="Six Monthly" <?php selected( 'Six Monthly', $billing_cycle ); ?>><?php echo esc_html__( 'Semiannually', 'smart-woo-service-invoicing' );?></option>
                 <option value="Yearly" <?php selected( 'Yearly', $billing_cycle ); ?>><?php echo esc_html__( 'Yearly', 'smart-woo-service-invoicing' );?></option>
                 </select>
             </div>
