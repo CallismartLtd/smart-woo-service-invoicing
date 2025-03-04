@@ -622,7 +622,7 @@ function smartwooProBntAction(action_name) {
 function smartwooDeleteProduct(productId) {
     let isConfirmed = confirm( 'Are you sure you want to permanently delete this product? This action cannot be reversed!' );
     if (isConfirmed) {
-        spinner = smartWooAddSpinner( 'sw-delete-button' );
+        spinner = smartWooAddSpinner( 'swloader', true );
 
         jQuery.ajax(
             {
@@ -938,6 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let invoiceLinkActions  = document.querySelector( '.smartwoo-admin-invoice-action-div' );
     let invoiceLinksToggle  = document.querySelector( '.smartwoo-admin-invoice-actions' );
     let swTable             = document.querySelector('.sw-table');
+    let allSortDivs         = document.querySelectorAll('.sw-admin-status-item');
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1496,6 +1497,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         })
     }
+
+    if ( allSortDivs.length ) {
+        allSortDivs.forEach( sortDiv =>{
+            sortDiv.style.cursor = 'pointer';
+            let url = sortDiv.querySelector( 'a' ).getAttribute( 'href' );
+            sortDiv.addEventListener( 'click', ()=>{
+                window.location.href = url;
+            });            
+        });
+    }
 });
 
 /**
@@ -1561,4 +1572,20 @@ document.addEventListener( 'smartwooTableChecked', (e)=>{
         });
     }
 
+    if ( 'Service Products' === adminPage ) {
+        smartwooBulkActionForTable({
+            options: [
+                {value: 'publish', text: 'Publish'},
+                {value: 'private', text: 'Private'},
+                {value: 'pending', text: 'Pending'},
+                {value: 'draft', text: 'Draft'},
+                {value: 'trash', text: 'Move to trash'},
+                {value: 'delete', text: 'Delete'},
+            ],
+            selectedRows: e.detail,
+            hookName: 'product_table_actions'
+        });
+    }
+
+    console.log( adminPage )
 });
