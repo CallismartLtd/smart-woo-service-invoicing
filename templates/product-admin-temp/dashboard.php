@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
     <div class="invoice-status-counts">
         <?php foreach ( $status_counts as $name => $count ) : ?>
             <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
-                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
+                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name === 'publish' ? 'Published' : $name ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
             </div>
         <?php endforeach; ?>
     </div>
