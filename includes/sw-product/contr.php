@@ -21,7 +21,7 @@ class SmartWoo_Product_Controller{
         // Handle different tabs.
         switch ( $tab ) {
             case 'add-new':
-                include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-add-product.php';
+                self::add_product_page();
                 break;
             case 'edit':
                 self::edit_product();
@@ -122,6 +122,20 @@ class SmartWoo_Product_Controller{
     
         include_once SMARTWOO_PATH . 'templates/product-admin-temp/dashboard.php';
     }
+
+    /**
+     * Add new product page
+     */
+    private static function add_product_page() {
+        $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $tabs           = array(
+            ''        => 'Dashboard',
+            'add-new' => 'Add New',
+    
+        );
+        include_once SMARTWOO_PATH . 'templates/product-admin-temp/add-product.php';
+
+    }
 }
 
 
@@ -130,6 +144,9 @@ class SmartWoo_Product_Controller{
  * Controls the new service product creation form submission
  */
 function smartwoo_process_new_product() {
+    echo '<pre>';
+    var_dump( $_POST );
+    echo '</pre>';exit;
     
     if ( isset( $_POST['create_sw_product'], $_POST['sw_add_new_product_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
 		
