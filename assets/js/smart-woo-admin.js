@@ -938,7 +938,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let invoiceLinkActions  = document.querySelector( '.smartwoo-admin-invoice-action-div' );
     let invoiceLinksToggle  = document.querySelector( '.smartwoo-admin-invoice-actions' );
     let swTable             = document.querySelector('.sw-table');
-    let allSortDivs         = document.querySelectorAll('.sw-admin-status-item');
+    let allSortDivs         = document.querySelectorAll( '.sw-admin-status-item' );
+    let gracePeriodSelect   = document.querySelector( '#grace_period' );
+    let addProductImageBtn  = document.querySelector( '#upload_sw_product_image' );
+    let uploadProductImages = document.querySelector( '#add-product-galleryBtn' );
+    let productdataTabs     = document.querySelector( '.sw-product-data-tabs-menu' )
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1507,6 +1511,154 @@ document.addEventListener('DOMContentLoaded', () => {
             });            
         });
     }
+
+    if( gracePeriodSelect ) {
+        gracePeriodSelect.addEventListener( 'change', ()=>{
+            console.log( 'grace changed' + gracePeriodSelect.value.length );
+            let gracePeriodUnit = document.querySelector( '.grace-period-number' );
+            if ( ! gracePeriodSelect.value.length ) {
+                console.log( 'grace no legth' );
+                gracePeriodUnit.readOnly = true;
+            } else {
+                gracePeriodUnit.readOnly = false;
+            }
+        });
+    }
+
+    if ( addProductImageBtn ) {
+        let wpGallery;
+        let imageIdInput = document.querySelector( '#product_image_id' );
+        let PreviewDiv   = document.querySelector( '#image_preview' );
+    
+        addProductImageBtn.addEventListener( 'click', (e) => {
+            e.preventDefault();
+
+            if ( 'remove' === addProductImageBtn.value ) {
+                PreviewDiv.innerHTML    = '';
+                imageIdInput.value      = '';
+                addProductImageBtn.value =  'Upload'
+                return;
+            }
+            // Pre-select the existing image if available
+            let existingImageId = parseInt( imageIdInput.value, 10 );
+            if ( existingImageId ) {
+                wpGallery.on( 'open', () => {
+                    let selection   = wpGallery.state().get('selection');
+                    let attachment  = wp.media.attachment( existingImageId );
+                    selection.add( attachment );
+                });
+            }
+            // If the modal instance exists, reuse it
+            if ( wpGallery ) {
+                wpGallery.open();
+                return;
+            }
+    
+            // Create the media frame
+            wpGallery = wp.media({
+                title: 'Product Image',
+                button: {
+                    text: 'Set Product Image'
+                },
+                multiple: false
+            });
+    
+            wpGallery.on( 'select', () => {
+                // Clear previous content
+                PreviewDiv.innerHTML = '';
+                imageIdInput.value   = '';
+    
+                let image = wpGallery.state().get( 'selection' ).first().toJSON();
+                let imTag = document.createElement( 'img' );
+    
+                imageIdInput.value  = image.id;
+                imTag.src           = image.url;
+                imTag.style.maxWidth = "100%";
+    
+                PreviewDiv.appendChild( imTag );
+                addProductImageBtn.value =  'remove'
+            });
+    
+            wpGallery.open();
+        });
+    }
+
+    if ( uploadProductImages ){
+        let wpGallery;
+        let previewDiv      = document.querySelector( '#sw-product-gallery-preview' );
+        uploadProductImages.addEventListener( 'click', ( e )=>{
+            e.preventDefault();
+            // If the modal exists, reopen it
+            if ( wpGallery ) {
+                wpGallery.open();
+                return;
+            }
+
+            // Create the media frame
+            wpGallery = wp.media({
+                title: 'Select Images',
+                button: { text: 'Use these images' },
+                multiple: true // Allow multiple selection
+            });
+
+            // When images are selected
+            wpGallery.on( 'select', () => {
+
+                let selection = wpGallery.state().get( 'selection' );
+
+                selection.each( (attachment) => {
+                    let image       = attachment.toJSON();
+                    let imgDiv      = document.createElement( 'div' );
+                    let closeBtn    = document.createElement( 'span' );
+                    let imgTag      = document.createElement( 'img' );
+                    let idInput     = document.createElement( 'input' );
+                    
+                    imgDiv.classList.add( 'sw-image-img' );
+                    closeBtn.classList.add( 'dashicons', 'dashicons-dismiss' );
+                    imgTag.src      = image.url;
+                    idInput.name    = "product_gallery_ids[]";
+                    idInput.type    = 'hidden';
+                    idInput.value   = image.id;
+                    
+                    imgDiv.appendChild( closeBtn );
+                    imgDiv.appendChild( idInput );
+                    imgDiv.appendChild( imgTag );
+                    previewDiv.appendChild( imgDiv );
+
+                    closeBtn.addEventListener( 'click', (e)=>{
+                        e.preventDefault();
+                        jQuery( imgDiv ).fadeOut();
+                        setTimeout( () => {
+                            imgDiv.remove();
+                        }, 2000);
+                    });
+
+                    imgDiv.addEventListener( 'mouseover', ()=>{
+                        closeBtn.classList.add( 'active' );
+                    });
+                    imgDiv.addEventListener( 'mouseleave', ()=>{
+                        closeBtn.classList.remove( 'active' );
+                    });
+                });
+
+                
+            });
+
+            wpGallery.open();
+        });
+    }
+
+    if ( productdataTabs ) {
+        let allbtns = productdataTabs.querySelectorAll( 'li' );
+        allbtns.forEach( menu =>{
+            menu.addEventListener( 'click', ( e )=>{
+                e.preventDefault();
+                console.log( 'A menu clicked' );
+            });
+        });
+
+    }
+    
 });
 
 /**
