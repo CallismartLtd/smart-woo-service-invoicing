@@ -116,31 +116,3 @@ function smartwoo_options_page() {
 		
 	}
 }
-
-
-/**
- * Register post states for specific pages.
- *
- * This function adds custom post states to pages based on their IDs.
- * It is hooked into the 'display_post_states' filter.
- *
- * @param array   $post_states An array of post states.
- * @param WP_Post $post        The current post object.
- *
- * @return array Modified array of post states.
- */
-function smartwoo_register_page_states( $post_states, $post ) {
-	$service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
-	$invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
-
-	if ( $post->ID === $service_page_id ) {
-		$post_states[] = 'Service Subscription Page';
-	}
-
-	if ( $post->ID === $invoice_page_id ) {
-		$post_states[] = 'Invoice Management Page';
-	}
-
-	return $post_states;
-}
-add_filter( 'display_post_states', 'smartwoo_register_page_states', 30, 2 );
