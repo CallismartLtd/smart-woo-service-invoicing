@@ -1141,3 +1141,67 @@ function smartwoo_table_limit_field( $limit = 25 ) {
 		</script>
 	<?php
 }
+
+/**
+ * Submenu navigation button tab function
+ *
+ * @param array  $tabs         An associative array of tabs (tab_slug => tab_title).
+ * @param string $title        The title of the current submenu page.
+ * @param string $page_slug    The admin menu/submenu slug.
+ * @param string $current_tab  The current tab parameter for the submenu page.
+ * @param string $query_var    The query variable.
+ */
+function smartwoo_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_var ) {
+	$output  = '<div class="wrap">';
+	$output .= '<h1 class="wp-heading-inline">' . wp_kses_post( $title ) . '</h1>';
+	$output .= '<nav class="nav-tab-wrapper">';
+
+	foreach ( $tabs as $tab_slug => $tab_title ) {
+		$active_class = ( $current_tab === $tab_slug ) ? 'nav-tab-active' : '';
+
+		if ( '' === $tab_slug ) {
+			$output      .= "<a href='" . esc_url( admin_url( 'admin.php?page=' . $page_slug ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
+
+		} else {
+			$output      .= "<a href='" . esc_url( add_query_arg( $query_var, $tab_slug, admin_url( 'admin.php?page=' . $page_slug ) ) ) . "' class='nav-tab $active_class'>$tab_title</a>";
+
+		}
+	}
+
+	$output .= '</nav>';
+	$output .= '</div>';
+
+	return $output;
+}
+
+/**
+ * Render the billing cycle select input
+ */
+function smartwoo_billing_cycle_dropdown( $selected = null, $echo = true) {
+	$billing_cycles = smartwoo_supported_billing_cycles();
+	$dropdown = '<select class="sw-form-input" name="billing_cycle" id="billing_cycle">';
+	$dropdown .= '<option value="">' . __( 'Select Billing Cycle', 'smart-woo-service-invoicing' );
+	foreach( $billing_cycles as $value => $label ) {
+		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
+		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
+	}
+	$dropdown .= '</select>';
+	if ( true === $echo ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+	}
+	return $dropdown;
+}
+
+/**
+ * Get supported billing cycle
+ */
+function smartwoo_supported_billing_cycles() {
+	return apply_filters( 'smartwoo_supported_billing_cycles',
+		array(
+			'Weekly'		=> __( 'Weekly', 'smart-woo-service-invoicing' ),
+			'Monthly'		=> __( 'Monthly', 'smart-woo-service-invoicing' ),
+			'Quarterly'		=> __( 'Quarterly', 'smart-woo-service-invoicing' ),
+			'Semiannually'	=> __( 'Semiannually', 'smart-woo-service-invoicing' )
+		)
+	);
+}
