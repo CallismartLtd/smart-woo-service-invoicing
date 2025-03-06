@@ -48,36 +48,37 @@ class SmartWoo_Config{
         define( 'SMARTWOO_ASSETS_TABLE', $wpdb->prefix . 'sw_assets' );
         define( 'SMARTWOO_PLUGIN_BASENAME', plugin_basename( SMARTWOO_FILE ) );
         define( 'SMARTWOO_UPLOAD_DIR', trailingslashit( wp_upload_dir()['basedir'] ) . 'smartwoo-uploads' );
-        $this->init();
-    }
-
-    /**
-     * Init.
-     */
-    private function init() {
-        add_action( 'woocommerce_loaded', array( $this, 'check_woocommerce' ) );
-        add_action( 'smartwoo_init', array( $this, 'load_dependencies' ) );
-        add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
-        add_action( 'smartwoo_loaded', array( $this, 'before_init' ) );
-        add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
-        add_action( 'woocommerce_order_details_before_order_table', array( $this, 'remove_order_again_button' ) );
-        add_action( 'admin_menu', array( __CLASS__, 'modify_sw_menu' ), 999 );
+        
         register_activation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'install' ) );
         register_deactivation_hook( SMARTWOO_FILE, array( 'SmartWoo_Install', 'deactivate' ) );
+        
+        $this->initialize();
     }
 
     /**
-     * Before init hooks.
+     * The Smart Woo Initialization process.
+     */
+    private function initialize() {
+        add_action( 'woocommerce_loaded', array( $this, 'check_woocommerce' ) );
+        add_action( 'smartwoo_init', array( $this, 'load_dependencies' ) );
+        add_action( 'smartwoo_loaded', array( $this, 'run_hooks' ) );
+    }
+
+    /**
+     * Run action and filters.
      * 
      * @since 1.0.52 Added support for WP_Consent API.
      */
-    public function before_init() {
+    public function run_hooks() {
         if ( class_exists( WP_CONSENT_API::class ) ) {
             add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );
             add_action( 'wp_consent_api_consent_changed', array( __CLASS__, 'revoke_tracking' ) );
                       
         }
-
+        add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
+        add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
+        add_action( 'woocommerce_order_details_before_order_table', array( $this, 'remove_order_again_button' ) );
+        add_action( 'admin_menu', array( __CLASS__, 'modify_sw_menu' ), 999 );
         add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
@@ -90,6 +91,7 @@ class SmartWoo_Config{
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
         add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
+        add_filter( 'display_post_states', array( __CLASS__, 'post_states' ), 30, 2 );
         add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         
@@ -111,10 +113,9 @@ class SmartWoo_Config{
     }
 
     /**
-     * Check if WooCommerce is loaded
+     * Check whether WooCommerce is loaded.
      */
     public function check_woocommerce() {
-
         if ( class_exists( 'WooCommerce' ) ) {
             $this->woocommerce_loaded = true;
             do_action( 'smartwoo_init' );
@@ -136,7 +137,7 @@ class SmartWoo_Config{
     }
 
     /**
-     * load files.
+     * Include files.
      */
     public function include() {
 
@@ -586,4 +587,30 @@ class SmartWoo_Config{
         return '';
 
     }
+    /**
+     * Register post states for specific pages.
+     *
+     * This function adds custom post states to pages based on their IDs.
+     * It is hooked into the 'display_post_states' filter.
+     *
+     * @param array   $post_states An array of post states.
+     * @param WP_Post $post        The current post object.
+     *
+     * @return array Modified array of post states.
+     */
+    public static function post_states( $post_states, $post ) {
+        $service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
+        $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
+
+        if ( $post->ID === $service_page_id ) {
+            $post_states[] = 'Service Subscription Page';
+        }
+
+        if ( $post->ID === $invoice_page_id ) {
+            $post_states[] = 'Invoice Management Page';
+        }
+
+        return $post_states;
+    }
+
 }
