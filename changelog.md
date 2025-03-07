@@ -14,6 +14,9 @@
 - The product creation and edit page UI has been improved to include almost every option you can find in the WooCommerce product form.
 - Product form now include: Upsell, cross-sell, product gallery, visibility, status, and sale options.
 
+### Fixed
+- Checkout invoices are not created for service orders via the WooCommerce block API
+
 # [2.2.3] 2025-02-18
 
 ### Fixed
