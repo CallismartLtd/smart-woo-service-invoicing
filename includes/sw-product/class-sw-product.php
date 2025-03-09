@@ -51,10 +51,13 @@ class SmartWoo_Product extends WC_Product {
 			$this->set_billing_cycle( $this->get_meta( '_smartwoo_billing_cycle' ) );
 			$this->set_grace_period_number( $this->get_meta( '_smartwoo_grace_period_number' ) );
 			$this->set_grace_period_unit( $this->get_meta( '_smartwoo_grace_period_unit' ) );
-			$this->set_downloadables( $this->get_meta( '_smartwoo_product_downloadable_data' ) );
-
-			if ( ! empty( $this->get_smartwoo_downloads() ) ) {
-				$this->downloadable = true;
+			
+			if ( ! empty( $this->get_meta( '_smartwoo_product_downloadable_data' ) ) ) {
+				$this->set_downloadables( $this->get_meta( '_smartwoo_product_downloadable_data' ) );
+				
+				if ( ! empty( $this->downloads ) ){
+					$this->downloadable = true;
+				}
 			}
 
 		}
@@ -154,7 +157,7 @@ class SmartWoo_Product extends WC_Product {
 	 * @param float $sign_up_fee amount to charge as sign up fee.
 	 */
 	public function set_sign_up_fee( $sign_up_fee ) {
-		$this->sign_up_fee = $sign_up_fee;
+		$this->sign_up_fee = floatval( $sign_up_fee );
 	}
 
 	/**
@@ -163,7 +166,9 @@ class SmartWoo_Product extends WC_Product {
 	 * @param string $billing_cycle The billing cycle.
 	 */
 	public function set_billing_cycle( $billing_cycle ) {
-		$this->billing_cycle = $billing_cycle;
+		if ( in_array( $billing_cycle, array_keys( smartwoo_supported_billing_cycles() ) ) ) {
+			$this->billing_cycle = sanitize_text_field( wp_unslash( $billing_cycle ) );
+		}
 	}
 
 	/**
@@ -172,7 +177,7 @@ class SmartWoo_Product extends WC_Product {
 	 * @param int $grace_period_number	The grace period number
 	 */
 	public function set_grace_period_number( $grace_period_number ) {
-		$this->grace_period_number = $grace_period_number;
+		$this->grace_period_number = absint( $grace_period_number );
 	}
 
 	/**
@@ -180,16 +185,31 @@ class SmartWoo_Product extends WC_Product {
 	 * @param string $grace_period_unit	the grace period units.
 	 */
 	public function set_grace_period_unit( $grace_period_unit ) {
-		$this->grace_period_unit = $grace_period_unit;
+		$this->grace_period_unit = sanitize_text_field( wp_unslash( $grace_period_unit ) );
 	}
 
 	/**
 	 * Set Downloadable files.
 	 * 
-	 * @param array $data	An associative array containing the file data
+	 * @param array $data	An associative array containing file_name => file_url
 	 */
 	public function set_downloadables( $data ) {
+		if ( empty( $data ) || ! is_array( $data ) ) {
+			return;
+		}
+		$names 	= array_keys( $data );
+		$urls	= array_values( $data );
+
+		$file_urls 	= array_map( 'sanitize_url', wp_unslash( $urls ) );
+		$file_names	= array_map( 'sanitize_text_field', wp_unslash( $names ) );
+
+		if ( count( $file_urls ) === count( $file_names ) ) {
+			$data = array_combine( $file_names, $file_urls );
+			$this->downloads = $data;
+
+		}
 		$this->downloads = $data;
+
 	}
 
 	/**
@@ -328,16 +348,21 @@ class SmartWoo_Product extends WC_Product {
 	 * @param float $fee The fee to add.
 	 */
 	public function add_sign_up_fee( $fee ) {
-		$this->sign_up_fee = $this->add_meta_data( '_smartwoo_sign_up_fee', $fee );
+		$this->set_sign_up_fee( $fee ); 
+		$this->add_meta_data( '_smartwoo_sign_up_fee', $fee );
 	}
 
 	/**
 	 * Add billing cycle number to new product.
 	 * 
-	 * @param string $data The billing cycle(Monthly, Quarterly, Six Monthly and Yearly allowed).
+	 * @param string $data The billing cycle( Weekly, Monthly, Quarterly, Six Monthly and Yearly allowed).
 	 */
 	public function add_billing_cycle( $data ) {
-		$this->billing_cycle = $this->add_meta_data( '_smartwoo_billing_cycle', $data );
+		if ( in_array( $data, array_keys( smartwoo_supported_billing_cycles() ) ) ) {
+			$this->set_billing_cycle( $data );
+			$this->add_meta_data( '_smartwoo_billing_cycle', $data );
+
+		}
 	}
 
 	/**
@@ -346,7 +371,8 @@ class SmartWoo_Product extends WC_Product {
 	 * @param int $number	The number that will correspond to the unit.
 	 */
 	public function add_grace_period_number( $number ) {
-		$this->grace_period_number = $this->add_meta_data( '_smartwoo_grace_period_number', absint( $number ) );
+		$this->set_grace_period_number( $number );
+		$this->add_meta_data( '_smartwoo_grace_period_number', absint( $number ) );
 	}
 
 	/**
@@ -355,16 +381,18 @@ class SmartWoo_Product extends WC_Product {
 	 * @param string $unit The of the grace perion(days, weeks, months, years).
 	 */
 	public function add_grace_period_unit( $unit ) {
-		$this->grace_period_unit = $this->add_meta_data( '_smartwoo_grace_period_unit', $unit );
+		$this->set_grace_period_unit( $unit );
+		$this->add_meta_data( '_smartwoo_grace_period_unit', $unit );
 	}
 
 	/**
 	 * Add downloadable data to product.
 	 * 
-	 * @param array $data Associative array of file_names => file_urls
+	 * @param array $data Associative array of file_name => file_url
 	 */
 	public function add_downloadable_data( $data ) {
-		$this->downloads	= $this->add_meta_data( '_smartwoo_product_downloadable_data', $data );
+		$this->set_downloadables( $data );
+		$this->add_meta_data( '_smartwoo_product_downloadable_data', $this->downloads );
 	}
 
 	/*
@@ -381,7 +409,8 @@ class SmartWoo_Product extends WC_Product {
 	 * @param float $fee The sign-up fee.
 	 */
 	public function update_sign_up_fee( $fee ) {
-		$this->sign_up_fee = $this->update_meta_data( '_smartwoo_sign_up_fee', $fee );
+		$this->set_sign_up_fee( $fee ); 
+		$this->update_meta_data( '_smartwoo_sign_up_fee', $fee );
 	}
 
 	/**
@@ -390,7 +419,10 @@ class SmartWoo_Product extends WC_Product {
 	 * @param string $data The billing cycle(Weekly, Monthly, Quarterly, Semiannually and Yearly).
 	 */
 	public function update_billing_cycle( $data ) {
-		$this->billing_cycle = $this->update_meta_data( '_smartwoo_billing_cycle', $data );
+		if ( in_array( $data, array_keys( smartwoo_supported_billing_cycles() ) ) ) {
+			$this->set_billing_cycle( $data );
+			$this->update_meta_data( '_smartwoo_billing_cycle', $data );
+		}
 	}
 
 	/**
@@ -399,7 +431,8 @@ class SmartWoo_Product extends WC_Product {
 	 * @param int $number The grace period number.
 	 */
 	public function update_grace_period_number( $number ) {
-		$this->grace_period_number = $this->update_meta_data( '_smartwoo_grace_period_number', $number );
+		$this->set_grace_period_number( $number );
+		$this->update_meta_data( '_smartwoo_grace_period_number', $number );
 	}
 
 	/**
@@ -408,7 +441,8 @@ class SmartWoo_Product extends WC_Product {
 	 * @param string $unit	The unit of the grace perion(days, weeks, months, years).
 	 */
 	public function update_grace_period_unit( $unit ) {
-		$this->grace_period_unit = $this->update_meta_data( '_smartwoo_grace_period_unit', $unit );
+		$this->set_grace_period_unit( $unit );
+		$this->update_meta_data( '_smartwoo_grace_period_unit', $unit );
 	}
 
 	/**
@@ -417,7 +451,8 @@ class SmartWoo_Product extends WC_Product {
 	 * @param array $data Associative array of file_names => file_urls
 	 */
 	public function update_downloadable_data( $data ) {
-		$this->downloads	= $this->update_meta_data( '_smartwoo_product_downloadable_data', $data );
+		$this->set_downloadables( $data );
+		$this->update_meta_data( '_smartwoo_product_downloadable_data', $this->downloads  );
 	}
 
 	/*
@@ -515,7 +550,7 @@ class SmartWoo_Product extends WC_Product {
 	public function get_add_to_cart_button() {
 		?>
 		<div class="configure-product-button">
-			<a href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>" class="button" product-Id="<?php echo absint( $this->get_id() ); ?>"><?php echo esc_html( smartwoo_product_text_on_shop() ); ?></a>
+			<a href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>" class="button product_type_<?php echo esc_attr( self::instance()->get_type() ); ?> add_to_cart_button" data-product_id="<?php echo absint( $this->get_id() ); ?>"><?php echo esc_html( smartwoo_product_text_on_shop() ); ?></a>
 		</div>
 		<?php
 	}
@@ -632,7 +667,7 @@ class SmartWoo_Product extends WC_Product {
 						$response['message'] = 'The selected product' . ( count( $data ) > 1 ? 's' : '' ) . ' has been deleted.';
 					}
 					break;
-					
+
 			}
 
 		}
