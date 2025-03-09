@@ -44,7 +44,7 @@ defined( 'ABSPATH' ) || exit;
             </tbody>
         </table>
     </div>
-    <div id="swloader" style="background-color:#f1f1f100"></div>
+    <div id="swloader" style="background-color: #f1f1f100"></div>
     <div class="sw-pagination-buttons">
         <p><?php echo esc_html( count( $orders ) . ' item' . ( ( count( $orders ) > 1 ) ? 's' : '' ) ); ?></p>
         <?php if ( $paged > 1 ) : ?>
