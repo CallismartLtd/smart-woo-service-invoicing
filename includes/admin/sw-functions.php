@@ -1201,7 +1201,8 @@ function smartwoo_supported_billing_cycles() {
 			'Weekly'		=> __( 'Weekly', 'smart-woo-service-invoicing' ),
 			'Monthly'		=> __( 'Monthly', 'smart-woo-service-invoicing' ),
 			'Quarterly'		=> __( 'Quarterly', 'smart-woo-service-invoicing' ),
-			'Semiannually'	=> __( 'Semiannually', 'smart-woo-service-invoicing' )
+			'Semiannually'	=> __( 'Semiannually', 'smart-woo-service-invoicing' ),
+			'Yearly'		=> __( 'Yearly', 'smart-woo-service-invoicing' )
 		)
 	);
 }
