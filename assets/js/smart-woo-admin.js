@@ -908,6 +908,54 @@ function smartwooBulkActionForTable( params = { options: [], selectedRows: [], h
     });
 }
 
+/**
+ * Eventlistener callback to open the Wordpress media library and set the id and url of the
+ * selected media to the defined elements in this function.
+ * @param {Event} event 
+ */
+function smartwooopenWPMediaOnClick( event ) {
+    // We need the parent element and the input fields with these attributes.
+    let perentDiv       = event.target.parentElement;
+    let mediaIdInput    = perentDiv.querySelector( '[smartwoo-media-id]' );
+    let mediaUrlInput   = perentDiv.querySelector( '[smartwoo-media-url]' );
+
+    let wpMedia;
+
+    if ( wpMedia ) {
+        wpMedia.open();
+        return;
+    }
+    // Create the media frame
+    wpMedia = wp.media({
+        title: 'Select File',
+        button: {
+            text: 'Insert'
+        },
+        multiple: false
+    });
+
+    wpMedia.on( 'select', () => {
+        let file    = wpMedia.state().get( 'selection' ).first().toJSON();
+
+        if ( mediaIdInput ) {
+            mediaIdInput.value  = '';
+            mediaIdInput.value  = file.id;
+
+        }
+
+        if ( mediaUrlInput ) {
+            mediaUrlInput.value = '';
+            mediaUrlInput.value = file.url;
+        }
+
+        console.log( file );
+    });
+
+    wpMedia.open();
+
+    
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     let contentDiv          = document.querySelector('.sw-dash-content-container');
     let skeletonContent     = document.querySelectorAll('.sw-dash-content');
@@ -942,7 +990,66 @@ document.addEventListener('DOMContentLoaded', () => {
     let gracePeriodSelect   = document.querySelector( '#grace_period' );
     let addProductImageBtn  = document.querySelector( '#upload_sw_product_image' );
     let uploadProductImages = document.querySelector( '#add-product-galleryBtn' );
-    let productdataTabs     = document.querySelector( '.sw-product-data-tabs-menu' )
+    let productdataTabs     = document.querySelector( '.sw-product-data-tabs-menu' );
+    let theProductForm      = document.querySelector( '#sw-product-form' );
+    let isDownloadableCheck = document.querySelector( '#is-smartwoo-downloadable' );
+    let removeBtn           = document.querySelectorAll( '.swremove-field' );
+
+    /**
+     * The assets is downloadable checkbox.
+     */
+    if ( isDownloadableCheck ) {
+        let addProductDownloadsfieldsBtn = document.querySelector( '#add-field' );
+        isDownloadableCheck.addEventListener( 'change', (e)=>{
+            e.preventDefault();
+            if ( e.target.checked ) {
+                jQuery('.sw-assets-div').fadeIn().css('display', 'flex');
+                jQuery('.sw-product-download-field-container').fadeIn();
+                jQuery('.sw-product-download-fields').fadeIn();
+                jQuery('#add-field').fadeIn();
+            } else {
+                jQuery('.sw-assets-div').fadeOut();
+                jQuery('.sw-product-download-field-container').fadeOut();
+                jQuery('.sw-product-download-fields').fadeOut();
+                jQuery('#add-field').fadeOut();
+            }
+        });
+
+        let uploadBtns = document.querySelectorAll( '.smartwooOpenWpMedia' );
+        uploadBtns.forEach( btn =>{
+            btn.addEventListener( 'click', smartwooopenWPMediaOnClick );
+        } );
+
+        addProductDownloadsfieldsBtn.addEventListener( 'click', e =>{
+            e.preventDefault();
+            let parentContainer     = document.querySelector( '.sw-product-download-field-container' );
+            let newDownloadsField   = document.createElement( 'div' );
+            let removeBtn           = document.createElement( 'span' );
+            newDownloadsField.classList.add( 'sw-product-download-fields' );
+            newDownloadsField.innerHTML = `<input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
+                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" smartwoo-media-url placeholder="File URL" />
+                <input type="button" class="smartwooOpenWpMedia button" value="Choose file" />
+            `
+            removeBtn.classList.add( 'dashicons', 'dashicons-dismiss' );
+            removeBtn.style.color   = 'red';
+            removeBtn.style.cursor   = 'pointer';
+            removeBtn.setAttribute( 'title', 'remove' );
+            newDownloadsField.appendChild( removeBtn );
+            parentContainer.insertBefore( newDownloadsField, addProductDownloadsfieldsBtn );
+
+            removeBtn.addEventListener( 'click', e =>{
+                e.preventDefault();
+                jQuery( newDownloadsField ).fadeOut();
+                setTimeout( ()=>{ newDownloadsField.remove(); }, 1000 );
+
+            });
+
+            let uploadBtn = newDownloadsField.querySelector( '.smartwooOpenWpMedia' );
+            uploadBtn.addEventListener( 'click', smartwooopenWPMediaOnClick );
+
+
+        });
+    }
 
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
@@ -1534,20 +1641,16 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             if ( 'remove' === addProductImageBtn.value ) {
-                PreviewDiv.innerHTML    = '';
-                imageIdInput.value      = '';
+                jQuery( PreviewDiv ).fadeOut();
+                setTimeout( ()=>{
+                    PreviewDiv.innerHTML    = '';
+                }, 1000 );
                 addProductImageBtn.value =  'Upload'
+                imageIdInput.value      = '';
+
                 return;
             }
-            // Pre-select the existing image if available
-            let existingImageId = parseInt( imageIdInput.value, 10 );
-            if ( existingImageId ) {
-                wpGallery.on( 'open', () => {
-                    let selection   = wpGallery.state().get('selection');
-                    let attachment  = wp.media.attachment( existingImageId );
-                    selection.add( attachment );
-                });
-            }
+            
             // If the modal instance exists, reuse it
             if ( wpGallery ) {
                 wpGallery.open();
@@ -1576,6 +1679,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imTag.style.maxWidth = "100%";
     
                 PreviewDiv.appendChild( imTag );
+                jQuery( PreviewDiv ).fadeIn();
                 addProductImageBtn.value =  'remove'
             });
     
@@ -1584,6 +1688,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( uploadProductImages ){
+        let defaultImgDivs  = document.querySelectorAll( '.sw-image-img' );
+        if ( defaultImgDivs.length ){
+            defaultImgDivs.forEach( div =>{
+                let clsBtn = div.querySelector( 'span' );
+                div.addEventListener( 'mouseover', ()=>{
+                    clsBtn.classList.add( 'active' );
+                });
+                div.addEventListener( 'mouseleave', ()=>{
+                    clsBtn.classList.remove( 'active' );
+                });
+
+                clsBtn.addEventListener( 'click', (e)=>{
+                    e.preventDefault();
+                    jQuery( div ).fadeOut();
+                    setTimeout( () => {
+                        div.remove();
+                    }, 2000);
+                });
+            });
+        }
+
         let wpGallery;
         let previewDiv      = document.querySelector( '#sw-product-gallery-preview' );
         uploadProductImages.addEventListener( 'click', ( e )=>{
@@ -1650,13 +1775,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if ( productdataTabs ) {
         let allbtns = productdataTabs.querySelectorAll( 'li' );
+        let menuContent = document.querySelector( '.sw-product-data-tabs-content' );
+
+        let closeAll = () =>{
+            let allDivs = menuContent.querySelectorAll( 'div' );
+            allDivs.forEach( div =>{
+                if ( ! div.classList.contains( 'smartwoo-hide' ) ) {
+                    div.classList.add( 'smartwoo-hide' );
+                }
+            });
+            allbtns.forEach(btn=>{
+                btn.classList.remove( 'active' );
+            });
+        }
         allbtns.forEach( menu =>{
             menu.addEventListener( 'click', ( e )=>{
                 e.preventDefault();
-                console.log( 'A menu clicked' );
+                
+                if ( menu.classList.contains( 'tabs-general' ) ) {
+                    closeAll();
+                    menuContent.querySelector( '.tabs-general-content' ).classList.toggle( 'smartwoo-hide' );
+                    menu.classList.toggle( 'active' );
+                } else if ( menu.classList.contains( 'tabs-sales' ) ) {
+                    closeAll();
+                    menuContent.querySelector( '.tabs-sales-content' ).classList.toggle( 'smartwoo-hide' );
+                    menu.classList.toggle( 'active' );
+                } else if ( menu.classList.contains( 'tabs-linked-products' ) ) {
+                    closeAll();
+                    menuContent.querySelector( '.tabs-linked-products-content' ).classList.toggle( 'smartwoo-hide' );
+                    menu.classList.toggle( 'active' );
+                }
             });
         });
+    }
 
+    if ( theProductForm ) {
+        theProductForm.addEventListener( 'submit', (e)=>{
+            e.preventDefault();
+            if ( window.tinymce ) {
+                window.tinymce.editors.forEach( editor =>{
+                    editor.save();
+                });
+            }
+            let noticeDiv   = document.querySelector( '#response-container' );
+            noticeDiv.innerHTML = '';
+            let spinner     = smartWooAddSpinner( 'swloader', true );
+            let formData    = new FormData( theProductForm );
+            let url         = new URL( smartwoo_admin_vars.ajax_url );
+            formData.append( 'security', smart_woo_vars.security );
+
+            fetch( url, {
+                method : 'POST',
+                body: formData
+            }).then( response =>{
+                if ( ! response.ok ) {
+                    showNotification( response.statusText, 6000 );
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            }).then( responseData=>{
+                if ( ! responseData.success ) {
+                    showNotification( responseData.data.message, 6000 );
+                } else {
+                    showNotification( responseData.data.message, 3000 );
+                }
+
+                if ( window.location.search.includes( 'tab=edit' ) && responseData.success ) {
+                    window.location.reload();
+                    return;
+                }
+
+                noticeDiv.innerHTML = responseData.data.htmlContent ? responseData.data.htmlContent : responseData.data.message;
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+
+            }).catch( error=>{
+                console.error( 'Error:', error);
+            }).finally(()=>{
+                smartWooRemoveSpinner( spinner );
+            });
+
+        });
+    }
+
+    if ( removeBtn ) {
+        removeBtn.forEach( btn =>{
+            btn.addEventListener( 'click', e =>{
+                e.preventDefault();
+                btn.parentElement.remove();
+            });
+        });
     }
     
 });
@@ -1739,5 +1946,4 @@ document.addEventListener( 'smartwooTableChecked', (e)=>{
         });
     }
 
-    console.log( adminPage )
 });
