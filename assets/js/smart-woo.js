@@ -679,69 +679,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 });
 
-jQuery(document).ready(function($) {
-    // 1. Toggle display of download fields and Add Field button
-    $('#is-smartwoo-downloadable').on('change', function() {
-        if ($(this).is(':checked')) {
-			$('.sw-assets-div').fadeIn().css('display', 'flex');;
-			$('.sw-product-download-field-container').fadeIn();
-            $('.sw-product-download-fields').fadeIn();
-            $('#add-field').fadeIn();
-        } else {
-			$('.sw-assets-div').fadeOut();
-			$('.sw-product-download-field-container').fadeOut();
-            $('.sw-product-download-fields').fadeOut();
-            $('#add-field').fadeOut();
-        }
-    });
-
-    // 2. Open WordPress media library
-    var mediaUploader;
-    $(document).on('click', '.upload_image_button', function(e) {
-        e.preventDefault();
-        var $button = $(this);
-        var $fileUrlField = $button.siblings('.fileUrl');
-        
-        if (mediaUploader) {
-            mediaUploader.open();
-            mediaUploader.off('select');
-            mediaUploader.on('select', function() {
-                var attachment = mediaUploader.state().get('selection').first().toJSON();
-                $fileUrlField.val(attachment.url);
-            });
-            return;
-        }
-
-        mediaUploader = wp.media.frames.file_frame = wp.media({
-            title: 'Select a file',
-            button: {
-                text: 'Add to asset'
-            },
-            multiple: false
-        });
-
-        mediaUploader.on('select', function() {
-            var attachment = mediaUploader.state().get('selection').first().toJSON();
-            $fileUrlField.val(attachment.url);
-        });
-
-        mediaUploader.open();
-    });
-
-    // 3. Add new field set above the Add Field button
-    $('#add-field').on('click', function() {
-        var $fieldContainer = $('.sw-product-download-fields:first').clone();
-        $fieldContainer.find('input').val('');
-        $fieldContainer.find('.upload_image_button').val('Choose file');
-        $fieldContainer.insertBefore('#add-field');
-    });
-
-    // 4. Remove field set
-    $(document).on('click', '.swremove-field', function() {
-        $(this).closest('.sw-product-download-fields').remove();
-    });	
-});
-
 /**
  * Toggle visility of assets and subscription tabs in frontend
  */
