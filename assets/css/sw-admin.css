@@ -701,16 +701,17 @@
 .smart-woo-product-form-page {
     margin: 0;
     padding: 0;
+    width: 100%;
 }
 .smart-woo-product-form-page h2 {
     font-size: 20px;
     color: #333333;
 }
+
 #sw-product-form {
     margin-left: -15px;
     display: flex;
     flex-direction: row;
-    /* align-items: center; */
     justify-content: space-evenly;
     width: 100%;
 }
@@ -806,7 +807,7 @@
     cursor: pointer;
 }
 
-.sw-product-data-tabs-menu ul li:hover{
+.sw-product-data-tabs-menu ul li.active{
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
 
@@ -873,6 +874,23 @@
     margin-right: 20px;
 }
 
+.sw-product-category {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+    width: 100%;
+    
+}
+
+.sw-product-category label {
+    color: #333333;
+    font-weight: 500;
+}
+
+
 .sw-product-download-options {
     display: block;
     border: solid 2px #dcdcde;
@@ -933,4 +951,20 @@
 .sw-image-img img {
     width: 82px;
     height: 82px;
+}
+
+@media ( min-width: 50px ) and ( max-width: 768px ) {
+    #sw-product-form {
+        margin: 20px auto;
+        flex-wrap: wrap;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .sw-product-form-product-data {
+        width: 97%;
+    }
+    .sw-product-metadata {
+        width: 97%;
+    }
 }
