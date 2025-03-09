@@ -1,5 +1,22 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.3.0] YYYY-MM-DD
+
+### New admin UI
+- Invoice admin table now features bulk action.
+
+### Service Orders Refactored
+- Introduced SmartWoo_Order object.
+- Service Order UI refactored and it now feature: bulk actions,order sorting by status,and order preview.
+
+### Service product UI
+- The service products admin page UI has been enhanced to feature: bulk actions, sorting by product status,and improved UX
+- The product creation and edit page UI has been improved to include almost every option you can find in the WooCommerce product form.
+- Product form now include: Upsell, cross-sell, product gallery, visibility, status, and sale options.
+
+### Fixed
+- Checkout invoices are not created for service orders via the WooCommerce block API
+
 # [2.2.3] 2025-02-18
 
 ### Fixed
