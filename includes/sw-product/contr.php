@@ -13,6 +13,67 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  */
 class SmartWoo_Product_Controller{
     /**
+     * @var self $instance
+     */
+    private static $instance = null;
+
+    /**
+     * Expected product form fields.
+     * 
+     * @var array
+     */
+    private $form_fields = array(
+        'smartwoo_product_id'   => 0,
+        'product_name'          => '',
+        'description'           => '',
+        'regular_price'         => '',
+        'sign_up_fee'           => '',
+        'sale_price'            => '',
+        'date_on_sale_from'  => '',
+        'date_on_sale_to'    => '',
+        'upsell_ids'           => array(),
+        'cross_sell_ids'       => array(),
+        'short_description'     => '',
+        'product_status'        => '',
+        'visibility'            => '',
+        '_is_featured'          => false,
+        'grace_period_number'   => 0,
+        'grace_period_unit'     => '',
+        'billing_cycle'         => '',
+        'product_image_id'      => '',
+        'product_gallery_ids'   => array(),
+        'product_category_ids'  => array(),
+        'is_smartwoo_downloadable'      => false,
+        'sw_downloadable_file_names'    => array(),
+        'sw_downloadable_file_urls'     => array(),
+        
+    );
+
+    /**
+     * Instanciate a singleton instance of this class.
+     * 
+     * @return self
+     */
+    public static function instance() {
+        if ( is_null( self::$instance )) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+    /**
+     * Action hooks runner.
+     */
+    public static function listen() {
+        
+        add_action( 'wp_ajax_smartwoo_create_product',array( __CLASS__, 'product_form_submit' ) );
+        add_action( 'wp_ajax_smartwoo_edit_product', array( __CLASS__, 'product_form_submit' ) );
+        
+        add_action( 'admin_post_smartwoo_create_product', array( __CLASS__, 'product_form_submit' ) );
+        add_action( 'admin_post_smartwoo_edit_product', array( __CLASS__, 'product_form_submit' ) );
+    }
+
+    /**
      * The submenu page controller.
      */
     public static function menu_controller() {
@@ -21,32 +82,10 @@ class SmartWoo_Product_Controller{
         // Handle different tabs.
         switch ( $tab ) {
             case 'add-new':
-                self::add_product_page();
+                self::add_page();
                 break;
             case 'edit':
-                self::edit_product();
-                break;
-                $product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                    
-                if ( empty( $product_id ) ) {
-                    echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
-                    return;
-                }
-                    
-                $product_data = wc_get_product( $product_id );
-    
-                if ( empty( $product_data ) ) {
-                    echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) );
-                    return;
-                }
-    
-                if ( ! $product_data instanceof SmartWoo_Product ) {
-                    echo wp_kses_post( smartwoo_error_notice( 'This is not a service product' ) );
-                    return;
-                }
-    
-                $is_downloadable = $product_data->is_downloadable();
-                include_once SMARTWOO_PATH . 'templates/product-admin-temp/sw-edit-product.php';
+                self::edit_page();
                 break;
             case 'sort-by':
                 self::sort_by();
@@ -126,206 +165,262 @@ class SmartWoo_Product_Controller{
     /**
      * Add new product page
      */
-    private static function add_product_page() {
+    private static function add_page() {
         $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $tabs           = array(
             ''        => 'Dashboard',
             'add-new' => 'Add New',
     
         );
+        $product_categories = get_terms( 'product_cat' );
         include_once SMARTWOO_PATH . 'templates/product-admin-temp/add-product.php';
 
     }
-}
 
+    /**
+     * Edit product page
+     */
+    private static function edit_page() {
+        $product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $tab        = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-
-/**
- * Controls the new service product creation form submission
- */
-function smartwoo_process_new_product() {
-    echo '<pre>';
-    var_dump( $_POST );
-    echo '</pre>';exit;
-    
-    if ( isset( $_POST['create_sw_product'], $_POST['sw_add_new_product_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_add_new_product_nonce'] ) ), 'sw_add_new_product_nonce' ) ) {
-		
-		$new_product            = new SmartWoo_Product();
-        $product_name           = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
-        $product_price          = isset( $_POST['product_price'] ) ? floatval( $_POST['product_price'] ) : 0;
-        $sign_up_fee            = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
-        $short_description      = isset( $_POST['short_description'] ) ? wp_kses_post( wp_unslash( $_POST['short_description'] ) ) : '';
-        $description            = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
-        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
-        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['grace_period_unit'] ) ) : '';
-        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
-        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
-        $is_downloadable        = ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] );
-
-
-		// Validation.
-		$validation_errors = array();
-
-		if ( empty( $product_name ) ) {
-			$validation_errors[] = 'Product Name is required';
-		}
-
-		if ( ! preg_match( '/^[A-Za-z0-9\s]+$/', $product_name ) ) {
-			$validation_errors[] = 'Product name should only contain letters, and numbers.';
-		}
-
-		if ( ! empty( $validation_errors ) ) {
-            smartwoo_set_form_error( $validation_errors );
-            wp_redirect( smartwoo_admin_product_url( 'add-new' ) );
-            exit;
-		}
-
-		$new_product->set_name( sanitize_text_field( $product_name ) );
-        $new_product->set_regular_price( floatval( $product_price ) );
-        $new_product->add_sign_up_fee( floatval( $sign_up_fee ) );
-        $new_product->set_short_description( wp_kses_post( $short_description ) );
-        $new_product->set_description( wp_kses_post( $description ) );
-        $new_product->add_billing_cycle( sanitize_text_field( $billing_cycle ) );
-        $new_product->add_grace_period_unit( sanitize_text_field( $grace_period_unit ) );
-        $new_product->add_grace_period_number( absint( $grace_period_number ) );
-        $new_product->set_image_id( $product_image_id );
-
-        // Check for downloadable properties.
-        if ( $is_downloadable ) {
-            $file_names     = array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) );
-            $file_urls      = array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) );
-            $downloadables  = array();
-            if ( count( $file_names ) === count( $file_urls ) ) {
-                $downloadables  = array_combine( $file_names, $file_urls );
-            }
-            
-            foreach ( $downloadables as $k => $v ) {
-                if ( empty( $k ) || empty( $v ) ) {
-                    unset( $downloadables[$k] );
-                }
-            }
-
-            if ( ! empty( $downloadables ) ) {
-                $downloadables  = array_map( 'sanitize_text_field', wp_unslash( $downloadables ) );
-                $new_product->add_downloadable_data( $downloadables );
-            }
-
-        }
-        
-        
-        $result = $new_product->save();
-
-		if ( is_wp_error( $result ) ) {
-            smartwoo_set_form_error( $result->get_error_message() );
-            wp_redirect( smartwoo_admin_product_url( 'add-new' ) );
-            exit;
-		}
-
-		// Show success message with product links
-		$product_link = get_permalink( $result->get_id() );
-		$edit_link    = admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $result->get_id() );
-		$success = '<div class="notice notice-success is-dismissible"><p>New product created successfully! View your product <a href="' . esc_url( $product_link ) . '" target="_blank">here</a>.</p>
-		<p>Edit the product <a href="' . esc_url( $edit_link ) . '">here</a>.</p></div>';
-		smartwoo_set_form_success( $success );
-        wp_redirect( smartwoo_admin_product_url( 'add-new' ) );
-        exit;
-		
-	}
-}
-
-function smartwoo_process_product_edit() {
-    // Handle form submission for updating the product
-    if ( isset( $_POST['update_service_product'], $_POST['sw_edit_product_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sw_edit_product_nonce'] ) ), 'sw_edit_product_nonce' ) ) {
-        $product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ): 0;
         if ( empty( $product_id ) ) {
-            wp_die( 'Invalid product.' );
+            echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
+            return;
         }
-
-        $update = wc_get_product( $product_id );
-
-        if ( ! $update ) {
-            wp_die( 'Invalid or deleted product.' );
-        }
-
-        if ( ! $update instanceof SmartWoo_Product ) {
-            wp_die( 'Product is not a service product.' );
-        }
-
-        $is_downloadable        = ! empty( $_POST['is_smartwoo_downloadable'] ) && ! empty( $_POST['sw_downloadable_file_urls'][0] ) && ! empty( $_POST['sw_downloadable_file_names'][0] ) ? true: false;
-        $product_name           = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
-        $product_price          = isset( $_POST['product_price'] ) ? floatval( $_POST['product_price'] ) : 0;
-        $sign_up_fee            = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
-        $short_description      = isset( $_POST['short_description'] ) ? wp_kses_post( wp_unslash( $_POST['short_description'] ) ) : '';
-        $description            = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
-        $billing_cycle          = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
-        $grace_period_unit      = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['grace_period_unit'] ) ) : '';
-        $grace_period_number    = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
-        $product_image_id       = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
-
-		$validation_errors = array();
-
-		if ( empty( $product_name ) ) {
-			$validation_errors[] = 'Product Name is required';
-		}
-
-		if ( ! empty( $validation_errors ) ) {
-
-            smartwoo_set_form_error( $validation_errors );
-            wp_redirect( smartwoo_admin_product_url( 'edit', $product_id ) );
-            exit;
-		}
-
-        $update->set_name( sanitize_text_field( $product_name ) );
-        $update->set_regular_price( floatval( $product_price ) );
-        $update->update_sign_up_fee( floatval( $sign_up_fee ) );
-        $update->set_short_description( wp_kses_post( $short_description ) );
-        $update->set_description( wp_kses_post( $description ) );
-        $update->update_billing_cycle( sanitize_text_field( $billing_cycle ) );
-        $update->update_grace_period_unit( sanitize_text_field( $grace_period_unit ) );
-        $update->update_grace_period_number( absint( $grace_period_number ) );
-        $update->set_image_id( $product_image_id );
-        
-        // Check for downloadable properties.
-        if ( $is_downloadable ) {
-            $file_names     = isset( $_POST['sw_downloadable_file_names'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) ) : array();
-            $file_urls      = isset( $_POST['sw_downloadable_file_urls'] ) ? array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) ): array();
-            $downloadables  = array();
-            if ( count( $file_names ) === count( $file_urls ) ) {
-                $downloadables  = array_combine( $file_names, $file_urls );
-            }
             
-            foreach ( $downloadables as $k => $v ) {
-                if ( empty( $k ) || empty( $v ) ) {
-                    unset( $downloadables[$k] );
-                }
-            }
+        $product = wc_get_product( $product_id );
 
-            if ( ! empty( $downloadables ) ) {
-                $downloadables  = array_map( 'sanitize_url', wp_unslash( (array) $downloadables ) );
-            }
-
-            $update->update_downloadable_data( ! empty( $downloadables ) ? $downloadables : array() );
-
-        } elseif ( $update->is_downloadable() && ! $is_downloadable ) {
-            // Not checking the box means the product should no longer be downloadable.
-            $update->update_downloadable_data( array() );
+        if ( $product ) {
+            $image_url = ( ! empty( wp_get_attachment_url( $product->get_image_id() ) ) ) ? wp_get_attachment_url( $product->get_image_id() ) : wc_placeholder_img_src();
         }
 
-        $result = $update->save();
+        $product_categories = get_terms( 'product_cat' );
+        $tabs               = array( '' => 'Dashboard' );
 
-        if ( is_wp_error( $result ) ) {
-            smartwoo_set_form_error( $result->get_error_message() );
-            wp_redirect( smartwoo_admin_product_url( 'edit', $product_id ) );
-            exit;
+        include_once SMARTWOO_PATH . 'templates/product-admin-temp/edit-product.php';
+        
+    }
+
+    /**
+     * Handles product form submission.
+     */
+    public static function product_form_submit() {
+        
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ), 401 );
         }
 
-		// Show success message with product links
-		$product_link = get_permalink( $result->get_id() );
-		$edit_link    = admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $result->get_id() );
-		$success = '<div class="notice notice-success is-dismissible"><p>Updated! View your product <a href="' . esc_url( $product_link ) . '" target="_blank">here</a>.</p></div>';
-		smartwoo_set_form_success( $success );
-        wp_redirect( smartwoo_admin_product_url( 'edit', $product_id ) );
-        exit;
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have permission to perform this action.' ), 403 );
+		}
+
+        $errors = self::check_errors();
+
+        if ( ! empty( $errors ) ) {
+            wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $errors, true ), 'message' => 'Errors' ) ); 
+        }
+
+        $product = self::save_product();
+
+        if ( is_wp_error( $product ) ) {
+            wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $product->get_error_message(), true ), 'message' => 'Invalid or deleted product.' ) ); 
+        }
+
+        if (  is_a( $product, 'SmartWoo_Product' ) && $product->get_id() ) {
+            $html = '<div class="notice notice-info">
+                <p>Product has been created</p>
+                <p>View product <a href="' . esc_url( get_permalink( $product->get_id() ) ) . '" target="_blank">HERE</a></p>
+                <p> Edit product <a href="' . esc_url( smartwoo_admin_product_url( 'edit', $product->get_id() ) ) . '">HERE</a></p>
+            </div>';
+            wp_send_json_success( 
+                array( 
+                    'message'       => 'Product has been saved', 
+                    'edit_url'      => smartwoo_admin_product_url( 'edit', $product->get_id() ),
+                    'page_url'      => get_permalink( $product->get_id() ),
+                    'htmlContent'   => $html
+                ) 
+            );
+        }
+
+        wp_send_json_error( array( 'message' => 'Unable to create product' ), 503 );
+    }
+
+    /**
+     * Set up form field property and check for errors
+     * 
+     * @return array
+     */
+    private static function check_errors() {
+        $fields = array();
+        $errors = array();
+        $fields['smartwoo_product_id']  = isset( $_POST['smartwoo_product_id'] ) ? absint( $_POST['smartwoo_product_id'] ) : 0; 
+        $fields['product_name']         = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
+        $fields['description']          = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
+        $fields['regular_price']        = isset( $_POST['regular_price'] ) ? floatval( $_POST['regular_price'] ) : 0;
+        $fields['sign_up_fee']          = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
+        $fields['sale_price']           = isset( $_POST['sale_price'] ) ? floatval( $_POST['sale_price'] ) : 0;
+        $fields['date_on_sale_from']    = isset( $_POST['date_on_sale_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_on_sale_from'] ) ) : '';
+        $fields['date_on_sale_to']      = isset( $_POST['date_on_sale_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_on_sale_to'] ) ) : '';
+        $fields['upsell_ids']           = isset( $_POST['upsell_ids'] ) ? array_map( 'absint', wp_unslash( explode( ',', $_POST['upsell_ids'] ) ) ) : array();
+        $fields['cross_sell_ids']       = isset( $_POST['cross_sell_ids'] ) ? array_map( 'absint', wp_unslash( explode( ',', $_POST['cross_sell_ids'] ) ) ) : array();
+        $fields['short_description']    = isset( $_POST['short_description'] ) ? wp_kses_post( $_POST['short_description'] ) : '';
+        $fields['product_status']       = isset( $_POST['product_status'] ) ? sanitize_text_field( $_POST['product_status'] ) : '';
+        $fields['visibility']           = isset( $_POST['visibility'] ) ? sanitize_text_field( wp_unslash( $_POST['visibility'] ) ) : '';
+        $fields['grace_period_number']  = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
+        $fields['grace_period_unit']    = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['grace_period_unit'] ) ) : '';
+        $fields['billing_cycle']        = isset( $_POST['billing_cycle'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_cycle'] ) ) : '';
+        $fields['product_image_id']     = isset( $_POST['product_image_id'] ) ? absint( $_POST['product_image_id'] ) : 0;
+        $fields['product_gallery_ids']  = isset( $_POST['product_gallery_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['product_gallery_ids'] ) ) : array();
+        $fields['product_category_ids'] = isset( $_POST['product_category_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['product_category_ids'] ) ) : array();
+        $fields['_is_featured']         = isset( $_POST['_is_featured'] );
+
+        $fields['is_smartwoo_downloadable']     = isset( $_POST['is_smartwoo_downloadable'] );
+        $fields['sw_downloadable_file_names']   = isset( $_POST['sw_downloadable_file_names'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) ) : array();
+        $fields['sw_downloadable_file_urls']    = isset( $_POST['sw_downloadable_file_urls'] ) ? array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) ) : array();
+    
+        self::instance()->form_fields = $fields;
+        $options    = array_keys( wc_get_product_visibility_options() );
+        if ( ! in_array( self::instance()->form_fields['visibility'], $options, true ) ) {
+			$errors[] =  __( 'Invalid catalog visibility option.', 'smart-woo-service-invoicing' );
+		}
+
+        if ( empty( self::instance()->form_fields['product_name'] ) ) {
+            $errors[]   = __( 'Product name cannot be empty', 'smart-woo-service-invoicing' );
+        }
+
+        if ( ! in_array( self::instance()->form_fields['billing_cycle'], array_keys( smartwoo_supported_billing_cycles() ) ) ) {
+            $errors[] = __( 'Billing cycle is not supported', 'smart-woo-service-invoicing' );
+        }
+
+        if ( isset( $_POST['smartwoo_product_id'] ) && empty( $_POST['smartwoo_product_id'] ) ) {
+            $errors[]   = __( 'Product ID is missing', 'smart-woo-service-invoicing' );
+        }
+        return $errors;
+    
+    }
+
+    /**
+     * Get the form data
+     */
+    private function get_form_data() {
+        return apply_filters( 'smartwoo_product_form_data', self::instance()->form_fields );
+    }
+
+    /**
+     * Create or update SmartWoo_Product with form submitted data.
+     * 
+     * @return SmartWoo_Product|WP_Error $product
+     */
+    private static function save_product() {
+        $form_fields    = self::instance()->get_form_data();
+        
+        if ( isset( $form_fields['smartwoo_product_id'] ) && ! empty( $form_fields['smartwoo_product_id'] ) ) {
+            $product    = wc_get_product( $form_fields['smartwoo_product_id'] );
+
+            if ( ! $product ) {
+                return new WP_Error( 'invalid_product', 'This product does not exists anymore' );
+            }
+        } else {
+            $product    = new SmartWoo_Product();
+        }
+        
+        $product->set_name( $form_fields['product_name'] );
+        // Prices.
+        $product->set_regular_price( $form_fields['regular_price'] );
+        $product->add_sign_up_fee( $form_fields['sign_up_fee'] );
+        
+
+        if ( ! empty( $form_fields['date_on_sale_from'] ) ) {
+            $product->set_date_on_sale_from( $form_fields['date_on_sale_from'] );
+        }
+
+        if ( ! empty( $form_fields['date_on_sale_to'] ) ) {
+            $product->set_date_on_sale_to( $form_fields['date_on_sale_to'] );
+
+        }
+        
+        if ( ! empty( $form_fields['upsell_ids'] ) ) {
+            $product->set_upsell_ids( $form_fields['upsell_ids'] );
+        }
+
+        if ( ! empty( $form_fields['sale_price'] ) ) {
+            $product->set_sale_price( $form_fields['sale_price'] );
+        }
+
+        if ( ! empty( $form_fields['cross_sell_ids'] ) ) {
+            $product->set_cross_sell_ids( $form_fields['cross_sell_ids'] );
+
+        }
+
+        if ( ! empty( $form_fields['product_category_ids'] ) ) {
+            $product->set_category_ids( $form_fields['product_category_ids'] );
+        } else {
+            $product->set_category_ids( array() );
+
+        }
+
+        $product->set_description( $form_fields['description'] );
+        error_log( $form_fields['description'] );
+        $product->set_short_description( $form_fields['short_description'] );
+        
+        // Status and visibility.
+        $product->set_status( $form_fields['product_status'] );
+        $product->set_catalog_visibility( $form_fields['visibility'] );
+        $product->set_featured( $form_fields['_is_featured'] );
+
+        // Billing cycle and expiration.
+        $product->add_billing_cycle( $form_fields['billing_cycle'] );
+        $product->add_grace_period_number( $form_fields['grace_period_number'] );
+        $product->add_grace_period_unit( $form_fields['grace_period_unit'] );
+
+        // Product media.
+        $product->set_image_id( $form_fields['product_image_id'] );
+        $product->set_gallery_image_ids( $form_fields['product_gallery_ids'] );
+
+        if ( $form_fields['is_smartwoo_downloadable'] ) {
+            self::set_up_downloads_data( $product );
+        } elseif ( $product->is_downloadable() && $product->get_id() ) {
+            $product->delete_meta_data( '_smartwoo_product_downloadable_data' );
+        } 
+
+        $product->save();
+        return $product;
+    }
+
+    /**
+     * Set up downloadable data.
+     * 
+     * @param SmartWoo_Product $product
+     */
+    private static function set_up_downloads_data( &$product ) {
+        $file_names = self::instance()->get_form_data()['sw_downloadable_file_names'];
+        $file_urls  = self::instance()->get_form_data()['sw_downloadable_file_urls'];
+
+        $downloadables  = array();
+        if ( count( $file_names ) === count( $file_urls ) ) {
+            $downloadables  = array_combine( $file_names, $file_urls );
+        }
+        
+        foreach ( $downloadables as $k => $v ) {
+            if ( empty( $k ) || empty( $v ) ) {
+                unset( $downloadables[$k] );
+            }
+        }
+
+        if ( ! empty( $downloadables ) ) {
+            if ( $product->get_id() ) {
+                $product->update_downloadable_data( $downloadables );
+
+            } else {
+                $product->add_downloadable_data( $downloadables );
+
+            }
+        } else {
+            $product->delete_meta_data( '_smartwoo_product_downloadable_data' );
+
+        }
     }
 }
 
+SmartWoo_Product_Controller::listen();
