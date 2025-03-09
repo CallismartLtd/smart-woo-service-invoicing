@@ -1,6 +1,5 @@
 <?php
 /**
- * File name sw-add-product.php
  * Template rendering the admin add new product page
  * 
  * @author Callistus
@@ -18,7 +17,9 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
             <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
         <?php elseif ( $success = smartwoo_get_form_success() ): ?>
             <?php echo wp_kses_post( $success );?>
-    <?php endif;?>
+    <?php endif; ?>
+
+    <div id="response-container"></div>
 
     <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data" id="sw-product-form">
         <input type="hidden" name="action" value="smartwoo_create_product" />
@@ -27,7 +28,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
             <div class="sw-product-name-row">
                 <input type="text" name="product_name"  id="product_name" placeholder="Product Name" autocomplete="off" spellcheck="true" value/>
             </div>
-
+            
             <div class="sw-product-description">
                 <p><label for="long_description">Product Description</label></p>
                 <hr>
@@ -54,14 +55,14 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 );
                 ?>
             </div>
-
+            <div id="swloader" style="background-color: #f1f1f100"></div>
             <div class="sw-product-data">
                 <h4>Product Data</h4>
                 <hr>
                 <div class="sw-product-data-tabs">
                     <div class="sw-product-data-tabs-menu">
                         <ul>
-                            <li class="tabs-general">General</li>
+                            <li class="tabs-general active">General</li>
                             <hr>
                             <li class="tabs-sales">Sales</li>
                             <hr>
@@ -70,7 +71,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                         
                     </div>
                     <div class="sw-product-data-tabs-content">
-                        <div class="tabs-general-content smartwoo-hide">
+                        <div class="tabs-general-content">
                             <p>
                                 Regular price (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>): <span><input type="number" name="regular_price" id="regular_price" step="0.01" ></span>
                             </p>
@@ -85,10 +86,19 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                                 Sale price (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>): <span><input type="number" name="sale_price" id="sale_price" step="0.01" ></span>
                             </p>
                             <p>
-                                Sale date from : <span><input type="datetime-local" name="sale_price_date_from" id="sale_price_date_from"></span>
+                                Sale date from : <span><input type="datetime-local" name="date_on_sale_from" id="date_on_sale_from"></span>
                             </p>
                             <p>
-                                Sale date to : <span><input type="datetime-local" name="sale_price_date_to" id="sale_price_date_to"></span>
+                                Sale date to : <span><input type="datetime-local" name="date_on_sale_to" id="date_on_sale_to"></span>
+                            </p>
+                        </div>
+
+                        <div class="tabs-linked-products-content smartwoo-hide">
+                            <p>
+                                Upsells: <span><input type="text" name="upsell_ids" id="upsell_ids" placeholder="<?php esc_html_e( 'eg 123, 456,789', 'smart-woo-service-invoicing' ); ?>"></span>
+                            </p>
+                            <p>
+                                Cross-sells : <span><input type="text" name="cross_sell_ids" id="cross_sell_ids" placeholder="<?php esc_html_e( 'eg. 123, 456,789', 'smart-woo-service-invoicing' ); ?>"></span>
                             </p>
                         </div>
                         
@@ -137,13 +147,29 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                         <option value="private"><?php esc_html_e( 'Private', 'smart-woo-service-invoiving' ); ?></option>
                     </select>
                 </p>
-                <p><span class="dashicons dashicons-visibility"></span>Catalog Visibility:
-                    <select name="product_status" id="product_status">
-                        <option value="shop_and_search"><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="shop"><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="search_result"><?php esc_html_e( 'Search only', 'smart-woo-service-invoiving' ); ?></option>
+                <p><span class="dashicons dashicons-visibility"></span>
+                    Catalog Visibility:
+                    <select name="visibility" id="product_status">
+                        <option value="visible"><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoiving' ); ?></option>
+                        <option value="catalog"><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoiving' ); ?></option>
+                        <option value="search"><?php esc_html_e( 'Search only', 'smart-woo-service-invoiving' ); ?></option>
                         <option value="hidden"><?php esc_html_e( 'Hidden', 'smart-woo-service-invoiving' ); ?></option>
                     </select>
+                </p>
+                <p><span class="dashicons dashicons-category"></span>
+                    Categories: 
+                    <?php if ( ! empty( $product_categories ) ) : ?>
+                        <?php foreach( $product_categories as $category ) : ?>
+                            <div class="sw-product-category">
+                                <label for="cat_<?php echo absint( $category->term_id ); ?>"><?php echo esc_html( $category->name ); ?>:</label>
+                                <input type="checkbox" name="product_category_ids[]" value="<?php echo absint( $category->term_id ); ?>" id="cat_<?php echo absint( $category->term_id ); ?>">
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </p>
+                <p><span class="dashicons dashicons-sticky"></span>
+                    This is a featured product:
+                    <input type="checkbox" name="_is_featured" id="is_featured" value="is_featured"/>
                 </p>
                 <button type="submit" name="_smartwoo_product_publish" class="sw-blue-button">Publish</button>
             </div>
@@ -175,9 +201,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <div class="sw-product-download-field-container">
                     <div class="sw-product-download-fields">
                         <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
-                        <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
-                        <input type="button" class="upload_image_button button" value="Choose file" />
-                        <button type="button" class="swremove-field">x</button>
+                        <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" smartwoo-media-url placeholder="File URL" />
+                        <input type="button" class="smartwooOpenWpMedia button" value="Choose file" />
                     </div>
                     
                     <button type="button" id="add-field" style="display: none;">Add Field</button>
