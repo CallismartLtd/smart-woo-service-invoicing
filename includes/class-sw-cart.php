@@ -108,7 +108,7 @@ class SmartWoo_Cart {
     public static function configure_and_add_to_cart() {
         // Verify the nonce.
         if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
-            wp_send_json_error( array( 'message' => smartwoo_notice( 'Basic authentication failed, please refresh current page.' ) ) );
+            wp_send_json_error( array( 'message' => self::is_fast_checkout() ? '<p>Basic authentication failed, please refresh current page.</p>' : smartwoo_notice( 'Basic authentication failed, please refresh current page.' ) ) );
         }
 
         $validation_errors = array();
@@ -130,7 +130,7 @@ class SmartWoo_Cart {
         }
 
         if ( ! empty( $validation_errors ) ) {
-            wp_send_json_error( array( 'message' => smartwoo_error_notice( $validation_errors ) ) );
+            wp_send_json_error( array( 'message' => self::is_fast_checkout() ? implode( '<br>', $validation_errors ) : smartwoo_error_notice( $validation_errors ) ) );
 
         }
 
@@ -139,9 +139,18 @@ class SmartWoo_Cart {
             'service_url'  => $service_url,
         );
 
-        $cart = new WC_Cart();
+        $cart = WC()->cart ? WC()->cart : new WC_Cart();
         $cart->add_to_cart( $product_id, 1, 0, array(), $cart_item_data );
         wp_send_json_success( array( 'checkout' => wc_get_checkout_url() ) );
+    }
+
+    /**
+     * Check whether fast checkout is enabled
+     * 
+     * @return boolean
+     */
+    public static function is_fast_checkout() {
+        return get_option( 'smartwoo_allow_fast_checkout', false );
     }
 }
 
