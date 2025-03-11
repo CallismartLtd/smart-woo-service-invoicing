@@ -1430,3 +1430,80 @@ font-weight: 100;
 	margin: 10px;
 	border-radius: 5px;
 }
+
+.sw-fast-checkout-main {
+	position: fixed;
+	top: 25%;
+	left: 2000px;
+	border: solid 2px #dcdcde;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	gap: 10px;
+	background-color: #f1f1f1;
+	transition: 1s ease-in-out;
+	z-index: 9999;
+	width: 350px;
+}
+
+.sw-fast-checkout-main h2,
+.sw-fast-checkout-main input,
+.sw-fast-checkout-main button {
+	padding: 10px;
+	margin-right: 15px;
+	margin-left: 15px;
+
+}
+.sw-fast-checkout-main input {
+	border: solid 1px #dcdcde;
+	background-color: #ffffff;
+}
+.sw-fast-checkout-main.active {
+	left: 50%;
+	transition: 1s ease-in;
+
+}
+
+.sw-flex-column {
+	display: flex;
+	flex-direction: column;
+	margin: 10px;
+	gap: 10px;
+}
+
+@media ( min-width: 1px) and ( max-width: 703px) {
+	@media ( min-width: 425px ) and ( max-width: 703px ) {
+		.sw-fast-checkout-main {
+			top: 20%;
+		}
+		.sw-fast-checkout-main.active {
+			left: 47%;
+			transition: 1s ease-in;
+
+		}
+		@media ( min-width: 450px ) and ( max-width: 663px ) {
+			.sw-fast-checkout-main.active {
+				left: 38%;
+				transition: 1s ease-in;
+	
+			}
+		}
+
+		@media ( min-width: 425px ) and ( max-width: 566px ) {
+			.sw-fast-checkout-main.active {
+				left: 20%;
+				transition: 1s ease-in;
+	
+			}
+		}
+	}
+	@media ( min-width: 19px )  and ( max-width: 424px ) {
+		.sw-fast-checkout-main.active {
+			top: 10%;
+			left: 5%;
+			width: 90%;
+			transition: 1s ease-in;
+		
+		}
+	}
+}
