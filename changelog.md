@@ -15,7 +15,10 @@
 - Product form now include: Upsell, cross-sell, product gallery, visibility, status, and sale options.
 
 ### Fixed
-- Checkout invoices are not created for service orders via the WooCommerce block API
+- Checkout invoices are not created for service orders via the WooCommerce block API.
+
+## Added 
+- Fast checkout feature: Allows your client's to configure products and proceed to the checkout page on same page. Go to settings > advanced to configure the fast checkout feature.
 
 # [2.2.3] 2025-02-18
 
