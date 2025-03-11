@@ -151,7 +151,7 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
                     $replace_values[$placeholder] = $this->client->get_first_name() . ' ' . $this->client->get_last_name();
                     break;
                 case '{{client_billing_address}}':
-                    $replace_values[$placeholder] = $this->service->get_billing_address();
+                    $replace_values[$placeholder] = smartwoo_get_user_billing_address( $this->client->get_id() );
                     break;
                 case '{{service_id}}':
                     $replace_values[$placeholder] = $this->service->get_service_id();
