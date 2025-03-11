@@ -25,6 +25,7 @@ class SmartWoo_Product_Controller{
     private $form_fields = array(
         'smartwoo_product_id'   => 0,
         'product_name'          => '',
+        'product_slug'          => '',
         'description'           => '',
         'regular_price'         => '',
         'sign_up_fee'           => '',
@@ -37,6 +38,7 @@ class SmartWoo_Product_Controller{
         'product_status'        => '',
         'visibility'            => '',
         '_is_featured'          => false,
+        'is_sold_individually'  => false,
         'grace_period_number'   => 0,
         'grace_period_unit'     => '',
         'billing_cycle'         => '',
@@ -192,7 +194,8 @@ class SmartWoo_Product_Controller{
         $product = wc_get_product( $product_id );
 
         if ( $product ) {
-            $image_url = ( ! empty( wp_get_attachment_url( $product->get_image_id() ) ) ) ? wp_get_attachment_url( $product->get_image_id() ) : wc_placeholder_img_src();
+            $image_url      = ( ! empty( wp_get_attachment_url( $product->get_image_id() ) ) ) ? wp_get_attachment_url( $product->get_image_id() ) : wc_placeholder_img_src();
+            $product_page   = str_replace( trailingslashit( $product->get_slug() ), '', $product->get_permalink()  );
         }
 
         $product_categories = get_terms( 'product_cat' );
@@ -256,6 +259,7 @@ class SmartWoo_Product_Controller{
         $errors = array();
         $fields['smartwoo_product_id']  = isset( $_POST['smartwoo_product_id'] ) ? absint( $_POST['smartwoo_product_id'] ) : 0; 
         $fields['product_name']         = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
+        $fields['product_slug']         = isset( $_POST['product_slug'] ) ? sanitize_text_field( wp_unslash( $_POST['product_slug'] ) ) : '';
         $fields['description']          = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
         $fields['regular_price']        = isset( $_POST['regular_price'] ) ? floatval( $_POST['regular_price'] ) : 0;
         $fields['sign_up_fee']          = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
@@ -274,7 +278,7 @@ class SmartWoo_Product_Controller{
         $fields['product_gallery_ids']  = isset( $_POST['product_gallery_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['product_gallery_ids'] ) ) : array();
         $fields['product_category_ids'] = isset( $_POST['product_category_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['product_category_ids'] ) ) : array();
         $fields['_is_featured']         = isset( $_POST['_is_featured'] );
-
+        $fields['is_sold_individually'] = isset( $_POST['is_sold_individually'] );
         $fields['is_smartwoo_downloadable']     = isset( $_POST['is_smartwoo_downloadable'] );
         $fields['sw_downloadable_file_names']   = isset( $_POST['sw_downloadable_file_names'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['sw_downloadable_file_names'] ) ) : array();
         $fields['sw_downloadable_file_urls']    = isset( $_POST['sw_downloadable_file_urls'] ) ? array_map( 'sanitize_url', wp_unslash( $_POST['sw_downloadable_file_urls'] ) ) : array();
@@ -326,9 +330,19 @@ class SmartWoo_Product_Controller{
         }
         
         $product->set_name( $form_fields['product_name'] );
+
+        if ( $product->get_id() && ! empty( $form_fields['product_slug'] ) ) {
+            $product->set_slug( $form_fields['product_slug'] );
+        }
         // Prices.
         $product->set_regular_price( $form_fields['regular_price'] );
-        $product->add_sign_up_fee( $form_fields['sign_up_fee'] );
+
+        if ( $product->get_id() ) {
+            $product->update_sign_up_fee( $form_fields['sign_up_fee'] );
+
+        } else {
+            $product->add_sign_up_fee( $form_fields['sign_up_fee'] );
+        }
         
 
         if ( ! empty( $form_fields['date_on_sale_from'] ) ) {
@@ -361,18 +375,25 @@ class SmartWoo_Product_Controller{
         }
 
         $product->set_description( $form_fields['description'] );
-        error_log( $form_fields['description'] );
         $product->set_short_description( $form_fields['short_description'] );
         
         // Status and visibility.
         $product->set_status( $form_fields['product_status'] );
         $product->set_catalog_visibility( $form_fields['visibility'] );
         $product->set_featured( $form_fields['_is_featured'] );
+        $product->set_sold_individually( $form_fields['is_sold_individually'] );
 
         // Billing cycle and expiration.
-        $product->add_billing_cycle( $form_fields['billing_cycle'] );
-        $product->add_grace_period_number( $form_fields['grace_period_number'] );
-        $product->add_grace_period_unit( $form_fields['grace_period_unit'] );
+        if ( $product->get_id() ) {
+            $product->update_billing_cycle( $form_fields['billing_cycle'] );
+            $product->update_grace_period_number( $form_fields['grace_period_number'] );
+            $product->update_grace_period_unit( $form_fields['grace_period_unit'] );
+        } else {
+            $product->add_billing_cycle( $form_fields['billing_cycle'] );
+            $product->add_grace_period_number( $form_fields['grace_period_number'] );
+            $product->add_grace_period_unit( $form_fields['grace_period_unit'] );
+        }
+
 
         // Product media.
         $product->set_image_id( $form_fields['product_image_id'] );
