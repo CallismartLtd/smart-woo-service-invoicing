@@ -39,7 +39,7 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
      * Class constructor
      * 
      * @param SmartWoo_Service $service
-     * @param WC_Order $order
+     * @param SmartWoo_Order $order
      */
     public function __construct( $service, $order ) {
         $this->service      = $service;
@@ -231,18 +231,11 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
 
         $mail_is_enabled    = get_option( 'smartwoo_new_service_order', false );
         if ( apply_filters( 'smartwoo_new_service_order', $mail_is_enabled ) ) {
-            $service_name   = 'N/A';
-            $product_id     = 0;
-            foreach( $order->get_items() as $item_id => $item ) {
-                $service_name   = wc_get_order_item_meta( $item_id, 'Service Name', true );
-                $product_id     = wc_get_order_item_meta( $item_id, '_product_id', true );
-                break;
-            }
+        
             $service = new SmartWoo_Service();
             $service->set_status( 'Pending' );
             $service->set_user_id( $order->get_user() ? $order->get_user()->ID: 0 );
             $service->set_product_id( $product_id );
-            $service->set_name( $service_name );
 
             $self = new self( $service, $order );
             $self->send();
