@@ -769,13 +769,14 @@ document.addEventListener('DOMContentLoaded', function() {
             newField.classList.add('sw-additional-assets-field');
 
             newField.innerHTML = `
+				<hr>
 				<p><strong>Add More Assets</strong></p>
                 <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                 <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
-                <input type="text" name="add_asset_values[]" placeholder="Asset Value" />
+                <textarea type="text" name="add_asset_values[]" placeholder="Asset Value (html allowed)" style="width: 90%; min-height: 100px"></textarea>
 				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional).">
 
-                <button class="remove-field" title="Remove this field">&times;</button>
+                <span class="dashicons dashicons-dismiss remove-field" title="Remove this field"></span>
             `;
 
             mainContainer.insertBefore(newField, moreAddiAssetsButton);
