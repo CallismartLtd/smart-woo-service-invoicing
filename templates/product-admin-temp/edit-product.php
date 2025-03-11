@@ -27,6 +27,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
         <div class="sw-product-form-product-data">
             <div class="sw-product-name-row">
                 <input type="text" name="product_name"  id="product_name" placeholder="Product Name" autocomplete="off" spellcheck="true" value="<?php echo esc_html( $product->get_name() ); ?>"/>
+                <p><strong>Slug</strong>: <code><?php echo esc_html( $product_page ); ?></code><input type="text"  name="product_slug" value="<?php echo esc_html( $product->get_slug() ); ?>" ><code>/</code></p>
             </div>
             
             <div class="sw-product-description">
@@ -79,6 +80,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                             <p>
                                 Sign-up fee (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>): <span><input type="number" name="sign_up_fee" id="sign_up_fee" step="0.01" value="<?php echo esc_html( $product->get_sign_up_fee() ); ?>"/></span>
                             </p>
+                            
                         </div>
 
                         <div class="tabs-sales-content smartwoo-hide">
@@ -169,11 +171,19 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                     <?php endif; ?>
                 </p>
 
-                <p><span class="dashicons dashicons-sticky"></span>
-                    This is a featured product:
-                    <input type="checkbox" name="_is_featured" id="is_featured" value="is_featured" <?php checked( 'is_featured', ( $product->get_featured() ? 'is_featured' : '' ) ) ?>/>
+                <p>
+                    <span class="dashicons dashicons-sticky"></span>
+                    <label for="is_featured">This is a featured product:</label>
+                    <input type="checkbox" name="_is_featured" id="is_featured" value="is_featured" <?php checked( $product->get_featured() ) ?>/>
+                </p>
+                <p>
+                    <span class="dashicons dashicons-cart"></span>
+                    <label for="is_sold_individually" title="Whether this product should be sold individually">Sold individually:</label>
+                    <input type="checkbox" name="is_sold_individually" id="is_sold_individually" value="is_sold_individually" <?php checked( $product->get_sold_individually() ) ?>>
+
                 </p>
                 <button type="submit" name="_smartwoo_product_publish" class="sw-blue-button">Publish</button>
+                <button href="<?php echo esc_attr( $product->get_permalink() ); ?>" class="sw-blue-button smartwoo-prevent-default">Preview</button>
             </div>
             <div class="sw-expiration-option">
                 <h4 class="sw-form-label">Grace Period</h4>
