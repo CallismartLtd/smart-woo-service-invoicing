@@ -57,6 +57,7 @@ class SmartWoo_Order_Controller {
      * The order processing form
      */
     private static function process_order_form() {
+        wp_enqueue_media();
         smartwoo_set_document_title( 'Process Orders' );
         $order_id   = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $order      = SmartWoo_Order::get_order( $order_id );
