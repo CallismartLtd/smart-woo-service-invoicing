@@ -40,17 +40,17 @@ defined( 'ABSPATH' ) || exit;
                         <?php foreach( $downloads as $file_name => $url ):?>
                             <div class="sw-product-download-fields">
                                 <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
-                                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" />
-                                <input type="button" class="upload_image_button button" value="Choose file" />
-                                <button type="button" class="swremove-field">&times;</button>
+                                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" smartwoo-media-url />
+                                <input type="button" class="smartwooOpenWpMedia button" value="Choose file" />
+                                <span class="dashicons dashicons-dismiss swremove-field"></span>
                             </div>
                         <?php endforeach;?>
                     <?php else:?>
                             <div class="sw-product-download-fields">
                                 <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
-                                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" />
-                                <input type="button" class="upload_image_button button" value="Choose file" />
-                                <button type="button" class="swremove-field">&times;</button>
+                                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" smartwoo-media-url />
+                                <input type="button" class="smartwooOpenWpMedia button" value="Choose file" />
+                                <span class="dashicons dashicons-dismiss swremove-field"></span>
                             </div>
                     <?php endif;?>
                     
@@ -68,7 +68,7 @@ defined( 'ABSPATH' ) || exit;
                     <div id="auth-token-div" class="smartwoo-hide">
                         <label for="assetKey" class="sw-form-label"><?php echo esc_html__( 'Authorizaton Token:', 'smart-woo-service-invoicing' );?></label>
                         <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, you can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
-                        <input type="text" id="assetKey" class="sw-form-input" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
+                        <input type="text" id="assetKey" class="sw-form-input" autocomplete="off" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
                     </div>
 
                     <div class="sw-form-row">
@@ -80,11 +80,13 @@ defined( 'ABSPATH' ) || exit;
                 </div>
                 <span class="line"></span>
                 <div class="sw-additional-assets" id="additionalAssets">
-                    <p><strong>Additional Asset Types</strong></p>
+                    <p><strong>Additional asset types</strong></p>
                     <div class="sw-additional-assets-field">
                         <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
                         <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
-                        <input type="text" name="add_asset_values[]" placeholder="Asset Value" />
+                        <textarea type="text" name="add_asset_values[]" placeholder="Asset Value (html allowed)" style="width: 90%; min-height: 100px"></textarea>
+                        
+                        
                         <input type="number" name="access_limits[]" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
                     </div>
                     <button id="more-addi-assets">More Fields</button> 
