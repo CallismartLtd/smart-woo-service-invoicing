@@ -507,7 +507,7 @@ class SmartWoo_Product extends WC_Product {
 	 * Make product purchasable.
 	 */
 	public function is_purchasable() {
-		return true;
+		return parent::is_purchasable();
 	}
 	
 	/**
@@ -550,7 +550,7 @@ class SmartWoo_Product extends WC_Product {
 	public function get_add_to_cart_button() {
 		?>
 		<div class="configure-product-button">
-			<a href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>" class="button product_type_<?php echo esc_attr( self::instance()->get_type() ); ?> add_to_cart_button" data-product_id="<?php echo absint( $this->get_id() ); ?>"><?php echo esc_html( smartwoo_product_text_on_shop() ); ?></a>
+			<a href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>" class="button product_type_<?php echo esc_attr( self::instance()->get_type() ); ?> add_to_cart_button" data-product_id="<?php echo absint( $this->get_id() ); ?>" data-product_name="<?php echo esc_attr( $this->get_name() ); ?>"><?php echo esc_html( smartwoo_product_text_on_shop() ); ?></a>
 		</div>
 		<?php
 	}
@@ -561,7 +561,8 @@ class SmartWoo_Product extends WC_Product {
 		global $product;
 	
 		if ( $product && self::instance()->get_type()  === $product->get_type() ) {
-	
+			wp_enqueue_style( 'dashicons' );
+
 			$sign_up_fee	= $product->get_sign_up_fee();
 			if ( $sign_up_fee ) {
 				$billing_cycle 	= $product->get_billing_cycle();
@@ -579,6 +580,7 @@ class SmartWoo_Product extends WC_Product {
 				</div>
 				<?php
 			}
+
 		}
 	}
 	
