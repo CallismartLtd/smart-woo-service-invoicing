@@ -167,9 +167,16 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </p>
-                <p><span class="dashicons dashicons-sticky"></span>
-                    This is a featured product:
+                <p>
+                    <span class="dashicons dashicons-sticky"></span>
+                    <label for="is_featured">This is a featured product:</label>
                     <input type="checkbox" name="_is_featured" id="is_featured" value="is_featured"/>
+                </p>
+                <p>
+                    <span class="dashicons dashicons-cart"></span>
+                    <label for="is_sold_individually" title="Whether this product should be sold individually">Sold individually:</label>
+                    <input type="checkbox" name="is_sold_individually" id="is_sold_individually">
+
                 </p>
                 <button type="submit" name="_smartwoo_product_publish" class="sw-blue-button">Publish</button>
             </div>
