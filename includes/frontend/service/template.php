@@ -433,7 +433,7 @@ function smartwoo_buy_new_temp() {
 		$output .= '<div class="sw-description">';
 		$output .= 	wp_kses_post( $product_excerpt );
 		$output .= '</div>';
-		$output .= '<a href="' . esc_url( smartwoo_configure_page( $product_id ) ) . '" class="sw-blue-button" >' . esc_html__( 'Configure Product', 'smart-woo-service-invoicing' ) . '</a>';
+		$output .= '<a href="' . esc_url( smartwoo_configure_page( $product_id ) ) . '" class="sw-blue-button product_type_'. esc_attr( $product->get_type() ) .' add_to_cart_button" data-product_id="' . esc_attr( $product->get_id() ) .'">' . esc_html__( 'Configure Product', 'smart-woo-service-invoicing' ) . '</a>';
 		$output .= '<a href="' . esc_url( $product->get_permalink() ) . '" class="sw-blue-button" >' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a>';
 		$output .= '</div>';
 	}
