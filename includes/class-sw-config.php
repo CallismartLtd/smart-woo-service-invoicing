@@ -220,7 +220,7 @@ class SmartWoo_Config{
             if( isset( $_GET['view_invoice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- False positive, global array value not processed.
                 wp_enqueue_style( 'dashicons' );
             }
-        } 
+        }
 
         if ( is_admin() ) {
             $utm_style_uri  = SMARTWOO_DIR_URL . 'assets/css/sw-admin' . $suffix . '.css';
@@ -271,7 +271,9 @@ class SmartWoo_Config{
         if ( is_page( $invoice_page_id ) || is_account_page() || is_admin() ) {
             wp_enqueue_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
         }
-
+        if ( get_option( 'smartwoo_allow_fast_checkout', false ) && smartwoo_is_frontend() ) {
+            wp_enqueue_script( 'smartwoo-fast-checkout', SMARTWOO_DIR_URL . 'assets/js/smart-woo-fast-checkout' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+        }
         if ( is_admin() ) {
             wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
@@ -509,7 +511,7 @@ class SmartWoo_Config{
     /**
      * Set up product configuration page template.
      *
-     * This function is a callback for the 'template_include' filter and returns
+     * This function is a callback for the `template_include` filter and returns
      * the template file path for the configure page or the original template.
      *
      * @param string $template The original template file path.
