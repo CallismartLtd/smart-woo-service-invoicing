@@ -926,7 +926,7 @@ function smartwooopenWPMediaOnClick( event ) {
         return;
     }
     // Create the media frame
-    wpMedia = wp.media({
+    wpMedia =  wp.media({
         title: 'Select File',
         button: {
             text: 'Insert'
@@ -948,7 +948,6 @@ function smartwooopenWPMediaOnClick( event ) {
             mediaUrlInput.value = file.url;
         }
 
-        console.log( file );
     });
 
     wpMedia.open();
@@ -1574,39 +1573,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        masterCheckbox.addEventListener( 'change', ()=>{
-            removeActionDiv();
-            checkboxes.forEach( ( checkbox ) =>{
-                isChecked = masterCheckbox.checked;
-                if ( isChecked ) {
-                    checkbox.checked = true;
-                    actionData.push( checkbox.getAttribute( 'data-value' ) );
-                    dispatchEvent();
-                } else {
-                    checkbox.checked = false;
-                    actionData = actionData.filter( ( row )=> row !== checkbox.getAttribute( 'data-value' ) );
-                }
-                
-            });
-        });
-
-        checkboxes.forEach( ( checkbox )=>{
-            checkbox.addEventListener( 'change', ()=>{
+        if ( masterCheckbox ) {
+            masterCheckbox.addEventListener( 'change', ()=>{
                 removeActionDiv();
-                if ( checkbox.checked ) {
-                    actionData.push( checkbox.getAttribute( 'data-value' ) );
-                    dispatchEvent();
-                } else {
-                    actionData = actionData.filter( ( row )=> row !== checkbox.getAttribute( 'data-value' ) );
-                }
-
-                if ( checkboxes.length === actionData.length ) {
-                    masterCheckbox.checked = true;
-                } else {
-                    masterCheckbox.checked = false;
-                }
+                checkboxes.forEach( ( checkbox ) =>{
+                    isChecked = masterCheckbox.checked;
+                    if ( isChecked ) {
+                        checkbox.checked = true;
+                        actionData.push( checkbox.getAttribute( 'data-value' ) );
+                        dispatchEvent();
+                    } else {
+                        checkbox.checked = false;
+                        actionData = actionData.filter( ( row )=> row !== checkbox.getAttribute( 'data-value' ) );
+                    }
+                    
+                });
             });
-        })
+        }
+
+        if ( checkboxes.length ) {
+            checkboxes.forEach( ( checkbox )=>{
+                checkbox.addEventListener( 'change', ()=>{
+                    removeActionDiv();
+                    if ( checkbox.checked ) {
+                        actionData.push( checkbox.getAttribute( 'data-value' ) );
+                        dispatchEvent();
+                    } else {
+                        actionData = actionData.filter( ( row )=> row !== checkbox.getAttribute( 'data-value' ) );
+                    }
+    
+                    if ( checkboxes.length === actionData.length ) {
+                        masterCheckbox.checked = true;
+                    } else {
+                        masterCheckbox.checked = false;
+                    }
+                });
+            });
+        }
+
     }
 
     if ( allSortDivs.length ) {
@@ -1619,7 +1623,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if( gracePeriodSelect ) {
+    if ( gracePeriodSelect ) {
         gracePeriodSelect.addEventListener( 'change', ()=>{
             console.log( 'grace changed' + gracePeriodSelect.value.length );
             let gracePeriodUnit = document.querySelector( '.grace-period-number' );
@@ -1813,9 +1817,7 @@ document.addEventListener('DOMContentLoaded', () => {
         theProductForm.addEventListener( 'submit', (e)=>{
             e.preventDefault();
             if ( window.tinymce ) {
-                window.tinymce.editors.forEach( editor =>{
-                    editor.save();
-                });
+                window.tinymce.editors.forEach( editor => editor.save() );
             }
             let noticeDiv   = document.querySelector( '#response-container' );
             noticeDiv.innerHTML = '';
