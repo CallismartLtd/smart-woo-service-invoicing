@@ -398,7 +398,7 @@ public static function create_pseudo_wc_order() {
     $order->calculate_totals();
 
     // Generate a pseudo transaction ID for testing.
-    $order->set_transaction_id( 'WC|' . wp_rand( 1, 10000 ) . '|' . time() );
+    $order->set_transaction_id( 'WC|' . wp_rand( 1000, 9999 ) . '|' . time() );
 
     return $order;
 }
