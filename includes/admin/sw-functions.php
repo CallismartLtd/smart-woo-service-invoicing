@@ -400,8 +400,8 @@ function smartwoo_error_notice( $messages, $dismisable = false ) {
 	$class = ( true === $dismisable ) ? 'sw-error-notice  is-dismissible' : 'sw-error-notice';
 	$error = '<div class="' . esc_attr ( $class ) .'">';
 	if ( $dismisable ) {
-		$error .= '<span class="dashicons dashicons-no" style="color: #ffffff; float: right; font-weight: 600; background-color: red; margin-right: 10px; padding: 5px; border-radius: 50%;
-		cursor: pointer;" title="dismiss" onclick="parentElement.remove()"></span>';
+		$error .= '<span class="dashicons dashicons-dismiss swremove-field" style="color:#ff0707; float: right; font-weight: 600; margin-right: 10px; padding: 5px;
+		cursor: pointer; font-size: 16px;" title="dismiss"></span>';
 	}
 
 	if ( is_array( $messages ) ) {
@@ -617,9 +617,9 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 
 	
 /**
- * Define Helper callback function for the wp_kses_allowed_html filter
+ * Define Helper callback function for the `wp_kses_allowed_html` filter
  * 
- * This function defines a callback for the wp_kses_allowed_html filter,
+ * This function defines a callback for the `wp_kses_allowed_html` filter,
  * which is used to modify the allowed HTML tags and attributes for the
  * wp_kses_post() function. By adding or modifying the allowed tags and
  * attributes, we can ensure that specific HTML elements are retained
@@ -639,6 +639,7 @@ function smartwoo_kses_allowed( $allowed_tags, $context ) {
 			'id' => true,
 			'style' => true,
 		),
+
 		'p' => array(
 			'class' => true,
 		),
@@ -663,6 +664,9 @@ function smartwoo_kses_allowed( $allowed_tags, $context ) {
 			'class'		=> true
 		),
 		'li'	=> array(),
+		'a'		=> array(
+			'data-product_name'	=> true
+		),
 	) );
 
 	return array_merge( $allowed_tags, $smartwoo_allowed );
