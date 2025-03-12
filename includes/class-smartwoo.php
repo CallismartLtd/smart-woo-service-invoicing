@@ -1753,7 +1753,7 @@ final class SmartWoo {
                 $services[] = $service2;
                 $temp   = new $temp_class_name( $services, 'admin' );
             } elseif( 'smartwoo_new_service_order' === $template ) {
-                $order      = $temp_class_name::create_pseudo_wc_order();
+                $order  = $temp_class_name::create_pseudo_wc_order();
                 $product_id = ( function() use ( $order ) {
                     foreach ( $order->get_items() as $item ) {
                         if ( $item->is_type( 'line_item' ) ) {
