@@ -82,6 +82,16 @@ function smartwooOpenModal( event ) {
         
     });
 
+    let removeModal = ( e ) => {
+        if ( e.key === 'Escape' || e.key === 'Esc') {
+            modalRemove( modalDiv );
+        }
+
+        document.removeEventListener( 'keydown', removeModal );
+
+    }
+    document.addEventListener( 'keydown', removeModal );
+
     checkoutBtn = modalDiv.querySelector( 'button' );
     checkoutBtn.addEventListener( 'click', e =>{
         let serviceName = modalDiv.querySelector( '#service_name' );
