@@ -78,7 +78,7 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
         $message .= '<li><strong>Paid On:</strong> {{invoice_date_paid}}</li>';
         $message .= '</ul>';
         
-        $message .= '{{invoice_items}}'; // Placeholder for dynamically inserted invoice items
+        $message .= '{{invoice_items}}'; // Placeholder for dynamically inserted invoice items.
         
         $message .= '<p style="text-align: right; margin-right: 10%;"><strong>Total:</strong> {{invoice_total}}</p>';
         $message .= '<p><strong>View Invoice:</strong> <a href="{{preview_url}}">{{preview_url}}</a></p>';
