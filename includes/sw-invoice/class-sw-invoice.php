@@ -853,6 +853,24 @@ class SmartWoo_Invoice {
 	| UTILITY METHODS
 	|--------------------------------
 	*/
+
+	/**
+	 * Get invoice currency
+	 * 
+	 * @return string
+	 */
+	public function get_currency() {
+		return $this->get_meta( 'currency', '' );
+	}
+
+	/**
+	 * Set currency
+	 * 
+	 * @param string $value
+	 */
+	public function set_currency( $value ) {
+		$this->set_meta( 'currency', $value );
+	}
 	
 	/**
 	 * Check wether current user can access invoice.
@@ -860,6 +878,10 @@ class SmartWoo_Invoice {
 	 * @return bool True if current user can view invoice, false otherwise.
 	 */
 	public function current_user_can_access() {
+		if ( ! smartwoo_is_frontend() ) {
+			return true;
+		}
+
 		if ( is_admin() ) {
 			return current_user_can( 'manage_options' );
 		}
