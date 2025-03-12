@@ -29,7 +29,7 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
     public static $instance = 'Smartwoo_New_Service_Order';
 
     /**
-     * Service Order
+     * WooCommerce Order
      * 
      * @var WC_Order $order
      */
@@ -79,32 +79,7 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
         
         $message .= '<h3>Order Details</h3>';
 
-        $message .= '<table style="width: 80%; border-collapse: collapse;" align="center">';
-        $message .= '<thead>';
-        $message .= '<tr>';
-        $message .= '<th style="text-align: left; padding: 8px; border: 1px solid #ccc;">Item</th>';
-        $message .= '<th style="text-center: right; padding: 8px; border: 1px solid #ccc;">Description</th>';
-        $message .= '<th style="text-align: right; padding: 8px; border: 1px solid #ccc;">Value</th>';
-        $message .= '</tr>';
-        $message .= '</thead>';
-        $message .= '<tbody>';
-        $message .= '<tr>';
-        $message .= '<th style="padding: 8px; text-align: left; border: 1px solid #eee;">Product Name</th>';
-        $message .= '<td style="padding: 8px; text-align: center; border: 1px solid #eee;">{{service_name}} - {{product_name}}</td>';
-        $message .= '<td style="padding: 8px; text-align: right; border: 1px solid #eee;">{{product_price}}</td>';
-        $message .= '</tr>';
-
-        $message .= '<tr>';
-        $message .= '<th style="padding: 8px; text-align: left; border: 1px solid #eee;">Fee</th>';
-        $message .= '<td style="padding: 8px; text-align: center; border: 1px solid #eee;">Sign-up fee</td>';
-        $message .= '<td style="padding: 8px; text-align: right; border: 1px solid #eee;">{{sign_up_fee}}</td>';
-        $message .= '</tr>';
-    
-        $message .= '<tr>';
-        $message .= '<td></td>';
-        $message .= '<td style="padding: 8px; text-align: center; font-weight: 700; font-size: 24px; border: 1px solid #eee;">Total</td>';
-        $message .= '<td style="padding: 8px; text-align: right; border: 1px solid #eee;">{{total_service_cost}}</td>';
-        $message .= '</tr>';
+        $message .= '{{order_items}}';
 
         $message .= '</tbody>';
         $message .= '</table>';
@@ -131,7 +106,7 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
     }
 
     /**
-     * Check whether it's preview.
+     * Check whether we are either previewing or editing this template.
      * 
      * @return bool
      */
@@ -153,7 +128,8 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
                 '{{order_date}}',
                 '{{payment_method}}',
                 '{{payment_amount}}',
-                '{{transaction_id}}'
+                '{{transaction_id}}',
+                '{{order_items}}'
             ) 
         );
         foreach ( $mail_default as $new ) {
@@ -179,7 +155,8 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
             '{{order_date}}'        => 'Order creation date',
             '{{payment_method}}'    => 'Payment gateway used for order payment',
             '{{payment_amount}}'    => 'Amount paid',
-            '{{transaction_id}}'    => 'Transaction ID'
+            '{{transaction_id}}'    => 'Transaction ID',
+            '{{order_items}}'       => 'Order Items'
         );
         return array_merge( $main, $to_add );
     }
@@ -208,6 +185,8 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
             case '{{transaction_id}}':
                 $value = self::$instance->order->get_transaction_id();
                 break;
+            case "{{order_items}}":
+                $value = self::get_items();
         }
 
 
@@ -241,6 +220,45 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
             $self->send();
         }
     }
+
+    /**
+     * The the order items.
+     */
+    public static function get_items() {
+        $order_items = self::$instance->order->get_items();
+        
+        // Initialize the table
+        $items = '<table style="width: 80%; border-collapse: collapse;" align="center">';
+        $items .= '<thead>
+                    <tr>
+                        <th style="height: 45px; text-align: left; border-top-left-radius: 9px; border-bottom: 1px solid #ccc; background-color: #ffe1f5; padding-left: 10px;">Item(s)</th>
+                        <th style="height: 45px; text-align: left; border-bottom: 1px solid #ccc; background-color: #ffe1f5;">Qty</th>
+                        <th style="height: 45px; text-align: left; border-bottom: 1px solid #ccc; background-color: #ffe1f5;">Unit Price</th>
+                        <th style="height: 45px; text-align: left; border-top-right-radius: 9px; border-bottom: 1px solid #ccc; background-color: #ffe1f5;">Total</th>
+                    </tr>
+                </thead>';
+        $items .= '<tbody>';
+
+        // Add each item as a row
+        foreach ( $order_items as $item ) {
+            if ( ! is_a( $item->get_product(), 'SmartWoo_Product' ) && ! parent::is_preview() ) {
+                continue;
+            }
+
+        $items .= '<tr>';
+        $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . esc_html( ( $item->get_meta( '_smartwoo_service_name' ) ? $item->get_meta( '_smartwoo_service_name' )  . ' - ' : '' ) . $item->get_name() ) . '</td>';
+        $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . absint( $item->get_quantity() ) . '</td>';
+        $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . esc_html( smartwoo_price( $item->get_subtotal(), array( 'currency' => self::$instance->order->get_currency() ) ) ) . '</td>';
+        $items .= '<td style="padding: 8px; text-align: left; border: 1px solid #eee;">' . esc_html( smartwoo_price( $item->get_total(), array( 'currency' => self::$instance->order->get_currency() ) ) ) . '</td>';
+        $items .= '</tr>';
+        }
+
+        $items .= '</tbody>';
+        $items .= '</table>';
+
+        return $items;
+    }
+
 }
 
 Smartwoo_New_Service_Order::init();
