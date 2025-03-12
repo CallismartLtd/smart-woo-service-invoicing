@@ -63,7 +63,7 @@ function smartwoo_invoice_front_temp() {
 		$output .= '<td>' . esc_html( $invoice->get_invoice_id() ) . '</td>';
 		$output .= '<td>' . esc_html( $date_created ) . '</td>';
 		$output .= '<td>' . esc_html( $date_due ) . '</td>';
-		$output .= '<td>' . smartwoo_price( $invoice->get_totals() ) . '</td>';
+		$output .= '<td>' . smartwoo_price( $invoice->get_totals(), array( 'currency' => $invoice->get_currency() ) ) . '</td>';
 		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->get_status() ) ) . '</td>';
 		$output .= '<td><a href="' . esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ) .'" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$output .= '</tr>';
@@ -256,7 +256,7 @@ function smartwoo_invoices_by_status() {
 		$output .= '<td>' . esc_html( $invoice->get_invoice_id() ) . '</td>';
 		$output .= '<td>' . esc_html( $date_created ) . '</td>';
 		$output .= '<td>' . esc_html( $date_due ) . '</td>';
-		$output .= '<td>' . smartwoo_price( $invoice->get_total() ) . '</td>';
+		$output .= '<td>' . smartwoo_price( $invoice->get_total(), array( 'currency' => $order->get_currency() ) ) . '</td>';
 		$output .= '<td class="payment-status">' . esc_html( ucwords( $invoice->get_status() ) ) . '</td>';
 		$output .= '<td><a href="?invoice_page=view_invoice&invoice_id=' . esc_attr( $invoice->get_invoice_id() ) . '" class="invoice-preview-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$output .= '</tr>';
@@ -440,7 +440,7 @@ function smartwoo_transactions_shortcode() {
 		$product_names  = array();
 		$output	.= '<tr>';
 		$output	.= '<td>' . esc_html( $order_status ) . '</td>';
-		$output	.= '<td>' . smartwoo_price( $amount ) . '</td>';
+		$output	.= '<td>' . smartwoo_price( $amount, array( 'currency' => $order->get_currency() ) ) . '</td>';
 		$output	.= '<td>' . esc_html( $order_date ) . '</td>';
 		$output	.= '<td><a href="' . esc_url( $order->get_view_order_url() ) . '" class="invoice-preview-button">' . esc_html__( 'View', 'smart-woo-service-invoicing' ) . '</a></td>';
 		$output	.= '</tr>';
