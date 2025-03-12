@@ -342,66 +342,101 @@ class SmartWoo_Mail {
         return $products[0];
     }
 
-/**
- * Create a pseudo WooCommerce order with pre-populated properties.
- *
- * @return WC_Order The pseudo WooCommerce order object.
- */
-public static function create_pseudo_wc_order() {
+    /**
+     * Create a pseudo service product
+     */
+    public static function create_pseudo_product() {
+        $product = new SmartWoo_Product();
+        $product->set_id( wp_rand( 1, 1000 ) );
+        $product->set_name( 'Awesome Product' );
+        $product->set_regular_price( wp_rand( 10, 100 ) );
+        $product->set_billing_cycle( 'Yearly' );
+        $product->set_sign_up_fee( wp_rand( 10, 100 ) );
+        $product->set_date_created( current_time( 'mysql' ) );
 
-    // Create a new WC_Order object.
-    $order = new WC_Order();
-    $user_id = get_current_user_id();
-    $user = new WC_Customer( $user_id );
-
-    // Populate order properties.
-    $order->set_customer_id( $user->get_id() );
-    $order->set_billing_first_name( $user->get_billing_first_name() );
-    $order->set_billing_last_name( $user->get_billing_last_name() );
-    $order->set_billing_address_1( $user->get_billing_address_1() );
-    $order->set_billing_city( $user->get_billing_city() );
-    $order->set_billing_postcode( $user->get_billing_postcode() );
-    $order->set_billing_country( $user->get_billing_country() );
-    $order->set_billing_email( $user->get_billing_email() );
-    $order->set_payment_method( 'bacs' );
-    $order->set_payment_method_title( 'Bank Transfer' );
-    $order->set_currency( get_woocommerce_currency() );
-    $order->set_created_via( SMARTWOO );
-    $order->set_date_created( new WC_DateTime() );
-
-    // Add a dummy line item to the order.
-    $product_id = self::get_random_product_id();
-    if ( $product_id ) {
-        $The_product = wc_get_product( $product_id );
-        if ( $The_product ) {
-            $item = new WC_Order_Item_Product();
-            $item->set_product( $The_product );
-            $item->set_quantity( 1 ); // Set quantity.
-            $item->set_total( $The_product->get_price() ); // Set total based on price.
-            $order->add_item( $item );
-
-            if ( ( $The_product instanceof SmartWoo_Product ) ) {
-                $fee = new WC_Order_Item_Fee();
-                $fee->set_props(
-                    array(
-                        'name'      => 'Sign-up Fee',
-                        'tax_class' => '',
-                        'total'     => $The_product->get_sign_up_fee(),
-                    )
-                );
-                $order->add_item( $fee );
-            }
-        }
+        return $product;
     }
 
-    // Set total order price based on line items.
-    $order->calculate_totals();
+    /**
+     * Create a pseudo WooCommerce order to emulate a new service order.
+     *
+     * @return WC_Order The pseudo WooCommerce order object.
+     */
+    public static function create_pseudo_wc_order() {
 
-    // Generate a pseudo transaction ID for testing.
-    $order->set_transaction_id( 'WC|' . wp_rand( 1000, 9999 ) . '|' . time() );
+        // Create a new WC_Order object.
+        $order = new WC_Order();
+        $order->set_id( wp_rand( 1000, 9999) );
+        $order->add_meta_data( '_smartwoo_is_service_order', true, true );
 
-    return $order;
-}
+        $user_id = get_current_user_id();
+        $user = new WC_Customer( $user_id );
 
+        // Populate order properties.
+        $order->set_customer_id( $user->get_id() );
+        $order->set_billing_first_name( $user->get_billing_first_name() );
+        $order->set_billing_last_name( $user->get_billing_last_name() );
+        $order->set_billing_address_1( $user->get_billing_address_1() );
+        $order->set_billing_city( $user->get_billing_city() );
+        $order->set_billing_postcode( $user->get_billing_postcode() );
+        $order->set_billing_country( $user->get_billing_country() );
+        $order->set_billing_email( $user->get_billing_email() );
+        $order->set_payment_method( 'bacs' );
+        $order->set_payment_method_title( 'Bank Transfer' );
+        $order->set_currency( get_woocommerce_currency() );
+        $order->set_created_via( SMARTWOO );
+        $order->set_date_created( new WC_DateTime() );
+
+        // Add a dummy line item to the order.
+        $product = self::create_pseudo_product();
+        $item = new WC_Order_Item_Product();
+        
+        $item->set_id( 211 );
+        $item->set_props(
+            array(
+                'name'          => $product->get_name(),
+                'tax_class'     => $product->get_tax_class(),
+                'product_id'    => $product->get_id(),
+                'variation_id'  => 0,
+                'quantity'      => 1,
+                'subtotal'      => $product->get_regular_price(),
+                'total'         => $product->get_regular_price(),
+            )
+        );
+
+        $item->add_meta_data( '_smartwoo_sign_up_fee', $product->get_sign_up_fee(), true );
+        $item->add_meta_data( '_smartwoo_service_name', 'My cool subscription', true );
+        $item->add_meta_data( '_smartwoo_service_url', site_url(), true );
+
+        $order->add_item( $item );
+
+        $fee = new WC_Order_Item_Fee();
+        $fee->set_props(
+            array(
+                'name'      => 'Sign-up Fee',
+                'tax_class' => '',
+                'total'     => $product->get_sign_up_fee(),
+            )
+        );
+        $order->add_item( $fee );
+
+        // Set total order price based on line items.
+        $order->calculate_totals();
+
+        // Generate a pseudo transaction ID for testing.
+        $order->set_transaction_id( 'WC|' . wp_rand( 1000, 9999 ) . '|' . time() );
+
+        return $order;
+    }
+
+    /**
+     * Check whether we are previewing a template.
+     * 
+     * @return bool
+     */
+    public static function is_preview() {
+        
+        return isset( $_GET['action'] ) && 'smartwoo_mail_preview' === $_GET['action'];
+    }
 
 }
