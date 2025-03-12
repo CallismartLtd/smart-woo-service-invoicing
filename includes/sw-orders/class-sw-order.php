@@ -291,6 +291,13 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get product name
+     */
+    public function get_product_name() {
+        return $this->get_product() ? $this->get_product()->get_name() : 'N/A';
+    }
+
+    /**
      * Get the order Item object.
      * 
      * @return WC_Order_Item_Product $order_item
@@ -298,6 +305,67 @@ class SmartWoo_Order {
     public function get_order_item() {
         return $this->order_item;
     }
+
+    /**
+     * Get order quantity
+     * 
+     * @return int
+     */
+    public function get_quantity() {
+        return $this->order_item->get_quantity();
+    }
+
+    /**
+     * Get the price
+     * 
+     * @return float
+     */
+    public function get_price() {
+        return $this->order_item->get_subtotal();
+    }
+
+    /**
+     * Get total
+     */
+    public function get_total() {
+        return $this->order_item->get_total();
+    }
+
+    /**
+     * Get payment method
+     * 
+     * @return string
+     */
+    public function get_payment_method() {
+        return $this->order->get_payment_method();
+    }
+
+    /**
+     * Get payment method title
+     * 
+     * @return string
+     */
+    public function get_payment_method_title() {
+        return $this->order->get_payment_method_title();
+    }
+
+    /**
+     * Get the transaction ID
+     * 
+     * @return string
+     */
+    public function get_transaction_id() {
+        return $this->order->get_transaction_id();
+    }
+
+    /**
+     * Get billing Email
+     */
+    public function get_billing_email() {
+        return $order->get_billing_email();
+    }
+
+    
     /*
     |-------------------------
     | UTILITY METHODS
