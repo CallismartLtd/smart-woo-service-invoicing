@@ -535,6 +535,7 @@ class SmartWoo_Order {
      * @return bool
      */
     public function delete() {
+        delete_transient( 'smartwoo_count_unprocessed_orders' );
         try {
             return wc_delete_order_item( $this->get_id() );
         } catch ( Exception $e ) {}
