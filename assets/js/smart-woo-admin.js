@@ -1,3 +1,12 @@
+/**
+ * Dynamically renders the list of services in a `sw-table` on admin dashoard page.
+ * 
+ * @param {Array} headers Table header values.
+ * @param {Array} bodyData Table body data.
+ * @param {number} totalPages Total available pages
+ * @param {number} currentPage The current page in the query.
+ * @param {number} index Tracks the index of the div element we are working on.
+ */
 function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index) {
     let selectedRowsState = {};
     let bodyContent = document.querySelector('.sw-admin-dash-body');
@@ -208,9 +217,8 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
  */
 function smartwoo_service_admin_view(serviceId) {
     let dashUrl = new URL(smartwoo_admin_vars.sw_admin_page);
-    dashUrl.searchParams.set('action', 'view-service');
+    dashUrl.searchParams.set('tab', 'view-service');
     dashUrl.searchParams.set('service_id', serviceId);
-    dashUrl.searchParams.set('tab', 'details');
     window.location.href = dashUrl.href;
 
 }
@@ -1438,8 +1446,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( invoicePageToggle.length ) {
-        let billingBtn      = invoicePageToggle[0];
-        let invoiceItemsBtn = invoicePageToggle[1];
+        let billingBtn      = invoicePageToggle[1];
+        let invoiceItemsBtn = invoicePageToggle[0];
         let billingTable    = document.querySelector( '.smartwoo-admin-invoice-billing-info' );
         let invoiceItemDiv  = document.querySelector( '.smartwoo-admin-invoice-items' );
         
