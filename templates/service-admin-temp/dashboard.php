@@ -41,6 +41,7 @@ defined( 'ABSPATH' ) || exit;
 
     <div id="swloader"><?php esc_html_e( 'Just a moment', 'smart-woo-service-invoicing' ); ?></div>
     <div class="sw-admin-dash-body">
+        <?php do_action( 'smartwoo_admin_header' ) ?>
         <div class="sw-search-container">
             <input type="search" name="sw_service_search" id="sw_service_search" placeholder="Search for services">
             <button id="swSearchBtn" title="click to search"><span class="dashicons dashicons-search"></span></button>
