@@ -14,32 +14,10 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  */
 function smartwoo_admin_view_service_details() {
 
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
-	}
-
-	$service_id = isset( $_GET['service_id'] ) ? sanitize_key( $_GET['service_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( empty( $service_id ) ) {
-		return smartwoo_error_notice( 'Service ID parameter cannot be manipulated' );
-	}
-	$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
-	if ( empty( $service ) ) {
-		return smartwoo_error_notice( 'Service not fund' );
-	}
-
-	smartwoo_set_document_title( $service->getServiceName() );
 	$page_html  = '';
 	$page_html .= '<div class="wrap">';
 	// Prepare array for submenu navigation.
-	$tabs = array(
-		''			=> 'Dashboard',
-		'details'   => 'Details',
-		'client' 	=> 'Client Info',
-		'assets' 	=> 'Assets',
-		'stats'  	=> 'Stats & Usage',
-		'logs'   	=> 'Service Logs',
-
-	);
+	
 
 	$args       = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$query_var  =  'action=view-service&service_id=' . $service->getServiceId() .'&tab';
@@ -198,13 +176,6 @@ function smartwoo_show_admin_service_details( SmartWoo_Service $service ) {
 
 	$page_html .= '</div>';
 	return $page_html;
-}
-
-/**
- * Plugin Admin Dashboard Page
- */
-function smartwoo_dashboard_page() {
-	include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
 }
 
 /**
