@@ -559,9 +559,18 @@ class SmartWoo_Service {
 	 * Get the Service product name.
 	 */
 	public function get_product_name() {
-		$product 		= wc_get_product( $this->getProductId() );
+		$product 		= $this->get_product();
 		$product_name 	= ! empty( $product ) ? $product->get_name() : 'N/A';
 		return $product_name;
+	}
+
+	/**
+	 * Get the product.
+	 * 
+	 * @return SmartWoo_Product|false
+	 */
+	public function get_product() {
+		return wc_get_product( $this->get_product_id() );
 	}
 
 	/** 
