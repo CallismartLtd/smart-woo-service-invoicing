@@ -10,36 +10,6 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
- * Main plugin admin page controller callback.
- */
-function smartwoo_service_admin_page() {
-
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
-	}
-
-	$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	switch ( $action ) {
-		case 'view-service':
-			echo wp_kses_post( smartwoo_admin_view_service_details() );
-			break;
-
-		case 'add-new-service':
-			include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
-			break;
-
-		case 'edit-service':
-			echo wp_kses( smartwoo_edit_service_form(), smartwoo_allowed_form_html() );
-			break;
-
-		default:
-			smartwoo_dashboard_page();
-			break;
-	}
-}
-
-/**
  * Callback controller for Settings Page
  */
 function smartwoo_options_page() {
