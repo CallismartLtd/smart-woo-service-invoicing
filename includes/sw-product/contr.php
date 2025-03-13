@@ -194,7 +194,7 @@ class SmartWoo_Product_Controller{
         $product = wc_get_product( $product_id );
 
         if ( $product ) {
-            $image_url      = ( ! empty( wp_get_attachment_url( $product->get_image_id() ) ) ) ? wp_get_attachment_url( $product->get_image_id() ) : wc_placeholder_img_src();
+            $image_url      = wp_get_attachment_url( $product->get_image_id() ) ? wp_get_attachment_url( $product->get_image_id() ) : wc_placeholder_img_src();
             $product_page   = str_replace( trailingslashit( $product->get_slug() ), '', $product->get_permalink()  );
         }
 
