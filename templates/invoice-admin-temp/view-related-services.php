@@ -22,7 +22,7 @@ smartwoo_set_document_title( 'Related Service');
 		<h3><?php echo esc_html__( 'Related Service Details', 'smart-woo-service-invoicing' ); ?></h3>
         <p class="smartwoo-container-item"><span><?php echo esc_html__( 'Service Name:', 'smart-woo-service-invoicing' ); ?></span><?php echo esc_html( $service->get_name() ); ?></p>
         <p class="smartwoo-container-item"><span><?php echo esc_html__( 'Billing Cycle:', 'smart-woo-service-invoicing' ); ?></span><?php echo esc_html( $service->get_billing_cycle() ); ?></p>
-        <p class="smartwoo-container-item"><span><?php echo esc_html__( 'End Date:', 'smart-woo-service-invoicing' ); ?></span><?php echo esc_html( $$service->get_end_date() ); ?></p>
-        <a class="sw-blue-button" href="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ); ?>"><span class="dashicons dashicons-hanger"></span><?php echo esc_html__( 'More about Service ', 'smart-woo-service-invoicing' ); ?></a>
+        <p class="smartwoo-container-item"><span><?php echo esc_html__( 'End Date:', 'smart-woo-service-invoicing' ); ?></span><?php echo esc_html( $service->get_end_date() ); ?></p>
+        <a class="sw-blue-button" href="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ); ?>"><span class="dashicons dashicons-welcome-learn-more"></span> <?php echo esc_html__( 'Learn more', 'smart-woo-service-invoicing' ); ?></a>
     </div>
 <?php endif; ?>
