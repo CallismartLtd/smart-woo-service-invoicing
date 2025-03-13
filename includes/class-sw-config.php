@@ -247,7 +247,7 @@ class SmartWoo_Config{
             'woo_payment_method_edit'   => wc_get_account_endpoint_url( 'payment-methods' ),
             'woo_billing_eddress_edit'  => wc_get_account_endpoint_url( 'edit-address/billing' ),
             'sw_admin_page'             => esc_url_raw( admin_url( 'admin.php?page=sw-admin' ) ),
-            'new_service_page'          => esc_url_raw( admin_url( 'admin.php?page=sw-admin&action=add-new-service')),
+            'new_service_page'          => esc_url_raw( admin_url( 'admin.php?page=sw-admin&tab=add-new-service')),
             'admin_invoice_page'        => esc_url_raw( admin_url( 'admin.php?page=sw-invoices&action=dashboard' ) ),
             'admin_order_page'          => esc_url_raw( admin_url( 'admin.php?page=sw-service-orders' ) ),
             'sw_product_page'           => esc_url_raw( admin_url( 'admin.php?page=sw-products' ) ),
@@ -283,7 +283,7 @@ class SmartWoo_Config{
     /**
      * Script suffix
      */
-    private static function script_suffix() {
+    public static function script_suffix() {
         if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
             return '-min';
         } elseif ( defined( 'SMARTWOO_SCRIPT_DEBUG ' ) && SMARTWOO_SCRIPT_DEBUG ) {
