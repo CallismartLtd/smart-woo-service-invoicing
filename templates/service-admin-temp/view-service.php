@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="sw-admin-view-details">
 
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Service Informations','sw-admin', $tab, 'service_id=' . $service_id . '&tab=view-service' ) ); ?>
+    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Service Informations','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
     <?php if ( ! $service ) : ?>
         <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service <a href="' . admin_url( 'admin.php?page=sw-admin' ) . '">back</a>' ) ); ?>
 
@@ -48,10 +48,10 @@ defined( 'ABSPATH' ) || exit;
                 <h3>Dates</h3>
                 <hr>
                 <div>
-                    <p class="smartwoo-container-item"><span>Start Date:</span> <?php echo esc_html( $service->get_start_date() ); ?></p>
-                    <p class="smartwoo-container-item"><span>Next Payment Date:</span> <?php echo esc_html( $service->get_next_payment_date() ); ?></p>
-                    <p class="smartwoo-container-item"><span>End Date:</span> <?php echo esc_html( $service->get_end_date() ); ?></p>
-                    <p class="smartwoo-container-item"><span>Expiration Date:</span> <?php echo esc_html( $service->get_expiry_date() ); ?></p>
+                    <p class="smartwoo-container-item"><span>Start Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_start_date(), true ) ); ?></p>
+                    <p class="smartwoo-container-item"><span>Next Payment Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), true ) ); ?></p>
+                    <p class="smartwoo-container-item"><span>End Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_end_date(), true ) ); ?></p>
+                    <p class="smartwoo-container-item"><span>Expiration Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_expiry_date(), true ) ); ?></p>
                 </div>
             </div>
             
