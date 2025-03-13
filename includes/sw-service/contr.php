@@ -9,6 +9,83 @@
 
 defined( 'ABSPATH' ) || exit;
 
+class SmartWoo_Admin_Controller {
+
+	/**
+	 * The admin dashboard menu controller
+	 */
+	public static function menu_controller() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
+		}
+	
+		$action = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	
+		switch ( $action ) {
+			case 'view-service':
+				self::view_service_page();
+				break;
+	
+			case 'add-new-service':
+				self::add_new_service_page();
+				break;
+	
+			case 'edit-service':
+				echo wp_kses( smartwoo_edit_service_form(), smartwoo_allowed_form_html() );
+				break;
+	
+			default:
+				self::dashboard();
+				break;
+		}
+	}
+
+	/**
+	 * The admin dashboard page
+	 */
+	private static function dashboard() {
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
+	}
+
+	/**
+	 * The add new service page
+	 */
+	private static function add_new_service_page() {
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
+	}
+
+	/**
+	 * View service subscription details page.
+	 */
+	private static function view_service_page() {
+		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
+
+		if ( $service ) {
+			smartwoo_set_document_title( $service->get_name() );
+			$product		= $service->get_product();
+			$product_name	= $product ? $product->get_name() : 'NA';
+			$image_url      = ( $product && wp_get_attachment_url( $product->get_image_id() ) ) ? wp_get_attachment_url( $product->get_image_id() ) : wc_placeholder_img_src();
+			$description	= $product ? wp_trim_words( $product->get_short_description(), 30, '...' ) : '<p>No description found</p>';
+			$product_url	= $product ? $product->get_permalink() : '';
+			$status = smartwoo_service_status( $service );
+			$status_class = strtolower( str_replace( ' ', '-', $status ) );
+		}
+		
+		$tabs = array(
+			''				=> 'Dashboard',
+			'view-service'	=> 'Details',
+			'client'		=> 'Client Info',
+			'assets'		=> 'Assets',
+			'stats'			=> 'Stats & Usage',
+			'logs'			=> 'Service Logs',
+	
+		);
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/view-service.php';
+	}
+}
+
 /**
  * Handles add-new service page.
  * This function is responsible for handling the manual creation of a
