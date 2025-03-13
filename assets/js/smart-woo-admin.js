@@ -1001,6 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let theProductForm      = document.querySelector( '#sw-product-form' );
     let isDownloadableCheck = document.querySelector( '#is-smartwoo-downloadable' );
     let removeBtn           = document.querySelectorAll( '.swremove-field' );
+    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .sw-admin-subinfo' )
 
     /**
      * The assets is downloadable checkbox.
@@ -1872,6 +1873,18 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener( 'click', e =>{
                 e.preventDefault();
                 btn.parentElement.remove();
+            });
+        });
+    }
+
+    if ( adminViewServiceDivs.length ) {
+        adminViewServiceDivs.forEach( div =>{
+            div.addEventListener( 'mouseover', ()=>{
+                div.classList.add( 'active' )
+            });
+
+            div.addEventListener( 'mouseleave', ()=>{
+                div.classList.remove( 'active' )
             });
         });
     }
