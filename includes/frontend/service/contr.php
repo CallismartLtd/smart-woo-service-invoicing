@@ -122,9 +122,8 @@ function smartwoo_load_billing_details_callback() {
 		$phone            = $user->get_billing_phone();
 		$website          = get_user_meta( $user_id, 'billing_website', true );
 		$billingAddress   = smartwoo_get_user_billing_address( $user_id );
-		ob_start();
+	
 		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-billing.php';
-		echo wp_kses_post( ob_get_clean() );
 	}
 
 	die();
