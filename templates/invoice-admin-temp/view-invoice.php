@@ -61,52 +61,16 @@ smartwoo_set_document_title( 'Invoice Details');
             </div>
 
             <div class="smartwoo-admin-invoice-toggle">
+                <div class="sw-toggle-btn" style="border-bottom: solid #000000;">
+                    <p>Invoice Items</p>
+                </div>
                 <div class="sw-toggle-btn">
                     <p>Billing Details</p> 
                 </div>
-                <div class="sw-toggle-btn">
-                    <p>Invoice Items</p>
-                </div>
+                
             </div>
 
-            <div class="smartwoo-admin-invoice-billing-info smartwoo-hide">
-                <table class="sw-table" style="width:100%;">
-                    <thead>
-                        <tr col-span="2">
-                            <th style="text-align:center; font-size: 19px; cursor: pointer" colspan="2">Billing Details</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong><?php echo esc_html__( 'Name:', 'smart-woo-service-invoicing' ); ?></strong></td>
-                            <td><a style="text-decoration: none; font-size: 16px; font-weight: 600;" href="<?php echo esc_url( get_edit_user_link( $invoice->get_user_id() ) ) ?>"><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_first_name() .' '. $invoice->get_user()->get_billing_last_name(): 'N/A' ); ?></a></td>
-                        </tr>
-
-                        <tr>
-                            <td><strong><?php echo esc_html__( 'Company:', 'smart-woo-service-invoicing' ); ?></strong></td>
-                            <td><?php echo esc_html( $invoice->get_user() ?  $invoice->get_user()->get_billing_company() : 'N/A' ); ?></td>
-                        </tr>
-
-                        <tr>
-                            <td><?php echo esc_html__( 'Email:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><a style="text-decoration: none;" href="<?php echo esc_url( 'mailto:' . $invoice->get_billing_email() ); ?>"><?php echo esc_html( $invoice->get_billing_email() ); ?></a></td>
-                        </tr>
-
-                        <tr>
-                            <td><?php echo esc_html__( 'Phone:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_phone() : '' ); ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo esc_html__( 'Address:', 'smart-woo-service-invoicing' ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_billing_address() ); ?></td>
-                        </tr>
-                    </tbody>
-
-                </table>
-            </div>
-
-            <div class="smartwoo-admin-invoice-items smartwoo-hide">
+            <div class="smartwoo-admin-invoice-items">
                 <table class="sw-admin-invoice-item-table">
                     <thead class="smartwoo-admin-invoice-item-table">
                         <tr>
@@ -143,6 +107,43 @@ smartwoo_set_document_title( 'Invoice Details');
                                 <td><?php echo esc_html( smartwoo_price( $invoice->get_totals() ) ); ?></td>
                         <?php endif; ?>
                     </tbody>
+                </table>
+            </div>
+
+            <div class="smartwoo-admin-invoice-billing-info smartwoo-hide">
+                <table class="sw-table" style="width:100%;">
+                    <thead>
+                        <tr col-span="2">
+                            <th style="text-align:center; font-size: 19px; cursor: pointer" colspan="2">Billing Details</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong><?php echo esc_html__( 'Name:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                            <td><a style="text-decoration: none; font-size: 16px; font-weight: 600;" href="<?php echo esc_url( get_edit_user_link( $invoice->get_user_id() ) ) ?>"><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_first_name() .' '. $invoice->get_user()->get_billing_last_name(): 'N/A' ); ?></a></td>
+                        </tr>
+
+                        <tr>
+                            <td><strong><?php echo esc_html__( 'Company:', 'smart-woo-service-invoicing' ); ?></strong></td>
+                            <td><?php echo esc_html( $invoice->get_user() ?  $invoice->get_user()->get_billing_company() : 'N/A' ); ?></td>
+                        </tr>
+
+                        <tr>
+                            <td><?php echo esc_html__( 'Email:', 'smart-woo-service-invoicing' ); ?></td>
+                            <td><a style="text-decoration: none;" href="<?php echo esc_url( 'mailto:' . $invoice->get_billing_email() ); ?>"><?php echo esc_html( $invoice->get_billing_email() ); ?></a></td>
+                        </tr>
+
+                        <tr>
+                            <td><?php echo esc_html__( 'Phone:', 'smart-woo-service-invoicing' ); ?></td>
+                            <td><?php echo esc_html( $invoice->get_user() ? $invoice->get_user()->get_billing_phone() : '' ); ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo esc_html__( 'Address:', 'smart-woo-service-invoicing' ); ?></td>
+                            <td><?php echo esc_html( $invoice->get_billing_address() ); ?></td>
+                        </tr>
+                    </tbody>
+
                 </table>
             </div>
 
