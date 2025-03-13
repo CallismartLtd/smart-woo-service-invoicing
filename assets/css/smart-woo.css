@@ -2,6 +2,41 @@
  * This file contains all the CSS File for this plugin although there are some point where it was neccessary for us to
 use inline CSS to overide some styles
  */
+ :root {
+    --smartwoo-status-active: #28a745; /* Green for Active */
+    --smartwoo-status-due-renewal: #ffc107; /* Yellow/Orange for Due for Renewal */
+    --smartwoo-status-expired: #dc3545; /* Red for Expired */
+    --smartwoo-status-suspended: #6c757d; /* Gray for Suspended */
+	--smartwoo-status-grace-period: #17a2b8;
+}
+
+.smartwoo-status {
+    float: right;
+    color: #ffffff;
+    padding: 21.5px;
+    
+    font-weight: 500;
+}
+
+.smartwoo-status.active {
+    background-color: var(--smartwoo-status-active);
+}
+
+.smartwoo-status.due-for-renewal {
+    background-color: var(--smartwoo-status-due-renewal);
+}
+
+.smartwoo-status.expired {
+    background-color: var(--smartwoo-status-expired);
+}
+
+.smartwoo-status.suspended {
+    background-color: var(--smartwoo-status-suspended);
+}
+.smartwoo-status.grace-period {
+    background-color: var(--smartwoo-status-grace-period);
+}
+
 .smartwoo-hide {
 	display: none;
 }
@@ -1181,11 +1216,11 @@ border-radius: 5px;
 /* Style the user details container */
 .smartwoo-details-container {
 	border: 1px solid #ccc;
-	border-radius: 8px; /* Add rounded corners for a card-like appearance */
-	overflow: hidden; /* Ensure rounded corners are applied */
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow for depth */
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	padding: 20px;
-	margin: 20px auto; /* Center the container and control left/right margin */
+	margin: 20px auto;
 	background-color: #fff;
 	display: flex;
 	flex-direction: column;
