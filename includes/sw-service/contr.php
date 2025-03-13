@@ -31,9 +31,11 @@ class SmartWoo_Admin_Controller {
 				break;
 	
 			case 'edit-service':
-				echo wp_kses( smartwoo_edit_service_form(), smartwoo_allowed_form_html() );
+				self::edit_service_page();
 				break;
-	
+			case 'client':
+				self::view_client();
+				break;
 			default:
 				self::dashboard();
 				break;
@@ -83,6 +85,91 @@ class SmartWoo_Admin_Controller {
 	
 		);
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/view-service.php';
+	}
+
+	/**
+	 * Edit service page
+	 */
+	private static function edit_service_page() {
+		$url_service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	
+		if ( empty( $url_service_id ) ) {
+			return smartwoo_error_notice( 'Service Parameter cannot be manipulated' );
+		}
+		$service	= SmartWoo_Service_Database::get_service_by_id( $url_service_id );
+	
+		if ( empty( $service ) ) {
+			return smartwoo_error_notice( 'Service not found.' );
+		}
+		smartwoo_set_document_title( 'Edit ' . $service->getServiceName() );
+		$tabs = array(
+			''				=> 'Dashboard',
+			'view-service'	=> 'View',
+			'edit-service'	=> 'Edit'
+		);
+	
+		$args       = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$query_var  =  'service_id=' . $service->getServiceId() .'&tab';
+	
+		$service_name		= $service->getServiceName();
+		$service_url		= $service->getServiceUrl();
+		$service_type		= $service->getServiceType();
+		$product_id			= $service->getProductId();
+		$user_id			= $service->getUserId();
+		$invoice_id			= $service->getInvoiceId();
+		$start_date			= $service->getStartDate();
+		$end_date			= $service->getEndDate();
+		$next_payment_date 	= $service->getNextPaymentDate();
+		$billing_cycle		= $service->getBillingCycle();
+		$status				= $service->getStatus();
+		$is_downloadable	= $service->has_asset();
+		$product_name		= $service->get_product_name();
+		if ( $is_downloadable ) {
+			$assets	= $service->get_assets();
+			$downloadables		= array();
+			$additionals		= array();
+			$downloads_a_obj	= null;
+	
+			foreach ( $assets as $asset ) {
+				if ( 'downloads' === $asset->get_asset_name() ) {
+					foreach ( $asset->get_asset_data() as $file => $url ) {
+						$downloadables[$file]	= $url;
+					}
+	
+					$downloads_a_obj = $asset;
+					$id = $asset->get_id();
+					continue;
+				}
+				
+				$additionals[] = $asset;
+			}
+		}
+		
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/edit-service.php';
+	}
+
+	/**
+	 * View Client page
+	 */
+	private static function view_client() {
+		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
+		
+		if ( $service ) {
+			$client = $service->get_user();
+		}
+		$tabs = array(
+			''				=> 'Dashboard',
+			'view-service'	=> 'Details',
+			'client'		=> 'Client Info',
+			'assets'		=> 'Assets',
+			'stats'			=> 'Stats & Usage',
+			'logs'			=> 'Service Logs',
+	
+		);
+
+		include_once SMARTWOO_PATH . '/templates/service-admin-temp/view-client.php';
 	}
 }
 
