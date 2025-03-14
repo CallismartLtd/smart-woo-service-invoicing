@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="sw-admin-view-details">
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Client Informations','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
+    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Client','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
 
     <?php if ( ! $service ) : ?>
 
