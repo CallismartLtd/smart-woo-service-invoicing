@@ -49,7 +49,7 @@ defined( 'ABSPATH' ) || exit;
                 <hr>
                 <div>
                     <p class="smartwoo-container-item"><span>Start Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_start_date(), true ) ); ?></p>
-                    <p class="smartwoo-container-item"><span>Next Payment Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), true ) ); ?></p>
+                    <p class="smartwoo-container-item"><span>Next Payment Date:</span> <span style="color:rgb(255, 60, 1)"><?php echo esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), true ) ); ?></span></p>
                     <p class="smartwoo-container-item"><span>End Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_end_date(), true ) ); ?></p>
                     <p class="smartwoo-container-item"><span>Expiration Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_expiry_date(), true ) ); ?></p>
                 </div>
