@@ -152,12 +152,24 @@ class SmartWoo_Admin_Controller {
 	 * View Client page
 	 */
 	private static function view_client() {
+		smartwoo_set_document_title( 'Client Info' );
 		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		
 		if ( $service ) {
-			$client = $service->get_user();
+			$client				= $service->get_user();
+			$client_full_name	= $client->get_billing_first_name() . ' ' . $client->get_billing_last_name();
+			$edit_user_url		= get_edit_user_link( $client->get_id() );
+			$billing_email		= $service->get_billing_email();
+			$street_address		= $client->get_billing_address_1() . ' ' . $client->get_billing_address_2();
+			$is_paying_client	= $client->get_is_paying_customer();
+			$total_services		= SmartWoo_Service_Database::count_user_services( $client->get_id() ) ;
+			$total_invoices		= SmartWoo_Invoice_Database::count_all_by_user( $client->get_id() );
+			/** 
+			 * Additional Client details as an associative array 
+			*/
+			$additional_details = apply_filters( 'smartwoo_additional_client_details', array(), $client->get_id() );
 		}
 		$tabs = array(
 			''				=> 'Dashboard',
