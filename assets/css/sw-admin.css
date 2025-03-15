@@ -1229,3 +1229,12 @@
     cursor: pointer;
     font-weight: 500;
 }
+.sw-admin-client-pro-services-invoices {
+    min-height: 250px;
+    background-color: #ffffff;
+    width: 91%;
+    margin-top: 20px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top: solid #dcdcde 2px;
+}
