@@ -1001,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let theProductForm      = document.querySelector( '#sw-product-form' );
     let isDownloadableCheck = document.querySelector( '#is-smartwoo-downloadable' );
     let removeBtn           = document.querySelectorAll( '.swremove-field' );
-    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .sw-admin-subinfo' )
+    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data' );
 
     /**
      * The assets is downloadable checkbox.
@@ -1284,9 +1284,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 newWindow = window.open('', '_blank');
                 newWindow.location.href = btn.getAttribute( 'href' );
                 btn.disabled = true;
+                btn.setAttribute( 'title', "Tab is open." );
                 let enableBtnFnc = ()=>{
                     if (newWindow && newWindow.closed) {
                         btn.disabled = false;
+                        btn.removeAttribute( 'title' );
+
                         btn.style.cursor = 'pointer';
                         document.removeEventListener('scroll', enableBtnFnc);
 
