@@ -1009,7 +1009,10 @@
 }
 
 .sw-view-details-service-product.active, 
-.sw-admin-subinfo.active {
+.sw-admin-subinfo.active,
+.sw-admin-client-billing-info-tab.active,
+.sw-admin-client-info-essentials.active,
+.sw-admin-client-info-pro-data.active {
     box-shadow: 20px 19px 16px 3px rgba(218, 3, 110, 0.2);
     transform: translateX(10px);
     transition: all 0.5s ease-out;
@@ -1090,4 +1093,139 @@
         padding: 0;
         width: 90%;
     }
+}
+
+.sw-admin-client-info-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 20px;
+    gap : 40px;
+}
+
+.sw-admin-client-info-data {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+
+.sw-admin-client-info-essentials {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    width: 250px;
+    transition: all 0.5s ease-in-out;
+
+}
+.sw-admin-client-info-essentials img {
+    margin-top: 20px;
+    border-radius: 30%;
+}
+.sw-admin-client-info-essentials h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333333;
+}
+.sw-admin-client-info-essentials button.button {
+    margin-top: 25%;
+    width: 80%;
+    background-color: #ffffff;
+    color: #333333;
+    font-weight: 500;
+}
+.sw-admin-client-services-meta-counts {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.sw-admin-client-services-meta-counts span {
+    height: 65px;
+    width: 5px;
+    border: 1px solid #dcdcde;
+    border-radius: 2px;
+
+}
+.sw-admin-client-meta-count {
+    text-align: center;
+    width: 100%;
+}
+
+.sw-admin-client-meta-count h4 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.sw-admin-client-info-billing {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 500px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.sw-admin-client-billing-info-tab {
+    width: 150px;
+    margin: 10px 5px 10px 10px;
+    box-shadow: 1px 1px 3px rgb(27 25 231 / 7%);
+    transition: all 0.5s ease-in-out;
+}
+.sw-admin-client-billing-info-tab h4, .sw-admin-client-billing-info-tab p {
+    padding: 4px 10px;
+    overflow-wrap: anywhere;
+    text-align: left;
+}
+
+.sw-admin-client-info-pro-data {
+    background-color: #ffffff;
+    transition: all 0.5s ease-in-out;
+    border-radius: 8px;
+}
+
+.sw-admin-client-info-pro-data h3 {
+    margin-left : 10px;
+}
+
+.sw-admin-client-info-pro-items {
+    margin: 5px;
+    padding: 10px;
+    background-color: #f1f1f1;
+
+}
+.sw-admin-client-info-pro-items p.smartwoo-container-item,
+.sw-admin-client-info-pro-items p.smartwoo-container-item span {
+    font-size: 12px;
+}
+
+.sw-admin-client-pro-sell {
+    position: relative;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 300px;
+    min-height: 250px;
+}
+.sw-admin-client-pro-sell img {
+    margin: 5px;
+    width: 97%;
+    opacity: .3;
+    background-color: hsla(0, 0%, 87%, 0.219);
+    border: solid .4px #dcdcde;
+}
+.sw-admin-client-pro-sell button {
+    position: absolute;
+    left: 10%;
+    top: 30%;
+    height: 30px;
+    width: 80%;
+    border: solid 1px #707079;
+    cursor: pointer;
+    font-weight: 500;
 }
