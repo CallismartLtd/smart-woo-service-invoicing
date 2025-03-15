@@ -535,6 +535,24 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
+	 * Count all services owned by a user
+	 * 
+	 * @param int|WC_Customer|WP_User
+	 */
+	public static function count_user_services( $id ) {
+		global $wpdb;
+		if ( is_a( $id, 'WC_Customer' ) ) {
+			$id = $id->get_id();
+		} elseif ( is_a( $id, 'WP_User' ) ){
+			$id = $id->ID;
+		}
+
+		$id = absint( $id );
+
+		$query	= $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `user_id`= %d", $id );
+		return (int) $wpdb->get_var( $query );
+	}
+	/**
 	 * Get services that are within expiry threshold.
 	 * 
 	 * @param int $page Current request page.
@@ -571,17 +589,17 @@ class SmartWoo_Service_Database {
 
 		$data = array(
 			'user_id'           => absint( $service->getUserId() ),
-			'product_id'        => absint( $service->getProductId() ),
-			'service_name'      => sanitize_text_field( $service->getServiceName() ),
-			'service_url'       => sanitize_url( $service->getServiceUrl(), array( 'http', 'https') ),
-			'service_type'      => sanitize_text_field( $service->getServiceType() ),
+			'product_id'        => absint( $service->get_product_id() ),
+			'service_name'      => sanitize_text_field( $service->get_name() ),
+			'service_url'       => sanitize_url( $service->get_service_url(), array( 'http', 'https') ),
+			'service_type'      => sanitize_text_field( $service->get_type() ),
 			'service_id'        => sanitize_text_field( $service->get_service_id() ),
-			'invoice_id'        => sanitize_text_field( $service->getInvoiceId() ),
-			'start_date'        => sanitize_text_field( $service->getStartDate() ),
-			'end_date'          => sanitize_text_field( $service->getEndDate() ),
-			'next_payment_date' => sanitize_text_field( $service->getNextPaymentDate() ),
-			'billing_cycle'     => sanitize_text_field( $service->getBillingCycle() ),
-			'status'            => sanitize_text_field( $service->getStatus() ),
+			'invoice_id'        => sanitize_text_field( $service->get_invoice_id() ),
+			'start_date'        => sanitize_text_field( $service->get_start_date() ),
+			'end_date'          => sanitize_text_field( $service->get_end_date() ),
+			'next_payment_date' => sanitize_text_field( $service->get_next_payment_date() ),
+			'billing_cycle'     => sanitize_text_field( $service->get_billing_cycle() ),
+			'status'            => sanitize_text_field( $service->get_status() ),
 		);
 
 		$data_format = array(
@@ -632,16 +650,16 @@ class SmartWoo_Service_Database {
 
 		$data 		= array(
 			'user_id'           => absint( $service->getUserId() ),
-			'product_id'        => absint( $service->getProductId() ),
-			'service_name'      => sanitize_text_field( $service->getServiceName() ),
-			'service_url'       => esc_url_raw( $service->getServiceUrl() ),
-			'service_type'      => sanitize_text_field( $service->getServiceType() ),
-			'invoice_id'        => sanitize_text_field( $service->getInvoiceId() ),
-			'start_date'        => sanitize_text_field( $service->getStartDate() ),
-			'end_date'          => sanitize_text_field( $service->getEndDate() ),
-			'next_payment_date' => sanitize_text_field( $service->getNextPaymentDate() ),
-			'billing_cycle'     => sanitize_text_field( $service->getBillingCycle() ),
-			'status'            => is_null( $service->getStatus() ) ? null : sanitize_text_field( $service->getStatus() ),
+			'product_id'        => absint( $service->get_product_id() ),
+			'service_name'      => sanitize_text_field( $service->get_name() ),
+			'service_url'       => esc_url_raw( $service->get_service_url() ),
+			'service_type'      => sanitize_text_field( $service->get_type() ),
+			'invoice_id'        => sanitize_text_field( $service->get_invoice_id() ),
+			'start_date'        => sanitize_text_field( $service->get_start_date() ),
+			'end_date'          => sanitize_text_field( $service->get_end_date() ),
+			'next_payment_date' => sanitize_text_field( $service->get_next_payment_date() ),
+			'billing_cycle'     => sanitize_text_field( $service->get_billing_cycle() ),
+			'status'            => is_null( $service->get_status() ) ? null : sanitize_text_field( $service->get_status() ),
 		);
 
 		$data_format = array(
