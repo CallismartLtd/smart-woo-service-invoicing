@@ -36,6 +36,9 @@ class SmartWoo_Admin_Controller {
 			case 'client':
 				self::view_client();
 				break;
+			case 'assets':
+				self::view_assets();
+				break;
 			default:
 				self::dashboard();
 				break;
@@ -182,6 +185,32 @@ class SmartWoo_Admin_Controller {
 		);
 
 		include_once SMARTWOO_PATH . '/templates/service-admin-temp/view-client.php';
+	}
+
+	/**
+	 * View service assets page
+	 */
+	private static function view_assets() {
+		smartwoo_set_document_title( 'Assets' );
+		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
+
+		if ( $service ) {
+			smartwoo_set_document_title( $service->get_name() . ' Assets' );
+			$assets = $service->get_assets();
+
+		}
+		$tabs = array(
+			''				=> 'Dashboard',
+			'view-service'	=> 'Details',
+			'client'		=> 'Client Info',
+			'assets'		=> 'Assets',
+			'stats'			=> 'Stats & Usage',
+			'logs'			=> 'Service Logs',
+	
+		);		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
+
 	}
 }
 
