@@ -315,7 +315,7 @@ function smartwoo_get_user_billing_address( $user_id ) {
     $billing_city			= $customer->get_billing_city();
     $billing_state			= $customer->get_billing_state();
     $billing_country_code	= $customer->get_billing_country();
-    $billing_country_name 	= WC()->countries->countries[$billing_country_code] ?? '';
+    $billing_country_name 	= smartwoo_get_country_name( $billing_country_code );
     $billing_state_name 	= $billing_state;
 	$states 				= WC()->countries->get_states( $billing_country_code );
 
@@ -341,7 +341,32 @@ function smartwoo_get_user_billing_address( $user_id ) {
     return '';
 }
 
+/**
+ * Get the full country name from a country code.
+ * 
+ * @param string $cc Two-letter country code (e.g., 'US', 'GB').
+ * @return string The country name if found, otherwise the provided country code.
+ *
+ * @since 2.3.0
+ */
+function smartwoo_get_country_name( $cc ) {
+    $countries = WC()->countries->get_countries();
+    return isset( $countries[ $cc ] ) ? $countries[ $cc ] : $cc;
+}
 
+/**
+ * Get the full state name from a country and state code.
+ * 
+ * @param string $cc      Two-letter country code (e.g., 'US', 'GB').
+ * @param string $stcode  State code (e.g., 'CA' for California, 'ON' for Ontario).
+ * @return string The state name if found, otherwise the provided state code.
+ *
+ * @since 2.3.0
+ */
+function smartwoo_get_state_name( $cc, $stcode ) {
+    $states = WC()->countries->get_states( $cc );
+    return isset( $states[ $stcode ] ) ? $states[ $stcode ] : $stcode;
+}
 
 /**
  * Retrieve billing Address from the store and options
@@ -350,18 +375,18 @@ function smartwoo_get_user_billing_address( $user_id ) {
  */
 function smartwoo_biller_details() {
 	// Retrieve plugin and WooCommerce settings
-	$business_name       = get_option( 'smartwoo_business_name', '' );
-	$invoice_logo_url    = get_option( 'smartwoo_invoice_logo_url' );
-	$admin_phone_numbers = get_option( 'smartwoo_admin_phone_numbers', '' );
-	$store_address       = get_option( 'woocommerce_store_address' );
-	$store_city          = get_option( 'woocommerce_store_city' );
-	$default_country     = get_option( 'woocommerce_default_country' );
+	$business_name			= get_option( 'smartwoo_business_name', '' );
+	$invoice_logo_url		= get_option( 'smartwoo_invoice_logo_url' );
+	$admin_phone_numbers	= get_option( 'smartwoo_admin_phone_numbers', '' );
+	$store_address			= get_option( 'woocommerce_store_address' );
+	$store_city				= get_option( 'woocommerce_store_city' );
+	$default_country		= get_option( 'woocommerce_default_country' );
 
 	// Create and populate object with billing details
 	$biller_details                     = new stdClass();
 	$biller_details->business_name      = $business_name;
 	$biller_details->invoice_logo_url   = $invoice_logo_url;
-	$biller_details->admin_phone_number = $admin_phone_numbers;
+	$biller_details->admin_phone_number	= $admin_phone_numbers;
 	$biller_details->store_address      = $store_address;
 	$biller_details->store_city         = $store_city;
 	$biller_details->default_country    = $default_country;
@@ -376,18 +401,12 @@ function smartwoo_biller_details() {
  * @return string Formatted store address.
  */
 function smartwoo_get_formatted_biller_address() {
-    $store_address_1        = get_option( 'woocommerce_store_address' );
-    $store_address_2        = get_option( 'woocommerce_store_address_2' );
-    $store_city             = get_option( 'woocommerce_store_city' );
-    $store_state            = get_option( 'woocommerce_default_country' );
-    $store_country_code     = substr( $store_state, 0, 2 );
-    $store_country_name     = WC()->countries->countries[ $store_country_code ] ?? '';
-    $store_state_name       = substr( $store_state, 3 );
-    $states                 = WC()->countries->get_states( $store_country_code );
-
-    if ( ! empty( $states ) && isset( $states[ $store_state_name ] ) ) {
-        $store_state_name = $states[ $store_state_name ];
-    }
+    $store_address_1	= get_option( 'woocommerce_store_address' );
+    $store_address_2	= get_option( 'woocommerce_store_address_2' );
+    $store_city			= get_option( 'woocommerce_store_city' );
+    $country_base		= wc_get_base_location();
+    $store_country_name	= smartwoo_get_country_name( $country_base['country'] );
+    $store_state_name	= smartwoo_get_state_name( $country_base['country'], $country_base['state'] );
 
     $address_parts = array_filter(
         array(
