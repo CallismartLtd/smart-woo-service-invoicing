@@ -24,23 +24,6 @@ function smartwoo_admin_view_service_details() {
 	$page_html .= smartwoo_sub_menu_nav( $tabs, 'Service Informations <a href="' . smartwoo_service_edit_url( $service->getServiceId() ) . '">edit</a>','sw-admin', $args, $query_var );
 
 	switch ( $args ) {
-		case 'client':
-			$page_html .= '<h2>Client Details</h2>';
-			$page_html .= smartwoo_admin_show_customer_details( $service );
-			$maybe_info = apply_filters( 'smartwoo_customer_details', array(), $service );
-
-			foreach ( (array) $maybe_info as $key => $value ) {
-				$page_html .= $value;
-			}
-			break;
-		case 'assets':
-			ob_start();
-			$assets = $service->get_assets();
-			$page_html .= '<h1>Assets <span class="dashicons dashicons-database-view"></span></h1>';
-
-			include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
-			$page_html .= ob_get_clean();
-			break;
 
 		case 'logs':
 			if ( class_exists( 'SmartWooPro', false ) ) {
