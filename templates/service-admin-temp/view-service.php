@@ -58,9 +58,37 @@ defined( 'ABSPATH' ) || exit;
         </div>
     </div>
 
-    <p>==================================================================</p><br>
-    <p>invoices here.</p>
-    <p>==================================================================</p>
+    <div class="admin-view-service-invoices">
+        <h3>Recent Invoices <span class="dashicons dashicons-pdf"></span></h3>
+        <?php if ( empty( $invoices ) ) : ?>
+            <p><?php esc_html_e( 'No invoice associated with this service.', 'smart-woo-service-invoicing' ) ?></p>
+        <?php else : ?>
+            <div class="admin-view-service-invoices-contents">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Invoice Date</th>
+                            <th>Due Date</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $invoices as $invoice ) : ?>
+                            <tr class="admin-view-service-invoices-items smartwoo-prevent-default" href="<?php echo esc_url( $invoice->preview_url() ); ?>" title="View Invoice">
+                                <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
+                                <td><?php echo esc_html( $invoice->get_date_created() ); ?></td>
+                                <td><?php echo esc_html( $invoice->get_date_due() ); ?></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_total(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices' ) ) ?>"><button style="float: right;" class="sw-blue-button">View All</button></a>
+
+            </div>
+        <?php endif; ?>
+    </div>
     <?php endif; ?>
 
 </div>
