@@ -1001,8 +1001,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let theProductForm      = document.querySelector( '#sw-product-form' );
     let isDownloadableCheck = document.querySelector( '#is-smartwoo-downloadable' );
     let removeBtn           = document.querySelectorAll( '.swremove-field' );
-    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data' );
-
+    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
+    let generateServiceIdBtn    = document.querySelector( '#generate-service-id-btn' );
     /**
      * The assets is downloadable checkbox.
      */
@@ -1889,6 +1889,46 @@ document.addEventListener('DOMContentLoaded', () => {
             div.addEventListener( 'mouseleave', ()=>{
                 div.classList.remove( 'active' )
             });
+        });
+    }
+
+    if ( generateServiceIdBtn ) {
+        generateServiceIdBtn.addEventListener( 'click', e => {
+            e.preventDefault();
+            let serviceName = document.querySelector( '#service-name' );
+            if ( ! serviceName.value.length ) {
+                showNotification( 'Please enter service name', 3000 );
+                serviceName.focus();
+                return;
+            }
+            let generatedID = document.querySelector( '#generated-service-id' );
+            let loader      = document.getElementById( 'swloader' );
+            let form        = new FormData();
+            form.append( 'security', smart_woo_vars.security );
+            form.append( 'service_name', serviceName.value );
+            form.append( 'action', 'smartwoo_service_id_ajax' );
+            
+            loader.style.display = 'inline-block';
+
+            fetch( smart_woo_vars.ajax_url, {
+                method: 'POST',
+                body: form
+
+            }).then( response =>{
+                if ( ! response.ok ) {
+                    showNotification( response.statusText, 6000 );
+                    throw new Error( `An error occured when generating service ID [${response.status}]` )
+                }
+                return response.json();
+            }).then( responseData =>{
+                generatedID.value = responseData;
+            }).catch( error =>{
+                console.error( error );
+            }).finally( ()=>{
+                loader.style.display = 'none';
+
+            });
+            
         });
     }
     
