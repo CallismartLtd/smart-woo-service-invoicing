@@ -126,31 +126,58 @@ class SmartWoo_Invoice_Database {
 	}
 
 	/**
-	 *  Method to get invoices by service_id.
-	 * 
-	 * @param string $service_id The ID of the service to retrieve it's invoice.
+	 * Method to get invoices associated with a service subscription.
+	 *
+	 * @param array $args Associative array of arguments.
+	 * @return SmartWoo_Invoice[]|false Returns an array of SmartWoo_Invoice object or false if no results.
 	 */
-	public static function get_invoices_by_service( $service_id = '' ) {
-		if ( empty( $service_id ) ) {
+	public static function get_service_invoices( $args = array() ) {
+		global $wpdb;
+
+		$default_args = array(
+			'service_id' => '',
+			'page'       => 1,
+			'limit'      => 20,
+			'type'       => '',
+			'status'     => '',
+		);
+
+		$parsed_args = wp_parse_args( array_map( 'sanitize_text_field', wp_unslash( $args ) ), $default_args );
+
+		if ( empty( $parsed_args['service_id'] ) ) {
 			return false;
 		}
 
-		global $wpdb;
+		$page  = max( 1, (int) $parsed_args['page'] );
+		$limit = max( 1, (int) $parsed_args['limit'] );
+		$offset = ( $page - 1 ) * $limit;
 
-		if ( $service_id instanceof SmartWoo_Service ) {
-			$service_id = $service_id->getServiceId();
+		$query = "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE `service_id` = %s";
+		$placeholders = array( $parsed_args['service_id'] );
+
+		// Add conditions dynamically
+		if ( ! empty( $parsed_args['type'] ) ) {
+			$query .= " AND `invoice_type` = %s";
+			$placeholders[] = $parsed_args['type'];
 		}
 
-		$service_id	= sanitize_text_field( wp_unslash( $service_id ) );
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE service_id = %s", $service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$results 	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-
-		if ( $results ) {
-			return self::convert_results_to_invoices( $results );
-
+		if ( ! empty( $parsed_args['status'] ) ) {
+			$query .= " AND `payment_status` = %s";
+			$placeholders[] = $parsed_args['status'];
 		}
-		return false;
+
+		// Add ordering and pagination
+		$query .= " ORDER BY `date_created` DESC LIMIT %d OFFSET %d";
+		$placeholders[] = $limit;
+		$placeholders[] = $offset;
+
+		// Prepare and execute the query
+		$query = $wpdb->prepare( $query, ...$placeholders );
+		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+		return $results ? self::convert_results_to_invoices( $results ) : false;
 	}
+
 
 	/**
 	 * Method to get invoices by Invoice Type.
