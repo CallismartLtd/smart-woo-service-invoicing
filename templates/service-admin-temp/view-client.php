@@ -42,6 +42,10 @@ defined( 'ABSPATH' ) || exit;
 
                 <div class="sw-admin-client-info-billing">
                     <div class="sw-admin-client-billing-info-tab">
+                        <h4>Company</h4>
+                        <p><?php echo esc_html( $client->get_billing_company() ); ?></p>
+                    </div>
+                    <div class="sw-admin-client-billing-info-tab">
                         <h4>Email Adrress</h4>
                         <p><?php echo esc_html( $billing_email ); ?></p>
                     </div>
@@ -93,9 +97,12 @@ defined( 'ABSPATH' ) || exit;
 
         <div class="sw-admin-client-pro-services-invoices">
             <?php if ( has_action( 'smartwoo_client_services_and_invoices' ) ) : ?>
-                <?php do_action( 'smartwoo_client_services_and_invoices' ); ?>
+                <?php do_action( 'smartwoo_client_services_and_invoices', $client->get_id() ); ?>
             <?php else : ?>
-                
+                <div class="sw-admin-client-service-invoice-pro-sell">
+                    <img src="<?php echo esc_url( SMARTWOO_DIR_URL . '/assets/images/admin-client-pro-services-invoices.png' ) ?>" alt="Pro Data">
+                    <button class="sw-upgrade-to-pro">Activate Pro Feature</button>
+                </div>
             <?php endif; ?>
         </div>
 
