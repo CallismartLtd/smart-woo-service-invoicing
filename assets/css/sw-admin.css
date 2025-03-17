@@ -999,7 +999,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 80vh;
+    min-height: 478px;
 
 }
 .sw-view-details-service-product, 
@@ -1013,7 +1013,8 @@
 .sw-admin-client-billing-info-tab.active,
 .sw-admin-client-info-essentials.active,
 .sw-admin-client-info-pro-data.active,
-.sw-admin-client-service-invoice-pro-sell.active {
+.sw-admin-client-service-invoice-pro-sell.active,
+.admin-view-service-invoices-items.active {
     box-shadow: 20px 19px 16px 3px rgba(218, 3, 110, 0.2);
     transform: translateX(10px);
     transition: all 0.5s ease-out;
@@ -1077,6 +1078,68 @@
 .sw-admin-subinfo div {
     margin-left: 20px;
     
+}
+.admin-view-service-invoices {
+    margin: 20px 10px 5px 10px;
+    background-color: #ffffff;
+    min-height: 250px;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(218, 3, 110, 0.2);
+    width: 95%;
+    transition: all 0.5s ease-out;
+
+}
+.admin-view-service-invoices h3 {
+    margin: 30px;
+    padding-top: 10px;
+}
+.admin-view-service-invoices-contents {
+    display: flex;
+    flex-direction: column;
+    background-color: #f1f1f1;
+    margin: 10px;
+    border-radius: 8px;
+    min-height: 180px;
+
+}
+
+.admin-view-service-invoices-contents table {
+    width: 90%;
+    margin: 10px auto;
+    border-collapse: collapse;
+}
+.admin-view-service-invoices-contents thead {
+    color: #666666;
+    text-align: left;
+}
+
+.admin-view-service-invoices-items {
+    box-shadow: -5px 4px 10px rgba(218, 3, 110, 0.2);
+    margin-top: 10px;
+    transition: all 0.5s ease-out;
+
+}
+.admin-view-service-invoices-contents tbody tr:nth-of-type(odd) {
+    background-color: #ffffff; /* White for odd rows */
+}
+.admin-view-service-invoices-items:hover {
+    background-color: #f6f4ff;
+    transition: all 0.5s ease-out;
+
+}
+
+
+
+.admin-view-service-invoices-contents th,
+.admin-view-service-invoices-contents td {
+    margin: 20px;
+    height: 50px;
+    padding: 10px;
+}
+.admin-view-service-invoices-contents td {
+    margin: 20px;
+    cursor: pointer;
+    height: 40px;
 }
 
 @media ( min-width: 19px ) and ( max-width: 729px) {
@@ -1264,6 +1327,7 @@
     font-weight: 500;
 }
 
+
 @media ( min-width: 19px ) and ( max-width: 768px ) {
     @media ( max-width: 768px ) {
         .sw-admin-client-info-wrapper {
@@ -1302,6 +1366,13 @@
             min-width: 90%;
            
         }
+        .admin-view-service-invoices {
+            width: 87%;
+            overflow-y: auto;
+        }
+        .admin-view-service-invoice table {
+            max-width: 90%;
+        }
     }
 
     @media ( max-width: 376px ) {
@@ -1309,8 +1380,5 @@
             width: 90%;
         }
     }
-    /* .sw-admin-client-info-pro-data {
-        margin: 10px auto;
-        min-width: 90%
-    } */
+    
 }
