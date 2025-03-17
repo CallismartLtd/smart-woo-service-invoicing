@@ -90,9 +90,8 @@ function smartwoo_service_preview_url( $service_id ) {
     } elseif( is_admin() ) {
 		$preview_url = add_query_arg( 
 			array(
-				'action' 		=> 'view-service',
 				'service_id'	=> $service_id,
-				'tab'			=> 'details'
+				'tab'			=> 'view-service'
 			),
 			admin_url( 'admin.php?page=sw-admin')
 		);
