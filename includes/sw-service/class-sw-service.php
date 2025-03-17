@@ -551,7 +551,7 @@ class SmartWoo_Service {
 	 * @since 2.1.1
 	 */
 	public function preview_url() {
-		return smartwoo_service_preview_url( $this->getServiceId() );
+		return smartwoo_service_preview_url( $this->get_service_id() );
 	}
 
 
@@ -769,7 +769,7 @@ class SmartWoo_Service {
 		}
 
 		$assets_obj		= new SmartWoo_Service_Assets();
-		$assets_obj->set_service_id( $this->getServiceId() );
+		$assets_obj->set_service_id( $this->get_service_id() );
 		$this->assets	= $assets_obj->get_service_assets();
 		return $this->assets;	
 	}
@@ -803,7 +803,7 @@ class SmartWoo_Service {
 
 			if ( $this->is_smartwoo_product( $product ) && $product->is_downloadable() ) {
 				$this->assets['asset_name']		= ucfirst( $asset_name );
-				$this->assets['service_id'] 	= $this->getServiceId();
+				$this->assets['service_id'] 	= $this->get_service_id();
 				$this->assets['asset_data'] 	= $product->get_smartwoo_downloads();
 				$this->assets['access_limit'] 	= -1; // Will allow users to set access limit in later updates.
 				$this->assets['expiry'] 		= $this->getEndDate();
