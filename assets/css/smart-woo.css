@@ -38,7 +38,7 @@ use inline CSS to overide some styles
 }
 
 .smartwoo-hide {
-	display: none;
+	display: none !important;
 }
 
 /************************************************************************************/
