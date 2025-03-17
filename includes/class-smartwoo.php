@@ -58,8 +58,8 @@ final class SmartWoo {
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
-        add_action( 'admin_post_smartwoo_add_service', 'smartwoo_process_new_service_form' );
-        add_action( 'admin_post_smartwoo_edit_service', 'smartwoo_process_edit_service_form' );
+        add_action( 'admin_post_smartwoo_add_service', array( 'SmartWoo_Admin_Controller', 'new_service_form' ) );
+        add_action( 'admin_post_smartwoo_edit_service', array( 'SmartWoo_Admin_Controller', 'edit_service_form' ) );
         add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
@@ -1780,15 +1780,13 @@ final class SmartWoo {
      * Generarte service ID via ajax.
      */
     public static function ajax_generate_service_id() { 
-
-        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
-            wp_die( -1, 403 );
+        check_ajax_referer(  'smart_woo_nonce', 'security' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( -1, 401 );
         }
-
         $service_name = isset( $_POST['service_name']) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ): '';
-        $generated_service_id = smartwoo_generate_service_id( $service_name );
-        echo esc_html( $generated_service_id );
-        die();
+        $id = smartwoo_generate_service_id( $service_name );
+        wp_send_json( $id );
     }
 
     /**
