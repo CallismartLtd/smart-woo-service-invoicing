@@ -641,7 +641,3 @@ class SmartWoo_Admin_Controller {
 	}
 
 }
-
-
-
-
