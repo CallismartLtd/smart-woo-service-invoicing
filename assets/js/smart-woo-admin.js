@@ -1001,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let theProductForm      = document.querySelector( '#sw-product-form' );
     let isDownloadableCheck = document.querySelector( '#is-smartwoo-downloadable' );
     let removeBtn           = document.querySelectorAll( '.swremove-field' );
-    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
+    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .admin-view-service-invoices-items, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
     let generateServiceIdBtn    = document.querySelector( '#generate-service-id-btn' );
     /**
      * The assets is downloadable checkbox.
