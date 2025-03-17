@@ -1012,7 +1012,8 @@
 .sw-admin-subinfo.active,
 .sw-admin-client-billing-info-tab.active,
 .sw-admin-client-info-essentials.active,
-.sw-admin-client-info-pro-data.active {
+.sw-admin-client-info-pro-data.active,
+.sw-admin-client-service-invoice-pro-sell.active {
     box-shadow: 20px 19px 16px 3px rgba(218, 3, 110, 0.2);
     transform: translateX(10px);
     transition: all 0.5s ease-out;
@@ -1237,4 +1238,79 @@
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     border-top: solid #dcdcde 2px;
+
+}
+.sw-admin-client-service-invoice-pro-sell {
+    position: relative;
+    transition: all 0.5s ease-in-out;
+
+}
+
+.sw-admin-client-pro-services-invoices img {
+    margin: 5px;
+    width: 97%;
+    opacity: .3;
+    background-color: hsla(0, 0%, 87%, 0.219);
+    border: solid .4px #dcdcde;
+}
+.sw-admin-client-pro-services-invoices .sw-upgrade-to-pro {
+    position: absolute;
+    left: 10%;
+    top: 30%;
+    height: 30px;
+    width: 80%;
+    border: solid 1px #707079;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+@media ( min-width: 19px ) and ( max-width: 768px ) {
+    @media ( max-width: 768px ) {
+        .sw-admin-client-info-wrapper {
+            flex-wrap: wrap;
+        }
+        .sw-admin-client-info-data {
+            max-width: 90%;
+        }
+        .sw-admin-client-info-pro-data {
+            margin: 10px auto;
+            min-width: 60%;
+        }
+    }
+
+    @media ( max-width: 425px ) {
+        .sw-admin-client-info-data {
+            flex-wrap: wrap;
+          
+        }
+        .sw-admin-client-info-essentials {
+            width: 100%;
+            margin: 10px auto;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+
+        }
+        .sw-admin-client-info-billing {
+            width: 100%;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+            margin: 10px auto;
+
+        }
+        .sw-admin-client-info-pro-data {
+            margin: 0;
+            min-width: 90%;
+           
+        }
+    }
+
+    @media ( max-width: 376px ) {
+        .sw-admin-client-billing-info-tab {
+            width: 90%;
+        }
+    }
+    /* .sw-admin-client-info-pro-data {
+        margin: 10px auto;
+        min-width: 90%
+    } */
 }
