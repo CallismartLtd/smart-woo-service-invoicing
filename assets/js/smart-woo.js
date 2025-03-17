@@ -489,44 +489,6 @@ function loadTransactionHistory() {
 		);
 }
 
-jQuery(document).ready(function($) {
-    var generateServiceIdBtn = $('#generate-service-id-btn');
-    var loader = $('#swloader');
-
-    if (generateServiceIdBtn.length) {
-        generateServiceIdBtn.on('click', function(event) {
-            event.preventDefault();
-
-            // Get the service name from the input
-            var serviceName = $('#service-name').val();
-            // Display the animated loader
-            loader.css('display', 'inline-block');
-
-            // Perform AJAX request to generate service ID
-            $.ajax({
-                url: smart_woo_vars.ajax_url,
-                type: 'POST',
-                dataType: 'text',
-                data: {
-                    action: 'smartwoo_service_id_ajax',
-                    service_name: serviceName,
-                    security: smart_woo_vars.security
-                },
-                success: function(response) {
-                    loader.css('display', 'none');
-                    $('#generated-service-id').val(response);
-                },
-                error: function(xhr, status, error) {
-                    // Hide the loader on error
-                    loader.css('display', 'none');
-                    // Handle error
-                    console.error(error);
-                }
-            });
-        });
-    }
-});
-
 /**
  * Configure Product client Ajax handler.
  */
