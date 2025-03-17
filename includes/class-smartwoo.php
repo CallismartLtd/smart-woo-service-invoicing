@@ -256,21 +256,30 @@ final class SmartWoo {
 
         if ( $our_order ) {
             echo '<a href="' . esc_url( smartwoo_service_page_url() ) .'" class="sw-blue-button">Dashbaord</a>';
+            $invoice_id       = $order->get_meta( '_sw_invoice_id' );
+
+            if ( $invoice_id ) {
+                echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $invoice_id ) ) .'" class="sw-blue-button">Invoice</a>';
+
+            }
             
             $smartwoo_orders    = SmartWoo_Order::extract_items( $order );
             $total_orders       = count( $smartwoo_orders );
 
-            if ( $total_orders > 1 ) {
-                $numb = 1;
-                foreach ( $smartwoo_orders as $smartwoo_order ) {
-                    echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_order->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice ' . $numb .'</a>';
-                    $numb++;
+            if ( ! empty( $total_orders ) ) {
+                if ( $total_orders > 1 ) {
+                    $numb = 1;
+                    foreach ( $smartwoo_orders as $smartwoo_order ) {
+                        echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_order->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice ' . $numb .'</a>';
+                        $numb++;
+                    }
+                } else {
+                    echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_orders[0]->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice</a>';
+    
                 }
-            } else {
-                echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_orders[0]->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice</a>';
-
+                
             }
-            
+
         }
     
     }
