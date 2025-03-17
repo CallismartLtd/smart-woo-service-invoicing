@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="sw-admin-view-details">
 
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Service Informations','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
+    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Service Informations <a href="' . smartwoo_service_edit_url( $service_id ) .'">Edit</a>','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
     <?php if ( ! $service ) : ?>
         <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service <a href="' . admin_url( 'admin.php?page=sw-admin' ) . '">back</a>' ) ); ?>
 
@@ -77,8 +77,8 @@ defined( 'ABSPATH' ) || exit;
                         <?php foreach ( $invoices as $invoice ) : ?>
                             <tr class="admin-view-service-invoices-items smartwoo-prevent-default" href="<?php echo esc_url( $invoice->preview_url() ); ?>" title="View Invoice">
                                 <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
-                                <td><?php echo esc_html( $invoice->get_date_created() ); ?></td>
-                                <td><?php echo esc_html( $invoice->get_date_due() ); ?></td>
+                                <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_created() ) ); ?></td>
+                                <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_due() ) ); ?></td>
                                 <td><?php echo esc_html( smartwoo_price( $invoice->get_total(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                             </tr>
                         <?php endforeach; ?>
