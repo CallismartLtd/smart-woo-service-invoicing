@@ -6,8 +6,10 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="smartwoo-assets-container">
-<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Assets','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
+    <?php if ( is_admin() ) : ?>
+        <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Assets','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
 
+    <?php endif; ?>
     <?php if ( empty( $assets ) ):?>
         <div class="serv-details-card">
             <p class="smartwoo-container-item"><span>No Asset found for this service</span></p>
