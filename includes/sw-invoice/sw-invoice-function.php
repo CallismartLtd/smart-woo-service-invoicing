@@ -97,9 +97,9 @@ function smartwoo_is_service_invoice( $invoice_id ) {
 /**
  * Checks if a Service has an invoice with a specific invoice_type and transaction_status.
  *
- * @param string $service_id         The ID of Service to check.
- * @param string $invoice_type       The invoice type to check.
- * @param string $transaction_status The desired transaction status.
+ * @param string $service_id		The ID of Service to check.
+ * @param string $invoice_type		The invoice type to check.
+ * @param string $payment_status	The invoice payment status.
  *
  * @return string|false The invoice_id if the service has such an invoice, false otherwise.
  *
@@ -107,25 +107,19 @@ function smartwoo_is_service_invoice( $invoice_id ) {
  */
 function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $payment_status ) {
 
-	$invoices	= SmartWoo_Invoice_Database::get_invoices_by_service( $service_id );
+	$args = array(
+		'service_id'	=> $service_id,
+		'type'			=> $invoice_type,
+		'status'		=> $payment_status
+		
+	);
+	$invoices	= SmartWoo_Invoice_Database::get_service_invoices( $args );
 
 	if ( empty( $invoices ) ) {
 		return false;
 	}
 
-	foreach ( $invoices as $invoice ) {
-		
-		if ( 
-			$invoice->getInvoiceType() === $invoice_type 
-			&& $invoice->getServiceId() === $service_id 
-			&& $invoice->getPaymentStatus() === $payment_status
-			){
-			return $invoice->getInvoiceId();
-		}
-	}
-
-
-	return false;
+	return $invoices[0]->get_invoice_id();
 }
 
 
