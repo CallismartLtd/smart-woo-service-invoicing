@@ -106,7 +106,26 @@ defined( 'ABSPATH' ) || exit;
                 <input type="text" name="order_id" id="order_id" class="sw-form-input" value="<?php echo esc_attr( $order_id ) . ' - ' . esc_html( $product_name );?>" readonly>
             </div>
         
-            <?php smartwoo_service_ID_generator_form( $service_name, true, true );?>
+            <!-- Service ID Generator form fields -->
+            <div class="sw-form-row">
+                <label for="service-name" class="sw-form-label"><?php esc_html_e( 'Service Name:', 'smart-woo-service-invoicing' ); ?></label>
+                <span class="sw-field-description" title="<?php esc_attr_e( 'Service name here', 'smart-woo-service-invoicing' ); ?>">?</span>
+                <input type="text" class="sw-form-input" id="service-name" name="service_name" required>
+            </div>
+
+            <!-- Add an animated loader element -->
+            <div id="swloader"><?php echo esc_html__( 'Generating...', 'smart-woo-service-invoicing' ); ?></div>
+
+            <div class="sw-form-row">
+                <label for="generated-service-id" class="sw-form-label"><?php esc_html_e( 'Generate Service ID *', 'smart-woo-service-invoicing' ); ?></label>
+                <span class="sw-field-description" title="<?php esc_attr_e( 'Click the button to generate a unique service ID', 'smart-woo-service-invoicing' ); ?>">?</span>
+                <input type="text" class="sw-form-input" id="generated-service-id" name="service_id" readonly>
+            </div>
+
+            <div class="sw-form-row">
+                <label for="button" class="sw-form-label"></label>
+                <button id="generate-service-id-btn" type="button" class="sw-red-button"><?php esc_html_e( 'Click to generate', 'smart-woo-service-invoicing' ); ?></button>
+            </div>
         
             <input type="hidden" name="product_id" value="<?php echo esc_attr( $product_id );?>">
             <input type="hidden" name="action" value="smartwoo_service_from_order">
