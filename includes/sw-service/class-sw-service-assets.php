@@ -1,7 +1,7 @@
 <?php
 /**
- * File name: class-sw-service-assets.php
- * Description: Class file for SmartWoo_Service_Assets
+ * Service subscription asset management class.
+ * An asset is a valuable resource that can be owned by a person or an organization.
  * 
  * @author Callistus
  * @package SmartWoo\class
@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class representation assets assigned to a service subscription.
+ * A classical representation of an asset that can be assigned to a service subscription.
  * 
  * @since 2.0.0
  * @package SmartWooService
@@ -534,6 +534,7 @@ class SmartWoo_Service_Assets {
      * Convert array to an object of this class.
      * 
      * @param array $array Associative array.
+     * @return self
      */
     public static function convert_arrays( $result, $context = 'view' ) {
         $self = new self();
@@ -571,25 +572,46 @@ class SmartWoo_Service_Assets {
         if ( ! $result ) {
             return false;
         }
-
-        // $limit  = $result['access_limit'];
-
-        // if ( 0 === intval( $limit ) ) {
-        //     return false;
-        // } elseif ( $limit > 0 ) {
-        //     $wpdb->update( SMARTWOO_ASSETS_TABLE, // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        //         array( 'access_limit' => intval( $limit ) - 1 ),
-        //         array( 'asset_key' => $key ),
-        //         array( '%d' ),
-        //         array( '%s' ),
-        //      );
-
-        // }
-
-        
+  
         $asset_data = array_values( (array) maybe_unserialize( $result['asset_data'] ) );
 
         return array_key_exists( $data_index - 1, $asset_data );
+    }
+
+    /**
+     * Reduce access limit when asset is accessed.
+     */
+    public function use_asset() {
+        if ( $this->access_limit !== null && $this->access_limit > 0 ) {
+            $this->access_limit--;
+            $this->save();
+        }
+    }
+
+    /**
+     * Handle asset access logic.
+     */
+    public function can_access() {
+        if ( is_admin() || current_user_can( 'manage_options' ) ) {
+            return true;
+        }
+
+        if ( $this->is_expired() ) {
+            return false;
+        }
+
+        if ( $this->access_limit !== null && $this->access_limit <= 0 ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if asset is expired.
+     */
+    public function is_expired() {
+        return ( $this->expiry && strtotime( $this->expiry ) < time() );
     }
 
     /**
