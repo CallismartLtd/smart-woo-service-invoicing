@@ -78,7 +78,7 @@ function smartwoo_options_page() {
 		default:
 		if ( empty( $action ) ) {
 			smartwoo_options_main_page();
-		}else {
+		} else {
 			do_action( 'smartwoo_options_' . $action . '_content') ;
 
 		}
