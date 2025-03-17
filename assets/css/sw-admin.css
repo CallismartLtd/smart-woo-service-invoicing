@@ -1093,6 +1093,11 @@
     margin: 30px;
     padding-top: 10px;
 }
+.admin-view-service-invoices p {
+    font-size: 16px;
+    text-align: center;
+    font-weight: 600;
+}
 .admin-view-service-invoices-contents {
     display: flex;
     flex-direction: column;
