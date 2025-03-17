@@ -10,10 +10,8 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 require_once SMARTWOO_PATH . 'includes/admin/admin-callback-functions.php';
-require_once SMARTWOO_PATH . 'includes/sw-service/sw-service-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/sw-orders/contr.php';
 require_once SMARTWOO_PATH . 'includes/sw-service/sw-new-service-processing.php';
-require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-admin-temp.php';
 require_once SMARTWOO_PATH . 'includes/admin/sw-admin-settings.php';
 
 /**
