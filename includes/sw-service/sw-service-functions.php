@@ -113,7 +113,7 @@ function smartwoo_service_preview_url( $service_id ) {
 function smartwoo_service_edit_url( $service_id ) {
 	$edit_url = add_query_arg( 
 		array(
-			'action' 		=> 'edit-service',
+			'tab' 		=> 'edit-service',
 			'service_id'	=> $service_id,
 		),
 		admin_url( 'admin.php?page=sw-admin')
