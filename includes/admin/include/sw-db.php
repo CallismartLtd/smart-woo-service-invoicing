@@ -233,7 +233,7 @@ function smartwoo_230_alter_product_id_column() {
 	$column_type = 'TEXT DEFAULT NULL';
 
 	// Check if the column exists and its current type.
-	$current_column_type = $wpdb->get_var( 
+	$current_column_type = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
 		$wpdb->prepare( 
 			"SELECT DATA_TYPE 
 			 FROM INFORMATION_SCHEMA.COLUMNS 
@@ -246,7 +246,7 @@ function smartwoo_230_alter_product_id_column() {
 
 	// Only alter the column if it's not already TEXT.
 	if ( $current_column_type && 'text' !== strtolower( $current_column_type ) ) {
-		$wpdb->query( "ALTER TABLE {$table_name} MODIFY COLUMN {$column_name} {$column_type};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( "ALTER TABLE {$table_name} MODIFY COLUMN {$column_name} {$column_type};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! empty( $wpdb->last_error ) ) {
 			error_log( "Database error modifying {$column_name}: " . $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
