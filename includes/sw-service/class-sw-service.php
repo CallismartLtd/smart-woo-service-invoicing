@@ -763,7 +763,7 @@ class SmartWoo_Service {
 	 * @return array $assets Array of SmartWoo_Service_Asset
 	 * @since 2.0.0
 	 */
-	public function get_assets() {
+	public function get_assets() { 
 		if ( ! $this->has_asset() ) {
 			return $this->assets;
 		}
