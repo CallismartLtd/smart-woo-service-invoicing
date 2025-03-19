@@ -143,19 +143,19 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <p>
                     <span class="dashicons dashicons-post-status"></span>Status: 
                     <select name="product_status" id="product_status">
-                        <option value="draft" <?php selected( 'draft', $product->get_status() ) ?>><?php esc_html_e( 'Draft', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="publish" <?php selected( 'publish', $product->get_status() ) ?>><?php esc_html_e( 'Publish', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="pending" <?php selected( 'pending', $product->get_status() ) ?>><?php esc_html_e( 'Pending', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="private" <?php selected( 'private', $product->get_status() ) ?>><?php esc_html_e( 'Private', 'smart-woo-service-invoiving' ); ?></option>
+                        <option value="draft" <?php selected( 'draft', $product->get_status() ) ?>><?php esc_html_e( 'Draft', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="publish" <?php selected( 'publish', $product->get_status() ) ?>><?php esc_html_e( 'Publish', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="pending" <?php selected( 'pending', $product->get_status() ) ?>><?php esc_html_e( 'Pending', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="private" <?php selected( 'private', $product->get_status() ) ?>><?php esc_html_e( 'Private', 'smart-woo-service-invoicing' ); ?></option>
                     </select>
                 </p>
                 <p><span class="dashicons dashicons-visibility"></span>
                     Catalog Visibility:
                     <select name="visibility" id="product-visibility">
-                        <option value="visible" <?php selected( 'visible', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="catalog" <?php selected( 'catalog', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="search" <?php selected( 'search', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Search only', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="hidden" <?php selected( 'hidden', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Hidden', 'smart-woo-service-invoiving' ); ?></option>
+                        <option value="visible" <?php selected( 'visible', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="catalog" <?php selected( 'catalog', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="search" <?php selected( 'search', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Search only', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="hidden" <?php selected( 'hidden', $product->get_catalog_visibility() ) ?>><?php esc_html_e( 'Hidden', 'smart-woo-service-invoicing' ); ?></option>
                     </select>
                 </p>
 
@@ -265,7 +265,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                                 <div class="sw-image-img">
                                     <span class="dashicons dashicons-dismiss"></span>
                                     <input type="hidden" name="product_gallery_ids[]" value="<?php echo absint( $id ); ?>"/>
-                                    <img src="<?php echo wp_get_attachment_url( $id ); ?>" alt="image"/>
+                                    <img src="<?php echo esc_url( wp_get_attachment_url( $id ) ); ?>" alt="image"/>
                                 </div>
                             <?php endforeach; ?>
                             
