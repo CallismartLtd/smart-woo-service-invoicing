@@ -62,6 +62,14 @@ class SmartWoo_Admin_Controller {
 	 * The add new service page
 	 */
 	private static function add_new_service_page() {
+		smartwoo_set_document_title( 'Create New Service' );
+		wp_enqueue_script( 'smartwoo-jquery-timepicker' );
+		
+		$tabs = array(
+			''					=> 'Dashboard',
+			'add-new-service'	=> 'Add New'
+		);
+
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
 	}
 
