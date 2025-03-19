@@ -43,8 +43,8 @@ defined( 'ABSPATH' ) || exit;
                                 <small>ID: <?php echo esc_html( $product->get_id() ); ?></small>
                             </div>
                         </td>
-                        <td><?php echo smartwoo_price( $product->get_price() ); ?></td>
-                        <td><?php echo smartwoo_price( $product->get_sign_up_fee() ); ?></td>
+                        <td><?php echo esc_html( smartwoo_price( $product->get_price() ) ); ?></td>
+                        <td><?php echo esc_html( smartwoo_price( $product->get_sign_up_fee() ) ); ?></td>
                         <td><?php echo esc_html( $product->get_billing_cycle() ); ?></td>
                         <td>
                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $product->get_id() ) ); ?>"><button title="Edit Product"><span class="dashicons dashicons-edit"></span></button></a>
