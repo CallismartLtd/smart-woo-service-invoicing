@@ -1056,7 +1056,7 @@ function smartwoo_download_url( $resource_id, $key, $asset_id, $service_id ) {
  * @since 2.0.15
  */
 function smartwoo_set_document_title( $title ) {
-	$title					= strip_tags( sanitize_text_field( wp_unslash( $title ) ) );
+	$title					= wp_strip_all_tags( sanitize_text_field( wp_unslash( $title ) ) );
     $sep           			= apply_filters( 'document_title_separator', '-' );
     $title_parts   			= array( 'title' => $title );
     $title_parts['site']	= get_bloginfo( 'name', 'display' );
@@ -1076,17 +1076,31 @@ function smartwoo_set_document_title( $title ) {
  * Construct a dropdown of all WordPress users and add option for guest users.
  * 
  * @param string $selected The selected value.
- * @param bool $echo Whether to print the markup or return, defaults to true.
- * @param bool $required Whether the dropdown is required or not.
- * @return string $dropdown	The HTML markup.
+ * @param bool $args An associative array of html attributes and more.
  * @since 2.2.3
  */
-function smartwoo_dropdown_users( $selected = '', $echo = true, $required = false ) {
+function smartwoo_dropdown_users( $selected = '', $args = array() ) {
+	$default_args = array(
+		'class'		=> 'sw-form-input',
+		'id'		=> 'user_data',
+		'required'	=> false,
+		'echo'		=> true,
+		'add_guest'	=> true,
+		'name'		=> 'user_data',
+		'option_none'	=> __( 'Select user', 'smart-woo-service-invoicing' )
+	);
+
+	$parsed_args = wp_parse_args( $args, $default_args );
+
 	$users	= get_users( array( 'fields' => array( 'display_name', 'user_email', 'ID' ) ) );
 	
-	$dropdown = '<select class="sw-form-input" name="user_data" id="user_data" ' . ( $required ? 'required' : '' ) . '>';
-	$dropdown .= '<option value="">' . __( 'Select User', 'smart-woo-service-invoicing' ). '</option>';
-	$dropdown .= '<option value="smartwoo_guest">' . __( 'Guest', 'smart-woo-service-invoicing' ). '</option>';
+	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '" ' . ( $parsed_args['required'] ? 'required' : '' ) . '>';
+	$dropdown .= '<option value="">' . $parsed_args['option_none'] . '</option>';
+
+	if ( $parsed_args['add_guest'] ) {
+		$dropdown .= '<option value="smartwoo_guest">' . __( 'Guest', 'smart-woo-service-invoicing' ). '</option>';
+
+	}
 	foreach ( $users as $wp_user ) {
 		$attr = selected( $selected, $wp_user->ID . '|' . $wp_user->user_email, false );
 		$dropdown .= '<option value="' . $wp_user->ID . '|' . $wp_user->user_email . '" ' . $attr . '>' . $wp_user->display_name . ' (' . $wp_user->user_email . ')</option>';
@@ -1110,7 +1124,7 @@ function smartwoo_dropdown_users( $selected = '', $echo = true, $required = fals
 		</div>' 
 	);
 
-	if ( $echo ) {
+	if ( $parsed_args['echo'] ) {
 		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
 	} else {
 		return $dropdown;
@@ -1180,17 +1194,30 @@ function smartwoo_sub_menu_nav( $tabs, $title, $page_slug, $current_tab, $query_
 
 /**
  * Render the billing cycle select input
+ * 
+ * @param mixed $selected The selected option.
+ * @param array $args Array of HTML attributes.
  */
-function smartwoo_billing_cycle_dropdown( $selected = null, $echo = true) {
+function smartwoo_billing_cycle_dropdown( $selected = null, $args = array()) {
+	$default_args = array(
+		'class'		=> 'sw-form-input',
+		'id'		=> 'sw_billing_cycle',
+		'required'	=> false,
+		'echo'		=> true,
+		'name'		=> 'billing_cycle',
+		'option_none'	=> __( 'Select Billing Cycle', 'smart-woo-service-invoicing' )
+	);
+
+	$parsed_args = wp_parse_args( $args, $default_args );
 	$billing_cycles = smartwoo_supported_billing_cycles();
-	$dropdown = '<select class="sw-form-input" name="billing_cycle" id="billing_cycle">';
-	$dropdown .= '<option value="">' . __( 'Select Billing Cycle', 'smart-woo-service-invoicing' );
+	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '">';
+	$dropdown .= '<option value="">' . $parsed_args['option_none'] . '</option>';
 	foreach( $billing_cycles as $value => $label ) {
 		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
 		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
 	}
 	$dropdown .= '</select>';
-	if ( true === $echo ) {
+	if ( true === $parsed_args['echo'] ) {
 		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
 	}
 	return $dropdown;
@@ -1207,6 +1234,67 @@ function smartwoo_supported_billing_cycles() {
 			'Quarterly'		=> __( 'Quarterly', 'smart-woo-service-invoicing' ),
 			'Semiannually'	=> __( 'Semiannually', 'smart-woo-service-invoicing' ),
 			'Yearly'		=> __( 'Yearly', 'smart-woo-service-invoicing' )
+		)
+	);
+}
+
+/**
+ * Get default gravatar image url
+ */
+function smartwoo_get_avatar_placeholder_url() {
+	return SMARTWOO_DIR_URL . '/assets/images/avatar-mysteryperson.png';
+}
+
+/**
+ * Get service subscriptions status dropdown.
+ * 
+ * @param mixed $selected The selected option.
+ * @param array $args	List of html attributes
+ */
+function smartwoo_service_status_dropdown( $selected = '', $args = array() ) {
+	$default_args = array(
+		'class'		=> 'sw-form-input',
+		'id'		=> 'status',
+		'required'	=> false,
+		'echo'		=> true,
+		'name'		=> 'status',
+		'option_none'	=> __( 'Auto Calculate', 'smart-woo-service-invoicing' )
+	);
+
+	$parsed_args = wp_parse_args( $args, $default_args );
+	$statuses = smartwoo_supported_service_status();
+
+	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '" ' . ( $parsed_args['required'] ? 'required' : '' ) . '>';
+	$dropdown .= '<option value="">' . $parsed_args['option_none'] . '</option>';
+
+	foreach ( $statuses as $value => $label ) {
+		$attr = selected( $selected, $value, false );
+		$dropdown .= '<option value="' . $value . '" ' . $attr . '>' . $label . '</option>';
+	}
+
+	$dropdown .= '</select>';
+
+	if ( true === $parsed_args['echo'] ) {
+		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
+
+	}
+
+	return $dropdown;
+
+}
+
+/**
+ * Get supported service status.
+ */
+function smartwoo_supported_service_status() {
+	return apply_filters( 'smartwoo_supported_service_status',
+		array(
+			'Active'			=> __( 'Active', 'smart-woo-service-invoicing' ),
+			'Active (NR)'		=> __( 'Disable Renewal', 'smart-woo-service-invoicing' ),
+			'Suspended'			=> __( 'Suspend Service', 'smart-woo-service-invoicing' ),
+			'Cancelled'			=> __( 'Cancel Service', 'smart-woo-service-invoicing' ),
+			'Due for Renewal'	=> __( 'Due for Renewal', 'smart-woo-service-invoicing' ),
+			'Expired'			=> __( 'Expired', 'smart-woo-service-invoicing' )
 		)
 	);
 }
