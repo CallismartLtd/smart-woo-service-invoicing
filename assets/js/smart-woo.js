@@ -135,12 +135,7 @@ jQuery( document ).ready(
 			}
 		);
 
-		function formatDate(date) {
-			var year  = date.getFullYear();
-			var month = String( date.getMonth() + 1 ).padStart( 2, '0' );
-			var day   = String( date.getDate() ).padStart( 2, '0' );
-			return year + '-' + month + '-' + day;
-		}
+		
 	}
 );
 
@@ -716,104 +711,3 @@ addEventListener( 'DOMContentLoaded', function() {
 		});
 	}
 });
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    var moreAddiAssetsButton 	= document.getElementById('more-addi-assets');
-    var mainContainer 			= document.getElementById('additionalAssets');
-	var isExternal				= document.getElementById( 'isExternal' )
-	
-    if (moreAddiAssetsButton && mainContainer) {
-        moreAddiAssetsButton.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent form submission or any default action of the button
-
-            var newField = document.createElement('div');
-            newField.classList.add('sw-additional-assets-field');
-
-            newField.innerHTML = `
-				<hr>
-				<p><strong>Add More Assets</strong></p>
-                <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
-                <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
-                <textarea type="text" name="add_asset_values[]" placeholder="Asset Value (html allowed)" style="width: 90%; min-height: 100px"></textarea>
-				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional).">
-
-                <span class="dashicons dashicons-dismiss remove-field" title="Remove this field"></span>
-            `;
-
-            mainContainer.insertBefore(newField, moreAddiAssetsButton);
-        });
-
-        // Event delegation to handle click events on the dynamically added remove buttons
-        mainContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-field')) {
-                event.preventDefault(); // Prevent default button action.
-                var fieldToRemove = event.target.parentElement;
-				var removedId = event.target.dataset.removedId;
-				var confirmed = removedId ? confirm( 'This asset will be deleted from the database, click okay to continue.' ) : 0;
-				var removeEle = removedId ? false : true;
-				if ( removedId && confirmed ) {
-					var spinner = smartWooAddSpinner( 'smartSpin' );
-					console.log( removedId );
-					jQuery.ajax({
-						type: 'GET',
-						url: smart_woo_vars.ajax_url,
-						data: {
-							action: 'smartwoo_asset_delete',
-							security: smart_woo_vars.security,
-							asset_id: removedId
-						},
-						success: function( response ) {
-							if ( response.success ) {
-								alert( response.data.message );
-								fieldToRemove.remove(); // Remove the parent div of the clicked remove button.
-							} else {
-								alert( response.data.message );
-							}
-						},
-						error: function ( error ) {
-							var message  = 'Error deleting asset: ';
-							// Handle the error
-							if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
-								message = message + error.responseJSON.data.message;
-							} else if (error.responseText) {
-								message = message + error.responseText;
-							} else {
-								message = message + error;
-							}
-		
-							console.error( message );
-						},
-						complete: function() {
-							smartWooRemoveSpinner( spinner );
-							
-						}
-					});
-				}
-				if ( removeEle ) {
-					fieldToRemove.remove();
-				}
-				
-            }
-        });
-    }
-
-	if ( isExternal ) {
-		var inputField = document.getElementById( 'auth-token-div' );
-		isExternal.addEventListener( 'change', function( e ) {
-			if ( 'yes' === isExternal.value ) {
-				inputField.classList.remove( 'smartwoo-hide' );
-				inputField.classList.add( 'sw-form-row' );
-			
-			} else {
-				inputField.classList.remove( 'sw-form-row' );
-				inputField.classList.add( 'smartwoo-hide' );
-
-			}
-			
-		} );
-
-	}
-});
-
-
