@@ -172,7 +172,7 @@ class SmartWoo_Invoice_Database {
 		$placeholders[] = $offset;
 
 		// Prepare and execute the query
-		$query = $wpdb->prepare( $query, ...$placeholders );
+		$query = $wpdb->prepare( $query, ...$placeholders ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
 		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
 		return $results ? self::convert_results_to_invoices( $results ) : false;
@@ -634,7 +634,7 @@ class SmartWoo_Invoice_Database {
 			}
 
 			$data_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->prepare( "SELECT `meta_id` FROM {$table_name} WHERE `invoice_id` = %s AND `meta_name` = %s", $invoice->get_invoice_id(), $name )
+				$wpdb->prepare( "SELECT `meta_id` FROM {$table_name} WHERE `invoice_id` = %s AND `meta_name` = %s", $invoice->get_invoice_id(), $name )// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- False positive, query is prepared
 			);
 
 			if ( $data_exists ) {
@@ -660,9 +660,8 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function get_all_metadata( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
-		$table_name = SMARTWOO_INVOICE_META_TABLE;
-		$query		= $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `invoice_id` = %s", $invoice->get_invoice_id() );
-		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_META_TABLE ." WHERE `invoice_id` = %s", $invoice->get_invoice_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return ( ! empty( $results ) ) ?  $results : array();
 	}

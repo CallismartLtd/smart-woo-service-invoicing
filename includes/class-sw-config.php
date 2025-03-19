@@ -231,6 +231,9 @@ class SmartWoo_Config{
             wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
             wp_enqueue_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
         }
+        wp_enqueue_style( 'jquery-ui-style' );
+        wp_enqueue_style( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . 'assets/css/jquery/time-picker' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+
     }
 
     /**
@@ -265,6 +268,10 @@ class SmartWoo_Config{
         );
 
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+        
+        wp_register_script( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . '/assets/js/jquery/jquery-time-picker' . $suffix . '.js', array( 'jquery', 'jquery-ui-datepicker' ), SMARTWOO_VER, true );
+        
+        
         wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
         $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 

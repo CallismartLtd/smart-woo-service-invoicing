@@ -566,6 +566,52 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get orders for a given user
+     * 
+     * @param array $args
+     */
+    public static function get_user_orders( $args = array() ) {
+        $default_args = array(
+            'customer'	=> get_current_user_id(),
+            'status'	=> 'processing'
+        );
+
+        $parsed_args = wp_parse_args( $args, $default_args );
+        
+        $orders = wc_get_orders( $parsed_args );
+    
+        if ( empty( $orders ) ) {
+            return '';
+        }
+    
+        $order_item_ids		= [];
+        $smartwoo_orders	= [];
+    
+        foreach ( $orders as $order ) {
+            if ( empty( $order->get_items() ) ) {
+                continue;
+            }
+            
+            foreach ( $order->get_items() as $item_id => $item ) {
+                $order_item_ids[]['order_item_id'] = $item_id;
+            }
+            
+        }
+    
+        if ( ! empty( $order_item_ids )  ) {
+            foreach( $order_item_ids as $item ) {
+                $self = self::convert_to_self( $item );
+                if ( ! $self ) {
+                    continue;
+                }
+                $smartwoo_orders[] = $self;
+            }
+        }
+
+        return $smartwoo_orders;
+    }
+
+    /**
      * Get all Service Orders
      * 
      * @param int $page The current page(for pagination).
@@ -594,7 +640,7 @@ class SmartWoo_Order {
         );
 
         $data = array();
-        $results = $wpdb->get_results( $query, ARRAY_A );
+        $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
         if ( ! empty( $results ) ) {
             usort( $results, function( $a, $b ) {
                 return $b['order_item_id'] <=> $a['order_item_id'];
@@ -633,7 +679,7 @@ class SmartWoo_Order {
             "Service URL" // Backwd compt.
         );
 
-        return $wpdb->get_var( $query );
+        return $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
     }
 
     /**

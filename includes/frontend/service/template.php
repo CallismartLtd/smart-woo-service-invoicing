@@ -146,7 +146,7 @@ function smartwoo_service_front_temp() {
 
 	// Service ID is not provided in the URL, display the list of services.
 	$services         = SmartWoo_Service_Database::get_services_by_user( $user_id );
-	$pending_services = smartwoo_user_processing_service( $user_id );
+	$pending_services = smartwoo_get_user_pending_services();
 
 	// Output services as cards.
 	$output .= '<div class="client-services">';
@@ -200,56 +200,32 @@ function smartwoo_service_front_temp() {
 
 
 /**
- * Get all pending Services for a user.
- *
- * @param int $user_id        The user's ID.
+ * Get all pending services for the current user.
  *
  * @return string HTML markup containing the service name and status.
  */
-function smartwoo_user_processing_service( $user_id ) {
+function smartwoo_get_user_pending_services() {
 	
 	if ( ! is_user_logged_in() ) {
-	   return;
+	   return '';
     }
 
-	if ( $user_id <= 0 ) {
-		return $user_id;
-	}
-
-	$orders = wc_get_orders(
-		array(
-			'customer' => $user_id,
-		)
-	);
-
+	$smartwoo_orders = SmartWoo_Order::get_user_orders( array( 'status' => 'processing' ) );
 	// Initialize output variable.
 	$output = '';
 
-	foreach ( $orders as $order ) {
-		$is_config_order = smartwoo_check_if_configured( $order );
-		$order_status    = $order->get_status();
-
-		if (  $is_config_order && 'processing' === $order_status ) {
-			$items = $order->get_items();
-
-			foreach ( $items as $item_id => $item ) {
-				// Get the service name from order item meta.
-				$service_name = wc_get_order_item_meta( $item_id, 'Service Name', true );
-
-				// Break the loop once the service name is found.
-				if ( $service_name ) {
-					break;
-				}
-			}
-
-			$order_id       = $order->get_id();
-			$service_status = 'Pending';
-			$service_name_with_status = $service_name . ' (' . $service_status . ')';
-			$output .= '<div class="main-page-card">';
-			$output .= '<h3>' . esc_html( $service_name_with_status ) . '</h3>';
-			$output .= smartwoo_notice( 'We are currently processing this service. It will be active as soon as the process is complete.' );
-			$output .= '</div>';
+	foreach ( $smartwoo_orders as $order ) {
+		if ( 'awaiting processing' !== $order->get_status() ) {
+			continue;
 		}
+
+		$service_status = 'Pending';
+		$service_name_with_status = $order->get_service_name() . ' (' . $service_status . ')';
+		$output .= '<div class="main-page-card">';
+		$output .= '<h3>' . esc_html( $service_name_with_status ) . '</h3>';
+		$output .= smartwoo_notice( 'We are currently processing this service. It will be active as soon as the process is complete.' );
+		$output .= '</div>';
+		
 	}
 
 	return $output;
