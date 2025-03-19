@@ -214,21 +214,6 @@ use inline CSS to overide some styles
 	margin-bottom: 20px;
 }
 
-.sw-assets-div {
-	display: none;
-	justify-content: space-evenly;
-	background-color: #ffffff;
-	width: 100%;
-	margin-bottom: 20px;
-}
-
-.sw-assets-div.show {
-	display: flex;
-}
-
-.sw-assets-div  .line {
-	border-right: solid 0.02px;
-}
 .sw-product-download-field-container {
 	display: none;
 	background-color: #fff;
@@ -266,18 +251,6 @@ use inline CSS to overide some styles
     color: red;
     cursor: pointer;
 }
-.sw-additional-assets {
-	width: 40%;
-	padding: 10px;
-	margin: 20px auto;
-}
-.sw-additional-assets .sw-additional-assets-field input {
-	margin: 5px 5px;
-	width: 90%;
-}
-.sw-additional-assets button {
-	margin-top: 10px;
-}
 
 /* CSS for the product configuration container */
 .smartwoo_template {
@@ -310,19 +283,9 @@ use inline CSS to overide some styles
 		width: 50%;
 		margin-right: 5%;
 	}
-	.sw-assets-div {
-		flex-wrap: wrap;
-	}
+	
 	.sw-product-download-field-container.show {
 		margin: auto;
-	}
-	
-	.sw-assets-div .line {
-		display: none;
-	}
-	.sw-additional-assets {
-		width: 100%;
-		padding: 2px;
 	}
 
 }
