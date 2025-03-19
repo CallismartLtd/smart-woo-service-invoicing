@@ -141,19 +141,19 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <p>
                     <span class="dashicons dashicons-post-status"></span>Status: 
                     <select name="product_status" id="product_status">
-                        <option value="draft"><?php esc_html_e( 'Draft', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="publish"><?php esc_html_e( 'Publish', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="pending"><?php esc_html_e( 'Pending', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="private"><?php esc_html_e( 'Private', 'smart-woo-service-invoiving' ); ?></option>
+                        <option value="draft"><?php esc_html_e( 'Draft', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="publish"><?php esc_html_e( 'Publish', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="pending"><?php esc_html_e( 'Pending', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="private"><?php esc_html_e( 'Private', 'smart-woo-service-invoicing' ); ?></option>
                     </select>
                 </p>
                 <p><span class="dashicons dashicons-visibility"></span>
                     Catalog Visibility:
                     <select name="visibility" id="product_status">
-                        <option value="visible"><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="catalog"><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="search"><?php esc_html_e( 'Search only', 'smart-woo-service-invoiving' ); ?></option>
-                        <option value="hidden"><?php esc_html_e( 'Hidden', 'smart-woo-service-invoiving' ); ?></option>
+                        <option value="visible"><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="catalog"><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="search"><?php esc_html_e( 'Search only', 'smart-woo-service-invoicing' ); ?></option>
+                        <option value="hidden"><?php esc_html_e( 'Hidden', 'smart-woo-service-invoicing' ); ?></option>
                     </select>
                 </p>
                 <p><span class="dashicons dashicons-category"></span>
