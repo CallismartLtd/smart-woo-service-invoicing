@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
     <?php endif; ?>
     <?php if ( empty( $assets ) ):?>
         <div class="serv-details-card">
-            <p class="smartwoo-container-item"><span>No Asset found for this service</span></p>
+            <p class="smartwoo-container-item"><span><?php esc_html_e( 'No Asset found for this service', 'smart-woo-service-invoicing' ); ?></span></p>
         </div>
     <?php return; endif;?>
     
