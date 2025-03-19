@@ -2,23 +2,25 @@
 
 # [2.3.0] YYYY-MM-DD
 
-### New admin UI
-- Invoice admin table now features bulk action.
+### New Admin UI
+- Invoice admin table now features bulk actions.
+- The admin's service subscription view page UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
+- The admin UI for viewing clients associated with a service subscription has been refactored for comprehensiveness and a modern look.
 
 ### Service Orders Refactored
-- Introduced SmartWoo_Order object.
-- Service Order UI refactored and it now feature: bulk actions,order sorting by status,and order preview.
+- Introduced the SmartWoo_Order object.
+- Service Order UI refactored and now features: bulk actions, order sorting by status, and order preview.
 
-### Service product UI
-- The service products admin page UI has been enhanced to feature: bulk actions, sorting by product status,and improved UX
-- The product creation and edit page UI has been improved to include almost every option you can find in the WooCommerce product form.
-- Product form now include: Upsell, cross-sell, product gallery, visibility, status, and sale options.
+### Service Product UI
+- The service products admin page UI has been enhanced to feature: bulk actions, sorting by product status, and improved UX.
+- The product creation and edit page UI has been improved to include nearly every option found in the WooCommerce product form.
+- Product form now includes: Upsells, cross-sells, product gallery, visibility, status, and sale options.
 
 ### Fixed
-- Checkout invoices are not created for service orders via the WooCommerce block API.
+- Checkout invoices are now created for service orders made via the WooCommerce block API.
 
-## Added 
-- Fast checkout feature: Allows your client's to configure products and proceed to the checkout page on same page. Go to settings > advanced to configure the fast checkout feature.
+## Added
+- Fast checkout feature: Allows clients to configure products and proceed to the checkout page on the same page. Go to settings > advanced to configure the fast checkout feature.
 
 # [2.2.3] 2025-02-18
 
