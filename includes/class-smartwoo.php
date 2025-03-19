@@ -270,7 +270,7 @@ final class SmartWoo {
                 if ( $total_orders > 1 ) {
                     $numb = 1;
                     foreach ( $smartwoo_orders as $smartwoo_order ) {
-                        echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_order->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice ' . $numb .'</a>';
+                        echo '<a href="' . esc_url( smartwoo_invoice_preview_url( $smartwoo_order->get_invoice_id() ) ) .'" class="sw-blue-button">Invoice ' . esc_html( $numb ).'</a>';
                         $numb++;
                     }
                 } else {
