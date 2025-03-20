@@ -1035,17 +1035,37 @@ function smartwooDatesInputsHandler() {
     }
 
     // Initialize jQuery Datepicker.
-    jQuery('#sw_start_date, #sw_next_payment_date, #sw_end_date').datetimepicker({
-        dateFormat: 'yy-mm-dd',
-        timeFormat: 'HH:mm:ss',
-        changeMonth: true,
-        changeYear: true,
-        showButtonPanel: true,
-        closeText: 'Done', 
-        currentText: 'Today',
-        nextText: 'Next', 
-        prevText: 'Previous'
-    });
+    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date' );
+        if ( dateFields.length ) {
+            dateFields.forEach( input =>{
+                if ( input.getAttribute( 'smartwoo-datetime-picker' ) ) {
+                    jQuery( input ).datetimepicker({
+                        dateFormat: 'yy-mm-dd',
+                        timeFormat: 'HH:mm:ss',
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true,
+                        closeText: 'Done', 
+                        currentText: 'Today',
+                        nextText: 'Next', 
+                        prevText: 'Previous'
+                    });
+                } else {
+                    jQuery( input ).datepicker({
+                        dateFormat: 'yy-mm-dd',
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true,
+                        closeText: 'Done', 
+                        currentText: 'Today',
+                        nextText: 'Next', 
+                        prevText: 'Previous'
+                    });
+                }
+                
+            });
+        }
+
     
 }
 
