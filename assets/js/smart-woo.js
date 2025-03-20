@@ -93,52 +93,6 @@ document.addEventListener(
     }
 );
 
-
-/**
- * Auto calculate subscription dates.
- */
-jQuery( document ).ready(
-	function ($) {
-		$( '#billing_cycle' ).on(
-			'change',
-			function () {
-				var billingCycle = $( this ).val();
-				var startDate    = new Date( $( '#start_date' ).val() );
-				if ( ! isNaN( startDate.getTime() )) {
-					if (billingCycle === 'Monthly') {
-						// Calculate the end date by adding 30 days to the start date
-						startDate.setDate( startDate.getDate() + 30 );
-						// Calculate the next payment date as 30 days minus 7 days from the end date
-						var nextPaymentDate = new Date( startDate );
-						nextPaymentDate.setDate( nextPaymentDate.getDate() - 7 );
-						$( '#end_date' ).val( formatDate( startDate ) );
-						$( '#next_payment_date' ).val( formatDate( nextPaymentDate ) );
-					} else if (billingCycle === 'Quarterly') {
-						// Calculate the end date by adding 4 months to the start date
-						startDate.setMonth( startDate.getMonth() + 3 );
-						// Calculate the next payment date as 7 days before the end date
-						var nextPaymentDate = new Date( startDate );
-						nextPaymentDate.setDate( nextPaymentDate.getDate() - 7 );
-						$( '#end_date' ).val( formatDate( startDate ) );
-						$( '#next_payment_date' ).val( formatDate( nextPaymentDate ) );
-					} else if (billingCycle === 'Six Monthly' || billingCycle === 'Yearly') {
-						// Calculate the end date by adding 6 months (or 1 year) to the start date
-						var monthsToAdd = (billingCycle === 'Six Monthly') ? 6 : 12;
-						startDate.setMonth( startDate.getMonth() + monthsToAdd );
-						// Calculate the next payment date as 7 days before the end date
-						var nextPaymentDate = new Date( startDate );
-						nextPaymentDate.setDate( nextPaymentDate.getDate() - 7 );
-						$( '#end_date' ).val( formatDate( startDate ) );
-						$( '#next_payment_date' ).val( formatDate( nextPaymentDate ) );
-					}
-				}
-			}
-		);
-
-		
-	}
-);
-
 /**
  * Quick Action button on Service page
  */
