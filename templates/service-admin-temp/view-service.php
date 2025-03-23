@@ -16,7 +16,12 @@ defined( 'ABSPATH' ) || exit;
         <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service <a href="' . admin_url( 'admin.php?page=sw-admin' ) . '">back</a>' ) ); ?>
 
     <?php else : ?>
-
+    <div class="sw-admin-view-service-buttons-container">
+        <?php echo wp_kses_post( smartwoo_client_service_url_button( $service ) ); ?>
+        <a href="<?php echo esc_url( smartwoo_service_edit_url( $service->get_service_id()  ) ); ?>"><button title="Edit Service"><span class="dashicons dashicons-edit"></span></button></a>
+		<button class="delete-service-button" service-id="<?php echo esc_attr( $service_id ); ?>" title="Delete Service"><span class="dashicons dashicons-trash"></span></button>
+		<span id="sw-delete-button" style="text-align:center;"></span>
+    </div>
     <div class="admin-view-details-data">
         <div class="sw-view-details-service-product">
             <img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $product_name) ?>"/>
@@ -40,7 +45,7 @@ defined( 'ABSPATH' ) || exit;
                     <p class="smartwoo-container-item"><span>Service ID:</span> <?php echo esc_html( $service->get_service_id() ); ?></p>
                     <p class="smartwoo-container-item"><span>Type:</span> <?php echo esc_html( $service->get_type() ? $service->get_type() : 'N/A' ); ?></p>
                     <p class="smartwoo-container-item"><span>Billing Cycle:</span> <?php echo esc_html( $service->get_billing_cycle() ); ?></p>
-                    <p class="smartwoo-container-item"><span>URL:</span> <?php echo esc_url( $service->get_service_url() ); ?></p>
+                    <p class="smartwoo-container-item"><span>URL:</span> <?php echo esc_html( $service->get_service_url() ); ?></p>
                 </div>
             </div>
 
