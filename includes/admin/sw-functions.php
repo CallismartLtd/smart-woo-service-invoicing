@@ -699,7 +699,8 @@ function smartwoo_allowed_form_html() {
             'id'		=> true,
             'class'		=> true,
 			'required'	=> true,
-			'readonly'	=> true
+			'readonly'	=> true,
+			'field-name'	=> true
         ),
         'option'		=> array(
             'value'		=> true,
@@ -1087,6 +1088,7 @@ function smartwoo_dropdown_users( $selected = '', $args = array() ) {
 		'echo'		=> true,
 		'add_guest'	=> true,
 		'name'		=> 'user_data',
+		'field_name'	=> 'A user',
 		'option_none'	=> __( 'Select user', 'smart-woo-service-invoicing' )
 	);
 
@@ -1094,7 +1096,7 @@ function smartwoo_dropdown_users( $selected = '', $args = array() ) {
 
 	$users	= get_users( array( 'fields' => array( 'display_name', 'user_email', 'ID' ) ) );
 	
-	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '" ' . ( $parsed_args['required'] ? 'required' : '' ) . '>';
+	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '" field-name="' . $parsed_args['field_name'] . '" ' . ( $parsed_args['required'] ? 'required' : '' ) . '>';
 	$dropdown .= '<option value="">' . $parsed_args['option_none'] . '</option>';
 
 	if ( $parsed_args['add_guest'] ) {
@@ -1205,12 +1207,13 @@ function smartwoo_billing_cycle_dropdown( $selected = null, $args = array()) {
 		'required'	=> false,
 		'echo'		=> true,
 		'name'		=> 'billing_cycle',
-		'option_none'	=> __( 'Select Billing Cycle', 'smart-woo-service-invoicing' )
+		'option_none'	=> __( 'Select Billing Cycle', 'smart-woo-service-invoicing' ),
+		'field_name'	=> __( 'A billing cycle')
 	);
 
 	$parsed_args = wp_parse_args( $args, $default_args );
 	$billing_cycles = smartwoo_supported_billing_cycles();
-	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '">';
+	$dropdown = '<select class="' . $parsed_args['class'] . '" name="' . $parsed_args['name'] . '" id="' . $parsed_args['id'] . '" field-name="' . $parsed_args['field_name'] . '" ' . ( $parsed_args['required'] ? 'required': '' ) . '>';
 	$dropdown .= '<option value="">' . $parsed_args['option_none'] . '</option>';
 	foreach( $billing_cycles as $value => $label ) {
 		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
@@ -1297,4 +1300,22 @@ function smartwoo_supported_service_status() {
 			'Expired'			=> __( 'Expired', 'smart-woo-service-invoicing' )
 		)
 	);
+}
+
+/**
+ * Get the settings for global next payment date.
+ * 
+ * @param string $context The context.
+ * @since 2.3.0
+ * @return string|array
+ */
+function smartwoo_get_global_nextpay( $context = 'view' ) {
+	$options = get_option( 'smartwoo_global_next_payment_interval', false );
+
+	if ( ! is_array( $options ) ) {
+		$options = array( 'operator' => '-', 'number' => 7, 'unit' => 'days' );
+	}
+
+	$value = $options['operator'] . $options['number'] . ' ' . $options['unit'];
+	return ( 'edit' === $context ) ? $options : $value  ;
 }
