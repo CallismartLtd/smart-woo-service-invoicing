@@ -58,8 +58,7 @@ final class SmartWoo {
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_service_from_order', array( $this, 'new_service_from_order' ) );
-        add_action( 'admin_post_smartwoo_add_service', array( 'SmartWoo_Admin_Controller', 'new_service_form' ) );
-        add_action( 'admin_post_smartwoo_edit_service', array( 'SmartWoo_Admin_Controller', 'edit_service_form' ) );
+
         add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
@@ -89,6 +88,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_password_reset', array( __CLASS__, 'ajax_password_reset' ) );
         add_action( 'wp_ajax_smartwoo_admin_invoice_action', array( __CLASS__, 'admin_invoice_ajax_actions' ) );
+        add_action( 'wp_ajax_smartwoo_get_user_data', array( __CLASS__, 'ajax_get_user_data' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
@@ -1065,6 +1065,30 @@ final class SmartWoo {
     }
 
     /**
+     * Ajax get user data.
+     */
+    public static function ajax_get_user_data() {
+        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
+        }
+
+        $user_id    = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : wp_send_json_error( array( 'message' => 'Missing user ID' ) );
+        $user_data  = get_user_by( 'id', $user_id );
+        if ( ! $user_data ) {
+            wp_send_json_error( array( 'message' => 'User not found' ) );
+        }
+
+        unset( $user_data->user_pass, $user_data->user_nicename, $user_data->user_login  );
+        $fullname = $user_data->first_name || $user_data->last_name ? $user_data->first_name . ' ' . $user_data->last_name : $user_data->display_name;
+        wp_send_json_success( array( 'user_fullname' => $fullname, 'email' => $user_data->user_email, 'avatar_url' => get_avatar_url( $user_data->ID ) , 'user' => $user_data ), 200 );
+
+    }
+
+    /**
      * Count all services in the database every five hours.
      * 
      * @since 2.0.12.
@@ -1309,7 +1333,7 @@ final class SmartWoo {
 
     public static function cancel_or_optout() {
 
-        if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security' ) ) {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
             wp_die( -1, 401 );
         }
 
@@ -1497,6 +1521,7 @@ final class SmartWoo {
             $new_start_date        = date_i18n( 'Y-m-d', $old_end_date );
             $new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, $old_end_date ) );
             $new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
+            
             $service->set_start_date( $new_start_date );
             $service->set_next_payment_date( $new_next_payment_date );
             $service->set_end_date( $new_end_date );
