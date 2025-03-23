@@ -54,15 +54,19 @@ function smartwoo_create_service( $args ) {
  * @return string HTML markup button with url keypass
  */
 function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
+	if ( empty( $service->get_service_url() ) ) {
+		return '';
+	}
+
 	$button_text 	= is_admin() ? 'Service URL' : 'Visit Website';
 	$button_text 	= apply_filters( 'smartwoo_service_url_button_text', $button_text, $service );
 	if ( smartwoo_is_frontend() ) {
-		$button	=  '<a href="' . esc_url(  $service->getServiceUrl() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
+		$button	=  '<a href="' . esc_url(  $service->get_service_url() ) . '" class="sw-red-button" target="_blank"><span class="dashicons dashicons-admin-site-alt3"></span> ' . esc_html( $button_text ) .'</a>';
 	} else {
-		$button	=  '<a href="' . esc_url(  $service->getServiceUrl() ) . '" target="_blank"><button title="'. esc_attr( $button_text ) .'"><span class="dashicons dashicons-admin-site-alt3"></span></button></a>';
+		$button	=  '<a href="' . esc_url(  $service->get_service_url() ) . '" target="_blank"><button title="'. esc_attr( $button_text ) .'"><span class="dashicons dashicons-admin-site-alt3"></span></button></a>';
 	}
 	/**
-	 * @see filter	smartwoo_service_url allows for total replacement of the client service
+	 * @filter	smartwoo_service_url_button_html allows for total replacement of the client service
 	 * 		url button by plugins;
 	 */
 	return apply_filters( 'smartwoo_service_url_button_html', $button, $button_text, $service );
@@ -377,14 +381,14 @@ function smartwoo_count_suspended_services() {
  * @return string The generated service ID.
  * @since 2.2.3 Deprecated the use of uniqid() function for generating service ID.
  */
-function smartwoo_generate_service_id( string $service_name ) {
+function smartwoo_generate_service_id( $service_name ) {
 	$service_id_prefix = get_option( 'smartwoo_service_id_prefix', 'SID' );
 
 	$first_alphabets = array_map(
 		function ( $word ) {
 			return strtoupper( substr( $word, 0, 1 ) );
 		},
-		explode( ' ', $service_name )
+		explode( ' ', (string)$service_name )
 	);
 
 	// Generate a more secure unique identifier
