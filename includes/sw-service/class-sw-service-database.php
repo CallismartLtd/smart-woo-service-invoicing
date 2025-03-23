@@ -586,6 +586,13 @@ class SmartWoo_Service_Database {
 	 */
 	public static function create_service( SmartWoo_Service &$service ) {
 		global $wpdb;
+		$it_exists = $wpdb->get_var(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_SERVICE_TABLE . " WHERE `service_id`= %s", $service->get_service_id() ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- False positive, query is prepared.
+		);
+
+		if ( $it_exists ) {
+			return self::update_service( $service );
+		}
 
 		$data = array(
 			'user_id'           => absint( $service->getUserId() ),
