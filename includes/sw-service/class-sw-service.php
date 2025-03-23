@@ -252,7 +252,12 @@ class SmartWoo_Service {
 	 * @param string $start_date Start date of the service.
 	 */
 	public function set_start_date( $start_date ) {
-		$this->start_date = sanitize_text_field( wp_unslash( $start_date ) );
+		if ( ! empty( $start_date ) ) {
+			$this->start_date = date( 'Y-m-d', strtotime( sanitize_text_field( wp_unslash( $start_date ) ) ) );
+		} else {
+			$this->start_date = sanitize_text_field( wp_unslash( $start_date ) );
+
+		}
 	}
 
 	public function setStartDate( $start_date ) {
@@ -265,7 +270,12 @@ class SmartWoo_Service {
 	 * @param string $end_date End date of the service.
 	 */
 	public function set_end_date( $end_date ) {
-		$this->end_date = sanitize_text_field( wp_unslash( $end_date ) );
+		if ( ! empty( $end_date ) ) {
+			$this->end_date = date( 'Y-m-d', strtotime( sanitize_text_field( wp_unslash( $end_date ) ) ) );
+		} else {
+			$this->end_date = sanitize_text_field( wp_unslash( $end_date ) );
+
+		}
 	}
 	public function setEndDate( $end_date ) {
 		$this->set_end_date( $end_date );
@@ -277,7 +287,12 @@ class SmartWoo_Service {
 	 * @param string $next_payment_date Date of the next payment for the service.
 	 */
 	public function set_next_payment_date( $next_payment_date ) {
-		$this->next_payment_date = sanitize_text_field( wp_unslash( $next_payment_date ) );
+		if ( ! empty( $next_payment_date ) ) {
+			$this->next_payment_date = date( 'Y-m-d', strtotime( sanitize_text_field( wp_unslash( $next_payment_date ) ) ) );
+		} else {
+			$this->next_payment_date = sanitize_text_field( wp_unslash( $next_payment_date ) );
+
+		}
 	}
 
 	public function setNextPaymentDate( $next_payment_date ) {
@@ -290,7 +305,9 @@ class SmartWoo_Service {
 	 * @param string $billing_cycle Billing cycle for the service.
 	 */
 	public function set_billing_cycle( $billing_cycle ) {
-		$this->billing_cycle = sanitize_text_field( wp_unslash( $billing_cycle ) );
+		if ( in_array( $billing_cycle, array_keys( smartwoo_supported_billing_cycles() ), true ) ) {
+			$this->billing_cycle = sanitize_text_field( wp_unslash( $billing_cycle ) );
+		}
 	}
 
 	public function setBillingCycle( $billing_cycle ) {
@@ -506,9 +523,8 @@ class SmartWoo_Service {
 		if ( empty( $this->get_service_id() ) ) {
 			return false; // Service ID must be generated before saving.
 		}
-		$this->id = SmartWoo_Service_Database::create_service( $this );
 		
-		return $this->id;
+		return SmartWoo_Service_Database::create_service( $this );
 	}
 
 	/*
@@ -760,7 +776,7 @@ class SmartWoo_Service {
 	/**
 	 * Get all assets for this class.
 	 * 
-	 * @return array $assets Array of SmartWoo_Service_Asset
+	 * @return SmartWoo_Service_Asset[] $assets Array of SmartWoo_Service_Asset
 	 * @since 2.0.0
 	 */
 	public function get_assets() { 
