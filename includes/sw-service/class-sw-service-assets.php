@@ -262,7 +262,7 @@ class SmartWoo_Service_Assets {
         } elseif (  'view' === $context && intval( $this->limit ) === 0 ) {
             return 'Exceeded';
         } elseif ( 'edit' === $context && $this->limit <= -1 ) {
-            $this->limit = -1;
+            $this->limit = '';
         }
         return $this->limit;
     }
