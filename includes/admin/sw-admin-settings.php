@@ -178,6 +178,15 @@ function smartwoo_save_options() {
 			update_option( 'smartwoo_downgrade_product_cat', $category_id );
 		}
 
+		if ( isset( $_POST['next_payment_date_operator'], $_POST['next_payment_date_unit'], $_POST['next_payment_date_number'] ) ) {
+			$operator	= '-' === $_POST['next_payment_date_operator'] ? '-' : '+';
+			$number		= ! empty( $_POST['next_payment_date_number'] ) ? absint( $_POST['next_payment_date_number'] ) : 7; // Always default to 7 days.
+			$unit		= in_array( $_POST['next_payment_date_unit'], array( 'days', 'weeks', 'months', 'years' ), true ) ? sanitize_text_field( wp_unslash( $_POST['next_payment_date_unit'] ) ) : 'days'; 
+		
+			$value = array( 'operator' => $operator, 'number' => $number, 'unit' => $unit );
+			update_option( 'smartwoo_global_next_payment_interval', $value );
+		}
+
 		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>' . esc_html( 'Settings saved!', 'smart-woo-service-invoicing' ) . '</p></div>' );
 	}
 }
@@ -333,60 +342,81 @@ function smartwoo_invoice_options() {
 	ob_start();
 
 	smartwoo_save_options();
-	$invoice_prefix        = get_option( 'smartwoo_invoice_id_prefix', 'CINV' );
-	$invoice_page          = get_option( 'smartwoo_invoice_page_id', 0 );
-	$pages                 = get_pages();
-	$invoice_logo_url      = get_option( 'smartwoo_invoice_logo_url' );
-	$invoice_watermark_url = get_option( 'smartwoo_invoice_watermark_url' );
+	$invoice_prefix        	= get_option( 'smartwoo_invoice_id_prefix', 'CINV' );
+	$invoice_page          	= get_option( 'smartwoo_invoice_page_id', 0 );
+	$pages                 	= get_pages();
+	$invoice_logo_url      	= get_option( 'smartwoo_invoice_logo_url' );
+	$invoice_watermark_url	= get_option( 'smartwoo_invoice_watermark_url' );
+	$global_next_pay		= smartwoo_get_global_nextpay( 'edit' );
 	?>
-		<h1><span class="dashicons dashicons-media-spreadsheet"></span> Invoice</h1>
-
-		<div class="wrap">
+	<h1><span class="dashicons dashicons-media-spreadsheet"></span> Invoice</h1>
+	<div class="wrap">
 		<form method="post" class="inv-settings-form">
 
-		<?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
-		<?php do_action( 'smartwoo_before_invoice_options' ) ?>
+			<?php wp_nonce_field( 'sw_option_nonce', 'sw_option_nonce' ); ?>
+			<?php do_action( 'smartwoo_before_invoice_options' ) ?>
 
-		<!--Invoice Page -->
-		<div class="sw-form-row">
-		<label for="smartwoo_invoice_page_id" class="sw-form-label"><?php esc_html_e( 'Invoice Page', 'smart-woo-service-invoicing' ) ?></label>
-		<span class="sw-field-description" title="This page should have this shortcode [smartwoo_invoice_page]">?</span>
-		<select name="smartwoo_invoice_page_id" id="smartwoo_invoice_page_id" class="sw-form-input">
-		<option value="0"><?php esc_html_e( 'Select an invoice page', 'smart-woo-service-invoicing' ); ?></option>
-		<?php
-		foreach ( $pages as $page ) {
-			$selected = ( $invoice_page == $page->ID ) ? 'selected' : '';
-			echo '<option value="' . esc_attr( $page->ID ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $page->post_title ) . '</option>';
-		}
-		?>
-		</select>
-		</div>
+			<!--Invoice Page -->
+			<div class="sw-form-row">
+				<label for="smartwoo_invoice_page_id" class="sw-form-label"><?php esc_html_e( 'Invoice Page', 'smart-woo-service-invoicing' ) ?></label>
+				<span class="sw-field-description" title="This page should have this shortcode [smartwoo_invoice_page]">?</span>
+				<select name="smartwoo_invoice_page_id" id="smartwoo_invoice_page_id" class="sw-form-input">
+					<option value="0"><?php esc_html_e( 'Select an invoice page', 'smart-woo-service-invoicing' ); ?></option>
+					<?php foreach ( $pages as $page ) : ?>
+						<option value="<?php echo esc_attr( $page->ID ); ?>"<?php selected( $invoice_page, $page->ID ); ?>><?php echo esc_html( $page->post_title ); ?></option>
+					<?php endforeach;?>
+				</select>
+			</div>
 
-		<!-- Invoice ID Prefix -->
-		<div class="sw-form-row">
-		<label for="smartwoo_invoice_id_prefix" class="sw-form-label"><?php esc_html_e( 'Invoice ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
-		<span class="sw-field-description" title="Enter a text to prifix your invoice IDs">?</span>
-		<input class="sw-form-input" type="text" name="smartwoo_invoice_id_prefix" id="smartwoo_invoice_id_prefix" value="<?php echo esc_attr( $invoice_prefix ); ?>" placeholder="eg, INV">
-		</div>
+			<!-- Invoice ID Prefix -->
+			<div class="sw-form-row">
+				<label for="smartwoo_invoice_id_prefix" class="sw-form-label"><?php esc_html_e( 'Invoice ID Prefix', 'smart-woo-service-invoicing' ); ?></label>
+				<span class="sw-field-description" title="Enter a text to prifix your invoice IDs">?</span>
+				<input class="sw-form-input" type="text" name="smartwoo_invoice_id_prefix" id="smartwoo_invoice_id_prefix" value="<?php echo esc_attr( $invoice_prefix ); ?>" placeholder="eg, INV">
+			</div>
 
-		<!-- Invoice Logo URL -->
-		<div class="sw-form-row">
-		<label for="smartwoo_invoice_logo_url" class="sw-form-label">Logo URL</label>
-		<span class="sw-field-description" title="Paste the link to your logo url, size 512x512 pixels recommended">?</span>
-		<input type="text" name="smartwoo_invoice_logo_url" id="smartwoo_invoice_logo_url" value="<?php echo esc_attr( $invoice_logo_url ); ?>" placeholder=" eg. www.example/image.png" class="sw-form-input">
-		</div> 
+			<!-- Invoice Logo URL -->
+			<div class="sw-form-row">
+				<label for="smartwoo_invoice_logo_url" class="sw-form-label">Logo URL</label>
+				<span class="sw-field-description" title="Paste the link to your logo url, size 512x512 pixels recommended.">?</span>
+				<input type="text" name="smartwoo_invoice_logo_url" id="smartwoo_invoice_logo_url" value="<?php echo esc_attr( $invoice_logo_url ); ?>" placeholder=" eg. www.example/image.png" class="sw-form-input">
+			</div>
 		       
-		<?php do_action( 'smartwoo_after_invoice_options' ) ?>
+			<?php do_action( 'smartwoo_after_invoice_options' ) ?>
 
-		<!-- Invoice Watermark URL -->
-		<div class="sw-form-row">
-		<label for="smartwoo_invoice_watermark_url" class="sw-form-label"><?php esc_html_e( 'Watermark URL', 'smart-woo-service-invoicing' ); ?></label>
-		<span class="sw-field-description" title="Enter your business name">?</span>
-		<input type="text" name="smartwoo_invoice_watermark_url" id="smartwoo_invoice_watermark_url" value="<?php echo esc_attr( $invoice_watermark_url ); ?>" placeholder="eg www.example/image.png" class="sw-form-input">
-		</div>
-		<input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
+			<!-- Invoice Watermark URL -->
+			<div class="sw-form-row">
+				<label for="smartwoo_invoice_watermark_url" class="sw-form-label"><?php esc_html_e( 'Watermark URL', 'smart-woo-service-invoicing' ); ?></label>
+				<span class="sw-field-description" title="Paste the link to your logo url, size 512x512 pixels recommended.">?</span>
+				<input type="text" name="smartwoo_invoice_watermark_url" id="smartwoo_invoice_watermark_url" value="<?php echo esc_attr( $invoice_watermark_url ); ?>" placeholder="eg www.example/image.png" class="sw-form-input">
+			</div>
+
+			<!-- Global invoice generation date -->
+			<div class="sw-form-row">
+				<label for="smartwoo_auto_generate_invoice" class="sw-form-label"><?php esc_html_e( 'Auto Generate Invoice', 'smart-woo-service-invoicing' ); ?></label>
+				<span class="sw-field-description" title="This option applies to the global 'next payment date' of a service subscription and can be overridden on individual subscription's 'next payment date'">?</span>
+				<div class="sw-form-input sw-options-multiple">
+                    <p class="description-class">When should invoices be auto-generated?</p>
+                    <div>
+						<input type="number" name="next_payment_date_number" id="next_payment_date_number" min="1" value="<?php echo esc_html( $global_next_pay['number']) ?>">
+						<select name="next_payment_date_unit" id="next_payment_date_unit">
+							<option value="days" <?php selected( 'days', $global_next_pay['unit']) ?>>Day(s)</option>
+							<option value="weeks" <?php selected( 'weeks', $global_next_pay['unit']) ?>>Week(s)</option>
+							<option value="months" <?php selected( 'months', $global_next_pay['unit']) ?>>Month(s)</option>
+							<option value="years" <?php selected( 'years', $global_next_pay['unit']) ?>>Year(s)</option>
+						</select>
+						<select name="next_payment_date_operator" id="next_payment_date_operator">
+							<option value="-" <?php selected( '-', $global_next_pay['operator']) ?>>Before</option>
+							<option value="+" <?php selected( '+', $global_next_pay['operator']) ?>>After</option>
+						</select>
+						<strong>Subscription ends.</strong>
+					</div>
+                </div>
+			</div>
+
+			<input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
 		</form>
-		</div>
+	</div>
 	<?php
 	return ob_get_clean();
 }
