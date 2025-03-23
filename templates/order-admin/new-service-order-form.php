@@ -23,177 +23,175 @@ defined( 'ABSPATH' ) || exit;
 <?php elseif ( $order->is_processed() ): ?>
     <?php echo wp_kses_post( smartwoo_error_notice( 'This order can no longer be processed. <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Back</a>' ) ); ?>
 <?php else: ?>
-    <?php do_action( 'smartwoo_process_new_order_form_header', $order, $product ); ?>
-    <p>After processing, this order will be marked as completed.</p>
-    <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
-            <?php echo wp_kses_post( smartwoo_error_notice( $form_errors, true ) );?>
-        <?php elseif ( $success = smartwoo_get_form_success() ): ?>
-            <?php echo wp_kses_post( $success );?>
-    <?php endif;?>
+    <div class="smart-woo-service-form-page">
+        <?php do_action( 'smartwoo_process_new_order_form_header', $order, $product ); ?>
+        <p>After processing, this order will be marked as completed.</p>
+        <div id="response-container"></div>
 
-    <div class="sw-form-container">
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) );?>">
+        <form class="sw-service-form" id="smartwooServiceForm" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php') ) ?>">
+            <?php wp_nonce_field( 'sw_edit_service_nonce', 'sw_edit_service_nonce' ); ?>
+            <input type="hidden" name="action" value="smartwoo_service_from_order">
+            <div id="swloader"><?php echo esc_html__( 'Generating...', 'smart-woo-service-invoicing' ); ?></div>
+            <div class="sw-service-form-left-container">
+                <div class="sw-service-form-left-essentials">
+                    <div class="sw-service-form-row">
+                        <label for="service_name"><?php esc_html_e( 'Service Name', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="text" id="service_name" name="sw_service_name" value="<?php echo esc_html( $service_name ); ?>" placeholder="<?php esc_html_e( 'enter service name', 'smart-woo-service-invoicing' ); ?>" field-name="Service name" autocomplete="off" required>
+                        <label for="service_type"><?php esc_html_e( 'Service Type', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="text" id="service_type" name="sw_service_type" placeholder="<?php esc_html_e( 'eg. web service, water billing', 'smart-woo-service-invoicing' ); ?>" autocomplete="off">	
+                    </div>	
 
-            <div class="sw-product-type-container">
-                <label for="is-smartwoo-downloadable">Order Has Asset:
-                    <input type="checkbox" name="is_smartwoo_downloadable" <?php checked( $is_downloadable ) ?> id="is-smartwoo-downloadable"/>
-                </label> 
-            </div>
-            <hr><br> <br>
-            <div class="sw-assets-div<?php echo $is_downloadable ? ' show':'';?>">
-                <div class="sw-product-download-field-container<?php echo $is_downloadable ? ' show' : '';?>">
-                <p><strong><?php echo ! $is_downloadable ? 'No d': 'D';?>ownloadable asset type in "<?php echo esc_html( $product_name );?>"</strong></p>
-                    <?php if ( $is_downloadable ): $downloads = $product->get_smartwoo_downloads();?>
-                        <?php foreach( $downloads as $file_name => $url ):?>
-                            <div class="sw-product-download-fields">
-                                <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_attr( $file_name );?>" placeholder="File Name"/>
-                                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_attr( $url );?>" placeholder="File URL" smartwoo-media-url />
-                                <input type="button" class="smartwooOpenWpMedia button" value="Choose file" />
-                                <span class="dashicons dashicons-dismiss swremove-field"></span>
-                            </div>
-                        <?php endforeach;?>
-                    <?php else:?>
+                    <div class="sw-service-form-row">
+                        <label for="service_url"><?php esc_html_e( 'Service URL', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="text" id="service_url" name="sw_service_url" value="<?php echo esc_html( $service->get_service_url() ); ?>" placeholder="<?php esc_html_e( 'example.com', 'smart-woo-service-invoicing' ); ?>" autocomplete="off">	
+                        <label for="service_products"><?php esc_html_e( 'Select Product', 'smart-woo-service-invoicing' ); ?></label>
+                        <?php smartwoo_product_dropdown( $service->get_product_id(), true ); ?>
+                    </div>
+                </div>
+                
+                <div class="sw-service-form-assets-container">
+                    <h3>Service Assets</h3>
+                    <hr>
+                    <label for="is-smartwoo-downloadable"><?php esc_html_e( 'Set Assets:', 'smart-woo-service-invoicing' );?>
+                        <input type="checkbox" name="has_assets" id="is-smartwoo-downloadable" <?php echo esc_html( $has_asset ? 'checked' : '' ); ?>/>
+                    </label> 
+                    <h2 class="sw-no-download-text" style="text-align: center;<?php echo esc_attr( $has_asset ? 'display: none' : '' ); ?>"><?php esc_html_e( 'No asset set for this subscription' ) ?></h2>
+                    <div class="sw-service-assets-downloads-container" style="<?php echo esc_html( $has_asset ? 'display: block;' : '' ); ?>">
+                        <h3><strong><?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' );?></strong> <?php esc_html_e( 'Downloads', 'smart-woo-service-invoicing' );?></h3>
+                        
+                        <?php if ( $has_asset && ! empty( $downloadables ) ) : ?>
+                            <?php foreach ( $downloadables as $file_name => $url ) : ?>
+                                <div class="sw-product-download-fields">
+                                    <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_html( $file_name ); ?>" placeholder="File Name"/>
+                                    <input type="text" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_html( $url ); ?>" smartwoo-media-url placeholder="File URL" />
+                                    <button class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
+                                    <span type="button" class="dashicons dashicons-dismiss swremove-field"></span>
+                                </div>
+                            <?php endforeach; ?>
+                            <input type="hidden" name="download_asset_type_id" value="<?php echo absint( $download_asset_type_id );?>"/>
+                        <?php else: ?>
                             <div class="sw-product-download-fields">
                                 <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
-                                <input type="url" class="fileUrl" name="sw_downloadable_file_urls[]" placeholder="File URL" smartwoo-media-url />
-                                <input type="button" class="smartwooOpenWpMedia button" value="Choose file" />
-                                <span class="dashicons dashicons-dismiss swremove-field"></span>
+                                <input type="text" class="fileUrl" name="sw_downloadable_file_urls[]" smartwoo-media-url placeholder="File URL" />
+                                <button class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
                             </div>
-                    <?php endif;?>
-                    
-                    <button type="button" id="add-field" <?php echo $is_downloadable ? 'style="display: block;"': 'style="display: none;"';?>>Add More Assets</button>   
-                    <br><br>
-                    <div class="sw-form-row">
-                    <label for="order_id" class="sw-form-label"><?php echo esc_html__( 'External:', 'smart-woo-service-invoicing' );?></label>
-                        <span class="sw-field-description" title="<?php echo esc_attr__( 'Select yes if the url of any downloadable file is external or protected resource', 'smart-woo-service-invoicing' );?>">?</span>
-                        <select name="is_external" id="isExternal" class="sw-form-input">
-                            <option value="no">No</option>
-                            <option value="yes">Yes</option>
-                        </select>
-                    </div>
-                    
-                    <div id="auth-token-div" class="smartwoo-hide">
-                        <label for="assetKey" class="sw-form-label"><?php echo esc_html__( 'Authorizaton Token:', 'smart-woo-service-invoicing' );?></label>
-                        <span class="sw-field-description" title="<?php echo esc_attr__( 'If any of the downloadable asset is a protected resource on another server, you can optionally provide authorization token.', 'smart-woo-service-invoicing' );?>">?</span>
-                        <input type="text" id="assetKey" class="sw-form-input" autocomplete="off" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" />
-                    </div>
+                        <?php endif; ?>
 
-                    <div class="sw-form-row">
-                        <label for="access-limit" class="sw-form-label"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
-                        <span class="sw-field-description" title="<?php echo esc_attr__( 'Set access limit, leave empty for unlimited', 'smart-woo-service-invoicing' );?>">?</span>
-                        <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
-                    </div>
-
-                </div>
-                <span class="line"></span>
-                <div class="sw-additional-assets" id="additionalAssets">
-                    <p><strong>Additional asset types</strong></p>
-                    <div class="sw-additional-assets-field">
-                        <input type="text" name="add_asset_types[]" placeholder="Asset Type" />
-                        <input type="text" name="add_asset_names[]" placeholder="Asset Name" />
-                        <textarea type="text" name="add_asset_values[]" placeholder="Asset Value (html allowed)" style="width: 90%; min-height: 100px"></textarea>
+                        <button class="button" id="add-field"> <?php esc_html_e( 'More Fields', 'smart-woo-service-invoicing' );?></button>   
                         
+                        <div class="sw-service-assets-downloads-meta">
+                            <div class="sw-service-form-row">
+                                <label for="isExternal"><?php esc_html_e( 'Is external:', 'smart-woo-service-invoicing' );?></label>
+                                <select name="is_external" id="isExternal" class="sw-is-external">
+                                    <option value="no" <?php selected( "no", ! empty( $download_asset_object ) ? $download_asset_object->is_external() : 'no' ) ?>>No</option>
+                                    <option value="yes" <?php selected( "yes", ! empty( $download_asset_object ) ? $download_asset_object->is_external() : '' ) ?>>Yes</option>
+                                </select>
+                            </div>
+                            
+                            <div class="sw-service-form-row">
+                                <label for="access-limit"><?php esc_html_e( 'Access Limit', 'smart-woo-service-invoicing' );?></label>
+                                <input type="number" name="download_limit" value="<?php echo esc_html( ! empty( $download_asset_object ) ? $download_asset_object->get_access_limit( 'edit' ): '' ); ?>" id="access-limit" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
+                            </div>
+                        </div>
+                        <div id="auth-token-div" class="sw-service-form-row" style="display: <?php echo esc_attr( ( ! empty( $download_asset_object ) && 'yes' === $download_asset_object->is_external() )  ? 'flex': 'none' ); ?>;">
+                            <input type="text" id="assetKey" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" autocomplete="off"/>
+                        </div>
                         
-                        <input type="number" name="access_limits[]" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
                     </div>
-                    <button id="more-addi-assets">More Fields</button> 
+
+                    <div class="sw-service-additional-assets-container" id="additionalAssets" style="display: <?php echo esc_attr( $has_asset ? 'block': 'none' ); ?>">
+                        <h3><strong><?php esc_html_e( 'Custom Asset Types', 'smart-woo-service-invoicing' );?></strong></h3>
+                        
+                        <?php if ( $has_asset && ! empty( $additionals ) ) : ?>
+                            <?php foreach( $additionals as $asset ) : ?>
+                                <div class="sw-additional-assets-field">
+                                    <h4>
+                                        <?php esc_html_e( 'Asset type:') ?>
+                                        <input type="text" name="additional_asset_types[]" value="<?php echo esc_html( $asset->get_asset_name() ); ?>" placeholder="eg. support service..." />
+                                    </h4>
+                                    <input type="text" name="additiional_asset_names[]" value="<?php echo esc_html( array_key_first( $asset->get_asset_data() ) ); ?>" placeholder="Asset Name" />
+                                    <input type="number" name="access_limits[]" value="<?php echo esc_html( $asset->get_access_limit( 'edit' ) ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
+                                    <textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"><?php echo wp_kses_post( $asset->get_data( array_key_first( $asset->get_asset_data() ) ) ); ?></textarea>
+                                    <input type="hidden" name="asset_type_ids[]" value="<?php echo absint( $asset->get_id() );?>"/>
+                                    <span class="dashicons dashicons-trash remove-field" title="<?php esc_attr_e( 'Delete permanently', 'smart-woo-service-invoicing' );?>" data-removed-id="<?php echo absint( $asset->get_id() );?>"></span>
+
+                                </div>
+                            <?php endforeach; ?>
+                        
+                        <?php else: ?>
+                            <div class="sw-additional-assets-field">
+                                <h4>
+                                    <?php esc_html_e( 'Asset type:') ?>
+                                    <input type="text" name="additional_asset_types[]" placeholder="eg. support service..." />
+                                </h4>
+                                <input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
+                                <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
+                                <textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"></textarea>
+                            </div>
+                        <?php endif;?>
+                        
+                        <button id="more-addi-assets" class="button"><?php esc_html_e( 'Another Asset', 'smart-woo-service-invoicing' );?></button> 
+                    </div>
+                    
+                </div>
+                    
+            </div>
+
+            <div class="sw-service-form-right-container">
+                <div class="sw-service-client-info">
+                    <img src="<?php echo esc_url( get_avatar_url( $service->get_user_id() ) ); ?>" loading="lazy" alt="avatar" width="92" height="92">
+                    <p class="sw-user-fullname"><strong>Full name</strong>: <?php echo esc_html( $user_fullname ) ?></p>
+                    <p class="sw-user-email"><strong>Email</strong>: <?php echo esc_html( $user->user_email ); ?></p>
+                    <p id="spinner" style="text-align: center;"></p>
+                </div>
+                <?php smartwoo_dropdown_users( 
+                    $user->ID . '|' . $user->user_email, 
+                    array(
+                        'class'		=> 'sw-service-user-dropdown',
+                        'id'		=> 'smartwooServiceUserDropdown',
+                        'add_guest' => false,
+                        'name'		=> 'sw_user_id',
+                        'option_none'	=> 'Choose client',
+                        'required'		=> true,
+                        'field_name'	=> 'A client'
+                    )
+                ); ?>
+
+                <div class="sw-service-billing-data">
+                    <div class="sw-service-form-row">
+                        <label for="sw_start_date"><?php esc_html_e( 'Start Date', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="text" id="sw_start_date" name="start_date" value="<?php echo esc_html( $service->get_start_date() ); ?>" autocomplete="off" placeholder="From YYYY-MM-DD" field-name="A start date" required>
+                    </div>
+
+                    <div class="sw-service-form-row">
+                        <label for="sw_billing_cycle" ><?php esc_html_e( 'Billing Cycle', 'smart-woo-service-invoicing' ); ?></label>
+                        <?php smartwoo_billing_cycle_dropdown( $service->get_billing_cycle(), array( 'option_none' => 'Choose billing cycle', 'id'	=> 'sw_billing_cycle', 'required' => true ) ); ?>
+                    </div>
+
+                    <div class="sw-service-form-row">
+                        <label for="sw_next_payment_date"><?php esc_html_e( 'Next Payment Date', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="text" id="sw_next_payment_date" name="next_payment_date" value="<?php echo esc_html( $service->get_next_payment_date() ); ?>" autocomplete="off" placeholder="Next Invoice YYYY-MM-DD" field-name="Next payment date field" required>	
+                    </div>
+
+                    <div class="sw-service-form-row">
+                        <label for="sw_end_date"><?php esc_html_e( 'End Date', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="text" id="sw_end_date" name="end_date" value="<?php echo esc_html( $service->get_end_date() ); ?>" autocomplete="off" placeholder="Ends YYYY-MM-DD" field-name="Service end date field" required>	
+                    </div>
+
+                    <div class="sw-service-form-row">
+                        <label for="status">Status</label>
+                        <?php smartwoo_service_status_dropdown( $service->get_status(), array( 'class' => 'sw-status' ) ); ?>
+                    </div>
+                    
+                    <div class="sw-service-form-row">
+                        <label for="publish">Save Service</label>
+                        <button type="submit" class="sw-blue-button button"><span class="dashicons dashicons-cloud-saved"></span> <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
+                    </div>
+                    
                 </div>
             </div>
-                
-            <div class="sw-form-row">
-                <label for="order_id" class="sw-form-label"><?php echo esc_html__( 'Order:', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="The order ID and Product Name">?</span>
-                <input type="text" name="order_id" id="order_id" class="sw-form-input" value="<?php echo esc_attr( $order_id ) . ' - ' . esc_html( $product_name );?>" readonly>
-            </div>
-        
-            <!-- Service ID Generator form fields -->
-            <div class="sw-form-row">
-                <label for="service-name" class="sw-form-label"><?php esc_html_e( 'Service Name:', 'smart-woo-service-invoicing' ); ?></label>
-                <span class="sw-field-description" title="<?php esc_attr_e( 'Service name here', 'smart-woo-service-invoicing' ); ?>">?</span>
-                <input type="text" class="sw-form-input" id="service-name" name="service_name" required>
-            </div>
-
-            <!-- Add an animated loader element -->
-            <div id="swloader"><?php echo esc_html__( 'Generating...', 'smart-woo-service-invoicing' ); ?></div>
-
-            <div class="sw-form-row">
-                <label for="generated-service-id" class="sw-form-label"><?php esc_html_e( 'Generate Service ID *', 'smart-woo-service-invoicing' ); ?></label>
-                <span class="sw-field-description" title="<?php esc_attr_e( 'Click the button to generate a unique service ID', 'smart-woo-service-invoicing' ); ?>">?</span>
-                <input type="text" class="sw-form-input" id="generated-service-id" name="service_id" readonly>
-            </div>
-
-            <div class="sw-form-row">
-                <label for="button" class="sw-form-label"></label>
-                <button id="generate-service-id-btn" type="button" class="sw-red-button"><?php esc_html_e( 'Click to generate', 'smart-woo-service-invoicing' ); ?></button>
-            </div>
-        
-            <input type="hidden" name="product_id" value="<?php echo esc_attr( $product_id );?>">
-            <input type="hidden" name="action" value="smartwoo_service_from_order">
-            <?php wp_nonce_field( 'sw_process_new_service_nonce', 'sw_process_new_service_nonce' );?>
-            <!-- Service URL. -->
-            <div class="sw-form-row">
-                <label for="service_url" class="sw-form-label"><?php echo esc_html__( 'Service URL:', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'Enter the service URL e.g., https:// (optional)', 'smart-woo-service-invoicing' );?>">?</span>
-                <input type="url" name="service_url" class="sw-form-input" id="service_url" value="<?php echo esc_url( $service_url );?>" >
-            </div>
-            <!-- Service Type -->
-            <div class="sw-form-row">
-                <label for="service_type" class="sw-form-label"><?php echo esc_html__( 'Service Type', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'Enter the service type (optional)', 'smart-woo-service-invoicing' );?>">?</span>
-                <input type="text" name="service_type" class="sw-form-input" id="service_type">
-            </div>
-            <!-- Client's Name. -->
-            <div class="sw-form-row">
-                <label for="user_id" class="sw-form-label"><?php echo esc_html__( 'Client\'s Name', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'The user whose ID is associated with the order', 'smart-woo-service-invoicing' );?>">?</span>
-                <input type="text" class="sw-form-input" name="user_id" id="user_id" value="<?php echo esc_attr( $user_full_name );?>" readonly>
-            </div>
-            <input type="hidden" name="user_id" value="<?php echo esc_attr( $user_id );?>">
-            <!-- Sart date. -->
-            <div class="sw-form-row">
-                <label for="start_date" class="sw-form-label"><?php echo esc_html__( 'Start Date:', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'Choose the start date for the service subscription, service was ordered on this date.', 'smart-woo-service-invoicing' );?>">?</span>
-                <input type="date" name="start_date" class="sw-form-input" id="start_date" value="<?php echo esc_attr( $start_date );?>" required>
-            </div>
-
-            <!-- Billing Cycle -->
-            <div class="sw-form-row">
-                <label for="billing_cycle" class="sw-form-label"><?php echo esc_html__( 'Billing Cycle', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'This billing cycle was set from the product, you may edit it, invoices are created toward to the end of the billing cycle.', 'smart-woo-service-invoicing' );?>">?</span>
-                <select name="billing_cycle" id="billing_cycle" class="sw-form-input" required>
-                <option value=""><?php echo esc_html__( 'Select billing cycle', 'smart-woo-service-invoicing' );?></option>
-                <option value="Monthly" <?php selected( 'Monthly', $billing_cycle ); ?>><?php echo esc_html__( 'Monthly', 'smart-woo-service-invoicing' );?></option>
-                <option value="Quarterly" <?php selected( 'Quarterly', $billing_cycle ); ?>><?php echo esc_html__( 'Quarterly', 'smart-woo-service-invoicing' ); ?></option>
-                <option value="Six Monthly" <?php selected( 'Six Monthly', $billing_cycle ); ?>><?php echo esc_html__( 'Semiannually', 'smart-woo-service-invoicing' );?></option>
-                <option value="Yearly" <?php selected( 'Yearly', $billing_cycle ); ?>><?php echo esc_html__( 'Yearly', 'smart-woo-service-invoicing' );?></option>
-                </select>
-            </div>
-            <!-- Next Payment Date. -->
-            <div class="sw-form-row">
-                <label for="next_payment_date" class="sw-form-label"><?php echo esc_html__( 'Next Payment Date', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="'<?php echo esc_attr__( 'Choose the next payment date, services will be due and invoice is created on this day.', 'smart-woo-service-invoicing' );?>">?</span>
-                <input type="date" class="sw-form-input" name="next_payment_date" id="next_payment_date" value="<?php echo esc_attr( $next_payment_date );?>" required>
-            </div>
-            <!-- End Date. -->
-            <div class="sw-form-row">
-                <label for="end_date" class="sw-form-label"><?php echo esc_html__( 'End Date', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'Choose the end date for the service. This service will expire on this day if the product does not have a grace period set up.', 'smart-woo-service-invoicing' );?>">?</span>
-                <input type="date" class="sw-form-input" name="end_date" id="end_date" value="<?php echo esc_attr( $end_date );?>" required>
-            </div>
-            <!-- Status. -->
-            <div class="sw-form-row">
-                <label for="status" class="sw-form-label"><?php echo esc_html__( 'Set Service Status:', 'smart-woo-service-invoicing' );?></label>
-                <span class="sw-field-description" title="<?php echo esc_attr__( 'Set the status for the service. Status should be automatically calculated, choose another option to override the status. Please Note: invoice will be created if the status is set to Due for Renewal', 'smart-woo-service-invoicing' );?>">?</span>
-                <select name="status" class="sw-form-input" id="status">
-        
-                <?php foreach ( $status_options as $value => $label ):?>
-                    <option value="<?php echo esc_attr( $value );?>"<?php selected( $value, $status );?>><?php echo esc_html( $label );?></option>
-                <?php endforeach;?>
-                </select>
-            </div>
-        
-            <button type="submit" class="sw-blue-button" id="create_new_service">Finish Processing<span class="dashicons dashicons-yes"></span></button>
-
+            
         </form>
+
     </div>
 <?php endif; ?>
