@@ -117,6 +117,7 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
                 if (cellIndex === 1) {
                     td.classList.add('service-id-column');
                     td.style.cursor = 'pointer';
+                    td.setAttribute( 'title', 'View service details')
                     
                     // Add click event listener to log the service ID
                     td.addEventListener('click', function() {
@@ -970,11 +971,8 @@ function smartwooDatesInputsHandler() {
         var year   = date.getFullYear();
         var month  = String( date.getMonth() + 1 ).padStart( 2, '0' );
         var day    = String( date.getDate() ).padStart( 2, '0' );
-        var hours  = String( date.getHours() ).padStart( 2, '0' );
-        var minutes = String( date.getMinutes() ).padStart( 2, '0' );
-        var seconds = String( date.getSeconds() ).padStart( 2, '0' );
     
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        return `${year}-${month}-${day}`;
     };
 
     // Get input fields
@@ -985,8 +983,8 @@ function smartwooDatesInputsHandler() {
 
     if ( billingCycleField && startDateField && nextPayDateField && endDateField ) {
         billingCycleField.addEventListener( 'change', () => {
-            if ( !startDateField.value.length ) {
-                showNotification( 'Please set the start date', 3000 );
+            if ( ! startDateField.value.length ) {
+                startDateField.reportValidity();
                 billingCycleField.value = '';
                 return;
             } else if ( !billingCycleField.value ) {
@@ -998,7 +996,6 @@ function smartwooDatesInputsHandler() {
                 showNotification( 'Invalid start date', 3000 );
                 return;
             }
-            startDate.setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds());
 
             let newEndDate = new Date( startDate );
             let nextPayDate;
@@ -1023,95 +1020,119 @@ function smartwooDatesInputsHandler() {
                     showNotification( 'Invalid billing cycle', 3000 );
                     return;
             }
+            // Get the interval setting from localized script
+            let globalNextPayInterval = smart_woo_vars.global_nextpay_date || { operator: '-', number: 7, unit: 'days' };
 
-            // Ensure next payment date is 7 days before the end date
+            // Extract values safely
+            let operator = globalNextPayInterval.operator || '-';
+            let num = parseInt(globalNextPayInterval.number) || 7;
+            let unit = globalNextPayInterval.unit || "days";
+
             nextPayDate = new Date(newEndDate);
-            nextPayDate.setDate(nextPayDate.getDate() - 7);
+
+            switch (unit) {
+                case "days":
+                    nextPayDate.setDate(nextPayDate.getDate() + (operator === '-' ? -num : num));
+                    break;
+                case "weeks":
+                    nextPayDate.setDate(nextPayDate.getDate() + (operator === '-' ? -num * 7 : num * 7));
+                    break;
+                case "months":
+                    nextPayDate.setMonth(nextPayDate.getMonth() + (operator === '-' ? -num : num));
+                    break;
+                case "years":
+                    nextPayDate.setFullYear(nextPayDate.getFullYear() + (operator === '-' ? -num : num));
+                    break;
+                default:
+                    console.error("Unsupported time unit:", unit);
+            }
 
             // Autofill input fields
             endDateField.value      = formatDateTime(newEndDate);
             nextPayDateField.value  = formatDateTime(nextPayDate);
+
+            endDateField.dispatchEvent( new Event('input', { bubbles: true }))
+            nextPayDateField.dispatchEvent( new Event('input', { bubbles: true }))
         });
     }
 
     // Initialize jQuery Datepicker.
-    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date' );
-        if ( dateFields.length ) {
-            dateFields.forEach( input =>{
-                if ( input.getAttribute( 'smartwoo-datetime-picker' ) ) {
-                    jQuery( input ).datetimepicker({
-                        dateFormat: 'yy-mm-dd',
-                        timeFormat: 'HH:mm:ss',
-                        changeMonth: true,
-                        changeYear: true,
-                        showButtonPanel: true,
-                        closeText: 'Done', 
-                        currentText: 'Today',
-                        nextText: 'Next', 
-                        prevText: 'Previous'
-                    });
-                } else {
-                    jQuery( input ).datepicker({
-                        dateFormat: 'yy-mm-dd',
-                        changeMonth: true,
-                        changeYear: true,
-                        showButtonPanel: true,
-                        closeText: 'Done', 
-                        currentText: 'Today',
-                        nextText: 'Next', 
-                        prevText: 'Previous'
-                    });
+    let dateFields = document.querySelectorAll('#sw_start_date, #sw_next_payment_date, #sw_end_date');
+    if (dateFields.length) {
+        dateFields.forEach(input => {
+            let options = {
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                closeText: 'Done',
+                currentText: 'Today',
+                nextText: 'Next',
+                prevText: 'Previous',
+                onSelect: function () {
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
                 }
-                
-            });
-        }
+            };
+
+            if (input.getAttribute('smartwoo-datetime-picker')) {
+                jQuery(input).datetimepicker({
+                    ...options,
+                    timeFormat: 'HH:mm:ss',
+                });
+            } else {
+                jQuery(input).datepicker(options);
+            }
+        });
+    }
+
 
     
 }
 
-
-document.addEventListener('DOMContentLoaded', smartwooDatesInputsHandler );
-
 document.addEventListener('DOMContentLoaded', () => {
-    let contentDiv          = document.querySelector('.sw-dash-content-container');
-    let skeletonContent     = document.querySelectorAll('.sw-dash-content');
-    let ordersBtn           = document.getElementById('dashOrderBtn');
-    let addNewBtn           = document.getElementById('dashAddNew');
-    let invoicesBtn         = document.getElementById('dashInvoicesBtn');
-    let productsBtn         = document.getElementById('dashProductBtn');
-    let settingsBtn         = document.getElementById('dashSettingsBtn');
-    let proBtns             = document.querySelectorAll('.sw-upgrade-to-pro');
-    let searchField         = document.getElementById('sw_service_search');
-    let searchbtn           = document.getElementById('swSearchBtn');
-    const notificationTooltip = document.getElementById('search-notification');
-    let menuButton          = document.querySelector('.sw-admin-menu-icon');
-    let deleteInvoiceBtns   = document.querySelectorAll('.delete-invoice-button');
-    let deleteProductIds    = document.querySelectorAll('.sw-delete-product' );
-    let deleteServiceBtn    = document.querySelector('.delete-service-button');
-    let adminDashHeader     = document.querySelector('.sw-admin-dash-header');
-    let editMailBtns        = document.querySelectorAll('.sw-edit-mail-nopro');
-    let swCheckBoxes        = document.querySelectorAll('.sw-checkboxes');
-    let swHideBtn           = document.getElementById('sw-hide');
-    let noSbmtBtn           = document.querySelectorAll('.smartwoo-prevent-default' );
-    let proRemindLaterBtn   = document.querySelector('#smartwoo-pro-remind-later');
-    let proDismissFornow    = document.querySelector('#smartwoo-pro-dismiss-fornow');
-    let userDataDropDown    = document.querySelector( '#user_data' );
-    let theInvoiceAdminForm = document.querySelector( '#smartwooInvoiceForm' );
-    let invoicePageToggle   = document.querySelectorAll( '.sw-toggle-btn' );
-    let invoiceActionBtns   = document.querySelectorAll( '.smartwoo-admin-invoice-action-div button' );
-    let invoiceLinkActions  = document.querySelector( '.smartwoo-admin-invoice-action-div' );
-    let invoiceLinksToggle  = document.querySelector( '.smartwoo-admin-invoice-actions' );
-    let swTable             = document.querySelector('.sw-table');
-    let allSortDivs         = document.querySelectorAll( '.sw-admin-status-item' );
-    let gracePeriodSelect   = document.querySelector( '#grace_period' );
-    let addProductImageBtn  = document.querySelector( '#upload_sw_product_image' );
-    let uploadProductImages = document.querySelector( '#add-product-galleryBtn' );
-    let productdataTabs     = document.querySelector( '.sw-product-data-tabs-menu' );
-    let theProductForm      = document.querySelector( '#sw-product-form' );
-    let isDownloadableCheck = document.querySelector( '#is-smartwoo-downloadable' );
-    let removeBtn           = document.querySelectorAll( '.swremove-field' );
-    let adminViewServiceDivs = document.querySelectorAll( '.sw-view-details-service-product, .admin-view-service-invoices-items, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
+    smartwooDatesInputsHandler();
+
+    let contentDiv              = document.querySelector('.sw-dash-content-container');
+    let skeletonContent         = document.querySelectorAll('.sw-dash-content');
+    let ordersBtn               = document.getElementById('dashOrderBtn');
+    let addNewBtn               = document.getElementById('dashAddNew');
+    let invoicesBtn             = document.getElementById('dashInvoicesBtn');
+    let productsBtn             = document.getElementById('dashProductBtn');
+    let settingsBtn             = document.getElementById('dashSettingsBtn');
+    let proBtns                 = document.querySelectorAll('.sw-upgrade-to-pro');
+    let searchField             = document.getElementById('sw_service_search');
+    let searchbtn               = document.getElementById('swSearchBtn');
+    const notificationTooltip   = document.getElementById('search-notification');
+    let menuButton              = document.querySelector('.sw-admin-menu-icon');
+    let deleteInvoiceBtns           = document.querySelectorAll('.delete-invoice-button');
+    let deleteProductIds        = document.querySelectorAll('.sw-delete-product' );
+    let deleteServiceBtn        = document.querySelector('.delete-service-button');
+    let adminDashHeader         = document.querySelector('.sw-admin-dash-header');
+    let editMailBtns            = document.querySelectorAll('.sw-edit-mail-nopro');
+    let swCheckBoxes            = document.querySelectorAll('.sw-checkboxes');
+    let swHideBtn               = document.getElementById('sw-hide');
+    let noSbmtBtn               = document.querySelectorAll('.smartwoo-prevent-default' );
+    let proRemindLaterBtn       = document.querySelector('#smartwoo-pro-remind-later');
+    let proDismissFornow        = document.querySelector('#smartwoo-pro-dismiss-fornow');
+    let userDataDropDown        = document.querySelector( '#user_data' );
+    let theInvoiceAdminForm     = document.querySelector( '#smartwooInvoiceForm' );
+    let invoicePageToggle       = document.querySelectorAll( '.sw-toggle-btn' );
+    let invoiceActionBtns       = document.querySelectorAll( '.smartwoo-admin-invoice-action-div button' );
+    let invoiceLinkActions      = document.querySelector( '.smartwoo-admin-invoice-action-div' );
+    let invoiceLinksToggle      = document.querySelector( '.smartwoo-admin-invoice-actions' );
+    let swTable                 = document.querySelector('.sw-table');
+    let allSortDivs             = document.querySelectorAll( '.sw-admin-status-item' );
+    let gracePeriodSelect       = document.querySelector( '#grace_period' );
+    let addProductImageBtn      = document.querySelector( '#upload_sw_product_image' );
+    let uploadProductImages     = document.querySelector( '#add-product-galleryBtn' );
+    let productdataTabs         = document.querySelector( '.sw-product-data-tabs-menu' );
+    let theProductForm          = document.querySelector( '#sw-product-form' );
+    let isDownloadableCheck     = document.querySelector( '#is-smartwoo-downloadable' );
+    let removeBtn               = document.querySelectorAll( '.swremove-field' );
+    let adminViewServiceDivs    = document.querySelectorAll( '.sw-view-details-service-product, .admin-view-service-invoices-items, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
     let generateServiceIdBtn    = document.querySelector( '#generate-service-id-btn' );
+    let serviceFormUserDropdown = document.querySelector( '#smartwooServiceUserDropdown' );
+    const serviceForm           = document.querySelector( '#smartwooServiceForm' );
     /**
      * The assets is downloadable checkbox.
      */
@@ -1332,17 +1353,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
-    if (deleteServiceBtn) {
-        let siblings = deleteServiceBtn.parentElement.querySelectorAll('a button');
-        let serviceId = deleteServiceBtn.getAttribute('data-service-id');
+    if ( deleteServiceBtn ) {
+        let siblings = deleteServiceBtn.parentElement.querySelectorAll( 'a button' );
+        let serviceId = deleteServiceBtn.getAttribute( 'service-id' );
         siblings.forEach((Btn)=>{
-            Btn.classList.add('sw-icon-button-admin');
+            Btn.classList.add( 'sw-icon-button-admin' );
 
         });
-        deleteServiceBtn.classList.add('sw-icon-button-admin');
-        deleteServiceBtn.addEventListener('click', ()=>{
-            smartwooDeleteService(serviceId);
-        } );
+        deleteServiceBtn.classList.add( 'sw-icon-button-admin' );
+        deleteServiceBtn.addEventListener( 'click', ()=>{
+            smartwooDeleteService( serviceId );
+        });
 
     }
 
@@ -1751,7 +1772,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if ( gracePeriodSelect ) {
         gracePeriodSelect.addEventListener( 'change', ()=>{
-            console.log( 'grace changed' + gracePeriodSelect.value.length );
             let gracePeriodUnit = document.querySelector( '.grace-period-number' );
             if ( ! gracePeriodSelect.value.length ) {
                 console.log( 'grace no legth' );
@@ -2045,6 +2065,115 @@ document.addEventListener('DOMContentLoaded', () => {
             
         });
     }
+
+    if ( serviceFormUserDropdown ) {
+        let clientMeta      = document.querySelector( '.sw-service-client-info' );
+        let userFullName    = clientMeta.querySelector( '.sw-user-fullname' );
+        let userEmail       = clientMeta.querySelector( '.sw-user-email' );
+        let image           = clientMeta.querySelector( 'img' );
+        
+        let defaultAvatar   = smart_woo_vars.default_avatar_url;
+        let defaultText     = 'No user selected';
+        serviceFormUserDropdown.addEventListener( 'change', (e) =>{
+            if ( ! e.target.value.length ) {
+                userFullName.textContent    = defaultText;
+                userEmail.textContent       = '';
+                image.src                   = defaultAvatar;
+                return;
+            }
+
+            let spinner = smartWooAddSpinner( 'spinner', false );
+            spinner.style.position = 'absolute';
+            spinner.style.left = '50%';
+            spinner.style.top = '50%';
+            let userID  = e.target.value.split( '|' )[0];
+            
+            let url             = new URL( smart_woo_vars.get_user_data );
+            url.searchParams.append( 'user_id', userID )
+            url.searchParams.append( 'security', smart_woo_vars.security )
+
+            fetch(url, {
+                method: 'GET'
+            }).then(response =>{
+                if ( ! response.ok ) {
+                    showNotification( `Error: ${response.statusText}`, 6000 );
+                    throw new Error( response.statusText );
+                }
+                return  response.json()
+            }).then(responseData => {
+                if ( ! responseData.success ) {
+                    showNotification( responseData.data.message, 6000 );
+                } else {
+                    userFullName.innerHTML  = `<strong>Full name</strong>: ${responseData.data.user_fullname}`;
+                    userEmail.innerHTML     = `<strong>Email</strong>: ${responseData.data.email}`;
+                    image.src               = responseData.data.avatar_url;
+                }
+            }).catch(error =>{
+                console.error('Error fetching user data:', error)
+            }).finally(()=>{
+                smartWooRemoveSpinner( spinner );
+            })
+
+        });
+    }
+
+    if ( serviceForm ) {
+        let requiredFields = serviceForm.querySelectorAll("[required]");
+        requiredFields.forEach((field) => {
+            field.addEventListener("invalid", ()=> {
+                let fieldName = field.getAttribute("field-name") || "This field";
+                field.setCustomValidity(`${fieldName} is required.`);
+            
+            });
+
+            field.addEventListener("input", function () {
+                field.setCustomValidity("");
+            });
+        });
+        reponseDiv          = document.querySelector( '#response-container' );
+        serviceForm.addEventListener( 'submit', (e)=>{
+            e.preventDefault();
+            reponseDiv.innerHTML = '';
+            let spinner         = smartWooAddSpinner( 'swloader', true );
+            let sbmtBtn         = serviceForm.querySelector( 'button[type="submit"]' );
+            let theFormData     = new FormData( serviceForm );
+            let url             = new URL( smart_woo_vars.ajax_url );
+            theFormData.append( 'security', smart_woo_vars.security );
+            sbmtBtn.disabled    = true;
+
+            fetch( url, {
+                method: 'POST',
+                body:   theFormData
+            }).then( response =>{
+                if ( ! response.ok ){
+                    showNotification( `Error: ${response.statusText}` );
+                    throw new Error( `Error: ${response.statusText}`)
+                }
+
+                return response.json();
+            }).then( responseData =>{
+                if ( ! responseData.success ) {
+                    showNotification( `Error: ${responseData.data.message}`, 6000 );
+                    reponseDiv.innerHTML = responseData.data.htmlContent;
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                    reponseDiv.querySelector( '.swremove-field' ).addEventListener( 'click', e => e.target.parentElement.remove() );
+                } else {
+                    showNotification( responseData.data.message, 3000 );
+                    setTimeout(()=>{
+                        window.location.href = responseData.data.redirect_url;
+                    }, 3000)
+
+                }
+            }).catch( error =>{
+                console.log( error )
+            }).finally(()=>{
+                smartWooRemoveSpinner( spinner );
+                sbmtBtn.disabled    = false;
+
+            })
+
+        });
+    }
     
 });
 
@@ -2145,11 +2274,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				<hr>
 				<h4>
 					Asset type:
-					<input type="text" name="add_asset_types[]" placeholder="eg. water billing asset, support service..." />
+					<input type="text" name="additional_asset_types[]" placeholder="eg. water billing asset..." />
 				</h4>
-				<input type="text" name="add_asset_names[]" placeholder="Asset Name" />
+				<input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
 				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional)">
-				<textarea type="text" name="add_asset_values[]" placeholder="Asset Value (only html and shortcodes are allowed)" style="width: 90%; min-height: 100px"></textarea>
+				<textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"></textarea>
 
                 <span class="dashicons dashicons-dismiss remove-field" title="Remove this field"></span>
             `;
@@ -2167,7 +2296,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				var confirmed = removedId ? confirm( 'This asset will be deleted from the database, click okay to continue.' ) : 0;
 				var removeEle = removedId ? false : true;
 				if ( removedId && confirmed ) {
-					var spinner = smartWooAddSpinner( 'smartSpin' );
+                    jQuery( event.target ).fadeOut(700);
+					var spinner = smartWooAddSpinner( 'swloader', true );
 					console.log( removedId );
 					jQuery.ajax({
 						type: 'GET',
