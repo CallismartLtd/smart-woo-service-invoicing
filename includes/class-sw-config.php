@@ -264,7 +264,10 @@ class SmartWoo_Config{
             'wp_spinner_gif_2x'         => admin_url('images/spinner-2x.gif'),
             'smartwoo_plugin_page'      => apply_filters( 'smartwoo_plugin_url', 'https://callismart.com.ng/smart-woo-service-invoicing' ),
             'smartwoo_pro_page'         => apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/#go-pro' ),
-            'currentScreen'            => self::get_current_screen(),
+            'currentScreen'             => self::get_current_screen(),
+            'get_user_data'             => admin_url( 'admin-ajax.php?action=smartwoo_get_user_data' ),
+            'global_nextpay_date'       => smartwoo_get_global_nextpay( 'edit' ),
+            'default_avatar_url'        => smartwoo_get_avatar_placeholder_url()
         );
 
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
