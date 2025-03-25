@@ -1,13 +1,12 @@
 <?php
 /**
- * Template Name: Smart Woo Portal
- * Description: A standalone template for the Smart Woo Service portal.
+ * Smart Woo client portal where all service subscriptions are listed.
+ * 
+ * @author Callistus
+ * @package SmartWoo\Templates
  */
 
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
+defined( 'ABSPATH' ) || exit;
 ?>
 
 <div id="smartwoo-portal">
