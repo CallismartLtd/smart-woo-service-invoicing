@@ -79,7 +79,7 @@ class SmartWoo_Config{
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'remove_order_again_button' ) );
         add_action( 'admin_menu', array( __CLASS__, 'modify_sw_menu' ), 999 );
-        add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
+        // add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
         add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
@@ -190,6 +190,7 @@ class SmartWoo_Config{
             require_once SMARTWOO_PATH . 'includes/frontend/shortcode.php';
             require_once SMARTWOO_PATH . 'includes/frontend/service/template.php';
             require_once SMARTWOO_PATH . 'includes/frontend/service/contr.php';
+            // require_once SMARTWOO_PATH . 'includes/frontend/client-portal.php';
 
         }
         add_action( 'admin_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
@@ -337,21 +338,36 @@ class SmartWoo_Config{
 
     }
 
+    /**
+     * Our query vars
+     */
+    private function get_query_vars() {
+        return apply_filters(
+            'smartwoo_query_vars',
+            array(
+                /** WooCommerce my-acount endpoints */
+                'smartwoo-invoice',
+                'smartwoo-service',
+
+                /** Service Subscription page */
+                'buy-new',
+                'view-subscription',
+                'sort',
+                'upgrade',
+                'downgrade',
+                /** Invoice page endpoints */
+                'view-invoice'
+            )
+        );
+    }
+
     /** Smart Woo page rewrite rules */
     public function add_rules() {
         /** Product configuration page */
         add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
-
-        /** WooCommerce my-acount endpoints */
-        add_rewrite_endpoint( 'smartwoo-invoice', EP_PAGES );
-        add_rewrite_endpoint( 'smartwoo-service', EP_PAGES );
-
-        /** Service Subscription page */
-        add_rewrite_endpoint( 'buy-new', EP_PAGES );
-        add_rewrite_endpoint( 'view-subscription', EP_PAGES );
-        add_rewrite_endpoint( 'view-subscriptions-by', EP_PAGES );
-        add_rewrite_endpoint( 'upgrade', EP_PAGES );
-        add_rewrite_endpoint( 'downgrade', EP_PAGES );
+        foreach( $this->get_query_vars() as $key => $var ) {
+            add_rewrite_endpoint( $var, EP_PAGES );
+        }
 
         if ( false === get_transient( '_smartwoo_flushed_rewrite_rules', false ) ) {
             flush_rewrite_rules();
@@ -379,7 +395,7 @@ class SmartWoo_Config{
             'upgrade',
             'downgrade',
             'view-subscription',
-            'view-subscriptions-by'
+            'sort'
         );
     
         if ( is_page( $service_page_id ) ) {
