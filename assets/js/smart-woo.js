@@ -510,6 +510,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	let loginPWDVisible = document.getElementById('smartwoo-login-form-visible');
 	let loginPWDHidden 	= document.getElementById('smartwoo-login-form-invisible');
 	let loginPWDInput	= document.getElementById('sw-user-password');
+	let adminAssetsToggle       = document.querySelectorAll( '.sw-admin-service-assets-button, .sw-client-service-assets-button' );
+
 
     if (hamburger) {
 		var menuIcon = hamburger.querySelector('.dashicons-menu');
@@ -588,6 +590,27 @@ document.addEventListener('DOMContentLoaded', function() {
 			loginPWDInput.setAttribute('type', 'password');
 		});
 	}
+
+	if ( adminAssetsToggle.length ) {
+        let assetContents = document.querySelectorAll( '.sw-admin-assets-body-content, .sw-client-assets-body-content' );
+        let removeAll = () =>{
+            adminAssetsToggle.forEach(btn =>{
+                btn.classList.remove( 'active' )
+            });
+            assetContents.forEach( div =>{
+                div.classList.add( 'smartwoo-hide' );
+            });
+        }
+        adminAssetsToggle.forEach( ( button, index ) =>{
+            button.addEventListener( 'click', (e)=>{
+                removeAll();
+                if ( ! e.target.classList.contains( 'active' ) ) {
+                    e.target.classList.add( 'active' );
+                }
+                assetContents[index].classList.toggle( 'smartwoo-hide' );
+            });
+        })
+    }
 });
 
 /**
