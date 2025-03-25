@@ -644,4 +644,146 @@ class SmartWoo_Service_Assets {
         wp_send_json_error( array( 'message' => 'An error occured when deleting asset.' ) );
     }
 
+    /**
+     * Get WordPress Dashicon for a given file MIME type.
+     *
+     * @param string $mime_type The file MIME type.
+     * @return string The corresponding Dashicon class.
+     */
+    public static function get_mime_dashicon( $mime_type ) {
+        $mime_dashicons = array(
+            'image/jpeg'        => 'dashicons-format-image',
+            'image/png'         => 'dashicons-format-image',
+            'image/gif'         => 'dashicons-format-image',
+            'image/webp'        => 'dashicons-format-image',
+            'image/svg+xml'     => 'dashicons-format-image',
+
+            'application/pdf'   => 'dashicons-pdf',
+            'application/msword'=> 'dashicons-wordpress-alt',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'dashicons-media-document',
+
+            'application/vnd.ms-excel' => 'dashicons-media-spreadsheet',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'dashicons-media-spreadsheet',
+
+            'application/vnd.ms-powerpoint' => 'dashicons-media-interactive',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'dashicons-media-interactive',
+
+            'text/plain'        => 'dashicons-media-text',
+            'text/csv'          => 'dashicons-media-spreadsheet',
+            'text/html'         => 'dashicons-admin-site',
+            'text/css'          => 'dashicons-media-code',
+            'text/javascript'   => 'dashicons-media-code',
+
+            'application/json'  => 'dashicons-media-code',
+            'application/javascript' => 'dashicons-media-code',
+            'application/xml'   => 'dashicons-media-code',
+
+            'application/zip'   => 'dashicons-media-archive',
+            'application/x-rar-compressed' => 'dashicons-media-archive',
+
+            'audio/mpeg'        => 'dashicons-format-audio',
+            'audio/wav'         => 'dashicons-format-audio',
+            'audio/ogg'         => 'dashicons-format-audio',
+
+            'video/mp4'         => 'dashicons-format-video',
+            'video/x-msvideo'   => 'dashicons-format-video',
+            'video/quicktime'   => 'dashicons-format-video',
+            'video/webm'        => 'dashicons-format-video',
+
+            'application/octet-stream' => 'dashicons-download', // Generic unknown file type
+        );
+
+        return isset( $mime_dashicons[ $mime_type ] ) ? $mime_dashicons[ $mime_type ] : 'dashicons-media-default';
+    }
+
+   /**
+     * Get the MIME type of a file from its URL using WordPress functions.
+     *
+     * @param string $url The file URL.
+     * @return string The MIME type or 'application/octet-stream' if unknown.
+     */
+    public static function get_mime_from_url( $url ) {
+        $filename  = wp_basename( $url );
+        add_filter( 'mime_types', function( $mimes ){
+            $mimes['json']  = 'application/json';
+            $mimes['svg']   = 'image/svg+xml';
+
+            return $mimes;
+        });
+        
+        $file_info = wp_check_filetype( $filename );
+
+        return ! empty( $file_info['type'] ) ? $file_info['type'] : 'application/octet-stream';
+    }
+
+
+   /**
+     * Get the appropriate WordPress Dashicon for a given file.
+     *
+     * @param string $file The file URL.
+     * @return string The HTML markup for the file icon.
+     */
+    public static function get_file_icon( $file ) {
+        $mime = self::get_mime_from_url( $file );
+
+        return '<span class="dashicons ' . esc_attr( self::get_mime_dashicon( $mime ) ) . ' smartwoo-file-icon"></span>';
+    }
+
+   /**
+     * Get the file size from a URL using HTTP headers and format it with SI units.
+     * Uses a single transient to store all file sizes, reducing redundant HTTP requests.
+     *
+     * @param string $url The file URL.
+     * @return string The formatted file size (e.g., "1.2 MB"), or an empty string if not available.
+     */
+    public static function get_file_size( $url ) {
+        $cache_key  = 'smartwoo_file_sizes';
+        $file_sizes = get_transient( $cache_key );
+
+        // Ensure cache is an array
+        if ( ! is_array( $file_sizes ) ) {
+            $file_sizes = [];
+        }
+
+        // Return cached result if available
+        if ( isset( $file_sizes[ $url ] ) ) {
+            return $file_sizes[ $url ];
+        }
+
+        // Fetch file size from headers
+        $headers = @get_headers( $url, 1 ); // phpcs:disable
+
+        if ( isset( $headers['Content-Length'] ) ) {
+            $bytes = is_array( $headers['Content-Length'] ) ? end( $headers['Content-Length'] ) : $headers['Content-Length'];
+            $formatted_size = self::format_file_size( $bytes );
+
+            // Update cache and store in transient
+            $file_sizes[ $url ] = $formatted_size;
+            set_transient( $cache_key, $file_sizes, 12 * HOUR_IN_SECONDS );
+
+            return $formatted_size;
+        }
+
+        return '';
+    }
+
+    /**
+     * Convert bytes to a human-readable file size with SI units.
+     *
+     * @param int $bytes The file size in bytes.
+     * @return string The formatted file size with units.
+     */
+    public static function format_file_size( $bytes ) {
+        $units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
+        $factor = 0;
+
+        while ( $bytes >= 1024 && $factor < count( $units ) - 1 ) {
+            $bytes /= 1024;
+            $factor++;
+        }
+
+        return sprintf( '%.2f %s', $bytes, $units[ $factor ] );
+    }
+
+
 }

@@ -57,6 +57,7 @@ class SmartWoo_Order_Controller {
      * The order processing form
      */
     private static function process_order_form() {
+        wp_enqueue_script( 'smartwoo-jquery-timepicker' );
         wp_enqueue_media();
         smartwoo_set_document_title( 'Process Orders' );
         $order_id   = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -66,7 +67,7 @@ class SmartWoo_Order_Controller {
             $product            = $order->get_product();
             $GLOBALS['product']	= $product;
 
-            $is_downloadable	= $product->is_downloadable();
+            $has_asset          = $product->is_downloadable();
             $product_name       = $product ? $product->get_name() : 'N/A';
             $service_name       = $order->get_service_name();
             $product_id         = $product ? $product->get_id() : '';
@@ -78,6 +79,8 @@ class SmartWoo_Order_Controller {
             $next_payment_date 	= '';
             $end_date          	= '';
             $status            	= '';
+            $user               = get_userdata( $user_id );
+            $downloadables      = $product->get_smartwoo_downloads();
         
             // Set next payment date and end date based on billing cycle.
             switch ( $billing_cycle ) {

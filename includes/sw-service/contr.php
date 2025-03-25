@@ -116,7 +116,9 @@ class SmartWoo_Admin_Controller {
         // add_action( 'admin_post_smartwoo_edit_service', array( __CLASS__, 'edit_service_form_submission' ) );
 
 		add_action( 'wp_ajax_smartwoo_add_service', array( __CLASS__, 'new_service_form_submission' ) );
-        add_action( 'wp_ajax_smartwoo_edit_service', array( __CLASS__, 'edit_service_form_submission' ) );	}
+        add_action( 'wp_ajax_smartwoo_edit_service', array( __CLASS__, 'edit_service_form_submission' ) );
+		add_action( 'wp_ajax_smartwoo_service_from_order', array( __CLASS__, 'process_new_service_order_form' ) );
+	}
 
 	/**
 	 * The admin dashboard page
@@ -275,9 +277,28 @@ class SmartWoo_Admin_Controller {
 
 		if ( $service ) {
 			smartwoo_set_document_title( $service->get_name() . ' Assets' );
-			$assets = $service->get_assets();
+			$assets 		= $service->get_assets();
+			$total_assets	= count( $assets );
+			$downloadables			= array();
+			$additionals			= array();
+			$download_asset_object	= null;
+			$download_asset_type_id	= 0;
+			foreach ( $assets as $asset ) {
+				if ( 'downloads' === $asset->get_asset_name() ) {
+					foreach ( $asset->get_asset_data() as $file => $url ) {
+						$downloadables[$file]	= $url;
+					}
+	
+					$download_asset_object = $asset;
+					$download_asset_type_id = $asset->get_id();
+					continue;
+				}
+				
+				$additionals[] = $asset;
+			}
 
 		}
+
 		$tabs = array(
 			''				=> 'Dashboard',
 			'view-service'	=> 'Details',
@@ -340,7 +361,7 @@ class SmartWoo_Admin_Controller {
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action.' ), 401 );
+			wp_send_json_error( array( 'message' => 'You do not have the required permission to create new service subscription.' ), 401 );
 		}
 
 		$errors	= self::instance()->check_errors();
@@ -368,7 +389,7 @@ class SmartWoo_Admin_Controller {
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action.' ), 401 );
+			wp_send_json_error( array( 'message' => 'You do not have the required permission to edit a service subscription.' ), 401 );
 		}
 		$errors	= self::instance()->check_errors();
 
@@ -382,8 +403,58 @@ class SmartWoo_Admin_Controller {
 			wp_send_json_error( array( 'message' => $service->get_error_message(), 'htmlContent' => smartwoo_error_notice( $service->get_error_message(), true ) ) );
 		}
 
+		$status = smartwoo_service_status( $service );
+		$deactivated_statuses = array( 'Expired', 'Suspended', 'Cancelled' );
+		if ( in_array( $status, $deactivated_statuses, true ) ) {
+			do_action( 'smartwoo_service_deactivated', $service );
+		} else {
+			do_action( 'smartwoo_service_active', $service );
+		}
+
 		wp_send_json_success( array( 'message' => 'Service has been saved', 'redirect_url' => smartwoo_service_edit_url( $service->get_service_id() ) ) );
 		 
+	}
+
+	/**
+	 * Handle new service order form processing from admin
+	 */
+	public static function process_new_service_order_form() {
+		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+			wp_send_json_error( array( 'message' => 'Action failed basic authentication' ), 400 );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have the required permission to process a new service order.' ), 401 );
+		}
+		$errors		= self::instance()->check_errors();
+		$order_id	= isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+		$order		= SmartWoo_Order::get_order( $order_id );
+		
+		if ( ! $order ) {
+			$errors[]	= 'This order does not exists anymore.';
+		}
+
+		if ( ! empty( $errors ) ){
+			wp_send_json_error( array( 'message' => 'Form Errors', 'htmlContent' => smartwoo_error_notice( $errors, true ) ) );
+		}
+
+		$service	= self::save_service();
+
+		if ( is_wp_error( $service ) ) {
+			wp_send_json_error( array( 'message' => $service->get_error_message(), 'htmlContent' => smartwoo_error_notice( $service->get_error_message(), true ) ) );
+		}
+		
+		$invoice_id     = $order->get_invoice_id();
+		SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, array( 'service_id' => $service->get_service_id() ) );
+		$order->processing_complete();
+		
+		/**
+		 * Fires after a new service order has been processed.
+		 * @param string $service_id
+		 */
+		do_action( 'smartwoo_new_service_is_processed', $saved_service_id );
+		wp_send_json_success( array( 'message' => 'Service has been processed', 'redirect_url' => $service->preview_url() ) );
+	
 	}
 
 	/**
@@ -493,13 +564,15 @@ class SmartWoo_Admin_Controller {
 	 */
 	private static function save_service() {
 		$form_fields 	= self::instance()->get_form_data();
-
+		$new_service	= true;
 		if ( ! empty( $form_fields['sw_service_id'] ) ) {
 			$service	= SmartWoo_Service_Database::get_service_by_id( $form_fields['sw_service_id'] );
 
 			if ( ! $service ) {
 				return new WP_Error( 'invalid_service', 'This service subscription does not exist.' );
 			}
+
+			$new_service	= false;
 
 		} else {
 			$service	= new SmartWoo_Service();
@@ -516,6 +589,7 @@ class SmartWoo_Admin_Controller {
 		$service->set_start_date( date( 'Y-m-d', strtotime( $form_fields['start_date'] ) ) );
 		$service->set_next_payment_date( date( 'Y-m-d', strtotime( $form_fields['next_payment_date'] ) ) );
 		$service->set_end_date( date( 'Y-m-d', strtotime( $form_fields['end_date'] ) ) );
+		
 		$service->set_status( $form_fields['status'] );
 
 		if ( $form_fields['has_assets'] ) {

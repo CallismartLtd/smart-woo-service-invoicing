@@ -1130,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDownloadableCheck     = document.querySelector( '#is-smartwoo-downloadable' );
     let removeBtn               = document.querySelectorAll( '.swremove-field' );
     let adminViewServiceDivs    = document.querySelectorAll( '.sw-view-details-service-product, .admin-view-service-invoices-items, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
-    let generateServiceIdBtn    = document.querySelector( '#generate-service-id-btn' );
+    let adminAssetsToggle       = document.querySelectorAll( '.sw-admin-service-assets-button' );
     let serviceFormUserDropdown = document.querySelector( '#smartwooServiceUserDropdown' );
     const serviceForm           = document.querySelector( '#smartwooServiceForm' );
     /**
@@ -2026,46 +2026,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if ( generateServiceIdBtn ) {
-        generateServiceIdBtn.addEventListener( 'click', e => {
-            e.preventDefault();
-            let serviceName = document.querySelector( '#service-name' );
-            if ( ! serviceName.value.length ) {
-                showNotification( 'Please enter service name', 3000 );
-                serviceName.focus();
-                return;
-            }
-            let generatedID = document.querySelector( '#generated-service-id' );
-            let loader      = document.getElementById( 'swloader' );
-            let form        = new FormData();
-            form.append( 'security', smart_woo_vars.security );
-            form.append( 'service_name', serviceName.value );
-            form.append( 'action', 'smartwoo_service_id_ajax' );
-            
-            loader.style.display = 'inline-block';
-
-            fetch( smart_woo_vars.ajax_url, {
-                method: 'POST',
-                body: form
-
-            }).then( response =>{
-                if ( ! response.ok ) {
-                    showNotification( response.statusText, 6000 );
-                    throw new Error( `An error occured when generating service ID [${response.status}]` )
-                }
-                return response.json();
-            }).then( responseData =>{
-                generatedID.value = responseData;
-            }).catch( error =>{
-                console.error( error );
-            }).finally( ()=>{
-                loader.style.display = 'none';
-
-            });
-            
-        });
-    }
-
     if ( serviceFormUserDropdown ) {
         let clientMeta      = document.querySelector( '.sw-service-client-info' );
         let userFullName    = clientMeta.querySelector( '.sw-user-fullname' );
@@ -2146,7 +2106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body:   theFormData
             }).then( response =>{
                 if ( ! response.ok ){
-                    showNotification( `Error: ${response.statusText}` );
+                    showNotification( `Error: ${response.statusText}`, 6000 );
                     throw new Error( `Error: ${response.statusText}`)
                 }
 
@@ -2173,6 +2133,27 @@ document.addEventListener('DOMContentLoaded', () => {
             })
 
         });
+    }
+
+    if ( adminAssetsToggle.length ) {
+        let assetContents = document.querySelectorAll( '.sw-admin-assets-body-content' );
+        let removeAll = () =>{
+            adminAssetsToggle.forEach(btn =>{
+                btn.classList.remove( 'active' )
+            });
+            assetContents.forEach( div =>{
+                div.classList.add( 'smartwoo-hide' );
+            });
+        }
+        adminAssetsToggle.forEach( ( button, index ) =>{
+            button.addEventListener( 'click', (e)=>{
+                removeAll();
+                if ( ! e.target.classList.contains( 'active' ) ) {
+                    e.target.classList.add( 'active' );
+                }
+                assetContents[index].classList.toggle( 'smartwoo-hide' );
+            });
+        })
     }
     
 });

@@ -86,6 +86,7 @@ class SmartWoo_Config{
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
         add_filter( 'template_include', array( __CLASS__, 'product_config_template' ) );
+        add_filter( 'template_include', array( __CLASS__, 'check_page_content' ) );
 
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
@@ -620,6 +621,20 @@ class SmartWoo_Config{
         }
 
         return $post_states;
+    }
+
+    /**
+     * Alter the current page
+     */
+    public static function check_page_content( $template ) {
+        $service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
+        $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
+        if ( is_page( $service_page_id ) || is_page( $invoice_page_id ) ) {
+            return SMARTWOO_PATH . 'templates/frontend/front.php';
+
+        }
+
+        return $template;
     }
 
 }

@@ -1319,3 +1319,21 @@ function smartwoo_get_global_nextpay( $context = 'view' ) {
 	$value = $options['operator'] . $options['number'] . ' ' . $options['unit'];
 	return ( 'edit' === $context ) ? $options : $value  ;
 }
+
+/**
+ * Check if the current theme is a block-based (FSE) theme.
+ *
+ * @since 1.0.0
+ * @return bool
+ */
+function smartwoo_is_block_theme() {
+    if ( function_exists( 'wp_is_block_theme' ) ) {
+        return (bool) wp_is_block_theme();
+    }
+
+    if ( function_exists( 'gutenberg_is_fse_theme' ) ) {
+        return (bool) gutenberg_is_fse_theme();
+    }
+
+    return false;
+}

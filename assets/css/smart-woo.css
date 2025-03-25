@@ -897,24 +897,6 @@ border-radius: 5px;
 	}
 }
 
-/** Style for assets container */
-.smartwoo-assets-container {
-	display: flex;
-	justify-content: space-between;
-	flex-wrap: wrap;
-}
-.smartwoo-assets-container .serv-details-card {
-	width: 45%;
-}
-
-@media (min-width: 320px) and ( max-width: 768px) {
-	.smartwoo-assets-container {
-		flex-wrap: wrap;
-	}
-	.smartwoo-assets-container .serv-details-card {
-		width: 95%;
-	}
-}
 /* Style for the service details card */
 .serv-details-card {
 	padding: 20px;
