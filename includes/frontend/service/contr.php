@@ -1,15 +1,11 @@
 <?php
 /**
- * File name    :   contr.php
+ * The client service subscription page controller
  * 
- * Description  :   Control File for service frontend
- * 
- * @author      :   Callistus
+ * @author Callistus
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
-
-
 
 /**
  * This the callback function handles the services shortcode and is
@@ -33,8 +29,8 @@ function smartwoo_service_shortcode() {
 		$url_param = 'view-subscription';
 	}
 
-	if ( isset ( $wp_query->query_vars['view-subscriptions-by'] ) ) {
-		$url_param = 'view-subscriptions-by';
+	if ( isset ( $wp_query->query_vars['sort'] ) ) {
+		$url_param = 'sort';
 	}
 
 	if ( isset ( $wp_query->query_vars['downgrade'] ) ) {
@@ -82,7 +78,7 @@ function smartwoo_service_shortcode() {
 			$output 			  	= wp_kses_post( $buy_new_service_page  );
 			break;
 
-		case 'view-subscriptions-by':
+		case 'sort':
 
 			$active_services_page 	= smartwoo_user_service_by_status();
 			$output 				= wp_kses_post( $active_services_page );
