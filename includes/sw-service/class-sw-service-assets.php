@@ -557,16 +557,16 @@ class SmartWoo_Service_Assets {
      * @param int $data_index The position of the value of the asset data.
      */
     public static function verify_key( $key, $data_index ) {
+
         $key        = ! empty( $key ) && is_string( $key ) ? sanitize_text_field( $key ) : false;
         $data_index = ! empty( $data_index ) && is_numeric( $data_index ) ? absint( $data_index ) : false;
         
         if ( ! $key || ! $data_index ) {
             return false;
         }
-
         global $wpdb;
 
-        $query = $wpdb->prepare( "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_key` =%s", $key ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $query = $wpdb->prepare( "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_key` =%s AND `asset_name` = %s", $key, 'downloads' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
         if ( ! $result ) {
@@ -574,7 +574,6 @@ class SmartWoo_Service_Assets {
         }
   
         $asset_data = array_values( (array) maybe_unserialize( $result['asset_data'] ) );
-
         return array_key_exists( $data_index - 1, $asset_data );
     }
 
