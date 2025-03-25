@@ -74,7 +74,7 @@ defined( 'ABSPATH' ) || exit;
 
     <div class="smartwoo-front-assets-container" id="smartwoo-sub-assets">
         <h2 id="my-assets">Assets</h2>
-        <?php echo wp_kses_post( $service->get_assets_containers() );?>
+        <?php echo wp_kses_post( $service->get_client_asset_containers() );?>
     </div>
 
 </div>
