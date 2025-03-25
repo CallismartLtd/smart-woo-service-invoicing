@@ -121,27 +121,27 @@ function smartwoo_service_front_temp() {
 			array(
 				'status' => 'Active',
 			),
-		get_permalink() . 'view-subscriptions-by/' ) ) . '">Active: ' . esc_html( $active_count ) . '</a></p>';
+		get_permalink() . 'sort/' ) ) . '">Active: ' . esc_html( $active_count ) . '</a></p>';
 	
 		$output .= '<p class="due-for-renewal-count"><a href="' . esc_url(
 		add_query_arg( 
 			array( 
 				'status' => 'Due for Renewal', 
 			),
-		get_permalink() . 'view-subscriptions-by/' ) ) . '">Due: ' . esc_html( $due_for_renewal_count ) . '</a></p>';
+		get_permalink() . 'sort/' ) ) . '">Due: ' . esc_html( $due_for_renewal_count ) . '</a></p>';
 	
 	$output .= '<p class="expired-count"><a href="' . esc_url(
 		add_query_arg(
 			array(
 				'status' => 'Expired',
 			),
-		get_permalink() . 'view-subscriptions-by/' ) ) . '">Expired: ' . esc_html( $expired_count ) . '</a></p>';
+		get_permalink() . 'sort/' ) ) . '">Expired: ' . esc_html( $expired_count ) . '</a></p>';
 	$output .= '<p class="grace-period-count"><a href="' . esc_url(
 		add_query_arg(
 			array(
 				'status' => 'Grace Period',
 			),
-		get_permalink() . 'view-subscriptions-by/') ) . '">Grace Period: ' . esc_html( $grace_period_count ) . '</a></p>';
+		get_permalink() . 'sort/' ) ) . '">Grace Period: ' . esc_html( $grace_period_count ) . '</a></p>';
 	$output .= '</div>';
 
 	// Service ID is not provided in the URL, display the list of services.
