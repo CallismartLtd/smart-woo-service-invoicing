@@ -1130,7 +1130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDownloadableCheck     = document.querySelector( '#is-smartwoo-downloadable' );
     let removeBtn               = document.querySelectorAll( '.swremove-field' );
     let adminViewServiceDivs    = document.querySelectorAll( '.sw-view-details-service-product, .admin-view-service-invoices-items, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
-    let adminAssetsToggle       = document.querySelectorAll( '.sw-admin-service-assets-button' );
     let serviceFormUserDropdown = document.querySelector( '#smartwooServiceUserDropdown' );
     const serviceForm           = document.querySelector( '#smartwooServiceForm' );
     /**
@@ -2133,27 +2132,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
 
         });
-    }
-
-    if ( adminAssetsToggle.length ) {
-        let assetContents = document.querySelectorAll( '.sw-admin-assets-body-content' );
-        let removeAll = () =>{
-            adminAssetsToggle.forEach(btn =>{
-                btn.classList.remove( 'active' )
-            });
-            assetContents.forEach( div =>{
-                div.classList.add( 'smartwoo-hide' );
-            });
-        }
-        adminAssetsToggle.forEach( ( button, index ) =>{
-            button.addEventListener( 'click', (e)=>{
-                removeAll();
-                if ( ! e.target.classList.contains( 'active' ) ) {
-                    e.target.classList.add( 'active' );
-                }
-                assetContents[index].classList.toggle( 'smartwoo-hide' );
-            });
-        })
     }
     
 });
