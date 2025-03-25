@@ -86,7 +86,7 @@ class SmartWoo_Config{
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
         add_filter( 'template_include', array( __CLASS__, 'product_config_template' ) );
-        add_filter( 'template_include', array( __CLASS__, 'check_page_content' ) );
+        // add_filter( 'template_include', array( __CLASS__, 'check_page_content' ) );
 
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
