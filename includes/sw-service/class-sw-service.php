@@ -845,5 +845,35 @@ class SmartWoo_Service {
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
 		return ob_get_clean();
 	}
+
+	/**
+	 * Get the current client asset containers
+	 */
+	public function get_client_asset_containers() {
+		$service				= $this;
+		$assets 				= $service->get_assets();
+		$total_assets			= count( $assets );
+		$downloadables			= array();
+		$additionals			= array();
+		$download_asset_object	= null;
+		$download_asset_type_id	= 0;
+		foreach ( $assets as $asset ) {
+			if ( 'downloads' === $asset->get_asset_name() ) {
+				foreach ( $asset->get_asset_data() as $file => $url ) {
+					$downloadables[$file]	= $url;
+				}
+
+				$download_asset_object = $asset;
+				$download_asset_type_id = $asset->get_id();
+				continue;
+			}
+			
+			$additionals[] = $asset;
+		}
+
+		ob_start();
+		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/client-assets.php';
+		return ob_get_clean();
+	}
 	
 }
