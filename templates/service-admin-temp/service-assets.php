@@ -60,7 +60,7 @@ defined( 'ABSPATH' ) || exit;
                                     <td data-label="<?php echo esc_html( $download_asset_object->get_mime_from_url( $file_url ) ); ?>"><?php echo esc_html( $download_asset_object->get_mime_from_url( $file_url ) ); ?></td>
                                     <td data-label="<?php echo esc_html( $download_asset_object->get_file_size( $file_url ) ); ?>"><?php echo esc_html( $download_asset_object->get_file_size( $file_url ) ); ?></td>
                                     <td data-label="<?php esc_attr_e( 'Action', 'smart-woo-service-invoicing' ); ?>">
-                                        <a href="<?php echo esc_url( smartwoo_download_url( $id, $asset->get_key(), $asset->get_id(), $service->get_service_id() ) ); ?>" download><?php esc_html_e( 'Download', 'smart-woo-service-invoicing' ); $id++; ?></a>
+                                        <a href="<?php echo esc_url( smartwoo_download_url( $id, $download_asset_object->get_key(), $download_asset_object->get_id(), $service->get_service_id() ) ); ?>"><?php esc_html_e( 'Download', 'smart-woo-service-invoicing' ); $id++; ?></a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
