@@ -69,7 +69,9 @@ $options = array(
     'smartwoo_allow_invoice_tracking',
     '_smartwoo_flushed_rewrite_rules',
     '__smartwoo_automation_last_scheduled_date',
-    'smartwoo_allow_fast_checkout'
+    'smartwoo_allow_fast_checkout',
+    'smartwoo_allow_optout/Cancellation',
+
 );
 
 foreach ( $options as $option ) {
