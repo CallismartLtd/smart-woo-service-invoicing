@@ -84,7 +84,9 @@ function smartwoo_save_advanced_options(){
 			array(
 				'smartwoo_allow_invoice_tracking',
 				'smartwoo_remove_plugin_data_during_uninstall',
-				'smartwoo_allow_fast_checkout'
+				'smartwoo_allow_fast_checkout',
+				'smartwoo_allow_optout/Cancellation'
+
 			)
 		);
 
@@ -545,6 +547,7 @@ function smartwoo_advanced_options() {
     $checkboxes = apply_filters( 'smartwoo_advanced_options',
 		array(
 			'smartwoo_allow_fast_checkout',
+			'smartwoo_allow_optout/Cancellation',
 			'smartwoo_allow_invoice_tracking',
         	'smartwoo_remove_plugin_data_during_uninstall'
 		)
