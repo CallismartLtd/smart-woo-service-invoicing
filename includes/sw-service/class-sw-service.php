@@ -850,6 +850,9 @@ class SmartWoo_Service {
 	 * Get the current client asset containers
 	 */
 	public function get_client_asset_containers() {
+		if ( ! $this->has_asset() ) {
+			return '';
+		}
 		$service				= $this;
 		$assets 				= $service->get_assets();
 		$total_assets			= count( $assets );
