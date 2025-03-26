@@ -4,7 +4,7 @@
 
 ### New Admin UI
 - Invoice admin table now features bulk actions.
-- The admin's service subscription view page UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
+- The admin's service subscription view pages UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
 - The admin UI for viewing clients associated with a service subscription has been refactored for comprehensiveness and a modern look.
 
 ### Service Orders Refactored
@@ -18,6 +18,7 @@
 
 ### Fixed
 - Checkout invoices are now created for service orders made via the WooCommerce block API.
+- Client invoice items are now responsive on mobile devices.
 
 ## Added
 - Fast checkout feature: Allows clients to configure products and proceed to the checkout page on the same page. Go to settings > advanced to configure the fast checkout feature.
