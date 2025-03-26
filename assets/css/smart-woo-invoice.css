@@ -1,6 +1,6 @@
 /*************************************ALL INVOICE TEMPLATE CSS IS WRITTEN HERE**********************************/
 .sw-invoice-template {
-    width: 60%;
+    width: 80%;
     background-color: #ffffff;
     margin: 0 auto;
     margin-bottom: 10px;
@@ -8,15 +8,17 @@
 }
 
 .sw-invoice-header {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
+    position: relative !important;
+    /* display: flex; */
+    /* justify-content: space-between; */
     overflow: hidden;
+    max-width: 100%;
 }
 
 .sw-invoice-logo {
     align-items: center;
     margin: 20px;
+    max-width: 50%;
 }
 .sw-invoice-logo img{
     max-width: 200px;
@@ -24,12 +26,16 @@
 }
 
 .sw-invoice-status {
-   align-self: last baseline;
-   background-color: #f1f1f1;
-   width: 450px;
-   max-width: 100%;
-   transform: rotate(40deg);
-   transform-origin: bottom right;
+    float: right;
+    max-width: 80%;
+    width: 380px;
+    margin-top: -50px;
+    background-color: #f1f1f1;
+    height: 50px;
+    padding: 10px;
+    max-width: 100%;
+    transform: rotate(40deg);
+    transform-origin: bottom right;
     
 }
 
@@ -88,31 +94,39 @@
 .sw-invoice-item-item-container {
     display: block;
     align-items: center;
-    margin: 20px auto;
-    width: 80%;
+    width: 100%;
 }
 .sw-invoice-item-table {
-    border: solid #f1f1f1 .5px;
-    border-radius: 9px;
-
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .sw-invoice-item-table thead {
-    background-color: #f1f1f1;
-    border-radius: 9px;
+    background: #f1f1f1;
+    color: #333333;
 }
-
+.sw-invoice-item-table th, 
+.sw-invoice-item-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+    vertical-align: middle;
+}
+.sw-invoice-item-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.sw-invoice-item-table tbody tr:nth-child(even) {
+    background: #f1f1f1;
+}
 .sw-invoice-item-table tbody {
     background-color: #ffffff;
-}
-
-.sw-invoice-item-summary {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    height: 50px;
-    width: 100%;
-    margin: 30px;
 }
 
 .sw-invoice-footer {
@@ -180,14 +194,20 @@
         margin: 10px auto;
         width: 90%;
     }
-    .sw-invoice-status p {
-        margin-left: 20px;
+    .sw-invoice-item-table th,
+    .sw-invoice-item-table td {
+        padding: 10px;
+        font-size: 13px;
     }
 
     @media (min-width: 426px) and (max-width: 648px) {
         .sw-invoice-logo img {
             max-width: 150px;
             max-height: 150px;
+        }
+        .sw-invoice-status {
+            transform: rotate(45deg);
+            width: 270px;
         }
     }
 
@@ -199,7 +219,33 @@
 
         .sw-invoice-status {
             transform: rotate(45deg);
-            width: 1000px;
+            width: 200px;
+        }
+        .sw-invoice-item-table thead,
+        .sw-invoice-item-table tbody tr th {
+            display: none;
+        }
+    
+        .sw-invoice-item-table tbody,
+        .sw-invoice-item-table tr,
+        .sw-invoice-item-table td {
+            display: block;
+            width: 100%;
+        }
+    
+        .sw-invoice-item-table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+        .sw-invoice-item-table td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 10px;
+            width: 45%;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
         }
     }
 
@@ -207,16 +253,16 @@
         .sw-invoice-template {
             width: 99%;
         }
+        .sw-invoice-status {
+            transform: rotate(45deg);
+            width: 170px;
+        }
         .sw-invoice-logo img{
             max-width: 80px;
             max-height: 80px;
         }
-        .sw-invoice-status p{
-            margin-left: none;
-        }
 
         .sw-invoice-item-item-container {
-            position: relative;
             width: 100%;
             margin: none;
         }
