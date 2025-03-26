@@ -1,8 +1,9 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.3.0] YYYY-MM-DD
+# [2.3.0] 2025-03-27
 
 ### New Admin UI
+- Admin dashicon changed to official Smart Woo icon.
 - Invoice admin table now features bulk actions.
 - The admin's service subscription view pages UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
 - The admin UI for viewing clients associated with a service subscription has been refactored for comprehensiveness and a modern look.
