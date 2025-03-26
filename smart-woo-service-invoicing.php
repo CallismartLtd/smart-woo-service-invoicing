@@ -11,7 +11,7 @@
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  * WC requires at least: 8.0
- * WC tested up to: 9.6.2
+ * WC tested up to: 9.7.1
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html  
  * Text Domain: smart-woo-service-invoicing
