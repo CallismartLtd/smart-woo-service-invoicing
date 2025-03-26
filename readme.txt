@@ -4,9 +4,9 @@ Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicin
 Requires at least: 6.4
 Tested up to: 6.7.2
 Requires WooCommerce: 8.0  
-WooCommerce tested up to: 9.6.2
+WooCommerce tested up to: 9.7.1
 Requires PHP: 7.4  
-Stable Tag: 2.2.3
+Stable Tag: 2.3.0
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -92,6 +92,34 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+
+= 2.3.0 - 2025-03-27 =
+* New Admin UI
+    * Admin dashicon changed to official Smart Woo icon.
+    * Invoice admin table now features bulk actions.
+    * The admin's service subscription view pages UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
+    * The admin UI for viewing clients associated with a service subscription has been refactored for comprehensiveness and a modern look.
+* Service Orders Refactored
+    * Introduced the SmartWoo_Order object.
+    * Service Order UI refactored and now features: bulk actions, order sorting by status, and order preview.
+* Service Product UI
+    * The service products admin page UI has been enhanced to feature: bulk actions, sorting by product status, and improved UX.
+    * The product creation and edit page UI has been improved to include nearly every option found in the WooCommerce product form.
+    * Product form now includes: Upsells, cross-sells, product gallery, visibility, status, and sale options.
+* Fixed
+    * Checkout invoices are now created for service orders made via the WooCommerce block API.
+    * Client invoice items are now responsive on mobile devices.
+* Added
+    * Fast checkout feature: Allows clients to configure products and proceed to the checkout page on the same page. Go to settings > advanced to configure the fast checkout feature.
+
+= 2.2.3 - 2025-02-18 =
+* Fixed
+    * Asset key verification bug when downloading files associated with a subscription.
+* Added
+    * Option to send new invoice email when creating a new invoice.
+    * Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
+    * Invoice Payment Links: You can now generate an "auto-login" payment link or a direct invoice order payment link from the admin "view invoice" page.
+
 = [2.2.3] 2025-02-17 =
 - **Fixed**
   - Asset key verification bug when downloading files associated with a subscription.
@@ -101,38 +129,6 @@ For more information on future releases, release notes, and feature requests, vi
   - Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
   Invoice Payment Links: You can now generate an "**auto-login**" payment link or a direct invoice order payment link from the admin "**view invoice**" page.
   - New Invoice Admin UI: The admin's "view-invoice" page design has been enhanced to be more sleek and modern, while the invoice creation and update form user interface has been upgraded to give you a seamless ajax experience.
-
-
-= [2.2.2] 2025-01-28 =
-  - Minor bug fixes and performance inprovement.
-  - Login form now supports password reset feature.
-
-= [2.2.1] 2024-12-25 =
-  - Fixed Sign-up fee calculation when other items are added in cart.
-  - Added service processed mail.
-  - Minor bug fixes
-
-= [2.2.0] 2024-12-07 =
-
-* Added
-  - Email Template preview.
-
-* Refactored
-  - Email handling.
-  - Email option name: You may need to check your email option if certain mails are not sent.
-  - Email Template Editing(pro): You can now edit email templates sent by Smart Woo Service Invoicing.
-
-
-= [2.1.1] 2024-11-04 =
-* Featured
-  - minor bug fixes
-
-= [2.1.0] 2024-10-26 =
-
-* Fixed
-  - An error of type E_ERROR: "Uncaught TypeError: abs(): Argument #1 ($num) must be of type int|float".
-
-
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 
