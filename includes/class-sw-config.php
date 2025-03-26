@@ -218,7 +218,8 @@ class SmartWoo_Config{
         $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
         if ( is_page( $invoice_page_id ) || is_account_page() ) {
-            wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+            $invoice_style_url  = apply_filters( 'smartwoo_invoice_style_url', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css' );
+            wp_enqueue_style( 'smartwoo-invoice-style', $invoice_style_url, array(), SMARTWOO_VER, 'all' );
             if( isset( $_GET['view_invoice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- False positive, global array value not processed.
                 wp_enqueue_style( 'dashicons' );
             }
