@@ -22,9 +22,11 @@ defined( 'ABSPATH' ) || exit;
                 <a href="<?php echo esc_url( $renew_link );?>" class="renew-button"><?php echo esc_html( $renew_button_text );?></a>
             <?php endif;?>
 
-            <a id="smartwoo-assets-sub-nav" class="sw-blue-button"><span class="dashicons dashicons-media-archive"></span> Assets</a>
+            <?php if( $service->has_asset() ) : ?>
+                <a id="smartwoo-assets-sub-nav" class="sw-blue-button"><span class="dashicons dashicons-media-archive"></span> Assets</a>
+            <?php endif; ?>
 
-            <?php if ( 'Active' === $status ):?>
+            <?php if ( 'Active' === $status && get_option( 'smartwoo_allow_optout/Cancellation', false ) ):?>
                 <a id="sw-service-quick-action" class="sw-blue-button"
                     data-service-name="<?php echo esc_js( wp_json_encode( $service_name ) );?>"
                     data-service-id="<?php echo esc_js( wp_json_encode( $service_id ) );?>"
@@ -72,9 +74,11 @@ defined( 'ABSPATH' ) || exit;
         <?php echo wp_kses_post( apply_filters( 'smartwoo_after_service_details_page', '', $service ) );?>
 	</div>
 
+    <?php if( $service->has_asset() ) :?>
     <div class="smartwoo-front-assets-container" id="smartwoo-sub-assets">
         <h2 id="my-assets">Assets</h2>
         <?php echo wp_kses_post( $service->get_client_asset_containers() );?>
     </div>
+    <?php endif; ?>
 
 </div>
