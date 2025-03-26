@@ -5,11 +5,11 @@
 ![Subscription Plugin](https://img.shields.io/badge/Subscription%20Plugin-blue) ![Billing Plugin](https://img.shields.io/badge/Billing%20Plugin-green) ![WooCommerce Invoice](https://img.shields.io/badge/WooCommerce%20Invoice-yellow) ![Service Invoicing](https://img.shields.io/badge/Service%20Invoicing-orange) ![Automated Billing Plugin](https://img.shields.io/badge/Automated%20Billing%20Plugin-red)  
 
 **Requires at least:** 6.0  
-**Tested up to:** 6.6.2  
+**Tested up to:** 6.7.2  
 **Requires WooCommerce:** 8.0  
-**WooCommerce Tested:** 9.3.3
+**WooCommerce Tested:** 9.7.1
 **Requires PHP:** 7.4  
-**Stable Tag:** 2.1.2
+**Stable Tag:** 2.3.0
 **License:** GPLv3  
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -124,6 +124,30 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
+# [2.3.0] 2025-03-27
+
+### New Admin UI
+- Admin dashicon changed to official Smart Woo icon.
+- Invoice admin table now features bulk actions.
+- The admin's service subscription view pages UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
+- The admin UI for viewing clients associated with a service subscription has been refactored for comprehensiveness and a modern look.
+
+### Service Orders Refactored
+- Introduced the SmartWoo_Order object.
+- Service Order UI refactored and now features: bulk actions, order sorting by status, and order preview.
+
+### Service Product UI
+- The service products admin page UI has been enhanced to feature: bulk actions, sorting by product status, and improved UX.
+- The product creation and edit page UI has been improved to include nearly every option found in the WooCommerce product form.
+- Product form now includes: Upsells, cross-sells, product gallery, visibility, status, and sale options.
+
+### Fixed
+- Checkout invoices are now created for service orders made via the WooCommerce block API.
+- Client invoice items are now responsive on mobile devices.
+
+## Added
+- Fast checkout feature: Allows clients to configure products and proceed to the checkout page on the same page. Go to settings > advanced to configure the fast checkout feature.
+
 # [2.2.3] 2025-02-17
 
 ### Fixed
