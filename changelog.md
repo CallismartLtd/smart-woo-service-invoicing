@@ -1,5 +1,8 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.3.1] 2025-03-27
+### Minor bug fix.
+
 # [2.3.0] 2025-03-27
 
 ### New Admin UI
