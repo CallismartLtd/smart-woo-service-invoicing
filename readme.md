@@ -9,7 +9,7 @@
 **Requires WooCommerce:** 8.0  
 **WooCommerce Tested:** 9.7.1
 **Requires PHP:** 7.4  
-**Stable Tag:** 2.3.0
+**Stable Tag:** 2.3.1
 **License:** GPLv3  
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -124,6 +124,9 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
+# [2.3.1] 2025-03-27
+### Minor bug fix.
+
 # [2.3.0] 2025-03-27
 
 ### New Admin UI
