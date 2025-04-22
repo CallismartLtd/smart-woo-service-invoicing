@@ -581,7 +581,7 @@ class SmartWoo_Order {
         $orders = wc_get_orders( $parsed_args );
     
         if ( empty( $orders ) ) {
-            return '';
+            return array();
         }
     
         $order_item_ids		= [];
