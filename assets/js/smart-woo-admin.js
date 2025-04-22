@@ -822,7 +822,6 @@ async function smartwooPromptGuestInvoiceData(heading) {
  * @param {Array} values The values to perform the action on.
  */
 function smartwooPostswTableBulkAction( actions = {hook_name: '', value: ''}, values = [] ) {
-    console.log( values );
     if ( 'delete' === actions.value ) {
         let confirmed = confirm( `You are about to delete the selected item${ ( values.length > 1 ? 's' : '' ) }! click ok to confirm.` );
         if ( ! confirmed ) {
