@@ -593,8 +593,8 @@ class SmartWoo_Service {
 	 * Get the cost of service ( Excluding sign up fee)
 	 */
 	public function get_pricing() {
-		$product = wc_get_product( $this->get_product_id() );
-		$price = ! empty( $product ) ? $product->get_price() : 0;
+		$product	= $this->get_product();
+		$price		= $product ? $product->get_price() : 0;
 		return $price;
 	}
 
