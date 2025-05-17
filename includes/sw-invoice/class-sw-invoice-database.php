@@ -129,7 +129,7 @@ class SmartWoo_Invoice_Database {
 	 * Method to get invoices associated with a service subscription.
 	 *
 	 * @param array $args Associative array of arguments.
-	 * @return SmartWoo_Invoice[]|false Returns an array of SmartWoo_Invoice object or false if no results.
+	 * @return SmartWoo_Invoice[] Returns an array of SmartWoo_Invoice object or false if no results.
 	 */
 	public static function get_service_invoices( $args = array() ) {
 		global $wpdb;
@@ -145,7 +145,7 @@ class SmartWoo_Invoice_Database {
 		$parsed_args = wp_parse_args( array_map( 'sanitize_text_field', wp_unslash( $args ) ), $default_args );
 
 		if ( empty( $parsed_args['service_id'] ) ) {
-			return false;
+			return [];
 		}
 
 		$page  = max( 1, (int) $parsed_args['page'] );
@@ -175,7 +175,7 @@ class SmartWoo_Invoice_Database {
 		$query = $wpdb->prepare( $query, ...$placeholders ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
 		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
-		return $results ? self::convert_results_to_invoices( $results ) : false;
+		return $results ? self::convert_results_to_invoices( $results ) : [];
 	}
 
 
