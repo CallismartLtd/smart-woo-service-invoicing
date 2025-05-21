@@ -150,11 +150,6 @@ class SmartWoo_Invoice {
 		$this->service_id = sanitize_text_field( wp_unslash( $service_id ) );
 	}
 
-	// Deprecated, use set_service_id
-	public function setServiceId( $service_id ) {
-		$this->set_service_id( $service_id );
-	}
-
 	/**
 	 * Set user ID
 	 * 
@@ -321,11 +316,6 @@ class SmartWoo_Invoice {
 		}
 	}
 
-	// Deprecated, use set_date_created.
-	public function setDateCreated( $date_created ) {
-		$this->set_date_created( $date_created );
-	}
-
 	/**
 	 * Set date paid.
 	 * 
@@ -411,10 +401,6 @@ class SmartWoo_Invoice {
 	 */
 	public function get_service_id() {
 		return $this->service_id;
-	}
-
-	public function getServiceId() {
-		return $this->get_service_id();
 	}
 
 	/**
@@ -878,13 +864,6 @@ class SmartWoo_Invoice {
 	 * @return bool True if current user can view invoice, false otherwise.
 	 */
 	public function current_user_can_access() {
-		if ( ! smartwoo_is_frontend() ) {
-			return true;
-		}
-
-		if ( is_admin() ) {
-			return current_user_can( 'manage_options' );
-		}
 		
 		if ( $this->get_user_id() === get_current_user_id() ) {
 			return true;
