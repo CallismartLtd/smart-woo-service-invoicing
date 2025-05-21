@@ -139,13 +139,13 @@ final class SmartWoo {
                 $field = array(
                     'status' => null, // Will be calculated on script.
                 );
-                SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
+                SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
     
             } elseif ( 'Expired' === $service_status && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
                 $field = array(
                     'status' => 'Suspended',
                 );
-                SmartWoo_Service_Database::update_service_fields( $service->getServiceId(), $field );
+                SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
             }
         }
 
@@ -659,8 +659,8 @@ final class SmartWoo {
 
         if ( ! empty( $all_services ) ) {
             foreach ( $all_services as $service ) {
-                $data[] = array( $service->getServiceName(), $service->getServiceId(), smartwoo_service_status( $service ) );
-                $row_names[] = $service->getServiceId();
+                $data[] = array( $service->getServiceName(), $service->get_service_id(), smartwoo_service_status( $service ) );
+                $row_names[] = $service->get_service_id();
             }
             
         }
@@ -942,7 +942,7 @@ final class SmartWoo {
 
         foreach ( $all_services as $service ) {
             $user_id        = $service->getUserId();
-            $service_id     = $service->getServiceId();
+            $service_id     = $service->get_service_id();
             $service_name   = $service->getServiceName();
             $product_id     = $service->getProductId();
             $service_status = smartwoo_service_status( $service );
@@ -1162,7 +1162,7 @@ final class SmartWoo {
         }
         
         $user_id  				= get_current_user_id();
-        $service_id				= $service->getServiceId();
+        $service_id				= $service->get_service_id();
         $next_service_status	= null;
         $user_cancelled_service	= false;
         $user_opted_out			= false;
