@@ -170,16 +170,6 @@ function smartwoo_save_options() {
 			update_option( 'smartwoo_allow_migration', $smartwoo_allow_migration );
 		}
 
-		if ( isset( $_POST['smartwoo_upgrade_product_cat'] ) ) {
-			$category_id = absint( $_POST['smartwoo_upgrade_product_cat'] );
-			update_option( 'smartwoo_upgrade_product_cat', $category_id );
-		}
-
-		if ( isset( $_POST['smartwoo_downgrade_product_cat'] ) ) {
-			$category_id = absint( $_POST['smartwoo_downgrade_product_cat'] );
-			update_option( 'smartwoo_downgrade_product_cat', $category_id );
-		}
-
 		if ( isset( $_POST['next_payment_date_operator'], $_POST['next_payment_date_unit'], $_POST['next_payment_date_number'] ) ) {
 			$operator	= '-' === $_POST['next_payment_date_operator'] ? '-' : '+';
 			$number		= ! empty( $_POST['next_payment_date_number'] ) ? absint( $_POST['next_payment_date_number'] ) : 7; // Always default to 7 days.
@@ -491,7 +481,7 @@ function smartwoo_email_options() {
 						<td><strong><?php echo esc_html( ucwords( str_replace( array( '_', 'smartwoo' ), ' ', $checkbox_name ) ) ); ?></strong></td>
 						<td><?php echo esc_html( $recipient ); ?></td>
 						<td>
-							<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input sw-checkboxes" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
+							<?php smartwoo_get_switch_toggle( array( 'id' => $checkbox_name, 'name'  => $checkbox_name, 'checked' => boolval( get_option( $checkbox_name, 0 ) ) ) ); ?>
 							<?php if ( ! in_array( $checkbox_name, $not_editables, true ) ): ?>
 								<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
 								<a tempname="<?php echo esc_attr( $checkbox_name ); ?>" title="Edit template" class="sw-icon-button-admin <?php echo ( $pro_installed ) ? 'sw-edit-mail' : 'sw-edit-mail-nopro' ?>"><span class="dashicons dashicons-edit"></span></a>
@@ -503,6 +493,7 @@ function smartwoo_email_options() {
 					</tr>
 				<?php endforeach; ?>
 			</table>
+		
 			<?php echo wp_kses_post( smartwoo_pro_feature( 'more-email-options' ) ) ;?>
 
 			<?php wp_nonce_field( 'sw_email_option_nonce', 'sw_email_option_nonce' ); ?>
@@ -569,7 +560,8 @@ function smartwoo_advanced_options() {
                     <label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
                         <?php echo esc_html( ucwords( str_replace( array( '_', 'smartwoo' ), ' ', $checkbox_name ) ) ); ?>
                     </label>
-					<input type="checkbox" id="<?php echo esc_attr( $checkbox_name ); ?>" name="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-input" <?php checked( get_option( $checkbox_name, 0 ), 1 ); ?>>
+					<?php smartwoo_get_switch_toggle( array( 'id' => $checkbox_name, 'name'  => $checkbox_name, 'checked' => boolval( get_option( $checkbox_name, 0 ) ) ) ); ?>
+
                 </div>
                 <hr>
             <?php endforeach; ?>
@@ -582,13 +574,15 @@ function smartwoo_advanced_options() {
 			<!-- Refund Via TeraWallet -->
 			<div class="sw-form-row">
 				<label for="smartwoo_refund_to_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Refund Through Wallet', 'smart-woo-service-invoicing' ); ?></label>
-				<input type="checkbox" class="sw-form-input" name="smartwoo_refund_to_wallet" id="smartwoo_refund_to_wallet" <?php echo  checked( get_option( 'smartwoo_refund_to_wallet', 0 ), 1, false ) ?>>
+				<?php smartwoo_get_switch_toggle( array( 'id' => 'smartwoo_refund_to_wallet', 'name'  => 'smartwoo_refund_to_wallet', 'checked' => boolval( get_option( 'smartwoo_refund_to_wallet', 0 ) ) ) ); ?>
+
 			</div>
 			
 			<!-- Pay Via TeraWallet -->
 			<div class="sw-form-row">
 				<label for="smartwoo_pay_pending_invoice_with_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Pay Pending Invoices with Wallet', 'smart-woo-service-invoicing' ); ?></label>
-				<input type="checkbox" class="sw-form-input" name="smartwoo_pay_pending_invoice_with_wallet" id="smartwoo_pay_pending_invoice_with_wallet" <?php echo checked( get_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 ), 1, false ); ?>>
+				<?php smartwoo_get_switch_toggle( array( 'id' => 'smartwoo_pay_pending_invoice_with_wallet', 'name'  => 'smartwoo_pay_pending_invoice_with_wallet', 'checked' => boolval( get_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 ) ) ) ); ?>
+
 			</div>
             
             <?php endif ?>
