@@ -29,7 +29,7 @@ Smart Woo Service Invoicing simplifies your subscription-based business by autom
 
 == Every Smart Woo Pro Plan Includes ==
 
-- **Advanced Stats**: Get detailed insights and visual stats (bar charts, graphs) on service subscription usage.  
+- **Advanced Stats**: Get detailed insights and visual stats on service subscription usage.  
 - **Service Logs**: Track how clients interact with their subscriptions, including detailed activity insights.  
 - **Invoice Logs**: Gain insights into all invoice interactions, including payment failures and successful payments.  
 - **Invoice Items**: Add custom items to an invoice.  
