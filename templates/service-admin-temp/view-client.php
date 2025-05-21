@@ -13,7 +13,9 @@ defined( 'ABSPATH' ) || exit;
 
     <?php if ( ! $service ) : ?>
         <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service <a href="' . admin_url( 'admin.php?page=sw-admin' ) . '">back</a>' ) ); ?>
-        <?php else : ?>
+    <?php else : ?>
+        <?php do_action( 'smartwoo_admin_view_service_client_before_client_details_section', $service ); ?>
+
         <div class="sw-admin-client-info-wrapper">
             <div class="sw-admin-client-info-data">
                 <div class="sw-admin-client-info-essentials">
@@ -77,7 +79,7 @@ defined( 'ABSPATH' ) || exit;
                 </div>
             </div>
 
-            <div class="sw-admin-client-info-pro-data">
+            <div class="sw-admin-client-info-pro-data<?php echo esc_attr( class_exists( 'SmartWooPro', false ) ? ' has-pro': '' ); ?>">
                 <h3>Client Data</h3>
                 <?php if ( has_filter( 'smartwoo_additional_client_details' ) && class_exists( 'SmartWooPro' ) ) : ?>
                     <div class="sw-admin-client-info-pro-items">
@@ -94,6 +96,8 @@ defined( 'ABSPATH' ) || exit;
                 
             </div>
         </div>
+
+        <?php do_action( 'smartwoo_admin_view_service_client_after_client_details_section', $service ); ?>
 
         <div class="sw-admin-client-pro-services-invoices">
             <?php if ( has_action( 'smartwoo_client_services_and_invoices' ) ) : ?>
