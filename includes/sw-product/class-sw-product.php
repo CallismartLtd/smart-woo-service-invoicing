@@ -76,6 +76,8 @@ class SmartWoo_Product extends WC_Product {
 		add_action( 'woocommerce_single_product_summary', array( __CLASS__, 'sub_info' ), 10 );
 		add_action( 'woocommerce_' . self::instance()->get_type() .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
 		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
+		add_action( 'wp_ajax_smartwoo_json_search_sw_products', array( __CLASS__, 'ajax_product_search' ) );
+
 	}
 
 	/**
@@ -208,7 +210,6 @@ class SmartWoo_Product extends WC_Product {
 			$this->downloads = $data;
 
 		}
-		$this->downloads = $data;
 
 	}
 
@@ -224,7 +225,7 @@ class SmartWoo_Product extends WC_Product {
 	 * Retrieve all products of this class.
 	 *
 	 * @param array $args Arguments to pass to the query.
-	 * @return object All product matching the type property of this class.
+	 * @return self[] All product matching the type property of this class.
 	 */
 	public static function get_all( $args = array() ) {
 		$defaults = array(
@@ -263,57 +264,6 @@ class SmartWoo_Product extends WC_Product {
 		$query = new WC_Product_Query( $args );
 
 		return count( $query->get_products() );
-	}
-
-	/**
-	 * Get Products of this class for migration.
-	 * 
-	 * @param $type The type of migration defaults to Upgrade
-	 * @return object $smart_woo_products Object of SmartWoo_Product | WC_Product.
-	 */
-	public static function get_migratables( $type = 'Upgrade') {
-		$cat_id				= 0;
-		$downgrade_cat_id	= absint( get_option( 'smartwoo_downgrade_product_cat', 0 ) );
-		$upgrade_cat_id		= absint( get_option( 'smartwoo_upgrade_product_cat', 0 ) );
-		if ( 'Downgrade' === $type ) {
-			$cat_id = $downgrade_cat_id;
-		} elseif ( 'Upgrade' === $type ) {
-			$cat_id = $upgrade_cat_id;
-		}
-
-		if ( empty( $cat_id ) ) {
-			return false; 
-		}
-
-		$term	= get_term( $cat_id );
-		$slug	= $term ? $term->slug : '';
-		$args	= array( 
-			'type' 		=> 'sw_product', 
-			'status'	=> 'publish',
-			'category'	=> $slug,
-		);
-		$query    			= new WC_Product_Query( $args );
-		$products 			= $query->get_products();
-
-		if ( empty( $products ) ) {
-			return false;
-		}
-		
-		$smart_woo_products = array();
-
-		foreach ( $products as $product ) {
-			
-			$smartwoo_products = new self( $product->get_id() );
-			$smartwoo_products->set_sign_up_fee( $product->get_meta( '_smartwoo_sign_up_fee' ) );
-			$smartwoo_products->set_billing_cycle( $product->get_meta( '_smartwoo_billing_cycle' ) );
-			$smartwoo_products->set_grace_period_number( $product->get_meta( '_smartwoo_grace_period_number' ) );
-			$smartwoo_products->set_grace_period_unit( $product->get_meta( '_smartwoo_grace_period_unit' ) );
-
-			$smart_woo_products[] = $smartwoo_products;
-		}
-
-		return $smart_woo_products;
-	
 	}
 
 	/**
@@ -571,8 +521,8 @@ class SmartWoo_Product extends WC_Product {
 					$billed_txt = 'Billed';
 				}
 				?>
-				<div class="smartwoo-sub-info">
-					<p class="main-price"><strong><?php echo esc_html( smartwoo_price( $product->get_price() ) ); ?> </strong><?php echo esc_html( $billed_txt ); ?> <strong><?php echo esc_html( ucfirst( $billing_cycle ) ); ?></strong></p>
+				<div class="smartwoo-product-sub-info">
+					<p class="main-price"><strong><?php echo esc_html( smartwoo_price( $product->get_regular_price() ) ); ?> </strong><?php echo esc_html( $billed_txt ); ?> <strong><?php echo esc_html( ucfirst( $billing_cycle ) ); ?></strong></p>
 		
 					<?php if ( $sign_up_fee > 0 ) : ?>
 						<p class="sign-up-fee">and a one-time sign-up fee of <strong><?php echo esc_html( smartwoo_price( $sign_up_fee ) ); ?></strong></p>
@@ -692,5 +642,40 @@ class SmartWoo_Product extends WC_Product {
 		$actions[]	= 'private';
 		return $actions;
 	}
+
+	/**
+	 * Ajax product search (for sw_product or any product type)
+	 */
+	public static function ajax_product_search() {
+		check_ajax_referer( 'search-products', 'security' );
+
+		$search_term = isset( $_GET['term'] ) ? sanitize_text_field( wp_unslash( $_GET['term'] ) ) : '';
+
+		if ( ! $search_term ) {
+			wp_send_json( [ 'results' => [] ] );
+		}
+
+		$args = array(
+			'limit'    => 25,
+			's'        => $search_term,
+		);
+
+		if ( isset( $_GET['exclude'] ) ) {
+			$args['exclude'] = array_map( 'absint', array( $_GET['exclude'] ) );
+		}
+
+		$products = self::get_all( $args );
+
+		$results = array();
+
+		if ( ! empty( $products ) ) {
+			foreach ( $products as $product ) {
+				$results[$product->get_id()] = $product->get_formatted_name();
+			}
+		}
+
+		wp_send_json( $results );
+	}
+
 }
 SmartWoo_Product::listen();
