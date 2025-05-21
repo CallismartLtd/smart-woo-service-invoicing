@@ -168,13 +168,27 @@ class SmartWoo_Product_Controller{
      * Add new product page
      */
     private static function add_page() {
+        wp_enqueue_script( 'smartwoo-jquery-timepicker' );
         $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $tabs           = array(
-            ''        => 'Dashboard',
+            ''        => 'Products',
             'add-new' => 'Add New',
     
         );
         $product_categories = get_terms( 'product_cat' );
+        /**
+         * @filter `smartwoo_product_data_tabs`, add extra data to the products data section.
+         * 
+         * @param array An associative array of menu_title => content_callback_function.
+         */
+        $product_data_tabs  = apply_filters( 'smartwoo_product_data_tabs', array() );
+
+        $add_extra_tabs = ! empty( $product_data_tabs );
+
+        if ( $add_extra_tabs ) {
+            $menus      = array_keys( $product_data_tabs );
+            $callbacks  = array_values( $product_data_tabs );
+        }
         include_once SMARTWOO_PATH . 'templates/product-admin-temp/add-product.php';
 
     }
@@ -183,6 +197,7 @@ class SmartWoo_Product_Controller{
      * Edit product page
      */
     private static function edit_page() {
+        wp_enqueue_script( 'smartwoo-jquery-timepicker' );
         $product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $tab        = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -199,7 +214,20 @@ class SmartWoo_Product_Controller{
         }
 
         $product_categories = get_terms( 'product_cat' );
-        $tabs               = array( '' => 'Dashboard' );
+        $tabs               = array( '' => 'Products', 'edit' => 'Edit Product' );
+        /**
+         * @filter `smartwoo_product_data_tabs`, add extra data to the products data section.
+         * 
+         * @param array An associative array of menu_title => content_callback_function.
+         */
+        $product_data_tabs  = apply_filters( 'smartwoo_product_data_tabs', array() );
+
+        $add_extra_tabs = ! empty( $product_data_tabs );
+
+        if ( $add_extra_tabs ) {
+            $menus      = array_keys( $product_data_tabs );
+            $callbacks  = array_values( $product_data_tabs );
+        }
 
         include_once SMARTWOO_PATH . 'templates/product-admin-temp/edit-product.php';
         
@@ -266,8 +294,8 @@ class SmartWoo_Product_Controller{
         $fields['sale_price']           = isset( $_POST['sale_price'] ) ? floatval( $_POST['sale_price'] ) : 0;
         $fields['date_on_sale_from']    = isset( $_POST['date_on_sale_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_on_sale_from'] ) ) : '';
         $fields['date_on_sale_to']      = isset( $_POST['date_on_sale_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_on_sale_to'] ) ) : '';
-        $fields['upsell_ids']           = isset( $_POST['upsell_ids'] ) ? array_map( 'absint', wp_unslash( explode( ',', $_POST['upsell_ids'] ) ) ) : array();
-        $fields['cross_sell_ids']       = isset( $_POST['cross_sell_ids'] ) ? array_map( 'absint', wp_unslash( explode( ',', $_POST['cross_sell_ids'] ) ) ) : array();
+        $fields['upsell_ids']           = isset( $_POST['upsell_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['upsell_ids'] ) ) : array();
+        $fields['cross_sell_ids']       = isset( $_POST['cross_sell_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['cross_sell_ids'] ) ) : array();
         $fields['short_description']    = isset( $_POST['short_description'] ) ? wp_kses_post( $_POST['short_description'] ) : '';
         $fields['product_status']       = isset( $_POST['product_status'] ) ? sanitize_text_field( $_POST['product_status'] ) : '';
         $fields['visibility']           = isset( $_POST['visibility'] ) ? sanitize_text_field( wp_unslash( $_POST['visibility'] ) ) : '';
@@ -294,7 +322,7 @@ class SmartWoo_Product_Controller{
         }
 
         if ( ! in_array( self::instance()->form_fields['billing_cycle'], array_keys( smartwoo_supported_billing_cycles() ) ) ) {
-            $errors[] = __( 'Billing cycle is not supported', 'smart-woo-service-invoicing' );
+            $errors[] = __( 'Select a billing cycle', 'smart-woo-service-invoicing' );
         }
 
         if ( isset( $_POST['smartwoo_product_id'] ) && empty( $_POST['smartwoo_product_id'] ) ) {
@@ -393,8 +421,6 @@ class SmartWoo_Product_Controller{
             $product->add_grace_period_number( $form_fields['grace_period_number'] );
             $product->add_grace_period_unit( $form_fields['grace_period_unit'] );
         }
-
-
         // Product media.
         $product->set_image_id( $form_fields['product_image_id'] );
         $product->set_gallery_image_ids( $form_fields['product_gallery_ids'] );
@@ -405,7 +431,10 @@ class SmartWoo_Product_Controller{
             $product->delete_meta_data( '_smartwoo_product_downloadable_data' );
         } 
 
-        $product->save();
+        $product = apply_filters( 'smartwoo_save_product_form', $product );
+        if ( ! is_wp_error( $product ) ) {
+            $product->save();
+        }
         return $product;
     }
 
