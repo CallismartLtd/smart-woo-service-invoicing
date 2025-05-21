@@ -41,7 +41,7 @@ function smartwoo_service_details() {
 	
 	smartwoo_set_document_title( $service->getServiceName() );
 	$service_name 		= $service->getServiceName() ? $service->getServiceName() : 'Not Available';
-	$service_id   		= $service->getServiceId() ? $service->getServiceId() : 'Not Available';
+	$service_id   		= $service->get_service_id() ? $service->get_service_id() : 'Not Available';
 	$product_id   		= $service->getProductId();
 	$service_type 		= $service->getServicetype() ? $service->getServiceType() : 'Not Available';
 	$product_info  		= wc_get_product( $product_id );
@@ -157,8 +157,8 @@ function smartwoo_service_front_temp() {
 
 		foreach ( $services as $service ) {
 			$service_name 	= esc_html( $service->getServiceName() );
-			$service_id   	= esc_html( $service->getServiceId() );
-			$view_link		= smartwoo_service_preview_url( $service->getServiceId() );
+			$service_id   	= esc_html( $service->get_service_id() );
+			$view_link		= smartwoo_service_preview_url( $service->get_service_id() );
 			$status			= smartwoo_service_status( $service_id );
 
 			// Add the status tag to the service name.
@@ -279,13 +279,13 @@ function smartwoo_user_service_by_status() {
 	$count			= 0;
 
     foreach ( $services as $service ) {
-        $status = smartwoo_service_status( $service->getServiceId() );
-        $view_link = smartwoo_service_preview_url( $service->getServiceId() );
+        $status = smartwoo_service_status( $service );
+        $view_link = smartwoo_service_preview_url( $service->get_service_id() );
 
         if ( ( 'Active (NR)' === $status && 'Active' === $status_label )  || $status === $status_label ) {
             $output .= '<tr>';
             $output .= '<td>' . esc_html( $service->getServiceName() ) . '</td>';
-            $output .= '<td>' . esc_html( $service->getServiceId() ) . '</td>';
+            $output .= '<td>' . esc_html( $service->get_service_id() ) . '</td>';
             $output .= '<td>' . esc_html( $service->getBillingCycle() ) . '</td>';
             $output .= '<td>' . esc_html( $service->getEndDate() ) . '</td>';
             $output .= '<td><a href="' . esc_url( $view_link ) . '" class="sw-blue-button">' . esc_html__( 'View Details', 'smart-woo-service-invoicing' ) . '</a></td>';
@@ -325,7 +325,7 @@ function smartwoo_service_mini_card() {
 	} else {
 		foreach ( $services as $service ) {
 			$service_name = esc_html( $service->getServiceName() );
-			$service_id   = esc_html( $service->getServiceId() );
+			$service_id   = esc_html( $service->get_service_id() );
 
 			// Create a link to the client_services page with the service_id as a URL parameter.
 			$service_link = smartwoo_service_preview_url( $service_id );
