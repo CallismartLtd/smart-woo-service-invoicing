@@ -772,6 +772,13 @@ function smartwoo_allowed_form_html() {
 			'class'		=> true
 		),
 		'li'		=> array(),
+		'img'		=> array(
+			'src'	=> true,
+			'alt'	=> true
+		),
+		'td'	=> array(
+			'style'	=> true
+		)
     ) );
 }
 
@@ -1336,4 +1343,38 @@ function smartwoo_is_block_theme() {
     }
 
     return false;
+}
+
+/**
+ * Generates an HTML and CSS switch toggle.
+ * 
+ * @return string HTML for the switch toggle.
+ */
+function smartwoo_get_switch_toggle( array $args ) {
+    $default_args = array(
+        'id'       => '',
+        'name'     => '',
+        'checked'  => false,
+        'disabled' => false,
+        'value'    => '1',
+    );
+
+    $parsed_args = wp_parse_args( $args, $default_args );
+    $checked_attr  = $parsed_args['checked'] ? 'checked' : '';
+    $disabled_attr = $parsed_args['disabled'] ? 'disabled' : '';
+    ?>
+        <input
+            type="checkbox"
+            id="<?php echo esc_attr( $parsed_args['id'] ); ?>"
+            name="<?php echo esc_attr( $parsed_args['name'] ); ?>"
+            value="<?php echo esc_attr( $parsed_args['value'] ); ?>"
+            class="smartwoo-switch-toggle-input"
+            <?php echo esc_attr( $checked_attr ); ?>
+            <?php echo esc_attr( $disabled_attr ); ?>
+        >
+        <label for="<?php echo esc_attr( $parsed_args['id'] ); ?>" class="smartwoo-switch-toggle-label">
+            <span class="smartwoo-switch-toggle-inner"></span>
+            <span class="smartwoo-switch-toggle-slider"></span>
+        </label>
+    <?php
 }
