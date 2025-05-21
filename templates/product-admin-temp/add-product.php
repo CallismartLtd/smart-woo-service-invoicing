@@ -67,41 +67,56 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                             <li class="tabs-sales">Sales</li>
                             <hr>
                             <li class="tabs-linked-products">Linked Products</li>
+                            <?php if ( $add_extra_tabs ) : ?>
+                                <?php foreach( $menus as $menu ) : ?>
+                                    <hr>
+                                    <li><?php echo esc_html( $menu ); ?></li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </ul>
                         
                     </div>
                     <div class="sw-product-data-tabs-content">
-                        <div class="tabs-general-content">
+                        <div>
                             <p>
-                                Regular price (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>): <span><input type="number" name="regular_price" id="regular_price" step="0.01" ></span>
+                                <label for="regular_price">Regular price (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>):</label> <span><input type="number" name="regular_price" id="regular_price" step="0.01" ></span>
                             </p>
                             
                             <p>
-                                Sign-up fee (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>): <span><input type="number" name="sign_up_fee" id="sign_up_fee" step="0.01"></span>
+                                <label for="sign_up_fee">Sign-up Fee (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>):</label> <span><input type="number" name="sign_up_fee" id="sign_up_fee" step="0.01"></span>
                             </p>
                         </div>
 
-                        <div class="tabs-sales-content smartwoo-hide">
+                        <div class="smartwoo-hide">
                             <p>
-                                Sale price (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>): <span><input type="number" name="sale_price" id="sale_price" step="0.01" ></span>
+                                <label for="sale_price">Sale price (<?php echo esc_html( get_woocommerce_currency_symbol() ) ?>):</label> <span><input type="number" name="sale_price" id="sale_price" step="0.01" ></span>
                             </p>
                             <p>
-                                Sale date from : <span><input type="datetime-local" name="date_on_sale_from" id="date_on_sale_from"></span>
+                                <label for="date_on_sale_from">Sale date from:</label> <span><input type="text" name="date_on_sale_from" id="date_on_sale_from" placeholder="FROM&hellip; YYYY-MM-DD"></span>
                             </p>
                             <p>
-                                Sale date to : <span><input type="datetime-local" name="date_on_sale_to" id="date_on_sale_to"></span>
+                                <label for="date_on_sale_to">Sale date to:</label> <span><input type="text" name="date_on_sale_to" id="date_on_sale_to" placeholder="TO&hellip; YYYY-MM-DD"></span>
                             </p>
                         </div>
 
-                        <div class="tabs-linked-products-content smartwoo-hide">
-                            <p>
-                                Upsells: <span><input type="text" name="upsell_ids" id="upsell_ids" placeholder="<?php esc_html_e( 'eg 123, 456,789', 'smart-woo-service-invoicing' ); ?>"></span>
-                            </p>
-                            <p>
-                                Cross-sells : <span><input type="text" name="cross_sell_ids" id="cross_sell_ids" placeholder="<?php esc_html_e( 'eg. 123, 456,789', 'smart-woo-service-invoicing' ); ?>"></span>
+                        <div class="smartwoo-hide">
+                            <p class="smartwoo-select-2">
+                                <label for="upsell_ids">Upsells:</label>
+                                <select class="wc-product-search" multiple="multiple" id="upsell_ids" name="upsell_ids[]" data-sortable="true" data-placeholder="<?php esc_attr_e( 'Search for a product&hellip;', 'smart-woo-service-invoicing' ); ?>" data-action="smartwoo_json_search_sw_products" data-exclude=""> 
+                                </select>                            </p>
+                            <p class="smartwoo-select-2">
+                                <label for="cross_sell_ids">Cross-sells:</label>
+                                <select class="wc-product-search" multiple="multiple" id="cross_sell_ids" name="cross_sell_ids[]" data-sortable="true" data-placeholder="<?php esc_attr_e( 'Search for a product&hellip;', 'smart-woo-service-invoicing' ); ?>" data-action="smartwoo_json_search_sw_products" data-exclude="">
+                                </select>                            
                             </p>
                         </div>
-                        
+                        <?php if ( $add_extra_tabs ) : ?>
+                            <?php foreach( $callbacks as $function ) : ?>
+                                <div class="smartwoo-hide">
+                                    <?php call_user_func( $function ); ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -139,7 +154,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <h4>Publish</h4>
                 <hr>
                 <p>
-                    <span class="dashicons dashicons-post-status"></span>Status: 
+                    <span class="dashicons dashicons-post-status"></span>
+                    <label for="product_status">Status:</label> 
                     <select name="product_status" id="product_status">
                         <option value="draft"><?php esc_html_e( 'Draft', 'smart-woo-service-invoicing' ); ?></option>
                         <option value="publish"><?php esc_html_e( 'Publish', 'smart-woo-service-invoicing' ); ?></option>
@@ -148,8 +164,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                     </select>
                 </p>
                 <p><span class="dashicons dashicons-visibility"></span>
-                    Catalog Visibility:
-                    <select name="visibility" id="product_status">
+                    <label for="catalog_visibility">Catalog Visibility:</label>
+                    <select name="visibility" id="catalog_visibility">
                         <option value="visible"><?php esc_html_e( 'Shop & search', 'smart-woo-service-invoicing' ); ?></option>
                         <option value="catalog"><?php esc_html_e( 'Shop Only', 'smart-woo-service-invoicing' ); ?></option>
                         <option value="search"><?php esc_html_e( 'Search only', 'smart-woo-service-invoicing' ); ?></option>
@@ -181,7 +197,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <button type="submit" name="_smartwoo_product_publish" class="sw-blue-button">Publish</button>
             </div>
             <div class="sw-expiration-option">
-                <h4 for="grace_period" class="sw-form-label">Grace Period</h4>
+                <h4  class="sw-form-label"><label for="grace_period">Grace Period</label></h4>
                 <hr>
                 <div class="sw-form-input">
                     <p class="description-class">A Service with this product expires after:</p>
@@ -219,7 +235,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <h4>Billing</h4>
                 <hr>
                 <p>
-                    Billing cycle:
+                    <label for="sw_billing_cycle">Billing Cycle</label>
                     <?php smartwoo_billing_cycle_dropdown() ?>
                 </p>
                 
