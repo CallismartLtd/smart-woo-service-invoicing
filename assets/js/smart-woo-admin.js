@@ -671,7 +671,7 @@ function smartwooDeleteService(serviceId) {
     let isConfirmed = confirm( 'Are you sure you want to delete this service? All invoices and assets alocated to it will be lost forever.' );
 
     if (isConfirmed) {
-        spinner = smartWooAddSpinner( 'sw-delete-button' );
+        spinner = smartWooAddSpinner( 'sw-delete-button', true );
 
         // Perform an Ajax request to delete the invoice
         jQuery.ajax(
@@ -966,6 +966,7 @@ function smartwooopenWPMediaOnClick( event ) {
  * Date input field handler
  */
 function smartwooDatesInputsHandler() {
+    
     const formatDateTime = (date) => {
         var year   = date.getFullYear();
         var month  = String( date.getMonth() + 1 ).padStart( 2, '0' );
@@ -1056,7 +1057,7 @@ function smartwooDatesInputsHandler() {
     }
 
     // Initialize jQuery Datepicker.
-    let dateFields = document.querySelectorAll('#sw_start_date, #sw_next_payment_date, #sw_end_date');
+    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date, #date_on_sale_from, #date_on_sale_to' );
     if (dateFields.length) {
         dateFields.forEach(input => {
             let options = {
@@ -1073,7 +1074,7 @@ function smartwooDatesInputsHandler() {
                 }
             };
 
-            if (input.getAttribute('smartwoo-datetime-picker')) {
+            if (input.getAttribute( 'smartwoo-datetime-picker' )) {
                 jQuery(input).datetimepicker({
                     ...options,
                     timeFormat: 'HH:mm:ss',
@@ -1560,7 +1561,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         let errorContainer = document.createElement('div');
                         errorContainer.id = 'invoice-errors';
                         errorContainer.innerHTML = responseData.data.htmlContent ? responseData.data.htmlContent : responseData.data.message;
-        
+                        errorContainer.querySelector( '.swremove-field' ).addEventListener( 'click', e => e.target.parentElement.remove() );
+
                         // Insert error messages above the form
                         theInvoiceAdminForm.parentElement.insertBefore(errorContainer, theInvoiceAdminForm);
                         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -1922,12 +1924,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( productdataTabs ) {
-        let allbtns = productdataTabs.querySelectorAll( 'li' );
+        let allbtns     = productdataTabs.querySelectorAll( 'li' );
         let menuContent = document.querySelector( '.sw-product-data-tabs-content' );
+        let allcontents = menuContent.querySelectorAll( 'div' );
 
         let closeAll = () =>{
-            let allDivs = menuContent.querySelectorAll( 'div' );
-            allDivs.forEach( div =>{
+            allcontents.forEach( div =>{
                 if ( ! div.classList.contains( 'smartwoo-hide' ) ) {
                     div.classList.add( 'smartwoo-hide' );
                 }
@@ -1935,24 +1937,14 @@ document.addEventListener('DOMContentLoaded', () => {
             allbtns.forEach(btn=>{
                 btn.classList.remove( 'active' );
             });
+
         }
-        allbtns.forEach( menu =>{
-            menu.addEventListener( 'click', ( e )=>{
-                e.preventDefault();
-                
-                if ( menu.classList.contains( 'tabs-general' ) ) {
-                    closeAll();
-                    menuContent.querySelector( '.tabs-general-content' ).classList.toggle( 'smartwoo-hide' );
-                    menu.classList.toggle( 'active' );
-                } else if ( menu.classList.contains( 'tabs-sales' ) ) {
-                    closeAll();
-                    menuContent.querySelector( '.tabs-sales-content' ).classList.toggle( 'smartwoo-hide' );
-                    menu.classList.toggle( 'active' );
-                } else if ( menu.classList.contains( 'tabs-linked-products' ) ) {
-                    closeAll();
-                    menuContent.querySelector( '.tabs-linked-products-content' ).classList.toggle( 'smartwoo-hide' );
-                    menu.classList.toggle( 'active' );
-                }
+
+        allbtns.forEach( ( btn, index ) => {
+            btn.addEventListener( 'click', e =>{
+                closeAll();
+                e.target.classList.add( 'active' );
+                allcontents[index].classList.remove( 'smartwoo-hide' );
             });
         });
     }
@@ -1993,6 +1985,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 noticeDiv.innerHTML = responseData.data.htmlContent ? responseData.data.htmlContent : responseData.data.message;
                 window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                noticeDiv.querySelector( '.swremove-field' ).addEventListener( 'click', e => e.target.parentElement.remove() );
+
 
             }).catch( error=>{
                 console.error( 'Error:', error);
