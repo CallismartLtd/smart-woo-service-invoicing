@@ -56,9 +56,9 @@ defined( 'ABSPATH' ) || exit;
                             <?php $id = 1; foreach ( $downloadables as $file_name => $file_url ) : ?>
                                 <tr>
                                     <td><?php echo wp_kses_post( $download_asset_object->get_file_icon( $file_url ) ); ?></td>
-                                    <td data-label="<?php echo esc_html( $file_name ); ?>"><?php echo esc_html( $file_name ); ?></td>
-                                    <td data-label="<?php echo esc_html( $download_asset_object->get_mime_from_url( $file_url ) ); ?>"><?php echo esc_html( $download_asset_object->get_mime_from_url( $file_url ) ); ?></td>
-                                    <td data-label="<?php echo esc_html( $download_asset_object->get_file_size( $file_url ) ); ?>"><?php echo esc_html( $download_asset_object->get_file_size( $file_url ) ); ?></td>
+                                    <td data-label="<?php esc_attr_e( 'File Name', 'smart-woo-service-invoicing' ); ?>"><?php echo esc_html( $file_name ); ?></td>
+                                    <td data-label="<?php esc_attr_e( 'Type', 'smart-woo-service-invoicing' ); ?>"><?php echo esc_html( $download_asset_object->get_mime_from_url( $file_url ) ); ?></td>
+                                    <td data-label="<?php esc_attr_e( 'Size', 'smart-woo-service-invoicing' ); ?>"><?php echo esc_html( $download_asset_object->get_file_size( $file_url ) ); ?></td>
                                     <td data-label="<?php esc_attr_e( 'Action', 'smart-woo-service-invoicing' ); ?>">
                                         <a href="<?php echo esc_url( smartwoo_download_url( $id, $download_asset_object->get_key(), $download_asset_object->get_id(), $service->get_service_id() ) ); ?>"><?php esc_html_e( 'Download', 'smart-woo-service-invoicing' ); $id++; ?></a>
                                     </td>
