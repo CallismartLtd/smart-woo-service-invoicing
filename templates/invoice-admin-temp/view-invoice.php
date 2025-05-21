@@ -72,7 +72,7 @@ smartwoo_set_document_title( 'Invoice Details');
 
             <div class="smartwoo-admin-invoice-items">
                 <table class="sw-admin-invoice-item-table">
-                    <thead class="smartwoo-admin-invoice-item-table">
+                    <thead>
                         <tr>
                             <th><?php echo esc_html__( 'Item(s)', 'smart-woo-service-invoicing' ); ?></th>
                             <th width="25x"><?php echo esc_html__( 'Quantity', 'smart-woo-service-invoicing' ); ?></th>
@@ -80,7 +80,7 @@ smartwoo_set_document_title( 'Invoice Details');
                             <th width="150px"><?php echo esc_html__( 'Total', 'smart-woo-service-invoicing' ); ?></th>
                         </tr>
                     </thead>
-                    <tbody class="smartwoo-admin-invoice-item-table">
+                    <tbody>
                         <?php if( empty( $invoice->get_items() ) ): ?>
                             <tr>
                                 <td colspan="4" style="text-align:center;"><?php echo esc_html__( 'No items found', 'smart-woo-service-invoicing' ); ?></td>
