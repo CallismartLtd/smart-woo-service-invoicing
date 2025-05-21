@@ -89,7 +89,7 @@ function smartwoo_invoice_payment_status_dropdown( $selected = null, $echo = tru
  */
 function smartwoo_is_service_invoice( $invoice_id ) {
 	$the_invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
-	$service_id = $the_invoice ? $the_invoice->getServiceId() : null;
+	$service_id = $the_invoice ? $the_invoice->get_service_id() : null;
 
 	return ! is_null( $service_id );
 }
