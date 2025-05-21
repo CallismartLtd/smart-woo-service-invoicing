@@ -43,7 +43,7 @@ defined( 'ABSPATH' ) || exit;
                         <h4><?php echo esc_html( ucfirst( $download_asset_object->get_asset_name() ) ); ?></h4>
                         <p><strong>Limit:</strong> <?php echo esc_html( $download_asset_object->get_access_limit() ); ?></p>
                     </div>
-                    <table class="smartwoo-assets-downloads-table" align="center">
+                    <table class="smartwoo-assets-downloads-table" align="center" id="smartwoo-front-table">
                         <thead>
                             <tr>
                                 <th></th>
