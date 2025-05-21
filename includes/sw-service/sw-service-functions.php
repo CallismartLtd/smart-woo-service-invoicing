@@ -193,7 +193,7 @@ function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id 
  * @return bool True if the subscription is active, false otherwise.
  */
 function smartwoo_is_service_active( SmartWoo_Service $service ) {
-	if ( 'Active' === $service->getStatus() ) {
+	if ( 'Active' === $service->get_status() ) {
 		return true;
 	}
 
@@ -213,7 +213,7 @@ function smartwoo_is_service_active( SmartWoo_Service $service ) {
  * @return bool True if the subscription is due, false otherwise
  */
 function smartwoo_is_service_due( SmartWoo_Service $service ) {
-	if ( 'Due for Renewal' === $service->getStatus() ) {
+	if ( 'Due for Renewal' === $service->get_status() ) {
 		return true;
 	}
 
@@ -231,7 +231,7 @@ function smartwoo_is_service_due( SmartWoo_Service $service ) {
  * @return bool true if the subscription is on grace period, false otherwise.
  */
 function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
-	if ( 'Grace Period' === $service->getStatus() ) {
+	if ( 'Grace Period' === $service->get_status() ) {
 		return true;
 	}
 	$end_date     = smartwoo_extract_only_date( $service->getEndDate() );
@@ -256,7 +256,7 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
  * @return bool true if the subscription has expired, false otherwise.
  */
 function smartwoo_has_service_expired( SmartWoo_Service $service ) {
-	if ( 'Expired' === $service->getStatus() ) {
+	if ( 'Expired' === $service->get_status() ) {
 		return true;
 	}
 
@@ -284,14 +284,14 @@ function smartwoo_service_status( $service_id ) {
 	}
 	
 	// Get the status text from the DB which overrides the calculated status.
-	$overriding_status = $service->getStatus();
+	$overriding_status = $service->get_status();
 	
 	// Check overriding status first.
 	if ( ! empty( $overriding_status ) ) {
 		return $overriding_status;
 	}
 
-	$status = get_transient( 'smartwoo_status_'. $service->getServiceId() );
+	$status = get_transient( 'smartwoo_status_'. $service->get_service_id() );
 
 	if ( false === $status ) {
 		// Check calculated statuses.
@@ -313,7 +313,7 @@ function smartwoo_service_status( $service_id ) {
 			$status	= 'Unknown';
 		}
 
-		set_transient( 'smartwoo_status_' . $service->getServiceId(), $status, 5 * MINUTE_IN_SECONDS );
+		set_transient( 'smartwoo_status_' . $service->get_service_id(), $status, 5 * MINUTE_IN_SECONDS );
 	}
 
 	
