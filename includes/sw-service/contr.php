@@ -248,8 +248,23 @@ class SmartWoo_Admin_Controller {
 			$is_paying_client	= $client->get_is_paying_customer();
 			$total_services		= SmartWoo_Service_Database::count_user_services( $client->get_id() ) ;
 			$total_invoices		= SmartWoo_Invoice_Database::count_all_by_user( $client->get_id() );
+
+			/**
+			 * Client billing details
+			 * 
+			 * @param array $client_billing_data An associative array of title => value of billing info.
+			 */
+			$client_billing_data = apply_filters(
+				'smartwoo_client_billing_info_display', 
+				array(
+					'Company'	=> $client->get_billing_company()
+				) 
+			);
+
 			/** 
-			 * Additional Client details as an associative array 
+			 * Additional Client details.
+			 * 
+			 * @param array $additional_details An associative array of title => value of additional clien info.
 			*/
 			$additional_details = apply_filters( 'smartwoo_additional_client_details', array(), $client->get_id() );
 		}
