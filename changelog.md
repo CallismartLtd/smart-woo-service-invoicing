@@ -1,5 +1,9 @@
 ## Smart Woo Service Invoicing Changelog
 
+# [2.4.0] YYYY-MM-DD
+### Fixed
+- Product page subscription banner price when product is on sale.
+
 # [2.3.1] 2025-03-27
 ### Minor bug fix.
 
