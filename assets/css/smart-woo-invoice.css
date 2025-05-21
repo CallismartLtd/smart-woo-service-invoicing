@@ -1,6 +1,6 @@
 /*************************************ALL INVOICE TEMPLATE CSS IS WRITTEN HERE**********************************/
 .sw-invoice-template {
-    width: 80%;
+    width: 70%;
     background-color: #ffffff;
     margin: 0 auto;
     margin-bottom: 10px;
@@ -102,6 +102,7 @@
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     background: #fff;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
@@ -112,8 +113,9 @@
 }
 .sw-invoice-item-table th, 
 .sw-invoice-item-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 14px;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
     text-align: left;
     vertical-align: middle;
 }
@@ -170,12 +172,13 @@
     margin: 20px auto;
     border: solid blue .5px;
     border-radius: 3px;
-    padding: 10px;
-    min-width: 300px;
-    height: 150px;
+    padding: 6px;
+    min-width: 250px;
+    height: 100px;
 }
 .sw-invoice-meta-cards p {
     text-align: center;
+    overflow-wrap: anywhere;
 }
 
 .sw-invoice-meta-cards p:first-child {
@@ -249,7 +252,7 @@
         }
     }
 
-    @media (min-width: 190px) and (max-width: 340px) {
+    @media (min-width: 190px) and (max-width: 375px) {
         .sw-invoice-template {
             width: 99%;
         }
