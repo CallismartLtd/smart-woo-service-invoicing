@@ -139,10 +139,6 @@ class SmartWoo_Service {
 		$this->id = absint( $id );
 	}
 
-	public function setId( $id ) {
-		 $this->set_id( $id );
-	}
-
 	/**
 	 * Set the user ID associated with the service.
 	 *
@@ -227,10 +223,6 @@ class SmartWoo_Service {
 	 */
 	public function set_service_id( $service_id ) {
 		$this->service_id = sanitize_text_field( wp_unslash( $service_id ) );
-	}
-	
-	public function setServiceId( $service_id ) {
-		$this->set_service_id( $service_id );
 	}
 
 	/**
@@ -340,10 +332,6 @@ class SmartWoo_Service {
 	 */
 	public function get_id() {
 		return $this->id;
-	}
-	
-	public function getId() {
-		return $this->get_id();
 	}
 
 	/**
