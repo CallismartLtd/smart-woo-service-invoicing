@@ -51,8 +51,8 @@ defined( 'ABSPATH' ) || exit;
     </div>
 
     <div class="smartwoo-assets-container" id="smartwoo-sub-info">
-	    <?php do_action( 'smartwoo_before_service_details_page', $service, true );?>
-	    <div class="serv-details-card">
+	    <?php do_action( 'smartwoo_before_service_details_page', $service );?>
+	    <div class="serv-details-card frontend">
 	        <div id="swloader">Processing....</div>
 	        <h3>Subscription Info</h3>
 	        <p class="smartwoo-container-item"><span> Service ID:</span><?php echo esc_html( $service_id );?></p>
