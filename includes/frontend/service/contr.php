@@ -45,7 +45,7 @@ function smartwoo_service_shortcode() {
 		case 'view-subscription':
 
 			$service_details_page 	= smartwoo_service_details();
-			$output 				=  wp_kses_post( $service_details_page );
+			$output 				=  $service_details_page;
 			break;
 
 		case 'upgrade':
@@ -57,7 +57,7 @@ function smartwoo_service_shortcode() {
 				$service_upgrade_page	= $upgrader->migration_select_product();
 			}
 
-			$output	= wp_kses( $service_upgrade_page, smartwoo_allowed_form_html() );
+			$output	= $service_upgrade_page;
 			break;
 
 		case 'downgrade':
@@ -69,7 +69,7 @@ function smartwoo_service_shortcode() {
 				$service_downgrade_page	= $downgrader->migration_select_product();
 			}
 
-			$output	= wp_kses( $service_downgrade_page, smartwoo_allowed_form_html() );
+			$output	= $service_downgrade_page;
 			break;
 
 		case 'buy-new':
