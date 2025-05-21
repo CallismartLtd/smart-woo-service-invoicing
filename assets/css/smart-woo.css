@@ -8,6 +8,7 @@ use inline CSS to overide some styles
     --smartwoo-status-expired: #dc3545; /* Red for Expired */
     --smartwoo-status-suspended: #6c757d; /* Gray for Suspended */
 	--smartwoo-status-grace-period: #17a2b8;
+	--smartwoo-status-cancelled: #333333;
 }
 
 .smartwoo-status {
@@ -35,6 +36,10 @@ use inline CSS to overide some styles
 }
 .smartwoo-status.grace-period {
     background-color: var(--smartwoo-status-grace-period);
+}
+
+.smartwoo-status.cancelled {
+    background-color: var(--smartwoo-status-cancelled);
 }
 
 .smartwoo-hide {
@@ -746,6 +751,17 @@ border-radius: 5px;
 	margin-top: 10px;
 }
 
+#smartwoo-front-table {
+    padding: 4px;
+    margin-bottom: 2px;
+}
+
+#smartwoo-front-table th,
+#smartwoo-front-table td {
+    padding: 3px;
+    border: none;
+}
+
 /* Responsive Styles for mobile devices */
 @media only screen and (min-width: 320px) and (max-width: 720px) {
 	@media (max-width: 375px) {
@@ -908,6 +924,9 @@ border-radius: 5px;
 	background-color: #ffffff;
 	transition: transform 0.2s ease-in-out;
 }
+.serv-details-card.frontend {
+	margin: 5px auto;
+}
 
 .serv-details-card:hover {
 	transform: translateY(-5px);
@@ -928,25 +947,6 @@ border-radius: 5px;
 	font-size: 16px;
 	font-weight: bold;
 	margin: 10px 0;
-}
-
-/* Style for the "Open Service" button on the service details card */
-.serv-details-card .open-service-button {
-	display: block; /* Display as block element to center */
-	margin: 0 auto; /* Center horizontally */
-	padding: 10px 20px;
-	background-color: #e66f00;
-	color: #fff;
-	text-decoration: none;
-	border-radius: 5px;
-	transition: background-color 0.2s ease-in-out;
-	text-align: center;
-
-}
-
-.serv-details-card .open-service-button:hover {
-	background-color: #0056b3;
-	color: white;
 }
 
 /* Style for the "My Services" heading */
@@ -1089,6 +1089,11 @@ border-radius: 5px;
 
 }
 @media (min-width: 180px) and (max-width: 646px) {
+	@media (max-width: 600px) {
+		.serv-details-card.frontend {
+			width: 95%;
+		}
+	}
 	.invoice-status-counts {
 		flex-wrap: wrap;
 		width: 100%;
@@ -1181,10 +1186,12 @@ border-radius: 5px;
 	color: white;
 	border-radius: 9px;
 }
+
 #smartwoo-sub-info {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	gap: 20px;
+
 }
 
 /* Form Containers and Input fields*/
@@ -1193,7 +1200,7 @@ border-radius: 5px;
 }
 
 /**Product subscription info */
-.smartwoo-sub-info {
+.smartwoo-product-sub-info {
 	background-color: #ffffff;
 	border-left: solid #ff0303;
 	margin: 10px 0 10px 0;
@@ -1206,20 +1213,34 @@ border-radius: 5px;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	width: 100%;
+	gap: 15px;
+
 }
 
 .sw-product-container {
+	position: relative;
 	background-color: #ffffff;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	/* width: 100%; */
+	min-width: 200px;
 	width: 30%;
-	margin: 20px 10px;
+	margin: 10px;
 	padding: 10px;
 	border-radius: 9px;
+}
+.sw-product-container img {
+	position: absolute;
+	width: 100%;
+	top: 5px;
+	left: 0;
+	height: 200px;
+	border-top-right-radius: 9px;
+	border-top-left-radius: 9px;
 }
 
 .sw-product-container h3 {
 	font-size: 18px;
+	margin-top: 205px;
 	margin-bottom: 10px;
 }
 
@@ -1228,12 +1249,14 @@ border-radius: 5px;
 }
 
 .sw-products-container .sw-description {
-	height: 200px;
+	height: 150px;
 	overflow: hidden;
 }
 
 .sw-products-container .sw-description:hover {
 	overflow: auto;
+	scrollbar-width: thin;
+    scrollbar-color: #f1f1f1 #ffffff00;
 }
 .sw-products-container .sw-red-button {
 	float: right;
@@ -1576,10 +1599,11 @@ font-weight: 100;
 
 .smartwoo-assets-downloads-table th, 
 .smartwoo-assets-downloads-table td {
-    padding: 14px 16px;
+    padding: 14px 16px !important;
     border-bottom: 1px solid #e0e0e0;
     text-align: left;
     vertical-align: middle;
+	overflow-wrap: anywhere;
 }
 
 .smartwoo-assets-downloads-table th {
@@ -1603,7 +1627,7 @@ font-weight: 100;
 }
 .smartwoo-assets-downloads-table td:first-child {
     width: 50px;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .smartwoo-assets-downloads-table td .dashicons {
@@ -1657,7 +1681,6 @@ font-weight: 100;
     .smartwoo-assets-downloads-table tr,
     .smartwoo-assets-downloads-table td {
         display: block;
-        width: 100%;
     }
 
     .smartwoo-assets-downloads-table td {
@@ -1674,11 +1697,6 @@ font-weight: 100;
         text-align: left;
         font-weight: 600;
         color: #555;
-    }
-
-    .smartwoo-assets-downloads-table td:last-child {
-        text-align: center;
-        padding-left: 0;
     }
 
     .smartwoo-assets-downloads-table td:last-child a {
