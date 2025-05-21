@@ -39,8 +39,6 @@ $options = array(
     'smartwoo_service_page_id',
     'smartwoo_billing_email',
     'smartwoo_email_sender_name',
-    'smartwoo_upgrade_product_cat',
-    'smartwoo_downgrade_product_cat',
     'smartwoo_prorate',
     'smartwoo_allow_migration',
     'smartwoo_service_id_prefix',
