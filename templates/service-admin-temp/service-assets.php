@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 
             <div class="sw-admin-assets-body-content">
                 <?php if( empty( $downloadables ) ) : ?>
-                    <p class="sw-not-found"><?php esc_html_e( 'No file found.', 'smart-woo-service-invoicing' ) ?></p>
+                    <h2 class="sw-not-found"><?php esc_html_e( 'No file found.', 'smart-woo-service-invoicing' ) ?></h2>
                 <?php else: ?>
                     <div class="heading">
                         <h3><?php echo esc_html( ucfirst( $download_asset_object->get_asset_name() ) ); ?></h3>
