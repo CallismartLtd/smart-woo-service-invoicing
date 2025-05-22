@@ -184,10 +184,9 @@ class SmartWoo_Invoice_Controller {
 			case 'related-service':
 				$page_file = SMARTWOO_PATH .'templates/invoice-admin-temp/view-related-services.php';
 				break;
-	
 			case 'log':
 				echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) );
-				$page_file = has_filter( 'smartwoo_invoice_log_template' ) ? apply_filters( 'smartwoo_invoice_log_template', '', $invoice ) :smartwoo_pro_feature_template( 'invoice logs' );
+				$page_file = has_filter( 'smartwoo_invoice_log_template' ) ? apply_filters( 'smartwoo_invoice_log_template', '', $invoice ) : smartwoo_pro_feature_template( 'invoice logs' );
 				break;
 			default:
 				$page_file = SMARTWOO_PATH . 'templates/invoice-admin-temp/view-invoice.php';
