@@ -109,7 +109,10 @@
 .sw-not-found {
     text-align: center !important;
     font-weight: 500;
-    
+}
+
+h2.sw-not-found {
+    margin-top: 8%;
 }
 /************************** ADMIN DASHBOARD STYLES *******************************/
 .sw-search-container {
