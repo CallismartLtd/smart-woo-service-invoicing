@@ -43,39 +43,12 @@ defined( 'ABSPATH' ) || exit;
                 </div>
 
                 <div class="sw-admin-client-info-billing">
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>Company</h4>
-                        <p><?php echo esc_html( $client->get_billing_company() ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>Email Adrress</h4>
-                        <p><?php echo esc_html( $billing_email ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>Phone Number</h4>
-                        <p><?php echo esc_html( $client->get_billing_phone() ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>Street Address</h4>
-                        <p><?php echo esc_html( $street_address ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>City</h4>
-                        <p><?php echo esc_html( $client->get_billing_city() ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>Postal / Zip</h4>
-                        <p><?php echo esc_html( $client->get_billing_postcode() ? $client->get_billing_postcode() : 'N/A' ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>State / Region</h4>
-                        <p><?php echo esc_html( smartwoo_get_state_name( $client->get_billing_country(), $client->get_billing_state() ) ); ?></p>
-                    </div>
-                    <div class="sw-admin-client-billing-info-tab">
-                        <h4>Country</h4>
-                        <p><?php echo esc_html( smartwoo_get_country_name( $client->get_billing_country() ) ); ?></p>
-                    </div>
-
+                    <?php foreach( $client_billing_data as $h4 => $p ) : ?>
+                        <div class="sw-admin-client-billing-info-tab">
+                            <h4><?php echo esc_html( $h4 ); ?></h4>
+                            <p><?php echo esc_html( $p ); ?></p>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
 
