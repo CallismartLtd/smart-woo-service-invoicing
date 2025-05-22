@@ -257,7 +257,14 @@ class SmartWoo_Admin_Controller {
 			$client_billing_data = apply_filters(
 				'smartwoo_client_billing_info_display', 
 				array(
-					'Company'	=> $client->get_billing_company()
+					'Company'			=> $client->get_billing_company(),
+					'Email Adrress'		=> $billing_email,
+					'Phone Number'		=> $client->get_billing_phone(),
+					'Street Address'	=> $street_address,
+					'City'				=> $client->get_billing_city(),
+					'Postal / Zip'		=> $client->get_billing_postcode() ? $client->get_billing_postcode() : 'N/A',
+					'State / Region'	=> smartwoo_get_state_name( $client->get_billing_country(), $client->get_billing_state() ),
+					'Country'			=> smartwoo_get_country_name( $client->get_billing_country() )
 				) 
 			);
 
