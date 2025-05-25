@@ -17,34 +17,47 @@
 }
 .sw-pro-placeholder {
     position: relative;
-    width: 70%;
-    height: 400px;
-    margin: 20px auto;
-    background-size: cover;
-    border-radius: 10px;
-    background-position: center;
-    filter: brightness(60%);
-    transition: background-color 0.3s ease;
+    min-height: 100vh;
+    /* height: 1200px; */
+    max-height: 100%;
+}
 
+.sw-pro-placeholder.migration-options,
+.sw-pro-placeholder.more-email-options {
+    min-height: unset;
+    margin-bottom: 100px;
+    max-height: unset;
+}
+.sw-pro-placeholder.migration-options .sw-pro-content-overlay,
+.sw-pro-placeholder.more-email-options .sw-pro-content-overlay {
+    position: absolute;
+    top: -10px;
+    bottom: -25px;
+    padding: 1px;
+    width: 100%;
+    height: 150px;
+}
+.sw-pro-placeholder.more-email-options {
+    margin-bottom: 20px;
 
 }
-.sw-pro-placeholder:hover {
-    transform: scale(1.4);
+
+.sw-pro-placeholder img {
+    width: 100%;
+    max-height: 100%;
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 .sw-pro-content-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: sticky;
+    top: 20%;
     text-align: center;
     font-weight: bold;
-    font-family:'Courier New', Courier, monospace;
-    color: rgb(105, 255, 5);
+    color: #ffffff;
     padding: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    width: 80%; /* Adjust overlay width as needed */
-    max-width: 400px;
+    background-color: #000000fa;
+    width: 95%;
     border-radius: 10px;
 }
 
@@ -66,18 +79,18 @@
 }
 .sw-pro-sell {
     font-weight: bold;
-    padding: 20px;
-    margin: 20px auto;
-    margin-bottom: 30px !important;
-    background-color: rgb(255, 255, 255); 
+    padding: 10px;
+    margin: 10px auto;
+    background-color: #ffffff;
     width: 100%;
-    max-width: 500px;
+    max-width: 768px;
     border-radius: 9px;
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
 .sw-default-overlay {
     padding: 15px;
 }
+
 .sw-round-up {
     background-color: red;
     align-items: center;
@@ -154,7 +167,7 @@ h2.sw-not-found {
     cursor: not-allowed;
 }
 
-.sw-search-container .sw-pagination-buttons {
+.sw-pagination-buttons {
     float: right !important;
 }
 .sw-admin-dashboard {
@@ -1097,7 +1110,7 @@ h2.sw-not-found {
 }
 
 .sw-admin-subinfo h3{
-    padding: 10px;
+    padding: 7px;
 }
 .sw-admin-subinfo hr {
     border: .5px #dcdcde solid;
