@@ -230,7 +230,7 @@ function openCancelServiceDialog( serviceName, serviceId ) {
  */
 function showLoadingIndicator() {
     jQuery('#swloader').css('display', 'block');
-    jQuery('body').css('cursor', 'progress'); // Apply progress cursor to body
+    jQuery('body').css('cursor', 'progress');
 }
 
 /**
@@ -487,7 +487,7 @@ function smartwoo_ajax_logout() {
 	let spinnerDiv		= document.createElement('div')
 	spinnerDiv.id = 'spinnerDiv';
 	actionModalframe.appendChild(spinnerDiv);
-	let theSpin = smartWooAddSpinner('spinnerDiv');
+	let theSpin = smartWooAddSpinner('spinnerDiv' );
 
 	jQuery.ajax({
 		type: 'GET',
@@ -504,75 +504,92 @@ function smartwoo_ajax_logout() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    let hamburger 	= document.querySelector('.sw-menu-icon');
-    let navbar 		= document.querySelector('.service-navbar');
-	let logoutBtn	= document.querySelector( '.smart-woo-logout' );
-	let loginPWDVisible = document.getElementById('smartwoo-login-form-visible');
-	let loginPWDHidden 	= document.getElementById('smartwoo-login-form-invisible');
-	let loginPWDInput	= document.getElementById('sw-user-password');
-	let adminAssetsToggle       = document.querySelectorAll( '.sw-admin-service-assets-button, .sw-client-service-assets-button' );
-
+    let hamburger			= document.querySelector('.sw-menu-icon');
+    let navbar				= document.querySelector('.service-navbar');
+	let logoutBtn			= document.querySelector( '.smart-woo-logout' );
+	let loginPWDVisible		= document.getElementById('smartwoo-login-form-visible');
+	let loginPWDHidden		= document.getElementById('smartwoo-login-form-invisible');
+	let loginPWDInput		= document.getElementById('sw-user-password');
+	let adminAssetsToggle	= document.querySelectorAll( '.sw-admin-service-assets-button, .sw-client-service-assets-button' );
+	let renewalButton		= document.querySelector( '.smartwoo-service-renew-button' );
 
     if (hamburger) {
-		var menuIcon = hamburger.querySelector('.dashicons-menu');
-        hamburger.addEventListener('click', function() {
+		let menuIcon	= hamburger.querySelector('.dashicons-menu');
+		let innerIcon	= document.querySelector( '.dashicons.dashicons-no-alt.sw-close-icon' );
+        
+		hamburger.addEventListener('click', function() {
             navbar.classList.toggle('active');
             if (navbar.classList.contains('active')) {
+				jQuery( innerIcon ).show();
+				innerIcon.focus();
                 menuIcon.classList.remove('dashicons-menu');
                 menuIcon.classList.add('dashicons-no');
             } else {
                 menuIcon.classList.remove('dashicons-no');
                 menuIcon.classList.add('dashicons-menu');
+				jQuery( innerIcon ).hide();
             }
         });
+
+		innerIcon.addEventListener( 'click', ( e ) =>{
+			e.preventDefault();
+			hamburger.click();
+		} );
     }
 	if (logoutBtn) {
 		let clicked = false;
 		logoutBtn.addEventListener('click', function(){
-			let actionModalframe	= document.createElement('div');
-			actionModalframe.classList.add('smartwoo-logout-frame');
-			let actionModal = document.createElement('div');
-			actionModal.classList.add('smartwoo-logout-contaner');
-			actionModalframe.append(actionModal);
-
-			let pTag	= document.createElement('p');
-			pTag.textContent = "Are sure you want to logout?";
-
-			actionModal.append(pTag);
-
-			let btnDiv	= document.createElement('div');
-			btnDiv.classList.add('smartwoo-logout-btn-container');
-
-			let yesBtn = document.createElement('button');
-			yesBtn.classList.add('sw-blue-button');
-			yesBtn.innerHTML = `<span class="dashicons dashicons-yes"></span>`;
-			let noBtn  = document.createElement('button');
-			noBtn.classList.add('sw-red-button');
-			noBtn.innerHTML = `<span class="dashicons dashicons-no-alt"></span>`;
-			btnDiv.append(noBtn, yesBtn);
-			actionModal.append(btnDiv);
 			if (clicked) {
-				jQuery('.smartwoo-logout-frame').fadeOut();
-				setTimeout(()=>{
+				jQuery('.smartwoo-logout-frame').fadeOut( 'slow', () =>{
 					document.querySelector('.smartwoo-logout-frame').remove();
-
-				}, 200);
+				});
+				
 			} else {
-				navbar.insertAdjacentElement('afterend',actionModalframe);
+				let actionModalframe	= document.createElement('div');
+				actionModalframe.classList.add('smartwoo-logout-frame');
+				let actionModal = document.createElement('div');
+				actionModal.classList.add('smartwoo-logout-contaner');
+				actionModalframe.append(actionModal);
+
+				let pTag	= document.createElement('p');
+				pTag.textContent = "Are sure you want to logout?";
+
+				actionModal.append(pTag);
+
+				let btnDiv	= document.createElement('div');
+				btnDiv.classList.add('smartwoo-logout-btn-container');
+
+				let yesBtn = document.createElement('button');
+				yesBtn.classList.add('sw-blue-button');
+				yesBtn.innerHTML = `<span class="dashicons dashicons-yes"></span>`;
+				let noBtn  = document.createElement('button');
+				noBtn.classList.add('sw-red-button');
+				noBtn.innerHTML = `<span class="dashicons dashicons-no-alt"></span>`;
+				btnDiv.append(noBtn, yesBtn);
+				actionModal.append(btnDiv);
+				navbar.insertAdjacentElement('afterend', actionModalframe );
 				jQuery(actionModalframe).fadeIn().css('display', 'block')
+
+				noBtn.addEventListener('click', ()=>{
+					jQuery( actionModalframe ).fadeOut( 'slow', () =>{
+						actionModalframe.remove();
+					} );
+					
+					clicked = !clicked;
+				});
+
+				yesBtn.addEventListener('click', smartwoo_ajax_logout );
+
+				actionModalframe.addEventListener( 'click', ( e ) => {
+					if ( e.target === actionModalframe ) {
+						noBtn.click();
+					}
+				});
 			}
+
 			clicked = !clicked;
 
-			noBtn.addEventListener('click', ()=>{
-				jQuery('.smartwoo-logout-frame').fadeOut();
-				setTimeout(()=>{
-					document.querySelector('.smartwoo-logout-frame').remove();
-
-				}, 200);
-				clicked = !clicked;
-			});
-
-			yesBtn.addEventListener('click', smartwoo_ajax_logout );
+			
 			
 
 		});
@@ -611,6 +628,46 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         })
     }
+
+	if ( renewalButton ) {
+		renewalButton.addEventListener( 'click', (e) => {
+			e.preventDefault();
+			jQuery( '#swloader' ).show().css( 'background-color', 'rgba(129, 128, 128, 0)' ).text( '' );
+			let loader = smartWooAddSpinner( 'swloader', true );
+			let service_id = renewalButton.getAttribute( 'data-service-id' );
+			let url			= new URL( smart_woo_vars.ajax_url );
+			url.searchParams.set( 'action', 'smartwoo_manual_renew' );
+			url.searchParams.set( 'service_id', service_id );
+			url.searchParams.set( 'security', smart_woo_vars.security );
+			
+			fetch( url)
+			.then( ( response ) =>{
+				if ( ! response.ok ) {
+					console.error( response.statusText );
+					showNotification( 'Something went wrong...', 6000 );
+				}
+				return response.json();
+			}).then( response =>{
+				if ( response.success ) {
+					showNotification( response.data.message, 3000 );
+					setTimeout( () =>{
+						window.location.href = response.data.redirect_url;
+					}, 3000 );
+				} else {
+					showNotification( response.data.message ?? 'Operation was not successful', 3000 );
+					setTimeout( () =>{
+						window.location.reload();
+					}, 3000);
+				}
+			}).catch( (error ) => {
+				console.error(error.message);
+				
+			}).finally( () =>{
+				smartWooRemoveSpinner( loader );
+				jQuery( '#swloader' ).hide();
+			});
+		});
+	}
 });
 
 /**
