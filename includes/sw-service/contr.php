@@ -161,7 +161,7 @@ class SmartWoo_Admin_Controller {
 			$description	= $product ? wp_trim_words( $product->get_short_description(), 30, '...' ) : '<p>No description found</p>';
 			$product_url	= $product ? $product->get_permalink() : '';
 			$status 		= smartwoo_service_status( $service );
-			$status_class 	= strtolower( str_replace( ' ', '-', $status ) );
+			$status_class 	= strtolower( str_replace( array( ' ', '(', ')'), array( '-', '', '' ), $status ) );
 			$args			= array( 'service_id' => $service->get_service_id(), 'limit' => 5 );
 			$invoices		= SmartWoo_Invoice_Database::get_service_invoices( $args );
 		}
