@@ -22,6 +22,10 @@ use inline CSS to overide some styles
 .smartwoo-status.active {
     background-color: var(--smartwoo-status-active);
 }
+.smartwoo-status.active-nr {
+	background-color: var(--smartwoo-status-active);
+
+}
 
 .smartwoo-status.due-for-renewal {
     background-color: var(--smartwoo-status-due-renewal);
@@ -79,7 +83,7 @@ use inline CSS to overide some styles
 
 .sw-blue-button {
 	display: inline-block;
-	padding: 10px 20px;
+	padding: 10px 15px;
 	background-color: #0073e6; /* Button background color */
 	color: #fff; /* Text color */
 	text-decoration: none;
@@ -88,6 +92,7 @@ use inline CSS to overide some styles
 	cursor: pointer;
 	margin: 5px;
 	font-weight: bold;
+	font-size: 16px;
 	transition: background-color 0.3s, color 0.3s;
 }
 .sw-blue-button:focus {
@@ -112,31 +117,40 @@ use inline CSS to overide some styles
 }
 
 .sw-pagination-buttons {
-	display: flex;
+	display: inline-flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center !important;
+	gap: 9px;
 	background-color: #ffffff;
-	width: 15% auto;
 	border: solid 0.5px blue;
 	border-radius: 5px;
-	float: right !important;
-	margin-right: 15px;
-	margin-left: 60px;
-	margin-bottom: 10px;
+	padding: 10px;
+	max-width: 250px !important;
+	height: 50px;
+	margin: 20px 15px 30px 15px;
 }
 
-.sw-pagination-buttons p, .sw-pagination-buttons a {
-	margin: 8px;
+.sw-pagination-buttons p,
+.sw-pagination-buttons a {
 	font-weight: bold;
+	margin: 0 auto;
 }
 
 .sw-pagination-buttons a button {
 	border: none;
-	border-radius: 50%;
+	width: 30px;
+	height: 20px;
+	padding: 3px;
+	border-radius: 10px;
+	background-color: #f1f1f1;
 	cursor: pointer;
+	line-height: 1;
 }
 .sw-pagination-buttons a button span {
-	padding: 2px auto;
-	font-size: 18px;
+	font-size: 12px;
 	color: #000;
+	vertical-align: middle;
 }
 
 .smartwoo-icon-button-blue {
@@ -556,14 +570,25 @@ border-radius: 5px;
 
 /* Style for the service navigation bar */
 .service-navbar {
+	position: relative;
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: #FFFFFF;
+	box-shadow: 1px 1px 8px 0px rgb(0 0 0 / 25%);
 }
 
 .navbar-title-container h3 {
+	font-size: 24px;
     margin: 0;
+	font-weight: 700;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #333333;
+}
+
+.navbar-title-container h3 a {
+	text-decoration: none;
+	color: #333333;
 }
 
 .navbar-links-container ul {
@@ -571,18 +596,33 @@ border-radius: 5px;
     margin: 0;
     padding: 0;
     display: flex;
+	flex-direction: row;
+	gap: 10px;
 }
 
 .navbar-links-container li {
-    margin-left: 15px;
+	padding: 2px;
+	border-radius: 4px;
+	text-align: center;
+}
+.navbar-links-container li a {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.navbar-links-container li:hover {
+	background-color: #f8f8f8;
 }
 
 .navbar-links-container a {
+	font-size: 16px;
     text-decoration: none;
-    color: #333;
+    color: #333333;
 }
 
-.sw-menu-icon {
+.sw-menu-icon,
+.dashicons.dashicons-no-alt.sw-close-icon {
     display: none;
     cursor: pointer;
 }
@@ -591,27 +631,32 @@ border-radius: 5px;
 	cursor: pointer;
 }
 .smartwoo-logout-frame {
-	display: none;
-	position: fixed;
-	left: 55%;
-	width: 35%;
-	border-radius: 9px;
-	z-index: 9999;
-	background-color: #333;
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    z-index: 9999;
+    background-color: #000000c9;
 }
 .smartwoo-logout-contaner {
 	display: flex;
-	flex-direction: column;
-	width: 90%;
-	padding: 20px;
-	margin: 20px auto;
-	border-radius: 9px;
-	height: 150px;
-	background-color: #ffffff;
-	align-items: center;
+    position: absolute;
+    top: 35%;
+    left: 25%;
+    flex-direction: column;
+    width: 50%;
+    padding: 20px;
+    margin: auto;
+    border-radius: 9px;
+    height: 150px;
+    background-color: #ffffff;
+    align-items: center;
 }
 .smartwoo-logout-contaner p{
-	color: #000;
+	color: #333333;
 	font-weight: 700;
 	font-size: 16px;
 	text-align: center;
@@ -619,26 +664,39 @@ border-radius: 5px;
 	width: 100%;
 }
 @media (max-width: 768px) {
-	.smartwoo-logout-frame {
-		width: 45%;
-		left: 35%;
-	}
-	.smartwoo-logout-contaner {
-		width: 70%;
-	}
+
 	@media (max-width: 617px) {
-		.smartwoo-logout-frame {
-			width: 90%;
-			left: 5%;
+		.smartwoo-logout-contaner {
+			width: 70%;
+			left: 12.5%;
 		}
 	}
     .navbar-links-container {
-        display: none;
+        /* display: none; */
+		position: fixed;
+		top: 40px;
+		padding: 15px;
+		background-color: #ffffff;
+		z-index: 9999;
+		right: 0;
+		width: 350px;
+		font-size: 16px;
+		border: solid 1px #dcdcde;
+		height: 100%;
+		max-width: 100%;
+		transform:  translateX(100%);
+		transition: transform 0.5s ease-in-out;
     }
 
     .sw-menu-icon {
         display: block;
     }
+	.dashicons.dashicons-no-alt.sw-close-icon::before {
+		font-size: 25px;
+		margin-bottom: 20px;
+		color: #333333;
+		font-weight: 100;
+	}
 
     .navbar-links-container ul {
         flex-direction: column;
@@ -646,26 +704,31 @@ border-radius: 5px;
 
     .navbar-links-container li {
         margin: 10px 0;
+		width: 100%;
+		text-align: unset;
     }
+
+	.navbar-links-container li a::after {
+			content: "\f344";
+			font-family: dashicons;
+			font-style: normal;
+			font-weight: normal;
+			text-decoration: inherit;
+			float: right;
+		}
+
 
     .service-navbar.active .navbar-links-container {
-		position: absolute;
-        display: flex;
-		left: 75%;
-		width: 20%;
-		top: 60px;
-		background-color: #fff;
-		padding: 15px;
-		border-top-left-radius: 9px;
-		border-bottom-left-radius: 9px;
-		z-index: 9999;
+		transform:  translateX(0);
+		transition: transform 0.5s ease-in-out;
     }
 
-	@media (min-width: 280px) and (max-width: 425px) {
-		.service-navbar.active .navbar-links-container {
-			left: 65%;
-			width: 30%;
+	@media (max-width: 375px) {
+		.smartwoo-logout-contaner {
+			width: 90%;
+			left: 5%;
 		}
+		
 	}
 }
 
@@ -679,14 +742,14 @@ border-radius: 5px;
 /* Add some basic styling to the container */
 .status-counts {
 	display: flex;
-	justify-content: space-around;
 	background-color: #333;
 	padding: 10px;
+	flex-wrap: wrap;
 }
 
 /* Style each status count link */
 .status-counts p {
-	margin: 0;
+	margin: 0 auto;
 }
 
 .status-counts a {
@@ -707,9 +770,21 @@ border-radius: 5px;
 
 .smartwoo-page {
 	position: relative;
-	padding: 5px;
-	margin: 0 auto;
+	padding: 0;
+	margin: 0 0 20px 0;
 	width: 100%;
+	background-color: #f1f1f1;
+	font-family: 'Inter', sans-serif;
+	min-height: 50vh;
+	font-size: medium;
+}
+
+.smartwoo-page p {
+	font-size: 16px;
+}
+
+.smartwoo-page hr{
+	border: solid 1px #dcdcde;
 }
 
 /* Table Styles */
@@ -848,12 +923,12 @@ border-radius: 5px;
 
 /* Style for each individual service card on the main page */
 .main-page-card {
-	border: 1px solid #1764f5;
+	border: 1px solid #dcdcde;
 	border-radius: 8px;
 	padding: 20px;
 	margin: 10px auto;
 	width: 350px;
-	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+	box-shadow: 2px 4px 4px rgb(0 0 0 / 29%);
 	background-color: #fff;
 	text-align: center;
 	transition: transform 0.2s ease-in-out;
@@ -905,7 +980,7 @@ border-radius: 5px;
 			flex-direction: column;
 		}
 		.main-page-card {
-			width: 80%;
+			width: 90%;
 		}
 	}
 	.client-services {
@@ -1001,7 +1076,7 @@ border-radius: 5px;
 
 
 /* Style for the "Renew" button */
-.renew-button {
+.smartwoo-service-renew-button {
 	display: inline-block;
 	padding: 10px 20px;
 	background-color: #4caf50; /* Green color */
@@ -1013,7 +1088,7 @@ border-radius: 5px;
 	transition: background-color 0.2s ease-in-out;
 }
 
-.renew-button:hover {
+.smartwoo-service-renew-button:hover {
 	background-color: #45a049; /* Darker green color on hover */
 }
 
@@ -1126,14 +1201,14 @@ border-radius: 5px;
 
 /* Container for Settings and Tools Section */
 .settings-tools-section {
+	display: flex;
 	align-items: center;
     background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ddd;
+    padding: 5px;
+    border: 1px solid #dcdcde;
     border-radius: 8px;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-    margin: 20px auto;
-    display: flex;
+    margin: 10px auto;
     flex-direction: column;
 	width: 90%;
 }
@@ -1141,15 +1216,13 @@ border-radius: 5px;
 /* Header Style */
 .settings-tools-section h2 {
     font-size: 24px;
-    margin-bottom: 15px;
 }
 .sw-button-container {
     display: flex;
 	flex-wrap: wrap;
-	border: 1px solid #1764f5;
 	width: 100%;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-evenly;
 	
 }
 
@@ -1164,7 +1237,7 @@ border-radius: 5px;
 
 /* Style the user details container */
 .smartwoo-details-container {
-	border: 1px solid #ccc;
+	border: 1px solid #dcdcde;
 	border-radius: 8px;
 	overflow: hidden;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -1174,7 +1247,8 @@ border-radius: 5px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 100%;
+	width: 80%;
+
 }
 
 /* Style the heading within the container */
@@ -1231,7 +1305,7 @@ border-radius: 5px;
 .sw-product-container img {
 	position: absolute;
 	width: 100%;
-	top: 5px;
+	top: 0;
 	left: 0;
 	height: 200px;
 	border-top-right-radius: 9px;
@@ -1298,13 +1372,13 @@ font-weight: 100;
 
 #swloader {
 	display: none;
-	width: 150px;
+	width: 200px;
 	background-color: #eb0d0d;
 	color: rgb(255, 255, 255);
 	position: fixed;
-	top: 35%;
-	left: 50%;
-	transform: translate(-50%, 0);
+	left: 45%;
+	top: 50%;
+	font-size: 14px;
 	border-radius: 50%;
 	font-weight: bold;
 	text-align: center;
@@ -1320,11 +1394,11 @@ font-weight: 100;
 		transform: scale(1.2);
 	}
 }
-@media ( min-width: 320px ) and (max-width: 720px ) {
+/* @media ( min-width: 320px ) and (max-width: 720px ) {
 	#swloader {
 		left: 30%;
 	}
-}
+} */
 
 /************************************************************************************/
 /**************************Front End CSS ends here **********************************/
@@ -1334,14 +1408,14 @@ font-weight: 100;
 .smartwoo-login-form{
 	background-color: #ffffff;
 	border-radius: 9px;
-	margin-bottom: 20px !important;
+	margin: 20px auto;
 	width: 70%;	
 }
 
 .smartwoo-login-form-content{
 	width: 95%;
 	margin: 20px auto;
-	padding: 20px;
+	padding: 10px;
 }
 .smartwoo-login-form-notice {
 	text-align: left;
@@ -1386,7 +1460,7 @@ font-weight: 100;
 	position:absolute;
 	left: 95%;
 }
-@media only screen and (min-width: 222px) and (max-width: 480px) {
+@media (min-width: 222px) and (max-width: 480px) {
 	.smartwoo-login-form {
 		width: 100%;
 	}
