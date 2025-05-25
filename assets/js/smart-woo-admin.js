@@ -135,7 +135,9 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
     table.appendChild(tbody);
 
     // Append the table to the body content
+    table.style.display = 'none';
     bodyContent.appendChild(table);
+    jQuery(table).fadeIn( 'slow' );
 
     // Add pagination controls
     addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index);
@@ -158,6 +160,8 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
     }
 }
 
+let addedClearBtn = false;
+
 // Add pagination control to table.
 function addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index) {
     let paginationDiv = document.createElement('div');
@@ -165,7 +169,7 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
     paginationDiv.style.float = "right";
     // Item count placeholder (optional if needed for the frontend)
     let itemCountText = document.createElement('p');
-    itemCountText.textContent = `${totalItems} items`; // Example item count; you can adjust it based on real data
+    itemCountText.textContent = `${totalItems} items`;
     paginationDiv.appendChild(itemCountText);
 
     // Previous Button
@@ -209,6 +213,32 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
         paginationDiv.appendChild(nextLink);
     }
 
+    if ( ! addedClearBtn ) {
+        let removeTableBtn = document.createElement( 'span' );
+        removeTableBtn.classList.add('dashicons', 'dashicons-dismiss');
+        removeTableBtn.style.color = "#c48f00";
+        removeTableBtn.style.float = "right";
+        removeTableBtn.style.marginRight = "20px";
+        removeTableBtn.style.fontSize = "23px";
+        removeTableBtn.style.cursor = "pointer";
+        bodyContent.insertAdjacentElement( 'beforebegin', removeTableBtn );
+        addedClearBtn = true;
+
+        let removeClearBtn = () => {
+            let dashboardBtn    = document.getElementById('dashboardBtn');
+            addedClearBtn = false;
+            removeTableBtn.remove();
+            dashboardBtn.click();
+        }
+
+        document.addEventListener( 'dashboardtableRemoved', ()=>{
+            removeTableBtn.remove();
+            addedClearBtn = false;
+
+        });
+        removeTableBtn.addEventListener( 'click', removeClearBtn );
+    }
+
     // Append pagination controls to the body content
     bodyContent.appendChild(paginationDiv);
 }
@@ -229,18 +259,16 @@ function smartwooRemoveTable() {
     let swTable = document.querySelector('.sw-table');
     let pagenaBtns = document.querySelectorAll('.sw-pagination-buttons');
     if (swTable) {
-        jQuery('.sw-table').fadeOut();
-        setTimeout(()=>{
-            swTable.remove();
-        }, 1000);
-        
+       swTable.remove();
+    
         if (pagenaBtns){
     
             pagenaBtns.forEach((btns)=>{
                 btns.remove();
             });
         
-        }  
+        }
+        document.dispatchEvent( new CustomEvent( 'dashboardtableRemoved' ) );
     }
 }
 
