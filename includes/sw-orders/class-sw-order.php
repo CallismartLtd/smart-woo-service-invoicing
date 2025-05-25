@@ -573,7 +573,8 @@ class SmartWoo_Order {
     public static function get_user_orders( $args = array() ) {
         $default_args = array(
             'customer'	=> get_current_user_id(),
-            'status'	=> 'processing'
+            'status'	=> 'processing',
+            'limit'     => -1
         );
 
         $parsed_args = wp_parse_args( $args, $default_args );
