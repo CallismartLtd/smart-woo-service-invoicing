@@ -90,7 +90,7 @@ class SmartWoo_Service_Database {
 		$result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		if ( $result ) {
 			// Convert the array result to SmartWoo_Service object
-			$service	= SmartWoo_Service::convert_array_to_service( $result );
+			$service	= SmartWoo_Service::set_from_array( $result );
 			wp_cache_set( 'smartwoo_service_' . $service_id, $service, 'smartwoo_service', HOUR_IN_SECONDS );
 			
 			return $service;
@@ -103,23 +103,25 @@ class SmartWoo_Service_Database {
 	 * Retrieves a service by User ID from the database.
 	 *
 	 * @param int $user_id The ID of the user to for.
-	 *
-	 * @return SmartWoo_Service|false The SmartWoo_Service object if found, false otherwise.
+	 * @param int $page	The page being requested.
+	 * @param int $limit The number of items to retrieve.
+	 * @return SmartWoo_Service[] The SmartWoo_Service object if found, false otherwise.
 	 *
 	 * @since 1.0.0
+	 * @since 2.4.0 Added pagination params.
 	 */
-	public static function get_services_by_user( $user_id = '' ) {
-		if ( empty( $user_id ) ) {
-			return $user_id; // User ID must be provided.
-		}
+	public static function get_services_by_user( $user_id, $page = 1, $limit = 10 ) {
 
 		$user_id 	= absint( $user_id );
-		$services	= wp_cache_get( 'smartwoo_user_services_' . $user_id );
+		$cache_key	= 'smartwoo_user_services_' . $user_id . '_' . $page . '_' . $limit;
+		$services	= wp_cache_get( $cache_key );
 
 		if ( false === $services ) {
 			global $wpdb;
+
 			$services 	= array();
-			$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d", $user_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$offset		= ( $page - 1 ) * $limit;
+			$query   	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " WHERE user_id = %d LIMIT %d OFFSET %d", $user_id, $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$results 	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 	
 			if ( $results ) {
@@ -128,6 +130,30 @@ class SmartWoo_Service_Database {
 			}
 		}
 		// Return empty array.
+		return $services;
+	}
+
+	/**
+	 * Get user services that are awaiting processing
+	 * 
+	 * @param int $user_id The user ID.
+	 * @return SmartWoo_Service[]
+	 */
+	public static function get_user_awaiting_services( $user_id ) {
+		$orders = SmartWoo_Order::get_user_orders( array( 'customer' => $user_id, 'status' => 'processing' ) );
+
+		$services = array();
+		if ( ! empty( $orders ) ) {
+			foreach( $orders as $order ) {
+				$service = new SmartWoo_Service();
+				$service->set_name( $order->get_service_name() );
+				$service->set_status( 'Processing' );
+				$service->set_start_date( $order->get_date_created() );
+				$service->set_billing_cycle( $order->get_billing_cycle() );
+				$services[] = $service;
+			}
+		}
+
 		return $services;
 	}
 
@@ -343,7 +369,6 @@ class SmartWoo_Service_Database {
 		return $services;
 	}
 
-
 	/**
 	 * Get services that are within the "Expired" date range or has "Expired" status overide.
 	 * 
@@ -519,6 +544,88 @@ class SmartWoo_Service_Database {
 		return $services;
 	}
 
+	/**
+	 * Query the service subscription database table.
+	 * 
+	 * @param array $args An associative array of arguments.
+	 * @return mixed
+	 * @since 2.0.15
+	 */
+	public static function query( $args = array() ) {
+		global $wpdb;
+		$table_name = SMARTWOO_SERVICE_TABLE;
+
+		$default	= array(
+			'id'				=> 0,
+			'user_id'			=> 0,
+			'service_name'		=> '',
+			'service_url'		=> '',
+			'service_type'		=> '',
+			'service_id'		=> '',
+			'product_id'		=> 0,
+			'start_date'		=> '',
+			'next_payment_date'	=> '',
+			'end_date'			=> '',
+			'billing_cycle'		=> '',
+			'status'			=> NULL,
+			'date_created'		=> ''
+		);
+
+		$db_clause = array(
+			'limit'		=> 25,
+			'page'		=> 1,
+			'order'		=> 'DESC',
+			'order_by'	=> '',
+			'return'	=> 'object'
+		);
+
+		$default_args			= array_merge( $default, $db_clause );
+		$allowed_return_types	= array( 'object', 'service_ids', 'ids' );
+		$allowed_columns		= array_keys( $default );
+		$parsed_args			= wp_parse_args( $args, $default_args );
+
+		$base_query = "SELECT";
+
+		if ( 'service_ids' === $parsed_args['return'] ) {
+			$base_query .= " `service_id`";
+		} elseif ( 'ids' === $parsed_args['return'] ) {
+			$base_query .= " `id`";
+		} else {
+			$base_query.= " *";
+		}
+
+		$base_query .= " FROM {$table_name}";
+
+		$values = array();
+		$where	= array();
+
+		// Build query for active status.
+		if ( is_null( $parsed_args['status'] ) || '' === $parsed_args['status'] || 'active' === strtolower( $parsed_args['status'] ) ) {
+			$where[] = "( 
+				`status` = %s 
+				OR (
+						(`status` IS NULL OR `status` = %s) 
+						AND `next_payment_date` > CURDATE() 
+						AND `end_date` > CURDATE()
+					)
+			)";
+			$values[] = 'Active';
+			$values[] = '';
+
+		} elseif ( in_array( $parsed_args['status'] ) || '' === $parsed_args['status'] || 'due for renewal' === strtolower( $parsed_args['status'] ) ) {
+			$where[] = "(
+				`status` = %s
+				OR ( (`status` IS NULL OR `status` = %s)
+					AND `next_payment_date` <= CURDATE() AND `end_date` > CURDATE()
+				)
+			)";
+		}
+
+		$values[] = 'Active';
+		$values[] = '';
+
+
+	}
 
 	/**
 	 * Count all the record in the database.
@@ -768,7 +875,7 @@ class SmartWoo_Service_Database {
 		$services = array();
 
 		foreach ( $results as $result ) {
-			$services[] = SmartWoo_Service::convert_array_to_service( $result );
+			$services[] = SmartWoo_Service::set_from_array( $result );
 		}
 
 		return $services;
