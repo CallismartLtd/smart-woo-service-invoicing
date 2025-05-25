@@ -79,12 +79,12 @@ class SmartWoo_Config{
         add_action( 'admin_menu', array( __CLASS__, 'modify_sw_menu' ), 999 );
         // add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
-        add_filter( 'woocommerce_account_menu_items', 'smartwoo_register_woocommerce_account_menu', 40 );
+        add_filter( 'woocommerce_account_menu_items', array( __CLASS__, 'register_woocommerce_account_menus' ), 99 );
         add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
-        add_filter( 'woocommerce_account_smartwoo-service_endpoint', 'smartwoo_service_myaccount_content' );
+        add_filter( 'woocommerce_account_smartwoo-service_endpoint', array( 'SmartWoo_Frontend_Template', 'woocommerce_myaccount_services_page' ) );
         add_filter( 'template_include', array( __CLASS__, 'product_config_template' ) );
-        // add_filter( 'template_include', array( __CLASS__, 'check_page_content' ) );
+        add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
 
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
@@ -96,7 +96,7 @@ class SmartWoo_Config{
         
         add_action( 'woocommerce_new_order', array( $this, 'clear_order_cache' ), 20, 2 );
         add_action( 'smartwoo_new_service_purchase_complete', array( $this, 'clear_order_cache' ), 20, 2 );
-
+		add_filter( 'smartwoo_subscription_pages', array( __CLASS__, 'register_page_callbacks' ) );
     }
 
     /**
@@ -187,7 +187,6 @@ class SmartWoo_Config{
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/template.php';
             require_once SMARTWOO_PATH . 'includes/frontend/shortcode.php';
             require_once SMARTWOO_PATH . 'includes/frontend/service/template.php';
-            require_once SMARTWOO_PATH . 'includes/frontend/service/contr.php';
             // require_once SMARTWOO_PATH . 'includes/frontend/client-portal.php';
 
         }
@@ -200,6 +199,8 @@ class SmartWoo_Config{
 
     /**
      * Instance.
+     * 
+     * @return self
      */
     public static function instance() {
         if ( is_null( self::$instance ) ) {
@@ -340,21 +341,17 @@ class SmartWoo_Config{
     /**
      * Our query vars
      */
-    private function get_query_vars() {
+    public function get_query_vars() {
         return apply_filters(
             'smartwoo_query_vars',
             array(
-                /** WooCommerce my-acount endpoints */
                 'smartwoo-invoice',
                 'smartwoo-service',
-
-                /** Service Subscription page */
                 'buy-new',
                 'view-subscription',
                 'sort',
                 'upgrade',
                 'downgrade',
-                /** Invoice page endpoints */
                 'view-invoice'
             )
         );
@@ -379,7 +376,8 @@ class SmartWoo_Config{
      */
     public static function add_query_vars( $vars ) {
         $vars[] = 'configure';
-
+        // $vars[] = 'smartwoo-service';
+        // $vars[] = 'configure';
         return $vars;
     }
 
@@ -639,17 +637,45 @@ class SmartWoo_Config{
     }
 
     /**
-     * Alter the current page
+     * Handle template loading
      */
-    public static function check_page_content( $template ) {
+    public static function template_include( $template ) {
         $service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
-        if ( is_page( $service_page_id ) || is_page( $invoice_page_id ) ) {
-            return SMARTWOO_PATH . 'templates/frontend/front.php';
+        
+        if ( ! empty( $service_page_id ) && is_page( $service_page_id ) ) {
+            return SMARTWOO_PATH . 'includes/frontend/service/contr.php';
 
+        } elseif( is_page( $invoice_page_id ) ) {
+            
         }
 
         return $template;
     }
+
+    /**
+     * Register WooCommerce my account page content
+     */
+    public static function register_woocommerce_account_menus( $items ) {
+        $first_three = array_slice( $items, 0, 3, true );
+        $first_three['smartwoo-service'] = __( 'Services', 'smart-woo-service-invoicing' );
+        $first_three['smartwoo-invoice'] = __( 'Invoices', 'smart-woo-service-invoicing' );
+        $items = array_merge( $first_three, $items );
+                
+        return $items;
+    }
+    	
+    /**
+	 * Register pages and their callback handler.
+	 * 
+	 * @param array $handlers An associative array of pages and handlers.
+	 */
+	public static function register_page_callbacks( $handlers ) {
+		$handlers['view-subscription']	= array( 'SmartWoo_Frontend_Template', 'sub_info' );
+		$handlers['buy-new']			= array( 'SmartWoo_Frontend_Template', 'product_catalog' );
+		$handlers['sort']				= array( 'SmartWoo_Frontend_Template', 'sort' );
+
+		return $handlers;
+	}
 
 }
