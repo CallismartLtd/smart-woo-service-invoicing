@@ -24,26 +24,32 @@ function smartwoo_pro_feature( $feature = '' ) {
             'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoopro-adv-stats.png',
             'description' => 'Statistics and usage data are only available in Smart Woo Pro.',
             'benefits'    => 'Unlock advanced subscription usage analysis!',
+            'class'       => 'advanced-stats'
         ),
         'service logs' => array(
             'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoopro-service-log.png',
             'description' => 'Service logs are only available in Smart Woo Pro.',
             'benefits'    => 'Unlock advanced insights into service subscription activities.',
+            'class'       => 'service-logs'
         ),
         'invoice logs' => array(
-            'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoopro-invoice-log.png',
+            'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoo-pro-invoice-logs.png',
             'description' => 'Invoice logs are only available in Smart Woo Pro.',
             'benefits'    => 'Access advanced invoice tracking and management tools.',
+            'class'       => 'invoice-logs'
         ),
         'migration-options' => array(
-            'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoo-business-pro-options.png',
+            'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoo-pro-option.png',
             'description' => 'Enable additional features available exclusively in Smart Woo Pro.',
             'benefits'    => 'Manage subscription migrations and prorated billing seamlessly.',
+            'class'       => 'migration-options'
         ),
         'more-email-options' => array(
-            'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoopro-more-email-options.png',
+            'image'       => SMARTWOO_DIR_URL . '/assets/images/smartwoo-pro-email-options.png',
             'description' => 'Enable more features available exclusively in Smart Woo Pro.',
-            'benefits'    => 'Stop default WooCommerce emails and attach PDF invoices.',
+            'benefits'    => 'Edit migration and refund email templates, attach invoice PDF file to emails, prevent default WooCommerce emails and more options only available on Smart Woo Pro.',
+            'class'       => 'more-email-options'
+
         ),
     );
 
@@ -52,12 +58,14 @@ function smartwoo_pro_feature( $feature = '' ) {
         $details = $features[ $feature ];
         ob_start();
         ?>
-        <div class="sw-pro-placeholder" style="background-image: url('<?php echo esc_url( $details['image'] ); ?>');">
+        <div class="sw-pro-placeholder <?php echo sanitize_html_class( $details['class'] ); ?>">
             <div class="sw-pro-content-overlay">
                 <p><?php echo esc_html( $details['description'] ); ?></p>
                 <p><?php echo esc_html( $details['benefits'] ); ?></p>
                 <a href="<?php echo esc_url( smartwoo_utm_campaign_url() ); ?>" class="sw-pro-upgrade-button">Activate Pro Feature</a>
             </div>
+            <img src="<?php echo esc_url( $details['image'] ); ?>" alt="smartwoo-pro">
+
         </div>
         <?php
         return ob_get_clean();
@@ -69,7 +77,7 @@ function smartwoo_pro_feature( $feature = '' ) {
     <div class="sw-pro-sell">
         <div class="sw-default-overlay">
             <h2>Unlock more features exclusively in Smart Woo Pro.</h2>
-            <ul style="list-style: square;">
+            <ul>
                 <li><strong>Advanced Stats</strong>: Gain detailed insights and visual stats on service subscription usage.</li>
                 <li><strong>Service Logs</strong>: Track detailed subscription activity logs.</li>
                 <li><strong>Invoice Logs</strong>: Manage invoices with detailed logging and tracking.</li>
@@ -175,7 +183,7 @@ function smartwoo_bug_report_container( $echo = true) {
 function smartwoo_help_container( $echo = true) {
 	$content = '<div class="sw-help-tab-content">
 		<p>We are committed to delivering a high-quality user experience and ensuring that our product is safe and bug-free. However, if you encounter any issues, we are dedicated to resolving them swiftly.</p>
-		<p>For dedicated support, please visit our <a href="https://callismart.com.ng/support-portal/">support portal</a>. For general inquiries, use the WordPress <a href="https://wordpress.org/support/plugin/smart-woo-service-invoicing/">Support Forum</a>.</p>
+		<p>For dedicated support, please use our <a href="https://callismart.com.ng/support-portal/">support portal</a>. For general inquiries, use the community <a href="https://wordpress.org/support/plugin/smart-woo-service-invoicing/">Forum</a>.</p>
     </div>';
 	if ( $echo ) {
 		echo wp_kses_post( $content );
