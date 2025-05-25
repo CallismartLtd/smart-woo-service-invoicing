@@ -12,8 +12,8 @@ smartwoo_set_document_title( 'Invoice Details');
 ?>
 <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) ); ?>
 <?php if ( ! $invoice ) : ?>
-    <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid or deleted invoice' ) ); ?>
-    <?php return; ?>
+    <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted invoice <a href="' . admin_url( 'admin.php?page=sw-invoices') .'">Back</a>' ) ); ?>
+
 <?php else: ?>
     <div class="smartwoo-admin-invoice-view">
         <div class="smartwoo-admin-invoice-options">
