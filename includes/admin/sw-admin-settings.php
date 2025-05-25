@@ -566,31 +566,9 @@ function smartwoo_advanced_options() {
                 <hr>
             <?php endforeach; ?>
 
-            <?php
-            /** If forced, things may break. This checkboxe can only be handled by designated function */
-            if ( function_exists( 'smartwoo_terawallet_int' ) ) : ?>
-			<!-- TeraWallet integration option -->
-			<h3 style="text-align: center;"><?php esc_html_e( 'Tera Wallet Integration', 'smart-woo-service-invoicing' ); ?></h3>
-			<!-- Refund Via TeraWallet -->
-			<div class="sw-form-row">
-				<label for="smartwoo_refund_to_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Refund Through Wallet', 'smart-woo-service-invoicing' ); ?></label>
-				<?php smartwoo_get_switch_toggle( array( 'id' => 'smartwoo_refund_to_wallet', 'name'  => 'smartwoo_refund_to_wallet', 'checked' => boolval( get_option( 'smartwoo_refund_to_wallet', 0 ) ) ) ); ?>
-
-			</div>
-			
-			<!-- Pay Via TeraWallet -->
-			<div class="sw-form-row">
-				<label for="smartwoo_pay_pending_invoice_with_wallet" class="sw-form-checkbox"><?php esc_html_e( 'Pay Pending Invoices with Wallet', 'smart-woo-service-invoicing' ); ?></label>
-				<?php smartwoo_get_switch_toggle( array( 'id' => 'smartwoo_pay_pending_invoice_with_wallet', 'name'  => 'smartwoo_pay_pending_invoice_with_wallet', 'checked' => boolval( get_option( 'smartwoo_pay_pending_invoice_with_wallet', 0 ) ) ) ); ?>
-
-			</div>
-            
-            <?php endif ?>
-            <!-- Second submit button -->
             <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
         </form>
     </div>
     <?php
-	echo wp_kses_post( smartwoo_pro_feature() );
 	return ob_get_clean();
 }
