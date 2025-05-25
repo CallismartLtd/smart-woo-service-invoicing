@@ -1,12 +1,13 @@
 <?php
 /**
- * File name    :   contr.php
- *
- * @author      :   Callistus
- * Description  :   Controller file for Invoice frontend
+ * The client invoices page controller
+ * 
+ * @author Callistus
+ * @package SmartWoo\Classes
+ * @since 2.4.0
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
  /**
   * Callback function for invoice page shortcode
@@ -23,7 +24,6 @@ function smartwoo_invoice_shortcode() {
 	$currentuseremail 	= $current_user->user_email;
 	$url_param 			= isset( $_GET['invoice_page'] ) ? sanitize_key( $_GET['invoice_page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	// Switch based on the validated 'invoice_page' parameter.
 	switch ( $url_param ) {
 		case 'view_invoice':
 
@@ -43,6 +43,5 @@ function smartwoo_invoice_shortcode() {
 			break;
 	}
 
-	// Return the output.
 	return wp_kses_post( $output );
 }
