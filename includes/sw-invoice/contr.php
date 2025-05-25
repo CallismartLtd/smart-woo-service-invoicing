@@ -178,10 +178,13 @@ class SmartWoo_Invoice_Controller {
 			'log'             	=> __( 'Logs', 'smart-woo-service-invoicing' ),
 		);
 
-		$service = SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
+		if ( $invoice ) {
+			$service = SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
+		}
 
 		switch ( $args ){
 			case 'related-service':
+				$status_class 	= ! empty( $service ) ? strtolower( str_replace( array( ' ', '(', ')'), array( '-', '', '' ), smartwoo_service_status( $service ) ) ) : '';
 				$page_file = SMARTWOO_PATH .'templates/invoice-admin-temp/view-related-services.php';
 				break;
 			case 'log':
