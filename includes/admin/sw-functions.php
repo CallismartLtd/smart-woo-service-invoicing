@@ -566,7 +566,7 @@ function smartwoo_count_unprocessed_orders() {
  */
 function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 
-    if ( ! is_user_logged_in() || is_account_page() ) {
+    if ( is_account_page() ) {
         return '';
     }
 
@@ -576,10 +576,14 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
 		array(
 			'Services'	=> smartwoo_service_page_url(),
 			'Invoices'	=> smartwoo_invoice_page_url(),
-			'Buy New'	=> smartwoo_service_page_url() . 'buy-new/',
+			'Buy New'	=> smartwoo_get_endpoint_url( 'buy-new', '', smartwoo_service_page_url() ),
 			'Logout'	=> ''
 		)
     );
+
+	if ( ! is_user_logged_in() ) {
+		unset( $nav_item['Services'], $nav_item['Invoices'], $nav_item['Logout'] );
+	}
 
     $current_page = '';
     $page_title   = $title;
@@ -589,10 +593,13 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     $nav_bar .= '<h3><a href="' . esc_url( $title_url ) . '">' . esc_html( $page_title ) . '</a></h3>';
     $nav_bar .= '</div>';
 
-    // Container for the links (aligned to the right).
     $nav_bar .= '<div class="navbar-links-container">';
+    $nav_bar .= '<div style="text-align: right;">';
+    $nav_bar .= '<span class="dashicons dashicons-no-alt sw-close-icon"></span>';
+    $nav_bar .= '</div>';
     $nav_bar .= '<ul>';
-    foreach ( $nav_item as  $text => $url ) {
+
+	foreach ( $nav_item as  $text => $url ) {
 		if ( 'Logout' === $text ) {
 			$nav_bar .= '<li><a class="smart-woo-logout">' . esc_html( $text ) . '</a></li>';
 
@@ -604,7 +611,6 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     $nav_bar .= '</ul>';
     $nav_bar .= '</div>';
 	
-	// Hamburger icon for toggle.
 	$nav_bar .= '<div class="sw-menu-icon">';
 	$nav_bar .= '<span class="dashicons dashicons-menu"></span>';
 	$nav_bar .= '</div>';
@@ -1377,4 +1383,69 @@ function smartwoo_get_switch_toggle( array $args ) {
             <span class="smartwoo-switch-toggle-slider"></span>
         </label>
     <?php
+}
+
+/**
+ * Get the edit billing details form.
+ * 
+ * @since 1.0.15
+ */
+function smartwoo_get_edit_billing_form() {
+	$user_id = get_current_user_id();
+	$customer = new WC_Customer( $user_id );
+
+	// Get the customer's billing address fields using WooCommerce's helper functions.
+	$address_fields = WC()->countries->get_address_fields( $customer->get_billing_country(), 'billing_' );
+
+	// Pre-fill the fields with current customer data
+	foreach ( $address_fields as $key => $field ) {
+		$address_fields[ $key ]['value'] = $customer->{"get_{$key}"}();
+	}
+
+	// Render the billing address form
+	wc_get_template( 'myaccount/form-edit-address.php', array(
+		'load_address'   => 'billing', 
+		'address'        => $address_fields, // Pass the address fields
+		'user_id'        => $user_id, // Pass the user ID
+	) );
+}
+
+/**
+ * Get the edit account details form
+ * 
+ * @since 2.0.15
+ */
+function smartwoo_get_edit_account_form() {
+	$user = wp_get_current_user();
+    wc_get_template( 'myaccount/form-edit-account.php', array('user' => $user ) );
+}
+
+/**
+ * Get the correct URL format for an endpoint according to the site permalink structure
+ * 
+ * @param string $endpoint The page endpoint.
+ * @param string $query_value The value of the query variable.
+ * @return string
+ */
+function smartwoo_get_endpoint_url( $endpoint, $query_value = '', $permalink = '' ) {
+	if ( empty( $permalink ) ) {
+		$permalink = get_permalink();
+	}
+
+	if ( get_option( 'permalink_structure' ) ) {
+		if ( strstr( $permalink, '?' ) ) {
+			$query_string = '?' . wp_parse_url( $permalink, PHP_URL_QUERY );
+			$permalink    = current( explode( '?', $permalink ) );
+		} else {
+			$query_string = '';
+		}
+		
+		$url = trailingslashit( $permalink ); 
+		$url .= trailingslashit( $endpoint ) . user_trailingslashit( $query_value );
+		$url .= $query_string;
+	} else {
+		$url = add_query_arg( $endpoint, $query_value, $permalink );
+	}
+
+	return $url;
 }
