@@ -28,8 +28,8 @@ function smartwoo_invoice_front_temp() {
 	/**
 	 * Start frontpage markup.
 	 */
-	$output  = smartwoo_get_navbar( 'My Invoices', smartwoo_invoice_page_url() );
-	$output .= '<div class="site-content">';
+	$output  = '<div class="smartwoo-page">';
+	$output .= smartwoo_get_navbar( 'My Invoices', smartwoo_invoice_page_url() );
     $output .= smartwoo_all_user_invoices_count();
 	// Display the invoices in a table.
 	$output .= '<div class="sw-table-wrapper">';
