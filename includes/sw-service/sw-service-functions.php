@@ -73,6 +73,19 @@ function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
 
 }
 
+/** 
+ * Get the formatted url for service subscription page 
+ */
+function smartwoo_service_page_url() {
+	if ( is_account_page() ) {
+		$endpoint_url = wc_get_endpoint_url( 'smartwoo-service' );
+		return esc_url_raw( $endpoint_url );
+	}
+
+	$page	= get_option( 'smartwoo_service_page_id', 0 );
+	return get_permalink( $page );
+}
+
 /**
  *  Service subscription details preview URL
  * 
@@ -82,15 +95,7 @@ function smartwoo_client_service_url_button( SmartWoo_Service $service ) {
  */
 function smartwoo_service_preview_url( $service_id ) {
     if ( is_account_page() ) {
-        $endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
-        $preview_url = add_query_arg(
-            array(
-                'view_service' => true,
-                'service_id'   => $service_id,
-            ),
-            $endpoint_url
-        );
-        return $preview_url;
+        $preview_url = wc_get_endpoint_url( 'smartwoo-service', $service_id );        
     } elseif( is_admin() ) {
 		$preview_url = add_query_arg( 
 			array(
@@ -99,13 +104,11 @@ function smartwoo_service_preview_url( $service_id ) {
 			),
 			admin_url( 'admin.php?page=sw-admin')
 		);
-		return $preview_url;
 	} else {
-        $page_id		= absint( get_option( 'smartwoo_service_page_id', 0 ) );
-        $page_url		= get_permalink( $page_id );
-        $preview_url	= add_query_arg( array( 'service_id'   => $service_id, ), $page_url . 'view-subscription/' );
-        return  $preview_url;
+		$preview_url = smartwoo_get_endpoint_url( 'view-subscription', $service_id, smartwoo_service_page_url() );
     }
+
+	return $preview_url;
 }
 
 /**
@@ -123,21 +126,6 @@ function smartwoo_service_edit_url( $service_id ) {
 		admin_url( 'admin.php?page=sw-admin')
 	);
 	return $edit_url;
-}
-
-/** 
- * Get the formatted url for service subscription page 
- */
-function smartwoo_service_page_url() {
-	
-	if ( is_account_page() ) {
-		$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-service' );
-		return esc_url_raw( $endpoint_url );
-	}
-
-	$page		= get_option( 'smartwoo_service_page_id', 0 );
-	$page_url	= get_permalink( $page );
-	return esc_url_raw( $page_url );
 }
 
 /**
