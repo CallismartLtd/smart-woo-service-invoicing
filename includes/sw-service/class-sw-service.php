@@ -604,7 +604,7 @@ class SmartWoo_Service {
 	}
 
 	// Helper method to convert database results to SmartWoo_Service objects
-	public static function convert_array_to_service( $data ) {
+	public static function set_from_array( $data ) {
 		$self = new self();
 		$self->set_id( isset( $data['id'] ) ? $data['id'] : 0 );
 		$self->set_user_id( isset( $data['user_id'] ) ? $data['user_id'] : 0 );
@@ -629,6 +629,26 @@ class SmartWoo_Service {
 	 */
 	public function is_smartwoo_product( $product ) {
 		return ( $product instanceof SmartWoo_Product ) ? true : false;
+	}
+
+	/**
+	 * Get renewal status
+	 * 
+	 * @return string
+	 * @since 2.3.2
+	 */
+	public function get_renewal_status() {
+		$status = smartwoo_service_status( $this );
+
+		$label = 'ON';
+
+		if ( 'Active (NR)' === $status ) {
+			$label = 'OFF';
+		} elseif ( 'Suspended' === $status ) {
+			$label = 'PAUSED';
+		}
+
+		return $label;
 	}
 
 	/**
