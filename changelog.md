@@ -4,6 +4,13 @@
 ### Fixed
 - Product page subscription banner price when product is on sale.
 
+### Introduced
+- A simplified subscription analysis and stats for non-techies.
+- New Admin UI for service subscription usage statistics template in Smart Woo Pro.
+- New Admin UI for service subscription and invoice log template in Smart Woo Pro.
+- Service migration email template in Smart Woo Pro.
+- Subscription refund email template in Smart Woo Pro.
+
 # [2.3.1] 2025-03-27
 ### Minor bug fix.
 
