@@ -23,12 +23,8 @@ function smartwoo_shortcodes_init() {
 	 * Short code for Service Subscription page, should be on
 	 * the page where you choose as Service page
 	 */
-	add_shortcode( 'smartwoo_service_page', 'smartwoo_service_shortcode' );
+	add_shortcode( 'smartwoo_service_page', array( 'SmartWoo_Frontend_Template', 'shortcode_handler' ) );
 
-	/**
-	 * Display an integer value of active Services
-	 */
-	add_shortcode( 'smartwoo_active_service_count', 'smartwoo_active_service_count_shortcode' );
 	/**
 	 * Display an integer value of unpaid invoices
 	 */
