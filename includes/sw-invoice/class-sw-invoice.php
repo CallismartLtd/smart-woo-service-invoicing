@@ -592,13 +592,21 @@ class SmartWoo_Invoice {
 
 	/**
 	 * Get invoice default total.
+	 * 
+	 * @param bool $is_internal Whether the actual invoice total in the object property is requested.
 	 * @see filter "smartwoo_display_invoice_total" which is used to modify invoice total
 	 * 		at runtime.
 	 * 
 	 * @return float
 	 */
-	public function get_total() {
-		return $this->total;
+	public function get_total( $is_internal = false ) {
+
+		if ( $is_internal ) {
+			return $this->total;
+		}
+
+		return $this->get_totals();
+		
 	}
 	public function getTotal() {
 		return $this->get_total();
@@ -624,10 +632,10 @@ class SmartWoo_Invoice {
 		$fee = $this->get_fee();
 		$product_amount = $this->get_product() ? $this->get_amount() : 0;
 
-		// Since the product and fee has 1 quantity each, I calculated the total by adding the product amount and fee.
+		// Since the product and fee has 1 quantity each, I calculated the total by adding the product amount to the fee.
 		$this_total = $product_amount + $fee;
 
-		// In this method, notice that the actual total stored in the database is ignored, this is intended to allow
+		// In this method, notice that the actual total property stored in the database is ignored, this is intended to allow
 		// the total to be recalculated at runtime.
 
 		$total = $pre_total + $this_total;
