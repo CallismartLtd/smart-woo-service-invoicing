@@ -475,21 +475,7 @@ h2.sw-not-found {
         width: 80%;
     }
 }
-.sw-table-limit-container {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    align-items: center;
-}
-.sw-table-limit-container input {
-    height: 30px;
-    border: .5px solid #0202ff67;
-    border-radius: 3px;
-    background-color: #ffffff;
-}
-.sw-table-limit-container input[type="button"] {
-    background-color: #f1f1f1;
-}
+
 .sw-guest-invoice-container {
     position: absolute;
     left: 25%;
