@@ -9,23 +9,25 @@
 
 .sw-invoice-header {
     position: relative !important;
-    /* display: flex; */
-    /* justify-content: space-between; */
     overflow: hidden;
     max-width: 100%;
 }
 
 .sw-invoice-logo {
-    align-items: center;
-    margin: 20px;
-    max-width: 50%;
+    margin: 15px;
+    width: 152px;
+    height: 152px;
+    max-width: 152px;
+    max-height: 152px;
 }
 .sw-invoice-logo img{
+    width: 150px;
+    height: 150px;
     max-width: 200px;
     max-height: 200px;
 }
 
-.sw-invoice-status {
+/* .sw-invoice-status {
     float: right;
     max-width: 80%;
     width: 380px;
@@ -37,12 +39,27 @@
     transform: rotate(40deg);
     transform-origin: bottom right;
     
+} */
+
+.sw-invoice-status {
+    position: absolute;
+    bottom: 0;
+    right: -23px;
+    padding: 8px;
+    background-color: #f1f1f1;
+    width: 306px;
+    height: 80px;
+    transform: rotate(35deg);
+    transform-origin: right;
+    padding: 10px;
+   
 }
 
 .sw-invoice-status p {
     text-align: center;
     color: #000000;
     font-weight: bold;
+    margin: 10px;
 }
 
 .sw-invoice-number {
@@ -54,6 +71,7 @@
     margin: 10px auto;
     padding: 5px;
     background-color: #f1f1f1;
+    border-radius: 4px;
 }
 
 .sw-invoice-number span {
@@ -62,27 +80,34 @@
     margin-left: 40px;
 }
 
-.sw-invoice-number .sw-invoice-dates {
+.sw-invoice-dates {
     display: flex;
     flex-direction: column;
-    font-size: 12px;
     color: #000;
+}
+.sw-invoice-dates p{
+    font-size: 14px;
 }
 
 .sw-invoice-reference {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 10px;
+    padding: 0px 7px;
     font-size: 14px;
 
 }
-.sw-invoice-reference .sw-invoice-reference-invoiced-to {
-    width: 45%;
-}
-
+.sw-invoice-reference .sw-invoice-reference-invoiced-to,
 .sw-invoice-reference .sw-invoice-reference-pay-to {
     width: 45%;
+}
+.sw-invoice-reference .sw-invoice-reference-invoiced-to p,
+.sw-invoice-reference .sw-invoice-reference-pay-to p {
+    font-size: 14px;
+}
+.sw-invoice-reference .sw-invoice-reference-invoiced-to h3,
+.sw-invoice-reference .sw-invoice-reference-pay-to h3 {
+    font-size: 18px;
 }
 
 .sw-invoice-items-container {
@@ -134,19 +159,21 @@
 .sw-invoice-footer {
     width: 90%;
     background-color: #ffffff;
-    padding: 10px;
-    margin: 20px 20px 30px 20px;
+    margin: 20px auto 20px auto !important;
     border-radius: 9px;
-
 }
 
 .sw-invoice-footer .sw-block-button-container {
     display: flex;
     flex-direction: row;
     gap: 5px;
+    margin: 10px;
+    padding: 10px;
 }
 
 .sw-invoice-footer .sw-thank-you {
+    padding: 10px;
+    margin: 10px;
     text-align: center;
     font-weight: bold;
 }
@@ -154,27 +181,28 @@
 .sw-invoice-metadata {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: nowrap;
-    margin: 20px auto;
-    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 25px;
+    padding: 10px;
     overflow: hidden;
     height: 300px;
     scrollbar-width: thin;
-    scrollbar-color: #aaabec #fff;}
+    scrollbar-color: #aaabec #fff;
+}
 
 .sw-invoice-metadata:hover {
     overflow: auto;
 }
 
 .sw-invoice-meta-cards {
-    margin: 20px auto;
-    border: solid blue .5px;
+    flex: 1;
+    border: solid #dcdcde .5px;
     border-radius: 3px;
     padding: 6px;
     min-width: 250px;
     height: 100px;
+	box-shadow: 2px 2px 8px 4px rgba(0, 0, 0, 0.1);
 }
 .sw-invoice-meta-cards p {
     text-align: center;
@@ -185,14 +213,16 @@
     font-size: 16px;
     font-weight: bold;
 }
+
 .sw-invoice-meta-cards .sw-invoice-card-footer-value {
     text-decoration: none;
 }
 .sw-invoice-meta-cards .sw-invoice-card-footer-value a {
     color: #0073e6;
     text-decoration: none;
+ 
 }
-@media (min-width: 280px) and (max-width:768px) {
+@media (min-width: 19px) and (max-width:768px) {
     .sw-invoice-template {
         margin: 10px auto;
         width: 90%;
@@ -209,20 +239,28 @@
             max-height: 150px;
         }
         .sw-invoice-status {
-            transform: rotate(45deg);
-            width: 270px;
+            transform: rotate(46deg);
+            width: 240px;
+            height: 60px;
+            padding: 2px;
         }
     }
 
     @media(max-width:425px) {
+        .sw-invoice-header {
+            height: 115px;
+        }
         .sw-invoice-logo img {
             max-width: 100px;
             max-height: 100px;
         }
 
         .sw-invoice-status {
-            transform: rotate(45deg);
-            width: 200px;
+            transform: rotate(43deg);
+            width: 177px;
+            height: 50px;
+            padding: 0;
+            bottom: -13px;
         }
         .sw-invoice-item-table thead,
         .sw-invoice-item-table tbody tr th {
@@ -250,16 +288,36 @@
             font-weight: 600;
             color: #555;
         }
+         
+        .sw-invoice-reference .sw-invoice-reference-invoiced-to p,
+        .sw-invoice-reference .sw-invoice-reference-pay-to p {
+            font-size: 12px;
+        }
+        .sw-invoice-reference .sw-invoice-reference-invoiced-to h3,
+        .sw-invoice-reference .sw-invoice-reference-pay-to h3 {
+            font-size: 16px;
+        }
     }
 
     @media (min-width: 190px) and (max-width: 375px) {
         .sw-invoice-template {
             width: 99%;
         }
-        .sw-invoice-status {
-            transform: rotate(45deg);
-            width: 170px;
+        .sw-invoice-number {
+            flex-direction: column;
+            padding: 2px;
+            justify-content: unset;
         }
+        .sw-invoice-number span {
+            text-align: unset;
+            margin-left: unset;
+        }
+        
+        /* .sw-invoice-status {
+            transform: rotate(38deg);
+            width: 190px;
+            padding: 0;
+        } */
         .sw-invoice-logo img{
             max-width: 80px;
             max-height: 80px;
