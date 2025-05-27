@@ -76,7 +76,6 @@ class SmartWoo_Invoice_Database {
 
 		if ( smartwoo_is_frontend() ) {
 			$page	= ( isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ) ? absint( $wp_query->query_vars['paged'] ) : 1;
-			$limit 	= 10; 
 		}
 
 		
@@ -492,7 +491,7 @@ class SmartWoo_Invoice_Database {
 			'date_created'    => current_time( 'mysql' ),
 			'date_paid'       => is_null( $invoice->get_date_paid() ) ? null : $invoice->get_date_paid(),
 			'date_due'        => is_null( $invoice->get_date_due() ) ? null : sanitize_text_field( $invoice->get_date_due() ),
-			'total'           => $invoice->get_total(),
+			'total'           => $invoice->get_total( true ),
 		);
 
 		// Data format (for %s, %d, etc.)
@@ -558,7 +557,7 @@ class SmartWoo_Invoice_Database {
 			'date_created'    => $invoice->get_date_created(),
 			'date_paid'       => $invoice->get_date_paid(),
 			'date_due'        => $invoice->get_date_due(),
-			'total'           => $invoice->get_total(),
+			'total'           => $invoice->get_total( true ),
 		);
 
 		// Data format (for %s, %d, etc.)
