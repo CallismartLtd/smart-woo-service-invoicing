@@ -77,7 +77,6 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$payment_method 			= ! empty( $invoice->get_payment_method() ) ? $invoice->get_payment_method() : 'N/A';
 	$invoice_status          	= $invoice->get_status();
 	$transaction_id          	= ! empty( $invoice->get_transaction_id() ) ? $invoice->get_transaction_id() : 'N/A';
-	$invoice_total           	= $invoice->get_total();
 	$invoice_items				= $invoice->get_items();
 
 	// Include mPDF library.
