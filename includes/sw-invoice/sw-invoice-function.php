@@ -195,7 +195,7 @@ function smartwoo_generate_pending_order( $invoice, $total = null ) {
 	}
 
 	// Set the order total based on the provided parameter or use the invoice total.
-	$order_total = ( ! is_null( $total ) ) ? $total : $invoice->get_total();
+	$order_total = ( ! is_null( $total ) ) ? $total : $invoice->get_totals();
 	$order->set_total( $order_total );
 	$order->update_status( 'pending' );
 
