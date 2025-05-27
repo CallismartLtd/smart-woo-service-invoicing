@@ -32,7 +32,7 @@ class SmartWoo_Front_Service_Subscription_Page {
 	 * 
 	 * @var self $instance
 	 */
-	public static $instance = null;
+	private static $instance = null;
 
 	/**
 	 * Class constructor
@@ -70,7 +70,7 @@ class SmartWoo_Front_Service_Subscription_Page {
 	private function dispatch() {
 		$this->get_header();
 		
-		$handler	= array( 'SmartWoo_Frontend_Template', 'main_page' );
+		$handler	= array( 'SmartWoo_Service_Frontend_Template', 'main_page' );
 		if ( ! empty( $this->page ) && isset( $this->pages[$this->page] ) ) {
 			$handler = $this->pages[$this->page];
 		}
