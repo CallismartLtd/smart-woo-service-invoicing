@@ -204,12 +204,14 @@ class SmartWoo_Invoice_Database {
 	 * Method to get invoices by Payment Status.
 	 * 
 	 * @param string $payment_status The invoice payment status.
+	 * 
+	 * @return SmartWoo_Invoice[]
 	 */
 	public static function get_invoices_by_payment_status( $payment_status = '' ) {
 		global $wpdb, $wp_query;
 
 		if ( empty( $payment_status ) ) {
-			return false;
+			return array();
 		}
 
 		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
@@ -218,11 +220,12 @@ class SmartWoo_Invoice_Database {
 		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
+		
 		$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s ORDER BY `date_created` DESC LIMIT %d OFFSET %d", $payment_status , $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( smartwoo_is_frontend() ) {
 			if ( ! is_user_logged_in() ) {
-				return false;
+				return array();
 			}
 
 			$page	= ( isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ) ? absint( $wp_query->query_vars['paged'] ) : 1;
@@ -238,7 +241,7 @@ class SmartWoo_Invoice_Database {
 		if ( $results ) {
 			return self::convert_results_to_invoices( $results );	
 		}
-		return false;
+		return array();
 
 	}
 
