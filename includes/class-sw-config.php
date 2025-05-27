@@ -81,9 +81,9 @@ class SmartWoo_Config{
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', array( __CLASS__, 'register_woocommerce_account_menus' ), 99 );
         add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
-        add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', 'smartwoo_invoice_myaccount_content' );
-        add_filter( 'woocommerce_account_smartwoo-service_endpoint', array( 'SmartWoo_Frontend_Template', 'woocommerce_myaccount_services_page' ) );
-        add_filter( 'template_include', array( __CLASS__, 'product_config_template' ) );
+        add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', array( 'SmartWoo_Invoice_Frontend_Template', 'woocommerce_myaccount_invoices_page' ) );
+        add_filter( 'woocommerce_account_smartwoo-service_endpoint', array( 'SmartWoo_Service_Frontend_Template', 'woocommerce_myaccount_services_page' ) );
+
         add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
 
         /** Register our crons */
@@ -96,7 +96,8 @@ class SmartWoo_Config{
         
         add_action( 'woocommerce_new_order', array( $this, 'clear_order_cache' ), 20, 2 );
         add_action( 'smartwoo_new_service_purchase_complete', array( $this, 'clear_order_cache' ), 20, 2 );
-		add_filter( 'smartwoo_subscription_pages', array( __CLASS__, 'register_page_callbacks' ) );
+		add_filter( 'smartwoo_subscription_pages', array( __CLASS__, 'register_service_page_callbacks' ) );
+		add_filter( 'smartwoo_invoice_pages', array( __CLASS__, 'register_invoice_page_callbacks' ) );
     }
 
     /**
@@ -152,7 +153,6 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/sw-orders/class-sw-order.php';
         require_once SMARTWOO_PATH . 'includes/sw-product/sw-product-functions.php';
         require_once SMARTWOO_PATH . 'includes/sw-utm.php';
-        require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/my-account.php';
         require_once SMARTWOO_PATH . 'includes/sw-service/class-sw-service-assets.php';
         require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/contr.php';
         require_once SMARTWOO_PATH . 'includes/emails/class-smart-woo-mails.php';
@@ -183,12 +183,9 @@ class SmartWoo_Config{
         if ( smartwoo_is_frontend() ) {
 
             require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/woo-forms.php';
-            require_once SMARTWOO_PATH . 'includes/frontend/invoice/contr.php';
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/template.php';
             require_once SMARTWOO_PATH . 'includes/frontend/shortcode.php';
             require_once SMARTWOO_PATH . 'includes/frontend/service/template.php';
-            // require_once SMARTWOO_PATH . 'includes/frontend/client-portal.php';
-
         }
         add_action( 'admin_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
         add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ), 20 );
@@ -349,7 +346,7 @@ class SmartWoo_Config{
                 'smartwoo-service',
                 'buy-new',
                 'view-subscription',
-                'sort',
+                'status',
                 'upgrade',
                 'downgrade',
                 'view-invoice'
@@ -377,7 +374,7 @@ class SmartWoo_Config{
     public static function add_query_vars( $vars ) {
         $vars[] = 'configure';
         // $vars[] = 'smartwoo-service';
-        // $vars[] = 'configure';
+        $vars[] = 'configure';
         return $vars;
     }
 
@@ -392,7 +389,7 @@ class SmartWoo_Config{
             'upgrade',
             'downgrade',
             'view-subscription',
-            'sort'
+            'status'
         );
     
         if ( is_page( $service_page_id ) ) {
@@ -533,34 +530,6 @@ class SmartWoo_Config{
     }
 
     /**
-     * Set up product configuration page template.
-     *
-     * This function is a callback for the `template_include` filter and returns
-     * the template file path for the configure page or the original template.
-     *
-     * @param string $template The original template file path.
-     * @return string The template file path for the configure page or the original template.
-     */
-
-    public static function product_config_template( $template ) {
-        // Check if the current page is the configure page.
-        if ( get_query_var( 'configure' ) ) {
-            // Define the path to the configure template file.
-            $filtered_template = apply_filters( 'smartwoo_product_config_template', '' );
-            smartwoo_set_document_title( __( 'Product Configuration', 'smart-woo-service-invoicing' ) );
-
-            if ( file_exists( $filtered_template ) ) {
-                $template = $filtered_template;
-
-            } else {
-                $template = SMARTWOO_PATH . 'templates/configure.php';
-            }
-        }
-
-        return $template;
-    }
-
-    /**
      * Revoke cookie tracking for form submission when user withdraws their conscent.
      * 
      */
@@ -644,10 +613,13 @@ class SmartWoo_Config{
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
         
         if ( ! empty( $service_page_id ) && is_page( $service_page_id ) ) {
-            return SMARTWOO_PATH . 'includes/frontend/service/contr.php';
+            $template = SMARTWOO_PATH . 'includes/frontend/class-smartwoo-client-portal.php';
 
-        } elseif( is_page( $invoice_page_id ) ) {
-            
+        } elseif( ! empty( $invoice_page_id ) && is_page( $invoice_page_id ) ) {
+            $template = SMARTWOO_PATH . 'includes/frontend/class-smartwoo-client-portal.php';
+        } elseif ( get_query_var( 'configure' ) ) {
+            smartwoo_set_document_title( __( 'Product Configuration', 'smart-woo-service-invoicing' ) );
+            $template = apply_filters( 'smartwoo_product_config_template', SMARTWOO_PATH . 'templates/configure.php' );
         }
 
         return $template;
@@ -670,12 +642,21 @@ class SmartWoo_Config{
 	 * 
 	 * @param array $handlers An associative array of pages and handlers.
 	 */
-	public static function register_page_callbacks( $handlers ) {
-		$handlers['view-subscription']	= array( 'SmartWoo_Frontend_Template', 'sub_info' );
-		$handlers['buy-new']			= array( 'SmartWoo_Frontend_Template', 'product_catalog' );
-		$handlers['sort']				= array( 'SmartWoo_Frontend_Template', 'sort' );
+	public static function register_service_page_callbacks( $handlers ) {
+		$handlers['view-subscription']	= array( 'SmartWoo_Service_Frontend_Template', 'sub_info' );
+		$handlers['buy-new']			= array( 'SmartWoo_Service_Frontend_Template', 'product_catalog' );
 
 		return $handlers;
 	}
 
+    /**
+	 * Register pages and their callback handler.
+	 * 
+	 * @param array $handlers An associative array of pages and handlers.
+	 */
+	public static function register_invoice_page_callbacks( $handlers ) {
+		$handlers['view-invoice']       = array( 'SmartWoo_Invoice_Frontend_Template', 'invoice_info' );
+
+		return $handlers;
+	}
 }
