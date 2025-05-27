@@ -139,7 +139,7 @@ class SmartWoo_Service_Frontend_Template {
 			?><div class="smartwoo-page">
 				<h2><?php  __( 'Services', 'smart-woo-service-invoicing' ); ?></h2>
 				<?php echo wp_kses_post( smartwoo_active_service_count_shortcode() );?>
-				<?php echo wp_kses_post( smartwoo_service_mini_card() );?>
+				<?php echo wp_kses_post( self::mini_card( array( 'title' => 'My Invoices', 'limit' => 8 ) ) );?>
 				<div class="settings-tools-section">
 					<h2>Settings and Tools</h2>
 					<div id="swloader">Just a moment</div>
@@ -186,6 +186,37 @@ class SmartWoo_Service_Frontend_Template {
 			call_user_func( $handler );
 			return ob_get_clean();
 		}
+	}
+
+	/**
+	 * Handles the [smartwoo_service_mini_card] shortcode
+	 */
+	public static function mini_card( $atts ) {
+
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+		$atts = shortcode_atts( 
+			array(
+				'title'		=> 'My Services',                     
+				'limit' 	=> 5,
+			),
+			$atts, 
+			'smartwoo_service_mini_card'
+		);
+
+		$output				= '<div class="smartwoo-mini-card">';
+		$output          	.= '<h2>' . esc_html( $atts['title'] )  . '</h2>';
+		$output				.= '<hr>';
+		
+		$output	.= '<ul class="mini-card-content" limit="' . esc_attr( $atts['limit'] ) . '">';
+		$output	.= '<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text "></span></li>';
+		$output	.= '</ul>';
+	
+		$output .= '</div>';
+		return $output;
+
+
 	}
 
 	private static function login_page() {
