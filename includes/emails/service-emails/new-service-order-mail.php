@@ -214,7 +214,7 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
             $service = new SmartWoo_Service();
             $service->set_status( 'Pending' );
             $service->set_user_id( $order->get_user() ? $order->get_user()->ID: 0 );
-            $service->set_product_id( $product_id );
+            $service->set_product_id( $order->get_product()->get_id() );
 
             $self = new self( $service, $order );
             $self->send();
