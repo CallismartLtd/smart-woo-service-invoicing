@@ -10,10 +10,10 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, $page_title, 'sw-invoices', $tab, 'tab' ) ); ?>
-    <div class="invoice-status-counts">
+    <div class="sw-invoice-status-counts">
         <?php foreach ( $status_counts as $name => $count ) : ?>
             <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
-                <h2><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name ) ); ?> <small><?php echo absint( $count ); ?></small></a></h2>
+                <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name ) ); ?></a> <small><?php echo absint( $count ); ?></small></p>
             </div>
         <?php endforeach; ?>
     </div>
