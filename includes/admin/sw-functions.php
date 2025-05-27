@@ -1449,7 +1449,7 @@ function smartwoo_get_endpoint_url( $endpoint, $query_value = '', $permalink = '
 		}
 		
 		$url = trailingslashit( $permalink ); 
-		$url .= trailingslashit( $endpoint ) . user_trailingslashit( $query_value );
+		$url .= trailingslashit( $endpoint ) . ( ! empty( $query_value ) ? user_trailingslashit( $query_value ) : '' );
 		$url .= $query_string;
 	} else {
 		$endpoint	= ( 'page' === $endpoint ) ? 'paged' : $endpoint;
