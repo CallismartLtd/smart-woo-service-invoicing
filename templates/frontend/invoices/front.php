@@ -7,6 +7,7 @@ defined( 'ABSPATH' ) || exit; ?>
 <div class="smartwoo-page">
 	<?php echo wp_kses_post( smartwoo_get_navbar( 'My Invoices', smartwoo_invoice_page_url() ) ); ?>
     <?php echo wp_kses_post( smartwoo_all_user_invoices_count() ); ?>
+    <span style="float:right;"><?php smartwoo_table_limit_field( $limit ); ?></span>
 	<div class="sw-table-wrapper">
         <table class="sw-table">
             <thead>
