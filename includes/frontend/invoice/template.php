@@ -82,7 +82,6 @@ class SmartWoo_Invoice_Frontend_Template {
 			$invoice_date			= smartwoo_check_and_format( $invoice->get_date_created(), true );
 			$transaction_date 		= smartwoo_check_and_format( $invoice->get_date_paid(), true );
 			$invoice_due_date 		= smartwoo_check_and_format( $invoice->get_date_due(), true );
-			$invoice_total    		= $invoice->get_total();
 			$payment_gateway 		= ! empty( $invoice->get_payment_method() ) ? $invoice->get_payment_method() : 'N/A';
 			$invoice_status			= $invoice->get_status();
 			$transaction_id			= ! empty( $invoice->get_transaction_id() ) ? $invoice->get_transaction_id() : 'N/A';
