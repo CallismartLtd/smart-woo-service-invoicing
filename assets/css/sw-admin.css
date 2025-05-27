@@ -552,45 +552,99 @@ h2.sw-not-found {
 
 .smartwoo-admin-invoice-action-div {
     position: fixed;
-    right: 200%;
-    top: 16%;
+    right: 0;
+    top: 200px;
     background-color: #ffffff;
     min-height: 250px;
     width: 350px;
     border: .5px solid rgba(68, 25, 25, 0.288);
     border-radius: 4px;
     overflow: auto;
-    
+    transform: translate(100%);
+    transition: transform .5s ease-in-out;
+}
+
+.invoice-action-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 5px auto;
+    padding: 3px;
+}
+
+.sw-admin-invoice-action-btn-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.sw-admin-invoice-action-btn-container em {
+    text-align: center;
+}
+
+.smartwoo-admin-invoice-action-div.active {
+    transform: translate(0);
 }
 .smartwoo-admin-invoice-action-div button {
     padding: 10px;
-    margin: 20px 10px 10px 10px;
+    margin: 10px;
     cursor: pointer;
+    border: solid #dededc 1px;
+    border-radius: 4px;
+    transition: background-color .5s ease-in-out;
+}
+.smartwoo-admin-invoice-action-div button:hover {
+    background-color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.smartwoo-admin-invoice-action-div button[data-value="send_payment_reminder"] span::after {
+    content: "\f18e";
+    color: red;
+    text-align: right;
 }
 .smartwoo-admin-invoice-header {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
     background-color: #ffffff;
     border-radius: 8px;
     margin: 10px;
-    padding: 10px;
+    max-width: 96%;
 }
 
 .smartwoo-invoice-header-data {
-    height: 30%;
-    width: 25%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* height: 100px; */
+    width: 250px;
     background-color: #f1f1f1;
-    margin: 20px;
-    text-align: center;
+    margin: 10px;
     border-radius: 5px;
+    min-width: 170px;
+}
+
+.smartwoo-invoice-header-data p.status {
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 20px;
+    background-color:rgb(252, 7, 7);
+    font-weight: 900;
+    width: 100px; 
+    text-align: center;
 }
 
 .smartwoo-invoice-header-data p:first-child{
     font-weight: 500;
     font-size: 20px;
     color: #000000;
+}
+.smartwoo-invoice-header-data p {
+    line-height: .5;
 }
 
 .smartwoo-admin-invoice-toggle {
@@ -627,16 +681,17 @@ h2.sw-not-found {
 
 .smartwoo-admin-invoice-body .sw-invoice-metadata {
     background-color: #ffffff;
+    width: 96%;
 }
 
 .sw-admin-invoice-item-table {
     background-color: #ffffff;
     border-radius: 8px;
-    width: 97%;
     margin: 20px auto;
     border-collapse: collapse;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-
+    width: 95%;
+    /* max-width: 768px; */
 }
 
 .sw-admin-invoice-item-table thead {
