@@ -784,6 +784,13 @@ function smartwoo_allowed_form_html() {
 		),
 		'td'	=> array(
 			'style'	=> true
+		),
+		'textarea'	=> array(
+			'class'	=> true,
+			'style'	=> true,
+			'id'	=> true,
+			'name'	=> true,
+			'placeholder'	=> true
 		)
     ) );
 }
@@ -1434,8 +1441,9 @@ function smartwoo_get_endpoint_url( $endpoint, $query_value = '', $permalink = '
 
 	if ( get_option( 'permalink_structure' ) ) {
 		if ( strstr( $permalink, '?' ) ) {
-			$query_string = '?' . wp_parse_url( $permalink, PHP_URL_QUERY );
-			$permalink    = current( explode( '?', $permalink ) );
+			$query_string	= '?' . wp_parse_url( $permalink, PHP_URL_QUERY );
+			$permalink		= current( explode( '?', $permalink ) );
+			
 		} else {
 			$query_string = '';
 		}
@@ -1444,6 +1452,7 @@ function smartwoo_get_endpoint_url( $endpoint, $query_value = '', $permalink = '
 		$url .= trailingslashit( $endpoint ) . user_trailingslashit( $query_value );
 		$url .= $query_string;
 	} else {
+		$endpoint	= ( 'page' === $endpoint ) ? 'paged' : $endpoint;
 		$url = add_query_arg( $endpoint, $query_value, $permalink );
 	}
 
