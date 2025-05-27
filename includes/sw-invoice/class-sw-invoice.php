@@ -773,15 +773,7 @@ class SmartWoo_Invoice {
 					admin_url( 'admin.php' ) 
 			);
 		} elseif ( 'frontend' === $context ) {
-			$invoice_page_id	= get_option( 'smartwoo_invoice_page_id', 0 );
-			$invoice_page_url 	= get_permalink( $invoice_page_id );
-			$preview_url 		= add_query_arg(
-				array(
-					'invoice_page' => 'view_invoice',
-					'invoice_id'   => $this->get_invoice_id(),
-				),
-				$invoice_page_url
-			);
+			$preview_url	= smartwoo_get_endpoint_url( 'view-invoice', $this->get_invoice_id() );
 		} elseif ( 'account' === $context ) {
 			$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
 			$preview_url = add_query_arg(
@@ -796,6 +788,13 @@ class SmartWoo_Invoice {
 		}
 
 		return $preview_url;
+	}
+
+	/**
+	 * Get the footer text show on the PDF invoice and invoice pages
+	 */
+	public function get_footer_text() {
+		return apply_filters( 'smartwoo_invoice_footer_text', get_option( 'smartwoo_invoice_footer_text', 'Thank you for the continued business and support. We value you so much.' ) );
 	}
 
 	/**
