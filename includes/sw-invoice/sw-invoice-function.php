@@ -479,36 +479,22 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
     $preview_url = '#';
 
 	if ( is_account_page() ) {
-        $endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
-        $preview_url = add_query_arg(
-            array(
-                'view_invoice' => true,
-                'invoice_id'   => $invoice_id,
-            ),
-            $endpoint_url
-        );
+        $preview_url = wc_get_endpoint_url( 'smartwoo-invoice', $invoice_id );
 
     } elseif( ! smartwoo_is_frontend() && is_admin() ) {
-
 		$preview_url = add_query_arg( 
 			array( 
 				'page' 			=> 'sw-invoices', 
 				'tab' 			=> 'view-invoice', 
 				'invoice_id'	=> $invoice_id 
 			), 
-				admin_url( 'admin.php' ) 
+			admin_url( 'admin.php' ) 
 		);
 
 	} else {
-        $invoice_page_id = get_option( 'smartwoo_invoice_page_id', 0 );
-        $invoice_page_url = get_permalink( $invoice_page_id );
-        $preview_url = add_query_arg(
-            array(
-                'invoice_page' => 'view_invoice',
-                'invoice_id'   => $invoice_id,
-            ),
-            $invoice_page_url
-        );
+        $invoice_page_id	= get_option( 'smartwoo_invoice_page_id', 0 );
+        $invoice_page_url	= get_permalink( $invoice_page_id );
+        $preview_url		= smartwoo_get_endpoint_url( 'view-invoice', $invoice_id, $invoice_page_url );
     }
 	return $preview_url;
 
@@ -592,4 +578,32 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 	}
 	// Invoice is already paid, terminate further execution.
 	return false;
+}
+
+/**
+ * Counts and renders payment status counts of all invoice for the current user
+ */
+function smartwoo_all_user_invoices_count() {
+
+	$user_id = get_current_user_id();
+
+	// Get counts for each payment status for the current user.
+	$counts = array(
+		'paid'      => SmartWoo_Invoice_Database::count_payment_status( $user_id, 'paid' ),
+		'unpaid'    => SmartWoo_Invoice_Database::count_payment_status( $user_id, 'unpaid' ),
+		'cancelled' => SmartWoo_Invoice_Database::count_payment_status( $user_id, 'cancelled' ),
+		'due'       => SmartWoo_Invoice_Database::count_payment_status( $user_id, 'due' ),
+	);
+
+	// Generate the HTML.
+	$output = '<div class="sw-invoice-status-counts">';
+	foreach ( $counts as $status => $count ) {
+		$nav_url = smartwoo_get_endpoint_url( 'status', $status );
+		$output .= '<div class="sw-user-status-item' . ( ( get_query_var( 'status' ) === $status ) ? ' active' : '' ) . '">';
+		$output .= '<p><a href="' . esc_url( $nav_url ) .'">' . ucfirst( $status ) . '</a> <small>' . $count . '</small></p>';
+		$output .= '</div>';
+	}
+	$output .= '</div>';
+
+	return $output;
 }
