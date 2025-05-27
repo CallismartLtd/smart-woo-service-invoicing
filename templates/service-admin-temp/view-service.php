@@ -89,7 +89,7 @@ defined( 'ABSPATH' ) || exit;
                                     <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
                                     <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_created() ) ); ?></td>
                                     <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_due() ) ); ?></td>
-                                    <td><?php echo esc_html( smartwoo_price( $invoice->get_total(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
+                                    <td><?php echo esc_html( smartwoo_price( $invoice->get_totals(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
