@@ -26,7 +26,7 @@ function smartwoo_shortcodes_init() {
 	/**
 	 * Display the service subscriptions of the current user in a mini card
 	 */
-	add_shortcode( 'smartwoo_service_mini_card', 'smartwoo_service_mini_card' );
+	add_shortcode( 'smartwoo_service_mini_card', array( 'SmartWoo_Service_Frontend_Template', 'mini_card' ) );
 
 	/**
 	 * Display all invoices of the current user in a mini card
