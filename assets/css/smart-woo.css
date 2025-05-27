@@ -749,6 +749,10 @@ border-radius: 5px;
 	flex-wrap: wrap;
 }
 
+.status-counts.portal {
+	width: 100%;
+}
+
 /* Style each status count link */
 .status-counts p {
 	margin: 0 auto;
@@ -792,6 +796,7 @@ border-radius: 5px;
 /* Table Styles */
 .sw-table-wrapper {
     overflow-x: auto;
+	width: 100%;
 }
 
 .sw-table {
@@ -1026,56 +1031,87 @@ border-radius: 5px;
 	margin: 10px 0;
 }
 
-/* Style for the "My Services" heading */
-.mini-card h2 {
-	font-size: 24px;
-	font-weight: bold;
-	margin-bottom: 10px;
-	text-align: center;
-	border-bottom: 1px solid #1707f5; /* Add a border below the heading */
-	padding-bottom: 5px; /* Add some space between the heading and the border */
-}
-
-/* Style for the mini-card container */
-.mini-card {
-	background-color: rgb(255, 255, 255);
-	max-width: 600px;
-	width: 50%;
+.smartwoo-mini-card{
+	background-color: #ffffff;
+	max-width: 80%;
+	width: 768px;
 	border-radius: 9px;
 	justify-content: space-around;
-	margin: 20px auto;
-	padding: 20px;
+	margin: 10px auto;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-	margin-bottom: 20px;
+	border: 1px solid #dcdcde;
 }
 
+.smartwoo-mini-card h2 {
+	font-size: 24px;
+	margin-bottom: 10px;
+	text-align: center;
+	padding-bottom: 5px;
+	color: #333333;
+}
 
-/* Style for each service name link and status */
-.mini-card p {
-	margin: 0;
-	padding: 0;
-	color: #000000;
+.mini-card-content {
 	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	background-color: #f1f1f1;
+	margin: 8px auto;
+	border-radius: 8px;
+	list-style: none;
+	width: 97%;
+}
+
+.mini-card-content li {
+	height: 100%;
+	padding: 8px;
+	border: 1px solid #dcdcde;
+	margin: 8px;
+	background-color: #ffffff;
+	border-radius: 4px;
+	box-shadow: 2px 2px 8px 4px rgba(0, 0, 0, 0.1);
+	transition: all .5s ease-in-out;
+}
+.mini-card-content li:hover {
+	background-color: #fcfcfc;
+	transform: translateY(-1.5px);
+}
+
+.mini-card-content li a {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	flex-direction: row;
 	justify-content: space-between;
-	align-items: center;
-}
-
-.mini-card a {
 	text-decoration: none;
-	font-weight: bold;
+	color: #4357F1;
 }
 
-.mini-card a:hover {
-	text-decoration:double;
+.mini-card-content li a::after {
+	content: attr(data-status);
+}
+.smartwoo-skeleton {
+    height: 40px !important;
+    margin: 10px 0;
+    border-radius: 4px;
+    width: 100%;
+    animation: smartwoo-skeleton-loading .5s linear infinite alternate;
 }
 
-/* Style for the horizontal line */
-.mini-card hr {
-	margin: 5px 0;
-	border: 1px solid #13003f;
+.smartwoo-skeleton-text {
+    width: 50px;
+    height: 40px;
 }
-
-
+@keyframes smartwoo-skeleton-loading {
+    0% { 
+		opacity: 0.9; 
+	}
+    50% { 
+		opacity: 0.4; 
+		background-color: #ffffff
+	}
+		
+    100% { opacity: 1; }
+}
 
 /* Style for the "Renew" button */
 .smartwoo-service-renew-button {
@@ -1420,9 +1456,23 @@ font-weight: 100;
 	}
 } */
 
-/************************************************************************************/
-/**************************Front End CSS ends here **********************************/
-/************************************************************************************/
+.sw-table-limit-container {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+	gap: 10px;
+	margin: 15px;
+}
+.sw-table-limit-container input {
+    height: 30px;
+    border: .5px solid #0202ff67;
+    border-radius: 3px;
+    background-color: #ffffff;
+}
+.sw-table-limit-container input[type="button"] {
+    background-color: #f1f1f1;
+}
 
 /****************LOGIN FORM **********************/
 .smartwoo-login-form{
