@@ -1149,7 +1149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let invoiceLinkActions      = document.querySelector( '.smartwoo-admin-invoice-action-div' );
     let invoiceLinksToggle      = document.querySelector( '.smartwoo-admin-invoice-actions' );
     let swTable                 = document.querySelector('.sw-table');
-    let allSortDivs             = document.querySelectorAll( '.sw-admin-status-item' );
     let gracePeriodSelect       = document.querySelector( '#grace_period' );
     let addProductImageBtn      = document.querySelector( '#upload_sw_product_image' );
     let uploadProductImages     = document.querySelector( '#add-product-galleryBtn' );
@@ -1718,15 +1717,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( invoiceLinksToggle && invoiceLinkActions ) {
-        let clicked = false;
         invoiceLinksToggle.addEventListener( 'click', ()=>{
-            if ( clicked ) {
-                invoiceLinkActions.style.right = "200%";
-                clicked = !clicked;
-            } else {
-                invoiceLinkActions.style.right = "0";
-                clicked = !clicked;
-            }
+            invoiceLinkActions.classList.toggle( 'active' );
         });
     }
 
@@ -1786,16 +1778,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-    }
-
-    if ( allSortDivs.length ) {
-        allSortDivs.forEach( sortDiv =>{
-            sortDiv.style.cursor = 'pointer';
-            let url = sortDiv.querySelector( 'a' ).getAttribute( 'href' );
-            sortDiv.addEventListener( 'click', ()=>{
-                window.location.href = url;
-            });            
-        });
     }
 
     if ( gracePeriodSelect ) {
