@@ -512,6 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	let loginPWDInput		= document.getElementById('sw-user-password');
 	let adminAssetsToggle	= document.querySelectorAll( '.sw-admin-service-assets-button, .sw-client-service-assets-button' );
 	let renewalButton		= document.querySelector( '.smartwoo-service-renew-button' );
+	let allSortDivs			= document.querySelectorAll( '.sw-admin-status-item, .sw-user-status-item' );
 
     if (hamburger) {
 		let menuIcon	= hamburger.querySelector('.dashicons-menu');
@@ -535,6 +536,16 @@ document.addEventListener('DOMContentLoaded', function() {
 			e.preventDefault();
 			hamburger.click();
 		} );
+    }
+	    
+	if ( allSortDivs.length ) {
+        allSortDivs.forEach( sortDiv =>{
+            sortDiv.style.cursor = 'pointer';
+            let url = sortDiv.querySelector( 'a' ).getAttribute( 'href' );
+            sortDiv.addEventListener( 'click', ()=>{
+                window.location.href = url;
+            });            
+        });
     }
 	if (logoutBtn) {
 		let clicked = false;
