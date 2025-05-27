@@ -80,6 +80,11 @@ function smartwoo_save_advanced_options(){
 			update_option( 'smartwoo_product_text_on_shop', $value );
 		}
 
+		if ( isset( $_POST['smartwoo_invoice_footer_text'] ) ) {
+			$value =  ! empty( $_POST['smartwoo_invoice_footer_text'] ) ?  sanitize_text_field( wp_unslash( $_POST['smartwoo_invoice_footer_text'] ) ) : '';
+			update_option( 'smartwoo_invoice_footer_text', $value );
+		}
+
 		$checkboxes = apply_filters( 'smartwoo_advanced_options',
 			array(
 				'smartwoo_allow_invoice_tracking',
@@ -534,8 +539,9 @@ function smartwoo_advanced_options() {
 
 	ob_start();
 	smartwoo_save_advanced_options();
-	$product_text = get_option( 'smartwoo_product_text_on_shop', 'Configure' );
-    $checkboxes = apply_filters( 'smartwoo_advanced_options',
+	$product_text		= get_option( 'smartwoo_product_text_on_shop', 'Configure' );
+	$inv_footer_text	= get_option( 'smartwoo_invoice_footer_text', 'Thank you for the continued business and support. We value you so much.' );
+    $checkboxes			= apply_filters( 'smartwoo_advanced_options',
 		array(
 			'smartwoo_allow_fast_checkout',
 			'smartwoo_allow_optout/Cancellation',
@@ -555,6 +561,12 @@ function smartwoo_advanced_options() {
 				<span class="sw-field-description" title="Set the text that will be shown on each Smart Woo Product on shop page">?</span>
 				<input type="type" name="smartwoo_product_text_on_shop" id="smartwoo_product_text_on_shop" value="<?php echo esc_attr( $product_text ); ?>" placeholder="eg, View Product, add to cart, configure" class="sw-form-input">
 			</div>
+			<div class="sw-form-row">
+				<label for="smartwoo_invoice_footer_text" class="sw-form-label"><?php esc_html_e( 'Invoice footer text', 'smart-woo-service-invoicing' ); ?></label>
+				<span class="sw-field-description" title="Enter the text shown below the invoice">?</span>
+				<textarea type="type" name="smartwoo_invoice_footer_text" id="smartwoo_invoice_footer_text" placeholder="Thanks for subscribing" class="sw-form-input"><?php echo esc_attr( $inv_footer_text ); ?></textarea>
+			</div>
+
             <?php foreach ( $checkboxes as $checkbox_name ) : ?>
                 <div class="sw-form-row">
                     <label for="<?php echo esc_attr( $checkbox_name ); ?>" class="sw-form-checkbox">
