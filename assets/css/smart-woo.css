@@ -161,8 +161,9 @@ use inline CSS to overide some styles
     background-color: #0073e6;
     border-radius: 3px;
     color: #ffffff;
-    height: 20px;
-    width: 20px;
+    height: 30px;
+    width: 30px;
+	border: solid #dcdcde 1px;
 }
 
 .smartwoo-icon-button-blue:hover {
@@ -471,15 +472,16 @@ border-radius: 5px;
 .sw-service-notice {
 	display: flex;
 	flex-direction: row;
-	background-color: rgba(118, 248, 118, 0.479);
+	background-color: rgba(96, 245, 96, 0.596);
 	width: 80%;
 	border-left: solid red 3px;
-	color: #000000;
-	margin: 0 auto;
+	color: #7c7979;
+	margin: 10px auto;
 	padding: 5px;
 	gap: 5px;
 	align-items: center;
 }
+
 .sw-service-notice p {
 	font-weight: bold;
 }
@@ -770,7 +772,7 @@ border-radius: 5px;
 
 .smartwoo-page {
 	position: relative;
-	padding: 0;
+	padding: 0 0 10px 0;
 	margin: 0 0 20px 0;
 	width: 100%;
 	background-color: #f1f1f1;
@@ -1117,43 +1119,62 @@ border-radius: 5px;
 	color: #ffffff;
 }
 
-
-
-.invoice-status-counts {
+.sw-invoice-status-counts {
 	display: flex;
 	justify-content: space-evenly;
 	align-items: center;
 	justify-items: center;
-	margin: 20px auto;
-	padding: 20px;
+	flex-wrap: wrap;
 	text-align: center;
 	margin-bottom: 20px;
-	width: 90% auto;
+	width: 100%;
 }
-.invoice-status-counts p a, .invoice-status-counts h2 a {
-	text-decoration: none;
-}
+
 .sw-admin-status-item {
 	font-weight: bold;
 	background-color: #ffffff;
 	height: 70px;
-	width: 250px;
-	padding: 20px;
+	width: 200px;
+	padding-top: 10px;
 	border-radius: 8px;
 	margin: 10px;
 }
 
 .sw-user-status-item {
+	flex: 1;
 	font-weight: bold;
 	font-size: 14px;
 	background-color: #ffffff;
-	height: 100px;
-	width: 150px;
-	padding: 30px;
+	height: 70px;
+	width: 200px;
+	min-width: 200px;
+	padding: 10px;
 	border-radius: 8px;
 	margin: 10px;
-
+	border: 1px solid #dcdcde;
+	cursor: pointer;
 }
+.sw-user-status-item.active {
+	box-shadow: 2px 2px 8px 4px rgba(0, 0, 0, 0.1);
+	border: 2px #dcdcde solid;
+}
+
+.sw-user-status-item p,
+.sw-admin-status-item p {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 15px;
+	font-size: 16px;
+	padding: 0;
+}
+.sw-user-status-item a,
+.sw-admin-status-item a {
+	color: #6373bb;
+	text-decoration: none;
+}
+
 .sw-user-status-item small, .sw-admin-status-item small  {
 	font-weight: bold;
 	background-color: red;
@@ -1169,8 +1190,7 @@ border-radius: 5px;
 			width: 95%;
 		}
 	}
-	.invoice-status-counts {
-		flex-wrap: wrap;
+	.sw-invoice-status-counts {
 		width: 100%;
 		margin: none;
 		
