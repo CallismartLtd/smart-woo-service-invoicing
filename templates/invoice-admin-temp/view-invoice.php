@@ -27,12 +27,30 @@ smartwoo_set_document_title( 'Invoice Details');
         <div class="smartwoo-admin-invoice-action-div">
             <span style="float: right; color: red; cursor: pointer;" class="dashicons dashicons-dismiss" onclick="document.querySelector('.smartwoo-admin-invoice-actions').click(); document.querySelector('#response-div').innerHTML = '';"></span>
             <h3 style="text-align: center">Action Links</h3>
-            <button title="Send new invoice email" data-value="send_new_email"><span class="dashicons dashicons-email-alt"></span></button>
-            <button title="Send payment reminder" data-value="send_payment_reminder" <?php echo esc_attr( 'unpaid' === $invoice->get_status() ) ? '':'disabled style="cursor: not-allowed;"' ?>><span style="font-size: 16px; font-weight: 900; color: red; position:absolute; right: 225px" class="dashicons dashicons-money-alt"></span><span class="dashicons dashicons-email-alt"></span></button>
-            <button title="Generate payment url" data-value="paymen_url"><span class="dashicons dashicons-money-alt"></span></button>
-            <button title="Generate checkout url" data-value="checkout_order_pay"><span class="dashicons dashicons-cart"></span></button>
+            <div class="invoice-action-body">
+                <div class="sw-admin-invoice-action-btn-container">
+                    <button title="Send new invoice email" data-value="send_new_email"><span class="dashicons dashicons-email-alt"></span></button>
+                    <em>New invoice mail</em>
+                </div>
+                <div class="sw-admin-invoice-action-btn-container">
+                    <button title="Send payment reminder" data-value="send_payment_reminder" <?php echo esc_attr( 'unpaid' === $invoice->get_status() ) ? '':'disabled style="cursor: not-allowed;"' ?>>
+                        <span class="dashicons dashicons-email-alt"></span>
+                    </button>
+                    <em>Payment reminder</em>
+                </div>
+                
+                <div class="sw-admin-invoice-action-btn-container">
+                    <button title="Generate payment url" data-value="paymen_url"><span class="dashicons dashicons-money-alt"></span></button>
+                    <em>Generate payment link</em>
+                </div>
+                <div class="sw-admin-invoice-action-btn-container">
+                    <button title="Generate checkout url" data-value="checkout_order_pay"><span class="dashicons dashicons-cart"></span></button>
+                    <em>Generate checkout link</em>
+                </div>
+            </div>
+
             <div id="swSpinner" style="text-align: center;"></div>
-            <div id="response-div" data-invoice-id="<?php echo esc_attr( $invoice->get_invoice_id() ) ?>" style="margin: 20px;"></div>
+            <div id="response-div" data-invoice-id="<?php echo esc_attr( $invoice->get_invoice_id() ) ?>" style="margin: 20px; text-align: center;"></div>
         </div>
 
         <div class="smartwoo-admin-invoice-body">
@@ -56,7 +74,7 @@ smartwoo_set_document_title( 'Invoice Details');
 
                 <div class="smartwoo-invoice-header-data">
                     <p>Status</p>
-                    <p style="color: #ffffff; border-radius: 40%; background-color:rgb(252, 7, 7); font-weight: 900; width: 50%; margin: 10px auto"><?php echo esc_html( ucfirst( $invoice->get_status() ) ); ?></p>
+                    <p class="status"><?php echo esc_html( ucfirst( $invoice->get_status() ) ); ?></p>
                 </div>
             </div>
 
@@ -148,7 +166,7 @@ smartwoo_set_document_title( 'Invoice Details');
             </div>
 
             <!-- invoice meta data. -->
-            <div class="sw-invoice-metadata">
+            <div class="sw-invoice-metadata admin">
                 <!-- Payment Method. -->
                 <div class="sw-invoice-meta-cards">
                     <p><?php echo esc_html__( 'Payment Method:', 'smart-woo-service-invoicing' ); ?></p>
