@@ -474,7 +474,7 @@ class SmartWoo_Admin_Controller {
 		 * Fires after a new service order has been processed.
 		 * @param string $service_id
 		 */
-		do_action( 'smartwoo_new_service_is_processed', $saved_service_id );
+		do_action( 'smartwoo_new_service_is_processed', $service->get_service_id() );
 		wp_send_json_success( array( 'message' => 'Service has been processed', 'redirect_url' => $service->preview_url() ) );
 	
 	}
