@@ -7,18 +7,16 @@
  * @version 2.4.0
  */
 
- defined( 'ABSPATH' ) || exit; // Prevent direct access.
+defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
  * Handles all service subscripion frontend templates methods.
  */
-class SmartWoo_Frontend_Template {
+class SmartWoo_Service_Frontend_Template {
 	/**
 	 * Main service page
 	 */
-	public static function main_page() {
-		global $wp_query;
-		
+	public static function main_page() {	
 		$current_user			= wp_get_current_user();
 		$full_name				= $current_user->first_name . ' '. $current_user->last_name  ;
 		$user_id				= $current_user->ID;
@@ -26,13 +24,13 @@ class SmartWoo_Frontend_Template {
 		$due_for_renewal_count	= smartwoo_count_due_for_renewal_services();
 		$expired_count			= smartwoo_count_expired_services();
 		$grace_period_count		= smartwoo_count_grace_period_services();
-		$active_count_url		= smartwoo_get_endpoint_url( 'sort', 'active' );
-		$due_count_url			= smartwoo_get_endpoint_url( 'sort', 'due-for-renewal' );
-		$expired_count_url		= smartwoo_get_endpoint_url( 'sort', 'expired' );
-		$grace_count_url		= smartwoo_get_endpoint_url( 'sort', 'grace-period' );
+		$active_count_url		= smartwoo_get_endpoint_url( 'status', 'active' );
+		$due_count_url			= smartwoo_get_endpoint_url( 'status', 'due-for-renewal' );
+		$expired_count_url		= smartwoo_get_endpoint_url( 'status', 'expired' );
+		$grace_count_url		= smartwoo_get_endpoint_url( 'status', 'grace-period' );
 		$buy_product_page		= smartwoo_get_endpoint_url( 'buy-new' );
 		
-		$page					= max( 1, isset( $wp_query->query_vars['paged'] ) ? absint( $wp_query->query_vars['paged'] ) : 1 );
+		$page					= max( 1, get_query_var( 'paged' ) );
 		$limit					= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 9;
 		$all_services			= SmartWoo_Service_Database::get_services_by_user( $user_id, $page, $limit );
 		$pending_services		= SmartWoo_Service_Database::get_user_awaiting_services( $user_id );
@@ -96,10 +94,8 @@ class SmartWoo_Frontend_Template {
 	/**
 	 * Sort service subscription by status
 	 */
-	public static function sort() {
-		global $wp_query;
-		
-		$status		= get_query_var( 'sort' );
+	public static function sort() {		
+		$status		= get_query_var( 'status' );
 		$services 	= array();
 		$page		= get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
 		$limit		= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 10;
@@ -191,15 +187,21 @@ class SmartWoo_Frontend_Template {
 			return ob_get_clean();
 		}
 	}
+
+	private static function login_page() {
+		wp_enqueue_style( 'dashicons' );
+		$args =  array( 
+			'notice' => smartwoo_notice( 'Login to access this page.' ),
+			'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) )
+		);
+		include_once SMARTWOO_PATH . 'templates/login.php';
+	}
 }
 
 /**
  * Function Code For Service Mini Card.
  */
 function smartwoo_service_mini_card() {
-	if ( ! is_user_logged_in() ) {
-		return 'Hello! It looks like you\'re not logged in.';
-	}
 	$current_user_id  = get_current_user_id();
 	$services         = SmartWoo_Service_Database::get_services_by_user( $current_user_id );
 	$output           = '<div class="mini-card">';
@@ -233,12 +235,7 @@ function smartwoo_service_mini_card() {
  *
  * @return int $output incremented number of active service(s) or 0 if there is none
  */
-function smartwoo_active_service_count_shortcode() {
-	if ( ! is_user_logged_in() ) {
-		woocommerce_login_form( array( 'message' => smartwoo_notice( 'You must be logged in to access this page' ) ) );
-	   return;
-    }
-	
+function smartwoo_active_service_count_shortcode() {	
 	$current_user = wp_get_current_user();
 	$user_id      = $current_user->ID;
 	$count = smartwoo_count_active_services( $user_id ) + smartwoo_count_nr_services( $user_id );
