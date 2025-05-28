@@ -138,8 +138,7 @@ class SmartWoo_Service_Frontend_Template {
 		} else { 
 			?><div class="smartwoo-page">
 				<h2><?php  __( 'Services', 'smart-woo-service-invoicing' ); ?></h2>
-				<?php echo wp_kses_post( smartwoo_active_service_count_shortcode() );?>
-				<?php echo wp_kses_post( self::mini_card( array( 'title' => 'My Invoices', 'limit' => 8 ) ) );?>
+				<?php echo wp_kses( self::mini_card( array( 'title' => 'My Subscriptions', 'limit' => 5 ) ), smartwoo_allowed_form_html() );?>
 				<div class="settings-tools-section">
 					<h2>Settings and Tools</h2>
 					<div id="swloader">Just a moment</div>
@@ -210,9 +209,13 @@ class SmartWoo_Service_Frontend_Template {
 		$output				.= '<hr>';
 		
 		$output	.= '<ul class="mini-card-content" limit="' . esc_attr( $atts['limit'] ) . '">';
-		$output	.= '<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text "></span></li>';
+		$output	.= '<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>';
 		$output	.= '</ul>';
-	
+		$output .= '<div class="sw-mini-card-pagination">
+			<button class="sw-pagination-button"><span class="dashicons dashicons-arrow-left-alt2"></span></button>
+			<span id="sw-card-counter">0 items</span>
+			<button class="sw-pagination-button"><span class="dashicons dashicons-arrow-right-alt2"></span></button>
+		</div>';
 		$output .= '</div>';
 		return $output;
 
@@ -227,37 +230,6 @@ class SmartWoo_Service_Frontend_Template {
 		);
 		include_once SMARTWOO_PATH . 'templates/login.php';
 	}
-}
-
-/**
- * Function Code For Service Mini Card.
- */
-function smartwoo_service_mini_card() {
-	$current_user_id  = get_current_user_id();
-	$services         = SmartWoo_Service_Database::get_services_by_user( $current_user_id );
-	$output           = '<div class="mini-card">';
-	$output          .= '<h2>My Services</h2>';
-
-	if ( empty( $services ) ) {
-		// Display a message if no services are found.
-		$output .= '<p>All Services will appear here.</p>';
-	} else {
-		foreach ( $services as $service ) {
-			$service_name = esc_html( $service->getServiceName() );
-			$service_id   = esc_html( $service->get_service_id() );
-
-			// Create a link to the client_services page with the service_id as a URL parameter.
-			$service_link = smartwoo_service_preview_url( $service_id );
-			$status       = smartwoo_service_status( $service_id );
-
-			// Add each service name, linked row, and status with a horizontal line.
-			$output .= '<p><a href="' . esc_url( $service_link ) . '">' . esc_html( $service_name ) . '</a>  ' . esc_html( $status ) . '</p>';
-			$output .= '<hr>';
-		}
-	}
-
-	$output .= '</div>';
-	return $output;
 }
 
 /**
