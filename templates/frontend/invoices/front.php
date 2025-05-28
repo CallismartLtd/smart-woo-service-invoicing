@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit; ?>
                             <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
                             <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_created() ) ); ?></td>
                             <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_due() ) ); ?></td>
-                            <td><?php echo smartwoo_price( $invoice->get_totals(), array( 'currency' => $invoice->get_currency() ) ); ?></td>
+                            <td><?php echo esc_html( smartwoo_price( $invoice->get_totals(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                             <td class="payment-status"><?php echo esc_html( ucwords( $invoice->get_status() ) ); ?></td>
                             <td><a href="<?php echo esc_url( $invoice->preview_url() ); ?>" class="invoice-preview-button"><?php echo esc_html__( 'View Details', 'smart-woo-service-invoicing' ); ?></a></td>
                         </tr>
