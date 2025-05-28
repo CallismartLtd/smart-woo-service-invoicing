@@ -1113,6 +1113,21 @@ border-radius: 5px;
     100% { opacity: 1; }
 }
 
+.sw-mini-card-pagination {
+	display: none;
+	flex-direction: row;
+	justify-content: space-between;
+	margin: 6px;
+}
+
+.sw-mini-card-pagination.has-more {
+	display: flex;
+}
+
+.sw-mini-card-pagination button {
+	display: none;
+}
+
 /* Style for the "Renew" button */
 .smartwoo-service-renew-button {
 	display: inline-block;
