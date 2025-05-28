@@ -80,9 +80,14 @@ class SmartWoo_Config{
         // add_action( 'template_redirect', array( $this, 'protect_endpoints' ), 10 );
         add_action( 'init', array( $this, 'init_hooks' ) );
         add_filter( 'woocommerce_account_menu_items', array( __CLASS__, 'register_woocommerce_account_menus' ), 99 );
+        
         add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
+        add_filter( 'woocommerce_get_query_vars', array( __CLASS__, 'add_myaccount_vars' ) );
+
         add_filter( 'woocommerce_account_smartwoo-invoice_endpoint', array( 'SmartWoo_Invoice_Frontend_Template', 'woocommerce_myaccount_invoices_page' ) );
         add_filter( 'woocommerce_account_smartwoo-service_endpoint', array( 'SmartWoo_Service_Frontend_Template', 'woocommerce_myaccount_services_page' ) );
+        add_filter( 'woocommerce_endpoint_smartwoo-service_title', function( $title ) { return 'Subscriptions'; });
+        add_filter( 'woocommerce_endpoint_smartwoo-invoice_title', function( $title ) { return 'Invoices'; });
 
         add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
 
@@ -138,6 +143,7 @@ class SmartWoo_Config{
      */
     public function include() {
 
+        require_once SMARTWOO_PATH . 'includes/class-smartwoo-date-helper.php';
         require_once SMARTWOO_PATH . 'includes/admin/sw-functions.php';
         require_once SMARTWOO_PATH . 'includes/class-smartwoo.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
@@ -342,8 +348,6 @@ class SmartWoo_Config{
         return apply_filters(
             'smartwoo_query_vars',
             array(
-                'smartwoo-invoice',
-                'smartwoo-service',
                 'buy-new',
                 'view-subscription',
                 'status',
@@ -369,11 +373,19 @@ class SmartWoo_Config{
     }
 
     /**
+     * Register WooCommerce myaccount page query_vars
+     */
+    public static function add_myaccount_vars( $vars ) {
+        $vars['smartwoo-invoice'] = 'smartwoo-invoice';
+        $vars['smartwoo-service'] = 'smartwoo-service';
+
+        return $vars;
+    }
+
+    /**
      * Register query vars
      */
     public static function add_query_vars( $vars ) {
-        $vars[] = 'configure';
-        // $vars[] = 'smartwoo-service';
         $vars[] = 'configure';
         return $vars;
     }
