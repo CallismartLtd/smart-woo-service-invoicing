@@ -479,7 +479,7 @@ function smartwoo_invoice_preview_url( $invoice_id = '' ) {
     $preview_url = '#';
 
 	if ( is_account_page() ) {
-        $preview_url = wc_get_endpoint_url( 'smartwoo-invoice', $invoice_id );
+        $preview_url = wc_get_endpoint_url( 'smartwoo-invoice', $invoice_id, wc_get_page_permalink( 'myaccount' ) );
 
     } elseif( ! smartwoo_is_frontend() && is_admin() ) {
 		$preview_url = add_query_arg( 
