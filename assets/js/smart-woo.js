@@ -513,6 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	let adminAssetsToggle	= document.querySelectorAll( '.sw-admin-service-assets-button, .sw-client-service-assets-button' );
 	let renewalButton		= document.querySelector( '.smartwoo-service-renew-button' );
 	let allSortDivs			= document.querySelectorAll( '.sw-admin-status-item, .sw-user-status-item' );
+	let miniCardContent		= document.querySelector( '.mini-card-content' );
 
     if (hamburger) {
 		let menuIcon	= hamburger.querySelector('.dashicons-menu');
@@ -547,6 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });            
         });
     }
+
 	if (logoutBtn) {
 		let clicked = false;
 		logoutBtn.addEventListener('click', function(){
@@ -679,6 +681,97 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 		});
 	}
+
+	if ( miniCardContent ) {
+		let paginationContainer	= document.querySelector( '.sw-mini-card-pagination' );
+		let buttons = paginationContainer.querySelectorAll( 'button' );
+		let prevBtn	= buttons[0];
+		let nextBtn = buttons[1];
+		let context = 'any';
+		let page;
+		let limit	= miniCardContent.getAttribute( 'limit' );
+
+
+		if ( smart_woo_vars.is_account_page ) {
+			context = 'myaccount';
+		}
+
+		let getSubs = ( page, limit ) => {
+			page = Number( page );
+			miniCardContent.innerHTML = `
+				<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>
+				<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>
+				<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>
+				<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>
+				<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>
+			`;
+			let url = new URL( smart_woo_vars.ajax_url );
+			url.searchParams.set( 'action', 'get_subscriptions' );
+			url.searchParams.set( 'limit', limit );
+			url.searchParams.set( 'security', smart_woo_vars.security );
+			url.searchParams.set( 'context', context );
+			url.searchParams.set( 'page', page );
+			fetch( url )
+			.then( response =>{
+				if ( ! response.ok ) {
+					throw new Error( `Error unable to fetch service subscriptions [${response.statusText}]`)
+				}
+
+				return response.json();
+			}).then( responseJSON => {
+				let subscriptions	= responseJSON.data.subscriptions ?? [];
+				let pagination		= responseJSON.data.pagination
+				miniCardContent.innerHTML = '';
+				if ( ! subscriptions.length ) {
+					miniCardContent.innerHTML = `<li>${responseJSON.data.message}</li>`;
+				} else {
+					subscriptions.forEach( sub => {
+						let li = document.createElement( 'li' );
+						li.innerHTML = `<a href="${sub.view_url}" data-status="(${sub.status})">${sub.name}</a>`;
+
+						miniCardContent.appendChild( li );
+					})
+				}
+
+				if ( pagination.total_items >= 1 ) {
+					paginationContainer.classList.add( 'has-more' );
+					document.querySelector( '#sw-card-counter' )
+					.textContent = `${pagination.total_items} items ${page} of ${pagination.total_pages}`;
+
+					if ( page > 1 ) {
+						let nextNumber = page - 1;
+						prevBtn.setAttribute( 'page', nextNumber );
+						jQuery( prevBtn ).show();
+					} else {
+						jQuery( prevBtn ).hide();
+					}
+
+
+					if ( page < pagination.total_pages ) {
+						
+						let nextNumber = page + 1;
+						nextBtn.setAttribute( 'page', nextNumber );
+						jQuery( nextBtn ).show();
+					} else {
+						jQuery( nextBtn ).hide();
+					}
+					
+				}				
+			})
+		}
+
+		nextBtn.addEventListener( 'click', () => {
+			let page = nextBtn.getAttribute( 'page' );
+			getSubs( page, limit);
+		});
+
+		prevBtn.addEventListener( 'click', () => {
+			let page = prevBtn.getAttribute( 'page' );
+			getSubs( page, limit);
+		});
+
+		getSubs( 1, limit);
+	}
 });
 
 /**
@@ -708,6 +801,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		} );
 	}
+	
 } );
 
 /**
