@@ -47,7 +47,7 @@ defined( 'ABSPATH' ) || exit;
 				<label for="is-smartwoo-downloadable"><?php esc_html_e( 'Set Assets:', 'smart-woo-service-invoicing' );?>
 					<input type="checkbox" name="has_assets" id="is-smartwoo-downloadable"/>
 				</label> 
-				<h2 class="sw-no-download-text" style="text-align: center;"><?php esc_html_e( 'No asset set for this subscription' ) ?></h2>
+				<h2 class="sw-no-download-text" style="text-align: center;"><?php esc_html_e( 'No asset set for this subscription', 'smart-woo-service-invoicing' ) ?></h2>
 				<div class="sw-service-assets-downloads-container">
 					<h3><strong><?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' );?></strong> <?php esc_html_e( 'Downloads', 'smart-woo-service-invoicing' );?></h3>
 					
@@ -83,7 +83,7 @@ defined( 'ABSPATH' ) || exit;
 					<h3><strong><?php esc_html_e( 'Custom Asset Types', 'smart-woo-service-invoicing' );?></strong></h3>
 					<div class="sw-additional-assets-field">
 						<h4>
-							<?php esc_html_e( 'Asset type:') ?>
+							<?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' ) ?>
 							<input type="text" name="additional_asset_types[]" placeholder="eg. support service..." />
 						</h4>
 						<input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
