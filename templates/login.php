@@ -28,13 +28,13 @@ defined( 'ABSPATH' ) || exit; ?>
                 <span id="smartwoo-login-form-invisible" class="dashicons dashicons-hidden" style="display: none"></span>
             </div>
 
-            <?php echo wp_nonce_field( 'smartwoo_login_nonce', 'smartwoo_login_nonce' ); ?>
+            <?php wp_nonce_field( 'smartwoo_login_nonce', 'smartwoo_login_nonce' ); ?>
             <input type="hidden" name="action" value="smartwoo_login_form" />
             <input type="hidden" name="redirect" value="<?php echo esc_url( $args['redirect'] ); ?>" />
             <input type="hidden" name="referer" value="<?php echo esc_url( wp_get_referer() ); ?>" />
             <div style="display:flex; flex-direction: row; justify-content: space-between;">
                 <label style="margin-left:10px;" for="remember_me"> <input id="remember_me" type="checkbox" name="remember_me"/> Remember Me</label>
-                <button type="submit" class="sw-blue-button" id="sw-login-btn"><?php echo apply_filters( 'smartwoo_login_button_text', __( 'login', 'smart-woo-service-invoicing' ) ); ?></button>
+                <button type="submit" class="sw-blue-button" id="sw-login-btn"><?php echo esc_html( apply_filters( 'smartwoo_login_button_text', __( 'login', 'smart-woo-service-invoicing' ) ) ); ?></button>
             </div>
         </div>
     </form>
