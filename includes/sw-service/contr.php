@@ -385,6 +385,7 @@ class SmartWoo_Admin_Controller {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'You do not have the required permission to create new service subscription.' ), 401 );
 		}
+		add_filter( 'smartwoo_is_frontend', '__return_false' );
 
 		$errors	= self::instance()->check_errors();
 
@@ -413,6 +414,7 @@ class SmartWoo_Admin_Controller {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'You do not have the required permission to edit a service subscription.' ), 401 );
 		}
+		add_filter( 'smartwoo_is_frontend', '__return_false' );
 		$errors	= self::instance()->check_errors();
 
 		if ( ! empty( $errors ) ){
