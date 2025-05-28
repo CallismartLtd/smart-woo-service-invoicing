@@ -57,7 +57,7 @@ defined( 'ABSPATH' ) || exit;
                     <label for="is-smartwoo-downloadable"><?php esc_html_e( 'Set Assets:', 'smart-woo-service-invoicing' );?>
                         <input type="checkbox" name="has_assets" id="is-smartwoo-downloadable" <?php echo esc_html( $has_asset ? 'checked' : '' ); ?>/>
                     </label> 
-                    <h2 class="sw-no-download-text" style="text-align: center;<?php echo esc_attr( $has_asset ? 'display: none' : '' ); ?>"><?php esc_html_e( 'No asset set for this subscription' ) ?></h2>
+                    <h2 class="sw-no-download-text" style="text-align: center;<?php echo esc_attr( $has_asset ? 'display: none' : '' ); ?>"><?php esc_html_e( 'No asset set for this subscription', 'smart-woo-service-invoicing' ) ?></h2>
                     <div class="sw-service-assets-downloads-container" style="<?php echo esc_html( $has_asset ? 'display: block;' : '' ); ?>">
                         <h3><strong><?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' );?></strong> <?php esc_html_e( 'Downloads', 'smart-woo-service-invoicing' );?> <?php echo wp_kses_post( ( $has_asset && ! empty( $downloadables ) ) ? '<small>(found in ' . esc_html( $product_name ) . ')</small>' : '' ); ?></h3>
                         
@@ -104,7 +104,7 @@ defined( 'ABSPATH' ) || exit;
                         <h3><strong><?php esc_html_e( 'Custom Asset Types', 'smart-woo-service-invoicing' );?></strong></h3>
                         <div class="sw-additional-assets-field">
                             <h4>
-                                <?php esc_html_e( 'Asset type:') ?>
+                                <?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' ); ?>
                                 <input type="text" name="additional_asset_types[]" placeholder="eg. support service..." />
                             </h4>
                             <input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
