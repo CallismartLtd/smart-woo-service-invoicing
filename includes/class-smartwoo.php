@@ -92,6 +92,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_load_account_logs', array( __CLASS__, 'client_account_log' ) );
         add_action( 'wp_ajax_load_transaction_history', array( __CLASS__, 'client_transaction_history' ) );
         add_action( 'wp_ajax_smartwoo_manual_renew', array( __CLASS__, 'manual_renew_due' ) );
+        add_action( 'wp_ajax_get_subscriptions', array( __CLASS__, 'fetch_user_subscriptions' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
@@ -255,6 +256,9 @@ final class SmartWoo {
      * @param WC_Order $order
      */
     public function before_order_table( WC_Order $order ) {
+        if ( is_account_page() ) {
+            return;
+        }
         $our_order  = apply_filters( 'smartwoo_order_details_buttons', smartwoo_check_if_configured( $order ) || $order->is_created_via( SMARTWOO ) );
 
         if ( $our_order ) {
@@ -1271,7 +1275,7 @@ final class SmartWoo {
     }
 
     /**
-     * Renew a service.
+     * Renew an active service.
      *
      * This performs service renewal, relying on the confirmation that
      * the invoice is paid. If the invoice is
@@ -1850,6 +1854,65 @@ final class SmartWoo {
 
         // prevent further outputing
         die();
+    }
+
+    /**
+     * Fetch client subscriptions via ajax
+     */
+    public static function fetch_user_subscriptions() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+            wp_send_json_error( array( 'message' => 'Action failed basic authentication' ) );
+        }
+
+        $context    = isset( $_GET['context'] ) ? sanitize_text_field( wp_unslash( $_GET['context'] ) ) : '';
+
+        if ( 'any' === $context ) {
+            add_filter( 'smartwoo_is_frontend', '__return_true' );
+        } elseif ( 'myaccount' === $context ) {
+            add_filter( 'woocommerce_is_account_page', '__return_true' );
+        }
+
+        $page       = isset( $_GET['page'] ) ? absint( $_GET['page'] ) : 1;
+        $limit      = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 10;
+
+        $response   = array(
+            'message'       => 'No subscription found.',
+            'subscriptions' => [],
+            'pagination'    => array(
+                'total_pages'   => 0,
+                'total_items'   => 0,
+
+            )
+        );
+
+        $services       = [];
+        $user_id        = get_current_user_id();
+        $all_services   = SmartWoo_Service_Database::get_services_by_user( $user_id, $page, $limit );
+        
+        if ( ! empty( $all_services ) ) {
+            foreach( $all_services as $service ) {
+                $services[] = array(
+                    'view_url' => smartwoo_service_preview_url( $service->get_service_id() ),
+                    'status'    => smartwoo_service_status( $service ),
+                    'name'      => $service->get_name()
+                
+                );
+            }
+
+            $all_services_count		= SmartWoo_Service_Database::count_user_services( $user_id );
+            $total_items_count		= count( $all_services );
+            $total_pages			= ceil( $all_services_count / $limit );
+            $response['subscriptions']  = $services;
+            $response['message']        = 'Services found';
+            $response['pagination']     = array(
+                'total_pages'   => $total_pages,
+                'total_items'   => count( $all_services  ),
+                'all_items'     => $all_services_count
+            );
+        }
+        
+        wp_send_json_success( $response );
+
     }
 
 }
