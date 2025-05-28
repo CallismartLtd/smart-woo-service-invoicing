@@ -667,7 +667,8 @@ function smartwoo_kses_allowed( $allowed_tags, $context ) {
 		'style' => array(),
 		'ul'	=> array(
 			'style'		=> true,
-			'class'		=> true
+			'class'		=> true,
+			'limit'		=> true
 		),
 		'li'	=> array(),
 		'a'		=> array(
@@ -735,7 +736,9 @@ function smartwoo_allowed_form_html() {
 			'class'		=> true,
 			'id'		=> true,
 			'type'		=> true,
+			'style'		=> true,
 			'data-removed-id' => true,
+			
 		),
 		'a'			=> array(
 			'href'		=> true,
@@ -775,9 +778,13 @@ function smartwoo_allowed_form_html() {
 		),
 		'ul'		=> array(
 			'style'		=> true,
-			'class'		=> true
+			'class'		=> true,
+			'limit'		=> true
 		),
-		'li'		=> array(),
+		'li'		=> array(
+			'class'	=> true,
+			'id'	=> true
+		),
 		'img'		=> array(
 			'src'	=> true,
 			'alt'	=> true
@@ -1228,7 +1235,7 @@ function smartwoo_billing_cycle_dropdown( $selected = null, $args = array()) {
 		'echo'		=> true,
 		'name'		=> 'billing_cycle',
 		'option_none'	=> __( 'Select Billing Cycle', 'smart-woo-service-invoicing' ),
-		'field_name'	=> __( 'A billing cycle')
+		'field_name'	=> __( 'A billing cycle', 'smart-woo-service-invoicing' )
 	);
 
 	$parsed_args = wp_parse_args( $args, $default_args );
@@ -1458,3 +1465,4 @@ function smartwoo_get_endpoint_url( $endpoint, $query_value = '', $permalink = '
 
 	return $url;
 }
+
