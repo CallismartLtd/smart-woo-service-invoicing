@@ -45,7 +45,7 @@ defined( 'ABSPATH' ) || exit;
                     <label for="is-smartwoo-downloadable"><?php esc_html_e( 'Set Assets:', 'smart-woo-service-invoicing' );?>
                         <input type="checkbox" name="has_assets" id="is-smartwoo-downloadable" <?php echo esc_html( $has_asset ? 'checked' : '' ); ?>/>
                     </label> 
-                    <h2 class="sw-no-download-text" style="text-align: center;<?php echo esc_attr( $has_asset ? 'display: none' : '' ); ?>"><?php esc_html_e( 'No asset set for this subscription' ) ?></h2>
+                    <h2 class="sw-no-download-text" style="text-align: center;<?php echo esc_attr( $has_asset ? 'display: none' : '' ); ?>"><?php esc_html_e( 'No asset set for this subscription', 'smart-woo-service-invoicing' ) ?></h2>
                     <div class="sw-service-assets-downloads-container" style="<?php echo esc_html( $has_asset ? 'display: block;' : '' ); ?>">
                         <h3><strong><?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' );?></strong> <?php esc_html_e( 'Downloads', 'smart-woo-service-invoicing' );?></h3>
                         
@@ -96,7 +96,7 @@ defined( 'ABSPATH' ) || exit;
                             <?php foreach( $additionals as $asset ) : ?>
                                 <div class="sw-additional-assets-field">
                                     <h4>
-                                        <?php esc_html_e( 'Asset type:') ?>
+                                        <?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing' ) ?>
                                         <input type="text" name="additional_asset_types[]" value="<?php echo esc_html( $asset->get_asset_name() ); ?>" placeholder="eg. support service..." />
                                     </h4>
                                     <input type="text" name="additiional_asset_names[]" value="<?php echo esc_html( array_key_first( $asset->get_asset_data() ) ); ?>" placeholder="Asset Name" />
@@ -111,7 +111,7 @@ defined( 'ABSPATH' ) || exit;
                         <?php else: ?>
                             <div class="sw-additional-assets-field">
                                 <h4>
-                                    <?php esc_html_e( 'Asset type:') ?>
+                                    <?php esc_html_e( 'Asset type:', 'smart-woo-service-invoicing') ?>
                                     <input type="text" name="additional_asset_types[]" placeholder="eg. support service..." />
                                 </h4>
                                 <input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
