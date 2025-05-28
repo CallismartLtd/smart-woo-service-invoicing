@@ -95,8 +95,8 @@ function smartwoo_service_page_url() {
  */
 function smartwoo_service_preview_url( $service_id ) {
     if ( is_account_page() ) {
-        $preview_url = wc_get_endpoint_url( 'smartwoo-service', $service_id );        
-    } elseif( is_admin() ) {
+        $preview_url = wc_get_endpoint_url( 'smartwoo-service', $service_id , wc_get_page_permalink( 'myaccount' ) );        
+    } elseif( is_admin() && ! smartwoo_is_frontend() ) {
 		$preview_url = add_query_arg( 
 			array(
 				'service_id'	=> $service_id,
