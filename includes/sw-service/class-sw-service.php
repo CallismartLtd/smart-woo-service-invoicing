@@ -955,6 +955,9 @@ class SmartWoo_Service {
      * @return bool True if the subscription is in this specific active condition, false otherwise.
      */
     private function is_active_condition(): bool {
+		if ( 'Active' === $this->get_status() ) {
+			return true;
+		}
 
         $end_date          = smartwoo_extract_only_date( $this->get_end_date() );
         $next_payment_date = smartwoo_extract_only_date( $this->get_next_payment_date() );
@@ -970,6 +973,9 @@ class SmartWoo_Service {
      * @return bool True if the subscription is in this specific 'due for renewal' condition, false otherwise.
      */
     private function is_due_for_renewal_condition(): bool {
+		if ( 'Due for Renewal' === $this->get_status() ) {
+			return true;
+		}
         $end_date          = smartwoo_extract_only_date( $this->get_end_date() );
         $next_payment_date = smartwoo_extract_only_date( $this->get_next_payment_date() );
         $current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
@@ -983,6 +989,9 @@ class SmartWoo_Service {
      * @return bool True if the subscription is in its grace period, false otherwise.
      */
     private function is_in_grace_period_condition(): bool {
+		if ( 'Grace Period' === $this->get_status() ) {
+			return true;
+		}
         $end_date     = smartwoo_extract_only_date( $this->get_end_date() );
         $current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
@@ -1003,7 +1012,9 @@ class SmartWoo_Service {
      * @return bool True if the subscription is expired, false otherwise.
      */
     private function is_expired_condition(): bool {
-
+		if ( 'Expired' === $this->get_status() ) {
+			return true;
+		}
         $current_date    = current_time( 'Y-m-d' );
         $expiration_date = smartwoo_get_service_expiration_date( $this );
 
