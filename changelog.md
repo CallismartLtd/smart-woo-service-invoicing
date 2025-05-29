@@ -2,7 +2,20 @@
 
 # [2.4.0] YYYY-MM-DD
 ### Fixed
+# [2.4.0] YYYY-MM-DD
+### Fixed
 - Product page subscription banner price when product is on sale.
+
+### Improved
+- Improved the dashboard subscription searches by refactoring the `SmartWoo_Service_Database::search()` method to support more secure and flexible LIKE queries, better pagination, and improved caching.
+- Search queries now properly use `$wpdb->esc_like()` combined with wildcards (`%`) to safely handle user-provided search terms.
+
+### Service Subscription Status Refactored
+- The core logic for determining service subscription status has been encapsulated within the `SmartWoo_Service` class.
+- Introduced `SmartWoo_Service::get_effective_status()`, a new public method that provides the definitive service status, adhering to a strict precedence of explicit database overrides, cached values, and dynamically calculated date-based conditions.
+- Private helper methods (e.g., `is_active_condition()`, `is_due_for_renewal_condition()`, `is_in_grace_period_condition()`, `is_expired_condition()`) are now used internally by `get_effective_status()` for specific condition checks.
+- The global `smartwoo_service_status()` function has been simplified to delegate status determination to `SmartWoo_Service::get_effective_status()`.
+- Naming consistency for private status condition methods has been improved for better clarity.
 
 ### Introduced
 - A simplified subscription analysis and stats for non-techies.
