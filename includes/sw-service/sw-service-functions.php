@@ -174,18 +174,22 @@ function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id 
 }
 
 /**
- * Check if a service is in its 'grace period' condition.
- * This method is an internal helper for status calculation.
+ * Check if a service is on grace period.
  *
- * @return bool True if the subscription is in its grace period, false otherwise.
+ * @param object $service The service object.
+ *
+ * @return bool true if the subscription is on grace period, false otherwise.
  */
-function smartwoo_is_service_on_grace( SmartWoo_Service $service ): bool {
+function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
+	if ( 'Grace Period' === $service->get_status() ) {
+		return true;
+	}
 	$end_date     = smartwoo_extract_only_date( $service->get_end_date() );
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 	if ( $current_date >= $end_date ) {
-		$product_id        = $service->getProductId();
-		$grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
+		$product_id			= $service->getProductId();
+		$grace_period_date 	= smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
 		return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
 	}
