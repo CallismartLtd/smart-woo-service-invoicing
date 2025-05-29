@@ -200,10 +200,10 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                 <h4  class="sw-form-label"><label for="grace_period">Grace Period</label></h4>
                 <hr>
                 <div class="sw-form-input">
-                    <p class="description-class">A Service with this product expires after:</p>
+                    <p class="description-class">A subscription with this product expires<span></span>:</p>
                     <input type="number" name="grace_period_number" class="grace-period-number" id="grace_period_number" min="1" readonly>
                     <select name="grace_period_unit" class="select-grace period-unit" id="grace_period">
-                        <option value="">Grace Period</option>
+                        <option value="">Immediately</option>
                         <option value="days">Days</option>
                         <option value="weeks">Weeks</option>
                         <option value="months">Months</option>
