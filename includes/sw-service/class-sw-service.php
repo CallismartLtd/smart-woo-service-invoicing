@@ -886,5 +886,128 @@ class SmartWoo_Service {
 		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/client-assets.php';
 		return ob_get_clean();
 	}
-	
+
+/**
+     |---------------------------------------------------------
+     | SERVICE SUBSCRIPTION STATUS CALCULATION METHODS
+     |---------------------------------------------------------
+     | These methods define how a subscription's effective status is determined.
+     |
+     | The public `get_effective_status()` method is the main entry point. It prioritizes statuses as follows:
+     |
+     | 1.  **Explicit Override:** A status manually set in the database takes immediate precedence.
+     | 2.  **Cached Status:** If no override exists, a recently calculated status from cache is used for performance.
+     | 3.  **Calculated Status (Date-Based):** If no override or cache, the status is dynamically calculated.
+     |     This calculation uses several **private helper methods**, each checking a very specific condition:
+     |
+     |     -   `is_active_condition()`: Checks for a perfectly current, paid-up state.
+     |     -   `is_due_for_renewal_condition()`: Identifies when payment has matured, even if the service is still active.
+     |         **Important:** A service is considered **logically active/usable** even when 'Due for Renewal'.
+     |     -   `is_in_grace_period_condition()`: Checks if the service is past its end date but within a grace period.
+     |     -   `is_expired_condition()`: Determines if the service has definitively expired (after grace).
+     |
+     | The `get_effective_status()` method applies these private conditions in a strict order (Active -> Due -> Grace -> Expired)
+     | to yield the final, definitive service status.
+     */
+	    public function get_effective_status(): string {
+        // 1. Check for explicit status override from the database.
+        // This is the raw status property, which acts as the admin override.
+        $explicit_db_status = $this->get_status();
+
+        // If a non-empty string is explicitly set in the database, it's an override. Use it directly.
+        if ( ! empty( $explicit_db_status ) ) {
+            return $explicit_db_status;
+        }
+
+        // 2. No explicit override, so try to retrieve from cache (transient).
+        $cached_status = get_transient( 'smartwoo_status_' . $this->get_service_id() );
+
+        // If found in cache (and it's not 'false', which indicates a cache miss), return it.
+        if ( false !== $cached_status ) {
+            return $cached_status;
+        }
+
+        // 3. Cache miss and no explicit override, so auto-calculate the status.
+        $calculated_status = 'Unknown'; // Default fallback status if no condition matches.
+
+        // Calculate statuses based on date logic in the defined order of precedence.
+        // The first condition that evaluates to true determines the status.
+        if ( $this->is_active_condition() ) {
+            $calculated_status = 'Active';
+        } elseif ( $this->is_due_for_renewal_condition() ) {
+            $calculated_status = 'Due for Renewal';
+        } elseif ( $this->is_in_grace_period_condition() ) {
+            $calculated_status = 'Grace Period';
+        } elseif ( $this->is_expired_condition() ) {
+            $calculated_status = 'Expired';
+        }
+
+        // Cache the newly calculated status for future use.
+        set_transient( 'smartwoo_status_' . $this->get_service_id(), $calculated_status, 5 * MINUTE_IN_SECONDS );
+
+        return $calculated_status;
+    }
+
+    /**
+     * Check if a service subscription is in its 'active' (perfectly current, paid-up) condition.
+     * This method is an internal helper for status calculation.
+     *
+     * @return bool True if the subscription is in this specific active condition, false otherwise.
+     */
+    private function is_active_condition(): bool {
+
+        $end_date          = smartwoo_extract_only_date( $this->get_end_date() );
+        $next_payment_date = smartwoo_extract_only_date( $this->get_next_payment_date() );
+        $current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
+
+        return ( $next_payment_date > $current_date && $end_date > $current_date );
+    }
+
+    /**
+     * Check if a service subscription is in its 'due for renewal' condition.
+     * This method is an internal helper for status calculation.
+     *
+     * @return bool True if the subscription is in this specific 'due for renewal' condition, false otherwise.
+     */
+    private function is_due_for_renewal_condition(): bool {
+        $end_date          = smartwoo_extract_only_date( $this->get_end_date() );
+        $next_payment_date = smartwoo_extract_only_date( $this->get_next_payment_date() );
+        $current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
+        return ( ( $next_payment_date <= $current_date && $end_date > $current_date ) || $end_date === $current_date );
+    }
+
+    /**
+     * Check if a service is in its 'grace period' condition.
+     * This method is an internal helper for status calculation.
+     *
+     * @return bool True if the subscription is in its grace period, false otherwise.
+     */
+    private function is_in_grace_period_condition(): bool {
+        $end_date     = smartwoo_extract_only_date( $this->get_end_date() );
+        $current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
+
+        if ( $current_date >= $end_date ) {
+            $product_id        = $this->getProductId();
+            $grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
+
+            return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a service is in its 'expired' condition.
+     * This method is an internal helper for status calculation.
+     *
+     * @return bool True if the subscription is expired, false otherwise.
+     */
+    private function is_expired_condition(): bool {
+
+        $current_date    = current_time( 'Y-m-d' );
+        $expiration_date = smartwoo_get_service_expiration_date( $this );
+
+        // Check if the current date has passed the expiration date.
+        return ( $current_date > $expiration_date );
+    }
 }
