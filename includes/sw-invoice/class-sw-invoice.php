@@ -781,16 +781,9 @@ class SmartWoo_Invoice {
 					admin_url( 'admin.php' ) 
 			);
 		} elseif ( 'frontend' === $context ) {
-			$preview_url	= smartwoo_get_endpoint_url( 'view-invoice', $this->get_invoice_id() );
+			$preview_url	= smartwoo_get_endpoint_url( 'view-invoice', $this->get_invoice_id(), smartwoo_invoice_page_url() );
 		} elseif ( 'account' === $context ) {
-			$endpoint_url = wc_get_account_endpoint_url( 'smartwoo-invoice' );
-			$preview_url = add_query_arg(
-				array(
-					'view_invoice' => true,
-					'invoice_id'   => $this->get_invoice_id(),
-				),
-				$endpoint_url
-			);
+			$preview_url = wc_get_endpoint_url( 'smartwoo-invoice', $this->get_invoice_id(), wc_get_page_permalink( 'myaccount' ) );
 		} else {
 			$preview_url = smartwoo_invoice_preview_url( $this->get_invoice_id() );
 		}
