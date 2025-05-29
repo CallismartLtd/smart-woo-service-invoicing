@@ -1783,11 +1783,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if ( gracePeriodSelect ) {
         gracePeriodSelect.addEventListener( 'change', ()=>{
             let gracePeriodUnit = document.querySelector( '.grace-period-number' );
+            let descriptionClause = document.querySelector( '.description-class span' );
             if ( ! gracePeriodSelect.value.length ) {
-                console.log( 'grace no legth' );
+                gracePeriodUnit.value = '';
+                descriptionClause.textContent = '';
                 gracePeriodUnit.readOnly = true;
             } else {
                 gracePeriodUnit.readOnly = false;
+                descriptionClause.textContent = " after";
+                if ( ! gracePeriodUnit.value.length ) {
+                    gracePeriodUnit.value = 7;
+                }
             }
         });
     }
