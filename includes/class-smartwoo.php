@@ -966,7 +966,7 @@ final class SmartWoo {
                 // Prepare invoice data
                 $payment_status = 'unpaid';
                 $invoice_type   = 'Service Renewal Invoice';
-                $date_due       = current_time( 'mysql' );
+                $date_due       = SmartWoo_Date_Helper::create_from( $service->get_end_date() )->format( 'Y-m-d H:i:s' );
 
                 // Create a new unpaid invoice
                 $new_invoice_id = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
@@ -981,7 +981,7 @@ final class SmartWoo {
 
         // Increment page for next batch of services
         $args['page']++;
-        set_transient( 'smartwoo_auto_renew_args', $args, 12 * HOUR_IN_SECONDS ); // Store pagination data
+        set_transient( 'smartwoo_auto_renew_args', $args, 12 * HOUR_IN_SECONDS );
 
         return $invoices_created;
     }
@@ -1012,7 +1012,8 @@ final class SmartWoo {
 
             $product_id     = $service->get_product_id();
             $payment_status = 'unpaid';
-            $date_due       = date( 'Y-m-d H:i:s', strtotime( $service->get_end_date() ) );
+            $date_due       = ( 'Expired' === $service_status ) ? SmartWoo_Date_Helper::create_from( $service->get_end_date() ): SmartWoo_Date_Helper::create_from( $service->get_next_payment_date() );
+            $date_due       = $date_due->format( 'Y-m-d H:i:s' );
 
             // Generate Unpaid invoice
             $new_invoice_id = smartwoo_create_invoice( get_current_user_id(), $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
@@ -1294,52 +1295,34 @@ final class SmartWoo {
             return; // Invoice is already paid, or something went wrong.
         }
 
-        if ( $service ) {
-
-            /**
-             * Add Action Hook Before Updating Service Information.
-             * 
-             * @param SmartWoo_Service $service
-             */
-            do_action( 'smartwoo_before_service_renew', $service );
-
-            // Calculate Renewal Dates based on Billing Cycle.
-            $billing_cycle = $service->get_billing_cycle();
-            $old_end_date  = strtotime( $service->get_end_date() );
-
-            switch ( $billing_cycle ) {
-                case 'Weekly':
-                    $interval = '+1 week';
-                    break;
-                case 'Monthly':
-                    $interval = '+1 month';
-                    break;
-                case 'Quarterly':
-                    $interval = '+3 months';
-                    break;
-                case 'Six Monthly':
-                    $interval = '+6 months';
-                    break;
-                case 'Yearly':
-                    $interval = '+1 year';
-                    break;
-                default:
-                    break;
-            }
-
-            // Calculate new dates and implement.
-            $new_start_date        = date_i18n( 'Y-m-d', $old_end_date );
-            $new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, $old_end_date ) );
-            $new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
-            
-            $service->set_start_date( $new_start_date );
-            $service->set_next_payment_date( $new_next_payment_date );
-            $service->set_end_date( $new_end_date );
-            $service->set_status( null ); // Renewed service should be automatically calculated.
-            $updated = SmartWoo_Service_Database::update_service( $service );
-            do_action( 'smartwoo_service_renewed', $service );
-
+        if ( ! $service ) {
+            return;
         }
+
+        /**
+         * Add Action Hook Before Updating Service Information.
+         * 
+         * @param SmartWoo_Service $service
+         */
+        do_action( 'smartwoo_before_service_renew', $service );
+
+        $old_end_date_ts    = SmartWoo_Date_Helper::create_from( $service->get_end_date() )->get_timestamp();
+        $interval           = SmartWoo_Date_Helper::get_billing_cycle_interval( $service->get_billing_cycle() );
+
+        $new_start_date         = SmartWoo_Date_Helper::create_from_timestamp( $old_end_date_ts );
+        $new_end_date           = SmartWoo_Date_Helper::create_from_timestamp( strtotime( $interval, $old_end_date_ts ) );
+        $new_next_payment_date  = SmartWoo_Date_Helper::calculate_next_payment_date( 
+            $service->get_next_payment_date(),
+            $service->get_end_date(),
+            $new_end_date->format( 'Y-m-d')
+        );
+        
+        $service->set_start_date( $new_start_date->format( 'Y-m-d') );
+        $service->set_next_payment_date( $new_next_payment_date->format( 'Y-m-d') );
+        $service->set_end_date( $new_end_date->format( 'Y-m-d') );
+        $service->set_status( null ); // Renewed service is calculated automatically.
+        SmartWoo_Service_Database::update_service( $service );
+        do_action( 'smartwoo_service_renewed', $service );
     }
 
     /**
@@ -1357,62 +1340,84 @@ final class SmartWoo {
         $invoice         = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
         $invoice_is_paid = smartwoo_mark_invoice_as_paid( $invoice_id );
 
-        if ( ! $invoice_is_paid ) { 
-            return; // Invoice is already paid or something went wrong.
+        if ( ! $expired_service ) {
+            /**
+             * Fires when service renewal fails
+             * 
+             * @param string $reason Reason for the failure.
+             * @param SmartWoo_Service|false The service subscription object or false
+             */
+            do_action( 'smartwoo_service_renewal_failed', 'Service subscription does not exists.', $expired_service  );
+            return;
         }
 
-        if ( $expired_service ) {
-
+        if ( ! $invoice_is_paid ) {
             /**
-             * Fires before an expired service is reactivated.
+             * Fires when service renewal fails
              * 
-             * @param SmartWoo_Service $expired_service
-             */ 
-            do_action( 'smartwoo_before_activate_expired_service', $expired_service );
+             * @param string $reason Reason for the failure.
+             * @param SmartWoo_Service The service subscription object
+             */
+            do_action( 'smartwoo_service_renewal_failed', 'Renewal invoice has already been paid.', $expired_service  );
+            return;
+        }
 
-            $order           = $invoice->get_order();
-            $order_paid_date = $order->get_date_paid()->format( 'Y-m-d' );
+        /**
+         * Fires before an expired service is reactivated.
+         * 
+         * @param SmartWoo_Service $expired_service
+         */ 
+        do_action( 'smartwoo_before_activate_expired_service', $expired_service );
 
-            $billing_cycle = $expired_service->get_billing_cycle();
+        $order  = $invoice->get_order();
+        if ( ! $order ) {
+            /**
+             * Fires when service renewal fails
+             * 
+             * @param string $reason Reason for the failure.
+             * @param SmartWoo_Service The service subscription object
+             */
+            do_action( 'smartwoo_service_renewal_failed', 'Order associated with the renewal invoice does not exists.', $expired_service  );
+            return;
+        }
 
-            switch ( $billing_cycle ) {
-                case 'Weekly':
-                    $interval = '+1 week';
-                    break;
-                case 'Monthly':
-                    $interval = '+1 month';
-                    break;
-                case 'Quarterly':
-                    $interval = '+3 months';
-                    break;
-                case 'Six Monthtly':
-                    $interval = '+6 months';
-                    break;
-                case 'Yearly':
-                    $interval = '+1 year';
-                    break;
-                default:
-                    break;
-            }
+        $interval   = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
 
-            $new_start_date        = $order_paid_date;
-            $new_end_date          = date_i18n( 'Y-m-d', strtotime( $interval, strtotime( $new_start_date ) ) );
-            $new_next_payment_date = date_i18n( 'Y-m-d', strtotime( '-7 days', strtotime( $new_end_date ) ) );
-            $expired_service->set_start_date( $new_start_date );
-            $expired_service->set_next_payment_date( $new_next_payment_date );
-            $expired_service->set_end_date( $new_end_date );
-            $expired_service->set_status( null );
-            $updated = SmartWoo_Service_Database::update_service( $expired_service );
+        $new_start_date = $order->get_date_paid();
+        if ( ! $new_start_date ) {
+            $new_start_date = SmartWoo_Date_Helper::create_from_timestamp( time() );
+        }
+        
+        $new_end_date           = SmartWoo_Date_Helper::create_from_timestamp( strtotime( $interval, $new_start_date->getTimestamp() ) );
+        $new_next_payment_date  = SmartWoo_Date_Helper::calculate_next_payment_date( 
+            $expired_service->get_next_payment_date(),
+            $expired_service->get_end_date(),
+            $new_end_date->format( 'Y-m-d')
+        );
+
+        $expired_service->set_start_date( $new_start_date->format( 'Y-m-d' ) );
+        $expired_service->set_next_payment_date( $new_next_payment_date->format( 'Y-m-d' ) );
+        $expired_service->set_end_date( $new_end_date->format( 'Y-m-d' ) );
+        $expired_service->set_status( null );
+        $updated = SmartWoo_Service_Database::update_service( $expired_service );
+
+        if ( $updated ) {
             /**
              * Fires after an expired service is renewed.
              * 
              * @param SmartWoo_Service $expired_service.
              */
-            do_action( 'smartwoo_expired_service_activated', $expired_service );
-            return true;
+            do_action( 'smartwoo_expired_service_activated', $expired_service ); 
+        } else {
+            /**
+             * Fires when service renewal fails
+             * 
+             * @param string $reason Reason for the failure.
+             * @param SmartWoo_Service The service subscription object
+             */
+            do_action( 'smartwoo_service_renewal_failed', 'Unable to update records in the database.', $expired_service  );
         }
-
-        return false;
+               
     }
 
     /**
