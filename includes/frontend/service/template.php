@@ -31,7 +31,7 @@ class SmartWoo_Service_Frontend_Template {
 		$buy_product_page		= smartwoo_get_endpoint_url( 'buy-new' );
 		
 		$page					= max( 1, get_query_var( 'paged' ) );
-		$limit					= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 9;
+		$limit					= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 9; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$all_services			= SmartWoo_Service_Database::get_services_by_user( $user_id, $page, $limit );
 		$pending_services		= SmartWoo_Service_Database::get_user_awaiting_services( $user_id );
 		$services				= array_merge( $all_services, $pending_services );
@@ -39,6 +39,12 @@ class SmartWoo_Service_Frontend_Template {
 		$all_services_count		= SmartWoo_Service_Database::count_user_services( $user_id );
 		$total_items_count		= count( $all_services );
 		$total_pages			= ceil( $all_services_count / $limit );
+
+		$args = array();
+
+		if ( ! empty( $_GET['limit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$args['limit']	= absint( $_GET['limit'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
 		
 		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/front.php';
 	}
