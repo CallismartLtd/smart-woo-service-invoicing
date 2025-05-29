@@ -174,60 +174,18 @@ function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id 
 }
 
 /**
- * Check if a service subscription is active.
+ * Check if a service is in its 'grace period' condition.
+ * This method is an internal helper for status calculation.
  *
- * @param object $service The service object.
- *
- * @return bool True if the subscription is active, false otherwise.
+ * @return bool True if the subscription is in its grace period, false otherwise.
  */
-function smartwoo_is_service_active( SmartWoo_Service $service ) {
-	if ( 'Active' === $service->get_status() ) {
-		return true;
-	}
-
-	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
-	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
-	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
-
-	return ( $next_payment_date > $current_date && $end_date > $current_date || $end_date === $current_date );
-	
-}
-
-/**
- * Check if a service subscription is due.
- *
- * @param object $service  The service object
- *
- * @return bool True if the subscription is due, false otherwise
- */
-function smartwoo_is_service_due( SmartWoo_Service $service ) {
-	if ( 'Due for Renewal' === $service->get_status() ) {
-		return true;
-	}
-
-	$end_date          = smartwoo_extract_only_date( $service->getEndDate() );
-	$next_payment_date = smartwoo_extract_only_date( $service->getNextPaymentDate() );
-	$current_date      = smartwoo_extract_only_date( current_time( 'mysql' ) );
-	return ( $next_payment_date <= $current_date && $end_date > $current_date );
-}
-
-/**
- * Check if a service is on grace period.
- *
- * @param object $service The service object.
- *
- * @return bool true if the subscription is on grace period, false otherwise.
- */
-function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
-	if ( 'Grace Period' === $service->get_status() ) {
-		return true;
-	}
-	$end_date     = smartwoo_extract_only_date( $service->getEndDate() );
+function smartwoo_is_service_on_grace( SmartWoo_Service $service ): bool {
+	$end_date     = smartwoo_extract_only_date( $service->get_end_date() );
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 	if ( $current_date >= $end_date ) {
-		$product_id			= $service->getProductId();
-		$grace_period_date 	= smartwoo_get_grace_period_end_date( $product_id, $end_date );
+		$product_id        = $service->getProductId();
+		$grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
 		return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
 	}
@@ -235,77 +193,21 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 	return false;
 }
 
-
 /**
- * Check if a service has expired.
+ * Get the current, definitive status of a service subscription.
  *
- * @param object $service The service object.
- *
- * @return bool true if the subscription has expired, false otherwise.
+ * @param SmartWoo_Service|string $service_id The SmartWoo_Service object instance, or the service ID.
+ * If an ID is provided, the function will attempt to
+ * retrieve the service object from the database using SmartWoo_Service_Database.
+ * @return string The effective status of the service (e.g., 'Active', 'Due for Renewal', 'Grace Period', 'Expired', 'Unknown').
  */
-function smartwoo_has_service_expired( SmartWoo_Service $service ) {
-	if ( 'Expired' === $service->get_status() ) {
-		return true;
-	}
+function smartwoo_service_status( $service_id ): string {
+    $service = ( $service_id instanceof SmartWoo_Service ) ? $service_id : SmartWoo_Service_Database::get_service_by_id( $service_id );
+    if ( ! $service ) {
+        return 'unknown';
+    }
 
-	$current_date 		= current_time( 'Y-m-d' );
-	$expiration_date	= smartwoo_get_service_expiration_date( $service );
-
-	// Check if the current date has passed the expiration date.
-	return ( $current_date > $expiration_date );
-}
-
-
-/**
- * Get the status of a service.
- *
- * @param SmartWoo_Service|string $service_id The service object or service ID.
- *
- * @return string The status.
- */
-function smartwoo_service_status( $service_id ) {
-
-	$service	= ( $service_id instanceof SmartWoo_Service ) ? $service_id : SmartWoo_Service_Database::get_service_by_id( $service_id );
-	
-	if ( ! $service ) {
-		return 'unknown';
-	}
-	
-	// Get the status text from the DB which overrides the calculated status.
-	$overriding_status = $service->get_status();
-	
-	// Check overriding status first.
-	if ( ! empty( $overriding_status ) ) {
-		return $overriding_status;
-	}
-
-	$status = get_transient( 'smartwoo_status_'. $service->get_service_id() );
-
-	if ( false === $status ) {
-		// Check calculated statuses.
-		$active       = smartwoo_is_service_active( $service );
-		$due          = smartwoo_is_service_due( $service );
-		$grace_period = smartwoo_is_service_on_grace( $service );
-		$expired      = smartwoo_has_service_expired( $service );
-
-		// Check calculated statuses in order of priority.
-		if ( $active ) {
-			$status = 'Active';
-		} elseif ( $due ) {
-			$status = 'Due for Renewal';
-		} elseif ( $grace_period ) {
-			$status = 'Grace Period';
-		} elseif ( $expired ) {
-			$status = 'Expired';
-		} else {
-			$status	= 'Unknown';
-		}
-
-		set_transient( 'smartwoo_status_' . $service->get_service_id(), $status, 5 * MINUTE_IN_SECONDS );
-	}
-
-	
-	return $status;
+    return $service->get_effective_status();
 }
 
 
@@ -395,7 +297,7 @@ function smartwoo_generate_service_id( $service_name ) {
  * @return string The calculated expiration date.
  */
 function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
-	$end_date			= smartwoo_extract_only_date( $service->getEndDate() );
+	$end_date			= smartwoo_extract_only_date( $service->get_end_date() );
 	$product_id			= $service->getProductId();
 	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $product_id, $end_date ) );
 	$expiration_date	= $grace_period_date ?? $end_date;
