@@ -47,11 +47,11 @@ defined( 'ABSPATH' ) || exit; ?>
             <div class="sw-pagination-buttons">
                 <p><?php echo absint( $total_items_count ) . ' item' . ( $total_items_count > 1 ? 's' : '' ); ?></p>
                     <?php if ( $page > 1 ) : $prev_page = $page - 1; ?>
-                        <a class="sw-pagination-button" href="<?php echo esc_url( smartwoo_get_endpoint_url( 'page', $prev_page ) ); ?>"><button><span class="dashicons dashicons-arrow-left-alt2"></span></button></a>
+                        <a class="sw-pagination-button" href="<?php echo esc_url( add_query_arg( $args, smartwoo_get_endpoint_url( 'page', $prev_page ) ) ); ?>"><button><span class="dashicons dashicons-arrow-left-alt2"></span></button></a>
                     <?php endif; ?>
                 <p><?php echo absint( $page ) . ' of ' . absint( $total_pages ); ?></p>
                 <?php if ( $page < $total_pages ) : $next_page = $page + 1; ?>
-                    <a class="sw-pagination-button" href="<?php echo esc_url( smartwoo_get_endpoint_url( 'page', $next_page ) ); ?>"><button><span class="dashicons dashicons-arrow-right-alt2"></span></button></a>
+                    <a class="sw-pagination-button" href="<?php echo esc_url( add_query_arg( $args, smartwoo_get_endpoint_url( 'page', $next_page ) ) ); ?>"><button><span class="dashicons dashicons-arrow-right-alt2"></span></button></a>
                 <?php endif; ?>
             </div>
         <?php elseif ( ! empty( $services ) ): ?>
