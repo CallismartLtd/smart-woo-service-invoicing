@@ -431,7 +431,7 @@ class SmartWoo_Order {
      * Get the status of an order, we should add a `completed` string value to the order_item meta after processing.
      */
     public function get_status() {
-        $status = 'awaiting payment'; // Assuming order is not paid;
+        $status = 'awaiting payment'; // Assuming order is not paid.
         $parent_order_status =  $this->get_parent_order() ? $this->get_parent_order()->get_status() : '';
         if ( in_array( $parent_order_status, wc_get_is_pending_statuses(), true ) ) {
             return $status;
