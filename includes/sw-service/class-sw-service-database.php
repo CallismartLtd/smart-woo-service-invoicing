@@ -486,7 +486,7 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
-	 * Search a service by a search term with exact match.
+	 * Search a service by a search term.
 	 *
 	 * @return array Array of SmartWoo_Service Objects or empty array.
 	 */
@@ -500,7 +500,8 @@ class SmartWoo_Service_Database {
 		$offset 		= ( $page - 1 ) * $limit;
 
 		// Try to retrieve the results from the cache.
-		$services = wp_cache_get( 'smartwoo_services_' . $search_term );
+		$cache_key = 'smartwoo_services_' . $search_term . '_' . $limit . '_' . $page;
+		$services = wp_cache_get( $cache_key );
 
 		// If cache is not available, query the database.
 		if ( false === $services ) {
@@ -509,24 +510,24 @@ class SmartWoo_Service_Database {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$query = $wpdb->prepare( 
 				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . "
-				WHERE `id` = %s 
-				OR `user_id` = %s 
-				OR `service_name` = %s 
-				OR `service_url` = %s 
-				OR `service_type` = %s 
-				OR `service_id` = %s 
-				OR `product_id` = %s 
-				OR `status` = %s
+				WHERE `id` LIKE %s 
+				OR `user_id` LIKE %s 
+				OR `service_name` LIKE %s 
+				OR `service_url` LIKE %s 
+				OR `service_type` LIKE %s 
+				OR `service_id` LIKE %s 
+				OR `product_id` LIKE %s 
+				OR `status` LIKE %s
 				LIMIT %d
 				OFFSET %d", 
-				$search_term, 
-				$search_term, 
-				$search_term, 
-				$search_term, 
-				$search_term, 
-				$search_term, 
-				$search_term, 
-				$search_term, 
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				'%' . $wpdb->esc_like( $search_term ) . '%',
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				'%' . $wpdb->esc_like( $search_term ) . '%', 
 				$limit,
 				$offset
 			);
@@ -537,7 +538,7 @@ class SmartWoo_Service_Database {
 			// If results are found, convert them to services and cache them.
 			if ( ! empty( $results ) ) {
 				$services = self::convert_results_to_services( $results );
-				wp_cache_set( 'smartwoo_services_' . $search_term, $services, 'smartwoo_service', HOUR_IN_SECONDS );
+				wp_cache_set( $cache_key, $services, 'smartwoo_service', HOUR_IN_SECONDS );
 			}
 		}
 
