@@ -28,9 +28,10 @@ defined( 'ABSPATH' ) || exit; ?>
                     <div class="sw-description">
                         <?php echo wp_kses_post( $product->get_short_description() ); ?>
                     </div>
-                    <a href="<?php echo esc_url( smartwoo_configure_page( $product->get_id() ) ); ?>" class="sw-blue-button product_type_<?php echo esc_attr( $product->get_type() ); ?> add_to_cart_button" data-product_id="<?php echo esc_attr( $product->get_id() ); ?>" data-product_name="<?php echo esc_attr( $product->get_name() ); ?>"><?php echo esc_html( $product->add_to_cart_text() ); ?></a>
-                    <a href="<?php echo esc_url( $product->get_permalink() ); ?>" class="sw-blue-button" ><?php echo esc_html__( 'View', 'smart-woo-service-invoicing' ); ?></a>
-                
+                    <div class="sw-button-container">
+                        <?php $product->get_add_to_cart_button(); ?>
+                        <a href="<?php echo esc_url( $product->get_permalink() ); ?>" class="sw-blue-button" ><?php echo esc_html__( 'View', 'smart-woo-service-invoicing' ); ?></a>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
