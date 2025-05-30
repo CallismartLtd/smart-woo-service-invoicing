@@ -1466,3 +1466,26 @@ function smartwoo_get_endpoint_url( $endpoint, $query_value = '', $permalink = '
 	return $url;
 }
 
+/**
+ * Get the fast checkout options.
+ * 
+ * @return array
+ */
+function smartwoo_fast_checkout_options() {
+	$options = get_option( 'smartwoo_fast_checkout_options', array() );
+	$default_options = array(
+		'title'						=> 'Configure {{product_name}}',
+		'service_name_placeholder'	=> 'Service name (required)',
+		'url_placeholder'			=> 'URL (optional)',
+		'checkout_button_text'		=> 'Checkout',
+		'description'				=> 'Please add a name for this service subscription.',
+		'title_color'				=> '#333333',
+		'modal_background_color'	=> '#FFFFFF',
+		'button_background_color'	=> '#0073E6',
+		'button_text_color'			=> '#FFFFFF',
+	);
+
+	$parsed_options	= wp_parse_args( $options, $default_options );
+
+	return $parsed_options;
+}
