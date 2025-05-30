@@ -222,9 +222,6 @@ class SmartWoo_Config{
         if ( is_page( $invoice_page_id ) || is_account_page() ) {
             $invoice_style_url  = apply_filters( 'smartwoo_invoice_style_url', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css' );
             wp_enqueue_style( 'smartwoo-invoice-style', $invoice_style_url, array(), SMARTWOO_VER, 'all' );
-            if( isset( $_GET['view_invoice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- False positive, global array value not processed.
-                wp_enqueue_style( 'dashicons' );
-            }
         }
 
         if ( is_admin() ) {
@@ -272,7 +269,8 @@ class SmartWoo_Config{
             'currentScreen'             => self::get_current_screen(),
             'get_user_data'             => admin_url( 'admin-ajax.php?action=smartwoo_get_user_data' ),
             'global_nextpay_date'       => smartwoo_get_global_nextpay( 'edit' ),
-            'default_avatar_url'        => smartwoo_get_avatar_placeholder_url()
+            'default_avatar_url'        => smartwoo_get_avatar_placeholder_url(),
+            'fast_checkout_config'      => smartwoo_fast_checkout_options()
         );
 
         wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
@@ -300,11 +298,14 @@ class SmartWoo_Config{
      */
     public static function script_suffix() {
         if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-            return '-min';
-        } elseif ( defined( 'SMARTWOO_SCRIPT_DEBUG ' ) && SMARTWOO_SCRIPT_DEBUG ) {
-            return '-min';
+            return '';
+        } 
+        
+        if ( defined( 'SMARTWOO_SCRIPT_DEBUG' ) && SMARTWOO_SCRIPT_DEBUG ) {
+            return '';
         }
-        return '';
+
+        return '-min';
     }
 
     /**
