@@ -2144,6 +2144,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         });
     }
+
+    if ( resetFastCheckoutBtn ) {
+        resetFastCheckoutBtn.addEventListener( 'click', e =>{
+            e.preventDefault();
+            let confirmed = confirm( 'All your customizations will be lost!');
+
+            if ( ! confirmed ) {
+                return;
+            }
+
+            let url = new URL( smart_woo_vars.ajax_url );
+            url.searchParams.set( 'action', 'smartwoo_reset_fast_checkout' );
+            url.searchParams.set( 'security', smart_woo_vars.security );
+            
+            fetch( url )
+            .then( response => {
+                if ( response.ok ) {
+                    window.location.reload();
+                } else {
+                    showNotification( `Error: ${response.statusText}` );
+                }
+            })
+        })
+    }
     
 });
 
@@ -2224,7 +2248,6 @@ document.addEventListener( 'smartwooTableChecked', (e)=>{
             hookName: 'product_table_actions'
         });
     }
-
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2330,4 +2353,5 @@ document.addEventListener('DOMContentLoaded', function() {
 		} );
 
 	}
+
 });
