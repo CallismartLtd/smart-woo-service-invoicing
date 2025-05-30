@@ -93,6 +93,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_load_transaction_history', array( __CLASS__, 'client_transaction_history' ) );
         add_action( 'wp_ajax_smartwoo_manual_renew', array( __CLASS__, 'manual_renew_due' ) );
         add_action( 'wp_ajax_get_subscriptions', array( __CLASS__, 'fetch_user_subscriptions' ) );
+        add_action( 'wp_ajax_smartwoo_reset_fast_checkout', array( __CLASS__, 'reset_fast_checkout' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
@@ -1917,6 +1918,19 @@ final class SmartWoo {
         }
         
         wp_send_json_success( $response );
+
+    }
+
+    /**
+     * Ajax reset fast checkout options
+     */
+    public static function reset_fast_checkout() {
+        check_ajax_referer( 'smart_woo_nonce', 'security' );
+        if ( delete_option( 'smartwoo_fast_checkout_options' ) ) {
+            wp_send_json_success();
+        }
+
+        wp_send_json_error( '', 401 );
 
     }
 
