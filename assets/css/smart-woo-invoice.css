@@ -27,20 +27,6 @@
     max-height: 200px;
 }
 
-/* .sw-invoice-status {
-    float: right;
-    max-width: 80%;
-    width: 380px;
-    margin-top: -50px;
-    background-color: #f1f1f1;
-    height: 50px;
-    padding: 10px;
-    max-width: 100%;
-    transform: rotate(40deg);
-    transform-origin: bottom right;
-    
-} */
-
 .sw-invoice-status {
     position: absolute;
     bottom: 0;
