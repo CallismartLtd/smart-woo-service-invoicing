@@ -1132,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchbtn               = document.getElementById('swSearchBtn');
     const notificationTooltip   = document.getElementById('search-notification');
     let menuButton              = document.querySelector('.sw-admin-menu-icon');
-    let deleteInvoiceBtns           = document.querySelectorAll('.delete-invoice-button');
+    let deleteInvoiceBtns       = document.querySelectorAll('.delete-invoice-button');
     let deleteProductIds        = document.querySelectorAll('.sw-delete-product' );
     let deleteServiceBtn        = document.querySelector('.delete-service-button');
     let adminDashHeader         = document.querySelector('.sw-admin-dash-header');
@@ -1159,6 +1159,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let adminViewServiceDivs    = document.querySelectorAll( '.sw-view-details-service-product, .admin-view-service-invoices-items, .sw-admin-subinfo, .sw-admin-client-billing-info-tab, .sw-admin-client-info-essentials, .sw-admin-client-info-pro-data, .sw-admin-client-service-invoice-pro-sell' );
     let serviceFormUserDropdown = document.querySelector( '#smartwooServiceUserDropdown' );
     const serviceForm           = document.querySelector( '#smartwooServiceForm' );
+    let resetFastCheckoutBtn    = document.getElementById( 'resetFastCheckoutOptions' );
+
     /**
      * The assets is downloadable checkbox.
      */
@@ -1223,15 +1225,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if ( contentDiv ) {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
         let wpHelpDiv = document.getElementById('contextual-help-wrap');
-        let wpScreen  = document.getElementById('contextual-help-columns');
+        let wpScreen  = document.querySelector('.contextual-help-tabs');
         if (wpHelpTab) {
             
-            wpHelpTab.style.zIndex = '9999';
+            // wpHelpTab.style.zIndex = '1';
             wpHelpDiv.style.zIndex = '9999';
             wpHelpTab.style.top = '110px';
             wpHelpTab.style.right = '1px';
-            wpScreen.style.backgroundColor = '#f9f9f9';
-            wpScreen.style.border = 'solid blue 1px';
+            wpScreen.style.backgroundColor = '#ffffff';
+            // wpScreen.style.border = 'solid blue 1px';
             wpHelpTab.style.position = 'absolute';
         }
         // Clone the skeleton loader for each statistic
