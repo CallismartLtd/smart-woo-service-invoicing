@@ -77,6 +77,7 @@ class SmartWoo_Product extends WC_Product {
 		add_action( 'woocommerce_' . self::instance()->get_type() .'_add_to_cart', array( __CLASS__, 'load_configure_button' ), 15 );
 		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
 		add_action( 'wp_ajax_smartwoo_json_search_sw_products', array( __CLASS__, 'ajax_product_search' ) );
+		add_action( 'woocommerce_before_shop_loop_item', array( __CLASS__, 'add_product_config_data' ), 4 );
 
 	}
 
@@ -483,6 +484,28 @@ class SmartWoo_Product extends WC_Product {
 		return $selectors;
 	}
 
+	public static function add_product_config_data() {
+		global $product;
+
+		if ( ! $product || ! is_a( $product, __CLASS__ ) ) {
+			return;
+		}
+
+
+		$product_data = array(
+			'id'		=> $product->get_id(),
+			'name'		=> $product->get_name(),
+			'image_url' => wp_get_attachment_url( $product->get_image_id() ),
+			'price'		=> $product->get_price(),
+		);
+
+		$json_data = wp_json_encode( $product_data );
+		?>
+			<div class="smartwoo-product-data" smartwoo-product-config="<?php echo esc_attr( $json_data ); ?>"></div>
+		<?php
+	}
+
+
 	/**
 	 * Single Product add to cart text and url.
 	 */
@@ -497,10 +520,28 @@ class SmartWoo_Product extends WC_Product {
 	/**
 	 * Get the add to cart button
 	 */
-	public function get_add_to_cart_button() {
+	public function get_add_to_cart_button() {	
+		$product_data = array(
+			'id'		=> $this->get_id(),
+			'name'		=> $this->get_name(),
+			'image_url' => wp_get_attachment_url( $this->get_image_id() ),
+			'price'		=> $this->get_price(),
+		);
+
+		$json_data = wp_json_encode( $product_data );
+
 		?>
 		<div class="configure-product-button">
-			<a href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>" class="button product_type_<?php echo esc_attr( self::instance()->get_type() ); ?> add_to_cart_button" data-product_id="<?php echo absint( $this->get_id() ); ?>" data-product_name="<?php echo esc_attr( $this->get_name() ); ?>"><?php echo esc_html( smartwoo_product_text_on_shop() ); ?></a>
+			<div class="smartwoo-product-data" smartwoo-product-config="<?php echo esc_attr( $json_data ); ?>"></div>
+			<a 
+				href="<?php echo esc_url( smartwoo_configure_page( $this->get_id() ) ); ?>"
+				class="button sw-blue-button product_type_<?php echo esc_attr( self::instance()->get_type() ); ?> add_to_cart_button" data-product_id="<?php echo absint( $this->get_id() ); ?>"
+				data-product_name="<?php echo esc_attr( $this->get_name() ); ?>"
+				data-smartwoo-product-config="<?php echo esc_attr( $json_data ); ?>"
+			>
+				<?php echo esc_html( smartwoo_product_text_on_shop() ); ?>
+				
+			</a>
 		</div>
 		<?php
 	}
