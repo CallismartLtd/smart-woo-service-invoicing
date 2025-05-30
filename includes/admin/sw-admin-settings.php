@@ -606,7 +606,7 @@ function smartwoo_advanced_options() {
 						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
-			
+				<p style="width: 100%"><?php echo wp_kses_post( 'Fast checkout customization is experimental. If you want us extend these options, kindly <a href="https://callismart.com.ng/smart-woo-service-invoicing-release-notes/#feature-request">Reach out to us.</a>', 'smart-woo-service-invoicing' ); ?></p>
 			</div>
 
             <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save">
