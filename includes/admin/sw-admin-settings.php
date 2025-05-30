@@ -103,6 +103,21 @@ function smartwoo_save_advanced_options(){
 				update_option( $checkbox_name, 0 ); 
 			}
 		}
+
+		$fc_options			= array_intersect_key( $_POST, smartwoo_fast_checkout_options() );
+		$sanitized_options	= array();
+		
+		foreach( $fc_options as $key => $value ) {
+			if ( in_array( $key, ['modal_background_color', 'title_color', 'button_background_color', 'button_text_color'] ) ) {
+				$sanitized_options[ $key ] = sanitize_hex_color( wp_unslash( $value ) );
+			} else {
+				$sanitized_options[ $key ] = sanitize_text_field( wp_unslash( $value ) );
+			}
+		}
+
+		$fc_final_options = wp_parse_args( $sanitized_options, smartwoo_fast_checkout_options() );
+		update_option( 'smartwoo_fast_checkout_options', $fc_final_options );
+
 		echo wp_kses_post( '<div class="updated notice updated is-dismissible"><p>Settings saved!</p></div>' );
 
 	}
@@ -537,11 +552,11 @@ function smartwoo_advanced_options() {
 		return;
 	}
 
-	ob_start();
 	smartwoo_save_advanced_options();
 	$product_text		= get_option( 'smartwoo_product_text_on_shop', 'Configure' );
 	$inv_footer_text	= get_option( 'smartwoo_invoice_footer_text', 'Thank you for the continued business and support. We value you so much.' );
-    $checkboxes			= apply_filters( 'smartwoo_advanced_options',
+    $fc_options			= smartwoo_fast_checkout_options();
+	$checkboxes			= apply_filters( 'smartwoo_advanced_options',
 		array(
 			'smartwoo_allow_fast_checkout',
 			'smartwoo_allow_optout/Cancellation',
@@ -578,9 +593,24 @@ function smartwoo_advanced_options() {
                 <hr>
             <?php endforeach; ?>
 
-            <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save Settings">
+			<h1>Fast checkout settings <a href="#" id="resetFastCheckoutOptions" style="font-size: 12px;"><?php esc_html_e( 'Reset to default', 'smart-woo-service-invoicing' ); ?></a></h1>
+			<code><?php esc_html_e( 'Use {{product_name}} to include the product name in title', 'smart-woo-service-invoicing' ); ?></code>
+			<div class="sw-admin-fast-checkout-option">
+				<?php foreach( (array) $fc_options as $key => $value ) : ?>
+					<div class="sw-service-form-row">
+						<label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( ucfirst( str_replace( '_', ' ', $key ) ) ); ?></label>
+						<?php if ( in_array( $key, array( 'button_text_color', 'title_color', 'button_background_color', 'modal_background_color' ), true ) ) : ?>
+							<input type="color" id="<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>">
+						<?php else: ?>
+							<input type="text" id="<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>">
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			
+			</div>
+
+            <input type="submit" class="sw-blue-button" name="sw_save_options" value="Save">
         </form>
     </div>
     <?php
-	return ob_get_clean();
 }
