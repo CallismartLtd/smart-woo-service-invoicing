@@ -632,6 +632,7 @@ border-radius: 5px;
 .smart-woo-logout {
 	cursor: pointer;
 }
+.smartwoo-modal-frame,
 .smartwoo-logout-frame {
     display: none;
     position: fixed;
@@ -783,6 +784,9 @@ border-radius: 5px;
 	font-family: 'Inter', sans-serif;
 	min-height: 50vh;
 	font-size: medium;
+}
+.smartwoo-page a {
+	text-decoration: none;
 }
 
 .smartwoo-page p {
@@ -1484,9 +1488,15 @@ font-weight: 100;
     border: .5px solid #0202ff67;
     border-radius: 3px;
     background-color: #ffffff;
+	width: 50px;
+	padding: 1px;
 }
 .sw-table-limit-container input[type="button"] {
     background-color: #f1f1f1;
+	padding: 0;
+	font-size: 12px;
+	color: #333333;
+	width: 100px;
 }
 
 /****************LOGIN FORM **********************/
@@ -1597,36 +1607,61 @@ font-weight: 100;
 }
 
 .sw-fast-checkout-main {
-	position: fixed;
-	top: 25%;
-	left: 2000px;
+	position: absolute;
+	top: 15%;
+    left: 50%;
 	border: solid 2px #dcdcde;
 	display: flex;
 	flex-direction: column;
-	flex-wrap: wrap;
 	gap: 10px;
-	background-color: #f1f1f1;
+	background-color: #FFFFFF;
 	transition: 1s ease-in-out;
 	z-index: 9999;
-	width: 350px;
+	max-width: 768px;
+	width: 95%;
+	margin: auto;
+	transform: translateX(-50%);
+	padding: 10px;
+	border-radius: 8px;
+}
+
+.smartwoo-fast-checkout-description {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	align-items: center;
+	border: solid 1px #dcdcde;
+	background-color: #f1f1f1;
+	height: 50px;
+	width: 100%;
+}
+
+.smartwoo-fast-checkout-description img {
+	width: 50px;
+	height: 49px;
 }
 
 .sw-fast-checkout-main h2,
 .sw-fast-checkout-main input,
 .sw-fast-checkout-main button {
-	padding: 10px;
-	margin-right: 15px;
-	margin-left: 15px;
+	
+	margin-right: auto;
+	margin-left: auto;
+}
 
+.sw-fast-checkout-main h2 {
+	font-size: 18px;
 }
 .sw-fast-checkout-main input {
 	border: solid 1px #dcdcde;
 	background-color: #ffffff;
+	height: 50px;
+	width: 100%;
+	border-radius: 4px;
 }
-.sw-fast-checkout-main.active {
-	left: 50%;
-	transition: 1s ease-in;
 
+.sw-fast-checkout-main button {
+	width: 80%;
 }
 
 .sw-flex-column {
@@ -1638,38 +1673,14 @@ font-weight: 100;
 
 @media ( min-width: 1px) and ( max-width: 703px) {
 	@media ( min-width: 425px ) and ( max-width: 703px ) {
-		.sw-fast-checkout-main {
-			top: 20%;
-		}
-		.sw-fast-checkout-main.active {
-			left: 47%;
-			transition: 1s ease-in;
-
-		}
-		@media ( min-width: 450px ) and ( max-width: 663px ) {
-			.sw-fast-checkout-main.active {
-				left: 38%;
-				transition: 1s ease-in;
-	
-			}
-		}
+		
 
 		@media ( min-width: 425px ) and ( max-width: 566px ) {
-			.sw-fast-checkout-main.active {
-				left: 20%;
-				transition: 1s ease-in;
-	
-			}
+			
 		}
 	}
 	@media ( min-width: 19px )  and ( max-width: 424px ) {
-		.sw-fast-checkout-main.active {
-			top: 10%;
-			left: 5%;
-			width: 90%;
-			transition: 1s ease-in;
 		
-		}
 	}
 }
 
