@@ -1839,3 +1839,14 @@ h2.sw-not-found {
 .smartwoo-switch-toggle-input:checked + .smartwoo-switch-toggle-label .smartwoo-switch-toggle-inner {
     background-color: #e2dfdf;
 }
+
+.sw-admin-fast-checkout-option {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.sw-admin-fast-checkout-option .sw-service-form-row {
+    flex-grow: 1;
+}
