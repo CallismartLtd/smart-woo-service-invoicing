@@ -65,14 +65,7 @@ function smartwoo_options_page() {
 			break;
 
 		case 'advanced':
-			/**
-			 * Renders Settings page for Advanced
-			 *
-			 * NB: All html returned by the output
-			 * function are properly escaped.
-			 */
-			$output = smartwoo_advanced_options();
-			echo wp_kses( $output, smartwoo_allowed_form_html() );
+			smartwoo_advanced_options();
 			break;
 
 		default:
