@@ -5,11 +5,11 @@
 ![Subscription Plugin](https://img.shields.io/badge/Subscription%20Plugin-blue) ![Billing Plugin](https://img.shields.io/badge/Billing%20Plugin-green) ![WooCommerce Invoice](https://img.shields.io/badge/WooCommerce%20Invoice-yellow) ![Service Invoicing](https://img.shields.io/badge/Service%20Invoicing-orange) ![Automated Billing Plugin](https://img.shields.io/badge/Automated%20Billing%20Plugin-red)  
 
 **Requires at least:** 6.0  
-**Tested up to:** 6.7.2  
+**Tested up to:** 6.8.1  
 **Requires WooCommerce:** 8.0  
-**WooCommerce Tested:** 9.7.1
+**WooCommerce Tested:** 9.8.5
 **Requires PHP:** 7.4  
-**Stable Tag:** 2.3.1
+**Stable Tag:** 2.4.0
 **License:** GPLv3  
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
