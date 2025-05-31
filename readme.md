@@ -15,60 +15,84 @@
 
 Integrate powerful service subscriptions and invoicing directly into your online store!
 
-## Description
 
-Smart Woo Service Invoicing simplifies your subscription-based business by automating invoicing at the end of a billing cycle. Perfect for freelancers and agencies, it offers robust features to efficiently manage recurring services without breaking the bank.
+**Smart Woo Service Invoicing** supercharges your service-based business by automating invoicing at the end of each billing cycle. Built to integrate seamlessly with your WooCommerce-powered store, it’s the perfect solution for freelancers, agencies, and service providers looking to streamline subscription management without straining their budget.
+
+With powerful automation, a professional client portal, and flexible billing tools, Smart Woo helps you focus on growing your business while it takes care of the repetitive tasks behind the scenes.
+
+---
 
 ## Features
 
-- **Professional Client Portal**: A modern frontend UI to allows clients to manage subscriptions, view invoices, and easily pay outstanding balances.
-- **Automatic Invoice Generation**: Automatically generates and issues invoices at the end of each billing cycle, making the management process seamless.
-- **Flexible Payment Options**: Smart Woo works with any payment method supported by WooCommerce, making invoice payments easier for your clients.
-- **Flexible Billing Cycles**: Charge for Monthly, Quarterly, Six-Monthly, and Yearly service subscription periods.
-- **User-Friendly Interface**: Empower customers to set their service name, billing cycle, and other relevant data during the purchase (sign-up) process.
-- **Robust Subscription Assets**: Supports downloadable, remote-protected (resource), digital, and physical asset subscriptions.
-- **Customized Notifications**: Choose how to receive notifications about service purchases, renewals, expirations, and stay informed about your subscriptions.
-- **Stats and Usage**: Monitor service subscription performance directly from the admin dashboard.
-- **Automated Refunds**: Provides efficient refund calculations and automatic refunds.
-- **Prorated Service Subscriptions**: Option to prorate subscriptions and reflect this in the invoicing system.
-- **Service Subscription Migration**: Flexible options allow clients to migrate from their current subscription to another, directly from their dashboard.
+- **Intuitive Admin Dashboards**  
+  Manage service subscriptions, invoices, emails, refunds, and more from a clean, organized backend dashboard.
 
-## Every Smart Woo Pro Plan Includes:
+- **Professional Client Portal**  
+  Offer your clients a modern, easy-to-use frontend where they can manage subscriptions, view invoices, order services, and pay outstanding balances effortlessly.
 
-### Advanced Stats  
-Get detailed insights and visual statistics (bar charts, graphs) on service subscription usage.
+- **Automatic Invoice Generation**  
+  Automatically create and send invoices at the end of each subscription billing cycle — no more manual chasing or bookkeeping headaches.
 
-### Service Logs  
-Track how clients interact with their subscriptions, including detailed activity insights.
+- **Flexible Payment Options**  
+  Supports all payment gateways you’ve enabled in WooCommerce, ensuring your clients can pay their invoices with ease.
 
-### Invoice Logs  
-Monitor all invoice interactions, including payment failures and successful transactions.
+- **Customizable Billing Cycles**  
+  Charge clients monthly, quarterly, semi-annually, or annually, depending on your service model.
 
-### Invoice Items  
-Add custom items to invoices as needed.
+- **User-Friendly Onboarding**  
+  Let customers define service names, select billing cycles, and provide essential details during sign-up.
 
-### Refund Feature  
-Automatically handle prorated refunds when a client cancels a subscription.
+- **Robust Subscription Asset Support**  
+  Handle subscriptions for digital, downloadable, remotely protected, or even physical assets, with full control.
 
-### Service Migration  
-Easily manage subscription migrations, including prorated billing adjustments during changes, with detailed logs for tracking.
+- **Guest Invoicing**  
+  Create invoices for non-registered users and send them directly via email.
 
-### Email Template Customization  
-Customize email templates to align with your business requirements.
+- **Smart Payment Links**  
+  Generate direct payment or auto-login URLs so clients can pay invoices without needing to log into the client portal.
 
-### REST API Access  
-Access subscription data via a powerful REST API (currently read-only, with future write support planned).
+---
 
-### PDF Invoice Attachments  
-Automatically attach PDF invoices to email notifications for seamless client communication.
+## Every Smart Woo Pro Plan Includes
 
-### Dedicated Support  
-Receive dedicated support for both the free and premium versions of Smart Woo.
+- **Advanced Usage Stats**  
+  Access detailed insights and visual analytics on subscription usage trends.
 
-### Automatic Updates  
-Ensure your plugin remains up to date with the latest features and security enhancements.
+- **Service Interaction Logs**  
+  Track client activity and interactions with their subscriptions for better transparency.
 
-#### [Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)
+- **Detailed Invoice Logs**  
+  Monitor all invoice events, including payment successes, failures, and adjustments.
+
+- **Custom Invoice Items**  
+  Add custom charges or items directly to an invoice.
+
+- **Prorated Subscriptions**  
+  Enable prorated billing for subscription upgrades or downgrades, automatically reflected in invoices.
+
+- **Automated Refunds**  
+  Automatically process prorated refunds when a subscription is canceled mid-cycle.
+
+- **Seamless Service Migration**  
+  Easily manage subscription migrations, including prorated adjustments, with detailed change logs.
+
+- **Customizable Email Templates**  
+  Tailor notification emails to match your brand and communication style.
+
+- **REST API Access**  
+  Access subscription and invoice data programmatically using a robust (currently read-only) REST API — with write support coming soon.
+
+- **PDF Invoice Attachments**  
+  Automatically attach professionally formatted PDF invoices to outgoing email notifications.
+
+- **Dedicated Support & Updates**  
+  Get premium support and automatic updates to keep your system secure and feature-rich.
+
+---
+
+👉 **[Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)**
+
+
 
 
 ## License
@@ -124,6 +148,30 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
+### Fixed
+# [2.4.0] 2025-05-31
+### Fixed
+- Product page subscription banner price when product is on sale.
+
+### Improved
+- Improved the dashboard subscription searches by refactoring the `SmartWoo_Service_Database::search()` method to support more secure and flexible LIKE queries, better pagination, and improved caching.
+- Search queries now properly use `$wpdb->esc_like()` combined with wildcards (`%`) to safely handle user-provided search terms.
+- The fast checkout feature UI & UX has been refactored.
+
+### Service Subscription Status Refactored
+- The core logic for determining service subscription status has been encapsulated within the `SmartWoo_Service` class.
+- Introduced `SmartWoo_Service::get_effective_status()`, a new public method that provides the definitive service status, adhering to a strict precedence of explicit database overrides, cached values, and dynamically calculated date-based conditions.
+- Private helper methods (e.g., `is_active_condition()`, `is_due_for_renewal_condition()`, `is_in_grace_period_condition()`, `is_expired_condition()`) are now used internally by `get_effective_status()` for specific condition checks.
+- The global `smartwoo_service_status()` function has been simplified to delegate status determination to `SmartWoo_Service::get_effective_status()`.
+- Naming consistency for private status condition methods has been improved for better clarity.
+
+### Introduced
+- A simplified subscription analysis and stats for non-techies.
+- New Admin UI for service subscription usage statistics template in Smart Woo Pro.
+- New Admin UI for service subscription and invoice log template in Smart Woo Pro.
+- Service migration email template in Smart Woo Pro.
+- Subscription refund email template in Smart Woo Pro.
+
 # [2.3.1] 2025-03-27
 ### Minor bug fix.
 
