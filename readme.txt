@@ -2,11 +2,11 @@
 Contributors: callismartltd  
 Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicing, automated billing plugin  
 Requires at least: 6.4
-Tested up to: 6.8
+Tested up to: 6.8.1
 Requires WooCommerce: 8.0  
-WooCommerce tested up to: 9.8.1
+WooCommerce tested up to: 9.8.5
 Requires PHP: 7.4  
-Stable Tag: 2.3.1
+Stable Tag: 2.4.0
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
