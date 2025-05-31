@@ -1,14 +1,13 @@
 ## Smart Woo Service Invoicing Changelog
 
-# [2.4.0] YYYY-MM-DD
-### Fixed
-# [2.4.0] YYYY-MM-DD
+# [2.4.0] 2025-05-31
 ### Fixed
 - Product page subscription banner price when product is on sale.
 
 ### Improved
 - Improved the dashboard subscription searches by refactoring the `SmartWoo_Service_Database::search()` method to support more secure and flexible LIKE queries, better pagination, and improved caching.
 - Search queries now properly use `$wpdb->esc_like()` combined with wildcards (`%`) to safely handle user-provided search terms.
+- The fast checkout feature UI & UX has been refactored.
 
 ### Service Subscription Status Refactored
 - The core logic for determining service subscription status has been encapsulated within the `SmartWoo_Service` class.
