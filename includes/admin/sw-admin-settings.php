@@ -476,7 +476,8 @@ function smartwoo_email_options() {
 		'list_options'
 	);
 
-	$not_editables = apply_filters( 'smartwoo_temp_option_uneditables', array( 'smartwoo_service_expiration_mail_to_admin'), 'not_editable' );
+	$not_editables		= apply_filters( 'smartwoo_temp_option_uneditables', array( 'smartwoo_service_expiration_mail_to_admin'), 'not_editable' );
+	$not_previewables	= apply_filters( 'smartwoo_temp_option_uneditables', array(), 'not_previewable' );
 	?>
 	<div class="wrap">
 		<h1><span class="dashicons dashicons-email-alt"></span> Email notifications</h1>
@@ -505,9 +506,8 @@ function smartwoo_email_options() {
 							<?php if ( ! in_array( $checkbox_name, $not_editables, true ) ): ?>
 								<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
 								<a tempname="<?php echo esc_attr( $checkbox_name ); ?>" title="Edit template" class="sw-icon-button-admin <?php echo ( $pro_installed ) ? 'sw-edit-mail' : 'sw-edit-mail-nopro' ?>"><span class="dashicons dashicons-edit"></span></a>
-							<?php elseif ( 'smartwoo_service_expiration_mail_to_admin' === $checkbox_name ): ?>
+							<?php elseif ( ! in_array( $checkbox_name, $not_previewables, true ) ): ?>
 								<span style="margin-left: 20px;"></span><a href="<?php echo esc_attr( SmartWoo_Mail::get_preview_url( $checkbox_name ) ); ?>" class="sw-icon-button-admin" title="Preview" target="_blank"><span class="dashicons dashicons-visibility"></span></a>
-
 							<?php endif; ?>
 						</td>
 					</tr>
