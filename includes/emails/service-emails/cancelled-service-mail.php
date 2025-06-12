@@ -14,7 +14,10 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     /**
      * Email id
      */
-    public static $id = 'smartwoo_cancelled_mail';
+    public static $id = array(
+        'smartwoo_cancellation_mail_to_user',
+        'smartwoo_service_cancellation_mail_to_admin'
+    );
 
     /**
      * The service
@@ -24,7 +27,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
     protected $service;
 
     /**
-     * Context in which this email is set up.
+     * Context in which this email is called.
      */
     private $context = 'admin';
 
@@ -50,6 +53,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_user_cancelled_service', array( __CLASS__, 'send_mail' ), 100, 2 );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
@@ -121,7 +125,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
      */
     public static function admin_mail_template( $self ) {
         $message  = '<h1>Service Cancellation Notice</h1>';
-        $message .= '<p>Hi,</p>';
+        $message .= '<p>Hi <strong>{{business_name}},</p>';
         $message .= '<p><strong>{{client_fullname}}</strong> has cancelled their service. Below are the service details:</p>';
         $message .= '<h3>Service Details</h3>';
         $message .= '<ul>';
@@ -144,6 +148,18 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
         $message .= '</div>';
 
         return apply_filters( 'smartwoo_service_cancellation_mail_to_admin_template', $message, $self );
+    }
+
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        foreach ( self::$id as $id ) {
+            $templates[$id] = __CLASS__;
+        }
+        return $templates;
     }
 
 }
