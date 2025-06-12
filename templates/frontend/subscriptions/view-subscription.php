@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 <div class="smartwoo-page">
     <?php echo wp_kses_post( smartwoo_get_navbar( 'Service Detail', smartwoo_service_page_url() ) ); ?>
     <?php if ( empty( $service ) || ! $service->current_user_can_access() ) : ?>
-        <?php echo wp_kses_post( smartwoo_notice( 'The requested service does not exist.' ) ); ?>
+        <?php echo wp_kses_post( smartwoo_notice( 'This service subscription does not exists, please contact us if you need further assistance.' ) ); ?>
     <?php else: ?>
         <h3 style="text-align: center;"><?php echo esc_html( $service->get_name() );?> <small>(<?php echo esc_html( $status ); ?>)</small></h3>
         <hr>
