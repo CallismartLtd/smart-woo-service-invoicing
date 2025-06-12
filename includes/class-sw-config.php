@@ -103,6 +103,8 @@ class SmartWoo_Config{
         add_action( 'smartwoo_new_service_purchase_complete', array( $this, 'clear_order_cache' ), 20, 2 );
 		add_filter( 'smartwoo_subscription_pages', array( __CLASS__, 'register_service_page_callbacks' ) );
 		add_filter( 'smartwoo_invoice_pages', array( __CLASS__, 'register_invoice_page_callbacks' ) );
+
+        // add_filter( 'block_categories_all', array( 'SmartWoo_Blocks', 'register_block_category' ), 20, 2 );
     }
 
     /**
@@ -112,6 +114,7 @@ class SmartWoo_Config{
         self::add_automations();
         $this->add_rules();
         $this->add_actions();
+        // SmartWoo_Blocks::instance();
     }
 
     /**
@@ -173,7 +176,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-reactivation-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/new-service-order-mail.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-processed-mail.php';
-
+        require_once SMARTWOO_PATH . 'includes/class-smartwoo-blocks.php';
 
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
