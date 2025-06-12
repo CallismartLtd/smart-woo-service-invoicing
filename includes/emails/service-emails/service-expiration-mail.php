@@ -66,6 +66,7 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
     public static function init(){
         add_action( 'smartwoo_service_expired', array( __CLASS__, 'send_mail' ), 100 );
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'send_to_admin' ) );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
@@ -152,7 +153,7 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
         $message .= '<li><strong>End Date:</strong> {{end_date}}</li>';
         $message .= '</ul>';
 
-        $message .= '<p>To avoid suspension or data loss, you can log into your account and reactivate this service as soon as possible.</p>';
+        $message .= '<p>To avoid service suspension or data loss, you can log into your account and reactivate this service as soon as possible.</p>';
         $message .= '<p>If you have any further questions or need assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
         return apply_filters( 'smartwoo_service_expiration_mail_template', $message, self::$instance );
@@ -199,6 +200,16 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
         return apply_filters( 'smartwoo_admin_service_expiration_mail_template', $message, $this );
     }
 
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
+    }
 }
 
 SmartWoo_Service_Expiration_Mail::init();
