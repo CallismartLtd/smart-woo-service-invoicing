@@ -52,7 +52,7 @@ defined( 'ABSPATH' ) || exit;
                                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>"><button title="Edit Invoice"><span class="dashicons dashicons-edit"></span></button></a>
                                 <a href="<?php echo esc_url( $invoice->download_url() ); ?>"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
                                 <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ) ?>
-                                <span id="sw-delete-button" style="text-align:center;"></span>
+                                <span id="sw-admin-spinner" style="text-align:center;"></span>
                             </td>
                         </tr>
                     <?php endforeach; ?>
