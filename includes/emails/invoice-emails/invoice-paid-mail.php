@@ -49,13 +49,14 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
     public static function init(){
         add_action( 'smartwoo_invoice_is_paid', array( __CLASS__, 'send_mail' ) );
         add_action( 'admin_post_smartwoo_invoice_paid_mail', array( __CLASS__, 'start_preview_buffer' ) );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
      * Handle Email sending.
      */
     public static function send_mail( $invoice ) {
-        if ( apply_filters( 'smartwoo_paid_invoice_mail', get_option( 'smartwoo_invoice_paid_mail', 0 ) ) ) {
+        if ( apply_filters( 'smartwoo_invoice_paid_mail', get_option( 'smartwoo_invoice_paid_mail', 0 ) ) ) {
             $self = new self( $invoice );
             $self->send();
         }
@@ -87,6 +88,18 @@ class SmartWoo_Invoice_Paid_Mail extends SmartWoo_Invoice_Mails {
         
         return $template;
     }
+
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
+    }
+
 }
 
 SmartWoo_Invoice_Paid_Mail::init();
