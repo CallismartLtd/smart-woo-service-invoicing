@@ -185,7 +185,6 @@ h2.sw-not-found {
     left: 0;
     top: 20px;
     z-index: 1.1;
-
 }
 
 .sw-admin-dash-header .sw-admin-dash-info,
@@ -390,6 +389,8 @@ h2.sw-not-found {
     left: 40%;
     top: 20%;
     background-color: #fff;
+    border: solid 2px #dcdcde;
+    box-shadow: 0 5px 10px rgba(218, 3, 110, 0.2);
     border-radius: 9px;
     z-index: 10;
 }
@@ -410,8 +411,10 @@ h2.sw-not-found {
     text-align: center;
     margin-bottom: 5px;
     background-color: #f6f6f6;
+    height: 20px;
     width: 85%;
-    border: solid blue 1px;
+    padding: 10px 15px;
+    border: solid #dcdcde 1px;
     border-radius: 6px;
     cursor: pointer;
 }
@@ -1054,13 +1057,14 @@ h2.sw-not-found {
     margin: 20px 50px 10px 10px;
     text-align: right;
 }
-/* .sw-admin-view-service-buttons-container a, */
+
 .sw-admin-view-service-buttons-container button {
     background-color: #ffffff;
     border: solid 3px #dcdcde;
     height: 40px;
     width: 40px;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .admin-view-details-data {
