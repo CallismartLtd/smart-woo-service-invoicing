@@ -184,7 +184,7 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
         prevLink.appendChild(prevButton);
         prevLink.addEventListener('click', function (event) {
             event.preventDefault();
-            fetchDashboardData(index, { paged: prevPage });
+            fetchDashboardData(index, { paged: prevPage, limit: 25 });
         });
 
         paginationDiv.appendChild(prevLink);
@@ -207,7 +207,7 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
         nextLink.appendChild(nextButton);
         nextLink.addEventListener('click', function (event) {
             event.preventDefault();
-            fetchDashboardData(index, { paged: nextPage });
+            fetchDashboardData(index, { paged: nextPage, limit: 25  });
         });
 
         paginationDiv.appendChild(nextLink);
@@ -511,52 +511,53 @@ function fetchDashboardData(index, queryVars = {}) {
     }
 
     // Default pagination vars if not provided
-    let limit = queryVars.limit || 10;
-    let paged = queryVars.paged || 1;
+    let limit   = queryVars.limit || 10;
+    let paged   = queryVars.paged || 1;
+    let url     = new URL( smartwoo_admin_vars.ajax_url );
+    url.searchParams.set( 'action', 'smartwoo_dashboard' );
+    url.searchParams.set( 'security', smartwoo_admin_vars.security );
+    url.searchParams.set( 'real_action', realAction );
+    url.searchParams.set( 'limit', limit );
+    url.searchParams.set( 'paged', paged );
 
-    jQuery.ajax({
-        type: "GET",
-        url: smartwoo_admin_vars.ajax_url,
-        data: {
-            action: 'smartwoo_dashboard',
-            security: smartwoo_admin_vars.security,
-            real_action: realAction,
-            limit: limit,
-            paged: paged,
-            search_term: 'sw_search' === realAction ? queryVars.search: '',
-        },
-        success: function(response) {
-            if (response.success) {
-                let tableStructure = response.data.all_services_table;
-                let tableHeaders = tableStructure.table_header;
-                let tableBody = tableStructure.table_body;
-                let rowIds = tableStructure.row_names;
-                let totalPages = tableStructure.total_pages;
-                let currentPage = tableStructure.current_page;
+    if ( 'sw_search' === realAction ) {
+        url.searchParams.set( 'search_term', queryVars.search );
+    }
 
-                // Pass the data to the table rendering function, with pagination info
-                renderTable(tableHeaders, tableBody, rowIds, totalPages, currentPage, index);
+    fetch( url )
+    .then( response => {
+        if ( response.ok ) {
+            return response.json();
+        }
+    }).then( response =>{
+        if (response.success) {
+            let tableStructure = response.data.all_services_table;
+            let tableHeaders = tableStructure.table_header;
+            let tableBody = tableStructure.table_body;
+            let rowIds = tableStructure.row_names;
+            let totalPages = tableStructure.total_pages;
+            let currentPage = tableStructure.current_page;
 
-            }            
-        },
-        error: function(error) {
-            var message  = 'Error fetching data: ';
-            if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
-                message += error.responseJSON.data.message;
-            } else if (error.responseText) {
-                message += error.responseText;
-            } else {
-                message += error;
-            }
-            console.error(message);
-        },
-        complete: function() {
-            if (dashContents ) {
-                dashContents.style.display = "none";
-            }
-            
-            hideLoadingIndicator();
-        },
+            // Pass the data to the table rendering function, with pagination info
+            renderTable(tableHeaders, tableBody, rowIds, totalPages, currentPage, index);
+
+        } 
+    }).catch( error =>{
+        var message  = 'Error fetching data: ';
+        if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
+            message += error.responseJSON.data.message;
+        } else if (error.responseText) {
+            message += error.responseText;
+        } else {
+            message += error;
+        }
+        console.error(message);
+    }).finally( () =>{
+        if (dashContents ) {
+            dashContents.style.display = "none";
+        }
+        
+        hideLoadingIndicator();
     });
 }
 
@@ -699,7 +700,7 @@ function smartwooDeleteService(serviceId) {
     let isConfirmed = confirm( 'Are you sure you want to delete this service? All invoices and assets alocated to it will be lost forever.' );
 
     if (isConfirmed) {
-        spinner = smartWooAddSpinner( 'sw-delete-button', true );
+        spinner = smartWooAddSpinner( 'sw-admin-spinner', true );
 
         // Perform an Ajax request to delete the invoice
         jQuery.ajax(
@@ -741,10 +742,12 @@ function smartwooDeleteService(serviceId) {
 function smartwoo_pro_ad(title, message) {
     let initDiv = document.querySelector('.sw-pro-div');
     if (initDiv) {
-        initDiv.remove();
+        jQuery( initDiv ).fadeOut( 'fast', () =>{
+            initDiv.remove();
+        });
     }
 
-    let mainDiv         = document.querySelector('.inv-settings-form');
+    let mainDiv         = document.querySelector('.inv-settings-form') ?? document.querySelector( '#pro-target' );
     let proDiv          = document.createElement('div');
     proDiv.classList.add('sw-pro-div');
     let close           = document.createElement('span');
@@ -772,7 +775,9 @@ function smartwoo_pro_ad(title, message) {
     jQuery(proDiv).fadeIn('slow').css('display', 'flex');
 
     close.addEventListener('click', ()=>{
-        proDiv.remove();
+        jQuery( proDiv ).fadeOut( 'fast', () =>{
+            proDiv.remove();
+        });
     });
 
     actionBtn.addEventListener('click', ()=>{
@@ -1160,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let serviceFormUserDropdown = document.querySelector( '#smartwooServiceUserDropdown' );
     const serviceForm           = document.querySelector( '#smartwooServiceForm' );
     let resetFastCheckoutBtn    = document.getElementById( 'resetFastCheckoutOptions' );
+    let adminAutoRenewBtn       = document.querySelector( '#auto-renew-btn' );
 
     /**
      * The assets is downloadable checkbox.
@@ -1417,6 +1423,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+    }
+
+    if ( adminAutoRenewBtn ) {
+        adminAutoRenewBtn.addEventListener( 'click', () =>{
+            smartwoo_pro_ad( 'Auto Renew Service', 'Automatic service renewal from the backend is exclusively available in Smart Woo Pro.' );
+        })
     }
 
     if (swCheckBoxes) {
@@ -2187,7 +2199,7 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
                 return;
             }
             smartwooRemoveTable();
-            fetchDashboardData(index);
+            fetchDashboardData(index, { limit: 25 });
         });
     });
 
