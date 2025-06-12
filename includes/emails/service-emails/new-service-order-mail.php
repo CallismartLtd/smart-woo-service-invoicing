@@ -57,6 +57,8 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
         add_filter( 'smartwoo_service_mail_placeholders_description', array( __CLASS__, 'add_descriptions' ) );
         add_filter( 'smartwoo_service_email_placeholders', array( __CLASS__, 'add_order_placeholders' ) );
         add_filter( 'smartwoo_service_mail_placeholder_value', array( __CLASS__, 'placeholder_values' ), 20, 2 );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
+
         add_action( 'smartwoo_new_service_purchase_complete', array( __CLASS__, 'send_mail' ), 999, 2 );
     }
 
@@ -257,6 +259,17 @@ class Smartwoo_New_Service_Order extends SmartWoo_Service_Mails {
         $items .= '</table>';
 
         return $items;
+    }
+
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
     }
 
 }
