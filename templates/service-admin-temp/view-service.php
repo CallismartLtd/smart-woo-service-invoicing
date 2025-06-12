@@ -18,9 +18,10 @@ defined( 'ABSPATH' ) || exit;
     <?php else : ?>
         <div class="sw-admin-view-service-buttons-container">
             <?php echo wp_kses_post( smartwoo_client_service_url_button( $service ) ); ?>
+            <?php do_action( 'smartwoo_admin_view_service_button_area', $service ); ?>
             <a href="<?php echo esc_url( smartwoo_service_edit_url( $service->get_service_id()  ) ); ?>"><button title="Edit Service"><span class="dashicons dashicons-edit"></span></button></a>
             <button class="delete-service-button" service-id="<?php echo esc_attr( $service_id ); ?>" title="Delete Service"><span class="dashicons dashicons-trash"></span></button>
-            <span id="sw-delete-button" style="text-align:center; position: absolute; left: 50%; top: 25%;"></span>
+            <span id="sw-admin-spinner" style="text-align:center; position: absolute; left: 50%; top: 25%;"></span>
         </div>
             
         <?php do_action( 'smartwoo_admin_view_service_before_service_details_section', $service ); ?>
