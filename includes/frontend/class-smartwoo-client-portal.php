@@ -99,7 +99,8 @@ class SmartWoo_Client_Portal {
 	 */
 	private function get_header() {
 		if ( smartwoo_is_block_theme() ) {
-			get_template_part( 'header' );
+			// get_template_part( 'header' );
+			do_action( 'wp_head' );
 		} else {
 			get_header();
 		}
@@ -110,7 +111,8 @@ class SmartWoo_Client_Portal {
 	 */
 	private function get_footer() {
 		if ( smartwoo_is_block_theme() ) {
-			get_template_part( 'footer' );
+			// get_template_part( 'footer' );
+			do_action( 'wp_footer' );
 		} else {
 			get_footer();
     }
