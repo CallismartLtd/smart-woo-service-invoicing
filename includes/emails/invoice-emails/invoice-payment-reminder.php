@@ -46,6 +46,7 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_invoice_payment_reminder', array( __CLASS__, 'send_mail' ) );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
@@ -96,6 +97,16 @@ class SmartWoo_Invoice_Payment_Reminder extends SmartWoo_Invoice_Mails {
         return $template;
     }
 
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
+    }
 }
 
 SmartWoo_Invoice_Payment_Reminder::init();
