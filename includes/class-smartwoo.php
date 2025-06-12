@@ -51,14 +51,14 @@ final class SmartWoo {
 
         add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
-        add_action( 'admin_post_smartwoo_mail_preview', array( __CLASS__, 'mail_preview' ) );
+        add_action( 'smartwoo_admin_view_service_button_area', array( __CLASS__, 'sell_renewal_button' ) );
 
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
 
         add_action( 'admin_post_nopriv_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
-
         add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
+        add_action( 'admin_post_smartwoo_mail_preview', array( __CLASS__, 'mail_preview' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
 
@@ -1262,7 +1262,7 @@ final class SmartWoo {
                  * Only invoices for services on this status are considered to be for reactivation.
                  */
             } elseif ( $service_status === 'Expired' && $invoice_type === 'Service Renewal Invoice' ) {
-                // Call the function to reactivate the service.
+                
                 self::activate_expired_service( $service_id, $invoice_id );
                 
             }
@@ -1285,19 +1285,36 @@ final class SmartWoo {
      *
      * @param string $service_id ID of the service to be renewed.
      * @param string $invoice_id ID of the invoice related.
+     * @param bool $strict Whether invoice status should be strictly checked.
+     * 
+     * @return bool True on success, false otherwise.
      */
-    public static function renew_service( $service_id, $invoice_id ) {
+    public static function renew_service( $service_id, $invoice_id, $strict = true ) {
         $service = SmartWoo_Service_Database::get_service_by_id( $service_id );
         $invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
         // Mark the invoice as paid before renewing the service.
         $invoice_is_paid = smartwoo_mark_invoice_as_paid( $invoice_id );
 
-        if ( ! $invoice_is_paid ) {
-            return; // Invoice is already paid, or something went wrong.
+        if ( ! $service ) {
+             /**
+             * Fires when service renewal fails
+             * 
+             * @param string $reason Reason for the failure.
+             * @param SmartWoo_Service|false The service subscription object or false
+             */
+            do_action( 'smartwoo_service_renewal_failed', 'Service subscription does not exists.', $service  );
+            return false;
         }
 
-        if ( ! $service ) {
-            return;
+        if ( $strict && ! $invoice_is_paid ) {
+            /**
+             * Fires when service renewal fails
+             * 
+             * @param string $reason Reason for the failure.
+             * @param SmartWoo_Service The service subscription object
+             */
+            do_action( 'smartwoo_service_renewal_failed', 'Manual review required! The system could not mark the invoice "' . $invoice_id . '" associated with this renewal as paid.', $expired_service  );
+            return false;
         }
 
         /**
@@ -1324,6 +1341,8 @@ final class SmartWoo {
         $service->set_status( null ); // Renewed service is calculated automatically.
         SmartWoo_Service_Database::update_service( $service );
         do_action( 'smartwoo_service_renewed', $service );
+
+        return true;
     }
 
     /**
@@ -1335,8 +1354,11 @@ final class SmartWoo {
      *
      * @param string $service_id ID of the service to be renewed.
      * @param string $invoice_id ID of the invoice related to the service renewal.
+     * @param bool $strict Whether invoice status should be strictly checked.
+     * 
+     * @return bool True on success, false otherwise.
      */
-    public static function activate_expired_service( $service_id, $invoice_id ) {
+    public static function activate_expired_service( $service_id, $invoice_id, $strict = true ) {
         $expired_service = SmartWoo_Service_Database::get_service_by_id( $service_id );
         $invoice         = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
         $invoice_is_paid = smartwoo_mark_invoice_as_paid( $invoice_id );
@@ -1349,18 +1371,18 @@ final class SmartWoo {
              * @param SmartWoo_Service|false The service subscription object or false
              */
             do_action( 'smartwoo_service_renewal_failed', 'Service subscription does not exists.', $expired_service  );
-            return;
+            return false;
         }
 
-        if ( ! $invoice_is_paid ) {
+        if ( $strict && ! $invoice_is_paid ) {
             /**
              * Fires when service renewal fails
              * 
              * @param string $reason Reason for the failure.
              * @param SmartWoo_Service The service subscription object
              */
-            do_action( 'smartwoo_service_renewal_failed', 'Renewal invoice has already been paid.', $expired_service  );
-            return;
+            do_action( 'smartwoo_service_renewal_failed', 'Manual review required! The system could not mark the invoice "' . $invoice_id . '" associated with this renewal as paid.', $expired_service  );
+            return false;
         }
 
         /**
@@ -1371,7 +1393,7 @@ final class SmartWoo {
         do_action( 'smartwoo_before_activate_expired_service', $expired_service );
 
         $order  = $invoice->get_order();
-        if ( ! $order ) {
+        if ( ! $order && $strict ) {
             /**
              * Fires when service renewal fails
              * 
@@ -1379,12 +1401,12 @@ final class SmartWoo {
              * @param SmartWoo_Service The service subscription object
              */
             do_action( 'smartwoo_service_renewal_failed', 'Order associated with the renewal invoice does not exists.', $expired_service  );
-            return;
+            return false;
         }
 
         $interval   = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
 
-        $new_start_date = $order->get_date_paid();
+        $new_start_date =  $order ? $order->get_date_paid() : false;
         if ( ! $new_start_date ) {
             $new_start_date = SmartWoo_Date_Helper::create_from_timestamp( time() );
         }
@@ -1408,7 +1430,8 @@ final class SmartWoo {
              * 
              * @param SmartWoo_Service $expired_service.
              */
-            do_action( 'smartwoo_expired_service_activated', $expired_service ); 
+            do_action( 'smartwoo_expired_service_activated', $expired_service );
+            return true;
         } else {
             /**
              * Fires when service renewal fails
@@ -1417,6 +1440,8 @@ final class SmartWoo {
              * @param SmartWoo_Service The service subscription object
              */
             do_action( 'smartwoo_service_renewal_failed', 'Unable to update records in the database.', $expired_service  );
+
+            return false;
         }
                
     }
@@ -1623,6 +1648,8 @@ final class SmartWoo {
             }
 
             $temp->preview_template();
+        } else {
+            has_action( 'smartwoo_' . $template  . '_preview' ) ? do_action( 'smartwoo_' . $template  . '_preview' ) : wp_die( 'Email template does not exists', 'Template not found' );
         }
     
     }
@@ -1932,6 +1959,25 @@ final class SmartWoo {
 
         wp_send_json_error( '', 401 );
 
+    }
+
+    /**
+     * Sell auto service renewal button, a feature only available in Smart Woo Pro
+     * 
+     * @param SmartWoo_Service $service
+     */
+    public static function sell_renewal_button( SmartWoo_Service $service ) {
+        if ( ! self::$instance->pro_is_installed() ) {
+            $renewal_statuses = [ 'Due for Renewal', 'Expired', 'Grace Period' ];
+
+            if ( in_array( smartwoo_service_status( $service ), $renewal_statuses, true  ) ) {
+                ?>
+                    <button id="auto-renew-btn" title="Renew Now"><span class="dashicons dashicons-controls-repeat"></span></button>
+                    <span id="pro-target"></span>
+                <?php
+            }
+        }
+        
     }
 
 }
