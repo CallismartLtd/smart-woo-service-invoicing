@@ -46,6 +46,7 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_user_opted_out', array( __CLASS__, 'send_mail' ), 100 );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
@@ -82,6 +83,17 @@ class SmartWoo_Service_Optout_Mail extends SmartWoo_Service_Mails {
         $message .= '<p>If you have any questions or require assistance, please do not hesitate to <a href="mailto:{{sender_mail}}">contact us</a>.</p>';
 
         return apply_filters( 'smartwoo_service_opt_out_mail_template', $message, self::$instance );
+    }
+
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
     }
 }
 
