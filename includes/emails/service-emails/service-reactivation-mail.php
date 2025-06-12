@@ -45,6 +45,7 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
     public static function init() {
         add_action( 'smartwoo_service_renewed', array( __CLASS__, 'send_mail' ) );
         add_action( 'smartwoo_expired_service_activated', array( __CLASS__, 'send_mail' ) );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
@@ -84,6 +85,17 @@ class SmartWoo_Service_Reactivation_Mail extends SmartWoo_Service_Mails {
 
             $self->send();
         }
+    }
+
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
     }
 }
 
