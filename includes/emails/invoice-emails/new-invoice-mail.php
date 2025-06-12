@@ -46,6 +46,7 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
     public static function init(){
         add_action( 'smartwoo_new_invoice_created', array( __CLASS__, 'send_mail' ), 9999 );
         add_filter( 'smartwoo_new_invoice_mail_template', array( __CLASS__, 'add_payment_url' ), 10, 2 );
+        add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
     /**
@@ -129,6 +130,17 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
      */
     public static function print_scripts() {
         return '<script src="' . SMARTWOO_DIR_URL .'assets/js/smart-woo-template-preview.js"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Dynamic utility function.
+    }
+
+    /**
+     * Register email template
+     * 
+     * @param array $templates
+     */
+    public static function register_template( $templates ) {
+        $templates[self::$id] = __CLASS__;
+
+        return $templates;
     }
 }
 
