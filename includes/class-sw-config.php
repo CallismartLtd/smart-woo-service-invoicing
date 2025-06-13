@@ -373,12 +373,14 @@ class SmartWoo_Config{
     /** Smart Woo page rewrite rules */
     public function add_rules() {
         /** Product configuration page */
+        $new_config_var = smartwoo_get_product_config_query_var();
+        add_rewrite_rule( "^{$new_config_var}/([^/]+)?$", 'index.php?' . $new_config_var . '=$matches[1]', 'top' );
         add_rewrite_rule( '^configure/?$', 'index.php?configure=true', 'top' );
         foreach( $this->get_query_vars() as $key => $var ) {
             add_rewrite_endpoint( $var, EP_PAGES );
         }
 
-        if ( false === get_transient( '_smartwoo_flushed_rewrite_rules', false ) ) {
+        if ( false === get_option( '_smartwoo_flushed_rewrite_rules', false ) ) {
             flush_rewrite_rules();
             set_transient( '_smartwoo_flushed_rewrite_rules', true, WEEK_IN_SECONDS );
         }
@@ -399,6 +401,7 @@ class SmartWoo_Config{
      */
     public static function add_query_vars( $vars ) {
         $vars[] = 'configure';
+        $vars[] = 'product-config';
         return $vars;
     }
 
@@ -521,10 +524,11 @@ class SmartWoo_Config{
      * @since 2.0.0
      */
     private function add_actions() {
-        
-        if ( isset( $_GET['smartwoo_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            do_action( sanitize_text_field( wp_unslash( $_GET['smartwoo_action'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( ! smartwoo_get_query_param( 'smartwoo_action', false ) ) {
+            return;
         }
+
+        do_action( smartwoo_get_query_param( 'smartwoo_action' ) );
     }
 
     /**
@@ -633,17 +637,18 @@ class SmartWoo_Config{
      * Handle template loading
      */
     public static function template_include( $template ) {
-        $service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
-        $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
+        $service_page_id    = absint( get_option( 'smartwoo_service_page_id' ) );
+        $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id' ) );
+        $new_config_var     = smartwoo_get_product_config_query_var();
         
         if ( ! empty( $service_page_id ) && is_page( $service_page_id ) ) {
             $template = SMARTWOO_PATH . 'includes/frontend/class-smartwoo-client-portal.php';
 
         } elseif( ! empty( $invoice_page_id ) && is_page( $invoice_page_id ) ) {
             $template = SMARTWOO_PATH . 'includes/frontend/class-smartwoo-client-portal.php';
-        } elseif ( get_query_var( 'configure' ) ) {
+        } elseif ( get_query_var( 'configure' ) || get_query_var( $new_config_var ) ) {
             smartwoo_set_document_title( __( 'Product Configuration', 'smart-woo-service-invoicing' ) );
-            $template = apply_filters( 'smartwoo_product_config_template', SMARTWOO_PATH . 'templates/configure.php' );
+            $template = apply_filters( 'smartwoo_product_config_template', SMARTWOO_PATH . 'templates/frontend/configure.php' );
         }
 
         return $template;
