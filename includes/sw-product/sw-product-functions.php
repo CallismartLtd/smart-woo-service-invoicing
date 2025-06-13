@@ -82,3 +82,17 @@ function smartwoo_product_dropdown( $selected_product_id = null, $required = fal
 	return $dropdown_html;
 
 }
+
+/**
+ * Get the frontend product configuration query variable.
+ * 
+ * @return string
+ * @since 2.4.1
+ */
+function smartwoo_get_product_config_query_var() {
+	$var = null;
+	if( is_null( $var ) ) {
+		$var = get_option( 'smartwoo_product_config_var', 'product-config' );
+	}
+	return $var;
+}
