@@ -105,18 +105,22 @@
 }
 
 .sw-upgrade-to-pro {
-    background: #ff9900;
-    height: 60%;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    background: #ff9900;
+    height: 50px;
     color: #ffffff;
+    cursor: pointer;
+    padding: 0 5px;
+    border-radius: 4px;
 }
 
 .sw-upgrade-to-pro a {
     color: #ffffff;
     text-decoration: none;
     font-weight: bold;
-    padding: 20px;
-    cursor: pointer;
+    margin: 5px auto;
 }
 
 .sw-not-found {
@@ -131,7 +135,7 @@ h2.sw-not-found {
 .sw-search-container {
     display: flex;
     width: 100%;
-    margin-bottom: 20px;
+    margin: 10px;
 }
 
 .sw-search-container #sw_service_search, .sw-search-container #swSearchBtn {
@@ -170,82 +174,132 @@ h2.sw-not-found {
 .sw-pagination-buttons {
     float: right !important;
 }
+
 .sw-admin-dashboard {
+    position: relative;
     margin: 0;
     padding: 0;
+    max-width: 100%; 
 }
 
 .sw-admin-dash-header {
     position: fixed;
     background-color: #ffffff;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 120px;
-    left: 0;
     top: 20px;
-    z-index: 1.1;
+    width: calc( 100% - 160px);
+    min-height: 70px;
+    z-index: 2;
+    transition: all .2s ease-in-out;
+}
+.sw-admin-header-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin: 5px;
+    max-width: 100%;
+}
+.sw-admin-dash-header.is-scrolled {
+    box-shadow:0 8px 8px 0 rgba(85,93,102,.3);
 }
 
-.sw-admin-dash-header .sw-admin-dash-info,
-.sw-admin-dash-header .sw-admin-dash-nav,
-.sw-admin-dash-header .sw-upgrade-to-pro {
-    display: flex;
-    margin: 20px auto;
-}
 .sw-admin-menu-icon {
     display: none;
 }
-.sw-admin-dash-nav .active {
+.sw-admin-menu-icon span {
+    font-size: 25px;
+    margin-right: 10px;
+}
+.sw-admin-dash-info {
     display: flex;
-}
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
 
-.sw-admin-dash-header .sw-admin-dash-info {
-    margin-left: 160px;
 }
-
-.sw-admin-dash-header .sw-admin-dash-info img {
-    border-radius: 50%;
-    height: 80px;
-    width: 80px;
-    margin-left: 20px;
+.sw-admin-dash-info img {
+    border-radius: 10px;
+    height: 50px;
+    width: 50px;
 }
 .sw-admin-dash-info h1 {
-    padding-top: 15px;
-    font-size: 30px;
+    font-size: 25px;
+    color: #333333;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .sw-admin-dash-info em {
-    padding-top: 50px;
-    margin-right: 2px;
-    font-size: 9px;
+    align-self: flex-end;
 }
 
-.sw-admin-dash-nav a {
-    margin: 4px;
-    color: #241919;
-    text-decoration: none;
+.sw-admin-dash-nav ul{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sw-admin-dash-nav ul li {
+    display: inline-block;
+    color: #333333;
     font-weight: 400;
+    font-size: 14px;
     cursor: pointer;
+    border-radius: 4px;
+    transition: all .3s ease-in-out;
+}
+.sw-admin-dash-nav ul li.active {
+    border-bottom: solid 2px #000000;
+}
+#dashboardBtn, #dashAddNew, 
+#dashOrderBtn, #dashInvoicesBtn,
+#dashProductBtn, #dashSettingsBtn {
+    padding: 8px;
+}
+.sw-admin-dash-nav ul li a {
+    display: block;
+    text-decoration: none;
+    color: #333333;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 8px;
+}
+.sw-admin-dash-nav ul li:hover {
+    background-color: #f1f1f1;
+    border: solid #dcdcde 1px;
+    transform: translateY(-1px);
+}
+.sw-admin-dash-nav.show {
+    transform: translateX(0);
 }
 
 .sw-admin-dash-body {
-    margin-top: 180px;
+    margin: 100px auto auto auto;
+    padding: 10px;
 }
 
-.sw-admin-dash-body .sw-dash-content-container {
+.sw-dash-content-container {
     display: flex;
+    gap: 8px;
     flex-wrap: wrap;
-    max-width: 90%;
-    margin: 20px auto;
+    justify-content: space-evenly;
+    margin: 0 auto;
+    
 }
 .sw-dash-content {
-    align-items: center;
+    flex: 1;
     background-color: #ffffff;
-    height: 200px;
-    width: 30%;
+    height: 150px;
+    min-width: 250px;
+    width: 350px;
+    max-width: 100%; 
     border-radius: 9px;
-    margin: 10px;
 }
 
 .sw-dash-content:hover {
@@ -267,7 +321,7 @@ h2.sw-not-found {
 .sw-dash-count h2 {
     text-align: center;
     font-size: 35px;
-    color: #040404;
+    color: #333333;
     font-weight: 500;
 }
 
@@ -309,58 +363,61 @@ h2.sw-not-found {
     color: blue;
     font-weight: 500;
 }
-
-@media ( min-width: 280px ) and ( max-width: 768px ) {
-
-    .sw-admin-dash-header .sw-admin-dash-info,
-    .sw-admin-dash-header .sw-admin-dash-nav,
-    .sw-admin-dash-header .sw-upgrade-to-pro {
-        display: flex;
-        flex-direction: column;
-        margin: 10px auto;
+@media (min-width: 783px) and (max-width: 960px) {
+    .sw-admin-dash-header {
+        width: calc(100% - 36px);
     }
-
-    .sw-admin-dash-header .sw-admin-dash-nav {
+    
+}
+@media (max-width: 782px) {
+    .sw-admin-dash-header {
+        width: 100%;
+        top: 35px;
+    }
+        
+    .sw-admin-menu-icon {
+        display: block;
+        text-align: right;
+        cursor: pointer;      
+        width: 25%;
+    }
+    .sw-admin-dash-info {
+        width: 90%;
+    }
+        
+    .sw-admin-dash-nav {
         position: absolute;
-        display: none;
-        left: 70%;
-        top: 60%;
+        right: 0;
+        top: 70px;
         z-index: 9999;
         background-color: #ffffff;
         width: 30%;
         align-items: center;
+        padding: 10px;
+        border: solid 1px #dcdcde;
+        transition: all .2s ease-in-out;
+        transform: translateX(100%);
     }
+    .sw-admin-dash-nav ul {
+        
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+    @media ( max-width: 424px) {
+        .sw-admin-dash-info h1 {
+            font-size: 15px;
+        }
+        .sw-admin-dash-header .sw-upgrade-to-pro {
+            font-size: 10px;
+        margin-right: unset;
+        }
+    }
+}
 
-    .sw-admin-menu-icon {
-        display: block;
-        cursor: pointer;
-        margin-right: 10px;
-    }
-
-    .sw-admin-dash-header .sw-admin-dash-info {
-        flex-direction: row;
-        width: 100%;
-        margin-left: 20px;
-    }
-
-    .sw-admin-dash-info img {
-        display: none;
-    }
-
-    .sw-upgrade-to-pro {
-        justify-content: center;
-        height: 60px;
-        width: 90px;
-    }
+@media ( min-width: 19px ) and ( max-width: 768px ) {
 
     @media (min-width: 280px) and ( max-width: 480px) {
-        .sw-dash-content {
-            width: 40%;
-        }
-        .sw-dash-content:first-child{
-            width: 100%;
-            height: 150px;
-        }
+        
         .sw-search-container {
             flex-wrap: wrap;
         }
@@ -671,6 +728,8 @@ h2.sw-not-found {
 .smartwoo-admin-invoice-body .sw-invoice-metadata {
     background-color: #ffffff;
     width: 96%;
+    margin: 0 auto;
+    border-radius: 4px;
 }
 
 .sw-admin-invoice-item-table {
@@ -718,8 +777,6 @@ h2.sw-not-found {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* justify-content: space-evenly; */
-    /* gap: 30px; */
     height: 100vh;
 }
 
@@ -771,7 +828,7 @@ h2.sw-not-found {
 
 .smart-woo-product-form-page {
     margin: 0;
-    padding: 0;
+    padding: 10px;
     width: 100%;
 }
 .smart-woo-product-form-page h2 {
@@ -1048,8 +1105,9 @@ h2.sw-not-found {
     }
 }
 
+.sw-container,
 .sw-admin-view-details {
-    margin: 0;
+    margin: 0 auto;
     padding: 0;
 }
 
