@@ -69,7 +69,7 @@ class SmartWoo_Invoice_Controller {
 	 * Admin invoice menu controller
 	 */
 	public static function menu_controller() {
-		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab = smartwoo_get_query_param( 'tab' );
 
 		switch ( $tab ) {
 			case 'add-new-invoice':
@@ -98,19 +98,19 @@ class SmartWoo_Invoice_Controller {
 	 * Invoice management dashboard.
 	 */
 	private static function dashboard(){
-		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab = smartwoo_get_query_param( 'tab' );
 		$tabs = array(
 			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
 			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 		);
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 25; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page	= smartwoo_get_query_param( 'paged', 1 );
+		$limit 	= smartwoo_get_query_param( 'limit', 25 );
 
 		$page_title 	= 'All Invoices';
 		$all_invoices 	= SmartWoo_Invoice_Database::get_all_invoices( $page, $limit );
 		$all_inv_count 	= SmartWoo_Invoice_Database::count_all();
 		$total			= ceil( $all_inv_count / $limit );
-		$paged 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$paged 			= smartwoo_get_query_param( 'paged', 1 );
 		$prev			= $paged - 1;
 		$next			= $paged + 1;
 		$status_counts	= array(
@@ -129,14 +129,14 @@ class SmartWoo_Invoice_Controller {
 	 * View Invoices by status template
 	 */
 	private static function invoices_by_status() {
-		$status	= isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'pending'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab	= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$status	= smartwoo_get_query_param( 'status', 'pending' );
+		$tab	= smartwoo_get_query_param( 'tab' );
 		$tabs	= array(
 			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
 			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
 		);
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 20; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page	= smartwoo_get_query_param( 'paged', 1 );
+		$limit 	= smartwoo_get_query_param( 'limit', 20 );
 
 		if ( ! in_array( $status, array( 'due', 'cancelled', 'paid', 'unpaid' ), true ) ) {
 			echo wp_kses_post( smartwoo_error_notice( 'Status parameter should not be manipulated! <a href="' . esc_url( admin_url( 'admin.php?page=sw-invoices' ) ) . '">Back</>' ) );
@@ -149,7 +149,7 @@ class SmartWoo_Invoice_Controller {
 		$all_invoices	= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status );
 		$all_inv_count 	= absint( SmartWoo_Invoice_Database::count_this_status( $status ) );
 		$total			= ceil( $all_inv_count / $limit );
-		$paged 			= isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$paged 			= smartwoo_get_query_param( 'paged', 1 );
 		$prev			= $paged - 1;
 		$next			= $paged + 1;
 		
@@ -167,9 +167,9 @@ class SmartWoo_Invoice_Controller {
 	 * View Invoice Template
 	 */
 	private static function view_invoice() {
-		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$invoice_id = smartwoo_get_query_param( 'invoice_id' );
 		$invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
-		$args       = isset( $_GET['path'] ) ? sanitize_key( $_GET['path'] ) : 'details'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$args       = smartwoo_get_query_param( 'path', 'details' );
 		$query_var  =  'tab=view-invoice&invoice_id=' . $invoice_id .'&path';
 		$tabs		= array(
 			''					=> 'Dashboard',
@@ -269,7 +269,7 @@ class SmartWoo_Invoice_Controller {
 	 */
 	public static function edit_form() {
 		smartwoo_set_document_title( 'Edit Invoice' );
-		$invoice_id	= isset( $_GET['invoice_id'] ) ? sanitize_key( $_GET['invoice_id'] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$invoice_id	= smartwoo_get_query_param( 'invoice_id' );
 		$invoice	= SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 		$selected	= $invoice ? $invoice->get_user_id() . '|' . $invoice->get_user()->get_email() : '';
 		
