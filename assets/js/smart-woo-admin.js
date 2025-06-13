@@ -747,7 +747,7 @@ function smartwoo_pro_ad(title, message) {
         });
     }
 
-    let mainDiv         = document.querySelector('.inv-settings-form') ?? document.querySelector( '#pro-target' );
+    let mainDiv         = document.querySelector('.smartwoo-settings-form') ?? document.querySelector( '#pro-target' );
     let proDiv          = document.createElement('div');
     proDiv.classList.add('sw-pro-div');
     let close           = document.createElement('span');
