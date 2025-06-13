@@ -496,8 +496,8 @@ border-radius: 5px;
 .sw-container {
 	display: flex;
 	justify-content: space-between;
-	margin-top: 20px;
-	margin-bottom: 20px;
+	margin: 20px auto;
+	padding: 10px;
 }
 
 .sw-left-column {
@@ -858,9 +858,9 @@ border-radius: 5px;
 
     .sw-table {
         width: 90%;
-        max-width: 100%; /* Adjusted to take full width on small screens */
+        max-width: 100%;
         box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-        overflow-x: auto; /* Added to enable horizontal scrolling if needed */
+        overflow-x: auto;
     }
 
     .sw-table thead,
