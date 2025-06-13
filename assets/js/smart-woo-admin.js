@@ -472,7 +472,7 @@ function smartwoo_clear_dash_content( index ) {
 
 function fetchDashboardData(index, queryVars = {}) {
     let dashContents = document.querySelector( '.sw-dash-content-container' );
-    showLoadingIndicator();
+    let spinner = smartWooAddSpinner( 'swloader', true );
     switch(index) {
         case 0:
             realAction = 'all_services_table';
@@ -505,7 +505,7 @@ function fetchDashboardData(index, queryVars = {}) {
             realAction = 'sw_search';
     }
 
-    if ('all_pending_services_table' === realAction) {
+    if ( 'all_pending_services_table' === realAction ) {
         window.location.href = smartwoo_admin_vars.admin_order_page;
         return;
     }
@@ -557,7 +557,7 @@ function fetchDashboardData(index, queryVars = {}) {
             dashContents.style.display = "none";
         }
         
-        hideLoadingIndicator();
+        smartWooRemoveSpinner( spinner );
     });
 }
 
@@ -1229,19 +1229,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if ( contentDiv ) {
-        let wpHelpTab = document.getElementById('contextual-help-link-wrap');
-        let wpHelpDiv = document.getElementById('contextual-help-wrap');
-        let wpScreen  = document.querySelector('.contextual-help-tabs');
-        if (wpHelpTab) {
-            
-            // wpHelpTab.style.zIndex = '1';
-            wpHelpDiv.style.zIndex = '9999';
-            wpHelpTab.style.top = '110px';
-            wpHelpTab.style.right = '1px';
-            wpScreen.style.backgroundColor = '#ffffff';
-            // wpScreen.style.border = 'solid blue 1px';
-            wpHelpTab.style.position = 'absolute';
-        }
         // Clone the skeleton loader for each statistic
         for (let i = 0; i < 8; i++) {
             contentDiv.append(skeletonContent[0].cloneNode(true));
@@ -1336,22 +1323,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (menuButton) {
-        let toggled = false;
+        let navDiv = document.querySelector('.sw-admin-dash-nav');
         menuButton.addEventListener('click', ()=>{
-            let navDiv = document.querySelector('.sw-admin-dash-nav');
-            
-            if (!toggled) {
-                
-                jQuery(navDiv).fadeIn().css('display', 'flex');
-
-            } else {
-                // navDiv.style.display = "none";
-                jQuery(navDiv).fadeIn().css('display', 'none');
-
-            }
-
-            toggled = !toggled;
-            
+            navDiv.classList.toggle( 'show' );
         });
     }
 
@@ -1401,19 +1375,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
-    if (adminDashHeader && window.innerWidth <= 600 ) {
-       
+    if (adminDashHeader ) {
+        let wpHelpTab = document.getElementById('contextual-help-link-wrap');
+        let wpHelpDiv = document.getElementById('contextual-help-wrap');
+        let wpScreen  = document.querySelector('.contextual-help-tabs');
+        if (wpHelpTab) {
+            
+            // wpHelpTab.style.zIndex = '1';
+            wpHelpDiv.style.zIndex = '9999';
+            wpHelpTab.style.top = '70px';
+            wpHelpTab.style.right = '1px';
+            wpScreen.style.backgroundColor = '#ffffff';
+            wpHelpTab.style.position = 'absolute';
+        }
         document.addEventListener('scroll', ()=>{
             let scrollUp = window.scrollY > 0;
             if( scrollUp ) {
-                adminDashHeader.style.top = "0";
-                adminDashHeader.style.padding = "-5px";
-
+                adminDashHeader.classList.add( 'is-scrolled' );
             } else {
-                adminDashHeader.style.top = "20px";
-
+                adminDashHeader.classList.remove( 'is-scrolled' );
             }
         });
+        
+        if ( window.innerWidth <= 600 ) {
+            document.addEventListener('scroll', ( e )=>{
+                
+                let scrollUp = window.scrollY > 20;
+                if( scrollUp ) {
+                    adminDashHeader.classList.add( 'is-scrolled' );
+                    adminDashHeader.style.top = "0";
+                    adminDashHeader.style.padding = "-5px";
+
+                } else {
+                    adminDashHeader.style.top = "35px";
+                    adminDashHeader.classList.remove( 'is-scrolled' );
+                }
+            });
+        }
+
     }
 
     if (editMailBtns) {
