@@ -75,7 +75,7 @@ class SmartWoo_Dashboard_Controller {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'smart-woo-service-invoicing' ) );
 		}
 	
-		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab = smartwoo_get_query_param( 'tab' );
 	
 		switch ( $tab ) {
 			case 'view-service':
@@ -148,8 +148,8 @@ class SmartWoo_Dashboard_Controller {
 	 * View service subscription details page.
 	 */
 	private static function view_service_page() {
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service_id = smartwoo_get_query_param( 'service_id' );
+		$tab		= smartwoo_get_query_param( 'tab' );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 		if ( $service ) {
@@ -181,7 +181,7 @@ class SmartWoo_Dashboard_Controller {
 	 * Edit service page
 	 */
 	private static function edit_service_page() {
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$service_id = smartwoo_get_query_param( 'service_id', '' );
 	
 		$service	= SmartWoo_Service_Database::get_service_by_id( $service_id );
 	
@@ -223,7 +223,7 @@ class SmartWoo_Dashboard_Controller {
 			'edit-service'	=> 'Edit'
 		);
 	
-		$tab	= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab	= smartwoo_get_query_param( 'tab' );
 		$query_var  =  'service_id=' . $service_id .'&tab';
 			
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/edit-service.php';
@@ -234,8 +234,8 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	private static function view_client() {
 		smartwoo_set_document_title( 'Client Info' );
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service_id = smartwoo_get_query_param( 'service_id' );
+		$tab		= smartwoo_get_query_param( 'tab' );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		
 		if ( $service ) {
@@ -292,8 +292,8 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	private static function view_assets() {
 		smartwoo_set_document_title( 'Assets' );
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service_id = smartwoo_get_query_param( 'service_id' );
+		$tab		= smartwoo_get_query_param( 'tab' );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 		if ( $service ) {
@@ -337,8 +337,8 @@ class SmartWoo_Dashboard_Controller {
 	 * Service statistics page
 	 */
 	private static function service_stats_page() {
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service_id = smartwoo_get_query_param( 'service_id' );
+		$tab		= smartwoo_get_query_param( 'tab' );
 
 		$tabs = array(
 			''				=> 'Dashboard',
@@ -357,8 +357,8 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	private static function service_logs_page() {
 		smartwoo_set_document_title( 'Logs' );
-		$service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab		= isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
+		$service_id = smartwoo_get_query_param( 'service_id' );
+		$tab		= smartwoo_get_query_param( 'tab' );
 		$tabs = array(
 			''				=> 'Dashboard',
 			'view-service'	=> 'Details',
