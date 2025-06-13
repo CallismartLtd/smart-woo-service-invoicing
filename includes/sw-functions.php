@@ -823,10 +823,7 @@ function smartwoo_is_frontend() {
  * @return string $configure page | link to current page #.
  */
 function smartwoo_configure_page( $product_id ){
-	if ( empty( $product_id ) || "product" !== get_post_type( absint( $product_id ) ) ) {
-		return $product_id;
-	}
-	return home_url( '/configure/?product_id=' . absint( $product_id ) );
+	return smartwoo_get_endpoint_url( smartwoo_get_product_config_query_var(), $product_id, home_url() );
 }
 
 
@@ -1488,4 +1485,18 @@ function smartwoo_fast_checkout_options() {
 	$parsed_options	= wp_parse_args( $options, $default_options );
 
 	return $parsed_options;
+}
+
+/**
+ * A utility function to get the value of a given key from the url query parameters.
+ * 
+ * @param string $key The key to retrieve from the query parameters.
+ * @param string $default The default value to return if the key is not found.
+ * @return string The value of the key from the query parameters or the default value.
+ */
+function smartwoo_get_query_param( $key, $default = '' ) {
+	if ( isset( $_GET[ $key ] ) ) {
+		return sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+	return $default;
 }
