@@ -147,7 +147,7 @@ class SmartWoo_Config{
     public function include() {
 
         require_once SMARTWOO_PATH . 'includes/class-smartwoo-date-helper.php';
-        require_once SMARTWOO_PATH . 'includes/admin/sw-functions.php';
+        require_once SMARTWOO_PATH . 'includes/sw-functions.php';
         require_once SMARTWOO_PATH . 'includes/class-smartwoo.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/invoice.downloadable.php';
         require_once SMARTWOO_PATH . 'includes/sw-invoice/class-sw-invoice.php';
@@ -181,9 +181,11 @@ class SmartWoo_Config{
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
             require_once SMARTWOO_PATH . 'includes/admin/admin-menu.php';
-            require_once SMARTWOO_PATH . 'includes/sw-service/contr.php';
-            require_once SMARTWOO_PATH . 'includes/sw-invoice/contr.php';
-            require_once SMARTWOO_PATH . 'includes/sw-product/contr.php';
+            require_once SMARTWOO_PATH . 'includes/admin/class-dashboard-controller.php';
+            require_once SMARTWOO_PATH . 'includes/admin/class-orders-controller.php';
+            require_once SMARTWOO_PATH . 'includes/admin/class-invoice-controller.php';
+            require_once SMARTWOO_PATH . 'includes/admin/class-product-controller.php';
+            require_once SMARTWOO_PATH . 'includes/admin/class-settings-controller.php';
             require_once SMARTWOO_PATH . 'includes/class-sw-db-update.php';
             
         }
@@ -216,6 +218,8 @@ class SmartWoo_Config{
     }
 
     public function load_styles() {
+        wp_register_style( 'smartwoo-inline', false ); // phpcs:ignore
+        wp_enqueue_style( 'smartwoo-inline' );
         $suffix = self::script_suffix();
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
             wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
@@ -227,7 +231,11 @@ class SmartWoo_Config{
             wp_enqueue_style( 'smartwoo-invoice-style', $invoice_style_url, array(), SMARTWOO_VER, 'all' );
         }
 
-        if ( is_admin() ) {
+        if ( is_admin() ) {           
+            $our_pages = array( 'Dashboard', 'Invoices', 'Service Orders', 'Service Products', 'Settings' );
+            if ( in_array( self::get_current_screen(), $our_pages, true ) ) {
+                wp_add_inline_style( 'smartwoo-inline', '#wpcontent { padding-left: 0 !important; }' );
+            }
             $utm_style_uri  = SMARTWOO_DIR_URL . 'assets/css/sw-admin' . $suffix . '.css';
             $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
             $icon_styles    = SMARTWOO_DIR_URL . 'assets/css/sw-icons' . $suffix . '.css';
