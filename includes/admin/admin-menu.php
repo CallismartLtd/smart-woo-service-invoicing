@@ -9,8 +9,6 @@
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
-require_once SMARTWOO_PATH . 'includes/admin/admin-callback-functions.php';
-
 /**
  * The Smart Woo Admin Menu class.
  */
@@ -231,7 +229,7 @@ class SmartWoo_Admin_Menu {
 					<div class="sw-admin-dash-nav">
 						<ul>
 							<?php foreach ( $menu_options as $title => $options ) : 
-								$found_class	= ( $add_active_class && isset( $_GET[$query_key] ) ) ? sanitize_key( wp_unslash( $_GET[$query_key] ) ) : '';
+								$found_class	= ( $add_active_class && smartwoo_get_query_param( $query_key, false ) ) ? smartwoo_get_query_param( $query_key ) : '';
 								$class			= isset( $options['active'] ) && $found_class === $options['active'] ? 'active' : '';
 								$class			= isset( $options['class'] ) ? $class . ' ' . $options['class'] : $class;
 								?>
