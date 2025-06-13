@@ -10,9 +10,6 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 require_once SMARTWOO_PATH . 'includes/admin/admin-callback-functions.php';
-require_once SMARTWOO_PATH . 'includes/sw-orders/contr.php';
-require_once SMARTWOO_PATH . 'includes/sw-service/sw-new-service-processing.php';
-require_once SMARTWOO_PATH . 'includes/admin/sw-admin-settings.php';
 
 /**
  * The Smart Woo Admin Menu class.
@@ -83,7 +80,7 @@ class SmartWoo_Admin_Menu {
 			'Smart Woo',
 			'manage_options',
 			'sw-admin',
-			array( 'SmartWoo_Admin_Controller', 'menu_controller' ),
+			array( 'SmartWoo_Dashboard_Controller', 'menu_controller' ),
 			'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgd2lkdGg9IjYwMCIgaGVpZ2h0PSI2MDAiIHZpZXdCb3g9IjAgMCAxMDgwIDEwODAiPg0KICAgIDwhLS0gQ2lyY2xlIC0tPg0KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU0MCw1NDApIj4NCiAgICAgICAgPGNpcmNsZSBjeD0iMCIgY3k9IjAiIHI9IjUxMiIgDQogICAgICAgICAgICAgICAgc3R5bGU9InN0cm9rZTpyZ2IoMTU0LCAxNjAsIDE2NSk7IHN0cm9rZS13aWR0aDogMTU7IGZpbGw6IHRyYW5zcGFyZW50OyIgDQogICAgICAgICAgICAgICAgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIi8+DQogICAgPC9nPg0KDQogICAgPCEtLSBTVyBUZXh0IChVc2luZyBmb3JlaWduT2JqZWN0IHRvIGVuc3VyZSBpdCdzIG9uIHRvcCkgLS0+DQogICAgPGZvcmVpZ25PYmplY3QgeD0iMjAiIHk9IjMwMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+DQogICAgICAgIDxkaXYgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiIA0KICAgICAgICAgICAgIHN0eWxlPSJmb250LWZhbWlseTogQWxlZ3JleWE7IGZvbnQtc2l6ZTogNTAwcHg7IGZvbnQtd2VpZ2h0OiBib2xkOyANCiAgICAgICAgICAgICAgICAgICAgY29sb3I6IHJnYigwLCAwLCAwKTsgdGV4dC1hbGlnbjogY2VudGVyOyI+DQogICAgICAgICAgICBTVw0KICAgICAgICA8L2Rpdj4NCiAgICA8L2ZvcmVpZ25PYmplY3Q+DQo8L3N2Zz4NCg==',
 			58.5
 		);
@@ -95,7 +92,7 @@ class SmartWoo_Admin_Menu {
 			! empty( $new_order_count ) ? 'Service Orders <span class="awaiting-mod">' . $new_order_count . '</span>': 'Service Orders',
 			'manage_options',
 			'sw-service-orders',
-			array( 'SmartWoo_Order_Controller', 'menu_controller' )
+			array( 'SmartWoo_Orders_Controller', 'menu_controller' )
 		);
 
 		$self->invoices_screen_id  = add_submenu_page(
@@ -122,7 +119,7 @@ class SmartWoo_Admin_Menu {
 			'Settings',
 			'manage_options',
 			'sw-options',
-			'smartwoo_options_page'
+			array( 'SmartWoo_Settings_Controller', 'menu_controller' )
 		);
 
 	}
@@ -205,6 +202,56 @@ class SmartWoo_Admin_Menu {
 		<h1>Smart Woo Settings</h1>
 		<p>Here, you can configure your desired options for your business, invoices, emails, and advanced settings.</p>
 		<p>Please check out our documentation for this page <a href="https://callismart.com.ng/smart-woo-usage-guide/#configuring-settings" target="_blank">HERE</a>.</p>
+		<?php
+	}
+
+	/**
+	 * Prints the mordern navigation menu.
+	 * 
+	 * @param string $title			The page title.
+	 * @param array  $menu_options	Associative arrays of button_text => options{
+	 * - id		=> The button ID attribute
+	 * - class	=> The button class attribute
+	 * - href	=> The button url
+	 * - active => The value for the active state in the URL query param
+	 * },
+	 * @param string $query_key The key to get the active button, default false
+	 */
+	public static function print_mordern_submenu_nav( $title, $menu_options, $query_key = false ) {
+		$add_active_class	= is_string( $query_key );
+		?>
+			<div class="sw-admin-dash-header">
+				<div class="sw-admin-header-content">
+					<!-- Smart Woo Info -->
+					<div class="sw-admin-dash-info">
+						<h1><?php echo wp_kses_post( $title );?></h1>
+					</div>
+
+					<!-- Navigation buttons -->
+					<div class="sw-admin-dash-nav">
+						<ul>
+							<?php foreach ( $menu_options as $title => $options ) : 
+								$found_class	= ( $add_active_class && isset( $_GET[$query_key] ) ) ? sanitize_key( wp_unslash( $_GET[$query_key] ) ) : '';
+								$class			= isset( $options['active'] ) && $found_class === $options['active'] ? 'active' : '';
+								$class			= isset( $options['class'] ) ? $class . ' ' . $options['class'] : $class;
+								?>
+								<li class="<?php echo esc_attr( $class ); ?>" id="<?php echo esc_attr( isset( $options['id'] ) ? $options['id'] : '' ); ?>"><a href="<?php echo esc_url( $options['href'] ); ?>"><?php echo esc_html( $title ); ?></a></li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+					<div class="sw-admin-menu-icon">
+						<span class="dashicons dashicons-menu"></span>
+					</div>
+
+					<?php if( ! class_exists( 'SmartWooPro', false ) ):?>
+						<div class="sw-upgrade-to-pro">
+							<a><?php echo esc_html( apply_filters( 'smartwoo_dash_pro_button_text', __( 'Activate Pro Features', 'smart-woo-service-invoicing' ) ) );?></a>
+						</div>
+					<?php endif;?>
+				</div>
+			</div>
+			<div style="margin-top: 100px"></div>
+
 		<?php
 	}
 
