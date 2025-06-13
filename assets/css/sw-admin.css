@@ -79,16 +79,19 @@
 }
 .sw-pro-sell {
     font-weight: bold;
-    padding: 10px;
-    margin: 10px auto;
     background-color: #ffffff;
     width: 100%;
     max-width: 768px;
+    border: 1px solid #dcdcde;
     border-radius: 9px;
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
 }
 .sw-default-overlay {
     padding: 15px;
+}
+
+.sw-default-overlay ul {
+    list-style-type: none;
 }
 
 .sw-round-up {
@@ -1109,6 +1112,14 @@ h2.sw-not-found {
 .sw-admin-view-details {
     margin: 0 auto;
     padding: 0;
+}
+.smartwoo-settings-page {
+    margin: 0 auto;
+    padding: 10px;
+}
+.smartwoo-settings-page h1 {
+    color: #333333;
+    font-size: 25px;
 }
 
 .sw-admin-view-service-buttons-container {
