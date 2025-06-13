@@ -310,8 +310,8 @@ use inline CSS to overide some styles
 
 }
 
-/* Styles for inv-settings-form */
-.inv-settings-form {
+/* Styles for smartwoo-settings-form */
+.smartwoo-settings-form {
 	max-width: 100%;
 	margin: 0 auto;
 	padding: 20px;
