@@ -9,7 +9,6 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, __( 'Edit Service Subscription', 'smart-woo-service-invoicing' ),'sw-admin','edit-service', $query_var ) ); ?>
 <?php if ( empty( $service ) ) : ?>
     <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service subscription <a href="' . esc_url( admin_url( 'admin.php?page=sw-admin' ) ) . '">Back</a>' ) ) ?>
 <?php else : ?>
