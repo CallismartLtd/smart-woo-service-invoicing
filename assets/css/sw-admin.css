@@ -257,6 +257,11 @@ h2.sw-not-found {
     border-radius: 4px;
     transition: all .3s ease-in-out;
 }
+body .sw-admin-dash-nav ul li a:active,
+body .sw-admin-dash-nav ul li a:focus {
+    box-shadow: none !important;
+    border-bottom: solid 1px #dcdcde;
+}
 .sw-admin-dash-nav ul li.active {
     border-bottom: solid 2px #000000;
 }
@@ -594,7 +599,7 @@ h2.sw-not-found {
     position: absolute;
     right: 10%;
     width: 60px;
-    height: 60px;
+    height: 40px;
     background-color: #ffffff;
     color: blue;
 }
@@ -832,7 +837,6 @@ h2.sw-not-found {
 .smart-woo-product-form-page {
     margin: 0;
     padding: 10px;
-    width: 100%;
 }
 .smart-woo-product-form-page h2 {
     font-size: 20px;
@@ -1111,7 +1115,7 @@ h2.sw-not-found {
 .sw-container,
 .sw-admin-view-details {
     margin: 0 auto;
-    padding: 0;
+    padding: 10px;
 }
 .smartwoo-settings-page {
     margin: 0 auto;
@@ -1123,8 +1127,7 @@ h2.sw-not-found {
 }
 
 .sw-admin-view-service-buttons-container {
-    margin: 20px 50px 10px 10px;
-    text-align: right;
+    margin-left: 10px;
 }
 
 .sw-admin-view-service-buttons-container button {
