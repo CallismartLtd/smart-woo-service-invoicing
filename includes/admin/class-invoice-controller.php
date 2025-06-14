@@ -70,7 +70,46 @@ class SmartWoo_Invoice_Controller {
 	 */
 	public static function menu_controller() {
 		$tab = smartwoo_get_query_param( 'tab' );
+		$menu_tabs = array(
+			'Add New'	=> array(
+				'href'		=> admin_url( 'admin.php?page=sw-invoices&tab=add-new-invoice' ),
+				'active'	=> 'add-new-invoice'
+			)
+		);
+		$title = 'Invoices';
+		if ( ! empty( $tab ) ) {
+			$add_new_menu	= $menu_tabs['Add New'];
+			unset( $menu_tabs['Add New'] );
+			$menu_tabs['Invoices'] = array(
+				'href'		=> admin_url( 'admin.php?page=sw-invoices' ),
+				'active'	=> ''
+			);
+			$menu_tabs['Add New'] = $add_new_menu;
+		
+			if ( 'add-new-invoice' !== $tab && 'sort-by' !== $tab ) {
+				$title = 'Invoice Details';
+				$menu_tabs['View'] = array(
+					'href'      => admin_url( 'admin.php?page=sw-invoices&tab=view-invoice&invoice_id=' . smartwoo_get_query_param( 'invoice_id' ) ),
+					'active'    => 'view-invoice'
+				);
 
+				$menu_tabs['Related Service'] = array(
+					'href'      => admin_url( 'admin.php?page=sw-invoices&tab=related-service&invoice_id=' . smartwoo_get_query_param( 'invoice_id' ) ),
+					'active'    => 'related-service'
+				);
+				$menu_tabs['Logs'] = array(
+					'href'      => admin_url( 'admin.php?page=sw-invoices&tab=log&invoice_id=' . smartwoo_get_query_param( 'invoice_id' ) ),
+					'active'    => 'log'
+				);
+				$menu_tabs['Edit'] = array(
+					'href'      => admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . smartwoo_get_query_param( 'invoice_id' ) ),
+					'active'    => 'edit-invoice'
+				);
+			}
+		
+		}
+		
+		SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menu_tabs, 'tab' );
 		switch ( $tab ) {
 			case 'add-new-invoice':
 				include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
@@ -85,6 +124,8 @@ class SmartWoo_Invoice_Controller {
 				break;
 	
 			case 'view-invoice':
+			case 'related-service':
+			case 'log':
 				self::view_invoice();
 				break;
 	
@@ -98,11 +139,6 @@ class SmartWoo_Invoice_Controller {
 	 * Invoice management dashboard.
 	 */
 	private static function dashboard(){
-		$tab = smartwoo_get_query_param( 'tab' );
-		$tabs = array(
-			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
-			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
-		);
 		$page	= smartwoo_get_query_param( 'paged', 1 );
 		$limit 	= smartwoo_get_query_param( 'limit', 25 );
 
@@ -130,11 +166,6 @@ class SmartWoo_Invoice_Controller {
 	 */
 	private static function invoices_by_status() {
 		$status	= smartwoo_get_query_param( 'status', 'pending' );
-		$tab	= smartwoo_get_query_param( 'tab' );
-		$tabs	= array(
-			''                => __( 'Invoices', 'smart-woo-service-invoicing' ),
-			'add-new-invoice' => __( 'Add New', 'smart-woo-service-invoicing' ),
-		);
 		$page	= smartwoo_get_query_param( 'paged', 1 );
 		$limit 	= smartwoo_get_query_param( 'limit', 20 );
 
@@ -169,26 +200,17 @@ class SmartWoo_Invoice_Controller {
 	private static function view_invoice() {
 		$invoice_id = smartwoo_get_query_param( 'invoice_id' );
 		$invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
-		$args       = smartwoo_get_query_param( 'path', 'details' );
-		$query_var  =  'tab=view-invoice&invoice_id=' . $invoice_id .'&path';
-		$tabs		= array(
-			''					=> 'Dashboard',
-			'details' 	      	=> __( 'Invoice', 'smart-woo-service-invoicing' ),
-			'related-service' 	=> __('Related Service', 'smart-woo-service-invoicing' ),
-			'log'             	=> __( 'Logs', 'smart-woo-service-invoicing' ),
-		);
 
 		if ( $invoice ) {
-			$service = SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
+			$service		= SmartWoo_Service_Database::get_service_by_id( $invoice->get_service_id() );
+			$status_class	= ! empty( $service ) ? strtolower( str_replace( array( ' ', '(', ')'), array( '-', '', '' ), smartwoo_service_status( $service ) ) ) : '';
 		}
 
-		switch ( $args ){
+		switch ( smartwoo_get_query_param( 'tab' ) ){
 			case 'related-service':
-				$status_class 	= ! empty( $service ) ? strtolower( str_replace( array( ' ', '(', ')'), array( '-', '', '' ), smartwoo_service_status( $service ) ) ) : '';
 				$page_file = SMARTWOO_PATH .'templates/invoice-admin-temp/view-related-services.php';
 				break;
 			case 'log':
-				echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) );
 				$feature = 'invoice logs';
 				$page_file = apply_filters( 'smartwoo_invoice_log_template', smartwoo_pro_feature_template() );
 				break;
