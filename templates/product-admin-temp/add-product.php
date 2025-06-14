@@ -11,7 +11,6 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 ?>
 
 <div class="smart-woo-product-form-page">
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Add Product', 'sw-products', $tab, 'tab' ) ); ?>
     <h2>Create service subscription product</h2>
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
             <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
