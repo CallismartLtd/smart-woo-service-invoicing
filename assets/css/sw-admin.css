@@ -308,12 +308,13 @@ body .sw-admin-dash-nav ul li a:focus {
     width: 350px;
     max-width: 100%; 
     border-radius: 9px;
+    transition: box-shadow .5s ease-in-out;
 }
 
 .sw-dash-content:hover {
     cursor: pointer;
-    border: solid#ffffff .5px;
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+    transition: box-shadow .5s ease-in-out;
 }
 .sw-dash-content:active {
     cursor: progress;
