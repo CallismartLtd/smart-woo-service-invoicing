@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	let loginPWDInput		= document.getElementById('sw-user-password');
 	let adminAssetsToggle	= document.querySelectorAll( '.sw-admin-service-assets-button, .sw-client-service-assets-button' );
 	let renewalButton		= document.querySelector( '.smartwoo-service-renew-button' );
-	let allSortDivs			= document.querySelectorAll( '.sw-admin-status-item, .sw-user-status-item' );
+	let allSortDivs			= document.querySelectorAll( '.sw-user-status-item' );
 	let miniCardContent		= document.querySelector( '.mini-card-content' );
 
     if (hamburger) {
