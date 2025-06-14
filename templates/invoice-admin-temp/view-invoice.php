@@ -10,7 +10,6 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 smartwoo_set_document_title( 'Invoice Details');
 ?>
-<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) ); ?>
 <?php if ( ! $invoice ) : ?>
     <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted invoice <a href="' . admin_url( 'admin.php?page=sw-invoices') .'">Back</a>' ) ); ?>
 
