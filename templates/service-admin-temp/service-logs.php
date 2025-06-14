@@ -8,8 +8,6 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="sw-admin-view-details">
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Logs','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
-
     <?php if( class_exists( 'SmartWooPro', false ) && method_exists( 'SmartWooPro', 'load_service_logs' ) ) : ?>
         <?php call_user_func( array( new SmartWooPro(), 'load_service_logs' ), $service_id ) ?>
     <?php else: ?>
