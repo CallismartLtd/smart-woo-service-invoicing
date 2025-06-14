@@ -10,14 +10,6 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 
-<div class="wrap">
-    <h1 class="wp-heading-inline">Process New Service Order</h1>
-    <nav class="nav-tab-wrapper">
-        <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders') ); ?>" class="nav-tab">Dashboard</a>
-        <button class="nav-tab nav-tab-active">Process Order</button>
-        <a href="<?php echo esc_url( $order->get_parent_order()->get_edit_order_url() ); ?>" class="nav-tab">Edit parent order</a>
-    </nav>
-</div>
 <?php if ( ! $order ) : ?>
     <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid Order, please check whether the item exists. <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Back</a>' ) ); ?>
 <?php elseif ( $order->is_processed() ): ?>
