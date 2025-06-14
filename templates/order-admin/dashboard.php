@@ -8,7 +8,6 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<h1 class="wp-heading-inline">Service Orders</h1>
 <?php if ( empty( $orders ) ): ?>
     <div class="smartwoo-blank-state">
         <h1 class="dashicons dashicons-cart"></h1>
