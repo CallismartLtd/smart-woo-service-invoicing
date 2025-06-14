@@ -225,14 +225,6 @@ use inline CSS to overide some styles
 
 /************************************All form CSS starts here****************************************/
 
-.sw-form-container {
-	max-width: 90%;
-	justify-content: space-around;
-	margin: 20px 0;
-	padding: 20px;
-	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
-	margin-bottom: 20px;
-}
 
 .sw-product-download-field-container {
 	display: none;
