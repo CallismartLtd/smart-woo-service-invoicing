@@ -70,7 +70,7 @@ defined( 'ABSPATH' ) || exit;
                             </div>
                         <?php endif; ?>
 
-                        <button class="button" id="add-field"> <?php esc_html_e( 'More Fields', 'smart-woo-service-invoicing' );?></button>   
+                        <button class="button" id="add-field"> <?php esc_html_e( 'Add File', 'smart-woo-service-invoicing' );?></button>   
                         
                         <div class="sw-service-assets-downloads-meta">
                             <div class="sw-service-form-row">
@@ -104,7 +104,7 @@ defined( 'ABSPATH' ) || exit;
                             <textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"></textarea>
                         </div>
                         
-                        <button id="more-addi-assets" class="button"><?php esc_html_e( 'Another Asset', 'smart-woo-service-invoicing' );?></button> 
+                        <button id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
                     </div>
                     
                 </div>
