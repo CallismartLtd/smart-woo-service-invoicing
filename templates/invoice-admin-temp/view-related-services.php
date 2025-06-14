@@ -10,13 +10,11 @@ defined( 'ABSPATH' ) || exit;
 smartwoo_set_document_title( 'Related Service');
 ?>
 <div class="sw-admin-view-details">
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Invoice Informations','sw-invoices', $args, $query_var ) ); ?>
-
     <?php if ( ! $invoice ) : ?>
         <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid or deleted invoice' ) ); ?>
         <?php return; ?>
     <?php elseif( empty( $service ) ): ?>
-        <?php echo wp_kses_post( smartwoo_notice( 'Invoice is not related to any service.' ) ); ?>
+        <?php echo wp_kses_post( smartwoo_notice( 'Invoice is not related to any service. <a href="' . smartwoo_invoice_preview_url( $invoice_id ) . '">Back</a>' ) ); ?>
         <?php return; ?>
     <?php else: ?>
         <div class="sw-admin-subinfo" style="max-width: 768px; margin: 10px auto;">
