@@ -144,7 +144,7 @@ class SmartWoo_Admin_Menu {
 				array(
 					'id'		=> 'smartwoo_options_help',
 					'title'		=> __( 'Settings', 'smart-woo-service-invoicing' ),
-					'callback'	=> array( __CLASS__, 'docs_settings_guide' )
+					'callback'	=> array( __CLASS__, 'settings_guide' )
 				)
 			);
 		}
@@ -193,15 +193,29 @@ class SmartWoo_Admin_Menu {
 	}
 
 	/**
-	 * Guide to the settings page.
+	 * Contextual help content for settings page.
 	 */
-	public static function docs_settings_guide() {
+	public static function settings_guide() {
 		?>
-		<h1>Smart Woo Settings</h1>
-		<p>Here, you can configure your desired options for your business, invoices, emails, and advanced settings.</p>
-		<p>Please check out our documentation for this page <a href="https://callismart.com.ng/smart-woo-usage-guide/#configuring-settings" target="_blank">HERE</a>.</p>
+		<h2>Getting Started with Smart Woo Settings</h2>
+		<p>Welcome to the Smart Woo Settings! 🎉</p>
+
+		<p>This is the command center where you set up the core details of your business, invoices, emails, and advanced preferences — everything needed to tailor the plugin to your workflow.</p>
+
+		<h3>Here’s what you can do on each tab:</h3>
+		<ul>
+			<li><strong>Business Settings</strong> – Add your business name, phone numbers, client portal pages, and ID prefixes. This information appears on invoices and affects how services are tracked.</li>
+			<li><strong>Invoice Settings</strong> – Set your invoice logo, watermarks, ID prefixes, and choose which page will display your clients' invoices.</li>
+			<li><strong>Email Settings</strong> – Configure when and how Smart Woo sends emails like invoice notifications, reminders, and service updates. You can also customize email templates here.</li>
+			<li><strong>Advanced Settings</strong> – Control plugin behavior like invoice tracking, custom cart button text, or full data cleanup on uninstall.</li>
+		</ul>
+
+		<p>Take a few minutes to walk through each tab and configure the options to match your business needs.</p>
+
+		<p>Need a step-by-step guide with screenshots? Visit the full documentation for this page <a href="https://callismart.com.ng/smart-woo-usage-guide/#configuring-settings" target="_blank" rel="noopener noreferrer">HERE</a>.</p>
 		<?php
 	}
+
 
 	/**
 	 * Prints the mordern navigation menu.
@@ -248,7 +262,7 @@ class SmartWoo_Admin_Menu {
 					<?php endif;?>
 				</div>
 			</div>
-			<div style="margin-top: 100px"></div>
+			<div style="margin-top: 120px"></div>
 
 		<?php
 	}
