@@ -9,8 +9,6 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, __( 'Create New Service Subscription', 'smart-woo-service-invoicing' ),'sw-admin','add-new-service', 'tab' ) ); ?>
-
 <div class="smart-woo-service-form-page">
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
             <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
