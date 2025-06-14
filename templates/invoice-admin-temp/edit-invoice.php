@@ -8,11 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="wrap">
-    <h1>Edit invoice</h1>
-    <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices' ) ); ?>"><button title="Invoice Dashboard"><span class="dashicons dashicons-admin-home"></span></button></a>
-    <a  href="<?php echo esc_url( $invoice->preview_url( 'admin' ) ); ?>"><button title="Preview"><span class="dashicons dashicons-visibility"></span></button></a>
-
+<div class="sw-admin-view-details">
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
         <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
     <?php elseif ( $success = smartwoo_get_form_success() ): ?>
@@ -29,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
             </div>
         <?php endif; ?>
 
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ) ?>" class="sw-form-container" id="smartwooInvoiceForm">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ) ?>" class="smartwoo-settings-form" id="smartwooInvoiceForm">
             <div id="swloader" style="background-color:rgba(255, 255, 255, 0.1)"></div>
             <?php wp_nonce_field( 'sw_create_invoice_nonce', 'sw_create_invoice_nonce' ); ?>
             <input type="hidden" name="action" value="smartwoo_admin_edit_invoice_from_form"/>
