@@ -11,7 +11,6 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 ?>
 
 <div class="smart-woo-product-form-page">
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Edit Product', 'sw-products&product_id='. $product_id, $tab, 'tab' ) ); ?>
     <h2>Edit service subscription product</h2>
     <?php if ( ! $product || ! is_a( $product, 'SmartWoo_Product' ) ): ?>
         <?php echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) ); return; ?>
