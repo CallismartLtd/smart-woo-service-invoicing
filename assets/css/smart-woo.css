@@ -1177,15 +1177,6 @@ border-radius: 5px;
 	width: 100%;
 }
 
-.sw-admin-status-item {
-	font-weight: bold;
-	background-color: #ffffff;
-	height: 70px;
-	width: 200px;
-	padding-top: 10px;
-	border-radius: 8px;
-	margin: 10px;
-}
 
 .sw-user-status-item {
 	flex: 1;
@@ -1206,8 +1197,7 @@ border-radius: 5px;
 	border: 2px #dcdcde solid;
 }
 
-.sw-user-status-item p,
-.sw-admin-status-item p {
+.sw-user-status-item p {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
@@ -1216,8 +1206,7 @@ border-radius: 5px;
 	font-size: 16px;
 	padding: 0;
 }
-.sw-user-status-item a,
-.sw-admin-status-item a {
+.sw-user-status-item a {
 	color: #6373bb;
 	text-decoration: none;
 }
