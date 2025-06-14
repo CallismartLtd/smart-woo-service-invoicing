@@ -1379,14 +1379,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let wpHelpTab = document.getElementById('contextual-help-link-wrap');
         let wpHelpDiv = document.getElementById('contextual-help-wrap');
         let wpScreen  = document.querySelector('.contextual-help-tabs');
+        let wpLinks  = document.querySelector('#screen-meta-links');
         if (wpHelpTab) {
             
-            // wpHelpTab.style.zIndex = '1';
-            wpHelpDiv.style.zIndex = '9999';
-            wpHelpTab.style.top = '70px';
-            wpHelpTab.style.right = '1px';
+            wpLinks.style.marginTop = '70px';
+            wpLinks.style.marginBottom = '10px';
+            wpHelpDiv.style.zIndex = '3';
             wpScreen.style.backgroundColor = '#ffffff';
-            wpHelpTab.style.position = 'absolute';
         }
         document.addEventListener('scroll', ()=>{
             let scrollUp = window.scrollY > 0;
