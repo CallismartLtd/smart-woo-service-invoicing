@@ -5,14 +5,13 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Products', 'sw-products', $tab, 'tab' ) ); ?>
-    <div class="sw-invoice-status-counts">
-        <?php foreach ( $status_counts as $name => $count ) : ?>
-            <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
-                <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name === 'publish' ? 'Published' : $name ) ); ?></a> <small><?php echo absint( $count ); ?></small></p>
-            </div>
-        <?php endforeach; ?>
-    </div>
+<div class="sw-invoice-status-counts">
+    <?php foreach ( $status_counts as $name => $count ) : ?>
+        <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
+            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name === 'publish' ? 'Published' : $name ) ); ?></a> <small><?php echo absint( $count ); ?></small></p>
+        </div>
+    <?php endforeach; ?>
+</div>
 <?php if ( empty( $products ) ) : ?>
     <div class="smartwoo-blank-state">
         <h1 class="smartwoo-service-icon"></h1>
