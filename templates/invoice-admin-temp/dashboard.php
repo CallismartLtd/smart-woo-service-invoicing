@@ -9,11 +9,11 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-<div class="sw-invoice-status-counts">
+<div class="sw-admin-invoice-status-counts">
     <?php foreach ( $status_counts as $name => $count ) : ?>
-        <div class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>">
-            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=sort-by&status=' . $name ) ); ?>"><?php echo esc_html( ucfirst( $name ) ); ?></a> <small><?php echo absint( $count ); ?></small></p>
-        </div>
+        <a class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=sort-by&status=' . $name ) ); ?>" data-count="<?php echo absint( $count ); ?>">
+           <span><?php echo esc_html( ucfirst( $name ) ); ?></span>
+        </a>
     <?php endforeach; ?>
 </div>
 <?php if ( empty( $all_invoices ) ) : ?>
