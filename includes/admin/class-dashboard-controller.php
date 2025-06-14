@@ -76,6 +76,63 @@ class SmartWoo_Dashboard_Controller {
 		}
 	
 		$tab = smartwoo_get_query_param( 'tab' );
+		if ( ! empty( $tab ) ){// We are not on the dashboard page.
+
+			if ( 'add-new-service' === $tab ) {
+				$title = 'Add New Service';
+				$menu_tabs = array(
+					'Dashboard'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin' ),
+						'active'	=> 'dashboard'
+					),
+					'Add New'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=add-new-service' ),
+						'active'	=> 'add-new-service'
+					)
+				);
+			} else {
+				$title		= 'edit-service' === $tab ? 'Edit Service' : 'Subscription Details';
+				$menu_tabs = array(
+					'Dashboard'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin' ),
+						'active'	=> ''
+					),
+					'Add New'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=add-new-service' ),
+						'active'	=> 'add-new-service'
+					),
+					
+					'View'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=view-service&service_id=' . smartwoo_get_query_param( 'service_id', '' ) ),
+						'active'	=> 'view-service'
+					),
+					'Client Info'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=client&service_id=' . smartwoo_get_query_param( 'service_id', '' ) ),
+						'active'	=> 'client'
+					),
+
+					'Assets'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=assets&service_id=' . smartwoo_get_query_param( 'service_id', '' ) ),
+						'active'	=> 'assets'
+					),
+					'Stats & Usage'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=stats&service_id=' . smartwoo_get_query_param( 'service_id', '' ) ),
+						'active'	=> 'stats'
+					),
+					'Logs'		=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=logs&service_id=' . smartwoo_get_query_param( 'service_id', '' ) ),
+						'active'	=> 'logs'
+					),
+					'Edit Service'	=> array(
+						'href'		=> admin_url( 'admin.php?page=sw-admin&tab=edit-service&service_id=' . smartwoo_get_query_param( 'service_id', '' ) ),
+						'active'	=> 'edit-service'
+					),
+
+				);
+			}
+
+			SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menu_tabs, 'tab' );
+		} 
 	
 		switch ( $tab ) {
 			case 'view-service':
@@ -135,11 +192,6 @@ class SmartWoo_Dashboard_Controller {
 		});
 		smartwoo_set_document_title( 'Create New Service' );
 		wp_enqueue_script( 'smartwoo-jquery-timepicker' );
-		
-		$tabs = array(
-			''					=> 'Dashboard',
-			'add-new-service'	=> 'Add New'
-		);
 
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
 	}
@@ -149,7 +201,6 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	private static function view_service_page() {
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		$tab		= smartwoo_get_query_param( 'tab' );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 		if ( $service ) {
@@ -164,16 +215,7 @@ class SmartWoo_Dashboard_Controller {
 			$args			= array( 'service_id' => $service->get_service_id(), 'limit' => 5 );
 			$invoices		= SmartWoo_Invoice_Database::get_service_invoices( $args );
 		}
-		
-		$tabs = array(
-			''				=> 'Dashboard',
-			'view-service'	=> 'Details',
-			'client'		=> 'Client Info',
-			'assets'		=> 'Assets',
-			'stats'			=> 'Stats & Usage',
-			'logs'			=> 'Service Logs',
-	
-		);
+
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/view-service.php';
 	}
 
@@ -215,16 +257,6 @@ class SmartWoo_Dashboard_Controller {
 				}
 			}
 		}
-		
-
-		$tabs = array(
-			''				=> 'Dashboard',
-			'view-service'	=> 'View',
-			'edit-service'	=> 'Edit'
-		);
-	
-		$tab	= smartwoo_get_query_param( 'tab' );
-		$query_var  =  'service_id=' . $service_id .'&tab';
 			
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/edit-service.php';
 	}
@@ -235,7 +267,6 @@ class SmartWoo_Dashboard_Controller {
 	private static function view_client() {
 		smartwoo_set_document_title( 'Client Info' );
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		$tab		= smartwoo_get_query_param( 'tab' );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 		
 		if ( $service ) {
@@ -274,17 +305,8 @@ class SmartWoo_Dashboard_Controller {
 			*/
 			$additional_details = apply_filters( 'smartwoo_additional_client_details', array(), $client->get_id() );
 		}
-		$tabs = array(
-			''				=> 'Dashboard',
-			'view-service'	=> 'Details',
-			'client'		=> 'Client Info',
-			'assets'		=> 'Assets',
-			'stats'			=> 'Stats & Usage',
-			'logs'			=> 'Service Logs',
-	
-		);
 
-		include_once SMARTWOO_PATH . '/templates/service-admin-temp/view-client.php';
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/view-client.php';
 	}
 
 	/**
@@ -293,7 +315,6 @@ class SmartWoo_Dashboard_Controller {
 	private static function view_assets() {
 		smartwoo_set_document_title( 'Assets' );
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		$tab		= smartwoo_get_query_param( 'tab' );
 		$service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
 		if ( $service ) {
@@ -320,15 +341,6 @@ class SmartWoo_Dashboard_Controller {
 
 		}
 
-		$tabs = array(
-			''				=> 'Dashboard',
-			'view-service'	=> 'Details',
-			'client'		=> 'Client Info',
-			'assets'		=> 'Assets',
-			'stats'			=> 'Stats & Usage',
-			'logs'			=> 'Service Logs',
-	
-		);
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
 
 	}
@@ -338,18 +350,7 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	private static function service_stats_page() {
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		$tab		= smartwoo_get_query_param( 'tab' );
-
-		$tabs = array(
-			''				=> 'Dashboard',
-			'view-service'	=> 'Details',
-			'client'		=> 'Client Info',
-			'assets'		=> 'Assets',
-			'stats'			=> 'Stats & Usage',
-			'logs'			=> 'Service Logs',
-	
-		);
-		include_once SMARTWOO_PATH . '/templates/service-admin-temp/stats.php';
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/stats.php';
 	}
 
 	/**
@@ -358,18 +359,7 @@ class SmartWoo_Dashboard_Controller {
 	private static function service_logs_page() {
 		smartwoo_set_document_title( 'Logs' );
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		$tab		= smartwoo_get_query_param( 'tab' );
-		$tabs = array(
-			''				=> 'Dashboard',
-			'view-service'	=> 'Details',
-			'client'		=> 'Client Info',
-			'assets'		=> 'Assets',
-			'stats'			=> 'Stats & Usage',
-			'logs'			=> 'Service Logs',
-	
-		);
-
-		include_once SMARTWOO_PATH . '/templates/service-admin-temp/service-logs.php';
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-logs.php';
 	}
 
 	/**
