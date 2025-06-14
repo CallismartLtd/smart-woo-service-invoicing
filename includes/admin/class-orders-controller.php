@@ -18,7 +18,38 @@ class SmartWoo_Orders_Controller {
      * Admin Service Order page contrlloer
      */
     public static function menu_controller() {
-        $section = isset( $_GET['section'] ) ? sanitize_key( wp_unslash( $_GET['section'] ) ) : '';
+        $section = smartwoo_get_query_param( 'section' );
+
+        if ( 'process-order' === $section ) {
+            $title = 'Process Order';
+            $wc_order = false;
+
+            try {
+                $wc_order = wc_get_order( wc_get_order_id_by_order_item_id( smartwoo_get_query_param( 'order_id' ) ) );
+            } catch ( \Exception $e ) {}
+            $menu_tabs = array(
+                'Orders'	=> array(
+                    'href'		=> admin_url( 'admin.php?page=sw-service-orders' ),
+                    'active'	=> ''
+                ),
+                'Process Order'	=> array(
+                    'href'		=> admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id=' . smartwoo_get_query_param( 'order_id' ) ),
+                    'active'	=> 'process-order'
+                ),
+            );
+
+            if ( $wc_order ) {
+                $menu_tabs['Edit parent order'] = array(
+                    'href'      => $wc_order->get_edit_order_url(),
+                    'active'    => ''
+                );
+            }
+
+            SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menu_tabs, 'section' );
+
+        } else {
+            SmartWoo_Admin_Menu::print_mordern_submenu_nav( 'Service Subscription Orders', array() );
+        }
         switch( $section ) {
             case 'process-order':
                 self::process_order_form();
@@ -32,8 +63,8 @@ class SmartWoo_Orders_Controller {
      * The Dashboard page
      */
     private static function dashboard() {
-        $paged      = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
-        $limit      = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 20;
+        $paged      = smartwoo_get_query_param( 'paged', 1 );
+        $limit      = smartwoo_get_query_param( 'limit', 20 );
         $all_orders = SmartWoo_Order::count_all();
         $total      = ceil( $all_orders / $limit );
         $prev       = $paged > 1 ? $paged - 1 : 1;
@@ -60,7 +91,7 @@ class SmartWoo_Orders_Controller {
         wp_enqueue_script( 'smartwoo-jquery-timepicker' );
         wp_enqueue_media();
         smartwoo_set_document_title( 'Process Orders' );
-        $order_id   = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $order_id   = smartwoo_get_query_param( 'order_id' );
         $order      = SmartWoo_Order::get_order( $order_id );
 
         if ( $order ) {
