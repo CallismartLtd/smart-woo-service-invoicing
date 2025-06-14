@@ -6,7 +6,6 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="sw-admin-view-details">
-    <?php echo wp_kses_post( smartwoo_sub_menu_nav( $tabs, 'Assets <a href="' . smartwoo_service_edit_url( $service_id ) .'">Edit</a>','sw-admin', $tab, 'service_id=' . $service_id . '&tab' ) ); ?>
     <?php if ( empty( $service ) ) : ?>
         <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service subscription <a href="' . esc_url( admin_url( 'admin.php?page=sw-admin' ) ) . '">Back</a>' ) ) ?>
 
