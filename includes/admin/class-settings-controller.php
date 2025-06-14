@@ -75,7 +75,6 @@ class SmartWoo_Settings_Controller {
 
 		$menus = apply_filters( 'smartwoo_options_tab', $tabs );
 
-		$menu_keys	= array_keys( $menus );
 		$title		= ! empty( smartwoo_get_query_param( 'tab' ) ) ? 'Settings' : 'Knowledge Base';
 		SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menus, 'tab' );
 	
