@@ -79,9 +79,28 @@ class SmartWoo_Product_Controller{
      * The submenu page controller.
      */
     public static function menu_controller() {
-        $tab    = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $tab    = smartwoo_get_query_param( 'tab' );
     
-        // Handle different tabs.
+        $menu_tabs = array(
+			'Add New'	=> array(
+				'href'		=> admin_url( 'admin.php?page=sw-products&tab=add-new' ),
+				'active'	=> 'add-new'
+			)
+		);
+		$title = 'Products';
+
+        if ( ! empty( $tab ) && $tab !== 'sort-by' ) {
+            $add_new_menu	= $menu_tabs['Add New'];
+			unset( $menu_tabs['Add New'] );
+            $menu_tabs['Products'] = array(
+                'href'      => admin_url( 'admin.php?page=sw-products' ),
+                'active'    => ''
+            );
+            $title = 'add-new' === $tab ? 'Add New Product' : 'Edit Product';
+            $menu_tabs['Add New'] = $add_new_menu;
+        }
+
+        SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menu_tabs, 'tab' );
         switch ( $tab ) {
             case 'add-new':
                 self::add_page();
@@ -102,20 +121,14 @@ class SmartWoo_Product_Controller{
      * The Product admin dashboard.
      */
     private static function dashboard() {
-        $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $paged          = isset( $_GET[ 'paged' ] ) ? absint( $_GET[ 'paged' ] ) : 1;
-        $limit          = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 25;
+        $paged          = smartwoo_get_query_param( 'paged', 1 );
+        $limit          = smartwoo_get_query_param( 'limit', 25 );
         $all_prod_count = SmartWoo_Product::count_all();
         $total			= ceil( $all_prod_count / $limit );
         $next			= $paged + 1;
         $prev			= $paged - 1;
 
         $products    	= SmartWoo_Product::get_all( array( 'page' => $paged, 'limit' => $limit ) );
-        $tabs           = array(
-            ''        => 'Products',
-            'add-new' => 'Add New',
-    
-        );
 
         $status_counts  = array(
             'publish'   => SmartWoo_Product::count_all( 'publish' ),
@@ -135,21 +148,15 @@ class SmartWoo_Product_Controller{
      * Sort products by status/visibility.
      */
     private static function sort_by() {
-        $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $status         = isset( $_GET['status'] ) ? sanitize_key( $_GET['status'] ) : 'publish';
-        $paged          = isset( $_GET[ 'paged' ] ) ? absint( $_GET[ 'paged' ] ) : 1;
-        $limit          = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 25;
+        $status         = smartwoo_get_query_param( 'status', 'publish' );
+        $paged          = smartwoo_get_query_param( 'paged', 1 );
+        $limit          = smartwoo_get_query_param( 'limit', 25 );
         $all_prod_count = SmartWoo_Product::count_all( $status );
         $total			= ceil( $all_prod_count / $limit );
         $next			= $paged + 1;
         $prev			= $paged - 1;
 
         $products    	= SmartWoo_Product::get_all( array( 'page' => $paged, 'limit' => $limit, 'status' => $status ) );
-        $tabs           = array(
-            ''        => 'Products',
-            'add-new' => 'Add New',
-    
-        );
 
         $status_counts  = array(
             'publish'   => SmartWoo_Product::count_all( 'publish' ),
@@ -168,13 +175,7 @@ class SmartWoo_Product_Controller{
      * Add new product page
      */
     private static function add_page() {
-        wp_enqueue_script( 'smartwoo-jquery-timepicker' );
-        $tab            = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $tabs           = array(
-            ''        => 'Products',
-            'add-new' => 'Add New',
-    
-        );
+        wp_enqueue_script( 'smartwoo-jquery-timepicker' );       
         $product_categories = get_terms( 'product_cat' );
         /**
          * @filter `smartwoo_product_data_tabs`, add extra data to the products data section.
@@ -198,8 +199,7 @@ class SmartWoo_Product_Controller{
      */
     private static function edit_page() {
         wp_enqueue_script( 'smartwoo-jquery-timepicker' );
-        $product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $tab        = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $product_id = smartwoo_get_query_param( 'product_id', 0 );
 
         if ( empty( $product_id ) ) {
             echo wp_kses_post( smartwoo_error_notice( 'Product ID Parameter must not be manipulated' ) );
@@ -214,7 +214,6 @@ class SmartWoo_Product_Controller{
         }
 
         $product_categories = get_terms( 'product_cat' );
-        $tabs               = array( '' => 'Products', 'edit' => 'Edit Product' );
         /**
          * @filter `smartwoo_product_data_tabs`, add extra data to the products data section.
          * 
