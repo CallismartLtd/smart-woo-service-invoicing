@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Smart Woo Cart class hanles all cart related functionalities.
+ * Smart Woo Cart class handles all cart related functionalities.
  * This class does not extend the `WC_Cart` class but heavily relies on the `woocommerce_cart_*`
  * filters and actions API.
  * 
