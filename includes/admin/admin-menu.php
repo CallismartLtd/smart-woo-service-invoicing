@@ -251,9 +251,11 @@ class SmartWoo_Admin_Menu {
 							<?php endforeach; ?>
 						</ul>
 					</div>
-					<div class="sw-admin-menu-icon">
-						<span class="dashicons dashicons-menu"></span>
-					</div>
+					<?php if ( ! empty( $menu_options ) ) : ?>
+						<div class="sw-admin-menu-icon">
+							<span class="dashicons dashicons-menu"></span>
+						</div>
+					<?php endif?>
 
 					<?php if( ! class_exists( 'SmartWooPro', false ) ):?>
 						<div class="sw-upgrade-to-pro">
