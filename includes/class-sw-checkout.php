@@ -41,7 +41,7 @@ class SmartWoo_Checkout {
 	 * @param WC_Order $order The order object.
      */
     public static function create_order_line_item( $item, $cart_item_key, $values, $order ) {
-        $product = isset($values['data'] ) ? $values['data'] : null;
+        $product = isset( $values['data'] ) ? $values['data'] : null;
         if ( ! $product || ! is_a( $product, 'SmartWoo_Product' ) )  {
             return;
         }
@@ -60,7 +60,7 @@ class SmartWoo_Checkout {
 
 
 	/**
-	 * Creates invoices for a service subscription orders created via the WooCommerce checkout.
+	 * Creates invoices for service subscription orders created via the WooCommerce checkout.
 	 * 
 	 * @param WC_Order $order
 	 */
@@ -79,7 +79,7 @@ class SmartWoo_Checkout {
 		 * order that is a service product.
 		 */
 		foreach ( $order_items as $item_id => $item ) {
-			// Handles service products only.
+			// Handles smart woo products only.
 			if ( ! $item->get_product() || ! is_a( $item->get_product(), 'SmartWoo_Product' )) {
 				$index++;
 				continue;
@@ -109,13 +109,14 @@ class SmartWoo_Checkout {
 			$invoice->set_fee( floatval( $item->get_meta( '_smartwoo_sign_up_fee' ) ) );
 			$invoice->set_order_id( $order->get_id() );
 			$invoice->set_date_due( 'now' );
+			$invoice->set_payment_method( $order->get_payment_method() );
 
 			$new_invoice_id = $invoice->save();
 
 			if ( $new_invoice_id ) {
 				// The invoice ID for new service orders is saved to the order item meta.
 				$item->update_meta_data( '_sw_invoice_id', $invoice->get_invoice_id() );
-				$item->save(); // Persist the invoice ID to the order item.
+				$item->save();
 			}
 		}
 		
