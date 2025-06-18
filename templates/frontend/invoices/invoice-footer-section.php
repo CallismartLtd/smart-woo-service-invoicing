@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit; ?>
 			<!-- Payment Method. -->
 			<div class="sw-invoice-meta-cards">
 				<p><?php echo esc_html__( 'Payment Method:', 'smart-woo-service-invoicing' ); ?></p>
-				<p class="sw-invoice-card-footer-value"><?php echo esc_html( ! empty( $invoice->get_payment_method() ) ? $invoice->get_payment_method() : 'N/A' ); ?></p>
+				<p class="sw-invoice-card-footer-value"><?php echo esc_html( ! empty( $invoice->get_payment_method_title() ) ? $invoice->get_payment_method_title() : 'N/A' ); ?></p>
 			</div>
 
 			<!-- Transaction Date. -->
