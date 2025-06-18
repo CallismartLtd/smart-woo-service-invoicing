@@ -12,26 +12,37 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 /**
  * Dropdown for Invoice Type with filter for custom options.
  *
- * @param string $selected The selected invoice type (optional).
- * @param bool $echo Whether to print or return output.
+ * @param array $args Array of arguments.
  *
  * @since 1.0.0
  */
-function smartwoo_invoice_type_dropdown( $selected = null, $echo = true ) {
+function smartwoo_invoice_type_dropdown( $args = array() ) {
 	// Default options
 	$options = smartwoo_supported_invoice_types();
+		$default_args = array(
+		'id'			=> 'invoice_type',
+		'class'			=> 'sw-form-input',
+		'name'			=> 'invoice_type',
+		'selected'		=> '',
+		'field_name'	=> 'Invoice Type',
+		'required'		=> false
+	);
 
-	$dropdown = '<select class="sw-form-input" name="invoice_type" id="invoice_type">';
-	$dropdown .= '<option value="">' . __( 'Select Invoice Type', 'smart-woo-service-invoicing' );
-	foreach ( $options as $value => $label ) {
-		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
-		$dropdown   .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
-	}
-	$dropdown .= '</select>';
-	if ( true === $echo ) {
-		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
-	}
-	return $dropdown;
+	$parsed_args = wp_parse_args( $args, $default_args );
+	?>
+	<select 
+		class="<?php echo sanitize_html_class( $parsed_args['class'] ); ?>" 
+		name="<?php echo sanitize_html_class( $parsed_args['name'] ); ?>"
+		id="<?php echo sanitize_html_class( $parsed_args['id'] ); ?>"
+		field-name="<?php echo esc_attr( $parsed_args['field_name'] ); ?>"
+		<?php echo esc_attr( $parsed_args['required'] ? 'required' : '' ); ?>
+	>
+		<option value=""><?php esc_html_e( 'Select Invoice Type', 'smart-woo-service-invoicing' ); ?>
+		<?php foreach ( $options as $value => $label ) : ?>
+			<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $parsed_args['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+		<?php endforeach; ?>
+	</select>
+	<?php
 }
 
 /**
@@ -51,12 +62,22 @@ function smartwoo_supported_invoice_types() {
 /**
  * Dropdown for Invoice Payment Status with filter for custom options.
  *
- * @param string $selected The selected invoice status (optional).
- * @param bool 	$echo		Whether or not to print to screen (Defaults to true).
+ * @param array $args Array of arguments.
  *
  * @since 1.0.0
  */
-function smartwoo_invoice_payment_status_dropdown( $selected = null, $echo = true ) {
+function smartwoo_invoice_payment_status_dropdown( $args = array() ) {
+
+	$default_args = array(
+		'id'			=> 'payment_status',
+		'class'			=> 'sw-form-input',
+		'name'			=> 'payment_status',
+		'selected'		=> '',
+		'field_name'	=> 'Payment status',
+		'required'		=> false
+	);
+
+	$parsed_args = wp_parse_args( $args, $default_args );
 	
 	$options = apply_filters( 'smartwoo_payment_status',
 		array(
@@ -67,17 +88,20 @@ function smartwoo_invoice_payment_status_dropdown( $selected = null, $echo = tru
 			'cancelled'	=> __( 'Cancel', 'smart-woo-service-invoicing' ),
 		)
 	);
-
-	$dropdown = '<select class="sw-form-input" name="payment_status" id="payment_status">';
-	foreach ( $options as $value => $label ) {
-		$is_selected = ( $value === $selected ) ? 'selected="selected"' : '';
-		$dropdown .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $is_selected ) . '>' . esc_html( $label ) . '</option>';
-	}
-	$dropdown .= '</select>';
-	if ( true === $echo ) {
-		echo wp_kses( $dropdown, smartwoo_allowed_form_html() );
-	}
-	return $dropdown;
+	?>
+	<select 
+		class="<?php echo sanitize_html_class( $parsed_args['class'] ); ?>" 
+		name="<?php echo sanitize_html_class( $parsed_args['name'] ); ?>"
+		id="<?php echo sanitize_html_class( $parsed_args['id'] ); ?>"
+		field-name="<?php echo esc_attr( $parsed_args['field_name'] ); ?>"
+		<?php echo esc_attr( $parsed_args['required'] ? 'required' : '' ); ?>
+	>
+		<?php foreach ( $options as $value => $label ) : ?>
+			<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $parsed_args['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+		<?php endforeach; ?>
+	</select>
+	<?php
+	
 }
 
 /**
@@ -232,16 +256,40 @@ function smartwoo_generate_pending_order( $invoice, $total = null ) {
 	return $order->get_id();
 }
 
-
 /**
  * Generate invoice ID
  *
- * @return string $invoice_id   The new Generated Invoice ID.
+ * @return string $invoice_id The new Generated Invoice ID.
  * @since 2.2.3 Deprecated the use of uniqid() function for generating invoice ID.
+ * @since 2.4.1 Invoice IDs now follow the format: `prefix-yyyyMMdd-xxxxxxxx` where xxxxxxxx is a unique numeric string.
  */
 function smartwoo_generate_invoice_id() {
-	// $invoice_id		= uniqid( smartwoo_get_invoice_id_prefix() . '-' );
-	return smartwoo_get_invoice_id_prefix() . '-' . bin2hex( random_bytes(4) ) . dechex( time() );
+	do {
+		$prefix     = smartwoo_get_invoice_id_prefix();
+		$timestamp  = date( 'Ymd' );
+
+		$microtime  = sprintf( '%.6f', microtime( true ) );
+		$micro_str  = str_replace( '.', '', $microtime );
+		$micro_part = substr( $micro_str, -6 );
+		$rand_part  = wp_rand( 1000, 9999 );
+
+		$unique     = $micro_part . $rand_part;
+		$invoice_id = $prefix . '-' . $timestamp . '-' . $unique;
+
+	} while ( SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id ) );
+
+	return apply_filters( 'smartwoo_generate_invoice_id', $invoice_id );
+}
+
+
+/**
+ * Get the saved Invoice Number Prefix.
+ *
+ * @return string The configured Invoice Number Prefix.
+ */
+function smartwoo_get_invoice_id_prefix() {
+	return get_option( 'smartwoo_invoice_id_prefix', 'INV' );
+	
 }
 
 /**
@@ -296,8 +344,7 @@ function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoi
 }
 
 /**
- * Retrieves a user's WooCommerce billing address parts and compile them
- * into a readable address.
+ * Get a formated user billing address.
  *
  * @param int $user_id  The ID of the user
  * @return string Readable address format.
@@ -462,7 +509,7 @@ function smartwoo_get_client_billing_email( $user_id ) {
 function smartwoo_invoice_pay_url( $order_id ) {
 	$order = wc_get_order( $order_id );
 
-	if ( $order && $order->get_meta( '_sw_invoice_id' ) ) {
+	if ( $order && ( $order->get_meta( '_sw_invoice_id' ) || smartwoo_check_if_configured( $order ) ) ) {
 
 		return $order->get_checkout_payment_url() ;
 	}
@@ -564,7 +611,7 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 			'payment_status'  => 'paid',
 			'date_paid'       => current_time( 'mysql' ),
 			'transaction_id'  => $order->get_transaction_id(),
-			'payment_gateway' => $order->get_payment_method_title(),
+			'payment_gateway' => $order->get_payment_method(),
 		);
 		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
 		/**
