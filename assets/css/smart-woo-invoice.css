@@ -340,3 +340,221 @@
     
 }
 
+.smartwoo-new-invoice-form-editor {
+    width: 100%;
+    max-width: 80%;
+    margin: 0 auto;
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+}
+.sw-invoice-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.smartwoo-new-invoice-form-editor hr {
+    border: dashed 1px #dcdcde;
+}
+
+.sw-invoice-editor-header .sw-invoice-editor-header-left {
+    width: 152px;
+    height: 152px;
+    max-width: 152px;
+    max-height: 152px;
+}
+.sw-invoice-editor-header-left img {
+    width: 150px;
+    height: 150px;
+    max-width: 200px;
+    max-height: 200px;
+}
+.sw-invoice-editor-header .sw-invoice-editor-header-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    max-width: 50%;
+    margin-right: 15px;
+}
+
+.sw-invoice-editor-header-right .sw-service-form-row {
+    align-self: right;
+    width: 80%;
+}
+
+
+.sw-invoice-editor-reference-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0px 7px;
+}
+
+.sw-invoice-editor-reference-section .sw-invoice-editor-customer-section,
+.sw-invoice-editor-reference-section .sw-invoice-editor-biller-section {
+    width: 47%;
+}
+
+.sw-invoice-editor-customer-section .sw-service-form-row {
+    width: 100%;
+    max-width: 45%;
+    padding: 0;
+}
+.sw-invoice-editor-customer-section .sw-service-form-row select#sw_user_id {
+    margin: unset;
+    max-width: 250px;
+}
+.sw-invoice-editor-items-section {
+    display: block;
+    padding: 10px;
+    width: 100%;
+}
+.sw-invoice-editor-items-section h2 {
+    color:  #333333;
+    font-size: 20px;
+}
+.sw-invoice-editor-items-list {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.sw-invoice-editor-items-table {
+    width: 90%;
+    min-height: 100px;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 5px auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+.sw-invoice-editor-items-table thead {
+    background: #f1f1f1;
+    color: #333333;
+}
+
+.sw-invoice-editor-items-table th,
+.sw-invoice-editor-items-table td {
+    padding: 10px 14px;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.sw-invoice-editor-items-table td input {
+    border: 1px solid #dcdcde;
+}
+.sw-invoice-editor-add-product-select select:focus,
+.sw-invoice-editor-items-table td input:focus {
+    border-width: 1.5px;
+    box-shadow: 0 0 3px 2px rgba(175, 175, 175, 0.979);
+}
+
+.sw-invoice-editor-items-table td input.sw-invoice-editor-item-name-input {
+    width: 100%;
+}
+.sw-invoice-editor-items-table td input.sw-invoice-editor-quantity-input {
+    width: 50px;
+}
+
+.sw-invoice-editor-items-table td input.sw-invoice-editor-unit-price-input {
+    width: 150px;
+}
+
+.sw-invoice-editor-add-product-select {
+    width: 80%;
+    margin: 10px;
+}
+.sw-invoice-editor-add-product-select select {
+    width: 148px;
+    border: solid 1px #dcdcde;
+
+}
+
+.sw-invoice-editor-item-summary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 10px;
+    gap: 10px;
+}
+.sw-invoice-editor-item-summary-container .sw-service-form-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px
+    
+}
+
+.sw-invoice-editor-item-summary-container .sw-service-form-row label {
+    font-size: 18px;
+}
+
+.sw-invoice-editor-core-data {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 10px;
+}
+.sw-invoice-editor-core-data .sw-service-form-row {
+    max-width: 45%;
+    margin: unset;
+}
+.sw-invoice-editor-core-data .sw-service-form-row input,
+.sw-invoice-editor-core-data .sw-service-form-row select {
+    flex: 1;
+}
+
+.sw-invoice-editor-payment-gateways {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.sw-invoice-editor-payment-gateway-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    text-align: left;
+}
+
+.sw-invoice-editor-payment-gateway-row {
+    border-left: solid 5px #dcdcde;
+    min-height: 50px;
+    /* max-height: 100px; */
+    width: 45%;
+    padding: 2px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #f1f1f1;
+}
+
+.sw-invoice-editor-payment-gateway-row label {
+    flex: 1;
+    font-weight: 600;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.sw-invoice-editor-payment-gateway-row label > img {
+    max-height: 100%;
+    height: 80px;
+    max-width: 80%;
+}
