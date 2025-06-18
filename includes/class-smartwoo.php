@@ -891,15 +891,24 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => 'You do not have the required permission to perform this action' ) );
         }
 
-        $user_id    = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : wp_send_json_error( array( 'message' => 'Missing user ID' ) );
-        $user_data  = get_user_by( 'id', $user_id );
-        if ( ! $user_data ) {
+        $user_id    = smartwoo_get_query_param( 'user_id', false ) ?: wp_send_json_error( array( 'message' => 'Missing user ID' ) );
+        $user_data  = new WC_Customer( $user_id );
+        if ( ! $user_data->get_id() ) {
             wp_send_json_error( array( 'message' => 'User not found' ) );
         }
 
-        unset( $user_data->user_pass, $user_data->user_nicename, $user_data->user_login  );
-        $fullname = $user_data->first_name || $user_data->last_name ? $user_data->first_name . ' ' . $user_data->last_name : $user_data->display_name;
-        wp_send_json_success( array( 'user_fullname' => $fullname, 'email' => $user_data->user_email, 'avatar_url' => get_avatar_url( $user_data->ID ) , 'user' => $user_data ), 200 );
+        $response = array(
+            'full_name'     => $user_data->get_billing_first_name() . ' ' . $user_data->get_billing_last_name(),
+            'first_name'    => $user_data->get_billing_first_name(),
+            'last_name'     => $user_data->get_billing_last_name(),
+            'email'         => $user_data->get_email(),
+            'billing_email' => smartwoo_get_client_billing_email( $user_data->get_id() ),
+            'billing_company'   => $user_data->get_billing_company(),
+            'billing_phone'     => $user_data->get_billing_phone(),
+            'formated_address'  => smartwoo_get_user_billing_address( $user_data->get_id() ),
+            'avatar_url'        => get_avatar_url( $user_data->get_id() )
+        );
+        wp_send_json_success( array( 'user' => $response ), 200 );
 
     }
 
@@ -950,7 +959,7 @@ final class SmartWoo {
         $invoices_created = false;
 
         foreach ( $all_services as $service ) {
-            $user_id        = $service->getUserId();
+            $user_id        = $service->get_user_id();
             $service_id     = $service->get_service_id();
             $service_name   = $service->getServiceName();
             $product_id     = $service->getProductId();
@@ -1163,7 +1172,7 @@ final class SmartWoo {
 
         $service	= SmartWoo_Service_Database::get_service_by_id( sanitize_text_field( $ajax_service_id ) );
 
-        if ( ! $service || $service->getUserId() !== get_current_user_id() ) {
+        if ( ! $service || $service->get_user_id() !== get_current_user_id() ) {
             wp_die( -1, 404 );
         }
         
@@ -1213,7 +1222,7 @@ final class SmartWoo {
         $invoice_id             = $order->get_meta( '_sw_invoice_id' );
         $is_new_service_order   = $order->get_meta( '_smartwoo_is_service_order' );
 
-        // Early termination if the order is not related to our plugin.
+        // Stop if not our order.
         if ( ! $is_new_service_order && empty( $invoice_id ) ) {
             return;
         }
@@ -1457,16 +1466,14 @@ final class SmartWoo {
         foreach( $smartwoo_orders as $sw_order ) {
             $invoice_id = $sw_order->get_invoice_id();
             smartwoo_mark_invoice_as_paid( $invoice_id );
-
-            /**
-             * This action fires when order is for a new service order.
-             * 
-             * @param string $invoice_id Invoice public ID.
-             * @param WC_Order $order WooCommerce order added @since 2.2.1
-             */
-            do_action( 'smartwoo_new_service_purchase_complete', $invoice_id, $order );
         }
 
+        /**
+         * Fires when a new service purchase is complete.
+         * 
+         * @param SmartWoo_Order[] $smartwoo_orders An array of Smart Woo Order Objects added @since 2.4.2
+         */
+        do_action( 'smartwoo_new_service_purchase_complete', $smartwoo_orders );
     }
 
     /**
@@ -1485,7 +1492,7 @@ final class SmartWoo {
                 wp_die( 'Invalid or deleted invoice.' );
             }
 
-            smartwoo_pdf_invoice_template( $invoice_id, $invoice->getUserId() );
+            smartwoo_pdf_invoice_template( $invoice_id, $invoice->get_user_id() );
             exit;
         }
 
@@ -1628,19 +1635,13 @@ final class SmartWoo {
                 $services[] = $service2;
                 $temp   = new $temp_class_name( $services, 'admin' );
             } elseif( 'smartwoo_new_service_order' === $template ) {
-                $order  = $temp_class_name::create_pseudo_wc_order();
-                $product_id = ( function() use ( $order ) {
-                    foreach ( $order->get_items() as $item ) {
-                        if ( $item->is_type( 'line_item' ) ) {
-                            return $item->get_product_id();
-                        }
-                    }
-                    return null;
-                } )();
+                $orders = array(
+                    $temp_class_name::create_pseudo_order(),
+                    // $temp_class_name::create_pseudo_order(),
+                    // $temp_class_name::create_pseudo_order()
+                );
                 
-                $service->set_status( 'Pending' );
-                $service->set_product_id( $product_id );
-                $temp   = new $temp_class_name( $service, $order );
+                $temp   = new $temp_class_name( $orders );
 
             } else {
                 $temp   = new $temp_class_name( $service );
