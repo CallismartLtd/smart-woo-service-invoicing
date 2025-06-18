@@ -175,7 +175,7 @@ class SmartWoo_Product_Controller{
      * Add new product page
      */
     private static function add_page() {
-        wp_enqueue_script( 'smartwoo-jquery-timepicker' );       
+        wp_enqueue_script( 'smartwoo-jquery-timepicker' );     
         $product_categories = get_terms( 'product_cat' );
         /**
          * @filter `smartwoo_product_data_tabs`, add extra data to the products data section.
