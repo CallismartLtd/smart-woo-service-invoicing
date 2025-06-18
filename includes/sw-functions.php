@@ -274,17 +274,6 @@ function smartwoo_is_prorate() {
 }
 
 /**
- * Check the configured Invoice Number Prefix.
- *
- * @return string The configured Invoice Number Prefix.
- */
-function smartwoo_get_invoice_id_prefix() {
-	$invoice_number_prefix = get_option( 'smartwoo_invoice_id_prefix', 'CINV' );
-	return $invoice_number_prefix;
-}
-
-
-/**
  * Generate unique Token
  *
  * @return string Random 32-character hexadecimal token
