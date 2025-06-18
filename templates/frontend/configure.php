@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 get_header();
 
-$product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : get_query_var( smartwoo_get_product_config_query_var(), 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$product_id = smartwoo_get_query_param( 'product_id', false ) ?: get_query_var( smartwoo_get_product_config_query_var(), 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 $product      = wc_get_product( $product_id );
 $product_name = $product ? $product->get_name() : 'Product Name not found';
