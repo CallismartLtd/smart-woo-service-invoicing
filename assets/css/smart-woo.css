@@ -188,6 +188,11 @@ use inline CSS to overide some styles
     cursor: not-allowed;
 }
 
+.sw-invoice-editor-form-submit-button {
+	width: 150px;
+	margin: 10px !important;
+}
+
 /************** Button CSS Ends here******************/
 
 /* Service Product form goes here*/
