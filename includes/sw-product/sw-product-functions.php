@@ -49,37 +49,29 @@ function smartwoo_admin_product_url( $action = '', $product_id = 0 ) {
  *
  * @since 1.0.0
  */
-function smartwoo_product_dropdown( $selected_product_id = null, $required = false, $echo = true ) {
+function smartwoo_product_dropdown( $selected_product_id = null, $required = false ) {
 	
-	$products = wc_get_products(
-		array(
-			'type'   => 'sw_product',
-			'status' => 'publish',
-		)
-	);
+	$products		= smartwoo_get_products( array( 'type'   => 'sw_product' ) );
+	$product_data	= array();
+	?>
+		<select class="sw-form-input" field-name="A service product" name="product_id" <?php echo esc_attr( $required ? 'required' : '' ) ?> id="service_products">
+			<option value="">Select a Product</option>
+			<?php foreach ( $products as $product ) : 
+				$product_id   = $product->get_id();
+				$product_name = $product->get_name();
+				$product_data[$product_id] = array(
+					'name'			=> $product_name,
+					'price'			=> $product->get_price(),
+					'sign_up_fee'	=> $product->get_sign_up_fee()
 
-	// Initialize the dropdown HTML.
-	$dropdown_html = '<select class="sw-form-input" field-name="A service product" name="product_id" ' . ( $required ? 'required' : '' ) . ' id="service_products">';
-	$dropdown_html .= '<option value="">Select Service Product</option>';
+				); 
+				?>
+				<option value="<?php echo esc_attr( $product_id ); ?>" <?php selected( $product_id, $selected_product_id ) ?>><?php echo esc_html( $product_name )?></option>
+			<?php endforeach; ?>
 
-	foreach ( $products as $product ) {
-		// Get the product ID and name
-		$product_id   = $product->get_id();
-		$product_name = $product->get_name();
-
-		// Check if the current product is selected
-		$selected = ( $product_id == $selected_product_id ) ? 'selected' : '';
-
-		// Add the option to the dropdown
-		$dropdown_html .= '<option value="' . esc_attr( $product_id ) . '" ' . $selected . '>' . esc_html( $product_name ) . '</option>';
-	}
-
-	$dropdown_html .= '</select>';
-
-	if ( true === $echo ) {
-		echo wp_kses( $dropdown_html, smartwoo_allowed_form_html() );
-	} 
-	return $dropdown_html;
+		</select>
+		<span id="product_dropdown_json" data-json="<?php echo esc_attr( wp_json_encode( $product_data ) ); ?>" style="display: none;"></span>
+	<?php
 
 }
 
@@ -95,4 +87,14 @@ function smartwoo_get_product_config_query_var() {
 		$var = get_option( 'smartwoo_product_config_var', 'product-config' );
 	}
 	return $var;
+}
+
+/**
+ * Get Smart Woo Products
+ * 
+ * @param array $args @see `wc_get_products`
+ */
+function smartwoo_get_products( array $args ) {
+	$args['type']	= 'sw_product';
+	return wc_get_products( $args );
 }
