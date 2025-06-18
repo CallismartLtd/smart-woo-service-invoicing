@@ -545,6 +545,27 @@ class SmartWoo_Invoice {
 	}
 
 	/**
+	 * Get payment method title.
+	 * 
+	 * @return string
+	 */
+	public function get_payment_method_title() {
+		$gateway_class	= $this->get_payment_gateway_class();
+
+		return is_object( $gateway_class ) ? $gateway_class->get_title() : $gateway_class;
+	}
+
+	/**
+	 * Get payment method class
+	 * 
+	 * @return string|WC_Payment_Gateway
+	 */
+	public function get_payment_gateway_class() {
+		$gateways = WC()->payment_gateways->payment_gateways();
+		return isset( $gateways[$this->payment_gateway] ) ? $gateways[$this->payment_gateway] : $this->payment_gateway;
+	}
+
+	/**
 	 * Get transaction id
 	 * 
 	 * @return string|int
