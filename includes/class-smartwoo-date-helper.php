@@ -42,11 +42,11 @@ class SmartWoo_Date_Helper {
      *
      * @throws Exception If the date is invalid.
      */
-    public function __construct( $date_string ) {
+    public function __construct( $date_string = '' ) {
         $date_string = sanitize_text_field( $date_string );
 
         if ( empty( $date_string ) ) {
-            throw new Exception( __( 'Date string is empty.', 'smart-woo-service-invoicing' ) );
+            $date_string = 'now';
         }
 
         try {
