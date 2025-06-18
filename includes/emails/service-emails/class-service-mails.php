@@ -100,11 +100,17 @@ class SmartWoo_Service_Mails extends SmartWoo_Mail {
             $this->service  = ( $service instanceof SmartWoo_Service ) ? $service : SmartWoo_Service_Database::get_service_by_id( $service );
 
         }
-        $this->body     = $body;
-        if ( $this->service ) {
+
+        $this->body = $body;
+
+        if ( ! isset( $this->client ) ) {
             $this->client = new WC_Customer( $this->service->get_user_id() );
+        }
+        
+        if ( $this->service ) {
             $this->object_ready = true;
         }
+        
     }
 
     /**
