@@ -74,7 +74,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' )
 	$date_created     			= $invoice->get_date_created();
 	$transaction_date 			= $invoice->get_date_paid();
 	$due_date					= $invoice->get_date_due();
-	$payment_method 			= ! empty( $invoice->get_payment_method() ) ? $invoice->get_payment_method() : 'N/A';
+	$payment_method 			= ! empty( $invoice->get_payment_method_title() ) ? $invoice->get_payment_method_title() : 'N/A';
 	$invoice_status          	= $invoice->get_status();
 	$transaction_id          	= ! empty( $invoice->get_transaction_id() ) ? $invoice->get_transaction_id() : 'N/A';
 	$invoice_items				= $invoice->get_items();
