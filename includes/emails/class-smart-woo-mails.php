@@ -347,7 +347,7 @@ class SmartWoo_Mail {
      */
     public static function create_pseudo_product() {
         $product = new SmartWoo_Product();
-        $product->set_id( wp_rand( 1, 1000 ) );
+        $product->set_id( wp_rand( 1, 1000 ) ); 
         $product->set_name( 'Awesome Product' );
         $product->set_regular_price( wp_rand( 10, 100 ) );
         $product->set_billing_cycle( 'Yearly' );
@@ -358,13 +358,11 @@ class SmartWoo_Mail {
     }
 
     /**
-     * Create a pseudo WooCommerce order to emulate a new service order.
+     * Create a pseudo Smart Woo order to emulate a new service order.
      *
-     * @return WC_Order The pseudo WooCommerce order object.
+     * @return SmartWoo_Order The pseudo Smart Woo order object.
      */
-    public static function create_pseudo_wc_order() {
-
-        // Create a new WC_Order object.
+    public static function create_pseudo_order() {
         $order = new WC_Order();
         $order->set_id( wp_rand( 1000, 9999) );
         $order->add_meta_data( '_smartwoo_is_service_order', true, true );
@@ -389,6 +387,9 @@ class SmartWoo_Mail {
 
         // Add a dummy line item to the order.
         $product = self::create_pseudo_product();
+        add_filter( 'woocommerce_order_item_product', function() use( $product ) {
+            return $product;
+        });
         $item = new WC_Order_Item_Product();
         
         $item->set_id( 211 );
@@ -403,10 +404,6 @@ class SmartWoo_Mail {
                 'total'         => $product->get_regular_price(),
             )
         );
-
-        $item->add_meta_data( '_smartwoo_sign_up_fee', $product->get_sign_up_fee(), true );
-        $item->add_meta_data( '_smartwoo_service_name', 'My cool subscription', true );
-        $item->add_meta_data( '_smartwoo_service_url', site_url(), true );
 
         $order->add_item( $item );
 
@@ -426,7 +423,15 @@ class SmartWoo_Mail {
         // Generate a pseudo transaction ID for testing.
         $order->set_transaction_id( 'WC|' . wp_rand( 1000, 9999 ) . '|' . time() );
 
-        return $order;
+        $smartwoo_order = new SmartWoo_Order();
+        $smartwoo_order->set_parent_order( $order );
+        $smartwoo_order->set_order_item( $item );
+        $smartwoo_order->set_user( $user );
+        $smartwoo_order->set_sign_up_fee( $product->get_sign_up_fee() );
+        $smartwoo_order->set_service_name( 'My cool subscription' );
+        $smartwoo_order->set_service_url( site_url() );
+
+        return $smartwoo_order;
     }
 
     /**
