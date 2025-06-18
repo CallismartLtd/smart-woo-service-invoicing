@@ -34,7 +34,8 @@ class SmartWoo_Invoice_Controller {
 		'user_email'		=> '',
 		'due_date'			=> 'now',
 		'invoice_type'		=> '',
-		'payment_status' 	=> 'unpaid'
+		'payment_status' 	=> 'unpaid',
+		'payment_method'	=> ''
 		
 	);
 
@@ -110,12 +111,15 @@ class SmartWoo_Invoice_Controller {
 		}
 		
 		SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menu_tabs, 'tab' );
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
 		switch ( $tab ) {
 			case 'add-new-invoice':
+				wp_enqueue_script( 'smartwoo-jquery-timepicker' );
 				include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
 				break;
 	
 			case 'edit-invoice':
+				wp_enqueue_script( 'smartwoo-jquery-timepicker' );
 				SmartWoo_Invoice_Controller::edit_form();
 				break;
 	
@@ -356,6 +360,7 @@ class SmartWoo_Invoice_Controller {
 		$invoice->set_service_id( $args['service_id'] );
 		$invoice->set_fee( $args['fee'] );
 		$invoice->set_date_due( $args['due_date'] );
+		$invoice->set_payment_method( $args['payment_method'] );
 
 		if ( 'paid' === $args['payment_status'] ) {
 			$invoice->set_date_paid( 'now' );
@@ -555,6 +560,13 @@ class SmartWoo_Invoice_Controller {
 
 		if ( isset( $_POST['invoice_id'] ) ) {
 			$this->form_fields['invoice_id'] = sanitize_text_field( wp_unslash( $_POST['invoice_id'] ) );
+		}
+
+		if ( isset( $_POST['payment_method'] ) ) {
+			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+			$gateway_id			= sanitize_text_field( wp_unslash( $_POST['payment_method'] ) );
+			$payment_method		= isset( $available_gateways[$gateway_id] ) ? $gateway_id : '';
+			$this->form_fields['payment_method'] = $payment_method;
 		}
 
 		return ( ! empty( $errors ) ) ? $errors : false;
