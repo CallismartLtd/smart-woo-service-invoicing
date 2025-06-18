@@ -400,7 +400,8 @@ body .sw-admin-dash-nav ul li a:focus {
         top: 70px;
         z-index: 9999;
         background-color: #ffffff;
-        width: 30%;
+        width: 250px;
+        max-width: 100%;
         align-items: center;
         padding: 10px;
         border: solid 1px #dcdcde;
@@ -451,9 +452,10 @@ body .sw-admin-dash-nav ul li a:focus {
     display: none;
     flex-direction: column;
     align-items: center;
-    position:fixed;
-    left: 40%;
+    position: fixed;
+    left: 50%;
     top: 20%;
+    transform: translateX(-50%);
     background-color: #fff;
     border: solid 2px #dcdcde;
     box-shadow: 0 5px 10px rgba(218, 3, 110, 0.2);
@@ -470,12 +472,17 @@ body .sw-admin-dash-nav ul li a:focus {
     display: flex;
     flex-direction: column;
     margin-bottom: 4px;
+    background-color: red;
+    color: #FFFFFF;
+    width: 95%;
+    font-weight: 700;
+    box-shadow: inset 1px 2px 8px 0px #fff;
 }
 .sw-pro-action-btn {
     color: #000000;
     font-weight: 500;
     text-align: center;
-    margin-bottom: 5px;
+    margin: 10px;
     background-color: #f6f6f6;
     height: 20px;
     width: 85%;
@@ -483,6 +490,11 @@ body .sw-admin-dash-nav ul li a:focus {
     border: solid #dcdcde 1px;
     border-radius: 6px;
     cursor: pointer;
+    transition: all .5s ease-in-out;
+}
+.sw-pro-action-btn:hover {
+    background-color: #FFFFFF;
+    border-width: 2px;
 }
 
 .sw-dash-pro-sell-bg{
