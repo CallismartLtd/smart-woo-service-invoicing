@@ -1090,7 +1090,7 @@ function smartwooDatesInputsHandler() {
     }
 
     // Initialize jQuery Datepicker.
-    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date, #date_on_sale_from, #date_on_sale_to' );
+    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date, #date_on_sale_from, #date_on_sale_to, #invoice_due_date' );
     if (dateFields.length) {
         dateFields.forEach(input => {
             let options = {
@@ -1117,10 +1117,141 @@ function smartwooDatesInputsHandler() {
             }
         });
     }
-
-
-    
 }
+
+/**
+ * Initialize invoice item calculator based on selected SmartWoo product.
+ *
+ * @param {Element} smartwooProductDropdown The dropdown <select> element.
+ */
+function smartwooInvoiceEditorItemCalculator( smartwooProductDropdown ) {
+	const productsJsonElement = document.getElementById( 'product_dropdown_json' );
+	const editorItemsBody     = document.querySelector( '#swInvoiceItemsBody' );
+	const subTotalInput       = document.querySelector( 'input#subtotal-value' );
+	const grandTotalInput     = document.querySelector( 'input#grandTotal' );
+    let proAddItemBtn         = document.querySelector( '#smartwoo-no-pro-add-item-btn' );
+
+	if ( ! productsJsonElement ) {
+		console.warn( 'Product JSON data element not found.' );
+		return;
+	}
+
+	const json     = productsJsonElement.getAttribute( 'data-json' );
+	const products = JSON.parse( json );
+	let removedItems = 0;
+	let hasItem = false;
+
+	/**
+	 * Calculate totals for each row and update subtotal/grand total.
+	 */
+	const calculateTotals = () => {
+		let rows      = editorItemsBody.querySelectorAll( 'tr' );
+		let subTotal  = 0;
+
+		rows.forEach( row => {
+			const qtyInput  = row.querySelector( 'input.sw-invoice-editor-quantity-input' );
+			const priceInput = row.querySelector( 'input.sw-invoice-editor-unit-price-input' );
+			const lineTotalCell = row.querySelector( '.sw-invoice-editor-line-total-input' );
+
+			if ( qtyInput && priceInput && lineTotalCell ) {
+				let quantity = parseFloat( qtyInput.value ) || 0;
+				let unitPrice = parseFloat( priceInput.value ) || 0;
+				let lineTotal = quantity * unitPrice;
+
+				lineTotalCell.textContent = lineTotal.toFixed(2);
+				subTotal += lineTotal;
+			}
+		});
+
+		if ( subTotalInput ) {
+			subTotalInput.value = subTotal.toFixed(2);
+		}
+		if ( grandTotalInput ) {
+			grandTotalInput.value = subTotal.toFixed(2);
+		}
+	};
+
+	/**
+	 * Clear all invoice rows.
+	 */
+	const clearFormerRows = () => {
+		editorItemsBody.innerHTML = '';
+		hasItem = false;
+	};
+
+	/**
+	 * Remove a row and update state.
+	 */
+	const removeClickedRow = ( e ) => {
+		e.preventDefault();
+
+		e.target.removeEventListener( 'click', removeClickedRow );
+		jQuery( e.target.closest( 'tr' ) ).fadeOut( 'fast', () => {
+			e.target.closest( 'tr' ).remove();
+			removedItems++;
+
+			if ( editorItemsBody.querySelectorAll( 'tr' ).length === 0 ) {
+				smartwooProductDropdown.value = '';
+				editorItemsBody.innerHTML = `<tr><td colspan="4" class="sw-not-found">No items</td></tr>`;
+				hasItem = false;
+			}
+
+			calculateTotals();
+		});
+	};
+
+	/**
+	 * Add selected product and optional signup fee.
+	 */
+	const addItems = ( e ) => {
+		clearFormerRows();
+
+		const selectedId = e.target.value;
+
+		if ( products[ selectedId ] ) {
+			const product = products[ selectedId ];
+
+			const itemTemplate = `
+			<tr>
+				<td><input type="text" class="sw-invoice-editor-item-name-input" value="${product.name}" id="${selectedId}" autocomplete="off"></td>
+				<td><input type="number" class="sw-invoice-editor-quantity-input" value="1" step="1" min="1" disabled></td>
+				<td><input type="number" class="sw-invoice-editor-unit-price-input" value="${product.price}" step="0.01" disabled></td>
+				<td class="sw-invoice-editor-line-total-input">${parseFloat(product.price).toFixed(2)}</td>
+				<td><span class="dashicons dashicons-trash sw-remove" title="Remove item" style="cursor: pointer; color: red;"></span></td>
+			</tr>
+			${product.sign_up_fee ? `
+			<tr>
+				<td><input type="text" class="sw-invoice-editor-item-name-input" value="Sign-up Fee" id="${String(Math.random()).replace('0.', '')}" autocomplete="off"></td>
+				<td><input type="number" class="sw-invoice-editor-quantity-input" value="1" step="1" min="1" disabled></td>
+				<td><input type="number" name="fee" class="sw-invoice-editor-unit-price-input" value="${product.sign_up_fee}" step="0.01"></td>
+				<td class="sw-invoice-editor-line-total-input">${parseFloat(product.sign_up_fee).toFixed(2)}</td>
+				<td><span class="dashicons dashicons-trash sw-remove" title="Remove item" style="cursor: pointer; color: red;"></span></td>
+			</tr>` : '' }
+			`;
+
+			editorItemsBody.innerHTML = itemTemplate;
+
+			editorItemsBody.querySelectorAll( '.sw-remove' ).forEach( btn => {
+				btn.addEventListener( 'click', removeClickedRow );
+			});
+
+			editorItemsBody.querySelectorAll( 'input.sw-invoice-editor-quantity-input, input.sw-invoice-editor-unit-price-input' ).forEach( input => {
+				input.addEventListener( 'input', calculateTotals );
+			});
+
+			hasItem = true;
+			calculateTotals();
+		}
+	};
+
+    proAddItemBtn.addEventListener( 'click', event =>{
+        event.preventDefault();
+        smartwoo_pro_ad( 'Add Custom Items', 'Add unlimited items to your invoice, track payment logs, make quotes with Smart Woo Pro' );
+    })
+
+	smartwooProductDropdown.addEventListener( 'change', addItems );
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     smartwooDatesInputsHandler();
@@ -1166,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const serviceForm           = document.querySelector( '#smartwooServiceForm' );
     let resetFastCheckoutBtn    = document.getElementById( 'resetFastCheckoutOptions' );
     let adminAutoRenewBtn       = document.querySelector( '#auto-renew-btn' );
+    let smartwooProductDropdown = document.querySelector( '#service_products' );
 
     /**
      * The assets is downloadable checkbox.
@@ -1394,24 +1526,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 adminDashHeader.classList.remove( 'is-scrolled' );
             }
-        });
-        
-        if ( window.innerWidth <= 600 ) {
-            document.addEventListener('scroll', ( e )=>{
-                
+
+            if ( window.matchMedia( `( min-width: 19px) and (max-width: 600px )`).matches ) {
                 let scrollUp = window.scrollY > 20;
                 if( scrollUp ) {
-                    adminDashHeader.classList.add( 'is-scrolled' );
                     adminDashHeader.style.top = "0";
-                    adminDashHeader.style.padding = "-5px";
-
                 } else {
                     adminDashHeader.style.top = "35px";
-                    adminDashHeader.classList.remove( 'is-scrolled' );
                 }
-            });
-        }
-
+            }
+        });
     }
 
     if (editMailBtns) {
@@ -1494,6 +1618,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let addedElement    = false;
         let customOption    = document.querySelector( '.sw-guest-option' );
         let metaDiv         = document.querySelector( '.sw-invoice-form-meta' );
+        
 
         let removeElement = () =>{
             metaDiv.querySelectorAll('input').forEach(input=>{
@@ -1515,15 +1640,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 customOption.remove();
                 showNotification('The origial invoice owner has been changed', 7000);
             }
+                
+            if ( theInvoiceAdminForm ) {
+                theInvoiceAdminForm.querySelector('#fullname').textContent          = '';
+                theInvoiceAdminForm.querySelector('#billingAddress').textContent    = '';
+                theInvoiceAdminForm.querySelector('#billingPhone').textContent      = '';
+                theInvoiceAdminForm.querySelector('#companyName').textContent       = '';
+                theInvoiceAdminForm.querySelector('#billingEmail').textContent      = '';
+            }
+        }
+
+        let updateInvoiceUserData = () =>{
+            if ( theInvoiceAdminForm ) {
+                let selectedUser = userDataDropDown.value;
+                if ( ! selectedUser ) {                    
+                    return;
+                } else {
+                    let userID  = selectedUser.split( '|' )[0];
+                    if ( userID < 1 ){
+                        showNotification( 'This user does not exist.', 5000 );
+                        return;
+                    }
+                    let url = new URL( smart_woo_vars.get_user_data );
+                    let spinner = smartWooAddSpinner( 'swloader' );
+                    url.searchParams.append( 'user_id', userID )
+                    url.searchParams.append( 'security', smart_woo_vars.security )
+
+                    fetch(url, {
+                        method: 'GET'
+                    }).then(response =>{
+                        if ( ! response.ok ) {
+                            showNotification( `Error: ${response.statusText}`, 6000 );
+                            throw new Error( response.statusText );
+                        }
+                        return  response.json()
+                    }).then(responseData => {
+                        if ( ! responseData.success ) {
+                            showNotification( responseData.data.message, 6000 );
+                        } else {
+                            console.log( responseData );
+                            let userData = responseData.data.user;
+                            theInvoiceAdminForm.querySelector('#fullname').textContent          = userData.full_name;
+                            theInvoiceAdminForm.querySelector('#billingAddress').textContent    = userData.billing_address;
+                            theInvoiceAdminForm.querySelector('#billingPhone').textContent      = userData.billing_phone;
+                            theInvoiceAdminForm.querySelector('#companyName').textContent       = userData.billing_company;
+                            theInvoiceAdminForm.querySelector('#billingEmail').textContent      = userData.billing_email;
+                        }
+                    }).catch(error =>{
+                        console.error('Error fetching user data:', error)
+                    }).finally(()=>{
+                        smartWooRemoveSpinner( spinner );
+                    })
+                    
+                }
+                
+            }
         }
 
         userDataDropDown.addEventListener( 'change', async (e)=>{
+            let customOption    = document.querySelector( '.sw-guest-option' );
             if ( ! e.target.value.length || ( customOption && customOption.value ) === e.target.value ) {
+                console.log(e.target.value);
+                
                 return;
             }
 
+            
             if ( 'smartwoo_guest' !== e.target.value ) {
                 removeElement();
+                updateInvoiceUserData();
             }
   
             if ( 'smartwoo_guest' === e.target.value ) {
@@ -1556,6 +1741,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let newOption = document.createElement( 'option' );
                 newOption.value = optionValue;
                 newOption.text = optionText;
+                newOption.classList.add( 'sw-guest-option' );
                 userDataDropDown.prepend(newOption);
                 userDataDropDown.value = newOption.value;
                 addedElement = optionValue;
@@ -1567,16 +1753,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 metaDiv.querySelector('input[name="billing_company"]').value    = guestData.billing_company;
                 metaDiv.querySelector('input[name="billing_email"]').value      = guestData.billing_email;
                 metaDiv.querySelector('input[name="is_guest_invoice"]').value   = 'yes';
+
+                if ( theInvoiceAdminForm ) {
+                    theInvoiceAdminForm.querySelector('#fullname').textContent          = `${guestData.first_name} ${guestData.last_name}`;
+                    theInvoiceAdminForm.querySelector('#billingAddress').textContent    = guestData.billing_address;
+                    theInvoiceAdminForm.querySelector('#billingPhone').textContent      = guestData.billing_phone;
+                    theInvoiceAdminForm.querySelector('#companyName').textContent       = guestData.billing_company;
+                    theInvoiceAdminForm.querySelector('#billingEmail').textContent      = guestData.billing_email;
+                }
             }
             
-
         });
     }
 
     if ( theInvoiceAdminForm ) {
+        if ( smartwooProductDropdown ) {
+            smartwooInvoiceEditorItemCalculator( smartwooProductDropdown );
+        }
+
+        let allInputs = theInvoiceAdminForm.querySelectorAll( '[required]' );
+        allInputs.forEach( input =>{
+            let fieldName = input.getAttribute( 'field-name' );
+            if ( ! input.value.trim().length ) {
+                input.setCustomValidity( `${ fieldName ? fieldName :'This field'} is required` );
+            }
+
+            input.addEventListener( 'input', () =>{
+                if ( input.value.trim().length ) {
+                    input.setCustomValidity( '' );
+                }
+            });
+        });
         theInvoiceAdminForm.addEventListener( 'submit', (e)=>{
             e.preventDefault();
-            let submitBtn = theInvoiceAdminForm.querySelector('input[type="submit"]');
+            let submitBtn = theInvoiceAdminForm.querySelector('button[type="submit"]');
             submitBtn.setAttribute( 'disabled', true );
             let loader = smartWooAddSpinner( 'swloader', true);
             // Remove existing error messages before adding new ones.
@@ -2084,9 +2294,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if ( ! responseData.success ) {
                     showNotification( responseData.data.message, 6000 );
                 } else {
-                    userFullName.innerHTML  = `<strong>Full name</strong>: ${responseData.data.user_fullname}`;
-                    userEmail.innerHTML     = `<strong>Email</strong>: ${responseData.data.email}`;
-                    image.src               = responseData.data.avatar_url;
+                    userFullName.innerHTML  = `<strong>Full name</strong>: ${responseData.data.user.full_name}`;
+                    userEmail.innerHTML     = `<strong>Email</strong>: ${responseData.data.user.email}`;
+                    image.src               = responseData.data.user.avatar_url;
                 }
             }).catch(error =>{
                 console.error('Error fetching user data:', error)
