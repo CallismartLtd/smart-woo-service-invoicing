@@ -174,7 +174,7 @@ class SmartWoo_Invoice_Mails extends SmartWoo_Mail {
                     $replace_values[$placeholder] = smartwoo_price( $this->invoice->get_fee() );
                     break;
                 case '{{payment_gateway}}':
-                    $replace_values[$placeholder] = $this->invoice->get_payment_method();
+                    $replace_values[$placeholder] = $this->invoice->get_payment_method_title();
                     break;
                 case '{{transaction_id}}':
                     $replace_values[$placeholder] = $this->invoice->get_transaction_id();
