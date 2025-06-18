@@ -56,14 +56,14 @@ class SmartWoo_Order {
     /**
      * Date Created
      * 
-     * @var WC_DateTime $date_created The date the parent order was created
+     * @var SmartWoo_Date_Helper $date_created The date the parent order was created
      */
     protected $date_created;
 
     /**
      * Date Paid
      * 
-     * @var WC_DateTime  $date_paid The date the parent order was paid
+     * @var SmartWoo_Date_Helper  $date_paid The date the parent order was paid
      */
     protected $date_paid;
 
@@ -75,11 +75,11 @@ class SmartWoo_Order {
     protected $billing_cycle = '';
 
     /**
-     * The client
+     * The client/user
      * 
-     * @var WC_Customer $client The owner of this order.
+     * @var WC_Customer $user The owner of this order.
      */
-    protected $client = null;
+    protected $user = null;
 
     /**
      * WooCommerce Order
@@ -91,7 +91,7 @@ class SmartWoo_Order {
     /**
      * WooCommerce Order Item
      * 
-     * @var WC_Order_Item $order_item
+     * @var WC_Order_Item_Product $order_item
      */
     protected $order_item;
 
@@ -146,7 +146,7 @@ class SmartWoo_Order {
         $self->date_created             = $self->order->get_date_created();
         $self->date_paid                = $self->order->get_date_paid();
         $self->billing_cycle            = is_a( $self->order_item->get_product(), 'SmartWoo_Product' ) ? $self->order_item->get_product()->get_billing_cycle() : '';
-        $self->client                   = new WC_Customer( $self->order->get_user_id() );
+        $self->user                     = new WC_Customer( $self->order->get_user_id() );
     }
 
     /**
@@ -157,10 +157,118 @@ class SmartWoo_Order {
     public function is_valid() {
         return smartwoo_check_if_configured( $this->order );
     }
+    /**
+     |------------------
+     | SETTERS
+     |------------------
+     */
+    
+    /**
+     * Set orders prop
+     * 
+     * @param array $data
+     */
+    public function set_orders( array $data ) {
+        $this->orders   = array_map( 'absint', array_intersect_assoc( $this->orders, $data ) );
+    }
 
-    /*----------------------------------------
-    | GETTERS
-    |-----------------------------------------
+    /**
+     * Set service name
+     * 
+     * @param string $name
+     */
+    public function set_service_name( $name ) {
+        $this->service_name = sanitize_text_field( wp_unslash( $name ) );
+    }
+
+    /**
+     * Set invoice ID
+     * 
+     * @param string $invoice_id The public invoice ID
+     */
+    public function set_invoice_id( $invoice_id ){
+        $this->invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
+    }
+
+    /**
+     * Set service URL
+     * 
+     * @param string $service_url
+     */
+    public function set_service_url( $service_url ) {
+        $this->service_url = sanitize_url( $service_url );
+    }
+
+    /**
+     * Set Sign-Up fee
+     * 
+     * @param int|float
+     */
+    public function set_sign_up_fee( $fee ) {
+        $this->sign_up_fee = round( $fee, 2 );
+    }
+
+    /**
+     * Set Date created
+     * 
+     * @param string $dateTimeString
+     */
+    public function set_date_created( $dateTimeString ) {
+        $this->date_created = new SmartWoo_Date_Helper( $dateTimeString );
+    }
+
+    /**
+     * Set user
+     * 
+     * @param WC_Customer|WP_User|int $user
+     */
+    public function set_user( $user ) {
+        if ( is_a( $user, 'WC_Customer' ) ) {
+            $this->user = $user;
+        } elseif ( is_numeric( $user ) || is_a( $user, 'WP_User' ) ) {
+            $this->user = new WC_Customer( is_object( $user ) ? $user->ID : absint( $user ) );
+        }
+    }
+
+    /**
+     * Set parent Order
+     * 
+     * @param WC_Order $order
+     */
+    public function set_parent_order( WC_Order $order ) {
+        $this->order = $order;
+    }
+
+    /**
+     * Set order item property, this is the fundamental property that makes a SmartWoo_Order Object.
+     * 
+     * @param WC_Order_Item_Product $item
+     */
+    public function set_order_item( WC_Order_Item_Product $order_item ) {
+        $this->order_item = $order_item;
+    }
+
+    /**
+     * Set date paid
+     */
+    public function set_date_paid( $dateTimeString ){
+        $this->date_paid = new SmartWoo_Date_Helper( $dateTimeString );
+    }
+
+    /**
+     * Set billing cycle
+     * 
+     * @param string $value
+     */
+    public function set_billing_cycle( $value ) {
+        $this->billing_cycle = sanitize_text_field( wp_unslash( $value ) );
+    }
+
+
+    /**
+     |--------------------
+     | GETTERS
+     |--------------------
     */
 
     /**
@@ -221,7 +329,7 @@ class SmartWoo_Order {
      * Get date created
      * 
      * @param string $context The context in which the date is returned
-     * -possible values `raw`           = WC_Datetime (default)
+     * -possible values `raw`           = SmartWoo_Date_Helper (default)
      *                  `plain`         = Formatted as plain text according to the site's date and time format.
      *                  `date_format`   = Returned in Y-m-d  format
      * 
@@ -241,11 +349,11 @@ class SmartWoo_Order {
      * Get date paid
      * 
      * @param string $context The context in which the date is returned
-     * -possible values `raw`           = WC_Datetime (default)
+     * -possible values `raw`           = SmartWoo_Date_Helper (default)
      *                  `plain`         = Formatted as plain text according to the site's date and time format.
      *                  `date_format`   = Returned in Y-m-d  format
      * 
-     * @return WC_Dateime|string
+     * @return SmartWoo_Date_Helper|string
      */
     public function get_date_paid( $context = 'raw' ) {
         if ( 'plain' === $context ) {
@@ -268,9 +376,11 @@ class SmartWoo_Order {
 
     /**
      * Get the client/user associated with the order.
+     * 
+     * @return WC_Customer
      */
     public function get_user() {
-        return $this->client;
+        return $this->user;
     }
 
     /**
@@ -279,6 +389,15 @@ class SmartWoo_Order {
      */
     public function get_parent_order() {
         return $this->order;
+    }
+
+    /**
+     * Get order currency
+     * 
+     * @return string $currency
+     */
+    public function get_currency() {
+        return $this->get_parent_order()->get_currency();
     }
 
     /**
@@ -431,7 +550,7 @@ class SmartWoo_Order {
      * Get the status of an order, we should add a `completed` string value to the order_item meta after processing.
      */
     public function get_status() {
-        $status = 'awaiting payment'; // Assuming order is not paid.
+        $status = 'awaiting payment';
         $parent_order_status =  $this->get_parent_order() ? $this->get_parent_order()->get_status() : '';
         if ( in_array( $parent_order_status, wc_get_is_pending_statuses(), true ) ) {
             return $status;
