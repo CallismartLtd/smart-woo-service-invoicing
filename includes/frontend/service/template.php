@@ -34,7 +34,7 @@ class SmartWoo_Service_Frontend_Template {
 		$limit					= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 9; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$all_services			= SmartWoo_Service_Database::get_services_by_user( $user_id, $page, $limit );
 		$pending_services		= SmartWoo_Service_Database::get_user_awaiting_services( $user_id );
-		$services				= array_merge( $all_services, $pending_services );
+		$services				= array_merge( $pending_services, $all_services );
 		
 		$all_services_count		= SmartWoo_Service_Database::count_user_services( $user_id );
 		$total_items_count		= count( $all_services );
