@@ -99,8 +99,10 @@ smartwoo_set_document_title( 'Add New Invoice' );
                 <?php else: ?>
                     <div class="sw-invoice-editor-add-product-select">
                         <?php smartwoo_product_dropdown( '', true ); ?>
-                        <span type="button" class="button" id="smartwoo-no-pro-add-item-btn"> <i class="dashicons dashicons-plus"></i> <?php esc_html_e( 'Add Items', 'smart-woo-service-invoicing' ) ?></span>
-                        <span id="pro-target"></span>
+                        <?php if ( ! SmartWoo::pro_is_installed() ) : ?>
+                            <span type="button" class="button" id="smartwoo-no-pro-add-item-btn"> <i class="dashicons dashicons-plus"></i> <?php esc_html_e( 'Add Items', 'smart-woo-service-invoicing' ) ?></span>
+                            <span id="pro-target"></span>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
