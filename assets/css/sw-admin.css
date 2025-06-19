@@ -669,6 +669,12 @@ body .sw-admin-dash-nav ul li a:focus {
     color: red;
     text-align: right;
 }
+#smartwoo-invoice-links-input {
+    border: solid 1px #dcdcde;
+    height: 40px;
+    width: 90%;
+    border-radius: 5px;
+}
 .smartwoo-admin-invoice-header {
     display: flex;
     flex-direction: row;
@@ -1652,6 +1658,17 @@ body .sw-admin-dash-nav ul li a:focus {
     transition: all 0.5s ease-in-out;
     border: none;
     transform: translateX(10px);
+}
+
+.sw-service-form-row input[disabled],
+.sw-service-form-row input[readonly],
+.sw-service-form-row button[disabled],
+.sw-service-form-row button[readonly],
+.sw-service-form-row select[disabled],
+.sw-service-form-row select[readonly] {
+    background-color: #ffffff;
+    cursor: not-allowed;
+    color: #33333361;
 }
 .sw-service-form-row label {
     font-weight: 500;
