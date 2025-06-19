@@ -309,10 +309,10 @@ class SmartWoo_Invoice {
 	 * @param string $date_created.
 	 */
 	public function set_date_created( $date ){
-		if ( 'now' === $date ) {
+		if ( 'now' === $date || '0000-00-00 00:00:00' === $date || empty( $date ) ) {
 			$this->date_created = current_time( 'mysql' );
 		} else {
-			$this->date_created = sanitize_text_field( wp_unslash( $date ) );			
+			$this->date_created = sanitize_text_field( wp_unslash( $date ) );		
 		}
 	}
 
@@ -322,18 +322,12 @@ class SmartWoo_Invoice {
 	 * @param string $date
 	 */
 	public function set_date_paid( $date ) {
-		if( 'now' === $date ) {
+		if ( 'now' === $date || '0000-00-00 00:00:00' === $date || empty( $date ) ) {
 			$this->date_paid = current_time( 'mysql' );
 		} else {
 			$this->date_paid = sanitize_text_field( wp_unslash( $date ) );
 		}
 	}
-
-	// Deprecated use set_date_paid.
-	public function setDatePaid( string $date_paid ) {
-		$this->set_date_paid( $date_paid );
-	}
-
 
 	/**
 	 * Set date due.
@@ -341,16 +335,11 @@ class SmartWoo_Invoice {
 	 * @param string $date
 	 */
 	public function set_date_due( $date ) {
-		if( 'now' === $date ) {
+		if ( 'now' === $date || '0000-00-00 00:00:00' === $date || empty( $date ) ) {
 			$this->date_due = current_time( 'mysql' );
 		} else {
 			$this->date_due = sanitize_text_field( wp_unslash( $date ) );
 		}
-	}
-
-	// Deprecated, use set_date_due.
-	public function setDateDue( $date ) {
-		$this->set_date_due( $date );
 	}
 	
 	/**
