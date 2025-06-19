@@ -290,7 +290,6 @@ function smartwooPostBulkAction(action, values = []) {
             security: smartwoo_admin_vars.security,
         },
         success: function(response) {
-            // console.log('Bulk action success:', response);
             if( response.success) {
                 showNotification(response.data.message);
                 setTimeout(()=>{
@@ -402,7 +401,6 @@ function fetchServiceCount(index, action, label) {
                 dashContents[index].append(divTag);
                 jQuery('.sw-dash-count').fadeIn().css('display', 'flex');
             } else {
-                console.log(response);
                 smartwooAddRetryBtn(index, action, label);
             }
         },
@@ -1244,11 +1242,21 @@ function smartwooInvoiceEditorItemCalculator( smartwooProductDropdown ) {
 		}
 	};
 
-    proAddItemBtn.addEventListener( 'click', event =>{
-        event.preventDefault();
-        smartwoo_pro_ad( 'Add Custom Items', 'Add unlimited items to your invoice, track payment logs, make quotes with Smart Woo Pro' );
-    })
+    if ( proAddItemBtn ) {
+        proAddItemBtn.addEventListener( 'click', event =>{
+            event.preventDefault();
+            smartwoo_pro_ad( 'Add Custom Items', 'Add unlimited items to your invoice, track payment logs, make quotes with Smart Woo Pro' );
+        });
+    }
+    
+    editorItemsBody.querySelectorAll( 'input.sw-invoice-editor-quantity-input, input.sw-invoice-editor-unit-price-input' ).forEach( input => {
+        input.addEventListener( 'input', calculateTotals );
+    });
 
+    editorItemsBody.querySelectorAll( '.sw-remove' ).forEach( btn => {
+        btn.addEventListener( 'click', removeClickedRow );
+    });
+    calculateTotals();
 	smartwooProductDropdown.addEventListener( 'change', addItems );
 }
 
@@ -1678,10 +1686,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         if ( ! responseData.success ) {
                             showNotification( responseData.data.message, 6000 );
                         } else {
-                            console.log( responseData );
                             let userData = responseData.data.user;
                             theInvoiceAdminForm.querySelector('#fullname').textContent          = userData.full_name;
-                            theInvoiceAdminForm.querySelector('#billingAddress').textContent    = userData.billing_address;
+                            theInvoiceAdminForm.querySelector('#billingAddress').textContent    = userData.formated_address;
                             theInvoiceAdminForm.querySelector('#billingPhone').textContent      = userData.billing_phone;
                             theInvoiceAdminForm.querySelector('#companyName').textContent       = userData.billing_company;
                             theInvoiceAdminForm.querySelector('#billingEmail').textContent      = userData.billing_email;
@@ -1700,9 +1707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userDataDropDown.addEventListener( 'change', async (e)=>{
             let customOption    = document.querySelector( '.sw-guest-option' );
             if ( ! e.target.value.length || ( customOption && customOption.value ) === e.target.value ) {
-                console.log(e.target.value);
-                
-                return;
+               return;
             }
 
             
@@ -1806,11 +1811,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .then( responseData=>{
                     if ( ! responseData.success ) {
-                        // Create a wrapper div for errors
+                        
                         let errorContainer = document.createElement('div');
                         errorContainer.id = 'invoice-errors';
                         errorContainer.innerHTML = responseData.data.htmlContent ? responseData.data.htmlContent : responseData.data.message;
-                        errorContainer.querySelector( '.swremove-field' ).addEventListener( 'click', e => e.target.parentElement.remove() );
+                        let removeErrorRmv = errorContainer.querySelector( '.swremove-field' );
+                        if ( removeErrorRmv ) {
+                            removeErrorRmv.addEventListener( 'click', e => e.target.parentElement.remove() );
+                        }
 
                         // Insert error messages above the form
                         theInvoiceAdminForm.parentElement.insertBefore(errorContainer, theInvoiceAdminForm);
@@ -1863,8 +1871,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if ( invoiceActionBtns.length ) {
         invoiceActionBtns.forEach( (btn)=>{
+            let responseDiv     = document.querySelector( '#response-div' );
+
             btn.addEventListener( 'click', ()=>{
-                let responseDiv     = document.querySelector( '#response-div' );
+                
                 let invoiceID       = responseDiv.getAttribute( 'data-invoice-id' );
                 let action          = btn.getAttribute( 'data-value' );
                 responseDiv.innerHTML = '';
@@ -1908,11 +1918,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 heading.textContent         = h3title;
                                 heading.style.textAlign     = "center";
                                 inputField.readOnly         = true;
-                                inputField.style.width      = "80%";
+                                inputField.id               = 'smartwoo-invoice-links-input'
                                 let copyBtn                 = document.createElement( 'span' );
                                 copyBtn.classList.add( 'dashicons', 'dashicons-admin-page' );
                                 copyBtn.setAttribute( 'title', 'copy to clipboard' );
-                                copyBtn.style.cursor = "pointer";
+                                copyBtn.style.cursor    = "pointer";
+                                copyBtn.style.marginTop = "10px";
                                 inputField.value = responseData.data.message;
                                 
                                 responseDiv.appendChild(heading);
@@ -2355,7 +2366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 }
             }).catch( error =>{
-                console.log( error )
+                console.error( error )
             }).finally(()=>{
                 smartWooRemoveSpinner( spinner );
                 sbmtBtn.disabled    = false;
@@ -2511,7 +2522,6 @@ document.addEventListener('DOMContentLoaded', function() {
 				if ( removedId && confirmed ) {
                     jQuery( event.target ).fadeOut(700);
 					var spinner = smartWooAddSpinner( 'swloader', true );
-					console.log( removedId );
 					jQuery.ajax({
 						type: 'GET',
 						url: smart_woo_vars.ajax_url,
