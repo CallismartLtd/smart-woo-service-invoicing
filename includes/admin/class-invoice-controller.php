@@ -262,7 +262,7 @@ class SmartWoo_Invoice_Controller {
     }
 
 	/**
-	 * Edit invoice form handler.
+	 * Edit invoice form submission handler.
 	 */
 	public static function edit_form_submit() {
 		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
@@ -283,7 +283,7 @@ class SmartWoo_Invoice_Controller {
 		$updated			= self::update_invoice( $is_guest_invoice );
 
 		if ( is_wp_error( $updated ) ) {
-			wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $updated->get_error_message() ) ), 200 );
+			wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $updated->get_error_message(), true ) ), 200 );
 		}
 
 		do_action( 'smartwoo_handling_edit_invoice_form_success', $updated );
@@ -291,7 +291,7 @@ class SmartWoo_Invoice_Controller {
 	}
 
 	/**
-	 * Invoice edit form renderer.
+	 * Invoice edit page.
 	 */
 	public static function edit_form() {
 		smartwoo_set_document_title( 'Edit Invoice' );
@@ -412,7 +412,7 @@ class SmartWoo_Invoice_Controller {
 		$invoice->set_product_id( $args['product_id'] );
 		$invoice->set_amount( $amount );
 		$invoice->set_total( $total );
-		$invoice->set_status( $args['payment_status'] );
+		
 		$invoice->set_date_due( $args['due_date'] );
 		$invoice->set_type( $args['invoice_type'] );
 		$invoice->set_user_id( $args['user_id'] );
@@ -435,11 +435,49 @@ class SmartWoo_Invoice_Controller {
 		}
 
 		// Pending orders are created only when invoice is unpaid and no pending order exists for it.
-		if ( 'unpaid' === $args['payment_status'] && ! $invoice->get_order() ) {
-			$invoice->save();
-			$order_id = smartwoo_generate_pending_order( $invoice );
-			$invoice->set_order_id( $order_id );
+		$invoice_order	= $invoice->get_order();
+		if ( 'unpaid' === $args['payment_status'] ) {
+			if ( ! $invoice_order ) {
+				$invoice->save();
+				$order_id = smartwoo_generate_pending_order( $invoice );
+				$invoice->set_order_id( $order_id );
+			} else {
+				$invoice_order->set_status( 'pending', true );
+				$invoice_order->save();
+				
+			}
+			
+		} 
+		
+		if ( 'paid' === $args['payment_status'] ) {
+			if ( $invoice_order && 'pending' === $invoice_order->get_status() ) {
+				if ( 'Service Renewal Invoice' === $invoice->get_type() ) {
+					$invoice_order->set_status( 'completed', true );
+				} else{
+					$invoice_order->payment_complete();
+				}
+				
+				$invoice_order->save();
+			}
+
+			$invoice->set_date_paid( 'now' );
 		}
+
+		$old_status = $invoice->get_status();
+		$invoice->set_status( $args['payment_status'] );
+
+		if ( $args['payment_status'] !== $old_status ) {
+			/**
+			 * Fires when invoice status changes.
+			 * 
+			 * @param SmartWoo_Invoice $invoice The invoice object.
+			 * @param string $old_status The previous status.
+			 * @param string $new_status The new invoice status
+			 */
+			do_action( 'smartwoo_invoice_status_transition', $invoice, $old_status, $args['payment_status'] );
+		}
+
+		
 
 		return $invoice->save() ? $invoice : new WP_Error( 'invoice_update_error', 'Invoice update failed', array( 'status' => 503 ) );
 	}
