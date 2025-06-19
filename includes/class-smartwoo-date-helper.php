@@ -60,7 +60,7 @@ class SmartWoo_Date_Helper {
     }
 
    /**
-     * Static factory.
+     * Static factory method to create a new SmartWoo_Date object from date string.
      *
      * @param string $date_string Date string.
      *
