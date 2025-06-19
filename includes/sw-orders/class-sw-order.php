@@ -578,7 +578,7 @@ class SmartWoo_Order {
      * @param WC_Order_Item $order_item The Order item base class.
      */
     public static function display_meta( $formatted_meta, $order_item ){
-        if ( ! is_a( $order_item->get_product(), 'SmartWoo_Product' ) ) {
+        if ( ! is_a( $order_item, 'WC_Order_Item_Product' ) || ! is_a( $order_item->get_product(), 'SmartWoo_Product' ) ) {
             $formatted_meta;
         }
         
