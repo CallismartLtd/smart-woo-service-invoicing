@@ -36,7 +36,10 @@ defined( 'ABSPATH' ) || exit; ?>
                     <?php if( 'Processing' !== smartwoo_service_status( $service ) ) : ?>
                         <p style="overflow-wrap: anywhere;">Service ID: <?php echo esc_html( $service->get_service_id() ); ?></p>
                         <a href="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ); ?>" class="sw-blue-button"><?php esc_html_e( 'View Details', 'smart-woo-service-invoicing' ); ?></a>
-                <?php endif; ?>
+    
+                    <?php else: ?>
+                        <p><?php echo wp_kses_post( smartwoo_notice( 'Your order has been received and is currently being processed, we will notify you shortly.' ) ); ?></p>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
