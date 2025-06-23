@@ -94,7 +94,7 @@ class SmartWoo_Config{
         /** Register our crons */
         add_filter( 'cron_schedules', array( $this, 'register_cron' ) );
         
-        add_filter( 'get_edit_post_link', array( 'SmartWoo_Product', 'get_edit_url' ), 100, 2 );
+        add_filter( 'get_edit_post_link', array( SmartWoo_Product::class, 'get_edit_url' ), 100, 2 );
         add_filter( 'display_post_states', array( __CLASS__, 'post_states' ), 30, 2 );
         add_action( 'woocommerce_save_account_details', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
