@@ -163,8 +163,7 @@ smartwoo_set_document_title( 'Edit New Invoice' );
                     <label for="service_id"><?php esc_html_e( 'Associated Service ID', 'smart-woo-service-invoicing' ); ?>:</label>
                     <input type="text" name="service_id" id="service_id" value="<?php echo esc_attr( $invoice->get_service_id() ); ?>">
                 </div>
-   
-                
+           
                 <?php if ( ! empty( $available_gateways ) ) : ?>
                     <div class="sw-invoice-editor-payment-gateways">
                         <h2><?php esc_html_e( 'Payment Method', 'smart-woo-service-invoicing' ); ?>:</h2>
