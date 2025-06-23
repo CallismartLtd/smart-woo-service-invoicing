@@ -44,7 +44,7 @@ function showNotification(message, duration = 1000) {
     notification.style.border = '1px solid #ccc';
     notification.style.borderRadius = '5px';
     notification.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.5)';
-    notification.style.zIndex = '9999';
+    notification.style.zIndex = '9999999';
     notification.style.textAlign = 'center';
     
     // Append the notification to the body
