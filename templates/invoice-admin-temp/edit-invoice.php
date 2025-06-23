@@ -93,23 +93,23 @@ smartwoo_set_document_title( 'Edit New Invoice' );
                             </tr>
                         </thead>
                         <tbody id="swInvoiceItemsBody">
-                            <?php if ( empty( $invoice->get_items() ) ) : ?>
+                            <?php if ( empty( $invoice_items ) ) : ?>
                                 <tr><td colspan="4" class="sw-not-found"><?php esc_html_e( 'No items', 'smart-woo-service-invoicing' ); ?></td></tr>
                             <?php else: $index =1; ?>
-                                <?php foreach( $invoice->get_items() as $item => $data ) : ?>
+                                <?php foreach( $invoice_items as $name => $data ) : ?>
                                     <?php if ( SmartWoo::pro_is_installed() ) : ?>
                                         <tr>
-                                            <td><input type="text" class="sw-invoice-editor-item-name-input" value="<?php echo esc_attr( $item ); ?>" id="<?php echo( absint( $index ) ); ?>" autocomplete="off"></td>
+                                            <td><input type="text" class="sw-invoice-editor-item-name-input" value="<?php echo esc_attr( $name ); ?>" id="<?php echo( absint( $index ) ); ?>" autocomplete="off"></td>
                                             <td><input type="number" class="sw-invoice-editor-quantity-input" value="<?php echo absint( $data['quantity'] ); ?>" step="1" min="1"></td>
                                             <td><input type="number" class="sw-invoice-editor-unit-price-input" value="<?php echo floatval( $data['price'] ); ?>" step="0.01"></td>
                                             <td class="sw-invoice-editor-line-total-input"></td>
-                                            <td><span class="dashicons dashicons-trash sw-remove" title="Remove item" style="cursor: pointer; color: red;"></span></td>
+                                            <td><span class="dashicons dashicons-trash sw-remove" <?php echo wp_kses_post( is_numeric( $data['id'] ) ? 'data-id="' . $data['id'] . '"' : '' ); ?> title="Remove item" style="cursor: pointer; color: red;"></span></td>
                                         </tr>
                                     <?php else: ?>
                                         <tr>
-                                            <td><input type="text" class="sw-invoice-editor-item-name-input" value="<?php echo esc_attr( $item ); ?>" id="<?php echo( absint( $index ) ); ?>" autocomplete="off"></td>
+                                            <td><input type="text" class="sw-invoice-editor-item-name-input" value="<?php echo esc_attr( $name ); ?>" id="<?php echo( absint( $index ) ); ?>" autocomplete="off"></td>
                                             <td><input type="number" class="sw-invoice-editor-quantity-input" value="<?php echo absint( $data['quantity'] ); ?>" step="1" min="1" disabled></td>
-                                            <td><input type="number" class="sw-invoice-editor-unit-price-input" value="<?php echo floatval( $data['price'] ); ?>" step="0.01" <?php echo wp_kses_post( ( 'Fee' === $item ) ? 'name="fee"': 'disabled' ); ?>></td>
+                                            <td><input type="number" class="sw-invoice-editor-unit-price-input" value="<?php echo floatval( $data['price'] ); ?>" step="0.01" <?php echo wp_kses_post( ( 'Fee' === $name ) ? 'name="fee"': 'disabled' ); ?>></td>
                                             <td class="sw-invoice-editor-line-total-input"></td>
                                             <td><span class="dashicons dashicons-trash sw-remove" title="Remove item" style="cursor: pointer; color: red;"></span></td>
                                         </tr>
@@ -143,7 +143,6 @@ smartwoo_set_document_title( 'Edit New Invoice' );
                     <?php do_action( 'smartwoo_invoice_editor_after_subtotal' ); ?>
 
                     <div class="sw-service-form-row">
-                        
                         <label for="grandTotal"><?php esc_html_e( 'Total', 'smart-woo-service-invoicing' ) ?>: </label>
                         <input type="number" name="total" id="grandTotal" value="0" disabled>
                     </div>
@@ -164,13 +163,7 @@ smartwoo_set_document_title( 'Edit New Invoice' );
                     <label for="service_id"><?php esc_html_e( 'Associated Service ID', 'smart-woo-service-invoicing' ); ?>:</label>
                     <input type="text" name="service_id" id="service_id" value="<?php echo esc_attr( $invoice->get_service_id() ); ?>">
                 </div>
-                <div class="sw-service-form-row">
-                    <label for="send_mail"><?php esc_html_e( 'Send New Invoice Email', 'smart-woo-service-invoicing' ); ?>:</label>
-                    <select name="smartwoo_send_new_invoice_mail" id="send_mail">
-                        <option value="no"><?php esc_html_e( 'No', 'smart-woo-service-invoicing' ); ?></option>
-                        <option value="yes"><?php esc_html_e( 'Yes', 'smart-woo-service-invoicing' ); ?></option>
-                    </select>
-                </div>
+   
                 
                 <?php if ( ! empty( $available_gateways ) ) : ?>
                     <div class="sw-invoice-editor-payment-gateways">
@@ -179,7 +172,7 @@ smartwoo_set_document_title( 'Edit New Invoice' );
                             <?php foreach( $available_gateways as $id => $gateway ) : ?>
                                 <div class="sw-invoice-editor-payment-gateway-row">
                                     <label for="<?php echo esc_attr( $id ); ?>">
-                                        <input type="radio" name="payment_method" id="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $id ); ?>">
+                                        <input type="radio" name="payment_method" id="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $id ); ?>" <?php checked( $id, $invoice->get_payment_method() ); ?>>
                                         <span><?php echo esc_html( $gateway->get_title() ); ?></span>
                                         <?php echo wp_kses_post( $gateway->get_icon() ); ?>
                                     </label>
