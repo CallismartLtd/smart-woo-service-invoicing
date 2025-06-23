@@ -1802,6 +1802,46 @@ font-weight: 100;
     color: #005a87;
     text-decoration: underline;
 }
+.smartwoo-tooltip {
+    position: relative;
+    cursor: help;
+    display: inline-block;
+    background-color: #000000;
+    color: #FFFFFF;
+    font-weight: 700;
+    width: 6px;
+    height: 6px;
+    padding: 5px;
+    line-height: 1;
+    font-size: 9px;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.smartwoo-tooltip::before {
+	content: attr(data-title);
+	position: absolute;
+	bottom: 125%;
+	background-color: #000;
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 8px;
+	white-space: normal;
+	width: max-content;
+	max-width: 240px;
+	text-align: center;
+	font-size: 12px;
+	line-height: 1.5;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s ease;
+	z-index: 999;
+}
+
+.smartwoo-tooltip:hover::before,
+.smartwoo-tooltip:focus::before {
+	opacity: 1;
+}
 
 /* Responsive Styling */
 @media (max-width: 768px) {
