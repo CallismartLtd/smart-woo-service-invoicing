@@ -733,9 +733,13 @@ border-radius: 5px;
 }
 
 #smartwooNoticeDiv{
-	position:absolute;
-	z-index:1000;
-	width:80%;
+	position: sticky;
+	z-index: 1000;
+	width: 768px;
+	max-width: 90%;
+	left: 2px;
+	top: 170px;
+	margin: 0 auto;
 }
 
 
