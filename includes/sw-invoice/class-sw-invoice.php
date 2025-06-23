@@ -628,7 +628,7 @@ class SmartWoo_Invoice {
 	 */
 	public function get_totals() {
 		/**
-		 * Allows all items to be calculated added to the invoice total.
+		 * Filters the initial value of invoice totals before adding the core items in th calculation.
 		 * 
 		 * @param float $pre_total The total before any other items are added.
 		 * @param SmartWoo_Invoice $this The invoice object.
@@ -651,7 +651,7 @@ class SmartWoo_Invoice {
 		$total = $pre_total + $this_total;
 
 		/**
-		 * Filter the invoice total.
+		 * Filter the invoice total to be displayed.
 		 * 
 		 * @param float $total The total amount of the invoice.
 		 * @param SmartWoo_Invoice $this The invoice object.
@@ -709,6 +709,59 @@ class SmartWoo_Invoice {
 		 */
 		
 		return apply_filters( 'smartwoo_invoice_items_display', $items, $this );
+	}
+		
+	/**
+	 * Get invoice items for editing.
+	 * 
+	 * @return array $items An associative array of item_name => `array` $data.
+	 */
+	public function get_items_edit() {
+		/**
+		 * Prempt invoice items to be added to the editor, returning a not empty value will short circuit
+		 * the items displayed in the editor
+		 * 
+		 * @param array $value
+		 * @param SmartWoo_Invoice $this
+		 */
+		$items = apply_filters( 'smartwoo_prempt_invoice_items_edit', array(), $this );
+
+		if ( ! empty( $items ) ) {
+			return $items;
+		}
+		// The core items in the invoice are product and fee.
+		// We add a product if it exists.
+		if ( $product = $this->get_product() ) {
+			$items[ $product->get_name() ] = array(
+				'quantity'	=> $this->get_meta( 'product_quantity', 1 ),
+				'price'		=> $this->get_amount(),
+				'total'		=> $this->get_amount() * $this->get_meta( 'product_quantity', 1 ),
+				'id'		=> '',
+				'name'		=> 'product_id',
+				'type'		=> 'product',
+			);
+		}
+
+		// We add a fee if it exists.
+		if ( $this->get_fee() !== floatval( 0 ) ) {
+			$items[__( 'Fee', 'smart-woo-service-invoicing')] = array(
+				'quantity'	=> $this->get_meta( 'fee_quantity', 1 ),
+				'price'		=> $this->get_fee(),
+				'total'		=> $this->get_fee() * $this->get_meta( 'fee_quantity', 1 ),
+				'name'		=> 'fee',
+				'id'		=> 'fee',
+				'type'		=> 'fee',
+			);
+		}
+
+		/**
+		 * Filters the items added to the invoice editor.
+		 * 
+		 * @param array $items An associative array of item_name => `array` $data.
+		 * @param SmartWoo_Invoice $this The invoice object.
+		 */
+		
+		return apply_filters( 'smartwoo_invoice_items_edit', $items, $this );
 	}
 
 	/**
