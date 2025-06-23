@@ -102,7 +102,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
                             <p class="smartwoo-select-2">
                                 <label for="upsell_ids">Upsells:</label>
                                 <select class="wc-product-search" multiple="multiple" id="upsell_ids" name="upsell_ids[]" data-sortable="true" data-placeholder="<?php esc_attr_e( 'Search for a product&hellip;', 'smart-woo-service-invoicing' ); ?>" data-action="smartwoo_json_search_sw_products" data-exclude=""> 
-                                </select>                            </p>
+                                </select>
+                            </p>
                             <p class="smartwoo-select-2">
                                 <label for="cross_sell_ids">Cross-sells:</label>
                                 <select class="wc-product-search" multiple="multiple" id="cross_sell_ids" name="cross_sell_ids[]" data-sortable="true" data-placeholder="<?php esc_attr_e( 'Search for a product&hellip;', 'smart-woo-service-invoicing' ); ?>" data-action="smartwoo_json_search_sw_products" data-exclude="">
