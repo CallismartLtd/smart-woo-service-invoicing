@@ -145,7 +145,7 @@ class SmartWoo_Order {
         $self->service_url              = $self->order_item->get_meta( '_smartwoo_service_url' );
         $self->date_created             = $self->order->get_date_created();
         $self->date_paid                = $self->order->get_date_paid();
-        $self->billing_cycle            = is_a( $self->order_item->get_product(), 'SmartWoo_Product' ) ? $self->order_item->get_product()->get_billing_cycle() : '';
+        $self->billing_cycle            = is_a( $self->order_item->get_product(), SmartWoo_Product::class ) ? $self->order_item->get_product()->get_billing_cycle() : '';
         $self->user                     = new WC_Customer( $self->order->get_user_id() );
     }
 
@@ -533,7 +533,7 @@ class SmartWoo_Order {
         $parent = wc_get_order( $this->get_order_id() );
         $has_pending_item = false;
         foreach( $parent->get_items() as $item ) {
-            if ( ! is_a( $item->get_product(), 'SmartWoo_Product' ) ) {
+            if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
                 continue;
             }
 
