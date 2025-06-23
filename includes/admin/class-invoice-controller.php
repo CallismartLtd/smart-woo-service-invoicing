@@ -556,7 +556,7 @@ class SmartWoo_Invoice_Controller {
 		if ( empty( $product_id ) && ! SmartWoo::pro_is_installed() ) {
 			$errors[] = 'Add a product to the invoice.';
 			$product = wc_get_product( $product_id );
-			if ( ! $product || ! is_a( $product, 'SmartWoo_Product') ) {
+			if ( ! $product || ! is_a( $product, SmartWoo_Product::class) ) {
 				$errors[] = 'The selected product does not exist.';
 			}
 		}
