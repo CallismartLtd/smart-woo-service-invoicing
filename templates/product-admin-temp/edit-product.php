@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 <div class="smart-woo-product-form-page">
     <h2>Edit service subscription product</h2>
-    <?php if ( ! $product || ! is_a( $product, 'SmartWoo_Product' ) ): ?>
+    <?php if ( ! $product || ! is_a( $product, SmartWoo_Product::class ) ): ?>
         <?php echo wp_kses_post( smartwoo_error_notice( 'You are trying to edit a product that doesn\'t exist, maybe it has been deleted' ) ); return; ?>
 
     <?php endif; ?>
