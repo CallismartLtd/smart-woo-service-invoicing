@@ -42,7 +42,7 @@ class SmartWoo_Checkout {
      */
     public static function create_order_line_item( $item, $cart_item_key, $values, $order ) {
         $product = isset( $values['data'] ) ? $values['data'] : null;
-        if ( ! $product || ! is_a( $product, 'SmartWoo_Product' ) )  {
+        if ( ! $product || ! is_a( $product, SmartWoo_Product::class ) )  {
             return;
         }
         
@@ -80,7 +80,7 @@ class SmartWoo_Checkout {
 		 */
 		foreach ( $order_items as $item_id => $item ) {
 			// Handles smart woo products only.
-			if ( ! $item->get_product() || ! is_a( $item->get_product(), 'SmartWoo_Product' )) {
+			if ( ! $item->get_product() || ! is_a( $item->get_product(), SmartWoo_Product::class )) {
 				$index++;
 				continue;
 			}
