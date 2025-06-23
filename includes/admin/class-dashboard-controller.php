@@ -439,6 +439,7 @@ class SmartWoo_Dashboard_Controller {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'You do not have the required permission to process a new service order.' ), 401 );
 		}
+		add_filter( 'smartwoo_is_frontend', '__return_false' );
 		$errors		= self::instance()->check_errors();
 		$order_id	= isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
 		$order		= SmartWoo_Order::get_order( $order_id );
