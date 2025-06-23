@@ -534,7 +534,7 @@ function smartwoo_count_unprocessed_orders() {
 			}
 			
 			foreach ( $order->get_items() as $item ) {
-				if ( ! is_a( $item->get_product(), 'SmartWoo_Product' ) ) {
+				if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
 					continue;
 				}
 
