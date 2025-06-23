@@ -111,9 +111,10 @@ class SmartWoo_Invoice_Controller {
 		}
 		
 		SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $menu_tabs, 'tab' );
-		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		
 		switch ( $tab ) {
 			case 'add-new-invoice':
+				$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
 				wp_enqueue_script( 'smartwoo-jquery-timepicker' );
 				include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
 				break;
@@ -298,8 +299,9 @@ class SmartWoo_Invoice_Controller {
 		$invoice_id	= smartwoo_get_query_param( 'invoice_id' );
 		$invoice	= SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 		$selected	= $invoice ? $invoice->get_user_id() . '|' . $invoice->get_user()->get_email() : '';
-		
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
 		if ( $invoice ) {
+			$invoice_items = $invoice->get_items_edit();
 
 			if ( ! in_array( $invoice->get_type(), smartwoo_supported_invoice_types() ) ) {
 				add_filter( 'smartwoo_supported_invoice_types', function( $types ) use ( $invoice ){
@@ -308,7 +310,6 @@ class SmartWoo_Invoice_Controller {
 					return $types;
 				});
 			}
-
 
 			if ( $invoice->is_guest_invoice() ) {
 				$selected = -1 . '|' . $invoice->get_billing_email();
@@ -418,6 +419,7 @@ class SmartWoo_Invoice_Controller {
 		$invoice->set_user_id( $args['user_id'] );
 		$invoice->set_service_id( $args['service_id'] );
 		$invoice->set_fee( $args['fee'] );
+		$invoice->set_payment_method( $args['payment_method'] );
 
 		if ( $is_guest_invoice ) {
 			$guest_data = self::instance()->get_posted_guest_data();
@@ -627,7 +629,7 @@ class SmartWoo_Invoice_Controller {
 	}
 
     /**
-     * Ajax callback for order table actions
+     * Ajax callback for invoice table actions
      * 
      * @param string $selected_action The selected action.
      * @param mixed $data The data to be processed.
