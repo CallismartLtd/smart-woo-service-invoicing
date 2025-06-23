@@ -70,9 +70,9 @@ class SmartWoo_Config{
     public function run_hooks() {
         if ( class_exists( WP_CONSENT_API::class ) ) {
             add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );
-            add_action( 'wp_consent_api_consent_changed', array( __CLASS__, 'revoke_tracking' ) );
-                      
+            add_action( 'wp_consent_api_consent_changed', array( __CLASS__, 'revoke_tracking' ) ); 
         }
+
         add_action( 'admin_init', array( $this, 'woocommerce_dependency_nag' ) );
         add_action( 'before_woocommerce_init', array( $this, 'woocommerce_custom_order_compatibility' ) );
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'remove_order_again_button' ) );
@@ -602,8 +602,17 @@ class SmartWoo_Config{
         }
 
         return '';
-
     }
+
+    /**
+     * Determine whether we are on any of our admin page
+     * 
+     * @return bool
+     */
+    public static function in_admin_page() {
+        return ! empty( self::get_current_screen() );
+    }
+
     /**
      * Register post states for specific pages.
      *
