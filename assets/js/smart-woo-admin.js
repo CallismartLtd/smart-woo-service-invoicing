@@ -599,59 +599,40 @@ function smartwooDeleteInvoice(invoiceId) {
 /**
  * Handles pro button actions
  */
-function smartwooProBntAction(action_name) {
-    let spinner = smartWooAddSpinner('sw-loader');
-    jQuery.ajax({
-        type: 'GET',
-        url: smart_woo_vars.ajax_url,
-        data: {
-            action: 'smartwoo_pro_button_action',
-            security: smart_woo_vars.security,
-            real_action: action_name
-        },
-
-        success: (response)=>{
-            if (response.success) {
-                let adDiv = document.querySelector('.sw-pro-sell-content');
-                adDiv.innerHTML = ''; // Clear existing content
-                
-                // Create and append the check icon
-                let checkIcon = document.createElement('span');
-                checkIcon.className = 'dashicons dashicons-yes-alt';
-                let respMessage = document.createElement('h2');
-                respMessage.textContent = response.data.message;
-                adDiv.append(checkIcon);
-                adDiv.append(respMessage);
-                
-                // Toggle the 'loaded' class every second
-                setInterval(() => checkIcon.classList.toggle('loaded'), 1000);
-                
-                // Fade out and remove the adDiv
-                setTimeout(() => {
-                    jQuery(adDiv.parentElement).fadeOut(() => adDiv.remove());
-                }, 3000);
-            } else {
-                showNotification(response.data.message, 3000);
-                window.location.reload();
-            }
-
-            
-        },
-
-        error: function(error) {
-            let message = 'Error fetching data: ';
-            if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
-                message += error.responseJSON.data.message;
-            } else if (error.responseText) {
-                message += error.responseText;
-            } else {
-                message += error;
-            }
-            console.error(message);
-        },
-        complete: ()=>{
-            smartWooRemoveSpinner(spinner);
+function smartwooProBntAction( action_name ) {
+    let adDiv = document.querySelector('.sw-pro-sell-content');
+    adDiv.innerHTML = '';
+    
+    // Create and append the check icon
+    let checkIcon = document.createElement('span');
+    checkIcon.className = 'dashicons dashicons-yes-alt';
+    let respMessage = document.createElement('h2');
+    respMessage.textContent = ( 'dismiss_fornow' === action_name ) ? 'Dismissed.' : 'Reminder has been set.';
+    adDiv.append(checkIcon);
+    adDiv.append(respMessage);
+    setInterval(() => checkIcon.classList.toggle('loaded'), 500 );
+    
+    // Fade out and remove the adDiv
+    setTimeout(() => {
+        jQuery(adDiv.parentElement).fadeOut(() => adDiv.remove());
+    }, 2000);
+    let url = new URL( smart_woo_vars.ajax_url );
+    url.searchParams.set( 'action', 'smartwoo_pro_button_action' );
+    url.searchParams.set( 'security', smart_woo_vars.security );
+    url.searchParams.set( 'real_action', action_name );
+    fetch( url )
+    .then( response =>{
+        if ( ! response.ok ) {
+            throw new Error( response.text() );
         }
+        return response.json();
+    }).then( data => {
+        if ( ! data.success ) {
+            window.location.reload();
+        }
+    }).catch( error =>{
+        showNotification( 'Error occured' );
+        window.location.reload();
     });
 }
 
@@ -2429,7 +2410,9 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
     });
 
     if (proDiv) {
-        jQuery(proDiv).fadeIn();
+        setTimeout( () =>{
+            jQuery(proDiv).fadeIn();
+        }, 5000 );
     }
 });
 
