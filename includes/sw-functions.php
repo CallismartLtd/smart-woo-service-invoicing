@@ -1489,3 +1489,19 @@ function smartwoo_get_query_param( $key, $default = '' ) {
 	}
 	return $default;
 }
+
+/**
+ * Render a help tooltip
+ * 
+ * @param string $message
+ * @param bool $echo Whether to echo or return.
+ */
+function smartwoo_help_tooltip( $message, $echo = true ) {
+	$helptab = '<span class="smartwoo-tooltip" data-title="'. esc_attr( $message ) . '">?</span>';
+
+	if ( $echo ) {
+		echo wp_kses_post( $helptab );
+	} else{
+		return $helptab;
+	}
+}
