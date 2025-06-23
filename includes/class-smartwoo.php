@@ -1700,7 +1700,7 @@ final class SmartWoo {
 
             if ( 'dismiss_fornow' === $value && $time + ( 7 * DAY_IN_SECONDS ) > time() ) {
                 $show_notification = false;
-            } elseif ( 'remind_later' === $value && $time + ( 3 * DAY_IN_SECONDS ) > time() ) {
+            } elseif ( 'remind_later' === $value && $time + (  DAY_IN_SECONDS ) > time() ) {
                 $show_notification = false;
             }
 
@@ -1716,8 +1716,8 @@ final class SmartWoo {
                 <p>Get 20% off the original price of Smart Woo Pro when you use the coupon code <strong>PROLAUNCH20</strong>.</p>
                 <p>Hurry now, this offer is only available during this launch period.</p>
                 <div class="sw-pro-sell-buttons">
-                    <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss for now</button>
-                    <button id="smartwoo-pro-remind-later" style="border: solid .5px blue;">Remind me later</button>
+                    <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss</button>
+                    <button id="smartwoo-pro-remind-later" style="border: solid .5px blue;">Remind later</button>
                     <button class="sw-upgrade-to-pro" style="border: solid .5px green;">Let's go</button>
                 </div>
                 <div id="sw-loader"></div>
@@ -1743,7 +1743,7 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => 'Invalid request.' ) );
 
         }
-        $message        = ( 'dismiss_fornow' === $action ) ? 'Dismissed for now' : 'Reminder has been set.';
+        $message        = ( 'dismiss_fornow' === $action ) ? 'Dismissed' : 'Reminder has been set.';
         $user_option    = ( 'dismiss_fornow' === $action ) ? 'dismiss_fornow' : 'remind_later';
         update_option( 'smartwoo_pro_sell_intrest', array( 'user_option' => $user_option, 'time' => time() ) );
 
