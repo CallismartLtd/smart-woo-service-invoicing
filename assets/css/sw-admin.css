@@ -288,7 +288,7 @@ body .sw-admin-dash-nav ul li a:focus {
 }
 
 .sw-admin-dash-body {
-    margin: 100px auto auto auto;
+    margin: auto;
     padding: 10px;
 }
 
@@ -301,7 +301,8 @@ body .sw-admin-dash-nav ul li a:focus {
     
 }
 .sw-dash-content {
-    flex: 1;
+    flex-shrink: 0;
+    flex-grow: 1;
     background-color: #ffffff;
     height: 150px;
     min-width: 250px;
@@ -1400,7 +1401,7 @@ body .sw-admin-dash-nav ul li a:focus {
     flex-direction: row;
     align-items: flex-start;
     margin: 10px;
-    gap : 30px;
+    gap : 20px;
     flex-wrap: wrap;
 }
 
