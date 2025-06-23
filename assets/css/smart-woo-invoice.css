@@ -470,9 +470,13 @@
 }
 
 .sw-invoice-editor-add-product-select {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
     width: 80%;
     margin: 10px;
 }
+
 .sw-invoice-editor-add-product-select select {
     width: 148px;
     border: solid 1px #dcdcde;
