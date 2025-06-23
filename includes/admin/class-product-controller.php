@@ -257,7 +257,7 @@ class SmartWoo_Product_Controller{
             wp_send_json_error( array( 'htmlContent' => smartwoo_error_notice( $product->get_error_message(), true ), 'message' => 'Invalid or deleted product.' ) ); 
         }
 
-        if (  is_a( $product, 'SmartWoo_Product' ) && $product->get_id() ) {
+        if (  is_a( $product, SmartWoo_Product::class ) && $product->get_id() ) {
             $html = '<div class="notice notice-info">
                 <p>Product has been created</p>
                 <p>View product <a href="' . esc_url( get_permalink( $product->get_id() ) ) . '" target="_blank">HERE</a></p>
