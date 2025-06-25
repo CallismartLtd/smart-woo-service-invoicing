@@ -85,18 +85,32 @@ class SmartWoo_Settings_Controller {
 	 */
 	private static function knowledge_base() {
 		$settings = array(
+			'smartwoo_business_name' => array(
+				'title'			=> 'Business name',
+				'description'	=> __( 'This is the business name that will be shown on invoice addresses and emails.', 'smart-woo-service-invoicing' ),
+				'missing'	=> empty( get_option( 'smartwoo_business_name' ) ),
+				'url'		=> admin_url( 'admin.php?sw-options&tab=business' )
+			),
+			
 			'smartwoo_invoice_page_id' => array(
 				'title'			=> 'Invoice Page',
-				'description'	=> __( 'The page where all invoices for a client is listed', 'smart-woo-service-invicing' ),
+				'description'	=> __( 'The page where all invoices for a client is listed.', 'smart-woo-service-invicing' ),
 				'missing'		=> empty( get_option( 'smartwoo_invoice_page_id' ) ),
 				'url'			=> admin_url( 'admin.php?page=sw-options&tab=invoicing' )
 			),
 
 			'smartwoo_service_page_id' => array(
 				'title'			=> 'Service subscription page',
-				'description'	=> __( 'The main client portal where all subscriptions for a client is listed', 'smart-woo-service-invoicing' ),
+				'description'	=> __( 'The main client portal where all subscriptions for a client is listed.', 'smart-woo-service-invoicing' ),
 				'missing'	=> empty( get_option( 'smartwoo_service_page_id' ) ),
 				'url'		=> admin_url( 'admin.php?page=sw-options&tab=business' )
+			),
+
+			'smartwoo_admin_phone_numbers' => array(
+				'title'			=> 'Business Phones',
+				'description'	=> __( 'These are the busines phone number(s) that will be shown on invoice addresses and emails.', 'smart-woo-service-invoicing' ),
+				'missing'		=> empty( get_option( 'smartwoo_business_name' ) ),
+				'url'			=> admin_url( 'admin.php?sw-options&tab=business' )
 			),
 
 			'smartwoo_invoice_id_prefix' => array(
@@ -112,23 +126,25 @@ class SmartWoo_Settings_Controller {
 				'missing'		=> empty( get_option( 'smartwoo_service_id_prefix' ) ),
 				'url'			=> admin_url( 'admin.php?sw-options&tab=business' )
 			),
-			'smartwoo_business_name' => array(
-				'title'			=> 'Business name',
-				'description'	=> __( 'This is the business name that will be used on invoice addresses and emails', 'smart-woo-service-invoicing' ),
-				'missing'	=> empty( get_option( 'smartwoo_business_name' ) ),
-				'url'		=> admin_url( 'admin.php?sw-options&tab=business' )
-			),
 		
 			'smartwoo_email_sender_name' => array(
 				'title'			=> 'Email sender name',
-				'description'	=> __( 'This is the name that will be used to send emails your clients', 'smart-woo-service-invoicing' ),
-				'missing'	=> empty( get_option( 'smartwoo_email_sender_name' ) ),
-				'url'		=> admin_url( 'admin.php?sw-options&tab=emails' )
+				'description'	=> __( 'This is the name that will be used to send emails to your clients.', 'smart-woo-service-invoicing' ),
+				'missing'		=> empty( get_option( 'smartwoo_email_sender_name' ) ),
+				'url'			=> admin_url( 'admin.php?sw-options&tab=emails' )
+			),
+
+
+			'smartwoo_billing_email' => array(
+				'title'			=> 'Billing Email',
+				'description'	=> __( 'This is the email address that will be used to send all subscription and invoice related emails.', 'smart-woo-service-invoicing' ),
+				'missing'		=> empty( get_option( 'smartwoo_billing_email' ) ),
+				'url'			=> admin_url( 'admin.php?sw-options&tab=emails' )
 			),
 
 			'smartwoo_email_image_header' => array(
 				'title'			=> 'Email header image',
-				'description'	=> __( 'This is the image used in email template header', 'smart-woo-service-invoicing' ),
+				'description'	=> __( 'This is the image used in email template header.', 'smart-woo-service-invoicing' ),
 				'missing'	=> empty( get_option( 'smartwoo_email_image_header' ) ),
 				'url'		=> admin_url( 'admin.php?sw-options&tab=emails' )
 			),
@@ -136,8 +152,8 @@ class SmartWoo_Settings_Controller {
 			'smartwoo_product_text_on_shop' => array(
 				'title'			=> 'Product add to cart text',
 				'description'	=> __( 'The "add to cart text" for all subscription products', 'smart-woo-service-invoicing' ),				
-				'missing'	=> empty( get_option( 'smartwoo_product_text_on_shop' ) ),
-				'url'		=> admin_url( 'admin.php?sw-options&tab=advanced' )
+				'missing'		=> empty( get_option( 'smartwoo_product_text_on_shop' ) ),
+				'url'			=> admin_url( 'admin.php?sw-options&tab=advanced' )
 			),
 		
 		);
