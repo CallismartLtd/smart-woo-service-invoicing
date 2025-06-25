@@ -68,6 +68,12 @@ class SmartWoo_Config{
      * @since 1.0.52 Added support for WP_Consent API.
      */
     public function run_hooks() {
+        if ( get_option( 'smartwoo_activated', false ) && is_admin() && current_user_can( 'install_plugins' ) ) {
+            delete_option( 'smartwoo_activated' );
+            wp_safe_redirect( admin_url( 'admin.php?page=sw-options' ) );
+            exit;
+        }
+        
         if ( class_exists( WP_CONSENT_API::class ) ) {
             add_filter( 'wp_consent_api_registered_' . SMARTWOO_PLUGIN_BASENAME, '__return_true' );
             add_action( 'wp_consent_api_consent_changed', array( __CLASS__, 'revoke_tracking' ) ); 
@@ -187,6 +193,7 @@ class SmartWoo_Config{
             require_once SMARTWOO_PATH . 'includes/admin/class-product-controller.php';
             require_once SMARTWOO_PATH . 'includes/admin/class-settings-controller.php';
             require_once SMARTWOO_PATH . 'includes/class-sw-db-update.php';
+            require_once SMARTWOO_PATH . 'includes/class-setup-wizard.php';
             
         }
 
