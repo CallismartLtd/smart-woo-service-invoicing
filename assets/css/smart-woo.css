@@ -497,14 +497,15 @@ border-radius: 5px;
 	padding: 10px;
 }
 
-.sw-left-column {
+.sw-knowledgebase-left-column {
 	background-color: #fff;
 	border-radius: 9px;
-	padding: 20px;
+	padding: 10px;
 	width: 20%;
 	box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+	height: 400px;
 }
-.sw-right-column {
+.sw-knowledgebase-right-column {
 	background-color: #fff;
 	border-radius: 9px;
 	padding: 20px;
@@ -513,20 +514,24 @@ border-radius: 5px;
 
 }
 
-.sw-right-column .image-section {
+/* .sw-right-column .image-section {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-}
-.sw-left-column ul {
+} */
+.sw-knowledgebase-left-column ul {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
 	list-style: none;
 	padding: 0;
 	margin: 0;
+	height: 100%;
 }
 
-.sw-left-column li {
-	margin: 40px;
+.sw-knowledgebase-left-column li {
+	margin: 10px;
 	text-align: center;
 
 }
@@ -535,7 +540,7 @@ border-radius: 5px;
 	display: none;
 }
 
-.settings-nav{
+.smartwoo-knowledgebase-nav{
 	display: inline-block;
 	text-decoration: none;
 	border-radius: 5px;
@@ -546,21 +551,26 @@ border-radius: 5px;
 	padding: 10px;
 	font-size: 14px;
 	font-weight: bold;
+	transition: all .5s ease-in-out;
 }
-.settings-nav:hover{
-	color: #fafafa
+.smartwoo-knowledgebase-nav:hover{
+	color: #fafafa;
+	box-shadow: 0 3px 10px rgba(248, 7, 7, 0.959);
 }
-.settings-nav:focus{
+.smartwoo-knowledgebase-nav.active{
 	color: #fafafa;
 	box-shadow: 0 10px 10px rgba(248, 7, 7, 0.959);
 
 }
 
-
-
-/************************************************************************************/
-/**************************CSS for admin pages ends here*****************************/
-/************************************************************************************/
+.sw-knowledgebase-notice {
+	background-color: #FF0000;
+	color: #FFFFFF; 
+	font-weight: 700;
+	padding: 8px;
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 10px 4px rgba(0, 0, 0, 0.5);
+}
 
 /************************************************************************************/
 /**************************FrontEnd  CSS Starts here **********************************/
