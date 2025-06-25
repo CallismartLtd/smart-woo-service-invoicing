@@ -50,7 +50,7 @@ class SmartWoo_Settings_Controller {
 	 */
 	private static function print_header() {
 		$tabs = array(
-			'Knowledge Base'	=> array(
+			'General'	=> array(
 				'href'		=> admin_url( 'admin.php?page=sw-options' ),
 				'active'	=> ''
 			),
@@ -84,6 +84,73 @@ class SmartWoo_Settings_Controller {
 	 * Smart Woo knowledge base page where users can find a brief but detailed guide on how to use the plugin.
 	 */
 	private static function knowledge_base() {
+		$settings = array(
+			'smartwoo_invoice_page_id' => array(
+				'title'			=> 'Invoice Page',
+				'description'	=> __( 'The page where all invoices for a client is listed', 'smart-woo-service-invicing' ),
+				'missing'		=> empty( get_option( 'smartwoo_invoice_page_id' ) ),
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=invoicing' )
+			),
+
+			'smartwoo_service_page_id' => array(
+				'title'			=> 'Service subscription page',
+				'description'	=> __( 'The main client portal where all subscriptions for a client is listed', 'smart-woo-service-invoicing' ),
+				'missing'	=> empty( get_option( 'smartwoo_service_page_id' ) ),
+				'url'		=> admin_url( 'admin.php?page=sw-options&tab=business' )
+			),
+
+			'smartwoo_invoice_id_prefix' => array(
+				'title'			=> 'Invoice ID prefix',
+				'description'	=> __( 'This is the character(s) that will be placed before all invoice IDs', 'smart-woo-service-invoicing' ),
+				'missing'		=> empty( get_option( 'smartwoo_invoice_id_prefix' ) ),
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=invoicing' )
+			),
+
+			'smartwoo_service_id_prefix' => array(
+				'title'			=> 'Service ID prefix',
+				'description'	=> __( 'This is the character(s) that will be placed before all service subscription IDs', 'smart-woo-service-invoicing' ),
+				'missing'		=> empty( get_option( 'smartwoo_service_id_prefix' ) ),
+				'url'			=> admin_url( 'admin.php?sw-options&tab=business' )
+			),
+			'smartwoo_business_name' => array(
+				'title'			=> 'Business name',
+				'description'	=> __( 'This is the business name that will be used on invoice addresses and emails', 'smart-woo-service-invoicing' ),
+				'missing'	=> empty( get_option( 'smartwoo_business_name' ) ),
+				'url'		=> admin_url( 'admin.php?sw-options&tab=business' )
+			),
+		
+			'smartwoo_email_sender_name' => array(
+				'title'			=> 'Email sender name',
+				'description'	=> __( 'This is the name that will be used to send emails your clients', 'smart-woo-service-invoicing' ),
+				'missing'	=> empty( get_option( 'smartwoo_email_sender_name' ) ),
+				'url'		=> admin_url( 'admin.php?sw-options&tab=emails' )
+			),
+
+			'smartwoo_email_image_header' => array(
+				'title'			=> 'Email header image',
+				'description'	=> __( 'This is the image used in email template header', 'smart-woo-service-invoicing' ),
+				'missing'	=> empty( get_option( 'smartwoo_email_image_header' ) ),
+				'url'		=> admin_url( 'admin.php?sw-options&tab=emails' )
+			),
+			
+			'smartwoo_product_text_on_shop' => array(
+				'title'			=> 'Product add to cart text',
+				'description'	=> __( 'The "add to cart text" for all subscription products', 'smart-woo-service-invoicing' ),				
+				'missing'	=> empty( get_option( 'smartwoo_product_text_on_shop' ) ),
+				'url'		=> admin_url( 'admin.php?sw-options&tab=advanced' )
+			),
+		
+		);
+
+		$missing_settings = array();
+		foreach ( $settings as $id => $data ) {
+			if ( ! $data['missing'] ) {
+				continue;
+			}
+
+			$missing_settings[$id] = $data;
+		}
+
 
 		include_once SMARTWOO_PATH . 'templates/settings/knowledge-base.php';
 	}
@@ -424,68 +491,3 @@ class SmartWoo_Settings_Controller {
 	}
 
 }
-
-
-/**
- * Admin Settings Main page
- */
-function smartwoo_options_main_page() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-
-	?>
-	<div class="wrap">
-		<h2>Smart Woo Settings and Knowledgebase</h2>
-
-		<div class="sw-container">
-			<div class="sw-left-column">
-				<h3>Quick Set-up Guides</h3>
-				<ul>
-					<li><a class="settings-nav" href="#general-concept">General</a></li>
-					<li><a class="settings-nav" href="#step1">Step 1</a></li>
-					<li><a class="settings-nav" href="#step2">Step 2</a></li>
-					<li><a class="settings-nav" href="#step3">Step 3</a></li>
-				</ul>
-			</div>
-
-			<div class="sw-right-column">
-				<div id="first-display" class="image-section">
-					<h3> Smart Woo Service Invoicing</h3>
-					<img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;">
-					<p>Here you will find useful information to get you started.</p>
-			    </div>
-			
-				<div id="general-concept" class="instruction">
-					<h3>Introduction</h3>
-					<p><strong>Smart Woo Service Invoicing integrates powerful service subscription capabilities into your website. This includes automatic invoice creation for services that are due, prompt reminders, and a host of other interesting features.</strong></p>
-					<p>To get started, there are basically three steps needed to get your subscriptions up and running.</p>
-				</div>
-
-
-				<div id="step1" class="instruction">
-				<h3>Basic Set-up</h3>
-					<p><strong>Set up your business details on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=business' ) ); ?>" target="_blank">business settings page</a>, and invoicing preferences on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=invoicing' ) ); ?>" target="_blank">invoicing settings page</a>.</strong></p>
-					<p>You may need to create two dedicated pages to allow your clients to fully manage their services and invoices. Usually, these pages should be automatically created for you during installation. If not, create them manually and ensure that each page contains the following shortcodes: <strong>[smartwoo_service_page]</strong> for the service page and <strong>[smartwoo_invoice_page]</strong> for the invoice page.</p>
-				</div>
-
-
-				<div id="step2" class="instruction">
-					<h3>Create Product</h3>
-					<p><strong>Create a <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&action=add-new' ) ); ?>" target="_blank">Service Product</a> specifically dedicated to service subscriptions, and set up the necessary fields.</strong></p>
-					<p>Create and publish your services as products. When a client purchases your service, an invoice will be automatically created for them. You'll also have options to manage and set up the subscription for them.</p>
-				</div>
-
-				<div id="step3" class="instruction">
-					<h3>All Done 🎉🎉</h3>
-					<p><strong>Your service product is now listed on the WooCommerce product page. You can view all service orders <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>">here</a> and process them as needed.</strong></p>
-					<?php 	echo wp_kses_post( smartwoo_pro_feature() ); ?>
-				</div>
-
-			</div>
-		</div>
-	</div>
-	<?php
-}
-
-
