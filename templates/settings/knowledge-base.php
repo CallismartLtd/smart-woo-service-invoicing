@@ -9,33 +9,59 @@
 defined( 'ABSPATH' ) || exit; ?>
 
 <div class="wrap">
-	<h2>Smart Woo Settings and Knowledgebase</h2>
+	<h2><?php _e( 'General Settings and Knowledge Base', 'smart-woo-service-invoicing' ); ?></h2>
 
-	<div class="sw-container">
-		<div class="sw-left-column">
-			<h3>Quick Set-up Guides</h3>
+	<div class="sw-container smartwoo-admin-knowledgebase">
+		<div class="sw-knowledgebase-left-column">
 			<ul>
-				<li><a class="settings-nav" href="#general-concept">General</a></li>
-				<li><a class="settings-nav" href="#step1">Step 1</a></li>
-				<li><a class="settings-nav" href="#step2">Step 2</a></li>
-				<li><a class="settings-nav" href="#step3">Step 3</a></li>
+				<li><a class="smartwoo-knowledgebase-nav active" href=""><?php _e( 'General', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Introduction', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Step 1', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Step 2', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Step 3', 'smart-woo-service-invoicing' ); ?></a></li>
 			</ul>
 		</div>
 
-		<div class="sw-right-column">
-			<div id="first-display" class="image-section">
-				<h3> Smart Woo Service Invoicing</h3>
-				<img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/smart-woo-img.png' ); ?>" alt="plugin screenshot" style="width: 50%;">
-				<p>Here you will find useful information to get you started.</p>
+		<div class="sw-knowledgebase-right-column">
+			<div class="sw-knowledgebase-content">
+				<h3><?php _e( 'General Settings', 'smart-woo-service-invoicing' ); ?></h3>
+				<?php if ( empty( $missing_settings ) ) : ?>
+					<p><span class="dashicons dashicons-info"></span> <?php _e( 'Congratulations, all essential options has been set', 'smart-woo-service-invoicing' ); ?></p>
+				<?php else: ?>
+					<em class="sw-knowledgebase-notice"><span class="dashicons dashicons-warning"></span> You have <code><?php echo absint( count( $missing_settings ) ); ?></code> essential option<?php echo esc_html( count( $missing_settings ) > 1 ? 's' : '' ); ?> that needs to be set.</em>
+					<h3><?php _e( 'Options', 'smart-woo-service-invoicing' ); ?>:</h3>
+					<table class="sw-table">
+						<thead>
+							<tr>
+								<th><?php _e( 'Option Name', 'smart-woo-service-invoicing' ); ?></th>
+								<th><?php _e( 'Decription', 'smart-woo-service-invoicing' ); ?></th>
+								<th><?php _e( 'Action', 'smart-woo-service-invoicing' ); ?></th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach( $missing_settings as $id => $data ) : ?>
+								<tr>
+									<td><?php echo esc_html( $data['title'] ); ?></td>
+									<td><?php echo esc_html( $data['description'] ); ?></td>
+									<td><a href="<?php echo esc_url( $data['url'] ); ?>" class="button"><?php esc_html_e( 'Set', 'smart-woo-service-invoicing' ); ?></a></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
+				<h3><?php _e( 'Getting started?', 'smart-woo-service-invoicing' ); ?></h3>
+				<p><?php _e( 'Use the tabs on the left to find the three easy steps to get started.', 'smart-woo-service-invoicing' ); ?></p>
 			</div>
 
-			<div id="general-concept" class="instruction">
-				<h3>Introduction</h3>
-				<p><strong>Smart Woo Service Invoicing integrates powerful service subscription capabilities into your WooCommerce store. It enables you to define service-based products, auto-generate invoices, send timely reminders, and track payments effortlessly.</strong></p>
-				<p>To get started, there are basically three steps needed to get your subscriptions up and running.</p>
+			<div id="general-concept" class="sw-knowledgebase-content smartwoo-hide">
+				<h3><?php _e( 'Introduction', 'smart-woo-service-invoicing' ); ?></h3>
+				<p><?php _e( 'Smart Woo Service Invoicing is powerful subscription plugin that turns your WordPress/WooCommerce website into an advanced billing engine.', 'smart-woo-service-invoicing' ); ?></p>
+				<p><?php _e( 'This plugin has a modern client portal, advanced billing system, subscription modelling with assets, invoice, tracking, logs e.t.c', 'smart-woo-service-invoicing' ); ?></p>
+				<p><?php _e( 'To get started, there are basically three steps needed to get your subscriptions up and running.', 'smart-woo-service-invoicing' ); ?></p>
 			</div>
 
-			<div id="step1" class="instruction">
+			<div id="step1" class="sw-knowledgebase-content smartwoo-hide">
 				<h3>Step 1: Set up Your Business Info</h3>
 				<p><strong>Set up your business details on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=business' ) ); ?>" target="_blank">business settings page</a>, and configure invoicing preferences on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-options&tab=invoicing' ) ); ?>" target="_blank">invoicing settings page</a>.</strong></p>
 				<p>You may need to create two dedicated pages to allow your clients to fully manage their services and invoices. Usually, these pages are automatically created during installation. If not, create them manually and insert the following shortcodes:
@@ -46,16 +72,16 @@ defined( 'ABSPATH' ) || exit; ?>
 				</p>
 			</div>
 
-			<div id="step2" class="instruction">
+			<div id="step2" class="sw-knowledgebase-content smartwoo-hide">
 				<h3>Step 2: Create a Service Product</h3>
 				<p><strong>Create a <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&action=add-new' ) ); ?>" target="_blank">Service Product</a> specifically dedicated to service subscriptions, and configure the necessary service fields.</strong></p>
 				<p>Think of this product as a subscription unit. Once published, clients will be able to order it like a regular WooCommerce product. Behind the scenes, Smart Woo handles subscription setup, recurring invoicing, and usage tracking.</p>
 			</div>
 
-			<div id="step3" class="instruction">
+			<div id="step3" class="sw-knowledgebase-content smartwoo-hide">
 				<h3>Step 3: All Set 🎉</h3>
 				<p><strong>Your service product is now live. Customers can order it directly from your store, and Smart Woo will handle everything — create invoices, set up reminders, and track usage.</strong></p>
-				<p>You can view and manage all your service orders from <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>">Service Orders</a> in the admin dashboard.</p>
+				<p>You can view and manage all your service orders from <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>" target="_blank">Service Orders</a> in the admin dashboard.</p>
 				<p>Need a complete usage guide? <a href="https://callismart.com.ng/smart-woo-usage-guide/" target="_blank">Click here to view the full documentation</a>.</p>
 				<?php echo wp_kses_post( smartwoo_pro_feature() ); ?>
 			</div>
