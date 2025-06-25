@@ -1287,6 +1287,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let resetFastCheckoutBtn    = document.getElementById( 'resetFastCheckoutOptions' );
     let adminAutoRenewBtn       = document.querySelector( '#auto-renew-btn' );
     let smartwooProductDropdown = document.querySelector( '#service_products' );
+    let smartwooKnowledgeBase   = document.querySelector( '.smartwoo-admin-knowledgebase' );
 
     /**
      * The assets is downloadable checkbox.
@@ -2379,6 +2380,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
         })
+    }
+
+    if ( smartwooKnowledgeBase ) {
+        let navButtons  = smartwooKnowledgeBase.querySelectorAll( '.smartwoo-knowledgebase-nav' );
+        let allContents = document.querySelectorAll( '.sw-knowledgebase-content' );
+
+        let closeAll = () => {
+            allContents.forEach( content =>{
+                if ( ! content.classList.contains( 'smartwoo-hide' ) ) {
+                    content.classList.add( 'smartwoo-hide' );
+                }
+            });
+
+            navButtons.forEach( button =>{
+                if ( button.classList.contains( 'active' ) ) {
+                    button.classList.remove( 'active' );
+                }
+            });
+        }
+
+        navButtons.forEach( ( button, index ) =>{
+            button.addEventListener( 'click', (e) =>{
+                e.preventDefault();
+                closeAll();
+                e.target.classList.add( 'active' );
+                allContents[index].classList.remove( 'smartwoo-hide' );
+            })
+        });
     }
     
 });
