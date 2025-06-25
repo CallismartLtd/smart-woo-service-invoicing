@@ -114,9 +114,7 @@ class SmartWoo_Install {
 		add_option( 'smartwoo_service_id_prefix', 'SmartWoo' );
 		add_option( 'smartwoo_business_name', get_bloginfo( 'name' ) );
 		add_option( 'smartwoo_email_sender_name', get_bloginfo( 'name' )  );
-		add_option( 'smartwoo_prorate', 0 );
 		add_option( 'smartwoo_email_image_header', SMARTWOO_DIR_URL . 'assets/images/smart-woo-img.png' );
-		add_option( 'smartwoo_allow_migration', 0 );
 		add_option( 'smartwoo_cancellation_mail_to_user', 1 );
 		add_option( 'smartwoo_service_opt_out_mail', 1 );
 		add_option( 'smartwoo_payment_reminder_to_client', 1 );
