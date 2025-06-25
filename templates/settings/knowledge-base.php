@@ -24,9 +24,9 @@ defined( 'ABSPATH' ) || exit; ?>
 
 		<div class="sw-knowledgebase-right-column">
 			<div class="sw-knowledgebase-content">
-				<h3><?php _e( 'General Settings', 'smart-woo-service-invoicing' ); ?></h3>
+				<h3><?php _e( 'General Settings', 'smart-woo-service-invoicing' ); ?>  <span style="float: right;"> <span class="dashicons dashicons-setup"></span> <a href="<?php echo esc_url( add_query_arg( array( 'action' => 'smartwoo_setup_wizard', 'return_url' => admin_url( 'admin.php?page=sw-options' ) ), admin_url( 'admin-post.php' )) ); ?>" class="button" target="_blank" rel="noopener noreferrer"><?php _e( 'Run Setup Wizard', 'smart-woo-service-invoicing' ); ?></a></span></h3>
 				<?php if ( empty( $missing_settings ) ) : ?>
-					<p><span class="dashicons dashicons-info"></span> <?php _e( 'Congratulations, all essential options has been set', 'smart-woo-service-invoicing' ); ?></p>
+					<p><span class="dashicons dashicons-yes-alt"></span> <?php _e( 'Congratulations, all essential options has been set', 'smart-woo-service-invoicing' ); ?></p>
 				<?php else: ?>
 					<em class="sw-knowledgebase-notice"><span class="dashicons dashicons-warning"></span> You have <code><?php echo absint( count( $missing_settings ) ); ?></code> essential option<?php echo esc_html( count( $missing_settings ) > 1 ? 's' : '' ); ?> that needs to be set.</em>
 					<h3><?php _e( 'Options', 'smart-woo-service-invoicing' ); ?>:</h3>
@@ -44,7 +44,7 @@ defined( 'ABSPATH' ) || exit; ?>
 								<tr>
 									<td><?php echo esc_html( $data['title'] ); ?></td>
 									<td><?php echo esc_html( $data['description'] ); ?></td>
-									<td><a href="<?php echo esc_url( $data['url'] ); ?>" class="button"><?php esc_html_e( 'Set', 'smart-woo-service-invoicing' ); ?></a></td>
+									<td><a href="<?php echo esc_url( $data['url'] ); ?>" class="button" target="_blank"><?php esc_html_e( 'Set', 'smart-woo-service-invoicing' ); ?></a></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>
