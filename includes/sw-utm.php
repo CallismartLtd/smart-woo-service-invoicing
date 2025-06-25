@@ -139,6 +139,7 @@ function smartwoo_support_our_work_container( $echo = true ) {
     if ( class_exists( 'SmartWooPro', false ) ) {
         // Message for Pro users
         $content .= '<p>Thank you for being such a wonderful partner! Your support enables us to sponsor the development of Smart Woo Service Invoicing, offer improved and modern invoice features, and make the free version useful for everyone.</p>';
+        $content .= '<p>We priotize your support request, please feel free to reach to us if you encounter any issues, we will ensure these issues are fixed as soon as possible!.</p>';
     } else {
         // Message for Free users
         $content .= '<p>Our team puts in a lot of effort, time, and resources to make Smart Woo Service Invoicing free for everyone. We will continue to improve, support, and maintain this plugin.</p>';
