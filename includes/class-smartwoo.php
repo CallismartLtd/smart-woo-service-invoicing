@@ -1684,50 +1684,53 @@ final class SmartWoo {
     }
 
     /**
-     * Sell smart woo pro with discounts.
+     * Sell Smart Woo Pro with 50% discount promo (no coupon required).
      */
     public static function sell_pro() {
         if ( self::pro_is_installed() ) {
             return;
         }
-        $user_options = get_option( 'smartwoo_pro_sell_intrest' );
+
         $show_notification = true;
+        $user_options      = get_option( 'smartwoo_pro_sell_intrest' );
 
         if ( is_array( $user_options ) ) {
+            $value = wp_unslash( $user_options['user_option'] );
+            $time  = intval( $user_options['time'] );
 
-            $value  = wp_unslash( $user_options['user_option'] );
-            $time   = intval( $user_options['time'] );
-
-            if ( 'dismiss_fornow' === $value && $time + ( 7 * DAY_IN_SECONDS ) > time() ) {
+            if ( 'dismiss_fornow' === $value && $time + ( 3 * DAY_IN_SECONDS ) > time() ) {
                 $show_notification = false;
-            } elseif ( 'remind_later' === $value && $time + (  DAY_IN_SECONDS ) > time() ) {
+            } elseif ( 'remind_later' === $value && $time + DAY_IN_SECONDS > time() ) {
                 $show_notification = false;
             }
-
         }
 
-        if ( ! $show_notification ) {
+        // Stop showing after July 5
+        $today = current_time( 'timestamp' );
+        $end   = strtotime( '2025-07-06 00:00:00' );
+
+        if ( $today >= $end || ! $show_notification ) {
             return;
         }
         ?>
-        <div class="sw-dash-pro-sell-bg">
-            <div class="sw-pro-sell-content">
-                <h2>Exciting Offer!</h2>
-                <p>Get 20% off the original price of Smart Woo Pro when you use the coupon code <strong>PROLAUNCH20</strong>.</p>
-                <p>Hurry now, this offer is only available during this launch period.</p>
-                <div class="sw-pro-sell-buttons">
-                    <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss</button>
-                    <button id="smartwoo-pro-remind-later" style="border: solid .5px blue;">Remind later</button>
-                    <button class="sw-upgrade-to-pro" style="border: solid .5px green;">Let's go</button>
-                </div>
-                <div id="sw-loader"></div>
-                
+            <div class="sw-dash-pro-sell-bg">
+                <div class="sw-pro-sell-content">
+                    <h2>🔥 Smart Woo Pro is now 50% Off</h2>
+                    <p>We’re running a special sales promo — from <strong>June 26 to July 5</strong>, you can get Smart Woo Pro at <strong>half the price</strong>.</p>
+                    <p>No coupon needed. Just upgrade and the discount is already applied.</p>
 
+                    <div class="sw-pro-sell-buttons">
+                        <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss</button>
+                        <button id="smartwoo-pro-remind-later" style="border: solid .5px blue;">Remind me later</button>
+                        <button class="sw-upgrade-to-pro" style="border: solid .5px green;">Upgrade Now</button>
+                    </div>
+
+                    <div id="sw-loader"></div>
+                </div>
             </div>
-        </div>
-        
         <?php
     }
+
 
     /**
      * Handle pro upsell button actions
