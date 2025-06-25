@@ -30,6 +30,7 @@ class SmartWoo_Install {
 		if ( self::is_installing() ) {
 			return;
 		}
+
 		self::installing();
 
 		if ( true === self::is_new_installation() ) {
@@ -43,6 +44,7 @@ class SmartWoo_Install {
 		}
 		self::rewrite_rule();
 		self::add_automations();
+		update_option( 'smartwoo_activated', true );
 	}
 
 	/** 
@@ -78,7 +80,7 @@ class SmartWoo_Install {
 			$query			= $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name );
 			$table_exists 	= $wpdb->get_var( $query );
 			// phpcs:enable
-			if (  $table_name !== $table_exists) {
+			if (  $table_name !== $table_exists ) {
 				self::create_tables();
 			}
 		}
@@ -86,7 +88,7 @@ class SmartWoo_Install {
 	
 	/** Declare current state */
 	protected static function installing() {
-		set_transient( '_smartwoo_is_installing', true, 10 );
+		set_transient( '_smartwoo_is_installing', true, 20 );
 		self::$installing = true;
 	}
 
@@ -228,9 +230,9 @@ class SmartWoo_Install {
 	 * @since 2.2.1
 	 */
 	public static function create_client_pages() {
-		$service_page_id = get_option( 'smartwoo_invoice_page_id', false );
-		$invoice_page_id = get_option( 'smartwoo_service_page_id', false );
-		$pages = compact( 'service_page_id', 'invoice_page_id' );
+		$service_page_id	= get_option( 'smartwoo_invoice_page_id', false );
+		$invoice_page_id	= get_option( 'smartwoo_service_page_id', false );
+		$pages				= compact( 'service_page_id', 'invoice_page_id' );
 
 		if ( ! $service_page_id ) {
 			$page_title = 'My Services';
