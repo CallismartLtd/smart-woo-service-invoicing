@@ -105,7 +105,7 @@ class SmartWoo_Admin_Menu {
 		$self->products_screen_id = add_submenu_page(
 			'sw-admin',
 			'Service Products',
-			'Service Products',
+			'Products',
 			'manage_options',
 			'sw-products',
 			array( 'SmartWoo_Product_Controller', 'menu_controller' )
@@ -166,8 +166,8 @@ class SmartWoo_Admin_Menu {
 
 		$screen->add_help_tab( 
 			array(
-				'id'	=> 'smartwoo_support',
-				'title'	=> __( 'Support Our Work', 'smart-woo-service-invoicing' ),
+				'id'	=> 'smartwoo_become_a_partner',
+				'title'	=> __( 'Become a partner', 'smart-woo-service-invoicing' ),
 				'callback' => 'smartwoo_support_our_work_container',
 			)
 		);
