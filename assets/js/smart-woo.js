@@ -58,41 +58,6 @@ function showNotification(message, duration = 1000) {
     }
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-        var topics = document.querySelectorAll(".sw-left-column a");
-        var image = document.getElementById("first-display");
-
-        topics.forEach(
-            function (topic) {
-                topic.addEventListener(
-                    "click",
-                    function (event) {
-                        event.preventDefault();
-                        var topicId = topic.getAttribute("href").substring(1);
-                        var instruction = document.getElementById(topicId);
-                        var allInstructions = document.querySelectorAll(".instruction");
-
-                        // Hide all instructions
-                        allInstructions.forEach(
-                            function (item) {
-                                item.style.display = "none";
-                            }
-                        );
-
-                        // Hide the image
-                        image.style.display = "none";
-
-                        // Display the target instruction
-                        instruction.style.display = "block";
-                    }
-                );
-            }
-        );
-    }
-);
-
 /**
  * Quick Action button on Service page
  */
