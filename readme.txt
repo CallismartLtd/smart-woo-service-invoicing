@@ -2,7 +2,7 @@
 Contributors: callismartltd  
 Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicing, automated billing plugin  
 Requires at least: 6.4
-Tested up to: 6.8.1
+Tested up to: 6.8
 Requires WooCommerce: 8.0  
 WooCommerce tested up to: 9.9.5
 Requires PHP: 7.4  
@@ -132,6 +132,18 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+
+= 2.4.1 - 2025-06-25 =
+
+**Introduced**
+    * New invoice editor: The invoice editor has been refactored to improve UX and seamless performance.
+
+**Improved**
+    * Onboarding process: Introduced new setup wizard to enhance user experience during first-time installation.
+
+**Fixed**
+    * Minor bug fixes and performance optimization.
+    
 = 2.4.0 - 2025-05-31 =
 
 **Fixed**

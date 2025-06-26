@@ -477,6 +477,7 @@ class SmartWoo_Dashboard_Controller {
 	public function check_errors() {
 		$errors	= array();
 		
+		// phpcs:disable -- Nonce checked
 		$user_data = isset( $_POST['sw_user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['sw_user_id'] ) ) : false;
 		if ( ! $user_data ) {
 			$error[] = 'Please select a user.';
@@ -545,7 +546,7 @@ class SmartWoo_Dashboard_Controller {
 		$this->form_fields['smartwoo_downloadable_assets']['is_external']					= isset( $_POST['is_external'] ) && 'yes' === $_POST['is_external'] ? 'yes' : 'no';
 		$this->form_fields['smartwoo_downloadable_assets']['asset_key']						= isset( $_POST['asset_key'] ) ? sanitize_text_field( wp_unslash( $_POST['asset_key'] ) ) : '';
 		$this->form_fields['smartwoo_downloadable_assets']['download_asset_type_id']		= isset( $_POST['download_asset_type_id'] ) ? absint( $_POST['download_asset_type_id'] ) : 0;
-		$this->form_fields['smartwoo_downloadable_assets']['download_limit']				= isset( $_POST['download_limit'] ) ? sanitize_text_field( wp_unslash( self::min_minus_1( $_POST['download_limit'] ) ) ) : -1;
+		$this->form_fields['smartwoo_downloadable_assets']['download_limit']				= isset( $_POST['download_limit'] ) ? self::min_minus_1( sanitize_text_field( wp_unslash( $_POST['download_limit'] ) ) ) : -1;
 	
 		$this->form_fields['additional_asset_types']["asset_type_ids"]		= isset( $_POST['asset_type_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['asset_type_ids'] ) ) : array();
 		$this->form_fields['additional_asset_types']["asset_type_names"]	= isset( $_POST['additional_asset_types'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['additional_asset_types'] ) ) : array(); // This are the real asset names, just like downloads.
@@ -557,6 +558,7 @@ class SmartWoo_Dashboard_Controller {
 	
 		return $errors;
 	
+		// phpcs:enable
 	}
 
 	/**
@@ -600,9 +602,9 @@ class SmartWoo_Dashboard_Controller {
 		$service->set_product_id( $form_fields['product_id'] );
 		$service->set_service_url( $form_fields['sw_service_url'] );
 		$service->set_type( $form_fields['sw_service_type'] );
-		$service->set_start_date( date( 'Y-m-d', strtotime( $form_fields['start_date'] ) ) );
-		$service->set_next_payment_date( date( 'Y-m-d', strtotime( $form_fields['next_payment_date'] ) ) );
-		$service->set_end_date( date( 'Y-m-d', strtotime( $form_fields['end_date'] ) ) );
+		$service->set_start_date( SmartWoo_Date_Helper::create_from( $form_fields['start_date'] )->format( 'Y-m-d' ) );
+		$service->set_next_payment_date( SmartWoo_Date_Helper::create_from( $form_fields['next_payment_date'] )->format( 'Y-m-d' ) );
+		$service->set_end_date( SmartWoo_Date_Helper::create_from( $form_fields['end_date'] )->format( 'Y-m-d' ) );
 		
 		$service->set_status( $form_fields['status'] );
 

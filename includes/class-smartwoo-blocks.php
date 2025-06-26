@@ -61,8 +61,6 @@ class SmartWoo_Blocks {
         foreach ( $this->blocks as $block ) {
             if ( file_exists( trailingslashit( $block ) . 'block.json' ) ) {
                 register_block_type( $block );
-            } else {
-                error_log( "SmartWoo: Missing block.json in $block" );
             }
         }
     }

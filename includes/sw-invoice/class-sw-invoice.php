@@ -941,7 +941,7 @@ class SmartWoo_Invoice {
 			return apply_filters( 'smartwoo_guest_invoice_access', true, $this );
 		}
 
-		return false;
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

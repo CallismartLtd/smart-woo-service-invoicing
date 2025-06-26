@@ -22,8 +22,8 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
         <table class="sw-table" style="box-shadow: none;border-radius: 0px; width: 100%">
             <thead >
                 <tr>
-                    <th><?php esc_html_e( 'Email Type', 'samrt-woo-service-invoicing' ); ?></th>
-                    <th><?php esc_html_e( 'Recipient(s)', 'samrt-woo-service-invoicing' ); ?></th>
+                    <th><?php esc_html_e( 'Email Type', 'smart-woo-service-invoicing' ); ?></th>
+                    <th><?php esc_html_e( 'Recipient(s)', 'smart-woo-service-invoicing' ); ?></th>
                     <th></th>
                 </tr>
             </thead>

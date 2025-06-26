@@ -1484,7 +1484,7 @@ function smartwoo_fast_checkout_options() {
  * @return string The value of the key from the query parameters or the default value.
  */
 function smartwoo_get_query_param( $key, $default = '' ) {
-	if ( isset( $_GET[ $key ] ) ) {
+	if ( isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 	return $default;

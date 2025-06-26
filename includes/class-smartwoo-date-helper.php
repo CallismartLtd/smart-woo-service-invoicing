@@ -52,7 +52,7 @@ class SmartWoo_Date_Helper {
         try {
             $parsed = new DateTimeImmutable( $date_string );
         } catch ( Exception $e ) {
-            throw new Exception( __( 'Invalid date string provided.', 'smart-woo-service-invoicing' ) );
+            throw new Exception( esc_html__( 'Invalid date string provided.', 'smart-woo-service-invoicing' ) );
         }
 
         // Always store in UTC internally.
@@ -81,7 +81,7 @@ class SmartWoo_Date_Helper {
      */
     public static function create_from_timestamp( $timestamp ) {
         if ( ! is_int( $timestamp ) && ! ctype_digit( $timestamp ) ) {
-            throw new Exception( __( 'Invalid timestamp provided.', 'smart-woo-service-invoicing' ) );
+            throw new Exception( esc_html__( 'Invalid timestamp provided.', 'smart-woo-service-invoicing' ) );
         }
 
         // Create DateTimeImmutable from timestamp in UTC
@@ -169,7 +169,8 @@ class SmartWoo_Date_Helper {
         $new_datetime = $this->datetime->modify( $interval_string );
 
         if ( ! $new_datetime ) {
-            throw new Exception( sprintf( __( 'Invalid interval string: %s', 'smart-woo-service-invoicing' ), $interval_string ) );
+            /* translators: %s Date interval string */
+            throw new Exception( sprintf( esc_html__( 'Invalid interval string: %s', 'smart-woo-service-invoicing' ), esc_html( $interval_string ) ) );
         }
 
         return new self( $new_datetime->format( DATE_ATOM ) );

@@ -122,10 +122,12 @@ class SmartWoo_Client_Portal {
 	 * Render login page
 	 */
 	private function login_page() {
+		global $wp;
+	
 		wp_enqueue_style( 'dashicons' );
 		$args =  array( 
 			'notice' => smartwoo_notice( 'Login to access this page.' ),
-			'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) )
+			'redirect' => site_url( $wp->request ?? '' )
 		);
 		include_once SMARTWOO_PATH . 'templates/login.php';
 	}

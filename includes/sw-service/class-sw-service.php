@@ -244,12 +244,7 @@ class SmartWoo_Service {
 	 * @param string $start_date Start date of the service.
 	 */
 	public function set_start_date( $start_date ) {
-		if ( ! empty( $start_date ) ) {
-			$this->start_date = date( 'Y-m-d', strtotime( sanitize_text_field( wp_unslash( $start_date ) ) ) );
-		} else {
-			$this->start_date = sanitize_text_field( wp_unslash( $start_date ) );
-
-		}
+		$this->start_date = sanitize_text_field( wp_unslash( $start_date ) );
 	}
 
 	public function setStartDate( $start_date ) {
@@ -262,12 +257,7 @@ class SmartWoo_Service {
 	 * @param string $end_date End date of the service.
 	 */
 	public function set_end_date( $end_date ) {
-		if ( ! empty( $end_date ) ) {
-			$this->end_date = date( 'Y-m-d', strtotime( sanitize_text_field( wp_unslash( $end_date ) ) ) );
-		} else {
-			$this->end_date = sanitize_text_field( wp_unslash( $end_date ) );
-
-		}
+		$this->end_date = sanitize_text_field( wp_unslash( $end_date ) );
 	}
 	public function setEndDate( $end_date ) {
 		$this->set_end_date( $end_date );
@@ -279,12 +269,7 @@ class SmartWoo_Service {
 	 * @param string $next_payment_date Date of the next payment for the service.
 	 */
 	public function set_next_payment_date( $next_payment_date ) {
-		if ( ! empty( $next_payment_date ) ) {
-			$this->next_payment_date = date( 'Y-m-d', strtotime( sanitize_text_field( wp_unslash( $next_payment_date ) ) ) );
-		} else {
-			$this->next_payment_date = sanitize_text_field( wp_unslash( $next_payment_date ) );
-
-		}
+		$this->next_payment_date = sanitize_text_field( wp_unslash( $next_payment_date ) );
 	}
 
 	public function setNextPaymentDate( $next_payment_date ) {

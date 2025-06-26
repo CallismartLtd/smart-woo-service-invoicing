@@ -9,33 +9,33 @@
 defined( 'ABSPATH' ) || exit; ?>
 
 <div class="wrap">
-	<h2><?php _e( 'General Settings and Knowledge Base', 'smart-woo-service-invoicing' ); ?></h2>
+	<h2><?php esc_html_e( 'General Settings and Knowledge Base', 'smart-woo-service-invoicing' ); ?></h2>
 
 	<div class="sw-container smartwoo-admin-knowledgebase">
 		<div class="sw-knowledgebase-left-column">
 			<ul>
-				<li><a class="smartwoo-knowledgebase-nav active" href=""><?php _e( 'General', 'smart-woo-service-invoicing' ); ?></a></li>
-				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Introduction', 'smart-woo-service-invoicing' ); ?></a></li>
-				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Step 1', 'smart-woo-service-invoicing' ); ?></a></li>
-				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Step 2', 'smart-woo-service-invoicing' ); ?></a></li>
-				<li><a class="smartwoo-knowledgebase-nav" href=""><?php _e( 'Step 3', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav active" href=""><?php esc_html_e( 'General', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php esc_html_e( 'Introduction', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php esc_html_e( 'Step 1', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php esc_html_e( 'Step 2', 'smart-woo-service-invoicing' ); ?></a></li>
+				<li><a class="smartwoo-knowledgebase-nav" href=""><?php esc_html_e( 'Step 3', 'smart-woo-service-invoicing' ); ?></a></li>
 			</ul>
 		</div>
 
 		<div class="sw-knowledgebase-right-column">
 			<div class="sw-knowledgebase-content">
-				<h3><?php _e( 'General Settings', 'smart-woo-service-invoicing' ); ?>  <span style="float: right;"> <span class="dashicons dashicons-setup"></span> <a href="<?php echo esc_url( add_query_arg( array( 'action' => 'smartwoo_setup_wizard', 'return_url' => admin_url( 'admin.php?page=sw-options' ) ), admin_url( 'admin-post.php' )) ); ?>" class="button" target="_blank" rel="noopener noreferrer"><?php _e( 'Run Setup Wizard', 'smart-woo-service-invoicing' ); ?></a></span></h3>
+				<h3><?php esc_html_e( 'General Settings', 'smart-woo-service-invoicing' ); ?>  <span style="float: right;"> <span class="dashicons dashicons-setup"></span> <a href="<?php echo esc_url( add_query_arg( array( 'action' => 'smartwoo_setup_wizard', 'return_url' => admin_url( 'admin.php?page=sw-options' ) ), admin_url( 'admin-post.php' )) ); ?>" class="button" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Run Setup Wizard', 'smart-woo-service-invoicing' ); ?></a></span></h3>
 				<?php if ( empty( $missing_settings ) ) : ?>
-					<p><span class="dashicons dashicons-yes-alt"></span> <?php _e( 'Congratulations, all essential options has been set', 'smart-woo-service-invoicing' ); ?></p>
+					<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Congratulations, all essential options has been set', 'smart-woo-service-invoicing' ); ?></p>
 				<?php else: ?>
 					<em class="sw-knowledgebase-notice"><span class="dashicons dashicons-warning"></span> You have <code><?php echo absint( count( $missing_settings ) ); ?></code> essential option<?php echo esc_html( count( $missing_settings ) > 1 ? 's' : '' ); ?> that needs to be set.</em>
-					<h3><?php _e( 'Options', 'smart-woo-service-invoicing' ); ?>:</h3>
+					<h3><?php esc_html_e( 'Options', 'smart-woo-service-invoicing' ); ?>:</h3>
 					<table class="sw-table">
 						<thead>
 							<tr>
-								<th><?php _e( 'Option Name', 'smart-woo-service-invoicing' ); ?></th>
-								<th><?php _e( 'Decription', 'smart-woo-service-invoicing' ); ?></th>
-								<th><?php _e( 'Action', 'smart-woo-service-invoicing' ); ?></th>
+								<th><?php esc_html_e( 'Option Name', 'smart-woo-service-invoicing' ); ?></th>
+								<th><?php esc_html_e( 'Decription', 'smart-woo-service-invoicing' ); ?></th>
+								<th><?php esc_html_e( 'Action', 'smart-woo-service-invoicing' ); ?></th>
 								
 							</tr>
 						</thead>
@@ -50,15 +50,15 @@ defined( 'ABSPATH' ) || exit; ?>
 						</tbody>
 					</table>
 				<?php endif; ?>
-				<h3><?php _e( 'Getting started?', 'smart-woo-service-invoicing' ); ?></h3>
-				<p><?php _e( 'Use the tabs on the left to find the three easy steps to get started.', 'smart-woo-service-invoicing' ); ?></p>
+				<h3><?php esc_html_e( 'Getting started?', 'smart-woo-service-invoicing' ); ?></h3>
+				<p><?php esc_html_e( 'Use the tabs on the left to find the three easy steps to get started.', 'smart-woo-service-invoicing' ); ?></p>
 			</div>
 
 			<div id="general-concept" class="sw-knowledgebase-content smartwoo-hide">
-				<h3><?php _e( 'Introduction', 'smart-woo-service-invoicing' ); ?></h3>
-				<p><?php _e( 'Smart Woo Service Invoicing is powerful subscription plugin that turns your WordPress/WooCommerce website into an advanced billing engine.', 'smart-woo-service-invoicing' ); ?></p>
-				<p><?php _e( 'This plugin has a modern client portal, advanced billing system, subscription modelling with assets, invoice, tracking, logs e.t.c', 'smart-woo-service-invoicing' ); ?></p>
-				<p><?php _e( 'To get started, there are basically three steps needed to get your subscriptions up and running.', 'smart-woo-service-invoicing' ); ?></p>
+				<h3><?php esc_html_e( 'Introduction', 'smart-woo-service-invoicing' ); ?></h3>
+				<p><?php esc_html_e( 'Smart Woo Service Invoicing is powerful subscription plugin that turns your WordPress/WooCommerce website into an advanced billing engine.', 'smart-woo-service-invoicing' ); ?></p>
+				<p><?php esc_html_e( 'This plugin has a modern client portal, advanced billing system, subscription modelling with assets, invoice, tracking, logs e.t.c', 'smart-woo-service-invoicing' ); ?></p>
+				<p><?php esc_html_e( 'To get started, there are basically three steps needed to get your subscriptions up and running.', 'smart-woo-service-invoicing' ); ?></p>
 			</div>
 
 			<div id="step1" class="sw-knowledgebase-content smartwoo-hide">

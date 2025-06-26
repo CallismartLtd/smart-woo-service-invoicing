@@ -19,11 +19,9 @@ function smartwoo_invoice_download() {
 	
 	if ( isset( $_GET['_sw_download_token'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_sw_download_token'] ) ), '_sw_download_token' ) ) {
 
-		// Get user ID and invoice ID url param
-		$user_id    = get_current_user_id();
 		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : '';
 
-		smartwoo_pdf_invoice_template( $invoice_id, $user_id );
+		smartwoo_pdf_invoice_template( $invoice_id );
 	}
 }
 
@@ -33,7 +31,6 @@ add_action( 'sw_download_invoice', 'smartwoo_invoice_download' );
  * Invoice PDF generation handler.
  * 
  * @param string $invoice_id 	The public Invoice ID.
- * @param int $user_id			The user ID of the invoice owner.
  * @param string $dest			The download destination. Possible values:
  *                              I = inline: send the PDF to the browser for preview.
  *                              D = download: send the PDF to the browser for download.
@@ -42,10 +39,7 @@ add_action( 'sw_download_invoice', 'smartwoo_invoice_download' );
  * 
  * @return string|void          File path for email ('E') or exits for inline/download ('I', 'D').
  */
-function smartwoo_pdf_invoice_template( $invoice_id, $user_id = 0, $dest = 'D' ) {
-	if ( 0 === $user_id ) {
-		$user_id = get_current_user_id();
-	} 
+function smartwoo_pdf_invoice_template( $invoice_id, $dest = 'D' ) {
 
 	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 

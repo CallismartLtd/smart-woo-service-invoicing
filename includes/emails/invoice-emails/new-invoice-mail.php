@@ -95,8 +95,8 @@ class SmartWoo_New_Invoice_Mail extends SmartWoo_Invoice_Mails {
      * @param self $self
      */
     public static function add_payment_url( $template, $self ) {
-        $is_edit    = isset( $_GET['tab'], $_GET['section'] ) && 'edit' === $_GET['section'];
-        $is_preview = isset( $_GET['action'] ) && 'smartwoo_mail_preview' === $_GET['action'];
+        $is_edit    = smartwoo_get_query_param( 'section' ) === 'edit';
+        $is_preview = smartwoo_get_query_param( 'action' ) === 'smartwoo_mail_preview';
 
         if ( $is_edit ) {
             return $template;

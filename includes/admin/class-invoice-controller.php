@@ -499,6 +499,7 @@ class SmartWoo_Invoice_Controller {
 	 * @return array
 	 */
 	private function get_posted_guest_data() {
+		// phpcs:disable
 		$guest_data = array(
 			'first_name'		=> isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['first_name'] ) ) : '',
 			'last_name'			=> isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['last_name'] ) ) : '',
@@ -610,6 +611,7 @@ class SmartWoo_Invoice_Controller {
 		}
 
 		return ( ! empty( $errors ) ) ? $errors : false;
+		// phpcs:enable
 	}
 
 	/**

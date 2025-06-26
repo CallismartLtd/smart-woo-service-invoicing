@@ -346,22 +346,22 @@ final class SmartWoo {
      * File download handler
      */
     public function download_handler() {
-        if ( ! isset( $_GET['smartwoo_action'] )  || $_GET['smartwoo_action'] !== 'smartwoo_download' ) {
+        if ( smartwoo_get_query_param( 'smartwoo_action' ) !== 'smartwoo_download' ) {
             return;
         }
 
-        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) ), 'smartwoo_download_nonce' ) ) {
+        if ( ! wp_verify_nonce( smartwoo_get_query_param( 'token' ), 'smartwoo_download_nonce' ) ) {
             wp_die( 'Authentication failed', 401 );
         }
     
         if ( ! is_user_logged_in() ) {
-            return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => add_query_arg( array_map( 'rawurlencode', $_GET ) ) ) );
+            return smartwoo_login_form( array( 'notice' => smartwoo_notice( 'You must be logged in to access this page.' ), 'redirect' => smartwoo_service_page_url() ) );
         }
         
-        $asset_id       = ! empty( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
-        $resource_id    = ! empty( $_GET['resource_id'] ) ? absint( wp_unslash( $_GET['resource_id'] ) ) : '';
-        $asset_key      = ! empty( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ): '';
-        $service_id     = ! empty( $_GET['service_id'] ) ? sanitize_key( wp_unslash( $_GET['service_id'] ) ) : '';
+        $asset_id       = smartwoo_get_query_param( 'asset_id', 0 );
+        $resource_id    = smartwoo_get_query_param( 'resource_id' );
+        $asset_key      = smartwoo_get_query_param( 'key' );
+        $service_id     = smartwoo_get_query_param( 'service_id' );
         if ( empty( $resource_id ) || empty( $service_id ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
             wp_die( 'Unable to validate requested resource.', 403 );
         }
@@ -560,7 +560,7 @@ final class SmartWoo {
             )
         );
 
-        $action = isset( $_GET['real_action'] ) ? sanitize_text_field( wp_unslash( $_GET['real_action'] ) ) : wp_die();
+        $action = smartwoo_get_query_param( 'real_action' ) ?: wp_die();
 
         if ( ! in_array( $action, $allowed_actions, true ) ){
             wp_send_json_error( array( 'message' => 'action is not allowed.' ) );
@@ -624,8 +624,8 @@ final class SmartWoo {
             exit;
         }
 
-        $limit  = isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 10;
-        $paged  = isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
+        $limit  = smartwoo_get_query_param( 'limit', 10 );
+        $paged  = smartwoo_get_query_param( 'paged', 1 );
 
         /**
          * Send json data for table structures.
@@ -794,14 +794,14 @@ final class SmartWoo {
         }
 
         $action     = isset( $_POST['real_action'] ) ? sanitize_text_field( wp_unslash( $_POST['real_action'] ) ) : false;
-        $payload    = isset( $_POST['payload'] ) ? $_POST['payload'] : array();
+        $payload    = isset( $_POST['payload'] ) ? sanitize_text_field( wp_unslash( $_POST['payload'] ) ) : array();
         
         if ( has_action( 'smartwoo_' . $action ) ) {
             do_action( 'smartwoo_' . $action, $selected_action, explode( ',', $payload ) );
             wp_die();
         }
 
-        wp_send_json_error( array( 'message' => 'Invalid Action Handler', 'payload' => $_POST['payload'] ) );
+        wp_send_json_error( array( 'message' => 'Invalid Action Handler' ) );
 
     }
 
@@ -832,13 +832,13 @@ final class SmartWoo {
             'send_payment_reminder'
         );
 
-        $real_action = isset( $_GET['real_action'] ) ? sanitize_text_field( wp_unslash( $_GET['real_action'] ) ) : '';
+        $real_action = smartwoo_get_query_param( 'real_action' );
         
         if ( ! in_array( $real_action, $allowed_actions, true ) ) {
             wp_send_json_error( array( 'message' => 'Invalid action' ) );
         }
 
-        $invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : wp_send_json_error( array( 'message' => 'Missing Invoice ID' ) );
+        $invoice_id = smartwoo_get_query_param( 'invoice_id', false ) ?: wp_send_json_error( array( 'message' => 'Missing Invoice ID' ) );
         $invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
         if ( ! $invoice ) {
             wp_send_json_error( array( 'message' => 'This invoice does not exist.' ) );
@@ -1004,7 +1004,7 @@ final class SmartWoo {
         if ( ! check_ajax_referer( sanitize_text_field( wp_unslash( 'smart_woo_nonce' ) ), 'security', false ) ) {
             wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
         }            
-        $service_id = isset( $_GET['service_id'] ) ? sanitize_text_field( wp_unslash( $_GET['service_id'] ) ): '';
+        $service_id = smartwoo_get_query_param( 'service_id' );
         $service    = SmartWoo_Service_Database::get_service_by_id( $service_id );
 
         if ( ! $service || ! $service->current_user_can_access() ) {
@@ -1080,12 +1080,12 @@ final class SmartWoo {
      */
     public static function payment_link_handler() {
         
-        if ( ! isset( $_GET['action'] ) || 'sw_invoice_payment' !== $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( smartwoo_get_query_param( 'action' ) !== 'sw_invoice_payment' ) {
             return; // Bail early.
         }
-        $token          = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : wp_die( 'Missing token', 'Payment Error', array( 'response' => 400 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $invoice_id     = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : wp_die( 'Missing Invoice ID', 'Payment Error', array( 'response' => 400 ) );
-        $user_email     = isset( $_GET['user_email'] ) ? sanitize_text_field( wp_unslash( $_GET['user_email'] ) ) : wp_die( 'Missing Email', 'Payment Error', array( 'response' => 400 ) );
+        $token          = smartwoo_get_query_param( 'token', false ) ?: wp_die( 'Missing token', 'Payment Error', array( 'response' => 400 ) );
+        $invoice_id     = smartwoo_get_query_param( 'invoice_id' ) ?: wp_die( 'Missing Invoice ID', 'Payment Error', array( 'response' => 400 ) );
+        $user_email     = smartwoo_get_query_param( 'user_email' ) ?: wp_die( 'Missing Email', 'Payment Error', array( 'response' => 400 ) );
         $payment_info   = smartwoo_verify_token( $token );
 
         if ( ! $payment_info || ! is_array( $payment_info ) ) {
@@ -1480,19 +1480,20 @@ final class SmartWoo {
      * Handle admin invoice download
      */
     public static function admin_download_invoice() {
-        if ( isset( $_GET['_sw_download_token'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_sw_download_token'] ) ), '_sw_download_token' ) ) {
+        $token = smartwoo_get_query_param( '_sw_download_token', false );
+        if ( $token && wp_verify_nonce( $token, '_sw_download_token' ) ) {
             if ( ! current_user_can( 'manage_options' ) ) {
                 wp_die( 'You do not have the required permision to download this invoice' );
             }
 
-            $invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : wp_die( 'Missing Invoice ID' );
+            $invoice_id = smartwoo_get_query_param( 'invoice_id' ) ?: wp_die( 'Missing Invoice ID' );
             $invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
             if ( empty( $invoice ) ) {
                 wp_die( 'Invalid or deleted invoice.' );
             }
 
-            smartwoo_pdf_invoice_template( $invoice_id, $invoice->get_user_id() );
+            smartwoo_pdf_invoice_template( $invoice_id );
             exit;
         }
 
@@ -1519,10 +1520,11 @@ final class SmartWoo {
      * Mail template preview
      */
     public static function mail_preview() {
-        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) ) ) {
+        $nonce = smartwoo_get_query_param( '_wpnonce', false );
+        if ( ! $nonce || ! wp_verify_nonce( $nonce ) ) {
             wp_die( 'Action failed basic authentication', 'Permission Denied', array( 'response' => 401 ) );
         }
-        $template = isset( $_GET['temp'] ) ? sanitize_text_field( wp_unslash( $_GET['temp'] ) ) : wp_die( 'Please provide template' );
+        $template = smartwoo_get_query_param( 'temp' ) ?: wp_die( 'Please provide template' );
         $doing_invoice = false;
         $doing_service = false;
         switch( $template ) {
@@ -1675,7 +1677,7 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => 'Action failed basic authentication' ) );
         }
 
-        $user_login = isset( $_GET['user_login'] ) ? sanitize_text_field( wp_unslash( $_GET['user_login'] ) ) : wp_die( -1, 400 );
+        $user_login = smartwoo_get_query_param( 'user_login', false ) ?: wp_die( -1, 400 );
         if ( is_wp_error( $user = retrieve_password( $user_login ) ) ) {
             wp_send_json_error( array( 'message' => $user->get_error_message() ) );
         }
@@ -1740,7 +1742,7 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => 'Action failed basic authentication.' ) );
         }
         $allowed_actions    = array( 'remind_later', 'dismiss_fornow' );
-        $action             = isset( $_GET['real_action'] ) ? sanitize_text_field( wp_unslash( $_GET['real_action'] ) ) : '';
+        $action             = smartwoo_get_query_param( 'real_action' );
         
         if ( ! in_array( $action, $allowed_actions, true ) ) {
             wp_send_json_error( array( 'message' => 'Invalid request.' ) );
@@ -1901,7 +1903,7 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => 'Action failed basic authentication' ) );
         }
 
-        $context    = isset( $_GET['context'] ) ? sanitize_text_field( wp_unslash( $_GET['context'] ) ) : '';
+        $context    = smartwoo_get_query_param( 'context' );
 
         if ( 'any' === $context ) {
             add_filter( 'smartwoo_is_frontend', '__return_true' );
@@ -1909,8 +1911,8 @@ final class SmartWoo {
             add_filter( 'woocommerce_is_account_page', '__return_true' );
         }
 
-        $page       = isset( $_GET['page'] ) ? absint( $_GET['page'] ) : 1;
-        $limit      = isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 10;
+        $page   = smartwoo_get_query_param( 'page', 1 );
+        $limit  = smartwoo_get_query_param( 'limit', 10 );
 
         $response   = array(
             'message'       => 'No subscription found.',

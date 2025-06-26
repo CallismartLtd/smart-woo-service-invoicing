@@ -31,7 +31,7 @@ class SmartWoo_Service_Frontend_Template {
 		$buy_product_page		= smartwoo_get_endpoint_url( 'buy-new' );
 		
 		$page					= max( 1, get_query_var( 'paged' ) );
-		$limit					= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 9; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$limit					= smartwoo_get_query_param( 'limit', 9 ); 
 		$all_services			= SmartWoo_Service_Database::get_services_by_user( $user_id, $page, $limit );
 		$pending_services		= SmartWoo_Service_Database::get_user_awaiting_services( $user_id );
 		$services				= array_merge( $pending_services, $all_services );
@@ -42,8 +42,8 @@ class SmartWoo_Service_Frontend_Template {
 
 		$args = array();
 
-		if ( ! empty( $_GET['limit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$args['limit']	= absint( $_GET['limit'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( smartwoo_get_query_param( 'limit' ) ) { 
+			$args['limit']	= absint( smartwoo_get_query_param( 'limit' ) ); 
 		}
 		
 		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/front.php';
@@ -104,7 +104,7 @@ class SmartWoo_Service_Frontend_Template {
 		$status		= get_query_var( 'status' );
 		$services 	= array();
 		$page		= get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
-		$limit		= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 10;
+		$limit		= smartwoo_get_query_param( 'limit', 10 );
 		
 		$status_label		= '';
 		$all_services_count = 0;
@@ -229,11 +229,14 @@ class SmartWoo_Service_Frontend_Template {
 	}
 
 	private static function login_page() {
+		global $wp;
+	
 		wp_enqueue_style( 'dashicons' );
 		$args =  array( 
 			'notice' => smartwoo_notice( 'Login to access this page.' ),
-			'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) )
+			'redirect' => site_url( $wp->request ?? '' )
 		);
+
 		include_once SMARTWOO_PATH . 'templates/login.php';
 	}
 }

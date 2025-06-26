@@ -71,8 +71,8 @@ class SmartWoo_Invoice_Database {
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page	= smartwoo_get_query_param( 'paged', 1 );
+		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 
 		if ( smartwoo_is_frontend() ) {
 			$page	= ( isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ) ? absint( $wp_query->query_vars['paged'] ) : 1;
@@ -215,8 +215,8 @@ class SmartWoo_Invoice_Database {
 
 		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
 
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page	= smartwoo_get_query_param( 'paged', 1 );
+		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
 		
@@ -662,7 +662,7 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function get_all_metadata( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_META_TABLE ." WHERE `invoice_id` = %s", $invoice->get_invoice_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_META_TABLE ." WHERE `invoice_id` = %s", $invoice->get_invoice_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return ( ! empty( $results ) ) ?  $results : array();

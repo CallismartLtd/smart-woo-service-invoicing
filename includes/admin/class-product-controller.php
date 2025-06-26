@@ -282,12 +282,13 @@ class SmartWoo_Product_Controller{
      * @return array
      */
     private static function check_errors() {
+        // phpcs:disable
         $fields = array();
         $errors = array();
         $fields['smartwoo_product_id']  = isset( $_POST['smartwoo_product_id'] ) ? absint( $_POST['smartwoo_product_id'] ) : 0; 
         $fields['product_name']         = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
         $fields['product_slug']         = isset( $_POST['product_slug'] ) ? sanitize_text_field( wp_unslash( $_POST['product_slug'] ) ) : '';
-        $fields['description']          = isset( $_POST['description'] ) ? wp_kses_post( $_POST['description'] ) : '';
+        $fields['description']          = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
         $fields['regular_price']        = isset( $_POST['regular_price'] ) ? floatval( $_POST['regular_price'] ) : 0;
         $fields['sign_up_fee']          = isset( $_POST['sign_up_fee'] ) ? floatval( $_POST['sign_up_fee'] ) : 0;
         $fields['sale_price']           = isset( $_POST['sale_price'] ) ? floatval( $_POST['sale_price'] ) : 0;
@@ -295,8 +296,8 @@ class SmartWoo_Product_Controller{
         $fields['date_on_sale_to']      = isset( $_POST['date_on_sale_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_on_sale_to'] ) ) : '';
         $fields['upsell_ids']           = isset( $_POST['upsell_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['upsell_ids'] ) ) : array();
         $fields['cross_sell_ids']       = isset( $_POST['cross_sell_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['cross_sell_ids'] ) ) : array();
-        $fields['short_description']    = isset( $_POST['short_description'] ) ? wp_kses_post( $_POST['short_description'] ) : '';
-        $fields['product_status']       = isset( $_POST['product_status'] ) ? sanitize_text_field( $_POST['product_status'] ) : '';
+        $fields['short_description']    = isset( $_POST['short_description'] ) ? wp_kses_post( wp_unslash( $_POST['short_description'] ) ) : '';
+        $fields['product_status']       = isset( $_POST['product_status'] ) ? sanitize_text_field( wp_unslash( $_POST['product_status'] ) ) : '';
         $fields['visibility']           = isset( $_POST['visibility'] ) ? sanitize_text_field( wp_unslash( $_POST['visibility'] ) ) : '';
         $fields['grace_period_number']  = isset( $_POST['grace_period_number'] ) ? absint( $_POST['grace_period_number'] ) : 0;
         $fields['grace_period_unit']    = isset( $_POST['grace_period_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['grace_period_unit'] ) ) : '';
@@ -329,6 +330,7 @@ class SmartWoo_Product_Controller{
         }
         return $errors;
     
+        // phpcs:enable
     }
 
     /**

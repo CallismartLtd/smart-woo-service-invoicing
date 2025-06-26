@@ -17,7 +17,7 @@ class SmartWoo_Invoice_Frontend_Template {
 	 * The main page handler
 	 */
 	public static function main_page() {			
-		$limit 			= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 10;
+		$limit 			= smartwoo_get_query_param( 'limit', 10 );
 		$page 			= absint( max( 1, get_query_var( 'paged', 1 ) ) );
 		$invoices		= SmartWoo_Invoice_Database::get_invoices_by_user( get_current_user_id() );
 		$all_inv_count	= SmartWoo_Invoice_Database::count_all_by_user( get_current_user_id() );
@@ -35,7 +35,7 @@ class SmartWoo_Invoice_Frontend_Template {
 	public static function sort() {
 		$status			= sanitize_key( get_query_var( 'status' ) );
 		smartwoo_set_document_title( ucfirst( $status ) . ' Invoices' );
-		$limit 			= isset( $_GET['limit'] ) ? absint( $_GET['limit'] ) : 10;
+		$limit 			= smartwoo_get_query_param( 'limit', 10 );
 		$page 			= absint( get_query_var( 'paged', 1 ) );
 		$invoices		= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status );
 		$all_inv_count	= SmartWoo_Invoice_Database::count_this_status( $status );
@@ -152,10 +152,12 @@ class SmartWoo_Invoice_Frontend_Template {
 	}
 
 	private static function login_page() {
+		global $wp;
+	
 		wp_enqueue_style( 'dashicons' );
 		$args =  array( 
 			'notice' => smartwoo_notice( 'Login to access this page.' ),
-			'redirect' => add_query_arg( array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) )
+			'redirect' => site_url( $wp->request ?? '' )
 		);
 		include_once SMARTWOO_PATH . 'templates/login.php';
 	}

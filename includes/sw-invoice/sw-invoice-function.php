@@ -266,7 +266,7 @@ function smartwoo_generate_pending_order( $invoice, $total = null ) {
 function smartwoo_generate_invoice_id() {
 	do {
 		$prefix     = smartwoo_get_invoice_id_prefix();
-		$timestamp  = date( 'Ymd' );
+		$timestamp  = SmartWoo_Date_Helper::create_from_timestamp( time() )->format();
 
 		$microtime  = sprintf( '%.6f', microtime( true ) );
 		$micro_str  = str_replace( '.', '', $microtime );

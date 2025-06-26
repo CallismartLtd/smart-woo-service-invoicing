@@ -441,7 +441,7 @@ class SmartWoo_Mail {
      */
     public static function is_preview() {
         
-        return isset( $_GET['action'] ) && 'smartwoo_mail_preview' === $_GET['action'];
+        return smartwoo_get_query_param( 'action' ) === 'smartwoo_mail_preview';
     }
 
 }

@@ -94,7 +94,7 @@ class SmartWoo_Settings_Controller {
 			
 			'smartwoo_invoice_page_id' => array(
 				'title'			=> 'Invoice Page',
-				'description'	=> __( 'The page where all invoices for a client is listed.', 'smart-woo-service-invicing' ),
+				'description'	=> __( 'The page where all invoices for a client is listed.', 'smart-woo-service-invoicing' ),
 				'missing'		=> empty( get_option( 'smartwoo_invoice_page_id' ) ),
 				'url'			=> admin_url( 'admin.php?page=sw-options&tab=invoicing' )
 			),

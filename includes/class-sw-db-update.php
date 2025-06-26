@@ -77,7 +77,7 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
      */
     public function add_update_notice() {
         $screen             = get_current_screen();
-        $is_our_dash        = isset( $_GET['page'] ) && 'sw-admin' === $_GET['page'];
+        $is_our_dash        = smartwoo_get_query_param( 'page' ) ==='sw-admin';
         $is_plugin_page     = 'plugins' === $screen->id;
         $is_wp_dashboard    = 'dashboard' === $screen->id;
         $show_notice        = $is_our_dash || $is_plugin_page || $is_wp_dashboard;
