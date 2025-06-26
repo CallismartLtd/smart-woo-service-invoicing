@@ -2,7 +2,7 @@
 
 # [2.4.1] 2025-06-25
 ### Improved
-- Onbording process: Introduced new setup wizard to enhance UX on first time installation.
+- Onboarding  process: Introduced new setup wizard to enhance UX on first time installation.
 
 ### Fixed
 - Minor bug fixes and performance optimization.
