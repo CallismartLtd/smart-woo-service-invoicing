@@ -226,10 +226,21 @@ class SmartWoo_Config{
 
     public function load_styles() {
         wp_register_style( 'smartwoo-inline', false ); // phpcs:ignore
-        wp_enqueue_style( 'smartwoo-inline' );
+        
         $suffix = self::script_suffix();
+        $utm_style_uri  = SMARTWOO_DIR_URL . 'assets/css/sw-admin' . $suffix . '.css';
+        $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
+        $icon_styles    = SMARTWOO_DIR_URL . 'assets/css/sw-icons' . $suffix . '.css';
+
+        wp_register_style( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . 'assets/css/jquery/time-picker' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-admin-utm-style', $utm_style_uri, array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-admin-style', $admin_style, array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
+        
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
-            wp_enqueue_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
+            wp_enqueue_style( 'smartwoo-style' );
         }
         $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
@@ -240,20 +251,24 @@ class SmartWoo_Config{
 
         if ( is_admin() ) {           
             $our_pages = array( 'Dashboard', 'Invoices', 'Service Orders', 'Service Products', 'Settings' );
-            if ( in_array( self::get_current_screen(), $our_pages, true ) ) {
+            if ( self::in_admin_page() ) {
                 wp_add_inline_style( 'smartwoo-inline', '#wpcontent { padding-left: 0 !important; }' );
             }
-            $utm_style_uri  = SMARTWOO_DIR_URL . 'assets/css/sw-admin' . $suffix . '.css';
-            $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
-            $icon_styles    = SMARTWOO_DIR_URL . 'assets/css/sw-icons' . $suffix . '.css';
-            wp_enqueue_style( 'smartwoo-admin-utm-style', $utm_style_uri, array(), SMARTWOO_VER, 'all' );
-            wp_enqueue_style( 'smartwoo-admin-style', $admin_style, array(), SMARTWOO_VER, 'all' );
-            wp_enqueue_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
-            wp_enqueue_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
-        }
-        wp_enqueue_style( 'jquery-ui-style' );
-        wp_enqueue_style( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . 'assets/css/jquery/time-picker' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
 
+            wp_enqueue_style( 'smartwoo-admin-utm-style' );
+            wp_enqueue_style( 'smartwoo-admin-style' );
+            wp_enqueue_style( 'smartwoo-invoice-style' );
+            wp_enqueue_style( 'smartwoo-icon-style' );
+        }
+
+        wp_enqueue_style( 'smartwoo-inline' );
+        wp_enqueue_style( 'jquery-ui-style' );
+        wp_enqueue_style( 'smartwoo-jquery-timepicker' );
+        
+        if ( self::in_admin_page() ) {
+            wp_enqueue_style( 'woocommerce_admin_styles' );
+        }
+        
     }
 
     /**
@@ -291,23 +306,36 @@ class SmartWoo_Config{
             'fast_checkout_config'      => smartwoo_fast_checkout_options()
         );
 
-        wp_enqueue_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
-        
+        wp_register_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
         wp_register_script( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . '/assets/js/jquery/jquery-time-picker' . $suffix . '.js', array( 'jquery', 'jquery-ui-datepicker' ), SMARTWOO_VER, true );
+        wp_register_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+        wp_register_script( 'smartwoo-fast-checkout', SMARTWOO_DIR_URL . 'assets/js/smart-woo-fast-checkout' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+
         
+        wp_enqueue_script( 'smartwoo-script' );
         
         wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
-        $invoice_page_id    = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
+        $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
         if ( is_page( $invoice_page_id ) || is_account_page() || is_admin() ) {
-            wp_enqueue_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+            wp_enqueue_script( 'smartwoo-invoice-script' );
         }
+
         if ( get_option( 'smartwoo_allow_fast_checkout', false ) && smartwoo_is_frontend() ) {
-            wp_enqueue_script( 'smartwoo-fast-checkout', SMARTWOO_DIR_URL . 'assets/js/smart-woo-fast-checkout' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+            wp_enqueue_script( 'smartwoo-fast-checkout' );
         }
+
         if ( is_admin() ) {
-            wp_enqueue_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
+            wp_register_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
+
+            if ( self::in_admin_page() ) {
+                wp_enqueue_script( 'wc-enhanced-select' );
+                wp_enqueue_script( 'smartwoo-admin-script' );
+                wp_enqueue_script( 'smartwoo-jquery-timepicker' );
+                wp_enqueue_media();
+            }
+            
         }
     }
 
