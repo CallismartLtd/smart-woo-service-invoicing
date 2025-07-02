@@ -175,7 +175,6 @@ class SmartWoo_Product_Controller{
      * Add new product page
      */
     private static function add_page() {
-        wp_enqueue_script( 'smartwoo-jquery-timepicker' );     
         $product_categories = get_terms( 'product_cat' );
         /**
          * @filter `smartwoo_product_data_tabs`, add extra data to the products data section.
@@ -198,7 +197,6 @@ class SmartWoo_Product_Controller{
      * Edit product page
      */
     private static function edit_page() {
-        wp_enqueue_script( 'smartwoo-jquery-timepicker' );
         $product_id = smartwoo_get_query_param( 'product_id', 0 );
 
         if ( empty( $product_id ) ) {
