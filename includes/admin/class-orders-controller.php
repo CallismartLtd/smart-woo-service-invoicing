@@ -88,8 +88,6 @@ class SmartWoo_Orders_Controller {
      * The order processing form page
      */
     private static function process_order_form() {
-        wp_enqueue_script( 'smartwoo-jquery-timepicker' );
-        wp_enqueue_media();
         smartwoo_set_document_title( 'Process Orders' );
         $order_id   = smartwoo_get_query_param( 'order_id' );
         $order      = SmartWoo_Order::get_order( $order_id );
