@@ -234,7 +234,7 @@ class SmartWoo_Admin_Menu {
 		?>
 			<div class="sw-admin-dash-header">
 				<div class="sw-admin-header-content">
-					<!-- Smart Woo Info -->
+					
 					<div class="sw-admin-dash-info">
 						<h1><?php echo wp_kses_post( $title );?></h1>
 					</div>
