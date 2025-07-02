@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
             <!-- Navigation buttons -->
             <div class="sw-admin-dash-nav">
                 <ul>
-                    <li id="dashboardBtn">Dashboard</li>
+                    <li id="dashboardBtn" class="active">Dashboard</li>
                     <li id="dashAddNew">Add New</li>
                     <li id="dashOrderBtn">Orders</li>
                     <li id="dashInvoicesBtn">Invoices</li>
@@ -41,15 +41,20 @@ defined( 'ABSPATH' ) || exit;
             <?php endif;?>
         </div>
     </div>
+    <div style="margin-top: 100px"></div>
 
     <div id="swloader" style="background-color: #f1f1f100"></div>
+
     <div class="sw-admin-dash-body">
         <?php do_action( 'smartwoo_admin_header' ) ?>
         <div class="sw-search-container">
-            <input type="search" name="sw_service_search" id="sw_service_search" placeholder="Search for services">
-            <button id="swSearchBtn" title="click to search"><span class="dashicons dashicons-search"></span></button>
-            <div id="search-notification" class="notification-tooltip"></div>
+           <div class="sw-search-item-container">
+                <input type="search" name="sw_service_search" id="sw_service_search" placeholder="Search for services">
+                <button id="swSearchBtn" title="click to search"><span class="dashicons dashicons-search"></span></button>
+                <div id="search-notification" class="notification-tooltip"></div>
+            </div> 
         </div>
+        
 
         <div class="sw-dash-content-container">            
             <div class="sw-dash-content">
