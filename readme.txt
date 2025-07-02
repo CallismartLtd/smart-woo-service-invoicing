@@ -6,7 +6,7 @@ Tested up to: 6.8
 Requires WooCommerce: 8.0  
 WooCommerce tested up to: 9.9.5
 Requires PHP: 7.4  
-Stable Tag: 2.4.1
+Stable Tag: 2.4.2
 License: GPLv3  
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -81,7 +81,7 @@ Automatically attach professionally formatted PDF invoices to outgoing email not
 * Dedicated Support & Updates  
 Get premium support and automatic updates to keep your system secure and feature-rich.
 
-[Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)
+[Get Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)
 
 
 == License ==
@@ -132,6 +132,12 @@ For more information on future releases, release notes, and feature requests, vi
 - Callistus Nwachukwu
 
 == Changelog ==
+
+= 2.4.2 - 2025-07-02 =
+**Fixed**
+ - WooCommerce on demand asset loading that caused some product search input to break.
+ - Invoice portal dashboard bug.
+ - Media library wont open.
 
 = 2.4.1 - 2025-06-25 =
 
