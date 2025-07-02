@@ -19,7 +19,7 @@ class SmartWoo_Invoice_Frontend_Template {
 	public static function main_page() {			
 		$limit 			= smartwoo_get_query_param( 'limit', 10 );
 		$page 			= absint( max( 1, get_query_var( 'paged', 1 ) ) );
-		$invoices		= SmartWoo_Invoice_Database::get_invoices_by_user( get_current_user_id() );
+		$invoices		= SmartWoo_Invoice_Database::get_invoices_by_user();
 		$all_inv_count	= SmartWoo_Invoice_Database::count_all_by_user( get_current_user_id() );
 		$total_pages 	= ceil( $all_inv_count / $limit );
 		$total_items_count = count( $invoices );
