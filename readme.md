@@ -9,7 +9,7 @@
 **Requires WooCommerce:** 8.0  
 **WooCommerce Tested:** 9.9.5
 **Requires PHP:** 7.4  
-**Stable Tag:** 2.4.1
+**Stable Tag:** 2.4.2
 **License:** GPLv3  
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -90,7 +90,7 @@ With powerful automation, a professional client portal, and flexible billing too
 
 ---
 
-👉 **[Try Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)**
+👉 **[Get Smart Woo Pro](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)**
 
 
 
@@ -148,6 +148,11 @@ We welcome and appreciate user suggestions! Feel free to submit your ideas or re
 - Callistus Nwachukwu
 
 ## Changelog
+# 2.4.2 - 2025-07-02
+### Fixed
+ - WooCommerce on demand asset loading that caused some product search input to break.
+ - Invoice portal dashboard bug.
+ - Media library wont open.
 
 # [2.4.1] 2025-06-25
 ### Improved
