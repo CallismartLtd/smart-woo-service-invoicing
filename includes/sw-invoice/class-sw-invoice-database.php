@@ -22,7 +22,7 @@ class SmartWoo_Invoice_Database {
 	/**
 	 * Get paginated invoices from the database.
 	 *
-	 * @return array|bool Array of SmartWoo_Invoice object, false otherwise.
+	 * @return SmartWoo_Invoice[] An array of SmartWoo_Invoice objects.
 	 */
 	public static function get_all_invoices( $page = 1, $limit = 20 ) {
 		global $wpdb;
@@ -42,7 +42,7 @@ class SmartWoo_Invoice_Database {
 
 		}
 
-		return false;
+		return array();
 	}
 
 	/**
@@ -64,13 +64,10 @@ class SmartWoo_Invoice_Database {
 	 * Get invoices for a user by the user's ID.
 	 * 
 	 * @param int $user_id	The ID of the user.
+	 * @return SmartWoo_Invoice[] An array of SmartWoo_Invoice objects for the user, or an empty array if no invoices found.
 	 */
 	public static function get_invoices_by_user( $user_id = 0 ) {
 		global $wpdb, $wp_query;
-		
-		if ( ! is_user_logged_in() ) {
-			return;
-		}
 		$page	= smartwoo_get_query_param( 'paged', 1 );
 		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 
@@ -83,7 +80,7 @@ class SmartWoo_Invoice_Database {
 		$offset = ( $page - 1 ) * $limit;
 
 		if ( empty( $user_id ) ) {
-			false;
+			$user_id = get_current_user_id();
 		}
 		$user_id = absint( $user_id );
 
@@ -93,7 +90,7 @@ class SmartWoo_Invoice_Database {
 		if ( $results ) {
 			return self::convert_results_to_invoices( $results );
 		}
-		return false;
+		return array();
 	}
 
 	/**
@@ -280,7 +277,7 @@ class SmartWoo_Invoice_Database {
 		global $wpdb;
 
 		if ( empty( $date_due ) ) {
-			return false;
+			return array();
 		}
 
 		$date_due	= sanitize_text_field( $date_due );
@@ -290,7 +287,7 @@ class SmartWoo_Invoice_Database {
 		if ( $results ) {
 			return self::convert_results_to_invoices( $results );	
 		}
-		return false;
+		return array();
 	}
 
 	/**
