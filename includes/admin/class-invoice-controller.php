@@ -115,12 +115,10 @@ class SmartWoo_Invoice_Controller {
 		switch ( $tab ) {
 			case 'add-new-invoice':
 				$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
-				wp_enqueue_script( 'smartwoo-jquery-timepicker' );
 				include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
 				break;
 	
 			case 'edit-invoice':
-				wp_enqueue_script( 'smartwoo-jquery-timepicker' );
 				SmartWoo_Invoice_Controller::edit_form();
 				break;
 	
