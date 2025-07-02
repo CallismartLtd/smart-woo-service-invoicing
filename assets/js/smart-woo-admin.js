@@ -163,11 +163,10 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
 let addedClearBtn = false;
 
 // Add pagination control to table.
-function addPaginationControls(bodyContent, totalPages, currentPage, totalItems, index) {
+function addPaginationControls( bodyContent, totalPages, currentPage, totalItems, index ) {
     let paginationDiv = document.createElement('div');
     paginationDiv.classList.add('sw-pagination-buttons');
     paginationDiv.style.float = "right";
-    // Item count placeholder (optional if needed for the frontend)
     let itemCountText = document.createElement('p');
     itemCountText.textContent = `${totalItems} items`;
     paginationDiv.appendChild(itemCountText);
@@ -213,15 +212,18 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
         paginationDiv.appendChild(nextLink);
     }
 
+    bodyContent.appendChild(paginationDiv);
     if ( ! addedClearBtn ) {
+        paginationDiv.style.float = "";
+        paginationDiv.style.marginTop = "0px";
         let removeTableBtn = document.createElement( 'span' );
-        removeTableBtn.classList.add('dashicons', 'dashicons-dismiss');
+        removeTableBtn.classList.add( 'dashicons', 'dashicons-dismiss' );
         removeTableBtn.style.color = "#c48f00";
-        removeTableBtn.style.float = "right";
         removeTableBtn.style.marginRight = "20px";
         removeTableBtn.style.fontSize = "23px";
         removeTableBtn.style.cursor = "pointer";
-        bodyContent.insertAdjacentElement( 'beforebegin', removeTableBtn );
+        removeTableBtn.setAttribute( 'title', 'Restore dashboard' );
+        bodyContent.appendChild( removeTableBtn );
         addedClearBtn = true;
 
         let removeClearBtn = () => {
@@ -238,9 +240,6 @@ function addPaginationControls(bodyContent, totalPages, currentPage, totalItems,
         });
         removeTableBtn.addEventListener( 'click', removeClearBtn );
     }
-
-    // Append pagination controls to the body content
-    bodyContent.appendChild(paginationDiv);
 }
 
 /**
@@ -1085,6 +1084,23 @@ function smartwooDatesInputsHandler() {
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                 }
             };
+            
+            if ( 'Invoices' === smart_woo_vars.currentScreen ) {
+                jQuery( input ).on( 'focus', function () {
+                    requestAnimationFrame( () => {
+                        const $input = jQuery( this );
+                        const offset = $input.offset();
+                        const height = $input.outerHeight();
+
+                        jQuery( '#ui-datepicker-div' ).css({
+                            'top': ( offset.top + height ) + 'px',
+                            'left': offset.left + 'px',
+                            'z-index': 9999
+                        });
+                    });
+                });
+            }
+
 
             if (input.getAttribute( 'smartwoo-datetime-picker' )) {
                 jQuery(input).datetimepicker({
