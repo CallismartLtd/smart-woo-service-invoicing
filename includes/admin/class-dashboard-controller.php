@@ -191,8 +191,6 @@ class SmartWoo_Dashboard_Controller {
 			return '';
 		});
 		smartwoo_set_document_title( 'Create New Service' );
-		wp_enqueue_script( 'smartwoo-jquery-timepicker' );
-
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
 	}
 
@@ -228,7 +226,6 @@ class SmartWoo_Dashboard_Controller {
 		$service	= SmartWoo_Service_Database::get_service_by_id( $service_id );
 	
 		if ( $service ) {
-			wp_enqueue_script( 'smartwoo-jquery-timepicker' );
 			smartwoo_set_document_title( 'Edit ' . $service->get_name() );
 			add_filter( 'smartwoo_dropdown_user_meta', function(){
 				return '';
