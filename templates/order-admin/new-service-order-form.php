@@ -86,7 +86,7 @@ defined( 'ABSPATH' ) || exit;
                                 <input type="number" name="download_limit" id="access-limit" min="-1" placeholder="<?php esc_attr_e( 'Leave empty for unlimited access.', 'smart-woo-service-invoicing' ); ?>">
                             </div>
                         </div>
-                        <div id="auth-token-div" class="sw-service-form-row" style="display: <?php echo esc_attr( ( ! empty( $download_asset_object ) && 'yes' === $download_asset_object->is_external() )  ? 'flex': 'none' ); ?>;">
+                        <div id="auth-token-div" class="sw-service-form-row" style="display: none">
                             <input type="text" id="assetKey" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" autocomplete="off"/>
                         </div>
                         
