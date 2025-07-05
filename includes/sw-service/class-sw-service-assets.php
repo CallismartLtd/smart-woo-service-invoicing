@@ -363,14 +363,14 @@ class SmartWoo_Service_Assets {
      * Get asset data only
      * 
      * @param int $asset_id The asset ID to look.
-     * @param string $key Asset key.
+     * @param self|null $this_obj A reference of SmartWoo_Service_Assets Object or null. 
      * @return array Asset data if successful, empty array otherwise.
      */
-    public static function return_data( $asset_id, $key, &$this_obj = null ) {
+    public static function return_data( $asset_id, &$this_obj = null ) {
         global $wpdb;
         $query  = $wpdb->prepare(  
-            "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d AND `asset_key` = %s", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            absint( $asset_id ), sanitize_text_field( $key ) 
+            "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            absint( $asset_id ) 
         );
         $result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
         
