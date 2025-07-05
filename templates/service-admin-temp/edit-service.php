@@ -83,7 +83,7 @@ defined( 'ABSPATH' ) || exit;
                             </div>
                         </div>
                         <div id="auth-token-div" class="sw-service-form-row" style="display: <?php echo esc_attr( ( ! empty( $download_asset_object ) && 'yes' === $download_asset_object->is_external() )  ? 'flex': 'none' ); ?>;">
-                            <input type="text" id="assetKey" name="asset_key" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" autocomplete="off"/>
+                            <input type="password" id="assetKey" name="asset_key" value="<?php echo esc_attr( ! empty( $download_asset_object ) ? $download_asset_object->get_key() : '' ); ?>" placeholder="<?php esc_attr_e( 'Authorization token (optional)', 'smart-woo-service-invoicing' );?>" autocomplete="off"/>
                         </div>
                         
                     </div>
