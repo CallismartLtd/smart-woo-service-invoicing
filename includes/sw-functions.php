@@ -1047,15 +1047,14 @@ function smartwoo_get_form_success() {
  * 
  * @return string $url The download url (optional).
  */
-function smartwoo_download_url( $resource_id, $key, $asset_id, $service_id ) {
-	if ( empty( $resource_id ) || empty( $key ) ) {
+function smartwoo_download_url( $resource_id, $asset_id, $service_id ) {
+	if ( empty( $resource_id ) || empty( $asset_id ) ) {
 		return '';
 	}
 	$url = add_query_arg( array(
 		'smartwoo_action' 	=> 'smartwoo_download',
 		'resource_id'		=> rawurlencode( $resource_id ),
 		'asset_id'			=> rawurlencode( $asset_id ),
-		'key'				=> rawurlencode( $key ),
 		'service_id'		=> rawurlencode( $service_id ),
 		'token'				=> wp_create_nonce( 'smartwoo_download_nonce' ),
 	), smartwoo_service_page_url() );
@@ -1464,7 +1463,7 @@ function smartwoo_fast_checkout_options() {
 		'service_name_placeholder'	=> 'Service name (required)',
 		'url_placeholder'			=> 'URL (optional)',
 		'checkout_button_text'		=> 'Checkout',
-		'description'				=> 'Please add a name for this service subscription.',
+		'description'				=> __( 'This subscription requires a name. Please enter one before proceeding.', 'smart-woo-service-invoicing' ),
 		'title_color'				=> '#333333',
 		'modal_background_color'	=> '#FFFFFF',
 		'button_background_color'	=> '#0073E6',
