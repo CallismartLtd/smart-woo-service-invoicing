@@ -49,7 +49,7 @@ final class SmartWoo {
     public function __construct() {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
 
-        add_action( 'smartwoo_download', array( $this, 'download_handler' ) );
+        add_action( 'smartwoo_download', array( $this, 'asset_download' ) );
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
         add_action( 'smartwoo_admin_view_service_button_area', array( __CLASS__, 'sell_renewal_button' ) );
 
@@ -343,15 +343,15 @@ final class SmartWoo {
     }
 
     /**
-     * File download handler
+     * Client asset download handler
      */
-    public function download_handler() {
+    public function asset_download() {
         if ( smartwoo_get_query_param( 'smartwoo_action' ) !== 'smartwoo_download' ) {
             return;
         }
 
         if ( ! wp_verify_nonce( smartwoo_get_query_param( 'token' ), 'smartwoo_download_nonce' ) ) {
-            wp_die( 'Authentication failed', 401 );
+            wp_die( esc_html__( 'Authentication failed', 'smart-woo-service-invoicing' ), 'Unathorized', 401 );
         }
     
         if ( ! is_user_logged_in() ) {
@@ -360,33 +360,36 @@ final class SmartWoo {
         
         $asset_id       = smartwoo_get_query_param( 'asset_id', 0 );
         $resource_id    = smartwoo_get_query_param( 'resource_id' );
-        $asset_key      = smartwoo_get_query_param( 'key' );
         $service_id     = smartwoo_get_query_param( 'service_id' );
-        if ( empty( $resource_id ) || empty( $service_id ) || ! SmartWoo_Service_Assets::verify_key( $asset_key, $resource_id ) ) {
-            wp_die( 'Unable to validate requested resource.', 403 );
+        if ( empty( $resource_id ) || empty( $service_id ) || empty( $asset_id ) ) {
+            wp_die( esc_html__( 'URL construct is missing a required paramter.', 'smart-woo-service-invoicing' ), 'Missing Parameter', 400 );
         }
 
         // Check Asset validity via parent service.
         $service = SmartWoo_Service_Database::get_service_by_id( $service_id );
         if ( ! $service || ! $service->current_user_can_access() ) {
-            wp_die( 'Invalid service subscription.', 404 );
+            wp_die( esc_html__( 'Invalid service subscription.', 'smart-woo-service-invoicing' ), 'Invalid Subscription', 404 );
+        }
+
+        if ( ! $service->owns_asset( $asset_id ) ) {
+            wp_die( esc_html__( 'You do not have the required permission to access this asset', 'smart-woo-service-invoicing' ), 'Permission Failed', 403 );
         }
 
         // Check service status.
         $status = smartwoo_service_status( $service );
         if ( ! in_array( $status, smartwoo_active_service_statuses(), true ) ) {
-            wp_die( 'Service is not active, please renew it.', 403 );
+            wp_die( esc_html( 'Service is not active, please renew it.', 'smart-woo-service-invoicing' ), 'Renewal Required', 403 );
         }
 
-        $asset_data = SmartWoo_Service_Assets::return_data( $asset_id, $asset_key, $obj );
+        $asset_data = SmartWoo_Service_Assets::return_data( $asset_id, $obj );
 
         if ( ! is_array( $asset_data ) || empty( $asset_data ) ) {
-            wp_die( 'Invalid data format returned', 403 );
+            wp_die( __( 'Malformed asset data, please contact us if you need further assistance', 'smart-woo-service-invoicing' ), 'Invalid Asset', 403 );
         }
 
-        $re_indexed_data    = array_values( (array) $asset_data );
-        $resource_url       = array_key_exists( $resource_id - 1, $re_indexed_data ) ? $re_indexed_data[$resource_id - 1]: wp_die( 'File URL not found.', 404 );
-        $is_external        = $obj->is_external();
+        $resource_url   = array_key_exists( $resource_id, $asset_data ) ? $asset_data[$resource_id]: wp_die( 'File URL not found.', 404 );
+        $asset_key      = $obj->get_key();
+        $is_external    = $obj->is_external();
         $this->serve_file( $resource_url, wc_string_to_bool( $is_external ), $asset_key );
     }
     
@@ -394,10 +397,19 @@ final class SmartWoo {
      * Serve file for download.
      */
     private function serve_file( $resource_url, $is_external = false, $asset_key = '' ) {
-        
-        // Serve files within the current site.
+        $resource_url   = sanitize_url( $resource_url, array( 'http', 'https' ) );
+        $filename       = basename( wp_parse_url( $resource_url, PHP_URL_PATH ) );
+
+        $cache_key  = 'smartwoo_file_sizes';
+        $file_sizes = get_transient( $cache_key );
+
+        // Ensure cache is an array
+        if ( ! is_array( $file_sizes ) ) {
+            $file_sizes = [];
+        }
+
         if ( ! $is_external ) {
-            $resource_url   = sanitize_url( $resource_url, array( 'http', 'https' ) );
+            
             $file_headers   = @get_headers( $resource_url, 1 );
         
             if ( ! $file_headers || strpos( $file_headers[0], '200' ) === false ) {
@@ -406,7 +418,10 @@ final class SmartWoo {
         
             $content_type   = $file_headers['Content-Type'] ?? 'application/octet-stream';
             $content_length = $file_headers['Content-Length'] ?? 0;
-            $filename       = basename( wp_parse_url( $resource_url, PHP_URL_PATH ) );
+            
+            // Cache file size.
+            $file_sizes[$resource_url] = SmartWoo_Service_Assets::format_file_size( $content_length );
+            set_transient( $cache_key, $file_sizes );
         
             header( 'Content-Description: File Transfer' );
             header( 'Content-Type: ' . $content_type );
@@ -416,7 +431,6 @@ final class SmartWoo {
             header( 'Pragma: public' );
             header( 'Content-Length: ' . $content_length );
         
-            // Open the file and stream it to the browser.
             // phpcs:disable
             $handle = fopen( $resource_url, 'rb' );
             if ( $handle ) {
@@ -445,7 +459,7 @@ final class SmartWoo {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
             }
 
-            $this->append_http_authorization( $asset_key, $resource_url );
+            $this->set_http_authorization( $asset_key, $resource_url );
             $file = download_url( $resource_url );
 
             if ( is_wp_error( $file ) ) {
@@ -475,8 +489,18 @@ final class SmartWoo {
             }
 
             // Get the file size
-            $file_size = $wp_filesystem->size( $file );
-            $filename       = basename( wp_parse_url( $resource_url, PHP_URL_PATH ) );
+            $file_size  = $wp_filesystem->size( $file );
+
+            // Cache file size
+            $file_sizes[$resource_url] = SmartWoo_Service_Assets::format_file_size( $file_size );
+            set_transient( $cache_key, $file_sizes );
+
+            if ( ! str_contains( $filename, '.' ) ) {
+                $filename = basename( $file );
+            }
+
+            
+            
 
             // Set headers
             header( 'Content-Description: File Transfer' );
@@ -509,9 +533,10 @@ final class SmartWoo {
      * @param string $token The authorization bearer token.
      * @param string $resource_url The URL of the outgoing HTTP request.
      */
-    private function append_http_authorization( $token = '', $resource_url = '' ) {
+    private function set_http_authorization( $token = '', $resource_url = '' ) {
         add_filter( 'http_request_args', function( $args, $url ) use ( $token, $resource_url ) {
             if ( $resource_url === $url ) {
+                // wp_die( $resource_url );
                 $args['headers']['Authorization'] = 'Bearer ' . $token;
             }
             return $args;
