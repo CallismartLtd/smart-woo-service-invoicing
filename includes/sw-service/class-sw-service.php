@@ -767,7 +767,7 @@ class SmartWoo_Service {
 	*/
 
 	/**
-	 * Get all assets for this class.
+	 * Get all assets for a service subscription.
 	 * 
 	 * @return SmartWoo_Service_Asset[] $assets Array of SmartWoo_Service_Asset
 	 * @since 2.0.0
@@ -794,6 +794,27 @@ class SmartWoo_Service {
 		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$result	= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return $result !== null;
+	}
+
+	/**
+	 * Check whether this subscription owns an asset with the given ID
+	 * 
+	 * @param int $asset_id The ID of the asset
+	 * @return bool True when the asset belongs to this service, false otherwise.
+	 * @since 2.4.3
+	 */
+	public function owns_asset( $asset_id ) {
+		if ( ! $this->has_asset() ) {
+			return false;
+		}
+		 
+		foreach ( $this->get_assets() as $asset ) {
+			if ( absint( $asset_id ) === $asset->get_id() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -872,7 +893,7 @@ class SmartWoo_Service {
 		return ob_get_clean();
 	}
 
-/**
+    /**
      |---------------------------------------------------------
      | SERVICE SUBSCRIPTION STATUS CALCULATION METHODS
      |---------------------------------------------------------
@@ -894,7 +915,7 @@ class SmartWoo_Service {
      | The `get_effective_status()` method applies these private conditions in a strict order (Active -> Due -> Grace -> Expired)
      | to yield the final, definitive service status.
      */
-	    public function get_effective_status(): string {
+	public function get_effective_status(): string {
         // 1. Check for explicit status override from the database.
         // This is the raw status property, which acts as the admin override.
         $explicit_db_status = $this->get_status();
