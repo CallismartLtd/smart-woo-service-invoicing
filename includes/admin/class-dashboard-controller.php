@@ -442,7 +442,7 @@ class SmartWoo_Dashboard_Controller {
 		$order		= SmartWoo_Order::get_order( $order_id );
 		
 		if ( ! $order ) {
-			$errors[]	= 'This order does not exists anymore.';
+			$errors[]	= __( 'This order does not exists anymore.', 'smart-woo-service-invoicing' );
 		}
 
 		if ( ! empty( $errors ) ){
