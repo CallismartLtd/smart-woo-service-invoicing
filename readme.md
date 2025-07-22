@@ -319,12 +319,10 @@ The free version includes all the core features needed to manage subscriptions, 
 
 ## Screenshots
 
-1. Client Portal dashboard view.
-2. Subscription usage analytics.
-3. Admin view of all client services and invoices.
-4. Subscription and accounting logs.
-5. Additional client information screen.
-6. Invoice logs and history.
+![Screenshot 1](assets/images/smart-woo-img.png)  
+![Screenshot 2](assets/images/service-page.png)  
+![Screenshot 3](assets/images/smartwoopro-adv-stats.png)  
+![Screenshot 4](assets/images/invoice-sample.png)
 
 ---
 
