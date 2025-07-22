@@ -1,21 +1,23 @@
 === Smart Woo Service Invoicing ===
-Contributors: callismartltd  
-Tags: subscription plugin, billing plugin, woocommerce invoice, service invoicing, automated billing plugin  
+Contributors: callismartltd
+Tags: subscription billing, automated invoicing, recurring payments, service billing, woocommerce invoicing
 Requires at least: 6.4
 Tested up to: 6.8
-Requires WooCommerce: 8.0  
+Requires WooCommerce: 8.0
 WooCommerce tested up to: 9.9.5
-Requires PHP: 7.4  
+Requires PHP: 7.4
 Stable Tag: 2.4.2
-License: GPLv3  
+License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
-More Than Just A Subscription Plugin!
+Automated Service Billing and Subscription Management for WooCommerce.
 
-== Description ==  
-Smart Woo Service Invoicing supercharges your service-based business by automating invoicing at the end of each billing cycle. Built to integrate seamlessly with your WooCommerce-powered store, it’s the perfect solution for freelancers, agencies, and service providers looking to streamline subscription management without straining their budget.
+== Description ==
+Smart Woo Service Invoicing is a **subscription-ready invoicing solution** built for service-based businesses. Whether you offer one-off services, recurring retainers, or subscription plans, Smart Woo automates your billing cycle with **auto-generated invoices, payment reminders, and a professional client portal**.
 
-With powerful automation, a professional client portal, and flexible billing tools, Smart Woo helps you focus on growing your business while it takes care of the repetitive tasks behind the scenes.
+Perfect for **freelancers, agencies, and service providers**, Smart Woo seamlessly integrates with WooCommerce, helping you manage recurring services and invoicing without manual hassle.
+
+With powerful automation, customizable billing rules, and a client-friendly dashboard, Smart Woo lets you focus on delivering services while it handles the **repetitive payment and invoicing tasks**.
 
 == Features ==  
 
@@ -46,7 +48,7 @@ Create invoices for non-registered users and send them directly via email.
 * Smart Payment Links  
 Generate direct payment or auto-login URLs so clients can pay invoices without needing to log into the client portal.
 
-== Every Smart Woo Pro Plan Includes ==  
+== Smart Woo Pro Features ==  
 
 * Advanced Usage Stats  
 Access detailed insights and visual analytics on subscription usage trends.
@@ -85,51 +87,74 @@ Get premium support and automatic updates to keep your system secure and feature
 
 
 == License ==
-This project is licensed under the GPL v3.0+ License.
+This project is licensed under the [GPL v3.0 or later](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 == Prerequisites ==
 
 - **WordPress**: Ensure your WordPress installation is version 6.4 or higher.
-- **WooCommerce**: This plugin requires WooCommerce to be installed and activated. For best performance, use WooCommerce version 8.0 or newer.
+- **WooCommerce**: This plugin requires WooCommerce to be installed and activated. Tested and optimized for WooCommerce 8.0+.
 - **PHP**: A PHP version of 7.4 or later is required. Ensure your hosting environment meets this requirement.
-- **Database**: Ensure your database is running MySQL version 5.6+ or MariaDB version 10.0+ for compatibility.
+- **Database**: Ensure your database is running MySQL version 5.6+ or MariaDB version 10.0+ for compatibility. Most modern WordPress hosting providers already meet these requirements.
 
 == Installation ==
 
-1. Download the plugin's zip file.
-2. Upload the zip file to your WordPress plugin directory.
-3. Activate **Smart Woo Service Invoicing** from the WordPress plugins page.
+= Install from WordPress Dashboard (Recommended) =
+1. In your WordPress admin, go to **Plugins → Add New**.
+2. Search for **Smart Woo Service Invoicing**.
+3. Click **Install Now**, then **Activate**.
+4. After activation, you’ll have the option to **launch the Setup Wizard** from the plugin settings page by clicking the **“Run Setup Wizard”** button.
 
-Alternatively, install it directly from your WordPress dashboard:
-1. Navigate to ‘Plugins’ -> ‘Add New’.
-2. Search for ‘Smart Woo Service and Invoicing’.
-3. Install and activate the plugin.
+= Install from Downloaded ZIP =
+1. Download the plugin zip from WordPress.org or our website.
+2. In your WordPress admin, go to **Plugins → Add New → Upload Plugin**.
+3. Select the zip file, click **Install Now**, then **Activate**.
+4. After activation, you can launch the **Setup Wizard** from the plugin settings page (via the **“Run Setup Wizard”** button).
+
+= WP-CLI (Advanced / Developers) =
+If you have WP-CLI access, you can install and activate Smart Woo with:
+
+    wp plugin install smart-woo-service-invoicing --activate
+
+After activation, launch the Setup Wizard from the plugin settings page by clicking the "Run Setup Wizard" button.
+
+**Next Steps:**  
+Follow our detailed setup article: [Smart Woo Usage Guide](https://callismart.com.ng/smart-woo-usage-guide/).
 
 For more information and updates, visit the [Smart Woo Service Invoicing Plugin page](https://callismart.com.ng/smart-woo-service-invoicing).
 
+
 == Usage ==
 
-1. Create a product from the plugin's service product page.  
-2. Set billing cycles, sign-up fees, and other options specific to the service you offer.  
-3. Customers can now set up their service details during sign-up.  
-4. Manage orders effortlessly through the Service Order page.  
-5. After processing an order from the service order page, the service subscription will be up and running.  
-6. Automatic invoice generation simplifies the renewal process.  
-7. Customers can pay their invoices through the invoice email sent to them or manually log in to the portal to pay.
+Getting started with Smart Woo is easy — follow these simple steps to create services, manage subscriptions, and start automated invoicing:
+
+1. **Create a Service Product**  
+   Go to the plugin's **Service Product** page and create a product for the service you offer.  
+
+2. **Configure Billing Options**  
+   Set billing cycles (monthly, yearly, etc.), sign-up fees, and other service-specific options.  
+
+3. **Customer Sign-Up**  
+   Customers can configure their service details during checkout or sign-up.  
+
+4. **Manage Service Orders**  
+   Process and manage all service orders through the **Service Order** page. Once processed, the service subscription is automatically activated.  
+
+5. **Automated Renewals & Invoicing**  
+   Smart Woo will automatically generate invoices and send them via email at the end of each billing cycle.  
+
+6. **Easy Payments**  
+   Customers can pay invoices directly via the email payment link or by logging into the client portal.  
+
+You can also read our detailed setup article: [Smart Woo Usage Guide](https://callismart.com.ng/smart-woo-usage-guide/).
 
 == Feedback and Contributions ==
 
-We welcome and appreciate user suggestions! Feel free to submit your ideas or report issues. Together, we can make Smart Woo the ultimate solution for service billing on WooCommerce.
-For more information on future releases, release notes, and feature requests, visit the [official release page](http://callismart.com.ng/smart-woo-service-invoicing-release-notes/).
+Your feedback helps shape the future of Smart Woo!  
+- Have a suggestion or feature request? Let us know.  
+- Found a bug or issue? Report it so we can fix it quickly.  
 
-== Author ==
+For release notes, upcoming features, and future updates, visit the [official release page](http://callismart.com.ng/smart-woo-service-invoicing-release-notes/).
 
-- **Author:** Callistus Nwachukwu
-- **Company:** Callismart Tech
-
-== Contributors ==
-
-- Callistus Nwachukwu
 
 == Changelog ==
 
@@ -137,7 +162,7 @@ For more information on future releases, release notes, and feature requests, vi
 **Fixed**
  - WooCommerce on demand asset loading that caused some product search input to break.
  - Invoice portal dashboard bug.
- - Media library wont open.
+ - Media library won't open.
 
 = 2.4.1 - 2025-06-25 =
 
@@ -196,25 +221,54 @@ For more information on future releases, release notes, and feature requests, vi
 * Added
     * Fast checkout feature: Allows clients to configure products and proceed to the checkout page on the same page. Go to settings > advanced to configure the fast checkout feature.
 
-= 2.2.3 - 2025-02-18 =
-* Fixed
-    * Asset key verification bug when downloading files associated with a subscription.
-* Added
-    * Option to send new invoice email when creating a new invoice.
-    * Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
-    * Invoice Payment Links: You can now generate an "auto-login" payment link or a direct invoice order payment link from the admin "view invoice" page.
-
-= [2.2.3] 2025-02-17 =
-- **Fixed**
-  - Asset key verification bug when downloading files associated with a subscription.
-
-- **Added**
-  - Option to send new invoice email when creating a new invoice.
-  - Guest Invoicing Feature: You can now issue invoices to clients who are not registered on your website, all you have to do is to enter their billing details and you are good to go.
-  Invoice Payment Links: You can now generate an "**auto-login**" payment link or a direct invoice order payment link from the admin "**view invoice**" page.
-  - New Invoice Admin UI: The admin's "view-invoice" page design has been enhanced to be more sleek and modern, while the invoice creation and update form user interface has been upgraded to give you a seamless ajax experience.
-
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
+
+== Frequently Asked Questions ==
+
+= 1. What is Smart Woo Service Invoicing? =
+Smart Woo is a powerful WooCommerce extension that allows you to charge both recurring and one-time payments on your WordPress website. Think of it as a subscription plugin with the added flexibility to generate professional invoices for your clients — automatically at the end of their billing cycle.
+
+**Who is Smart Woo for?**  
+Smart Woo is perfect for businesses that collect payments through invoices. Whether you’re a freelancer, property manager, IT service provider, consultant, or run a physical or virtual service-based business, Smart Woo gives you the tools to streamline invoicing and payment collection effortlessly.
+
+= 2. Do I need WooCommerce Subscriptions to use Smart Woo? =
+No. Smart Woo is a standalone alternative to WooCommerce Subscriptions, featuring a robust service subscription and invoicing model — and much more.
+
+= 3. Can I offer one-off services instead of recurring subscriptions? =
+Absolutely! You can set a subscription status to **“Active (NR)”**, which means “not renewable” after the initial billing cycle expires.
+
+= 4. Does Smart Woo work with my existing WooCommerce payment gateways? =
+Yes. Smart Woo works seamlessly with any payment gateway that integrates with WooCommerce.
+
+= 5. Can customers pay invoices without logging in? =
+Yes. Payment reminder emails and new invoice emails include **auto-login payment links**, allowing customers to pay with a single click.
+
+= 6. Does Smart Woo send automated payment reminders? =
+Yes. Smart Woo automatically sends invoice payment reminders, reducing late payments and improving cash flow.
+
+= 7. Can I create invoices for customers who are not registered on my site? =
+Yes. Smart Woo supports **guest invoicing**, enabling you to bill non-registered users via email.
+
+= 8. Do I need coding skills to set up or use Smart Woo? =
+No coding skills are required! Smart Woo is designed to be user-friendly and includes a **Setup Wizard** to walk you through the initial configuration.
+
+= 9. Does Smart Woo work with physical products, or just services? =
+Yes. As long as the product or service has a start, due, and end date, Smart Woo can model it as a subscription. It includes an **asset feature**, making it easy to handle physical items (houses, apartments, water billing) as well as virtual or downloadable assets.
+
+= 10. What’s the difference between the free and Pro version? =
+The free version includes all the core features needed to manage subscriptions, automate invoicing, and collect payments.  
+**Smart Woo Pro** adds advanced features like prorated billing, detailed analytics, automated refunds, custom invoice items, professional PDF attachments, and premium support.  
+[View the Pro features here.](https://callismart.com.ng/smart-woo-service-invoicing/#go-pro)
+
+== Screenshots ==
+
+1. Client Portal dashboard view.
+2. Subscription usage analytics.
+3. Admin view of all client services and invoices.
+4. Subscription and accounting logs.
+5. Additional client information screen.
+6. Invoice logs and history.
+
 
 == Source Code ==
 
@@ -225,4 +279,3 @@ You can access the source code for the Smart Woo Service Invoicing plugin on our
 We are committed to delivering a high-quality user experience and ensuring that our product is safe and bug-free. However, if you encounter any issues, we are dedicated to resolving them swiftly.
 
 For dedicated support, please visit our [support portal](https://callismart.com.ng/support-portal). For general inquiries, use the [WordPress Support Forum](https://wordpress.org/support/plugin/smart-woo-service-invoicing).
-
