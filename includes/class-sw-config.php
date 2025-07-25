@@ -111,6 +111,16 @@ class SmartWoo_Config{
 		add_filter( 'smartwoo_invoice_pages', array( __CLASS__, 'register_invoice_page_callbacks' ) );
 
         // add_filter( 'block_categories_all', array( 'SmartWoo_Blocks', 'register_block_category' ), 20, 2 );
+        add_filter( 'mce_external_plugins', function( $plugins ) {
+            $plugins['smartwoo_table'] = SMARTWOO_DIR_URL . 'assets/js/mce/table/plugin.min.js';
+            return $plugins;
+        } );
+
+        add_filter( 'mce_buttons', function( $buttons ) {
+            $buttons[] = 'smartwoo_table_actions';
+            return $buttons;
+        } );
+
     }
 
     /**
@@ -231,6 +241,7 @@ class SmartWoo_Config{
         $utm_style_uri  = SMARTWOO_DIR_URL . 'assets/css/sw-admin' . $suffix . '.css';
         $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
         $icon_styles    = SMARTWOO_DIR_URL . 'assets/css/sw-icons' . $suffix . '.css';
+        $editor_ui      = SMARTWOO_DIR_URL . 'assets/css/editor/asset-editor' . $suffix . '.css';
 
         wp_register_style( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . 'assets/css/jquery/time-picker' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
@@ -238,6 +249,7 @@ class SmartWoo_Config{
         wp_register_style( 'smartwoo-admin-style', $admin_style, array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-editor-ui', $editor_ui, array(), SMARTWOO_VER, 'all' );
         
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
             wp_enqueue_style( 'smartwoo-style' );
@@ -259,6 +271,7 @@ class SmartWoo_Config{
             wp_enqueue_style( 'smartwoo-admin-style' );
             wp_enqueue_style( 'smartwoo-invoice-style' );
             wp_enqueue_style( 'smartwoo-icon-style' );
+            wp_enqueue_style( 'smartwoo-editor-ui' );
         }
 
         wp_enqueue_style( 'smartwoo-inline' );
@@ -329,11 +342,13 @@ class SmartWoo_Config{
             wp_register_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
 
-            if ( self::in_admin_page() ) {
+            if ( self::in_admin_page() || true ) {
                 wp_enqueue_script( 'wc-enhanced-select' );
                 wp_enqueue_script( 'smartwoo-admin-script' );
                 wp_enqueue_script( 'smartwoo-jquery-timepicker' );
                 wp_enqueue_media();
+                wp_enqueue_editor();
+                
             }
             
         }
