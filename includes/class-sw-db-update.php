@@ -35,6 +35,9 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
         ),
         '2.3.0' => array(
             'smartwoo_230_alter_product_id_column'
+        ),
+        '2.4.3' => array(
+            'smartwoo_db_update_243_service_date_created'
         )
     );
 
@@ -139,11 +142,11 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
         // Create table that do not exist.
         parent::create_tables();
         // Run column update since dbDelta() might be unreliable for this.
-        $current_dbver_changed   = array_key_exists( $this->db_version, $this->schema_changes ) ? $this->schema_changes[$this->db_version] : false;
-        if ( $current_dbver_changed ) {
+        $new_schema   = array_key_exists( $this->db_version, $this->schema_changes ) ? $this->schema_changes[$this->db_version] : false;
+        if ( $new_schema ) {
             // Load the db table file to have access to the properties.
 		    include_once SMARTWOO_PATH . 'includes/admin/include/sw-db.php';
-            foreach( $current_dbver_changed as $func_to_call ) {
+            foreach( $new_schema as $func_to_call ) {
                 if ( function_exists( $func_to_call ) && is_callable( $func_to_call ) ) {
                     call_user_func( $func_to_call );
                 }
