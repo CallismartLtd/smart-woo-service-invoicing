@@ -11,8 +11,8 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 
 /**
-* All the database structures are defined here
-*/
+ * All the database structures are defined here
+ */
 function smartwoo_db_schema() {
 	/**
 	 * Define the structure for the 'sw_service' table.
@@ -31,6 +31,7 @@ function smartwoo_db_schema() {
 		'start_date date DEFAULT NULL',
 		'end_date date DEFAULT NULL',
 		'next_payment_date date DEFAULT NULL',
+		'date_created date DEFAULT NULL',
 		'billing_cycle varchar(20) DEFAULT NULL',
 		'status varchar(20) DEFAULT NULL',
 		'PRIMARY KEY  (id)',
@@ -250,6 +251,30 @@ function smartwoo_230_alter_product_id_column() {
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! empty( $wpdb->last_error ) ) {
 			error_log( "Database error modifying {$column_name}: " . $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+	}
+}
+
+/**
+ * Inclusion of date_created column in the service subscription table.
+ * 
+ * @since 2.4.3
+ */
+function smartwoo_db_update_243_service_date_created() {
+	global $wpdb;
+	$table_name		= SMARTWOO_SERVICE_TABLE;
+	$new_col		= 'date_created';
+	$constrnts		= 'date DEFAULT NULL';
+	$columns		= $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	$column_names	= wp_list_pluck( $columns, 'Field' );
+
+	if ( ! in_array( $new_col, $column_names ) ) {
+		$new_col	= $new_col . ' ' . $constrnts;
+		$query		= "ALTER TABLE {$table_name} ADD {$new_col} AFTER `next_payment_date`;";
+		$result		= $wpdb->query( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		
+		if ( ! $result  && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- False positive, WP_DEBUG status checked.
 		}
 	}
 }
