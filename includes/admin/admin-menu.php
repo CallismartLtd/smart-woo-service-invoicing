@@ -179,7 +179,7 @@ class SmartWoo_Admin_Menu {
 	 * @param string $id The screen ID.
 	 * @param string $context The context of the screen.
 	 */
-	public static function is_screen( $value, $context ) {
+	public static function is_screen( $id, $context ) {
 		$allowed_values = array(
 			'admin'				=> self::instance()->admin_screen_id,
 			'service_orders' 	=> self::instance()->service_order_screen_id,
@@ -188,7 +188,7 @@ class SmartWoo_Admin_Menu {
 			'settings'			=> self::instance()->settings_screen_id,
 		);
 
-		return isset( $allowed_values[ $context ] ) && $allowed_values[ $context ] === $value;
+		return isset( $allowed_values[ $context ] ) && $allowed_values[ $context ] === $id;
 		
 	}
 
