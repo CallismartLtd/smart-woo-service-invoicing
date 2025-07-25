@@ -1,11 +1,14 @@
-html, body {
+html {
 	font-family: Arial, sans-serif;
 	color: #333;
+	height: 100%;
 }
 body {
 	background-color: #f7f8fa;
 	margin: 0;
 	padding: 0;
+	overflow-x: hidden;
+	display: block;
 }
 
 
@@ -67,7 +70,7 @@ body {
 }
 
 .button {
-	min-width: 120px;
+	/* min-width: 120px; */
 	text-align: center;
 	height: 40px;
 	background-color: #FFFFFF;
