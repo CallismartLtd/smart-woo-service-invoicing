@@ -927,6 +927,10 @@ class SmartWoo_Invoice {
 	 * @return bool True if current user can view invoice, false otherwise.
 	 */
 	public function current_user_can_access() {
+
+		if ( wp_doing_cron() ) {
+			return true;
+		}
 		
 		if ( $this->get_user_id() === get_current_user_id() ) {
 			return true;
@@ -966,23 +970,23 @@ class SmartWoo_Invoice {
 	// Helper method to convert database results to SmartWoo_Invoice objects
 	public static function convert_array_to_invoice( $data ) {
 		$self = new SmartWoo_Invoice();
-		$self->set_id( $data['id'] );
-		$self->set_invoice_id( $data['invoice_id'] );
-		$self->set_product_id( $data['product_id'] );
-		$self->set_amount( $data['amount'] );
-		$self->set_total( $data['total'] );
-		$self->set_status( $data['payment_status'] );
-		$self->set_date_created( $data['date_created'] );
-		$self->set_user_id( $data['user_id'] );
-		$self->set_billing_address( $data['billing_address'] );
-		$self->set_type( $data['invoice_type'] );
-		$self->set_service_id( $data['service_id'] );
-		$self->set_fee( $data['fee'] );
-		$self->set_order_id( $data['order_id'] );
-		$self->set_payment_method( $data['payment_gateway'] );
-		$self->set_transaction_id( $data['transaction_id'] );
-		$self->set_date_paid( $data['date_paid'] );
-		$self->set_date_due( $data['date_due'] );
+		$self->set_id( $data['id'] ?? '' );
+		$self->set_invoice_id( $data['invoice_id'] ?? '' );
+		$self->set_product_id( $data['product_id'] ?? '' );
+		$self->set_amount( $data['amount'] ?? '' );
+		$self->set_total( $data['total'] ?? '' );
+		$self->set_status( $data['payment_status'] ?? '' );
+		$self->set_date_created( $data['date_created'] ?? '' );
+		$self->set_user_id( $data['user_id'] ?? '' );
+		$self->set_billing_address( $data['billing_address'] ?? '' );
+		$self->set_type( $data['invoice_type'] ?? '' );
+		$self->set_service_id( $data['service_id'] ?? '' );
+		$self->set_fee( $data['fee'] ?? '' );
+		$self->set_order_id( $data['order_id'] ?? '' );
+		$self->set_payment_method( $data['payment_gateway'] ?? '' );
+		$self->set_transaction_id( $data['transaction_id'] ?? '' );
+		$self->set_date_paid( $data['date_paid'] ?? '' );
+		$self->set_date_due( $data['date_due'] ?? '' );
 
 		/**
 		 * Set up metadata
