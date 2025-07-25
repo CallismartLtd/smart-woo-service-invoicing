@@ -96,6 +96,14 @@ class SmartWoo_Service {
 	private $next_payment_date;
 
 	/**
+	 * Date created.
+	 * 
+	 * @var string $date_created
+	 * @since 2.4.3
+	 */
+	private $date_created;
+
+	/**
 	 * Service billing cycle
 	 * 
 	 * @var string $billing_cycle
@@ -277,6 +285,15 @@ class SmartWoo_Service {
 	}
 
 	/**
+	 * Set the date created
+	 * 
+	 * @param string $date_created
+	 */
+	public function set_date_created( $date_created ){
+		$this->date_created = sanitize_text_field( wp_unslash( $date_created ) );
+	}
+
+	/**
 	 * Set the billing cycle for the service.
 	 *
 	 * @param string $billing_cycle Billing cycle for the service.
@@ -449,6 +466,15 @@ class SmartWoo_Service {
 	}
 
 	/**
+	 * Get date created
+	 * 
+	 * @return string Date the subscription was created
+	 */
+	public function get_date_created() {
+		return $this->date_created;
+	}
+
+	/**
 	 * Get the billing cycle for the service.
 	 *
 	 * @return string|null Billing cycle for the service.
@@ -588,6 +614,17 @@ class SmartWoo_Service {
 		return $total_cost;
 	}
 
+	/**
+	 * Get all the properties as array
+	 * 
+	 * @return array
+	 */
+	public function get_all_props() {
+		$data = get_object_vars( $this );
+
+		return apply_filters( 'smartwoo_service_props', $data );
+	}
+
 	// Helper method to convert database results to SmartWoo_Service objects
 	public static function set_from_array( $data ) {
 		$self = new self();
@@ -601,6 +638,7 @@ class SmartWoo_Service {
 		$self->set_start_date( isset( $data['start_date'] ) ? $data['start_date'] : '' );
 		$self->set_end_date( isset( $data['end_date'] ) ? $data['end_date'] : '' );
 		$self->set_next_payment_date( isset( $data['next_payment_date'] ) ? $data['next_payment_date'] : '' );
+		$self->set_date_created( isset( $data['date_created'] ) ? $data['date_created'] : '' );
 		$self->set_billing_cycle( isset( $data['billing_cycle'] ) ? $data['billing_cycle'] : '' );
 		$self->set_status( isset( $data['status'] ) ? $data['status'] : null );
 		return $self;
