@@ -18,6 +18,7 @@ class SmartWoo_Setup_Wizard {
 	}
 
 	public static function render_setup_page() {
+        header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
         // phpcs:disable
 		?>
         <!DOCTYPE html>
