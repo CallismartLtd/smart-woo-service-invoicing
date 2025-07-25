@@ -184,7 +184,7 @@ class SmartWoo_Dashboard_Controller {
 	}
 
 	/**
-	 * The add new service page
+	 * The add new service subscripton page
 	 */
 	private static function add_new_service_page() {
 		add_filter( 'smartwoo_dropdown_user_meta', function(){
@@ -218,7 +218,7 @@ class SmartWoo_Dashboard_Controller {
 	}
 
 	/**
-	 * Edit service page
+	 * Edit service subscription page
 	 */
 	private static function edit_service_page() {
 		$service_id = smartwoo_get_query_param( 'service_id', '' );
@@ -426,7 +426,7 @@ class SmartWoo_Dashboard_Controller {
 	}
 
 	/**
-	 * Handle new service order form processing from admin
+	 * Handle new service order form processing from admin area.
 	 */
 	public static function process_new_service_order_form() {
 		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
@@ -612,6 +612,13 @@ class SmartWoo_Dashboard_Controller {
 			$asset->delete_all();
 		}
 
+		// BKWD Compatibility
+		// phpcs:disable
+		if ( ! $new_service && ( empty( $service->get_date_created() ) || '0000-00-00' === $service->get_date_created() ) && ! empty( $_POST['smartwoo_update_creation_date'] ) ) {
+			$service->set_date_created( sanitize_text_field( wp_unslash( $_POST['smartwoo_update_creation_date'] ) ) );
+		}
+		// phpcs:enable
+
 		return $service->save() ? $service : new WP_Error( 'service_not_saved', 'Unable to save service to the database' );
 
 	}
@@ -659,7 +666,7 @@ class SmartWoo_Dashboard_Controller {
 			$obj->set_id( $downloadable_assets['download_asset_type_id'] );
 		}
 
-		if ( $obj->get_id() &&  empty( $files ) ) {
+		if ( $obj->get_id() && empty( $files ) ) {
 			$obj->delete();
 		} else {
 			$obj->save();
@@ -680,15 +687,15 @@ class SmartWoo_Dashboard_Controller {
 		 * An `asset_type_name` can almost be equivalent to `downloads`, just that `downloads` is a different asset type
 		 * and `asset_type_name` is a custom asset name added by the user.
 		 */
-
+		$custom_assets = array();
 		if ( count( $asset_type_keys ) === count( $asset_type_values ) ) {
 			$custom_assets = array_combine( $asset_type_keys, $asset_type_values );
 		}
 		$index	= 0;
 
 		foreach( $custom_assets as $key => $value ) {
-			if ( empty( $key ) || empty( $value || empty( $additional_assets[$index] ) ) ) {
-				unset( $custom_assets[$key], $additional_assets[$index], $limits[$index] );
+			if ( empty( $key ) || empty( $value || empty( $asset_type_names[$index] ) ) ) {
+				unset( $custom_assets[$key], $asset_type_names[$index], $limits[$index] );
 				$index++;
 				continue;
 			}
@@ -701,7 +708,6 @@ class SmartWoo_Dashboard_Controller {
 				'access_limit'  => $limits[$index]
 			);
 
-			// Instantiation of SmartWoo_Service_Asset using the convert_array method.
 			$obj = SmartWoo_Service_Assets::convert_arrays( $raw_asset );
 
 			if ( ! empty( $asset_ids[$index] ) ) {
