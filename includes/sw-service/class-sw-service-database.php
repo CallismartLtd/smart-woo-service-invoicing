@@ -713,6 +713,7 @@ class SmartWoo_Service_Database {
 			'start_date'        => sanitize_text_field( $service->get_start_date() ),
 			'end_date'          => sanitize_text_field( $service->get_end_date() ),
 			'next_payment_date' => sanitize_text_field( $service->get_next_payment_date() ),
+			'date_created'		=> current_time( 'mysql' ),
 			'billing_cycle'     => sanitize_text_field( $service->get_billing_cycle() ),
 			'status'            => sanitize_text_field( $service->get_status() ),
 		);
@@ -728,6 +729,7 @@ class SmartWoo_Service_Database {
 			'%s', // start_date
 			'%s', // end_date
 			'%s', // next_payment_date
+			'%s', // Date created
 			'%s', // billing_cycle
 			'%s', // status
 		);
@@ -773,6 +775,7 @@ class SmartWoo_Service_Database {
 			'start_date'        => sanitize_text_field( $service->get_start_date() ),
 			'end_date'          => sanitize_text_field( $service->get_end_date() ),
 			'next_payment_date' => sanitize_text_field( $service->get_next_payment_date() ),
+			'date_created'		=> sanitize_text_field( $service->get_date_created() ?: null ),
 			'billing_cycle'     => sanitize_text_field( $service->get_billing_cycle() ),
 			'status'            => is_null( $service->get_status() ) ? null : sanitize_text_field( $service->get_status() ),
 		);
@@ -787,6 +790,7 @@ class SmartWoo_Service_Database {
 			'%s', // start_date
 			'%s', // end_date
 			'%s', // next_payment_date
+			'%s', // Date created
 			'%s', // billing_cycle
 			'%s', // status
 		);
@@ -912,7 +916,6 @@ class SmartWoo_Service_Database {
 		delete_transient( 'smartwoo_status_' . $service_id );
 		wp_cache_delete( 'smartwoo_status_' . $service_id );
 		SmartWoo::count_all_services();
-
 		return $deleted !== false;
 	}
 }
