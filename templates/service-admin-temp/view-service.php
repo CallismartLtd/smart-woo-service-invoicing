@@ -11,14 +11,26 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="sw-admin-view-details">
     <?php if ( ! $service ) : ?>
-        <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service <a href="' . admin_url( 'admin.php?page=sw-admin' ) . '">back</a>' ) ); ?>
+        
+        <?php printf(
+            wp_kses_post(
+                smartwoo_notice(
+                    /* translators: %s: link to service admin page */
+                    sprintf(
+                        __( 'Invalid or deleted service. %s', 'smart-woo-service-invoicing' ),
+                        '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin' ) ) . '">' . esc_html__( 'Back', 'smart-woo-service-invoicing' ) . '</a>'
+                    )
+                )
+            )
+        );?>
+        
 
     <?php else : ?>
         <div class="sw-admin-view-service-buttons-container">
             <?php echo wp_kses_post( smartwoo_client_service_url_button( $service ) ); ?>
             <?php do_action( 'smartwoo_admin_view_service_button_area', $service ); ?>
-            <a href="<?php echo esc_url( smartwoo_service_edit_url( $service->get_service_id()  ) ); ?>"><button title="Edit Service"><span class="dashicons dashicons-edit"></span></button></a>
-            <button class="delete-service-button" service-id="<?php echo esc_attr( $service_id ); ?>" title="Delete Service"><span class="dashicons dashicons-trash"></span></button>
+            <a href="<?php echo esc_url( smartwoo_service_edit_url( $service->get_service_id()  ) ); ?>"><button title="<?php esc_attr_e( 'Edit Service', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-edit"></span></button></a>
+            <button class="delete-service-button" service-id="<?php echo esc_attr( $service_id ); ?>" title="<?php esc_attr_e( 'Delete Service', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-trash"></span></button>
             <span id="sw-admin-spinner" style="text-align:center; position: absolute; left: 50%; top: 25%;"></span>
         </div>
             
@@ -43,22 +55,23 @@ defined( 'ABSPATH' ) || exit;
                     <h3><?php echo esc_html( $service->get_name() ); ?></h3>
                     <hr>
                     <div>
-                        <p class="smartwoo-container-item"><span>ID:</span> <?php echo esc_html( $service->get_id() ); ?></p>
-                        <p class="smartwoo-container-item"><span>Service ID:</span> <?php echo esc_html( $service->get_service_id() ); ?></p>
-                        <p class="smartwoo-container-item"><span>Type:</span> <?php echo esc_html( $service->get_type() ? $service->get_type() : 'N/A' ); ?></p>
-                        <p class="smartwoo-container-item"><span>Billing Cycle:</span> <?php echo esc_html( $service->get_billing_cycle() ); ?></p>
-                        <p class="smartwoo-container-item"><span>URL:</span> <?php echo esc_html( $service->get_service_url() ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'ID',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( $service->get_id() ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Service ID',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( $service->get_service_id() ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Type',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( $service->get_type() ? $service->get_type() : 'N/A' ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Billing Cycle',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( $service->get_billing_cycle() ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'URL',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( $service->get_service_url() ); ?></p>
                     </div>
                 </div>
 
                 <div class="sw-admin-subinfo">
-                    <h3>Dates</h3>
+                    <h3><?php esc_html_e( 'Billing Overview', 'smart-woo-service-invoicing' ); ?></h3>
                     <hr>
                     <div>
-                        <p class="smartwoo-container-item"><span>Start Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_start_date(), true ) ); ?></p>
-                        <p class="smartwoo-container-item"><span>Next Payment Date:</span> <span style="color:rgb(255, 60, 1)"><?php echo esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), true ) ); ?></span></p>
-                        <p class="smartwoo-container-item"><span>End Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_end_date(), true ) ); ?></p>
-                        <p class="smartwoo-container-item"><span>Expiration Date:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_expiry_date(), true ) ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Date Created',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_date_created(), false ) ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Start Date',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_start_date(), false ) ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Next Payment Date',  'smart-woo-service-invoicing' ); ?>:</span> <span style="color:rgb(255, 60, 1)"><?php echo esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), false ) ); ?></span></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'End Date',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_end_date(), false ) ); ?></p>
+                        <p class="smartwoo-container-item"><span><?php esc_html_e( 'Expiration Date',  'smart-woo-service-invoicing' ); ?>:</span> <?php echo esc_html( smartwoo_check_and_format( $service->get_expiry_date(), false ) ); ?></p>
                     </div>
                 </div>
                 
@@ -68,7 +81,7 @@ defined( 'ABSPATH' ) || exit;
         <?php do_action( 'smartwoo_admin_view_service_before_invoices_section', $service ); ?>
 
         <div class="admin-view-service-invoices">
-            <h3>Recent Invoices <span class="dashicons dashicons-pdf"></span></h3>
+            <h3><?php esc_html_e( 'Recent Invoices', 'smart-woo-service-invoicing' ); ?> <span class="dashicons dashicons-pdf"></span></h3>
             <?php if ( empty( $invoices ) ) : ?>
                 <p><?php esc_html_e( 'No invoice associated with this service.', 'smart-woo-service-invoicing' ) ?></p>
             <?php else : ?>
@@ -76,15 +89,15 @@ defined( 'ABSPATH' ) || exit;
                     <table>
                         <thead>
                             <tr>
-                                <th>Invoice ID</th>
-                                <th>Invoice Date</th>
-                                <th>Due Date</th>
-                                <th>Total</th>
+                                <th><?php esc_html_e( 'Invoice ID', 'smart-woo-service-invoicing' ); ?></th>
+                                <th><?php esc_html_e( 'Invoice Date', 'smart-woo-service-invoicing' ); ?></th>
+                                <th><?php esc_html_e( 'Due Date', 'smart-woo-service-invoicing' ); ?></th>
+                                <th><?php esc_html_e( 'Total', 'smart-woo-service-invoicing' ); ?></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ( $invoices as $invoice ) : ?>
-                                <tr class="admin-view-service-invoices-items smartwoo-prevent-default" href="<?php echo esc_url( $invoice->preview_url() ); ?>" title="View Invoice">
+                                <tr class="admin-view-service-invoices-items smartwoo-prevent-default" href="<?php echo esc_url( $invoice->preview_url() ); ?>" title="<?php esc_attr_e( 'View Invoice', 'smart-woo-service-invoicing' ); ?>">
                                     <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
                                     <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_created() ) ); ?></td>
                                     <td><?php echo esc_html( smartwoo_check_and_format( $invoice->get_date_due() ) ); ?></td>
