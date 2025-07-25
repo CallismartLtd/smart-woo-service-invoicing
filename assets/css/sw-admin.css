@@ -199,9 +199,12 @@ h2.sw-not-found {
     background-color: #ffffff;
     top: 20px;
     width: calc( 100% - 160px);
+    right: auto;
     min-height: 70px;
     z-index: 2;
-    transition: all .2s ease-in-out;
+}
+.folded .sw-admin-dash-header {
+    width: calc(100% - 36px);
 }
 .sw-admin-header-content {
     display: flex;
@@ -381,15 +384,22 @@ body .sw-admin-dash-nav ul li a:focus {
     font-weight: 500;
 }
 @media (min-width: 783px) and (max-width: 960px) {
+    .folded .sw-admin-dash-header {
+        width: 100%;
+    }
     .sw-admin-dash-header {
         width: calc(100% - 36px);
     }
     
 }
 @media (max-width: 782px) {
+    .folded .sw-admin-dash-header {
+        width: 100%;
+    }
     .sw-admin-dash-header {
         width: 100%;
         top: 35px;
+        
     }
         
     .sw-admin-menu-icon {
