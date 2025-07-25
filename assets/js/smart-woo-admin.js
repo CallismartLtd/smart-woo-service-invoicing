@@ -1068,7 +1068,7 @@ function smartwooDatesInputsHandler() {
     }
 
     // Initialize jQuery Datepicker.
-    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date, #date_on_sale_from, #date_on_sale_to, #invoice_due_date' );
+    let dateFields = document.querySelectorAll( '#sw_start_date, #sw_next_payment_date, #sw_end_date, #date_on_sale_from, #date_on_sale_to, #invoice_due_date, #smartwoo_update_creation_date' );
     if (dateFields.length) {
         dateFields.forEach(input => {
             let options = {
