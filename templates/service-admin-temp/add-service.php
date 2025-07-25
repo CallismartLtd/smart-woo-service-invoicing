@@ -86,7 +86,26 @@ defined( 'ABSPATH' ) || exit;
 						</h4>
 						<input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
 						<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
-						<textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"></textarea>
+						<?php
+						wp_editor(
+							'',
+							'smartwoo_asset_editor_1',
+							array(
+								'textarea_name' => 'additional_asset_values[]',
+								'textarea_rows' => 20,
+								'teeny'         => false,
+								'media_buttons' => true,
+								'quicktags'     => array( 'buttons' => 'strong,em,link,block,del,ins,img,ul,ol,li,code,close' ),
+								'tinymce'       => array(
+									'resize'                       	=> true,
+									'browser_spellcheck'           	=> true,
+									'paste_strip_class_attributes'	=> 'all',
+									'wp_autoresize_on'				=> true,
+									'plugins'						=> 'lists,link,paste,hr,textcolor,charmap,smartwoo_table',
+								),
+							)
+						);
+						?>
 					</div>
 					<button id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
 				</div>
