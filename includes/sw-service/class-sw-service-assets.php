@@ -499,13 +499,15 @@ class SmartWoo_Service_Assets {
     }
 
     /**
-     * Check if a service id exists in the database.
+     * Check if a service has an asset.
      * 
-     * @param string $service_id TAhe service ID.
+     * @param string $service_id Public ID of the service subscription to check.
      */
-    public function exists( $service_id ) {
+    public function exists( $service_id = null ) {
         global $wpdb;
-		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+        $service_id = $service_id ?? $this->service_id;
+		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$result	= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return $result !== null;
     }
