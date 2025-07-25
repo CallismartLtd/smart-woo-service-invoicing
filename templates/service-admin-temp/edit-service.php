@@ -129,8 +129,8 @@ defined( 'ABSPATH' ) || exit;
             <div class="sw-service-form-right-container">
                 <div class="sw-service-client-info">
                     <img src="<?php echo esc_url( get_avatar_url( $service->get_user_id() ) ); ?>" loading="lazy" alt="avatar" width="92" height="92">
-                    <p class="sw-user-fullname"><strong>Full name</strong>: <?php echo esc_html( $user_fullname ) ?></p>
-                    <p class="sw-user-email"><strong>Email</strong>: <?php echo esc_html( $user->user_email ); ?></p>
+                    <p class="sw-user-fullname"><strong><?php esc_html_e( 'Full name', 'smart-woo-service-invoicing' ); ?></strong>: <?php echo esc_html( $user_fullname ) ?></p>
+                    <p class="sw-user-email"><strong><?php esc_html_e( 'Email', 'smart-woo-service-invoicing' ); ?></strong>: <?php echo esc_html( $user->user_email ); ?></p>
                     <p id="spinner" style="text-align: center;"></p>
                 </div>
                 <?php smartwoo_dropdown_users( 
@@ -140,9 +140,9 @@ defined( 'ABSPATH' ) || exit;
                         'id'		=> 'smartwooServiceUserDropdown',
                         'add_guest' => false,
                         'name'		=> 'sw_user_id',
-                        'option_none'	=> 'Choose client',
+                        'option_none'	=> __( 'Choose client', 'smart-woo-service-invoicing' ),
                         'required'		=> true,
-                        'field_name'	=> 'A client'
+                        'field_name'	=> __( 'A client', 'smart-woo-service-invoicing' )
                     )
                 ); ?>
 
@@ -167,13 +167,20 @@ defined( 'ABSPATH' ) || exit;
                         <input type="text" id="sw_end_date" name="end_date" value="<?php echo esc_html( $service->get_end_date() ); ?>" autocomplete="off" placeholder="Ends YYYY-MM-DD" field-name="Service end date field" required>	
                     </div>
 
+                    <?php if ( empty( $service->get_date_created() ) || '0000-00-00' === $service->get_date_created() ) : ?>
+                        <div class="sw-service-form-row">
+                            <label for="smartwoo_update_creation_date"><?php esc_html_e( 'Date Created', 'smart-woo-service-invoicing' ); ?></label>
+                            <input type="text" id="smartwoo_update_creation_date" name="smartwoo_update_creation_date" value="" autocomplete="off" placeholder="Ends YYYY-MM-DD">	
+                        </div>
+                    <?php endif; ?>
+
                     <div class="sw-service-form-row">
-                        <label for="status">Status</label>
+                        <label for="status"><?php esc_html_e( 'Status', 'smart-woo-service-invoicing' ); ?></label>
                         <?php smartwoo_service_status_dropdown( $service->get_status(), array( 'class' => 'sw-status' ) ); ?>
                     </div>
                     
                     <div class="sw-service-form-row">
-                        <label for="publish">Save Service</label>
+                        <label for="publish"><?php esc_html_e( 'Save Service', 'smart-woo-service-invoicing' ); ?></label>
                         <button type="submit" class="sw-blue-button button"><span class="dashicons dashicons-cloud-saved"></span> <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
                     </div>
                     
