@@ -1,33 +1,96 @@
 
-
 /**
  * Open the WordPress media library.
- * 
- * @param {Object} options - Options for the media library.
+ *
+ * @param {Object} options - Media library options.
+ * @returns {Promise<Array>} - Resolves to selected media items.
  */
-async function smartwooAssetEditorOpenMediaLibrary( options ) {
+async function smartwooAssetEditorOpenMediaLibrary( options = {} ) {
+    const defaults = {
+        title: 'Select Media',
+        buttonText: 'Insert Media',
+        multiple: false,
+        type: 'image', // 'image', 'video', 'audio', etc.
+        uploadedTo: null
+    };
+
+    const config = Object.assign( {}, defaults, options );
+
     return new Promise( ( resolve ) => {
         const mediaLibrary = wp.media( {
-            title: options.title || 'Select Media',
+            title: config.title,
             button: {
-                text: options.buttonText || 'Insert Media'
+                text: config.buttonText
             },
-            multiple: options.multiple || false,
+            multiple: config.multiple,
             library: {
-                type: options.type || 'image'
+                type: config.type,
+                uploadedTo: config.uploadedTo
             }
         } );
 
         mediaLibrary.on( 'select', () => {
-            const selectedFiles = mediaLibrary.state().get('selection').toJSON();
-            resolve( selectedFiles );
+            const selected = mediaLibrary.state().get( 'selection' ).toJSON();
+            resolve( selected );
+        } );
+
+        mediaLibrary.on( 'close', () => {
+            const selected = mediaLibrary.state().get( 'selection' );
+            if ( !selected || !selected.length ) {
+                resolve( [] );
+            }
         } );
 
         mediaLibrary.open();
     } );
 }
 
+
 document.addEventListener( 'DOMContentLoaded', function () {
+    const smartwooAllowedElements =  [
+        'a[href|target|title|rel|class|style|data-*|aria-*|download]',
+        'abbr[title|class|style|data-*|aria-*]',
+        'acronym[title|class|style|data-*|aria-*]',
+        'b[class|style|data-*|aria-*]',
+        'blockquote[cite|class|style|data-*|aria-*]',
+        'br[class|style|data-*|aria-*]',
+        'code[class|style|data-*|aria-*]',
+        'div[id|class|style|title|data-*|aria-*|contenteditable]',
+        'em[class|style|data-*|aria-*]',
+        'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*]', 
+        'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
+        'hr[class|style|data-*|aria-*]',
+        'i[class|style|data-*|aria-*]',
+        'iframe[src|width|height|frameborder|allowfullscreen|class|style|data-*|aria-*]',
+        'img[src|alt|title|width|height|class|style|data-*|aria-*|draggable|contenteditable]',
+        'li[class|style|title|data-*|aria-*|contenteditable|draggable]',
+        'ol[class|style|title|data-*|aria-*|contenteditable]',
+        'ul[class|style|title|data-*|aria-*|contenteditable]',
+        'p[class|style|title|data-*|aria-*|contenteditable]',
+        'pre[class|style|title|data-*|aria-*]',
+        'section[class|style|data-*|aria-*|contenteditable]',
+        'article[class|style|data-*|aria-*|contenteditable]',
+        'small[class|style|data-*|aria-*]',
+        'span[class|style|title|data-*|aria-*|contenteditable]',
+        'strong[class|style|data-*|aria-*]',
+        'sub[class|style|data-*|aria-*]',
+        'sup[class|style|data-*|aria-*]',
+        'table[border|cellspacing|cellpadding|class|style|data-*|aria-*]',
+        'tbody[class|style|data-*|aria-*]',
+        'thead[class|style|data-*|aria-*]',
+        'tfoot[class|style|data-*|aria-*]',
+        'tr[class|style|data-*|aria-*]',
+        'td[colspan|rowspan|class|style|data-*|aria-*]',
+        'th[colspan|rowspan|scope|class|style|data-*|aria-*]',
+        'time[datetime|class|style|data-*|aria-*]',
+        'video[src|poster|width|height|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+        'audio[src|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+        'svg[*]',
+        'path[*]',
+        'g[*]',
+        'use[*]'
+        ].join(',');
+
     window.smartwoo_tinymce = tinymce;
     smartwoo_tinymce.init({
         selector: '#smartwoo-asset-editor-ui',
@@ -45,7 +108,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
             smart_woo_vars.editor_css_url
         
         ],
-        extended_valid_elements: 'span[class|title|data-*|aria-*],div[class|title|data-*|aria-*]',
+        extended_valid_elements: smartwooAllowedElements,
         font_formats: 'Inter=Inter, sans-serif; Arial=Arial, Helvetica, sans-serif; Verdana=Verdana, Geneva, sans-serif; Tahoma=Tahoma, Geneva, sans-serif; Trebuchet MS=Trebuchet MS, Helvetica, sans-serif; Times New Roman=Times New Roman, Times, serif; Georgia=Georgia, serif; Palatino Linotype=Palatino Linotype, Palatino, serif; Courier New=Courier New, Courier, monospace',
         toolbar_mode: 'sliding',
         content_style: 'body { font-family: "Inter", sans-serif; font-size: 16px; }',
@@ -61,30 +124,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
                 editor.save();
             });
             
-            editor.on('SaveContent', function ( e ) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = e.content;
-                tempDiv.querySelectorAll('[draggable], [contenteditable]').forEach(el => {
-                    el.removeAttribute('draggable');
-                    el.removeAttribute('contenteditable');
-                });
-
-                tempDiv.querySelectorAll('.smartwoo-replace-image').forEach(el => {
-                    el.remove();
-                });
-
-                tempDiv.querySelectorAll('[style]').forEach( el => {
-                    const style = el.getAttribute('style');
-                    if ( style && style.includes('cursor: move') ) {
-                        el.setAttribute('style', style.replace(/cursor:\s*move;?/gi, ''));
-                    }
-                });
-
-
-                e.content = tempDiv.innerHTML;
-                // console.log(e.content);
-                
-            });
+            editor.on( 'SaveContent', smartwooAssetEditorOnSaveCallback );
         }
     });
 });
@@ -216,11 +256,11 @@ function smartwooAssetEditorBuildGallery( selection ) {
  */
 function smartwooAssetEditorBuildAudioPlaylist( selection ) {
     // Helper function for HTML escaping, ensuring robustness for attributes and content
-    const escHtml = str => ( str || '' )
-        .replace( /&/g, '&amp;' )
-        .replace( /</g, '&lt;' )
-        .replace( />/g, '&gt;' )
-        .replace( /"/g, '&quot;' );
+    const escHtml = ( str ) => {
+        let div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML.replace(/"/g, '&quot;');
+    }
 
     // Process and normalize audio file data
     const audios = selection.map( file => ( {
@@ -228,10 +268,9 @@ function smartwooAssetEditorBuildAudioPlaylist( selection ) {
         url: file.url,
         title: file.title || 'Untitled',
         artist: file.meta?.artist || file.artist || file.authorName || 'Unknown Artist',
-        duration: file.fileLength || null, // Keeping this if you need raw seconds
-        durationHuman: file.fileLengthHumanReadable || '', // Keeping this for display if desired
-        thumbnail: file.thumb?.src || file.image?.src || wp.media.defaults.audiosvg_src || 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M32%200C14.3%200%200%2014.3%200%2032s14.3%2032%2032%2032%2032-14.3%2032-32S49.7%200%2032%200zm0%2059.2c-14.9%200-27.2-12.3-27.2-27.2S17.1%204.8%2032%204.8s27.2%2012.3%2027.2%2027.2-12.3%2027.2-27.2%2027.2zM27.2%2017.6h9.6v19.2h-9.6zM46.4%2027.2c-.7%200-1.6.4-1.6%201.1v9.6c0%20.7.8%201.1%201.6%201.1.7%200%201.6-.4%201.6-1.1v-9.6c0-.7-.8-1.1-1.6-1.1zM17.6%2027.2c-.7%200-1.6.4-1.6%201.1v9.6c0%20.7.8%201.1%201.6%201.1.7%200%201.6-.4%201.6-1.1v-9.6c0-.7-.8-1.1-1.6-1.1zM32%2012.8c-1.3%200-2.4%201-2.4%202.4V24c0%201.3%201%202.4%202.4%202.4s2.4-1%202.4-2.4v-8.8c0-1.3-1-2.4-2.4-2.4z%22%20fill%3D%22%232C2E35%22%2F%3E%3C%2Fsvg%3E', // Default SVG fallback
-        mime: file.mime,
+        duration: file.fileLength || null,
+        durationHuman: file.fileLengthHumanReadable || '',
+        thumbnail: file.thumb?.src || file.image?.src || wp.media.defaults.audiosvg_src || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2366ccff%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236600ff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22url(%23g)%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M44%2016v26.2a6.8%206.8%200%201%201-2-4.8V24h-14v18.2a6.8%206.8%200%201%201-2-4.8V20a2%202%200%200%201%202-2h16a2%202%200%200%201%202%202z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E',        mime: file.mime,
         album: file.meta?.album || '',
     } ) );
 
@@ -244,69 +283,61 @@ function smartwooAssetEditorBuildAudioPlaylist( selection ) {
 
     // Build individual playlist items
     const playlistItems = audios.map( ( audio, index ) => `
-        <li class="smartwoo-playlist__item" data-index="${index}">
+        <li class="smartwoo-playlist__item" data-index="${index}" draggable="true" contenteditable="true">
             <span class="smartwoo-playlist__title">${escHtml( audio.title )}</span>
             ${ audio.artist ? `<span class="smartwoo-playlist__artist">${escHtml( audio.artist )}</span>` : '' }
+            <span class="drag-handle"></span>
         </li>
     ` ).join( '' );
 
-    // Stringify and escape JSON for the data attribute
-    // Note: JSON.stringify already escapes double quotes. We only need to ensure
-    // that the attribute's wrapping quotes don't conflict. Since template literals
-    // typically use double quotes for attributes if not specified,
-    // JSON.stringify's default escaping is usually sufficient.
     const playlistJson = JSON.stringify( audios ).replace( /"/g, '&quot;' );
-
-
     const playlistHtml = `
         <div class="smartwoo-audio-playlist" contenteditable="false" data-playlist='${playlistJson}'>
             <div class="smartwoo-audio-player">
-                <div class="smartwoo-audio-player__thumbnail">
-                    <img class="smartwoo-thumbnail" src="${escHtml(firstTrack.thumbnail)}" alt="${escHtml(firstTrack.title || 'Audio thumbnail')}">
+                <div class="smartwoo-audio-player__thumbnail" contenteditable="false">
+                    <img class="smartwoo-thumbnail" contenteditable="false" src="${escHtml(firstTrack.thumbnail)}" alt="${escHtml(firstTrack.title || 'Audio thumbnail')}">
                 </div>
-                <div class="smartwoo-audio-player__layout">
-                    <div class="smartwoo-audio-player__now-playing">
+                <div class="smartwoo-audio-player__layout" contenteditable="false">
+                    <div class="smartwoo-audio-player__now-playing" contenteditable="false">
                         <span class="smartwoo-current-title">${escHtml( firstTrack.title )}</span>
                         <span>&#8226;</span>
                         <span class="smartwoo-current-artist">${escHtml( firstTrack.artist )}</span>
                     </div>
 
-                    <div class="smartwoo-audio-player__seek">
-                        <audio class="smartwoo-audio" hidden src="${escHtml(firstTrack.url)}" controls></audio>
-                        <div class="smartwoo-audio-player__progress">
-                            <div class="smartwoo-progress-bar"></div>
-                            <div class="smartwoo-progress-bar__scrubber"></div>
+                    <div class="smartwoo-audio-player__seek" contenteditable="false">
+                        <div class="smartwoo-audio-player__progress" contenteditable="false">
+                            <div class="smartwoo-progress-bar" contenteditable="false"></div>
                         </div>
 
-                        <div class="smartwoo-audio-player__time">
+                        <div class="smartwoo-audio-player__time" contenteditable="false">
                             <span class="smartwoo-time-current">0:00</span> / <span class="smartwoo-time-duration">0:00</span>
                         </div>
                     </div>
 
-                    <div class="smartwoo-audio-player__controls">
-                        <div class="smartwoo-audio-player__control-group smartwoo-audio-player-volume-container">
-                            <span class="dashicons dashicons-controls-volumeon smartwoo-volume-toggle" title="Toggle Volume"></span>
-                            <div class="smartwoo-volume-slider">
-                                <div class="smartwoo-volume-progress"></div>
-                                <div class="smartwoo-volume-scrubber"></div>
+                    <div class="smartwoo-audio-player__controls" contenteditable="false">
+                        <div class="smartwoo-audio-player__control-group smartwoo-audio-player-volume-container" contenteditable="false">
+                            <span class="dashicons dashicons-controls-volumeon smartwoo-volume-toggle" title="Mute"></span>
+                            <div class="smartwoo-volume-slider" contenteditable="false">
+                                <div class="smartwoo-volume-progress" contenteditable="false"></div>
                             </div>
                         </div>
 
-                        <div class="smartwoo-audio-player__control-group smartwoo-audio-player-controls">
-                            <span class="smartwoo-control smartwoo-prev dashicons dashicons-controls-skipback" title="Previous"></span>
-                            <div class="smartwoo-audio-player play-pause-toggle">
-                                <span class="smartwoo-control smartwoo-pause" title="Pause"></span>
+                        <div class="smartwoo-audio-player__control-group smartwoo-audio-player-controls" contenteditable="false">
+                            <span class="smartwoo-control smartwoo-prev dashicons dashicons-controls-skipback" title="Previous" contenteditable="false"></span>
+                            <div class="smartwoo-audio-player play-pause-toggle" contenteditable="false">
+                                <span class="smartwoo-control smartwoo-pause" style="display: none;" title="Pause"></span>
+                                <span class="smartwoo-control smartwoo-play" title="Play"></span>
                             </div>
-                            <span class="smartwoo-control smartwoo-next dashicons dashicons-controls-skipforward" title="Next"></span>
+                            <span class="smartwoo-control smartwoo-next dashicons dashicons-controls-skipforward" title="Next" contenteditable="false"></span>
                         </div>
 
-                        <div class="smartwoo-audio-player__control-group smartwoo-playlist-control">
-                            <span class="dashicons dashicons-playlist-audio" title="Toggle Playlist"></span>
+                        <div class="smartwoo-audio-player__control-group smartwoo-playlist-control" contenteditable="false">
+                            <span class="dashicons dashicons-playlist-audio" title="Toggle Playlist" contenteditable="false"></span>
                         </div>
                     </div>
                 </div>
-                <div class="smartwoo-audio-player__playlist">
-                    <ul class="smartwoo-playlist">
+                <div class="smartwoo-audio-player__playlist" contenteditable="false">
+                    <ul class="smartwoo-playlist" contenteditable="false">
                         ${playlistItems}
                     </ul>
                 </div>
@@ -364,14 +395,95 @@ function smartwooEnableImageReplacement( editor ) {
  
 }
 
-/**
- * Audio playlist interaction.
- * 
- * @param {Object} editor - The TinyMCE editor instance.
- */
+let draggedItem = null;
+
 function smartwooEnableAudioPlaylist( editor ) {
-    const audioPlayers = editor.getBody().querySelectorAll( '.smartwoo-audio-playlist' );
+    const audioPlayers  = editor.getBody().querySelectorAll( '.smartwoo-audio-playlist' );
+    const playlistItems = editor.getBody().querySelectorAll( '.smartwoo-playlist__item' );
+
     audioPlayers.forEach( player => {
         smartWooinitAssetAudioPlayer( player );
     });
+
+    playlistItems.forEach( item => {      
+        item.addEventListener( 'dragstart', ( e ) => {
+            try {
+                draggedItem = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData( 'text/plain', draggedItem.dataset.index );
+                e.target.classList.add( 'dragging' );
+            } catch (error) {}
+            
+        });
+
+        item.addEventListener( 'dragover', ( e ) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        item.addEventListener( 'drop', ( e ) => {
+            e.preventDefault();
+            if ( draggedItem && draggedItem !== e.target ) {
+                try {
+                    const fromIndex = parseInt( draggedItem.dataset.index, 10 );
+                    const toIndex   = parseInt( e.target.dataset.index, 10 );
+
+                    const parent    = draggedItem.parentNode;
+                    parent.insertBefore( draggedItem, toIndex < fromIndex ? e.target : e.target.nextSibling );
+                } catch (error) {}
+            }
+
+            draggedItem = null;
+        });
+
+        item.addEventListener( 'dragend', ( e ) => {
+            e?.target?.classList?.remove( 'dragging' );
+        });
+    });
+}
+
+/**
+ * Callback for sanitizing content in the TinyMCE editor before save.
+ *
+ * @param {Object} e - The event object.
+ * @param {Object} editor - The TinyMCE editor instance.
+ */
+function smartwooAssetEditorOnSaveCallback( e, editor ) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString( e.content, 'text/html' );
+    const body = doc.body;
+
+    // Attributes to strip globally
+    const stripAttributes = [ 'draggable', 'contenteditable' ];
+
+    // Unwanted inline styles (pattern or exact match)
+    const styleCleanupPatterns = [
+        /cursor:\s*move;?/gi,
+        /user-select:\s*[^;]+;?/gi,
+        /pointer-events:\s*[^;]+;?/gi
+    ];
+
+    // Remove unwanted attributes
+    stripAttributes.forEach( attr => {
+        body.querySelectorAll( `[${ attr }]` ).forEach( el => {
+            el.removeAttribute( attr );
+        } );
+    } );
+
+    // Remove control elements (e.g. overlay buttons)
+    body.querySelectorAll( '.smartwoo-replace-image' ).forEach( el => el.remove() );
+
+    // Sanitize inline styles
+    body.querySelectorAll( '[style]' ).forEach( el => {
+        let style = el.getAttribute( 'style' );
+        if ( ! style ) return;
+
+        styleCleanupPatterns.forEach( pattern => {
+            style = style.replace( pattern, '' );
+        } );
+
+        el.setAttribute( 'style', style.trim() );
+    } );
+
+    e.content = body.innerHTML;
 }
