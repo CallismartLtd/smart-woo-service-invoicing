@@ -370,11 +370,93 @@ function smartWooinitAssetAudioPlayer( assetAudioPlayer ) {
     return audio;
 }
 
-addEventListener( 'DOMContentLoaded', () => {
+const smartwooVideoThumbCache = new Map();
+
+/**
+ * Get thumbnail for a given video URL.
+ *
+ * @param {string} url - The video URL.
+ * @return {Promise<string>} - The thumbnail URL or fallback image.
+ */
+async function smartwooGetVideoThumbnail( url ) {
+    const fallback = 'data:image/svg+xml;base64,' + btoa(`
+        <svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#1e1e1e"/>
+        <circle cx="320" cy="180" r="60" fill="#ffffff20" stroke="#ffffff60" stroke-width="4"/>
+        <polygon points="310,150 350,180 310,210" fill="#ffffffb0"/>
+        <text x="50%" y="85%" text-anchor="middle" font-family="Arial, sans-serif"
+                font-size="16" fill="#cccccc">Video Thumbnail Unavailable</text>
+        </svg>
+    `);
+
+
+    const filename = url.split( '/' ).pop();
+    if ( smartwooVideoThumbCache.has( filename ) ) {
+        return smartwooVideoThumbCache.get( filename );
+    }
+
+    try {
+        const blobUrl = await new Promise( ( resolve, reject ) => {
+            const video = document.createElement( 'video' );
+            video.crossOrigin = 'anonymous';
+            video.preload     = 'auto';
+            video.muted       = true;
+            video.playsInline = true;
+            video.src         = url;
+
+            video.addEventListener( 'error', () => reject( 'Video failed to load' ) );
+
+            video.addEventListener( 'loadeddata', () => {
+                try {
+                    video.currentTime = 1;
+                } catch (e) {
+                    reject( 'Seeking failed: ' + e.message );
+                }
+            });
+
+            video.addEventListener( 'seeked', () => {
+                try {
+                    const canvas = document.createElement( 'canvas' );
+                    canvas.width  = video.videoWidth;
+                    canvas.height = video.videoHeight;
+
+                    const ctx = canvas.getContext( '2d' );
+                    ctx.drawImage( video, 0, 0, canvas.width, canvas.height );
+
+                    canvas.toBlob( blob => {
+                        if ( blob ) {
+                            const thumbnailUrl = URL.createObjectURL( blob );
+                            resolve( thumbnailUrl );
+                        } else {
+                            reject( 'Canvas to blob failed' );
+                        }
+                    }, 'image/jpeg', 0.92 );
+                } catch (err) {
+                    reject( 'Drawing thumbnail failed: ' + err.message );
+                }
+            });
+        });
+
+        smartwooVideoThumbCache.set( filename, blobUrl );
+        return blobUrl;
+
+    } catch (error) {
+        console.warn( 'Thumbnail generation failed:', error );
+        return fallback;
+    }
+}
+
+addEventListener( 'DOMContentLoaded', async () => {
     let assetAudioPlayers = document.querySelectorAll( '.smartwoo-audio-playlist' );
     
     assetAudioPlayers.forEach( ( player ) => {
         smartWooinitAssetAudioPlayer( player );
     });
     
+smartwooGetVideoThumbnail('https://callismart.local/wp-content/uploads/2025/07/5493992aacd436b9faebba03af4f43c.mp4').then(url => {
+    const img = new Image();
+    img.src = url;
+    document.body.appendChild(img);
+}).catch(console.error);
+
 });
