@@ -217,7 +217,9 @@ ul.smartwoo-playlist {
     transition: all 0.5s ease-in-out;
 }
 .smartwoo-audio-playlist.playlist-active .smartwoo-audio-player__playlist {
-    max-height: 700px;
+    max-height: 500px;
+    overflow-y: scroll;
+    height: 200px;
 }
 .smartwoo-audio-playlist.playlist-active ul.smartwoo-playlist {
     transform: translateY(0);
@@ -283,3 +285,5 @@ audio.smartwoo-audio {
     transition: width 0.1s ease-in-out;
     border-radius: 4px;
 }
+
+
