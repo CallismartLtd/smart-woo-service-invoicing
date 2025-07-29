@@ -13,32 +13,31 @@ function smartWooinitAssetAudioPlayer( assetAudioPlayer ) {
     const audio             = document.createElement( 'audio' );
     const playlistDataAttr  = assetAudioPlayer.dataset.playlist;
     const playlist          = playlistDataAttr ? JSON.parse( playlistDataAttr.replace(/&quot;/g, '"') ) : []; // Parse playlist data
-    // console.log(playlist );
     
-    // Player controls
+    // Player controls.
     const playPauseToggleContainer  = assetAudioPlayer.querySelector( '.smartwoo-audio-player.play-pause-toggle' );
     const playBtn                   = playPauseToggleContainer.querySelector( '.smartwoo-play' );
     const pauseBtn                  = playPauseToggleContainer.querySelector( '.smartwoo-pause' );
     const prevBtn                   = assetAudioPlayer.querySelector( '.smartwoo-prev' );
     const nextBtn                   = assetAudioPlayer.querySelector( '.smartwoo-next' );
 
-    // Seek bar elements (custom div-based)
+    // Seek bar elements.
     const progressContainer = assetAudioPlayer.querySelector( '.smartwoo-audio-player__progress' );
     const progressBar       = assetAudioPlayer.querySelector( '.smartwoo-progress-bar' );
     const currentTimeSpan   = assetAudioPlayer.querySelector( '.smartwoo-time-current' );
     const durationSpan      = assetAudioPlayer.querySelector( '.smartwoo-time-duration' );
 
-    // Volume controls (custom div-based)
+    // Volume controls.
     const volumeToggleIcon      = assetAudioPlayer.querySelector( '.smartwoo-volume-toggle' );
     const volumeSliderContainer = assetAudioPlayer.querySelector( '.smartwoo-volume-slider' );
     const volumeProgressBar     = assetAudioPlayer.querySelector( '.smartwoo-volume-progress' );
 
-    // Now Playing info
+    // Now Playing info.
     const currentTitleSpan      = assetAudioPlayer.querySelector( '.smartwoo-current-title' );
     const currentArtistSpan     = assetAudioPlayer.querySelector( '.smartwoo-current-artist' );
     const thumbnailImg          = assetAudioPlayer.querySelector( '.smartwoo-thumbnail' );
 
-    // Playlist elements
+    // Playlist elements.
     const playlistItemsContainer    = assetAudioPlayer.querySelector( 'ul.smartwoo-playlist' );
     const playlistToggle            = assetAudioPlayer.querySelector( '.smartwoo-audio-player__control-group.smartwoo-playlist-control .dashicons-playlist-audio' );
     
