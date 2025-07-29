@@ -57,7 +57,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
         'code[class|style|data-*|aria-*]',
         'div[id|class|style|title|data-*|aria-*|contenteditable]',
         'em[class|style|data-*|aria-*]',
-        'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*]', 
+        'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*|contenteditable]', 
         'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
         'hr[class|style|data-*|aria-*]',
         'i[class|style|data-*|aria-*]',
@@ -196,7 +196,7 @@ function smartwooAssetEditorResolveHtmlBuilder( type ) {
         case 'image':
             return [smartwooAssetEditorBuildGallery, smartwooEnableImageReplacement];
         case 'video':
-            return smartwooAssetEditorBuildVideoPlaylist;
+            return [smartwooAssetEditorBuildVideoPlaylist, null];
         case 'audio':
             return [smartwooAssetEditorBuildAudioPlaylist, smartwooEnableAudioPlaylist];
         default:
@@ -337,6 +337,7 @@ function smartwooAssetEditorBuildAudioPlaylist( selection ) {
                     </div>
                 </div>
                 <div class="smartwoo-audio-player__playlist" contenteditable="false">
+                    <h3 contenteditable="true"> Playlist</h3>
                     <ul class="smartwoo-playlist" contenteditable="false">
                         ${playlistItems}
                     </ul>
@@ -348,6 +349,41 @@ function smartwooAssetEditorBuildAudioPlaylist( selection ) {
     return playlistHtml;
 }
 
+/**
+ * Build HTML for a video playlist block in the editor.
+ *
+ * @param {Array} selection - Array of selected video file objects from wp.media.
+ * @returns {string} - HTML string to be inserted into TinyMCE editor.
+ */
+function smartwooAssetEditorBuildVideoPlaylist( selection ) {
+    if ( ! selection || ! selection.length ) {
+        return '';
+    }
+
+    const videos = selection.map( file => {
+        return {
+            url: file.url,
+            title: file.title || '',
+            mime: file.mime || 'video/mp4'
+        };
+    });
+
+    const playlistHtml = `
+        <div class="smartwoo-video-playlist">
+            ${videos.map( ( video, index ) => `
+                <div class="smartwoo-playlist__item" data-index="${index}" draggable="true" contenteditable="false">
+                    <video controls preload="metadata" class="smartwoo-playlist__video">
+                        <source src="${video.url}" type="${video.mime}" />
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="smartwoo-playlist__title">${video.title}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    return playlistHtml;
+}
 
 
 
