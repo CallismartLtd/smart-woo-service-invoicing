@@ -55,7 +55,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
         'blockquote[cite|class|style|data-*|aria-*]',
         'br[class|style|data-*|aria-*]',
         'code[class|style|data-*|aria-*]',
-        'div[id|class|style|title|data-*|aria-*|contenteditable]',
+        'div[id|class|style|title|data-*|aria-*|draggable|contenteditable]',
         'em[class|style|data-*|aria-*]',
         'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*|contenteditable]', 
         'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
@@ -103,7 +103,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
         height: 600,
         promotion: false,
         content_css: [
-            'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
+            // 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
             smart_woo_vars.dashicons_asset_url,
             smart_woo_vars.editor_css_url
         
@@ -181,6 +181,11 @@ function smartwooCollectionManager( editor ) {
 
             editor.insertContent(content);
             callbackScript && callbackScript( editor );
+            // editor.on( 'SetContent', () => callbackScript && callbackScript( editor ) );
+            // editor.on( 'Undo', () => callbackScript && callbackScript( editor ) );
+            // editor.on( 'Redo', () => callbackScript && callbackScript( editor ) );
+            editor.on( 'init change undo redo SetContent', () => callbackScript && callbackScript( editor ) );
+            
         }
     });
 }
@@ -194,7 +199,7 @@ function smartwooCollectionManager( editor ) {
 function smartwooAssetEditorResolveHtmlBuilder( type ) {
     switch (type) {
         case 'image':
-            return [smartwooAssetEditorBuildGallery, smartwooEnableImageReplacement];
+            return [smartwooAssetEditorBuildGallery, smartwooImageGalleryBindEvents];
         case 'video':
             return [smartwooAssetEditorBuildVideoPlaylist, smartwooEnableVideoPlaylist];
         case 'audio':
@@ -224,25 +229,41 @@ function smartwooAssetEditorBuildGallery( selection ) {
     });
 
     const galleryHtml = `
-        <div class="smartwoo-gallery" style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0;">
+        <div class="smartwoo-gallery" style="" contenteditable="false">
             ${images.map( (img, index) => `
-                <div class="smartwoo-gallery-item" draggable="true" contenteditable="false"
-                    style="position: relative; cursor: move; width: calc(33.333% - 12px); min-width: 150px; box-sizing: border-box; background: #fafafa; border: 1px solid #ccc; padding: 8px; border-radius: 6px;">
-                    <div class="smartwoo-image-wrapper" style="position: relative; overflow: hidden;">
-                        <img src="${img.url}" alt="${img.alt}" title="${img.title}"
+                <div class="smartwoo-gallery-item" draggable="true" data-item-index="${index}" contenteditable="true"
+                    style="cursor: move; background: #fafafa; border: 1px solid #ccc;">
+                    <div class="smartwoo-image-wrapper">
+                        <img src="${img.url}" alt="${img.alt}" title="${img.title}" 
                             data-image-index="${index}" draggable="false"
                             style="width: 100%; height: auto; display: block; overflow: auto; max-width: 100%; min-height: 60px;" contenteditable="true" />
 
-                        <button type="button" title="✏️ Replace" class="smartwoo-replace-image" data-image-index="${index}"
-                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                                background: rgba(0, 0, 0, 0.5); color: #fff; border: none;
-                                border-radius: 4px; padding: 6px 10px; font-size: 14px; cursor: pointer;
-                                opacity: 0; transition: opacity 0.2s;">
-                            ✏️ Replace
-                        </button>
+                        <div class="smartwoo-image-actions" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.2s;
+                            display: flex; gap: 10px; justify-content: center; width: 100%;" contenteditable="false">
+                            <button type="button" title="Replace" class="smartwoo-replace-image" data-image-index="${index}"
+                                style="background: rgba(0, 0, 0, 0.5); color: #fff; border: none;
+                                    border-radius: 4px; padding: 6px 10px; font-size: 14px; cursor: pointer;" contenteditable="false">
+                                <span class="dashicons dashicons-edit" contenteditable="false"></span>
+                                Replace
+                            </button>
+
+                            <button type="button" title="Delete" class="smartwoo-delete-image" data-image-index="${index}"
+                                style="background: rgba(0, 0, 0, 0.5); color: #fff; border: none;
+                                    border-radius: 4px; padding: 6px 10px; font-size: 14px; cursor: pointer;">
+                                <span class="dashicons dashicons-trash"></span>
+                                Delete
+                            </button>
+                        </div>
+                        
                     </div>
                 </div>
+
             `).join('')}
+            <div class="editor-only" contenteditable="false" style="position: relative; cursor: pointer; width: calc(33.333% - 12px); min-width: 150px; box-sizing: border-box; background: #fafafa; border: 1px solid #ccc; padding: 8px; border-radius: 6px;">
+                <div class="smartwoo-add-image" title="Add image">
+                    <span class="dashicons dashicons-plus-alt add-icon"></span>
+                </div>
+            </div>
         </div>
     `;
     return galleryHtml;
@@ -433,43 +454,189 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
 
 
 
-/**
- * Replace an image in the gallery.
- */
-function smartwooEnableImageReplacement( editor ) {
-    const container = editor.getBody().querySelector( '.smartwoo-gallery' );
-    if ( ! container ) return;
-    container.querySelectorAll( '.smartwoo-replace-image').forEach( button => {
-        button.addEventListener( 'click', async ( e ) => {
-            e.preventDefault();
-            const imgEl = button.closest( '.smartwoo-gallery-item' )?.querySelector('img');
-            if ( ! imgEl ) return;
 
+
+
+
+let draggedItem = null;
+
+/**
+ * Bind gallery event handlers using event delegation.
+ *
+ * @param {tinymce.Editor} editor
+ */
+function smartwooImageGalleryBindEvents( editor ) {
+    const body = editor.getBody();
+    const galleryContainer = body.querySelector( '.smartwoo-gallery' );
+
+    if ( ! galleryContainer ) return;
+
+    // Delegate click events
+    galleryContainer.addEventListener( 'click', ( event ) => {
+        const target = event.target.closest( '.smartwoo-add-image, .smartwoo-replace-image, .smartwoo-delete-image' );
+        if ( ! target ) return;
+
+        event.preventDefault();
+
+        if ( target.classList.contains( 'smartwoo-add-image' ) ) {
+            addImageToGallery( editor );
+            event.stopImmediatePropagation();
+            return;
+        }
+
+        if ( target.classList.contains( 'smartwoo-replace-image' ) ) {
+            const imgEl = target.closest( '.smartwoo-gallery-item' )?.querySelector( 'img' );
+            if ( ! imgEl ) return;
+            
             const mediaFrame = wp.media({
                 title: 'Replace Image',
                 multiple: false,
-                library: {
-                    type: 'image'
-                },
-                button: {
-                    text: 'Replace Image'
-                }
+                library: { type: 'image' },
+                button: { text: 'Replace Image' }
             });
 
-            mediaFrame.on( 'select', function () {
-                const attachment = mediaFrame.state().get('selection').first().toJSON();
+            mediaFrame.on( 'select', () => {
+                const attachment = mediaFrame.state().get( 'selection' ).first().toJSON();
                 imgEl.src = attachment.url;
-                imgEl.setAttribute('alt', attachment.alt || '');
-                imgEl.setAttribute('title', attachment.title || '');
+                imgEl.setAttribute( 'alt', attachment.alt || '' );
+                imgEl.setAttribute( 'title', attachment.title || '' );
             });
 
             mediaFrame.open();
-        });
+            event.stopImmediatePropagation();
+            return;
+        }
+
+        if ( target.classList.contains( 'smartwoo-delete-image' ) ) {
+            const imageItem = target.closest( '.smartwoo-gallery-item' );
+            if ( imageItem ) {
+                editor.undoManager.transact( () => {
+                    editor.dom.remove( imageItem );
+                });
+            }
+        }
+
     });
- 
+
+    // Delegate hover (mouseover/mouseleave) for replace button opacity
+    galleryContainer.addEventListener( 'mouseover', ( event ) => {
+        const btn = event.target.closest( '.smartwoo-image-actions' );
+        if ( btn ){
+            btn.style.opacity = '1';
+            setTimeout( () => btn.style.opacity = '0', 3000 )
+        }
+    });
+
+    galleryContainer.addEventListener( 'mouseleave', ( event ) => {
+        const btn = event.target.closest( '.smartwoo-image-actions' );
+        if ( btn ) btn.style.opacity = '0';
+    });
+
+    // Delegate drag events for gallery items
+    let draggedItem = null;
+
+    galleryContainer.addEventListener( 'dragstart', ( event ) => {
+        const item = event.target.closest( '.smartwoo-gallery-item' );
+        if ( item ) {
+            draggedItem = item;
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData( 'text/plain', item.getAttribute( 'data-item-index' ) );
+            item.classList.add( 'dragging' );
+        }
+    });
+
+    galleryContainer.addEventListener( 'dragover', ( event ) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    });
+
+    galleryContainer.addEventListener( 'drop', ( event ) => {
+        event.preventDefault();
+        const target = event.target.closest( '.smartwoo-gallery-item' );
+
+        if ( draggedItem && target && draggedItem !== target ) {
+            const parent = draggedItem.parentNode;
+            const fromIndex = parseInt( draggedItem.getAttribute( 'data-item-index' ), 10 );
+            const toIndex = parseInt( target.getAttribute( 'data-item-index' ), 10 );
+
+            parent.insertBefore( draggedItem, toIndex < fromIndex ? target : target.nextSibling );
+        }
+
+        draggedItem = null;
+    });
+
+    galleryContainer.addEventListener( 'dragend', ( event ) => {
+        event.target.classList.remove( 'dragging' );
+    });
 }
 
-let draggedItem = null;
+function addImageToGallery( editor ) {
+    const body = editor.getBody();
+    const galleryContainer = body.querySelector( '.smartwoo-gallery' );
+    if ( ! galleryContainer ) return;
+
+    const frame = wp.media({
+        title: 'Add Images to Gallery',
+        multiple: true,
+        library: { type: 'image' },
+        button: { text: 'Add Selected Images' }
+    });
+
+    frame.on( 'select', () => {
+        const selection = frame.state().get( 'selection' );
+
+        selection.each( function( attachment ) {
+            attachment = attachment.toJSON();
+
+            const newItem   = document.createElement( 'div' );
+            const index     = Date.now();
+            newItem.className = 'smartwoo-gallery-item';
+            newItem.setAttribute( 'draggable', 'true' );
+            newItem.setAttribute( 'contenteditable', 'true' );
+            newItem.setAttribute( 'data-item-index', index );
+            newItem.style = `
+                position: relative; cursor: move; width: calc(33.333% - 12px); min-width: 150px;
+                box-sizing: border-box; background: #fafafa; border: 1px solid #ccc;
+                padding: 8px; border-radius: 6px;
+            `;
+
+            newItem.innerHTML = `
+                <div class="smartwoo-image-wrapper" style="position: relative; overflow: hidden;">
+                    <img src="${attachment.url}" alt="${attachment.alt || ''}" title="${attachment.title || ''}"
+                        draggable="false"
+                        style="width: 100%; height: auto; display: block; max-width: 100%; min-height: 60px;" />
+                    <div class="smartwoo-image-actions" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.2s;
+                        display: flex; gap: 10px; justify-content: center; width: 100%;" contenteditable="false">
+                        <button type="button" title="Replace" class="smartwoo-replace-image" data-image-index="${index}"
+                            style="background: rgba(0, 0, 0, 0.5); color: #fff; border: none;
+                                border-radius: 4px; padding: 6px 10px; font-size: 14px; cursor: pointer;" contenteditable="false">
+                            <span class="dashicons dashicons-edit" contenteditable="false"></span>
+                            Replace
+                        </button>
+
+                        <button type="button" title="Delete" class="smartwoo-delete-image" data-image-index="${index}"
+                            style="background: rgba(0, 0, 0, 0.5); color: #fff; border: none;
+                                border-radius: 4px; padding: 6px 10px; font-size: 14px; cursor: pointer;" contenteditable="false">
+                            <span class="dashicons dashicons-trash" contenteditable="false"></span>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const plusBlock = galleryContainer.querySelector( '.smartwoo-add-image' )?.parentNode;
+            galleryContainer.insertBefore( newItem, plusBlock );
+        });
+    });
+
+    frame.open();
+}
+
+
+
+
+
+
 
 function smartwooEnableAudioPlaylist( editor ) {
     const audioPlayers  = editor.getBody().querySelectorAll( '.smartwoo-audio-playlist' );
@@ -629,6 +796,8 @@ function smartwooAssetEditorOnSaveCallback( e, editor ) {
 
     // Remove control elements (e.g. overlay buttons)
     body.querySelectorAll( '.smartwoo-replace-image' ).forEach( el => el.remove() );
+    body.querySelectorAll( '.smartwoo-add-image' ).forEach( el => el.remove() );
+    body.querySelectorAll( '.editor-only' ).forEach( el => el.remove() );
 
     // Sanitize inline styles
     body.querySelectorAll( '[style]' ).forEach( el => {
