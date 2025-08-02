@@ -570,6 +570,11 @@ function smartwooImageGalleryBindEvents( editor ) {
     });
 }
 
+/**
+ * Helper function to add more images to the existing gallery.
+ * @param {tinymce.Editor} editor 
+ * @returns {void}
+ */
 function addImageToGallery( editor ) {
     const body = editor.getBody();
     const galleryContainer = body.querySelector( '.smartwoo-gallery' );
@@ -631,11 +636,6 @@ function addImageToGallery( editor ) {
 
     frame.open();
 }
-
-
-
-
-
 
 
 function smartwooEnableAudioPlaylist( editor ) {
@@ -770,7 +770,7 @@ function smartwooEnableVideoPlaylist( editor ) {
  * Callback for sanitizing content in the TinyMCE editor before save.
  *
  * @param {Object} e - The event object.
- * @param {Object} editor - The TinyMCE editor instance.
+ * @param {tinymce.Editor} editor - The TinyMCE editor instance.
  */
 function smartwooAssetEditorOnSaveCallback( e, editor ) {
     const parser = new DOMParser();
