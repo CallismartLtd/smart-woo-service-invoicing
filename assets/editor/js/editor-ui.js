@@ -83,7 +83,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
         'td[colspan|rowspan|class|style|data-*|aria-*]',
         'th[colspan|rowspan|scope|class|style|data-*|aria-*]',
         'time[datetime|class|style|data-*|aria-*]',
-        'video[src|poster|width|height|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+        'video[src|poster|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
         'audio[src|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
         'svg[*]',
         'path[*]',
@@ -196,7 +196,7 @@ function smartwooAssetEditorResolveHtmlBuilder( type ) {
         case 'image':
             return [smartwooAssetEditorBuildGallery, smartwooEnableImageReplacement];
         case 'video':
-            return [smartwooAssetEditorBuildVideoPlaylist, null];
+            return [smartwooAssetEditorBuildVideoPlaylist, smartwooEnableVideoPlaylist];
         case 'audio':
             return [smartwooAssetEditorBuildAudioPlaylist, smartwooEnableAudioPlaylist];
         default:
@@ -255,13 +255,6 @@ function smartwooAssetEditorBuildGallery( selection ) {
  * @returns {String} HTML markup.
  */
 function smartwooAssetEditorBuildAudioPlaylist( selection ) {
-    // Helper function for HTML escaping, ensuring robustness for attributes and content
-    const escHtml = ( str ) => {
-        let div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML.replace(/"/g, '&quot;');
-    }
-
     // Process and normalize audio file data
     const audios = selection.map( file => ( {
         id: file.id || null,
@@ -270,7 +263,8 @@ function smartwooAssetEditorBuildAudioPlaylist( selection ) {
         artist: file.meta?.artist || file.artist || file.authorName || 'Unknown Artist',
         duration: file.fileLength || null,
         durationHuman: file.fileLengthHumanReadable || '',
-        thumbnail: file.thumb?.src || file.image?.src || wp.media.defaults.audiosvg_src || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2366ccff%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236600ff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22url(%23g)%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M44%2016v26.2a6.8%206.8%200%201%201-2-4.8V24h-14v18.2a6.8%206.8%200%201%201-2-4.8V20a2%202%200%200%201%202-2h16a2%202%200%200%201%202%202z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E',        mime: file.mime,
+        thumbnail: file.thumb?.src || file.image?.src || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2366ccff%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236600ff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22url(%23g)%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M44%2016v26.2a6.8%206.8%200%201%201-2-4.8V24h-14v18.2a6.8%206.8%200%201%201-2-4.8V20a2%202%200%200%201%202-2h16a2%202%200%200%201%202%202z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E',
+        mime: file.mime,
         album: file.meta?.album || '',
     } ) );
 
@@ -364,22 +358,74 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
         return {
             url: file.url,
             title: file.title || '',
-            mime: file.mime || 'video/mp4'
+            mime: file.mime || 'video/mp4',
+            desciption: file.description || '',
+            artist: file.meta?.artist || file.artist || 'Unknown Artist',
+            album: file.meta?.album || '',
+            duration: file.fileLength || null,
+            durationHuman: file.fileLengthHumanReadable || '',
         };
     });
 
+    const playlistJson = JSON.stringify( videos ).replace( /"/g, '&quot;' );
+    let firstVideo = videos[0];
+
+    // Build individual playlist items
+    const playlistItems = videos.map( ( video, index ) => `
+        <li class="smartwoo-video-playlist-item" data-index="${index}" draggable="true" contenteditable="true">
+            <img class="smartwoo-video-playlist-item_image" alt="${escHtml( video.title )}">
+            <p class="smartwoo-playlist__title">${escHtml( video.title )}</p>
+            <span class="drag-handle" title="Reorder"></span>
+        </li>
+    ` ).join( '' );
+
     const playlistHtml = `
-        <div class="smartwoo-video-playlist">
-            ${videos.map( ( video, index ) => `
-                <div class="smartwoo-playlist__item" data-index="${index}" draggable="true" contenteditable="false">
-                    <video controls preload="metadata" class="smartwoo-playlist__video">
-                        <source src="${video.url}" type="${video.mime}" />
-                        Your browser does not support the video tag.
+        <div class="smartwoo-video-player-container" contenteditable="false" data-playlist="${playlistJson}">
+            <div class="smartwoo-video-player-left" contenteditable="false">
+                <div class="smartwoo-video-player__frame" contenteditable="false">
+                    <video src="${firstVideo.url}" class="smartwoo-video-player__video" controls preload="auto">
+                        Your browser does not support the video format.
                     </video>
-                    <div class="smartwoo-playlist__title">${video.title}</div>
+                    <div class="smartwoo-video-nowplaying-info">
+                        <span class="smartwoo-current-title">${firstVideo.title}</span> | <span class="smartwoo-current-artist">${firstVideo.artist}</span>
+                    </div>
+                    <div class="smartwoo-video-player-controls" contenteditable="false">
+                        <div class="smartwoo-video-player_controls-timing" contenteditable="false">
+                            <span class="smartwoo-seek-tooltip"></span>
+                            <span class="smartwoo-video-player_timing-current" contenteditable="false">0:00</span>
+                            <div class="smartwoo-video-player__progress" contenteditable="false">
+                                <div class="smartwoo-progress-bar" contenteditable="false"></div>
+                            </div>
+
+                            <span class="smartwoo-video-player_timing-duration" contenteditable="false">0:00</span>
+                        </div>
+                        <div class="smartwoo-video-player__controls">
+                            <div class="smartwoo-video-player__controls-control">
+                                <span class="dashicons dashicons-controls-skipback smartwoo-control smartwoo-prev" title="Previous"></span>
+                                <span class="dashicons dashicons-controls-play smartwoo-control smartwoo-play" title="Play"></span>
+                                <span class="dashicons dashicons-controls-pause smartwoo-control smartwoo-pause" style="display: none;" title="Pause"></span>
+                                <span class="dashicons dashicons-controls-skipforward smartwoo-next" title="Next"></span>                            
+                            </div>
+                            <div class="smartwoo-video-player__controls-right">
+                                <span class="dashicons dashicons-controls-volumeon smartwoo-video-volume-toggle" title="Mute"></span>
+                                <div class="smartwoo-video-volume-slider">
+                                    <div class="smartwoo-video-volume-progress"></div>
+                                    <div class="smartwoo-video-volume-scrubber"></div>
+                                </div>
+                                <span class="dashicons dashicons-fullscreen-alt smartwoo-video-fullscreen-toggle"></span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-            `).join('')}
-        </div>
+            </div>
+            <div class="smartwoo-video-player-right">
+                <h3>Playlist</h3>
+                <ul class="smartwoo-video-player-playlist-container">
+                    ${playlistItems}
+                </ul>
+            </div>
+        </div> 
     `;
 
     return playlistHtml;
@@ -478,6 +524,89 @@ function smartwooEnableAudioPlaylist( editor ) {
     });
 }
 
+function smartwooEnableVideoPlaylist( editor ) {
+    let allVideoPlaylist    = editor.getBody().querySelectorAll( '.smartwoo-video-player-container' );
+    let allPlaylistImage    = editor.getBody().querySelectorAll( '.smartwoo-video-playlist-item_image' );
+    let allVideos           = editor.getBody().querySelectorAll( 'video.smartwoo-video-player__video' );
+    let playlistItems       = editor.getBody().querySelectorAll( '.smartwoo-video-playlist-item' );
+    
+    allVideoPlaylist.forEach( async ( playlist ) => {
+        new SmartwooVideoPlayer(playlist);
+
+    });
+
+    editor.on( 'execCommand', (e) => {
+        if ( 'mcePreview' === e.command ) {
+            // Delay to wait for the preview dialog to be rendered
+            setTimeout(() => {
+                const dialog = document.querySelector( '.tox-dialog-wrap' );
+                if ( ! dialog ) return;
+                
+                const iframe = dialog.querySelector( 'iframe' );
+                if ( ! iframe ) return;
+
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                const currentPlayer = iframeDoc.querySelector( '.smartwoo-video-player-container' );
+                if ( currentPlayer ) {
+                    new SmartwooVideoPlayer( currentPlayer );
+                }
+            }, 200);
+        }
+    });
+
+    allVideos.forEach( async ( player ) => {
+        let thumbnail   = await smartwooGetVideoThumbnail( player.src );
+        player.poster   = thumbnail;
+        player.removeAttribute( 'controls' );
+        player.removeAttribute( 'controlist' );
+        player.removeAttribute( 'height' );
+        player.removeAttribute( 'width' );
+    });
+
+    allPlaylistImage.forEach( image => {        
+        image.src = image.src || `data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2248%22%20viewBox%3D%220%200%2064%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2366ccff%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236600ff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2244%22%20rx%3D%229%22%20fill%3D%22url(%23g)%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M24%2016l16%208-16%208z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E`;
+    });
+
+    playlistItems.forEach( item => {      
+        item.addEventListener( 'dragstart', ( e ) => {
+            try {
+                draggedItem = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData( 'text/plain', draggedItem.dataset.index );
+                e.target.classList.add( 'dragging' );
+            } catch (error) {}
+            
+        });
+
+        item.addEventListener( 'dragover', ( e ) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        item.addEventListener( 'drop', ( e ) => {
+            e.preventDefault();
+            if ( draggedItem && draggedItem !== e.target ) {
+                try {
+                    const fromIndex = parseInt( draggedItem.dataset.index, 10 );
+                    const toIndex   = parseInt( e.target.dataset.index, 10 );
+
+                    const parent    = draggedItem.parentNode;
+                    parent.insertBefore( draggedItem, toIndex < fromIndex ? e.target : e.target.nextSibling );
+                } catch (error) {}
+            }
+
+            draggedItem = null;
+        });
+
+        item.addEventListener( 'dragend', ( e ) => {
+            e?.target?.classList?.remove( 'dragging' );
+        });
+    });
+
+}
+
+
 /**
  * Callback for sanitizing content in the TinyMCE editor before save.
  *
@@ -522,4 +651,15 @@ function smartwooAssetEditorOnSaveCallback( e, editor ) {
     } );
 
     e.content = body.innerHTML;
+}
+
+/**
+ * Helper function to escape HTML character
+ * 
+ * @param {String} str - The unsafe string to escape.
+ */
+function escHtml( str ) {
+    let div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML.replace(/"/g, '&quot;');
 }
