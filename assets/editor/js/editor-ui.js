@@ -412,7 +412,7 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
                                     <div class="smartwoo-video-volume-progress"></div>
                                     <div class="smartwoo-video-volume-scrubber"></div>
                                 </div>
-                                <span class="dashicons dashicons-fullscreen-alt smartwoo-video-fullscreen-toggle"></span>
+                                <span class="dashicons dashicons-fullscreen-alt smartwoo-video-fullscreen-toggle" title="Fullscreen mode"></span>
                             </div>
                         </div>
 
@@ -430,14 +430,6 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
 
     return playlistHtml;
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -484,7 +476,7 @@ function smartwooEnableAudioPlaylist( editor ) {
     const playlistItems = editor.getBody().querySelectorAll( '.smartwoo-playlist__item' );
 
     audioPlayers.forEach( player => {
-        smartWooinitAssetAudioPlayer( player );
+        new SmartwooAudioPlayer( player );
     });
 
     playlistItems.forEach( item => {      
