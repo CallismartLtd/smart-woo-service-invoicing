@@ -86,26 +86,8 @@ defined( 'ABSPATH' ) || exit;
 						</h4>
 						<input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
 						<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
-						<?php
-						wp_editor(
-							'',
-							'smartwoo_asset_editor_1',
-							array(
-								'textarea_name' => 'additional_asset_values[]',
-								'textarea_rows' => 20,
-								'teeny'         => false,
-								'media_buttons' => true,
-								'quicktags'     => array( 'buttons' => 'strong,em,link,block,del,ins,img,ul,ol,li,code,close' ),
-								'tinymce'       => array(
-									'resize'                       	=> true,
-									'browser_spellcheck'           	=> true,
-									'paste_strip_class_attributes'	=> 'all',
-									'wp_autoresize_on'				=> true,
-									'plugins'						=> 'lists,link,paste,hr,textcolor,charmap,smartwoo_table',
-								),
-							)
-						);
-						?>
+						<textarea type="text" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)"></textarea>
+						
 					</div>
 					<button id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
 				</div>
@@ -162,7 +144,7 @@ defined( 'ABSPATH' ) || exit;
 				
 				<div class="sw-service-form-row">
 					<label for="publish">Save Service</label>
-					<button type="submit" class="sw-blue-button button"><span class="dashicons dashicons-cloud-saved"></span> <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
+					<button type="submit" id="publish" class="sw-blue-button button"><span class="dashicons dashicons-cloud-saved"></span> <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
 				</div>
 				
 			</div>
@@ -171,3 +153,4 @@ defined( 'ABSPATH' ) || exit;
 	</form>
 
 </div>
+<?php smartwoo_enqueue_media_assets(); ?>
