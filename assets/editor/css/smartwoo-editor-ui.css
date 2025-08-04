@@ -1,6 +1,15 @@
 .tox-promotion {
     display: none !important;
 }
+
+.tox-fullscreen {
+    position: relative;
+    z-index: 9999 !important;
+}
+.tox .tox-dialog--width-lg {
+    height: 525px !important;
+    max-width: 724px !important;
+}
 .smartwoo-playlist__item span.drag-handle {
     cursor: move;
     width: 30px;
