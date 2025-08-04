@@ -201,7 +201,7 @@ h2.sw-not-found {
     width: calc( 100% - 160px);
     right: auto;
     min-height: 70px;
-    z-index: 2;
+    z-index: 10;
 }
 .folded .sw-admin-dash-header {
     width: calc(100% - 36px);
