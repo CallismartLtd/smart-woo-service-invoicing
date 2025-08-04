@@ -2332,6 +2332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reponseDiv          = document.querySelector( '#response-container' );
         serviceForm.addEventListener( 'submit', (e)=>{
             e.preventDefault();
+            SmartWooEditor.saveAll();
             reponseDiv.innerHTML = '';
             let spinner         = smartWooAddSpinner( 'swloader', true );
             let sbmtBtn         = serviceForm.querySelector( 'button[type="submit"]' );
