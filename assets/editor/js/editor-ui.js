@@ -45,23 +45,14 @@ async function smartwooAssetEditorOpenMediaLibrary( options = {} ) {
     } );
 }
 
-// function loadTinyMCEScript( src ) {
-// 	return new Promise( ( resolve, reject ) => {
-// 		const script = document.createElement( 'script' );
-// 		script.src      = src;
-// 		script.onload   = () => resolve( window.tinymce );
-// 		script.onerror  = () => reject( new Error( 'Failed to load TinyMCE' ) );
-// 		document.body.appendChild( script );
-// 	} );
-// }
-
 /**
  * Smart Woo Asset editor class.
  */
 class SmartWooEditor {
-    tinyMCE  = null;
+    static tinyMCE  = null;
     static isLoaded = false;
     static loadingPromise = null;
+    static editors  = [];
 
     /**
      * @param {String} selector - The editor selector.
@@ -85,8 +76,8 @@ class SmartWooEditor {
             const script = document.createElement( 'script' );
             script.src = src;
             script.onload = () => {
-                this.tinyMCE = window.tinymce;
-                this.tinyMCE.baseURL = `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/`;
+                SmartWooEditor.tinyMCE = window.tinymce;
+                SmartWooEditor.tinyMCE.baseURL = `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/`;
                 this.isLoaded = true;
                 resolve( this.tinyMCE );
             };
@@ -139,6 +130,76 @@ class SmartWooEditor {
             'svg[*]', 'path[*]', 'g[*]', 'use[*]'
         ].join(',');
     }
+
+    /**
+     * Parses and cleans the dirty editor content.
+     */
+    static cleanEditorContent = ( e ) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString( e.content, 'text/html' );
+        const body = doc.body;
+
+        // Attributes to strip globally
+        const stripAttributes = [ 'draggable', 'contenteditable' ];
+
+        // Unwanted inline styles (pattern or exact match)
+        const styleCleanupPatterns = [
+            /cursor:\s*move;?/gi,
+            /user-select:\s*[^;]+;?/gi,
+            /pointer-events:\s*[^;]+;?/gi
+        ];
+
+        // Remove unwanted attributes
+        stripAttributes.forEach( attr => {
+            body.querySelectorAll( `[${ attr }]` ).forEach( el => {
+                el.removeAttribute( attr );
+            } );
+        } );
+
+        // Remove control elements (e.g. overlay buttons)
+        body.querySelectorAll( '.smartwoo-replace-image' ).forEach( el => el.remove() );
+        body.querySelectorAll( '.smartwoo-add-image' ).forEach( el => el.remove() );
+        body.querySelectorAll( '.editor-only' ).forEach( el => el.remove() );
+
+        // Sanitize inline styles
+        body.querySelectorAll( '[style]' ).forEach( el => {
+            let style = el.getAttribute( 'style' );
+            if ( ! style ) return;
+
+            styleCleanupPatterns.forEach( pattern => {
+                style = style.replace( pattern, '' );
+            } );
+
+            el.setAttribute( 'style', style.trim() );
+        } );
+
+        body.querySelectorAll( '.smartwoo-video-player-container' ).forEach( el => {
+            el.querySelector( '.smartwoo-video-player__frame' )?.classList.remove( 'is-hovered', 'is-paused', 'is-portrait' );
+            el.querySelector( '.smartwoo-video-player__frame' )?.removeAttribute( 'style' );
+            el.querySelector( '.smartwoo-play' )?.removeAttribute( 'style' );
+            el.querySelector( '.smartwoo-pause' )?.setAttribute( 'style', 'display: none' );
+        });
+
+        e.content = body.innerHTML;
+        // e.save()
+        
+    }
+    /**
+     * Initialize a TinyMCE editor instance on the specified selector.
+     *
+     * Loads the TinyMCE script (if not already loaded), merges the default config
+     * with user-supplied options, registers custom buttons and event hooks,
+     * and stores the created editor(s) in a static class property.
+     *
+     * @async
+     * @returns {Promise<tinymce.Editor|tinymce.Editor[]>} The initialized editor instance,
+     *          or an array of editors if multiple were created for the selector.
+     *
+     * @example
+     * const editor = await smartWooEditorInstance.init();
+     *
+     * @see SmartWooEditor.editors – Stores all initialized editor instances.
+     */
     async init() {
         const tinyMCE = await SmartWooEditor.loadTinyMCEScript(
             `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/tinymce.min.js`
@@ -152,7 +213,7 @@ class SmartWooEditor {
             menubar: 'file edit insert format table',
             plugins: 'lists link image media table code preview fullscreen autosave wordcount searchreplace visualblocks insertdatetime emoticons',
             toolbar: 'add_media_button | styles | alignleft aligncenter alignjustify alignright bullist numlist outdent indent | forecolor backcolor | code fullscreen preview | undo redo',
-            height: 400,
+            height: 600,
             promotion: false,
             content_css: [
                 smart_woo_vars.dashicons_asset_url,
@@ -170,98 +231,39 @@ class SmartWooEditor {
                     onAction: () => smartwooCollectionManager( editor )
                 });
 
-                editor.on( 'change', () => editor.save() );
-                editor.on( 'SaveContent', smartwooAssetEditorOnSaveCallback );
+                editor.on( 'GetContent', SmartWooEditor.cleanEditorContent );
             }
         };
+        const editors = await tinyMCE.init( Object.assign( {}, defaultConfig, this.userConfig ) );
 
-        return tinyMCE.init( Object.assign( {}, defaultConfig, this.userConfig ) );
+        SmartWooEditor.editors.push( ...editors );
+
+        return editors.length === 1 ? editors[0] : editors;
     }
+
+    /**
+     * Save the contents of all initialized TinyMCE editors.
+     *
+     * This method loops through the static `editors` array and
+     * triggers the save operation for each instance.
+     *
+     * Useful before form submission or manual content processing.
+     *
+     * @static
+     */
+    static saveAll() {
+        if ( Array.isArray( SmartWooEditor.editors ) && SmartWooEditor.editors.length ) {
+            SmartWooEditor.editors.forEach( ( editor ) => {
+                if ( editor && typeof editor.save === 'function' ) {
+                    editor.save();
+                }
+            } );
+        }
+    }
+
 }
 
 document.addEventListener( 'DOMContentLoaded', async function () {
-    // const smartwooAllowedElements =  [
-    //     'a[href|target|title|rel|class|style|data-*|aria-*|download]',
-    //     'abbr[title|class|style|data-*|aria-*]',
-    //     'acronym[title|class|style|data-*|aria-*]',
-    //     'b[class|style|data-*|aria-*]',
-    //     'blockquote[cite|class|style|data-*|aria-*]',
-    //     'br[class|style|data-*|aria-*]',
-    //     'code[class|style|data-*|aria-*]',
-    //     'div[id|class|style|title|data-*|aria-*|draggable|contenteditable]',
-    //     'em[class|style|data-*|aria-*]',
-    //     'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*|contenteditable]', 
-    //     'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
-    //     'hr[class|style|data-*|aria-*]',
-    //     'i[class|style|data-*|aria-*]',
-    //     'iframe[src|width|height|frameborder|allowfullscreen|class|style|data-*|aria-*]',
-    //     'img[src|alt|title|width|height|class|style|data-*|aria-*|draggable|contenteditable]',
-    //     'li[class|style|title|data-*|aria-*|contenteditable|draggable]',
-    //     'ol[class|style|title|data-*|aria-*|contenteditable]',
-    //     'ul[class|style|title|data-*|aria-*|contenteditable]',
-    //     'p[class|style|title|data-*|aria-*|contenteditable]',
-    //     'pre[class|style|title|data-*|aria-*]',
-    //     'section[class|style|data-*|aria-*|contenteditable]',
-    //     'article[class|style|data-*|aria-*|contenteditable]',
-    //     'small[class|style|data-*|aria-*]',
-    //     'span[class|style|title|data-*|aria-*|contenteditable]',
-    //     'strong[class|style|data-*|aria-*]',
-    //     'sub[class|style|data-*|aria-*]',
-    //     'sup[class|style|data-*|aria-*]',
-    //     'table[border|cellspacing|cellpadding|class|style|data-*|aria-*]',
-    //     'tbody[class|style|data-*|aria-*]',
-    //     'thead[class|style|data-*|aria-*]',
-    //     'tfoot[class|style|data-*|aria-*]',
-    //     'tr[class|style|data-*|aria-*]',
-    //     'td[colspan|rowspan|class|style|data-*|aria-*]',
-    //     'th[colspan|rowspan|scope|class|style|data-*|aria-*]',
-    //     'time[datetime|class|style|data-*|aria-*]',
-    //     'video[src|poster|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
-    //     'audio[src|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
-    //     'svg[*]',
-    //     'path[*]',
-    //     'g[*]',
-    //     'use[*]'
-    // ].join(',');
-
-    // smartwoo_tinymce = await loadTinyMCEScript( `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/tinymce.min.js` );
-    // smartwoo_tinymce.baseURL = `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/`;
-    // smartwoo_tinymce.init({
-    //     selector: '.smartwoo-asset-editor-ui',
-    //     skin: 'oxide',
-    //     branding: false,
-    //     license_key: 'gpl',
-    //     menubar: 'file edit insert format table',
-    //     plugins: 'lists link image media table code preview fullscreen autosave wordcount searchreplace visualblocks insertdatetime emoticons',
-    //     toolbar: 'add_media_button | styles | alignleft aligncenter alignjustify alignright bullist numlist outdent indent | forecolor backcolor | code fullscreen preview | undo redo',
-    //     height: 400,
-    //     promotion: false,
-    //     content_css: [
-    //         // 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
-    //         smart_woo_vars.dashicons_asset_url,
-    //         smart_woo_vars.editor_css_url
-        
-    //     ],
-    //     extended_valid_elements: smartwooAllowedElements,
-    //     font_formats: 'Inter=Inter, sans-serif; Arial=Arial, Helvetica, sans-serif; Verdana=Verdana, Geneva, sans-serif; Tahoma=Tahoma, Geneva, sans-serif; Trebuchet MS=Trebuchet MS, Helvetica, sans-serif; Times New Roman=Times New Roman, Times, serif; Georgia=Georgia, serif; Palatino Linotype=Palatino Linotype, Palatino, serif; Courier New=Courier New, Courier, monospace',
-    //     toolbar_mode: 'sliding',
-    //     content_style: 'body { font-family: "Inter", sans-serif; font-size: 16px; }',
-    //     setup: function ( editor ) {
-    //         editor.ui.registry.addButton('add_media_button', {
-    //             text: 'Collection',
-    //             icon: 'gallery',
-    //             tooltip: 'Create a collection of media',
-    //             onAction: () => smartwooCollectionManager( editor )
-    //         });
-
-    //         editor.on('change', function () {
-    //             editor.save();
-    //         });
-            
-    //         editor.on( 'SaveContent', smartwooAssetEditorOnSaveCallback );
-    //     }
-    // });
-
     const editorInstance = new SmartWooEditor();
     await editorInstance.init();
 });
@@ -531,7 +533,7 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
     // Build individual playlist items
     const playlistItems = videos.map( ( video, index ) => `
         <li class="smartwoo-video-playlist-item" data-index="${index}" draggable="true" contenteditable="true">
-            <img class="smartwoo-video-playlist-item_image" alt="${escHtml( video.title )}">
+            <img src="${smart_woo_vars.smartwoo_assets_url}images/video-playlist-icon.svg" class="smartwoo-video-playlist-item_image" alt="${escHtml( video.title )}">
             <p class="smartwoo-playlist__title">${escHtml( video.title )}</p>
             <span class="drag-handle" title="Reorder"></span>
         </li>
@@ -858,10 +860,6 @@ function smartwooEnableVideoPlaylist( editor ) {
         player.removeAttribute( 'controlist' );
         player.removeAttribute( 'height' );
         player.removeAttribute( 'width' );
-    });
-
-    allPlaylistImage.forEach( image => {        
-        image.src = image.src || `data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2248%22%20viewBox%3D%220%200%2064%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2366ccff%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236600ff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2244%22%20rx%3D%229%22%20fill%3D%22url(%23g)%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M24%2016l16%208-16%208z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E`;
     });
 
     playlistItems.forEach( item => {      
