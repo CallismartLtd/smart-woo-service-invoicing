@@ -313,12 +313,14 @@ class SmartWoo_Config{
         wp_register_script( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . '/assets/js/jquery/jquery-time-picker' . $suffix . '.js', array( 'jquery', 'jquery-ui-datepicker' ), SMARTWOO_VER, true );
         wp_register_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
         wp_register_script( 'smartwoo-fast-checkout', SMARTWOO_DIR_URL . 'assets/js/smart-woo-fast-checkout' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
-        wp_register_script( 'smartwoo-editor-ui', SMARTWOO_DIR_URL . 'assets/editor/js/editor-ui' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
-        wp_register_script( 'smartwoo-tinymce', SMARTWOO_DIR_URL . 'assets/editor/tinymce/tinymce.min.js', array( 'jquery' ), SMARTWOO_VER, true );
-        wp_register_script( 'smartwoo-service-asset-sript', SMARTWOO_DIR_URL . 'assets/js/smartwoo-service-asset-script' . $suffix . '.js', array( 'jquery', 'smartwoo-script' ), SMARTWOO_VER, true );
+        
+        // wp_register_script( 'smartwoo-tinymce', SMARTWOO_DIR_URL . 'assets/editor/tinymce/tinymce.min.js', array(), SMARTWOO_VER, array( 'in_footer' => true ) );
+        wp_register_script( 'smartwoo-editor-ui', SMARTWOO_DIR_URL . 'assets/editor/js/editor-ui' . $suffix . '.js', array(), SMARTWOO_VER, array( 'in_footer' => true, 'strategy' => 'defer' ) );
+        wp_register_script( 'smartwoo-service-asset-sript', SMARTWOO_DIR_URL . 'assets/js/smartwoo-service-asset-script' . $suffix . '.js', array(), SMARTWOO_VER, true );
 
         wp_enqueue_script( 'smartwoo-script' );
         wp_enqueue_script( 'smartwoo-service-asset-sript' );
+        wp_enqueue_style( 'smartwoo-editor-ui' );
         
         wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
@@ -342,8 +344,6 @@ class SmartWoo_Config{
                 wp_enqueue_media();
                 wp_enqueue_editor();
             }
-
-            self::enqueue_asset_editor();
             
         }
     }
@@ -355,15 +355,15 @@ class SmartWoo_Config{
      */
     public static function enqueue_asset_editor() {
         // Deregister default wordpress tinymce script.
-        wp_deregister_script( 'wp-tinymce' );
-        wp_deregister_script('heartbeat');
+        // wp_deregister_script( 'wp-tinymce' );
+        // wp_deregister_script('heartbeat');
+        // wp_enqueue_style( 'wp-format-library' );
+        // wp_enqueue_style( 'dashicons' );
 
-        wp_enqueue_style( 'wp-format-library' );
-        wp_enqueue_media();
-        wp_enqueue_style( 'smartwoo-editor-ui' );
-        wp_enqueue_script( 'smartwoo-tinymce' );
+        wp_enqueue_media();        
+        // wp_enqueue_script( 'smartwoo-tinymce' );
         wp_enqueue_script( 'smartwoo-editor-ui' );
-        wp_enqueue_style( 'dashicons' );
+        
     }
 
     /**
