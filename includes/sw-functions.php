@@ -1504,3 +1504,10 @@ function smartwoo_help_tooltip( $message, $echo = true ) {
 		return $helptab;
 	}
 }
+
+/**
+ * Enqueue the css and javascript files for the asset media player
+ */
+function smartwoo_enqueue_media_assets() {
+	SmartWoo_Config::enqueue_asset_editor();
+}
