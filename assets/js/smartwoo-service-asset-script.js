@@ -756,7 +756,6 @@ class SmartwooVideoPlayer {
     _onEndedCallback = () => {
         if ( this.currentTrackIndex < this.playlist.length - 1 ) {
             this.loadTrack( this.currentTrackIndex + 1 );
-            this.video.play();
         } else {
             this.loadTrack( 0 );
         }
@@ -900,7 +899,7 @@ class SmartwooVideoPlayer {
             this.assetVideoPlayer.addEventListener( 'mouseup', () => {
                 this.isSeeking = false;
                 this.assetVideoPlayer.removeEventListener( 'mousemove', this._updateSeekBar );
-                if (this.isPlaying) this.video.play();
+                // if (this.isPlaying) this.video.play();
             }, { once: true });
         });
 
