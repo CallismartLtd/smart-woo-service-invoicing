@@ -45,88 +45,225 @@ async function smartwooAssetEditorOpenMediaLibrary( options = {} ) {
     } );
 }
 
+// function loadTinyMCEScript( src ) {
+// 	return new Promise( ( resolve, reject ) => {
+// 		const script = document.createElement( 'script' );
+// 		script.src      = src;
+// 		script.onload   = () => resolve( window.tinymce );
+// 		script.onerror  = () => reject( new Error( 'Failed to load TinyMCE' ) );
+// 		document.body.appendChild( script );
+// 	} );
+// }
 
-document.addEventListener( 'DOMContentLoaded', function () {
-    const smartwooAllowedElements =  [
-        'a[href|target|title|rel|class|style|data-*|aria-*|download]',
-        'abbr[title|class|style|data-*|aria-*]',
-        'acronym[title|class|style|data-*|aria-*]',
-        'b[class|style|data-*|aria-*]',
-        'blockquote[cite|class|style|data-*|aria-*]',
-        'br[class|style|data-*|aria-*]',
-        'code[class|style|data-*|aria-*]',
-        'div[id|class|style|title|data-*|aria-*|draggable|contenteditable]',
-        'em[class|style|data-*|aria-*]',
-        'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*|contenteditable]', 
-        'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
-        'hr[class|style|data-*|aria-*]',
-        'i[class|style|data-*|aria-*]',
-        'iframe[src|width|height|frameborder|allowfullscreen|class|style|data-*|aria-*]',
-        'img[src|alt|title|width|height|class|style|data-*|aria-*|draggable|contenteditable]',
-        'li[class|style|title|data-*|aria-*|contenteditable|draggable]',
-        'ol[class|style|title|data-*|aria-*|contenteditable]',
-        'ul[class|style|title|data-*|aria-*|contenteditable]',
-        'p[class|style|title|data-*|aria-*|contenteditable]',
-        'pre[class|style|title|data-*|aria-*]',
-        'section[class|style|data-*|aria-*|contenteditable]',
-        'article[class|style|data-*|aria-*|contenteditable]',
-        'small[class|style|data-*|aria-*]',
-        'span[class|style|title|data-*|aria-*|contenteditable]',
-        'strong[class|style|data-*|aria-*]',
-        'sub[class|style|data-*|aria-*]',
-        'sup[class|style|data-*|aria-*]',
-        'table[border|cellspacing|cellpadding|class|style|data-*|aria-*]',
-        'tbody[class|style|data-*|aria-*]',
-        'thead[class|style|data-*|aria-*]',
-        'tfoot[class|style|data-*|aria-*]',
-        'tr[class|style|data-*|aria-*]',
-        'td[colspan|rowspan|class|style|data-*|aria-*]',
-        'th[colspan|rowspan|scope|class|style|data-*|aria-*]',
-        'time[datetime|class|style|data-*|aria-*]',
-        'video[src|poster|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
-        'audio[src|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
-        'svg[*]',
-        'path[*]',
-        'g[*]',
-        'use[*]'
-        ].join(',');
+/**
+ * Smart Woo Asset editor class.
+ */
+class SmartWooEditor {
+    tinyMCE  = null;
+    static isLoaded = false;
+    static loadingPromise = null;
 
-    window.smartwoo_tinymce = tinymce;
-    smartwoo_tinymce.init({
-        selector: '#smartwoo-asset-editor-ui',
-        skin: 'oxide',
-        branding: false,
-        license_key: 'gpl',
-        menubar: 'file edit insert format tools table',
-        plugins: 'lists link image media table code preview fullscreen autosave wordcount searchreplace visualblocks insertdatetime emoticons',
-        toolbar: 'add_media_button | styles | alignleft aligncenter alignjustify alignright bullist numlist outdent indent | forecolor backcolor | code fullscreen preview | undo redo',
-        height: 600,
-        promotion: false,
-        content_css: [
-            // 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
-            smart_woo_vars.dashicons_asset_url,
-            smart_woo_vars.editor_css_url
-        
-        ],
-        extended_valid_elements: smartwooAllowedElements,
-        font_formats: 'Inter=Inter, sans-serif; Arial=Arial, Helvetica, sans-serif; Verdana=Verdana, Geneva, sans-serif; Tahoma=Tahoma, Geneva, sans-serif; Trebuchet MS=Trebuchet MS, Helvetica, sans-serif; Times New Roman=Times New Roman, Times, serif; Georgia=Georgia, serif; Palatino Linotype=Palatino Linotype, Palatino, serif; Courier New=Courier New, Courier, monospace',
-        toolbar_mode: 'sliding',
-        content_style: 'body { font-family: "Inter", sans-serif; font-size: 16px; }',
-        setup: function ( editor ) {
-            editor.ui.registry.addButton('add_media_button', {
-                text: 'Collection',
-                icon: 'gallery',
-                tooltip: 'Create a collection of media',
-                onAction: () => smartwooCollectionManager( editor )
-            });
+    /**
+     * @param {String} selector - The editor selector.
+     * @param {Object} config   - Addtional configuration for the editor.
+     */
+    constructor ( selector = '.smartwoo-asset-editor-ui', config = {} ) {
+        this.selector = selector;
+        this.userConfig = config;
+    }
 
-            editor.on('change', function () {
-                editor.save();
-            });
-            
-            editor.on( 'SaveContent', smartwooAssetEditorOnSaveCallback );
+    static loadTinyMCEScript( src ) {
+        if ( this.isLoaded ) {
+            return Promise.resolve( this.tinyMCE );
         }
-    });
+
+        if ( this.loadingPromise ) {
+            return this.loadingPromise;
+        }
+
+        this.loadingPromise = new Promise( ( resolve, reject ) => {
+            const script = document.createElement( 'script' );
+            script.src = src;
+            script.onload = () => {
+                this.tinyMCE = window.tinymce;
+                this.tinyMCE.baseURL = `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/`;
+                this.isLoaded = true;
+                resolve( this.tinyMCE );
+            };
+            script.onerror = () => reject( new Error( 'Failed to load TinyMCE' ) );
+            document.body.appendChild( script );
+        } );
+
+        return this.loadingPromise;
+    }
+
+    static getAllowedElements() {
+        return [
+            'a[href|target|title|rel|class|style|data-*|aria-*|download]',
+            'abbr[title|class|style|data-*|aria-*]',
+            'acronym[title|class|style|data-*|aria-*]',
+            'b[class|style|data-*|aria-*]',
+            'blockquote[cite|class|style|data-*|aria-*]',
+            'br[class|style|data-*|aria-*]',
+            'code[class|style|data-*|aria-*]',
+            'div[id|class|style|title|data-*|aria-*|draggable|contenteditable]',
+            'em[class|style|data-*|aria-*]',
+            'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*|contenteditable]', 
+            'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
+            'hr[class|style|data-*|aria-*]',
+            'i[class|style|data-*|aria-*]',
+            'iframe[src|width|height|frameborder|allowfullscreen|class|style|data-*|aria-*]',
+            'img[src|alt|title|width|height|class|style|data-*|aria-*|draggable|contenteditable]',
+            'li[class|style|title|data-*|aria-*|contenteditable|draggable]',
+            'ol[class|style|title|data-*|aria-*|contenteditable]',
+            'ul[class|style|title|data-*|aria-*|contenteditable]',
+            'p[class|style|title|data-*|aria-*|contenteditable]',
+            'pre[class|style|title|data-*|aria-*]',
+            'section[class|style|data-*|aria-*|contenteditable]',
+            'article[class|style|data-*|aria-*|contenteditable]',
+            'small[class|style|data-*|aria-*]',
+            'span[class|style|title|data-*|aria-*|contenteditable]',
+            'strong[class|style|data-*|aria-*]',
+            'sub[class|style|data-*|aria-*]',
+            'sup[class|style|data-*|aria-*]',
+            'table[border|cellspacing|cellpadding|class|style|data-*|aria-*]',
+            'tbody[class|style|data-*|aria-*]',
+            'thead[class|style|data-*|aria-*]',
+            'tfoot[class|style|data-*|aria-*]',
+            'tr[class|style|data-*|aria-*]',
+            'td[colspan|rowspan|class|style|data-*|aria-*]',
+            'th[colspan|rowspan|scope|class|style|data-*|aria-*]',
+            'time[datetime|class|style|data-*|aria-*]',
+            'video[src|poster|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+            'audio[src|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+            'svg[*]', 'path[*]', 'g[*]', 'use[*]'
+        ].join(',');
+    }
+    async init() {
+        const tinyMCE = await SmartWooEditor.loadTinyMCEScript(
+            `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/tinymce.min.js`
+        );
+
+        const defaultConfig = {
+            selector: this.selector,
+            skin: 'oxide',
+            branding: false,
+            license_key: 'gpl',
+            menubar: 'file edit insert format table',
+            plugins: 'lists link image media table code preview fullscreen autosave wordcount searchreplace visualblocks insertdatetime emoticons',
+            toolbar: 'add_media_button | styles | alignleft aligncenter alignjustify alignright bullist numlist outdent indent | forecolor backcolor | code fullscreen preview | undo redo',
+            height: 400,
+            promotion: false,
+            content_css: [
+                smart_woo_vars.dashicons_asset_url,
+                smart_woo_vars.editor_css_url
+            ],
+            extended_valid_elements: SmartWooEditor.getAllowedElements(),
+            font_formats: 'Inter=Inter, sans-serif; Arial=Arial, Helvetica, sans-serif; Verdana=Verdana, Geneva, sans-serif; Tahoma=Tahoma, Geneva, sans-serif; Trebuchet MS=Trebuchet MS, Helvetica, sans-serif; Times New Roman=Times New Roman, Times, serif; Georgia=Georgia, serif; Palatino Linotype=Palatino Linotype, Palatino, serif; Courier New=Courier New, Courier, monospace',
+            toolbar_mode: 'sliding',
+            content_style: 'body { font-family: "Inter", sans-serif; font-size: 16px; }',
+            setup: function ( editor ) {
+                editor.ui.registry.addButton('add_media_button', {
+                    text: 'Collection',
+                    icon: 'gallery',
+                    tooltip: 'Create a collection of media',
+                    onAction: () => smartwooCollectionManager( editor )
+                });
+
+                editor.on( 'change', () => editor.save() );
+                editor.on( 'SaveContent', smartwooAssetEditorOnSaveCallback );
+            }
+        };
+
+        return tinyMCE.init( Object.assign( {}, defaultConfig, this.userConfig ) );
+    }
+}
+
+document.addEventListener( 'DOMContentLoaded', async function () {
+    // const smartwooAllowedElements =  [
+    //     'a[href|target|title|rel|class|style|data-*|aria-*|download]',
+    //     'abbr[title|class|style|data-*|aria-*]',
+    //     'acronym[title|class|style|data-*|aria-*]',
+    //     'b[class|style|data-*|aria-*]',
+    //     'blockquote[cite|class|style|data-*|aria-*]',
+    //     'br[class|style|data-*|aria-*]',
+    //     'code[class|style|data-*|aria-*]',
+    //     'div[id|class|style|title|data-*|aria-*|draggable|contenteditable]',
+    //     'em[class|style|data-*|aria-*]',
+    //     'h1[class|style|data-*|aria-*]', 'h2[class|style|data-*|aria-*]', 'h3[class|style|data-*|aria-*|contenteditable]', 
+    //     'h4[class|style|data-*|aria-*]', 'h5[class|style|data-*|aria-*]', 'h6[class|style|data-*|aria-*]',
+    //     'hr[class|style|data-*|aria-*]',
+    //     'i[class|style|data-*|aria-*]',
+    //     'iframe[src|width|height|frameborder|allowfullscreen|class|style|data-*|aria-*]',
+    //     'img[src|alt|title|width|height|class|style|data-*|aria-*|draggable|contenteditable]',
+    //     'li[class|style|title|data-*|aria-*|contenteditable|draggable]',
+    //     'ol[class|style|title|data-*|aria-*|contenteditable]',
+    //     'ul[class|style|title|data-*|aria-*|contenteditable]',
+    //     'p[class|style|title|data-*|aria-*|contenteditable]',
+    //     'pre[class|style|title|data-*|aria-*]',
+    //     'section[class|style|data-*|aria-*|contenteditable]',
+    //     'article[class|style|data-*|aria-*|contenteditable]',
+    //     'small[class|style|data-*|aria-*]',
+    //     'span[class|style|title|data-*|aria-*|contenteditable]',
+    //     'strong[class|style|data-*|aria-*]',
+    //     'sub[class|style|data-*|aria-*]',
+    //     'sup[class|style|data-*|aria-*]',
+    //     'table[border|cellspacing|cellpadding|class|style|data-*|aria-*]',
+    //     'tbody[class|style|data-*|aria-*]',
+    //     'thead[class|style|data-*|aria-*]',
+    //     'tfoot[class|style|data-*|aria-*]',
+    //     'tr[class|style|data-*|aria-*]',
+    //     'td[colspan|rowspan|class|style|data-*|aria-*]',
+    //     'th[colspan|rowspan|scope|class|style|data-*|aria-*]',
+    //     'time[datetime|class|style|data-*|aria-*]',
+    //     'video[src|poster|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+    //     'audio[src|controls|autoplay|loop|muted|preload|class|style|data-*|aria-*|draggable|contenteditable]',
+    //     'svg[*]',
+    //     'path[*]',
+    //     'g[*]',
+    //     'use[*]'
+    // ].join(',');
+
+    // smartwoo_tinymce = await loadTinyMCEScript( `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/tinymce.min.js` );
+    // smartwoo_tinymce.baseURL = `${smart_woo_vars.smartwoo_assets_url}editor/tinymce/`;
+    // smartwoo_tinymce.init({
+    //     selector: '.smartwoo-asset-editor-ui',
+    //     skin: 'oxide',
+    //     branding: false,
+    //     license_key: 'gpl',
+    //     menubar: 'file edit insert format table',
+    //     plugins: 'lists link image media table code preview fullscreen autosave wordcount searchreplace visualblocks insertdatetime emoticons',
+    //     toolbar: 'add_media_button | styles | alignleft aligncenter alignjustify alignright bullist numlist outdent indent | forecolor backcolor | code fullscreen preview | undo redo',
+    //     height: 400,
+    //     promotion: false,
+    //     content_css: [
+    //         // 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
+    //         smart_woo_vars.dashicons_asset_url,
+    //         smart_woo_vars.editor_css_url
+        
+    //     ],
+    //     extended_valid_elements: smartwooAllowedElements,
+    //     font_formats: 'Inter=Inter, sans-serif; Arial=Arial, Helvetica, sans-serif; Verdana=Verdana, Geneva, sans-serif; Tahoma=Tahoma, Geneva, sans-serif; Trebuchet MS=Trebuchet MS, Helvetica, sans-serif; Times New Roman=Times New Roman, Times, serif; Georgia=Georgia, serif; Palatino Linotype=Palatino Linotype, Palatino, serif; Courier New=Courier New, Courier, monospace',
+    //     toolbar_mode: 'sliding',
+    //     content_style: 'body { font-family: "Inter", sans-serif; font-size: 16px; }',
+    //     setup: function ( editor ) {
+    //         editor.ui.registry.addButton('add_media_button', {
+    //             text: 'Collection',
+    //             icon: 'gallery',
+    //             tooltip: 'Create a collection of media',
+    //             onAction: () => smartwooCollectionManager( editor )
+    //         });
+
+    //         editor.on('change', function () {
+    //             editor.save();
+    //         });
+            
+    //         editor.on( 'SaveContent', smartwooAssetEditorOnSaveCallback );
+    //     }
+    // });
+
+    const editorInstance = new SmartWooEditor();
+    await editorInstance.init();
 });
 
 /**
