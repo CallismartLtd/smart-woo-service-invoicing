@@ -635,10 +635,12 @@ class SmartwooVideoPlayer {
         // Update volume icon
         if ( this.volumeToggleIcon ) {
             if ( this.video.volume === 0 ) {
-                this.volumeToggleIcon.className = 'dashicons dashicons-controls-volumeoff smartwoo-volume-toggle';
+                this.volumeToggleIcon.classList.remove( 'dashicons-controls-volumeon' );
+                this.volumeToggleIcon.classList.add( 'dashicons-controls-volumeoff' );
                 this.volumeToggleIcon.title = 'Unmute';
             } else {
-                this.volumeToggleIcon.className = 'dashicons dashicons-controls-volumeon smartwoo-volume-toggle';
+                this.volumeToggleIcon.classList.remove( 'dashicons-controls-volumeoff' );
+                this.volumeToggleIcon.classList.add( 'dashicons-controls-volumeon' );
                 this.volumeToggleIcon.title = 'Mute';
             }
         }
