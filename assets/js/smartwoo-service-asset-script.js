@@ -199,7 +199,7 @@ class SmartwooAudioPlayer {
         const clientX   = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
         let x           = clientX - rect.left;
         x               = Math.max(0, Math.min( x, rect.width ) );
-        const percent   = x / rect.width;
+        const percent   = x / rect.width || 0.5;
         
         this.audio.volume                   = percent;
         this.volumeProgressBar.style.width  = `${percent * 100}%`;
@@ -403,7 +403,8 @@ class SmartwooVideoPlayer {
      */
     _parsePlaylist() {
         const data      = this.assetVideoPlayer.dataset.playlist;
-        return data ? JSON.parse( data.replace(/&quot;/g, '"' ) ) : [];
+
+        return data ? JSON.parse( decodeURIComponent( data ).replace(/&quot;/g, '"' ) ) : [];
     }
 
     /**
@@ -626,9 +627,9 @@ class SmartwooVideoPlayer {
         const clientX = e.clientX || ( e.touches && e.touches[0] ? e.touches[0].clientX : 0 );
         let x = clientX - rect.left;
         x = Math.max(0, Math.min( x, rect.width ) );
-        const percent = x / rect.width;
+        const percent = x / rect.width || 0.5;
 
-        this.video.volume = percent;
+        this.video.volume = percent
         this.volumeProgressBar.style.width = `${percent * 100}%`;
         if ( this.volumeScruber ) this.volumeScruber.title = `${Math.round( percent * 100 ) }%`;
 
