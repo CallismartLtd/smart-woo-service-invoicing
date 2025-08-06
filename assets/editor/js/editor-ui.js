@@ -157,9 +157,7 @@ class SmartWooEditor {
         } );
 
         // Remove control elements (e.g. overlay buttons)
-        body.querySelectorAll( '.smartwoo-replace-image' ).forEach( el => el.remove() );
-        body.querySelectorAll( '.smartwoo-add-image' ).forEach( el => el.remove() );
-        body.querySelectorAll( '.editor-only' ).forEach( el => el.remove() );
+        body.querySelectorAll( '.smartwoo-replace-image, .drag-handle, .smartwoo-add-image, .editor-only' ).forEach( el => el.remove() );
 
         // Sanitize inline styles
         body.querySelectorAll( '[style]' ).forEach( el => {
@@ -173,6 +171,7 @@ class SmartWooEditor {
             el.setAttribute( 'style', style.trim() );
         } );
 
+        // clean video block
         body.querySelectorAll( '.smartwoo-video-player-container' ).forEach( el => {
             el.querySelector( '.smartwoo-video-player__frame' )?.classList.remove( 'is-hovered', 'is-paused', 'is-portrait' );
             el.querySelector( '.smartwoo-video-player__frame' )?.removeAttribute( 'style' );
@@ -180,9 +179,7 @@ class SmartWooEditor {
             el.querySelector( '.smartwoo-pause' )?.setAttribute( 'style', 'display: none' );
         });
 
-        e.content = body.innerHTML;
-        // e.save()
-        
+        e.content = body.innerHTML;        
     }
     /**
      * Initialize a TinyMCE editor instance on the specified selector.
@@ -214,6 +211,8 @@ class SmartWooEditor {
             plugins: 'lists link image media table code preview fullscreen autosave wordcount searchreplace visualblocks insertdatetime emoticons',
             toolbar: 'add_media_button | styles | alignleft aligncenter alignjustify alignright bullist numlist outdent indent | forecolor backcolor | code fullscreen preview | undo redo',
             height: 600,
+            relative_urls: false,
+            remove_script_host: false,
             promotion: false,
             content_css: [
                 smart_woo_vars.dashicons_asset_url,
@@ -232,6 +231,7 @@ class SmartWooEditor {
                 });
 
                 editor.on( 'GetContent', SmartWooEditor.cleanEditorContent );
+                editor.on( 'init', () => SmartWooEditor.decorateEditor( editor ) );
             }
         };
         const editors = await tinyMCE.init( Object.assign( {}, defaultConfig, this.userConfig ) );
@@ -261,6 +261,14 @@ class SmartWooEditor {
         }
     }
 
+    /**
+     * Restores cleaned html content for all collections
+     */
+    static decorateEditor = ( editor ) => {
+        const editorBody = editor.getBody();
+        editorBody.querySelectorAll( '.smartwoo-video-player-container' ).forEach( ( el ) => restoreVideoPlaylistBlock( el, editor ) );
+
+    }
 }
 
 document.addEventListener( 'DOMContentLoaded', async function () {
@@ -540,7 +548,7 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
     ` ).join( '' );
 
     const playlistHtml = `
-        <div class="smartwoo-video-player-container" contenteditable="false" data-playlist="${playlistJson}">
+        <div class="smartwoo-video-player-container" contenteditable="false" data-playlist="${encodeURIComponent( playlistJson )}">
             <div class="smartwoo-video-player-left" contenteditable="false">
                 <div class="smartwoo-video-player__frame" contenteditable="false">
                     <video src="${firstVideo.url}" class="smartwoo-video-player__video" controls preload="auto">
@@ -552,27 +560,27 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
                     <div class="smartwoo-video-player-controls" contenteditable="false">
                         <div class="smartwoo-video-player_controls-timing" contenteditable="false">
                             <span class="smartwoo-seek-tooltip"></span>
-                            <span class="smartwoo-video-player_timing-current" contenteditable="false">0:00</span>
-                            <div class="smartwoo-video-player__progress" contenteditable="false">
-                                <div class="smartwoo-progress-bar" contenteditable="false"></div>
+                            <span class="smartwoo-video-player_timing-current smartwoo-control" contenteditable="false">0:00</span>
+                            <div class="smartwoo-video-player__progress smartwoo-control" contenteditable="false">
+                                <div class="smartwoo-progress-bar smartwoo-control" contenteditable="false"></div>
                             </div>
 
-                            <span class="smartwoo-video-player_timing-duration" contenteditable="false">0:00</span>
+                            <span class="smartwoo-video-player_timing-duration smartwoo-control" contenteditable="false">0:00</span>
                         </div>
                         <div class="smartwoo-video-player__controls">
                             <div class="smartwoo-video-player__controls-control">
                                 <span class="dashicons dashicons-controls-skipback smartwoo-control smartwoo-prev" title="Previous"></span>
                                 <span class="dashicons dashicons-controls-play smartwoo-control smartwoo-play" title="Play"></span>
                                 <span class="dashicons dashicons-controls-pause smartwoo-control smartwoo-pause" style="display: none;" title="Pause"></span>
-                                <span class="dashicons dashicons-controls-skipforward smartwoo-next" title="Next"></span>                            
+                                <span class="dashicons dashicons-controls-skipforward smartwoo-control smartwoo-next" title="Next"></span>                            
                             </div>
                             <div class="smartwoo-video-player__controls-right">
-                                <span class="dashicons dashicons-controls-volumeon smartwoo-video-volume-toggle" title="Mute"></span>
-                                <div class="smartwoo-video-volume-slider">
-                                    <div class="smartwoo-video-volume-progress"></div>
-                                    <div class="smartwoo-video-volume-scrubber"></div>
+                                <span class="dashicons dashicons-controls-volumeon smartwoo-control smartwoo-video-volume-toggle" title="Mute"></span>
+                                <div class="smartwoo-video-volume-slider smartwoo-control">
+                                    <div class="smartwoo-video-volume-progress smartwoo-control"></div>
+                                    <div class="smartwoo-video-volume-scrubber smartwoo-control"></div>
                                 </div>
-                                <span class="dashicons dashicons-fullscreen-alt smartwoo-video-fullscreen-toggle" title="Fullscreen mode"></span>
+                                <span class="dashicons dashicons-fullscreen-alt smartwoo-control smartwoo-video-fullscreen-toggle" title="Fullscreen mode"></span>
                             </div>
                         </div>
 
@@ -580,7 +588,7 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
                 </div>
             </div>
             <div class="smartwoo-video-player-right">
-                <h3>Playlist</h3>
+                <h3 contenteditable="true">Playlist</h3>
                 <ul class="smartwoo-video-player-playlist-container">
                     ${playlistItems}
                 </ul>
@@ -591,6 +599,101 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
     return playlistHtml;
 }
 
+/**
+ * Restore interactive video playlist functionality from cleaned HTML block.
+ *
+ * @param {HTMLElement} container - The root `.smartwoo-video-player-container` element in the editor DOM.
+ * @param {tinymce.Editor} editor - The editor instance
+ */
+function restoreVideoPlaylistBlock( container, editor ) {
+    if ( ! container || ! container.classList.contains( 'smartwoo-video-player-container' ) ) {
+        return;
+    }
+
+    const playlistData = container.getAttribute( 'data-playlist' );    
+
+    let videos;
+    try {
+        videos = JSON.parse( decodeURIComponent( playlistData ).replace(/&quot;/g, '"' ) );
+    } catch ( e ) {
+        console.warn( 'Invalid playlist JSON:', e );
+        return;
+    }
+
+    const playlistEl = container.querySelector( '.smartwoo-video-player-playlist-container' );
+    const videoPlayerRight = container.querySelector( '.smartwoo-video-player-right' );
+    const videoFrame = container.querySelector( '.smartwoo-video-player__frame' );
+    const firstVideo = videos[0];
+
+    container?.setAttribute( 'contenteditable', false );
+    playlistEl?.setAttribute( 'contenteditable', false );
+    videoFrame?.setAttribute( 'contenteditable', false );
+    videoPlayerRight?.setAttribute( 'contenteditable', false );
+    playlistEl?.querySelector( '.smartwoo-video-player-left' )?.setAttribute( 'contenteditable', false );
+    videoPlayerRight?.querySelectorAll( 'h1, h2, h3, h4, h5, h6, p' )?.forEach( el => el.setAttribute( 'contenteditable', true ) );
+    videoFrame?.querySelector( 'video' )?.setAttribute( 'contenteditable', false );
+    // --- Restore Current Video Title and Artist ---
+    const titleEl = container?.querySelector( '.smartwoo-current-title' );
+    const artistEl = container?.querySelector( '.smartwoo-current-artist' );
+    titleEl.textContent = firstVideo?.title;
+    artistEl.textContent = firstVideo?.artist;
+
+    // --- Restore Control Buttons and Timing ---
+    const controlsHtml = `
+        <div class="smartwoo-video-player-controls" contenteditable="false">
+            <div class="smartwoo-video-player_controls-timing" contenteditable="false">
+                <span class="smartwoo-seek-tooltip"></span>
+                <span class="smartwoo-video-player_timing-current smartwoo-control" contenteditable="false">0:00</span>
+                <div class="smartwoo-video-player__progress smartwoo-control" contenteditable="false">
+                    <div class="smartwoo-progress-bar smartwoo-control" contenteditable="false"></div>
+                </div>
+                <span class="smartwoo-video-player_timing-duration smartwoo-control" contenteditable="false">0:00</span>
+            </div>
+            <div class="smartwoo-video-player__controls">
+                <div class="smartwoo-video-player__controls-control">
+                    <span class="dashicons dashicons-controls-skipback smartwoo-control smartwoo-prev" title="Previous"></span>
+                    <span class="dashicons dashicons-controls-play smartwoo-control smartwoo-play" title="Play"></span>
+                    <span class="dashicons dashicons-controls-pause smartwoo-control smartwoo-pause" style="display: none;" title="Pause"></span>
+                    <span class="dashicons dashicons-controls-skipforward smartwoo-control smartwoo-next" title="Next"></span>                            
+                </div>
+                <div class="smartwoo-video-player__controls-right">
+                    <span class="dashicons dashicons-controls-volumeon smartwoo-control smartwoo-video-volume-toggle" title="Mute"></span>
+                    <div class="smartwoo-video-volume-slider smartwoo-control">
+                        <div class="smartwoo-video-volume-progress smartwoo-control"></div>
+                        <div class="smartwoo-video-volume-scrubber smartwoo-control"></div>
+                    </div>
+                    <span class="dashicons dashicons-fullscreen-alt smartwoo-control smartwoo-video-fullscreen-toggle" title="Fullscreen mode"></span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const existingControls = container?.querySelector( '.smartwoo-video-player-controls' );
+    if ( ! existingControls ) {
+        videoFrame.insertAdjacentHTML( 'beforeend', controlsHtml );
+    } else {
+        existingControls.setAttribute( 'contenteditable', 'false' );
+        container?.querySelectorAll( '.smartwoo-control' )?.forEach( el => el.setAttribute( 'contenteditable', 'false' ) );
+    }
+
+    // --- Restore Dragging and Title Editing on Playlist Items ---
+    playlistEl?.querySelectorAll( '.smartwoo-video-playlist-item' )?.forEach( ( item, index ) => {
+        item.setAttribute( 'draggable', 'true' );
+        item.setAttribute( 'contenteditable', 'true' );
+        item.dataset.index = index;
+
+        // Restore drag handle if missing
+        if ( ! item.querySelector( '.drag-handle' ) ) {
+            const dragHandle = document.createElement( 'span' );
+            dragHandle.className = 'drag-handle';
+            dragHandle.title = 'Reorder';
+            item.appendChild( dragHandle );
+        }
+    } );
+
+    // --- Bind JS Events ---
+    smartwooAssetEditorResolveHtmlBuilder( 'video' )[1]( editor );
+}
 
 
 
@@ -824,7 +927,6 @@ function smartwooEnableAudioPlaylist( editor ) {
 
 function smartwooEnableVideoPlaylist( editor ) {
     let allVideoPlaylist    = editor.getBody().querySelectorAll( '.smartwoo-video-player-container' );
-    let allPlaylistImage    = editor.getBody().querySelectorAll( '.smartwoo-video-playlist-item_image' );
     let allVideos           = editor.getBody().querySelectorAll( 'video.smartwoo-video-player__video' );
     let playlistItems       = editor.getBody().querySelectorAll( '.smartwoo-video-playlist-item' );
     
@@ -900,54 +1002,6 @@ function smartwooEnableVideoPlaylist( editor ) {
 
 }
 
-
-/**
- * Callback for sanitizing content in the TinyMCE editor before save.
- *
- * @param {Object} e - The event object.
- * @param {tinymce.Editor} editor - The TinyMCE editor instance.
- */
-function smartwooAssetEditorOnSaveCallback( e, editor ) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString( e.content, 'text/html' );
-    const body = doc.body;
-
-    // Attributes to strip globally
-    const stripAttributes = [ 'draggable', 'contenteditable' ];
-
-    // Unwanted inline styles (pattern or exact match)
-    const styleCleanupPatterns = [
-        /cursor:\s*move;?/gi,
-        /user-select:\s*[^;]+;?/gi,
-        /pointer-events:\s*[^;]+;?/gi
-    ];
-
-    // Remove unwanted attributes
-    stripAttributes.forEach( attr => {
-        body.querySelectorAll( `[${ attr }]` ).forEach( el => {
-            el.removeAttribute( attr );
-        } );
-    } );
-
-    // Remove control elements (e.g. overlay buttons)
-    body.querySelectorAll( '.smartwoo-replace-image' ).forEach( el => el.remove() );
-    body.querySelectorAll( '.smartwoo-add-image' ).forEach( el => el.remove() );
-    body.querySelectorAll( '.editor-only' ).forEach( el => el.remove() );
-
-    // Sanitize inline styles
-    body.querySelectorAll( '[style]' ).forEach( el => {
-        let style = el.getAttribute( 'style' );
-        if ( ! style ) return;
-
-        styleCleanupPatterns.forEach( pattern => {
-            style = style.replace( pattern, '' );
-        } );
-
-        el.setAttribute( 'style', style.trim() );
-    } );
-
-    e.content = body.innerHTML;
-}
 
 /**
  * Helper function to escape HTML character
