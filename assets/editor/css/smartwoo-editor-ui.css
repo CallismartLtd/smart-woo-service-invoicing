@@ -476,7 +476,7 @@ video.smartwoo-video-player__video {
 
 .smartwoo-video-player__controls-control span,
 .smartwoo-video-player__controls-right span {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .smartwoo-video-player__controls-control .smartwoo-control {
@@ -486,7 +486,7 @@ video.smartwoo-video-player__video {
     position: relative;
     background-color: #fff;
     height: 6px;
-    width: 85%;
+    width: 80%;
     border-radius: 10px;
     cursor: pointer;
 }
