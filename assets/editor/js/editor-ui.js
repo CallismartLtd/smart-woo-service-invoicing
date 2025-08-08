@@ -157,7 +157,7 @@ class SmartWooEditor {
         } );
 
         // Remove control elements (e.g. overlay buttons)
-        body.querySelectorAll( '.smartwoo-replace-image, .drag-handle, .smartwoo-add-image, .editor-only' ).forEach( el => el.remove() );
+        body.querySelectorAll( '.smartwoo-replace-image, .drag-handle, .smartwoo-add-image, .editor-only, .smartwoo-add-to-playlist' ).forEach( el => el.remove() );
 
         // Sanitize inline styles
         body.querySelectorAll( '[style]' ).forEach( el => {
@@ -316,11 +316,11 @@ function smartwooCollectionManager( editor ) {
 
             let type    = data.collectionType;
             let mediaOptions = {
-                    title: 'Select ' + type.charAt(0).toUpperCase() + type.slice(1),
-                    buttonText: 'Insert ' + type.charAt(0).toUpperCase() + type.slice(1),
-                    multiple: true,
-                    type: type 
-                };
+                title: 'Select ' + type.charAt(0).toUpperCase() + type.slice(1),
+                buttonText: 'Insert ' + type.charAt(0).toUpperCase() + type.slice(1),
+                multiple: true,
+                type: type 
+            };
 
             let selection   = await smartwooAssetEditorOpenMediaLibrary( mediaOptions );
             let [buildHtml, callbackScript]   = smartwooAssetEditorResolveHtmlBuilder( type );
@@ -328,9 +328,6 @@ function smartwooCollectionManager( editor ) {
 
             editor.insertContent(content);
             callbackScript && callbackScript( editor );
-            // editor.on( 'SetContent', () => callbackScript && callbackScript( editor ) );
-            // editor.on( 'Undo', () => callbackScript && callbackScript( editor ) );
-            // editor.on( 'Redo', () => callbackScript && callbackScript( editor ) );
             editor.on( 'init change undo redo SetContent', () => callbackScript && callbackScript( editor ) );
             
         }
@@ -555,7 +552,7 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
                         Your browser does not support the video format.
                     </video>
                     <div class="smartwoo-video-nowplaying-info">
-                        <span class="smartwoo-current-title">${firstVideo.title}</span> | <span class="smartwoo-current-artist">${firstVideo.artist}</span>
+                        <span class="smartwoo-current-title">${firstVideo.title}</span> <span>&#8226;</span> <span class="smartwoo-current-artist">${firstVideo.artist}</span>
                     </div>
                     <div class="smartwoo-video-player-controls" contenteditable="false">
                         <div class="smartwoo-video-player_controls-timing" contenteditable="false">
@@ -591,6 +588,7 @@ function smartwooAssetEditorBuildVideoPlaylist( selection ) {
                 <h3 contenteditable="true">Playlist</h3>
                 <ul class="smartwoo-video-player-playlist-container">
                     ${playlistItems}
+                    <li class="smartwoo-add-to-playlist" title="Add to playlist"><span class="dashicons dashicons-plus"></span></li>
                 </ul>
             </div>
         </div> 
@@ -677,19 +675,23 @@ function restoreVideoPlaylistBlock( container, editor ) {
     }
 
     // --- Restore Dragging and Title Editing on Playlist Items ---
-    playlistEl?.querySelectorAll( '.smartwoo-video-playlist-item' )?.forEach( ( item, index ) => {
+    playlistEl?.querySelectorAll( '.smartwoo-video-playlist-item' )?.forEach( ( item ) => {
         item.setAttribute( 'draggable', 'true' );
         item.setAttribute( 'contenteditable', 'true' );
-        item.dataset.index = index;
 
-        // Restore drag handle if missing
         if ( ! item.querySelector( '.drag-handle' ) ) {
             const dragHandle = document.createElement( 'span' );
             dragHandle.className = 'drag-handle';
             dragHandle.title = 'Reorder';
             item.appendChild( dragHandle );
         }
-    } );
+    });
+    
+    const plusBlock = document.createElement( 'li' );
+    plusBlock.className = 'smartwoo-add-to-playlist';
+    plusBlock.setAttribute( 'title', 'Add to playlist' );
+    plusBlock.innerHTML = `<span class="dashicons dashicons-plus">`;
+    playlistEl.appendChild( plusBlock );
 
     // --- Bind JS Events ---
     smartwooAssetEditorResolveHtmlBuilder( 'video' )[1]( editor );
@@ -926,9 +928,10 @@ function smartwooEnableAudioPlaylist( editor ) {
 }
 
 function smartwooEnableVideoPlaylist( editor ) {
+    let editorBody          = editor.getBody();
     let allVideoPlaylist    = editor.getBody().querySelectorAll( '.smartwoo-video-player-container' );
     let allVideos           = editor.getBody().querySelectorAll( 'video.smartwoo-video-player__video' );
-    let playlistItems       = editor.getBody().querySelectorAll( '.smartwoo-video-playlist-item' );
+    let playlistContainer   = editor.getBody().querySelector( '.smartwoo-video-player-playlist-container' );
     
     allVideoPlaylist.forEach( async ( playlist ) => {
         new SmartwooVideoPlayer(playlist);
@@ -937,7 +940,6 @@ function smartwooEnableVideoPlaylist( editor ) {
 
     editor.on( 'execCommand', (e) => {
         if ( 'mcePreview' === e.command ) {
-            // Delay to wait for the preview dialog to be rendered
             setTimeout(() => {
                 const dialog = document.querySelector( '.tox-dialog-wrap' );
                 if ( ! dialog ) return;
@@ -964,44 +966,151 @@ function smartwooEnableVideoPlaylist( editor ) {
         player.removeAttribute( 'width' );
     });
 
-    playlistItems.forEach( item => {      
-        item.addEventListener( 'dragstart', ( e ) => {
-            try {
-                draggedItem = e.target;
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData( 'text/plain', draggedItem.dataset.index );
-                e.target.classList.add( 'dragging' );
-            } catch (error) {}
+    // playlistItems.forEach( item => {      
+    //     item.addEventListener( 'dragstart', ( e ) => {
+    //         try {
+    //             draggedItem = e.target;
+    //             e.dataTransfer.effectAllowed = 'move';
+    //             e.dataTransfer.setData( 'text/plain', draggedItem.dataset.index );
+    //             e.target.classList.add( 'dragging' );
+    //         } catch (error) {}
             
-        });
+    //     });
 
-        item.addEventListener( 'dragover', ( e ) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        });
+    //     item.addEventListener( 'dragover', ( e ) => {
+    //         e.preventDefault();
+    //         e.dataTransfer.dropEffect = 'move';
+    //     });
 
-        item.addEventListener( 'drop', ( e ) => {
-            e.preventDefault();
-            if ( draggedItem && draggedItem !== e.target ) {
-                try {
-                    const fromIndex = parseInt( draggedItem.dataset.index, 10 );
-                    const toIndex   = parseInt( e.target.dataset.index, 10 );
+    //     item.addEventListener( 'drop', ( e ) => {
+    //         e.preventDefault();
+    //         if ( draggedItem && draggedItem !== e.target ) {
+    //             try {
+    //                 const fromIndex = parseInt( draggedItem.dataset.index, 10 );
+    //                 const toIndex   = parseInt( e.target.dataset.index, 10 );
 
-                    const parent    = draggedItem.parentNode;
-                    parent.insertBefore( draggedItem, toIndex < fromIndex ? e.target : e.target.nextSibling );
-                } catch (error) {}
-            }
+    //                 const parent    = draggedItem.parentNode;
+    //                 parent.insertBefore( draggedItem, toIndex < fromIndex ? e.target : e.target.nextSibling );
+    //             } catch (error) {}
+    //         }
 
-            draggedItem = null;
-        });
+    //         draggedItem = null;
+    //     });
 
-        item.addEventListener( 'dragend', ( e ) => {
-            e?.target?.classList?.remove( 'dragging' );
-        });
+    //     item.addEventListener( 'dragend', ( e ) => {
+    //         e?.target?.classList?.remove( 'dragging' );
+    //     });
+    // });
+
+    playlistContainer.addEventListener( 'dragstart', e => {
+        if ( ! e.target.classList.contains( 'smartwoo-video-playlist-item' ) ) return;
+        try {
+            draggedItem = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData( 'text/plain', draggedItem.dataset.index );
+            e.target.classList.add( 'dragging' );
+        } catch ( error ) {}
+        
+    });
+
+    playlistContainer.addEventListener( 'dragover', ( e ) => {
+        if ( ! e.target.classList.contains( 'smartwoo-video-playlist-item' ) ) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
+
+    playlistContainer.addEventListener( 'drop', ( e ) => {
+        if ( ! e.target.classList.contains( 'smartwoo-video-playlist-item' ) ) return;
+        e.preventDefault();
+        if ( draggedItem && draggedItem !== e.target ) {
+            try {
+                const fromIndex = parseInt( draggedItem.dataset.index, 10 );
+                const toIndex   = parseInt( e.target.dataset.index, 10 );
+
+                const parent    = draggedItem.parentNode;
+                parent.insertBefore( draggedItem, toIndex < fromIndex ? e.target : e.target.nextSibling );
+            } catch (error) {}
+        }
+
+        draggedItem = null;
+    });
+
+    playlistContainer.addEventListener( 'dragend', ( e ) => {
+        if ( ! e.target.classList.contains( 'smartwoo-video-playlist-item' ) ) return;
+        e?.target?.classList?.remove( 'dragging' );
+    });
+
+    editorBody.addEventListener( 'click', ( e ) => {        
+        if ( e.target.classList.contains( 'smartwoo-add-to-playlist' ) ) {
+            e.stopImmediatePropagation();
+            smartwooAddVideoToPlaylist( editor );
+            return;
+        }
     });
 
 }
 
+/**
+ * Helper function to add more videos to the existing playlist.
+ * @param {tinymce.Editor} editor 
+ * @returns {void}
+ */
+async function smartwooAddVideoToPlaylist( editor ) {
+    const body = editor.getBody();
+    
+    /**
+     * @type {HTMLElement} videoPlayerContainer
+     */
+    const videoPlayerContainer  = body.querySelector( '.smartwoo-video-player-container' );
+    const playlistContainer     = videoPlayerContainer.querySelector( '.smartwoo-video-player-playlist-container' );
+    if ( ! videoPlayerContainer ) return;
+
+    const data                  = videoPlayerContainer.getAttribute( 'data-playlist' );
+    const existingPlaylists     = data ? JSON.parse( decodeURIComponent( data ).replace(/&quot;/g, '"' ) ) : [];
+    let lastIndex               = existingPlaylists.length;
+    const options = {
+        title: 'Add Videos to Playlist',
+        multiple: true,
+        type: 'video',
+        buttonText: 'Add Selected Videos'
+    }
+    const selection = await smartwooAssetEditorOpenMediaLibrary( options );
+    const videos    = selection.map( file => {
+        return {
+            url: file.url,
+            title: file.title || '',
+            mime: file.mime || 'video/mp4',
+            desciption: file.description || '',
+            artist: file.meta?.artist || file.artist || 'Unknown Artist',
+            album: file.meta?.album || '',
+            duration: file.fileLength || null,
+            durationHuman: file.fileLengthHumanReadable || '',
+        };
+    });
+
+    const newPlaylist = [...existingPlaylists, ...videos]
+    videoPlayerContainer.setAttribute( 'data-playlist', encodeURIComponent( JSON.stringify( newPlaylist ).replace( /"/g, '&quot;' ) ) );
+    const plusBlock = videoPlayerContainer.querySelector( '.smartwoo-add-to-playlist' );   
+    
+    // Build new individual playlist items
+    videos.forEach( ( video, index ) => {
+        const newItem       = document.createElement( 'li' );
+        const indexNo       = lastIndex  + index;
+        newItem.className = 'smartwoo-video-playlist-item';
+        newItem.setAttribute( 'draggable', 'true' );
+        newItem.setAttribute( 'contenteditable', 'true' );
+        newItem.setAttribute( 'data-index', indexNo );
+
+        newItem.innerHTML = `
+            <img src="${smart_woo_vars.smartwoo_assets_url}images/video-playlist-icon.svg" class="smartwoo-video-playlist-item_image" alt="${escHtml( video.title )}">
+            <p class="smartwoo-playlist__title">${escHtml( video.title )}</p>
+            <span class="drag-handle" title="Reorder"></span>
+        `;            
+
+        playlistContainer.insertBefore( newItem, plusBlock );
+    });
+
+}
 
 /**
  * Helper function to escape HTML character
