@@ -2025,3 +2025,7 @@ body .sw-admin-dash-nav ul li a:focus {
 .sw-admin-fast-checkout-option .sw-service-form-row {
     flex-grow: 1;
 }
+
+.remove-field {
+    cursor: pointer;
+}
