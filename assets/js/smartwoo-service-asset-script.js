@@ -381,7 +381,7 @@ class SmartwooVideoPlayer {
         /**
          * @type {HTMLVideoElement|undefined} - Video element
          */
-        this.video              = this.assetVideoPlayer.querySelector('video.smartwoo-video-player__video');
+        this.video              = this.assetVideoPlayer.querySelector( 'video.smartwoo-video-player__video' );
         this.playlist           = this._parsePlaylist();
         this.currentTrackIndex  = 0;
         this.isPlaying          = false;
@@ -405,6 +405,15 @@ class SmartwooVideoPlayer {
         const data      = this.assetVideoPlayer.dataset.playlist;
 
         return data ? JSON.parse( decodeURIComponent( data ).replace(/&quot;/g, '"' ) ) : [];
+    }
+
+    /**
+     * Reparses the playlist.
+     */
+    _reparsePlaylist() {
+        const latestPlayer  = this.videoFrame.closest( '.smartwoo-video-player-container' );
+        const data          = latestPlayer?.getAttribute( 'data-playlist' );
+        this.playlist       = data ? JSON.parse( decodeURIComponent( data ).replace(/&quot;/g, '"' ) ) : this.playlist;
     }
 
     /**
@@ -466,13 +475,18 @@ class SmartwooVideoPlayer {
     }
 
     /**
-     * Loads a track into the audio element and updates player info.
+     * Loads a track into the video element and updates player info.
      * @param {number} index - The index of the track in the playlist.
      */
     loadTrack( index ) {
-        if ( index < 0 || index >= this.playlist.length ) {
+        if ( index < 0  ) {
             console.warn( 'Track index out of bounds:', index );
             return;
+        }
+
+        // Attempt to reparse the playlist if updated
+        if ( index >= this.playlist.length ) {
+            this._reparsePlaylist();
         }
 
         this.currentTrackIndex = index;
@@ -627,8 +641,10 @@ class SmartwooVideoPlayer {
         const clientX = e.clientX || ( e.touches && e.touches[0] ? e.touches[0].clientX : 0 );
         let x = clientX - rect.left;
         x = Math.max(0, Math.min( x, rect.width ) );
-        const percent = x / rect.width || 0.5;
-
+        let percent = x / rect.width;
+        if ( isNaN( percent ) ) {
+            percent = 0.5;
+        }
         this.video.volume = percent
         this.volumeProgressBar.style.width = `${percent * 100}%`;
         if ( this.volumeScruber ) this.volumeScruber.title = `${Math.round( percent * 100 ) }%`;
@@ -694,7 +710,7 @@ class SmartwooVideoPlayer {
         if ( ! this._toastEl ) {
             this._toastEl = document.createElement( 'div' );
             this._toastEl.className = 'smartwoo-toast';
-            this.assetVideoPlayer.prepend( this._toastEl );
+            this.videoFrame.prepend( this._toastEl );
         }
 
         this._toastEl.textContent = message;
@@ -773,7 +789,6 @@ class SmartwooVideoPlayer {
         switch ( key ) {
             case ' ':
             case 'k':
-                e.preventDefault();
                 this.togglePlayPause();
                 break;
 
@@ -950,9 +965,15 @@ class SmartwooVideoPlayer {
         document.addEventListener( 'fullscreenchange', () => {
             this.isFullScreenMode = !!document.fullscreenElement;
             if ( this.videoFrame ) this.videoFrame.classList.toggle( 'is-fullscreen', this.isFullScreenMode );
+            if ( ! this.isFullScreenMode ) {
+                this.fullscreenToggle.classList.remove( 'dashicons','dashicons-fullscreen-exit-alt' );
+                this.fullscreenToggle.classList.add( 'dashicons','dashicons-fullscreen-alt' );
+                this.fullscreenToggle.title = 'Fullscreen mode';                
+            }
+
         });
 
-        this.assetVideoPlayer.addEventListener( 'dblclick', ( e ) => {
+        this.videoFrame.addEventListener( 'dblclick', ( e ) => {
             const rect = this.video.getBoundingClientRect();
             const clickX = e.clientX;
             const width = rect.width;
@@ -975,7 +996,7 @@ class SmartwooVideoPlayer {
         });
 
         let lastTap = 0;
-        this.assetVideoPlayer.addEventListener( 'touchend', ( e ) => {
+        this.videoFrame.addEventListener( 'touchend', ( e ) => {
             const now = Date.now();
             const timeSince = now - lastTap;
 
@@ -1011,7 +1032,7 @@ class SmartwooVideoPlayer {
         if ( this.playlist.length > 0 ) {
             this.loadTrack( 0 );
         } else {
-            console.warn('Audio playlist is empty.');
+            console.warn('Video playlist is empty.');
         }
 
         this.video.removeAttribute('controls');
