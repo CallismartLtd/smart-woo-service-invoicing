@@ -2522,6 +2522,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var newField = document.createElement('div');
             newField.classList.add('sw-additional-assets-field');
 			newField.style.display = "none";
+            const uniqueID = `sw-editor-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
             newField.innerHTML = `
 				<hr>
@@ -2531,67 +2532,53 @@ document.addEventListener('DOMContentLoaded', function() {
 				</h4>
 				<input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
 				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional)">
-				<textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"></textarea>
-
+				<textarea id="${uniqueID}" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)"></textarea>
                 <span class="dashicons dashicons-dismiss remove-field" title="Remove this field"></span>
             `;
 
-            mainContainer.insertBefore(newField, moreAddiAssetsButton);
-			jQuery( newField ).fadeIn();
+            mainContainer.insertBefore( newField, moreAddiAssetsButton );
+            const editorInstance = new SmartWooEditor( `#${uniqueID}` );
+            editorInstance.init().then( () => jQuery( newField ).fadeIn() );
+			
         });
 
-        // Event delegation to handle click events on the dynamically added remove buttons
-        mainContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-field')) {
-                event.preventDefault(); // Prevent default button action.
-                var fieldToRemove = event.target.parentElement;
-				var removedId = event.target.dataset.removedId;
-				var confirmed = removedId ? confirm( 'This asset will be deleted from the database, click okay to continue.' ) : 0;
-				var removeEle = removedId ? false : true;
-				if ( removedId && confirmed ) {
-                    jQuery( event.target ).fadeOut(700);
-					var spinner = smartWooAddSpinner( 'swloader', true );
-					jQuery.ajax({
-						type: 'GET',
-						url: smart_woo_vars.ajax_url,
-						data: {
-							action: 'smartwoo_asset_delete',
-							security: smart_woo_vars.security,
-							asset_id: removedId
-						},
-						success: function( response ) {
-							if ( response.success ) {
-								alert( response.data.message );
-								fieldToRemove.remove(); // Remove the parent div of the clicked remove button.
-							} else {
-								alert( response.data.message );
-							}
-						},
-						error: function ( error ) {
-							var message  = 'Error deleting asset: ';
-							// Handle the error
-							if (error.responseJSON && error.responseJSON.data && error.responseJSON.data.message) {
-								message = message + error.responseJSON.data.message;
-							} else if (error.responseText) {
-								message = message + error.responseText;
-							} else {
-								message = message + error;
-							}
-		
-							console.error( message );
-						},
-						complete: function() {
-							smartWooRemoveSpinner( spinner );
-							
-						}
-					});
-				}
-				if ( removeEle ) {
-					jQuery( fieldToRemove ).fadeOut();
-					setTimeout( () =>{
-						fieldToRemove.remove();
+        mainContainer.addEventListener( 'click', ( event ) => {
+            if ( event.target.classList.contains( 'remove-field' ) ) {
+                event.preventDefault();
+                let fieldToRemove   = event.target.parentElement;
+				let assetID         = event.target.getAttribute( 'data-asset-id' );
+				let confirmed       = assetID && confirm( 'This asset will be deleted from the database, click okay to continue.' );
+                
+                if ( confirmed ) {
+					let spinner     = smartWooAddSpinner( 'swloader', true );
+                    const payload   = new FormData();
+                    const url       = smart_woo_vars.ajax_url;
+                    payload.set( 'action', 'smartwoo_asset_delete' );
+                    payload.set( 'security', smart_woo_vars.security );
+                    payload.set( 'asset_id', assetID );
 
-					}, 500 );
+                    fetch( url, {
+                        method: 'POST',
+                        body: payload,
+                        credentials: 'same-origin'
+                    }).then( response => {
+                        if ( ! response.ok ) {
+                            throw new Error( `Fetch Error: ${response.statusText}` );
+                        }
+
+                        return response.json();
+                    }).then( responseJSON => {
+                        if ( responseJSON.success ) {
+                            jQuery( fieldToRemove ).fadeOut( 'slow', () => fieldToRemove.remove() );
+                        }
+                        
+                        showNotification( responseJSON.data.message, 5000 );
+                    }).catch( error => {
+                        console.error( error );
+                    }).finally( () => smartWooRemoveSpinner( spinner ) );
+
+				} else if ( ! assetID ) {
+					jQuery( fieldToRemove ).fadeOut( 'slow', () => fieldToRemove.remove() );
 				}
 				
             }
