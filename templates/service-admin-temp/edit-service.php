@@ -102,7 +102,7 @@ defined( 'ABSPATH' ) || exit;
                                     <input type="number" name="access_limits[]" value="<?php echo esc_html( $asset->get_access_limit( 'edit' ) ); ?>" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
                                     <textarea type="text" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)"><?php echo wp_kses_post( $asset->get_data( array_key_first( $asset->get_asset_data() ) ) ); ?></textarea>
                                     <input type="hidden" name="asset_type_ids[]" value="<?php echo absint( $asset->get_id() );?>"/>
-                                    <span class="dashicons dashicons-trash remove-field" title="<?php esc_attr_e( 'Delete permanently', 'smart-woo-service-invoicing' );?>" data-removed-id="<?php echo absint( $asset->get_id() );?>"></span>
+                                    <span class="dashicons dashicons-trash remove-field" title="<?php esc_attr_e( 'Delete permanently', 'smart-woo-service-invoicing' );?>" data-asset-id="<?php echo absint( $asset->get_id() ); ?>"></span>
 
                                 </div>
                             <?php endforeach; ?>
