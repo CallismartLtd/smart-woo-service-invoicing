@@ -61,6 +61,7 @@ class SmartWooEditor {
     constructor ( selector = '.smartwoo-asset-editor-ui', config = {} ) {
         this.selector = selector;
         this.userConfig = config;
+        SmartWooEditor.observeRemovals();
     }
 
     static loadTinyMCEScript( src ) {
@@ -269,6 +270,57 @@ class SmartWooEditor {
         editorBody.querySelectorAll( '.smartwoo-video-player-container' ).forEach( ( el ) => restoreVideoPlaylistBlock( el, editor ) );
 
     }
+
+    /**
+     * Observe editor removal.
+     * @returns {void}
+     */
+    static observeRemovals() {
+        if ( this._observer ) {
+            return; // Avoid multiple observers
+        }
+
+        this._observer = new MutationObserver( ( mutations ) => {
+            mutations.forEach( ( mutation ) => {
+                mutation.removedNodes.forEach( ( node ) => {
+                    if ( node.nodeType !== 1 ) {
+                        return;
+                    }
+
+                    // If this removed node is itself an editor target
+                    if ( node.matches && node.matches( '.smartwoo-asset-editor-ui' ) ) {
+                        this.removeEditorByElement( node );
+                    }
+
+                    // Or if it contains editor targets inside
+                    if ( node.querySelectorAll ) {
+                        node.querySelectorAll( '.smartwoo-asset-editor-ui' ).forEach( ( el ) => {
+                            this.removeEditorByElement( el );
+                        } );
+                    }
+                } );
+            } );
+        } );
+
+        this._observer.observe( document.body, {
+            childList: true,
+            subtree: true
+        } );
+    }
+
+    static removeEditorByElement( el ) {
+        const editorId = el.id;
+        if ( ! editorId ) {
+            return;
+        }
+
+        const editorInstance = this.tinyMCE?.get( editorId );
+        if ( editorInstance ) {
+            editorInstance.remove();
+            this.editors = this.editors.filter( ed => ed.id !== editorId );            
+        }
+    }
+
 }
 
 document.addEventListener( 'DOMContentLoaded', async function () {
