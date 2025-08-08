@@ -531,6 +531,10 @@ video.smartwoo-video-player__video {
     height: 60px;
 }
 
+.smartwoo-video-playlist-item p {
+    overflow-wrap: anywhere;
+}
+
 .smartwoo-video-playlist-item.is-active {
     box-shadow: inset -1px -1px 5px 0px rgb(0 0 0 / 22%);
 }
@@ -598,4 +602,21 @@ video.smartwoo-video-player__video {
 .smartwoo-image-wrapper {
     position: relative;
     overflow: hidden;
+}
+
+.smartwoo-add-to-playlist {
+    border: solid 2px #dcdcde;
+    width: 97%;
+    border-radius: 4px;
+    text-align: center;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    
+}
+.smartwoo-add-to-playlist span {
+    pointer-events: none;
+    color: #333333;
 }
