@@ -629,7 +629,7 @@ class SmartWoo_Service_Assets {
             wp_send_json_error( array( 'message' => 'You don\'t have the required permission to delete this data.' ) );
         }
 
-        $asset_id = isset( $_GET['asset_id'] ) ? absint( $_GET['asset_id'] ) : 0;
+        $asset_id = isset( $_POST['asset_id'] ) ? absint( $_POST['asset_id'] ) : 0;
 
         if ( empty( $asset_id ) ) {
             wp_send_json_error( array( 'message' => 'Asset ID not provided.' ) );
