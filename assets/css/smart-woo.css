@@ -1709,6 +1709,7 @@ font-weight: 100;
     background-color: #ffffff;
     border: 1px solid #dcdcde;
     border-radius: 8px;
+	margin: auto;
 }
 
 .sw-client-service-assets-body-nav-container {
