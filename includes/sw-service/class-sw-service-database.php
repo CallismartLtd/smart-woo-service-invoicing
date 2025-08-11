@@ -47,8 +47,8 @@ class SmartWoo_Service_Database {
 	public static function get_all() {
 		global $wpdb;
 
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:disable
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; // phpcs:disable
+		$page	= smartwoo_get_query_param( 'paged', 1 );
+		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 		
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
@@ -494,9 +494,9 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		// Check if search term is present in the URL parameters.
-		$search_term 	= isset( $_GET['search_term'] ) ? sanitize_text_field( wp_unslash( $_GET['search_term'] ) ) : wp_die( 'Search term missing' );
-        $limit  		= isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 10;
-		$page			= isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
+		$search_term 	= smartwoo_get_query_param( 'search_term', false ) || wp_die( 'Search term missing' );
+        $limit  		= smartwoo_get_query_param( 'limit', 10 );
+		$page			= smartwoo_get_query_param( 'paged', 1 );
 		$offset 		= ( $page - 1 ) * $limit;
 
 		// Try to retrieve the results from the cache.

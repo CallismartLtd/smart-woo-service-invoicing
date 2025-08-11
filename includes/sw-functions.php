@@ -1147,7 +1147,7 @@ function smartwoo_dropdown_users( $selected = '', $args = array() ) {
 
 /**
  * Add an input field to control the limit of items displayed on sw table or any table
- * that uses the `$_GET['limit']` to render items.
+ * that sets the `limit` value in the url query arg.
  */
 function smartwoo_table_limit_field( $limit = 25 ) {
 	?>
