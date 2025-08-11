@@ -243,7 +243,8 @@ class SmartWooEditor {
             promotion: false,
             content_css: [
                 smart_woo_vars.dashicons_asset_url,
-                smart_woo_vars.editor_css_url
+                smart_woo_vars.editor_css_url,
+                smart_woo_vars.subscription_asset_url
             ],
             extended_valid_elements: SmartWooEditor.getAllowedElements(),
             valid_children: '+div[div|span],+span[span|div]',
@@ -297,8 +298,6 @@ class SmartWooEditor {
         editorBody.querySelectorAll( '.smartwoo-video-player-container' ).forEach( ( el ) => SmartWooEditor.restoreVideoPlaylistBlock( el, editor ) );
         editorBody.querySelectorAll( '.smartwoo-audio-playlist' ).forEach( ( el ) => SmartWooEditor.restoreAudioPlaylistBlock( el, editor ) );
         editorBody.querySelectorAll( '.smartwoo-gallery' ).forEach( el => SmartWooEditor.restoreImageGalleryBlock( el, editor ) );
-
-    
     }
 
     /**
@@ -1142,8 +1141,6 @@ async function addImageToGallery( editor ) {
     });
 
 }
-
-
 
 function smartwooEnableAudioPlaylist( editor ) {
     const audioPlayers      = editor.getBody().querySelectorAll( '.smartwoo-audio-playlist' );
