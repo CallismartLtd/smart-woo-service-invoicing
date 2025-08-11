@@ -1071,6 +1071,7 @@ class SmartWooGalleryPreview {
 
         this.galleryElement = galleryElement;
         this.previewOverlay = null;
+        this.previewImageElement = null; // New property to store the preview <img>
         this.items = [];
         this.currentIndex = 0;
 
@@ -1094,8 +1095,8 @@ class SmartWooGalleryPreview {
      * Binds click events to gallery items to open the preview.
      */
     bindEvents() {
-        this.galleryElement.addEventListener('click', (e) => {
-            const clickedImg = e.target.closest('.smartwoo-gallery-item img');
+        this.galleryElement.addEventListener( 'click', ( e ) => {
+            const clickedImg = e.target.closest( '.smartwoo-gallery-item img' );
             if ( clickedImg ) {
                 e.preventDefault();
                 this.currentIndex = this.items.findIndex( item => item.src === clickedImg.src );
@@ -1138,30 +1139,35 @@ class SmartWooGalleryPreview {
         `;
         document.body.appendChild( overlay );
         this.previewOverlay = overlay;
+        this.previewImageElement = this.previewOverlay.querySelector( '.smartwoo-preview-image' );
     }
 
     /**
      * Updates the image in the preview and handles the loading state.
      */
     updatePreviewImage() {
-        if ( ! this.previewOverlay || this.items.length === 0 ) return;
+        if ( ! this.previewOverlay || ! this.previewImageElement || this.items.length === 0 ) return;
 
-        const imgElement = this.previewOverlay.querySelector( '.smartwoo-preview-image' );
         const loader = this.previewOverlay.querySelector( '.smartwoo-preview-loader' );
         const prevBtn = this.previewOverlay.querySelector( '.smartwoo-prev-btn' );
         const nextBtn = this.previewOverlay.querySelector( '.smartwoo-next-btn' );
 
         const currentImage = this.items[this.currentIndex];
 
-        imgElement.style.opacity = '0';
+        this.previewImageElement.style.opacity = '0';
         loader.style.display = 'block';
 
-        imgElement.src = currentImage.src;
-        imgElement.alt = currentImage.alt;
+        this.previewImageElement.src = currentImage.src;
+        this.previewImageElement.alt = currentImage.alt;
 
-        imgElement.onload = () => {
+        this.previewImageElement.onload = () => {
             loader.style.display = 'none';
-            imgElement.style.opacity = '1';
+            this.previewImageElement.style.opacity = '1';
+        };
+        this.previewImageElement.onerror = () => {
+            loader.style.display = 'none';
+            this.previewImageElement.style.opacity = '1';
+            console.error('Failed to load image:', currentImage.src);
         };
 
         // Enable/disable nav buttons based on current index
@@ -1189,6 +1195,10 @@ class SmartWooGalleryPreview {
             }
         });
 
+        if (this.previewImageElement) { // Ensure the image element exists
+            this.previewImageElement.addEventListener('dblclick', this._toggleImageFullscreen.bind(this));
+        }
+
         // Keyboard navigation and close
         document.addEventListener( 'keydown', this.handleKeyPress.bind( this ) );
     }
@@ -1199,7 +1209,7 @@ class SmartWooGalleryPreview {
      */
     navigate( direction ) {
         const newIndex = this.currentIndex + direction;
-        if ( newIndex >= 0 && newIndex < this.items.length ) {
+        if ( newIndex >= 0 && newIndex >= 0 && newIndex < this.items.length ) {
             this.currentIndex = newIndex;
             this.updatePreviewImage();
         }
@@ -1220,17 +1230,36 @@ class SmartWooGalleryPreview {
     }
 
     /**
+     * Toggles fullscreen mode for the preview image.
+     * @private
+     */
+    _toggleImageFullscreen() {
+        if (this.previewImageElement) {
+            if (!document.fullscreenElement) {
+                this.previewImageElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode for image: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    /**
      * Closes the fullscreen preview and cleans up events.
      */
     closePreview() {
         if ( this.previewOverlay ) {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
             this.previewOverlay.remove();
             this.previewOverlay = null;
+            this.previewImageElement = null;
             document.removeEventListener( 'keydown', this.handleKeyPress.bind( this ) );
         }
     }
 }
-
 
 /**
  * The video thumbnail cache
