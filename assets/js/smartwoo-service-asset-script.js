@@ -1,3 +1,6 @@
+/**
+ * Smart Woo Audio player class handles the functionalities of the audio player in subscription assets.
+ */
 class SmartwooAudioPlayer {
 
     /**
@@ -383,9 +386,8 @@ class SmartwooAudioPlayer {
     }
 }
 
-
 /**
- * Smart Woo Asset Video player class handles the video player feature in the subscription assets
+ * Smart Woo Video player class handles the functionalities of the video player in subscription assets
  */
 class SmartwooVideoPlayer {
 
@@ -1053,7 +1055,186 @@ class SmartwooVideoPlayer {
     
 }
 
+/**
+ * Smart Woo Gallery Preview class handles the preview functionalities of the image gallery in subscription assets.
+ */
+class SmartWooGalleryPreview {
 
+    /**
+     * @param {HTMLElement} galleryElement - The main gallery element container.
+     */
+    constructor( galleryElement ) {
+        if ( ! galleryElement ) {
+            console.warn('SmartWooGalleryPreview: No gallery element provided.');
+            return;
+        }
+
+        this.galleryElement = galleryElement;
+        this.previewOverlay = null;
+        this.items = [];
+        this.currentIndex = 0;
+
+        this.collectImageData();
+        this.bindEvents();
+    }
+
+    /**
+     * Collects all image data from the gallery for navigation.
+     */
+    collectImageData() {
+        const images = this.galleryElement.querySelectorAll( '.smartwoo-gallery-item img' );
+        this.items = Array.from( images ).map( ( img, index ) => ({
+            src: img.src,
+            alt: img.alt || '',
+            index: index
+        }));
+    }
+
+    /**
+     * Binds click events to gallery items to open the preview.
+     */
+    bindEvents() {
+        this.galleryElement.addEventListener('click', (e) => {
+            const clickedImg = e.target.closest('.smartwoo-gallery-item img');
+            if ( clickedImg ) {
+                e.preventDefault();
+                this.currentIndex = this.items.findIndex( item => item.src === clickedImg.src );
+                this.openPreview();
+            }
+        });
+    }
+
+    /**
+     * Opens the fullscreen preview.
+     */
+    openPreview() {
+        this.createOverlay();
+        this.updatePreviewImage();
+        this.bindPreviewEvents();
+    }
+
+    /**
+     * Creates the fullscreen overlay and appends it to the body.
+     */
+    createOverlay() {
+        if ( this.previewOverlay ) return;
+
+        const overlay = document.createElement( 'div' );
+        overlay.className = 'smartwoo-gallery-preview-overlay';
+        overlay.innerHTML = `
+            <div class="smartwoo-gallery-preview-close">
+                <span class="dashicons dashicons-no-alt"></span>
+            </div>
+            <button class="smartwoo-gallery-preview-nav smartwoo-prev-btn" type="button">
+                <span class="dashicons dashicons-arrow-left-alt2"></span>
+            </button>
+            <div class="smartwoo-gallery-preview-content">
+                <div class="smartwoo-preview-loader"></div>
+                <img class="smartwoo-preview-image" src="" alt="">
+            </div>
+            <button class="smartwoo-gallery-preview-nav smartwoo-next-btn" type="button">
+                <span class="dashicons dashicons-arrow-right-alt2"></span>
+            </button>
+        `;
+        document.body.appendChild( overlay );
+        this.previewOverlay = overlay;
+    }
+
+    /**
+     * Updates the image in the preview and handles the loading state.
+     */
+    updatePreviewImage() {
+        if ( ! this.previewOverlay || this.items.length === 0 ) return;
+
+        const imgElement = this.previewOverlay.querySelector( '.smartwoo-preview-image' );
+        const loader = this.previewOverlay.querySelector( '.smartwoo-preview-loader' );
+        const prevBtn = this.previewOverlay.querySelector( '.smartwoo-prev-btn' );
+        const nextBtn = this.previewOverlay.querySelector( '.smartwoo-next-btn' );
+
+        const currentImage = this.items[this.currentIndex];
+
+        imgElement.style.opacity = '0';
+        loader.style.display = 'block';
+
+        imgElement.src = currentImage.src;
+        imgElement.alt = currentImage.alt;
+
+        imgElement.onload = () => {
+            loader.style.display = 'none';
+            imgElement.style.opacity = '1';
+        };
+
+        // Enable/disable nav buttons based on current index
+        prevBtn.disabled = this.currentIndex === 0;
+        nextBtn.disabled = this.currentIndex === this.items.length - 1;
+    }
+
+    /**
+     * Binds all events for the preview overlay.
+     */
+    bindPreviewEvents() {
+        const prevBtn = this.previewOverlay.querySelector( '.smartwoo-prev-btn' );
+        const nextBtn = this.previewOverlay.querySelector('.smartwoo-next-btn');
+        const closeBtn = this.previewOverlay.querySelector( '.smartwoo-gallery-preview-close' );
+
+        // Navigation events
+        prevBtn.addEventListener( 'click', () => this.navigate( -1 ) );
+        nextBtn.addEventListener( 'click', () => this.navigate( 1 ) );
+
+        // Close events
+        closeBtn.addEventListener( 'click', this.closePreview.bind( this ) );
+        this.previewOverlay.addEventListener( 'click', ( e ) => {
+            if ( e.target === this.previewOverlay ) {
+                this.closePreview();
+            }
+        });
+
+        // Keyboard navigation and close
+        document.addEventListener( 'keydown', this.handleKeyPress.bind( this ) );
+    }
+
+    /**
+     * Navigates to the previous or next image.
+     * @param {number} direction - -1 for previous, 1 for next.
+     */
+    navigate( direction ) {
+        const newIndex = this.currentIndex + direction;
+        if ( newIndex >= 0 && newIndex < this.items.length ) {
+            this.currentIndex = newIndex;
+            this.updatePreviewImage();
+        }
+    }
+
+    /**
+     * Handles keyboard events for navigation and closing the preview.
+     * @param {KeyboardEvent} e
+     */
+    handleKeyPress( e ) {
+        if ( e.key === 'Escape' ) {
+            this.closePreview();
+        } else if ( e.key === 'ArrowLeft' || e.key === 'ArrowUp' ) {
+            this.navigate(-1);
+        } else if ( e.key === 'ArrowRight' || e.key === 'ArrowDown' ) {
+            this.navigate(1);
+        }
+    }
+
+    /**
+     * Closes the fullscreen preview and cleans up events.
+     */
+    closePreview() {
+        if ( this.previewOverlay ) {
+            this.previewOverlay.remove();
+            this.previewOverlay = null;
+            document.removeEventListener( 'keydown', this.handleKeyPress.bind( this ) );
+        }
+    }
+}
+
+
+/**
+ * The video thumbnail cache
+ */
 const smartwooVideoThumbCache = new Map();
 
 /**
@@ -1133,6 +1314,7 @@ addEventListener( 'DOMContentLoaded', async () => {
     let assetAudioPlayers   = document.querySelectorAll( '.smartwoo-audio-playlist' );
     let videoPlayers        = document.querySelectorAll( '.smartwoo-video-player-container' );
     let allPlaylistImage    = document.querySelectorAll( '.smartwoo-video-playlist-item_image' );
+    const galleries         = document.querySelectorAll( '.smartwoo-gallery' );
     
     assetAudioPlayers.forEach( ( player ) => {
         new SmartwooAudioPlayer( player );
@@ -1145,4 +1327,7 @@ addEventListener( 'DOMContentLoaded', async () => {
         image.src = image.src || `data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2248%22%20viewBox%3D%220%200%2064%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2366ccff%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236600ff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2244%22%20rx%3D%229%22%20fill%3D%22url(%23g)%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M24%2016l16%208-16%208z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E`;
     });
 
+    galleries.forEach( gallery => {
+        new SmartWooGalleryPreview( gallery );
+    });
 });
