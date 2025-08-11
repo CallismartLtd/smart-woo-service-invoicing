@@ -233,6 +233,7 @@ class SmartWoo_Config{
         $admin_style    = SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css';
         $icon_styles    = SMARTWOO_DIR_URL . 'assets/css/sw-icons' . $suffix . '.css';
         $editor_ui      = SMARTWOO_DIR_URL . 'assets/editor/css/smartwoo-editor-ui' . $suffix . '.css';
+        $sub_assets     = SMARTWOO_DIR_URL . 'assets/css/subscription-assets' . $suffix . '.css';
 
         wp_register_style( 'smartwoo-jquery-timepicker', SMARTWOO_DIR_URL . 'assets/css/jquery/time-picker' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
@@ -241,6 +242,7 @@ class SmartWoo_Config{
         wp_register_style( 'smartwoo-invoice-style', SMARTWOO_DIR_URL . 'assets/css/smart-woo-invoice' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-editor-ui', $editor_ui, array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'smartwoo-service-asset-style', $sub_assets, array(), SMARTWOO_VER, 'all' );
         
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
             wp_enqueue_style( 'smartwoo-style' );
@@ -264,12 +266,13 @@ class SmartWoo_Config{
             wp_enqueue_style( 'smartwoo-invoice-style' );
             wp_enqueue_style( 'smartwoo-icon-style' );
             
+            
         }
 
         wp_enqueue_style( 'smartwoo-inline' );
         wp_enqueue_style( 'jquery-ui-style' );
         wp_enqueue_style( 'smartwoo-jquery-timepicker' );
-        
+        wp_enqueue_style( 'smartwoo-service-asset-style' );
     }
 
     /**
@@ -307,6 +310,7 @@ class SmartWoo_Config{
             'fast_checkout_config'      => smartwoo_fast_checkout_options(),
             'dashicons_asset_url'       => includes_url( 'css/dashicons.min.css' ),
             'editor_css_url'            => SMARTWOO_DIR_URL . 'assets/editor/css/smartwoo-editor-ui.css',
+            'subscription_asset_url'    => SMARTWOO_DIR_URL . 'assets/css/subscription-assets' . $suffix . '.css'
         );
 
         wp_register_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
@@ -354,14 +358,7 @@ class SmartWoo_Config{
      * @since 2.4.3
      */
     public static function enqueue_asset_editor() {
-        // Deregister default wordpress tinymce script.
-        // wp_deregister_script( 'wp-tinymce' );
-        // wp_deregister_script('heartbeat');
-        // wp_enqueue_style( 'wp-format-library' );
-        // wp_enqueue_style( 'dashicons' );
-
         wp_enqueue_media();        
-        // wp_enqueue_script( 'smartwoo-tinymce' );
         wp_enqueue_script( 'smartwoo-editor-ui' );
         
     }
