@@ -801,7 +801,7 @@ video.smartwoo-video-player__video {
 /* Close button */
 .smartwoo-gallery-preview-close {
     position: absolute;
-    top: 20px;
+    top: 50px;
     right: 20px;
     color: #fff;
     cursor: pointer;
@@ -846,8 +846,8 @@ video.smartwoo-video-player__video {
 /* Main preview content */
 .smartwoo-gallery-preview-content {
     position: relative;
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 80%;
+    max-height: 80%;
     display: flex;
     align-items: center;
     justify-content: center;
