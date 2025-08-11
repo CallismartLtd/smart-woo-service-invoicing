@@ -1774,6 +1774,10 @@ body .sw-admin-dash-nav ul li a:focus {
     height: 40px;
     width: 35%;
 }
+
+#more-addi-assets {
+    margin-top: 15px;
+}
 .sw-service-form-right-container {
     display: flex;
     flex-direction: column;
@@ -2028,4 +2032,6 @@ body .sw-admin-dash-nav ul li a:focus {
 
 .remove-field {
     cursor: pointer;
+    float: right;
+    color: #ff0000;
 }

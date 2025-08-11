@@ -2532,7 +2532,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				</h4>
 				<input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
 				<input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="Limit (optional)">
-				<textarea id="${uniqueID}" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)"></textarea>
+				<textarea id="${uniqueID}" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Start building: rich text, immersive audio & video playlists, stunning image galleries, custom HTML, or shortcodes."></textarea>
                 <span class="dashicons dashicons-dismiss remove-field" title="Remove this field"></span>
             `;
 
