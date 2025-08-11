@@ -51,7 +51,7 @@ function smartwoo_admin_product_url( $action = '', $product_id = 0 ) {
  */
 function smartwoo_product_dropdown( $selected_product_id = null, $required = false ) {
 	
-	$products		= smartwoo_get_products( array( 'type'   => 'sw_product' ) );
+	$products		= smartwoo_get_products( array( 'type'   => 'sw_product', 'limit' => '-1' ) );
 	$product_data	= array();
 	?>
 		<select class="sw-form-input" field-name="A service product" name="product_id" <?php echo esc_attr( $required ? 'required' : '' ) ?> id="service_products">
@@ -94,7 +94,7 @@ function smartwoo_get_product_config_query_var() {
  * 
  * @param array $args @see `wc_get_products`
  */
-function smartwoo_get_products( array $args ) {
-	$args['type']	= 'sw_product';
+function smartwoo_get_products( array $args = array() ) {
+	$args['type']	= 'sw_product';	
 	return wc_get_products( $args );
 }

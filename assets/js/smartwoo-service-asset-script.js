@@ -24,7 +24,16 @@ class SmartwooAudioPlayer {
      */
     _parsePlaylist() {
         const data  = this.assetAudioPlayer.dataset.playlist;
-        return data ? JSON.parse( data.replace( /&quot;/g, '"') ) : []
+        return data ? JSON.parse( decodeURIComponent( data ).replace( /&quot;/g, '"') ) : []
+    }
+        
+    /**
+     * Reparses the playlist.
+     */
+    _reparsePlaylist() {
+        const latestPlayer  = this.assetAudioPlayer.closest( '.smartwoo-audio-playlist' );
+        const data          = latestPlayer?.getAttribute( 'data-playlist' );
+        this.playlist       = data ? JSON.parse( decodeURIComponent( data ).replace(/&quot;/g, '"' ) ) : this.playlist;
     }
 
     /**
@@ -87,9 +96,13 @@ class SmartwooAudioPlayer {
      * @param {number} index - The index of the track in the playlist.
      */
     loadTrack( index ) {
-        if ( index < 0 || index >= this.playlist.length ) {
+        if ( index < 0 ) {
             console.warn( 'Track index out of bounds:', index );
             return;
+        }
+
+        if ( index >= this.playlist.length ) {
+            this._reparsePlaylist();
         }
 
         this.currentTrackIndex  = index;
@@ -102,7 +115,7 @@ class SmartwooAudioPlayer {
         this.thumbnailImg.alt               = this._escHtml( track.title || 'Audio thumbnail' );
 
         // Reset progress bar
-        this.progressBar.style.width        = '0%';
+        this.progressBar?.style.setProperty( 'width', '0%' );
         this.currentTimeSpan.textContent    = '0:00';
         this.durationSpan.textContent       = '0:00';
 
@@ -117,7 +130,7 @@ class SmartwooAudioPlayer {
             
         this.audio.load();
 
-        if ( this.isPlaying ) this.audio.play().catch( e => console.error( "Autoplay prevented:", e ) );
+        if ( this.isPlaying ) this.audio.play().catch( e => console.warn( "Autoplay prevented:", e ) );
     }
 
     /**
@@ -199,10 +212,13 @@ class SmartwooAudioPlayer {
         const clientX   = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
         let x           = clientX - rect.left;
         x               = Math.max(0, Math.min( x, rect.width ) );
-        const percent   = x / rect.width || 0.5;
+        let percent     = x / rect.width;
+        if ( isNaN( percent ) ) {
+            percent = this.lastVolume;
+        }
         
         this.audio.volume                   = percent;
-        this.volumeProgressBar.style.width  = `${percent * 100}%`;
+        this.volumeProgressBar?.style.setProperty( 'width',  `${percent * 100}%`);
         
         // Update volume icon
         if (this.audio.volume === 0) {
@@ -249,7 +265,7 @@ class SmartwooAudioPlayer {
     _syncProgress = () =>{
         if (!this.isSeeking) {
             const progress = (this.audio.currentTime / this.audio.duration) * 100;
-            this.progressBar.style.width = `${progress}%`;
+            this.progressBar?.style.setProperty( 'width', `${progress}%` );
             this.currentTimeSpan.textContent = this._formatTime(this.audio.currentTime);
         }
     }
@@ -403,7 +419,6 @@ class SmartwooVideoPlayer {
      */
     _parsePlaylist() {
         const data      = this.assetVideoPlayer.dataset.playlist;
-
         return data ? JSON.parse( decodeURIComponent( data ).replace(/&quot;/g, '"' ) ) : [];
     }
 
@@ -523,7 +538,7 @@ class SmartwooVideoPlayer {
         this.video.load();
 
         if ( this.isPlaying ) {
-            this.video.play().catch( e => console.error( "Autoplay prevented:", e ) );
+            this.video.play().catch( e => console.warn( "Autoplay prevented:", e ) );
         }
     }
 
@@ -643,7 +658,7 @@ class SmartwooVideoPlayer {
         x = Math.max(0, Math.min( x, rect.width ) );
         let percent = x / rect.width;
         if ( isNaN( percent ) ) {
-            percent = 0.5;
+            percent = this.lastVolume;
         }
         this.video.volume = percent
         this.volumeProgressBar.style.width = `${percent * 100}%`;
@@ -760,11 +775,8 @@ class SmartwooVideoPlayer {
             const index = parseInt( item.dataset.index );
             if ( index !== this.currentTrackIndex ) {
                 this.loadTrack( index );
-                if ( ! this.isPlaying ) {
-                    this.togglePlayPause();
-                }
             }
-            }
+        }
     }
 
     /**

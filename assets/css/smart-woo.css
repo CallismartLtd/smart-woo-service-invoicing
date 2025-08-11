@@ -1691,6 +1691,7 @@ font-weight: 100;
     margin: 20px;
     align-items: center;
     justify-content: center;
+	flex-wrap: wrap;
 }
 .sw-service-assets-count-box {
     display: flex;
@@ -1701,6 +1702,8 @@ font-weight: 100;
     border: 1px solid #dcdcde;
     border-radius: 8px;
     width: 30%;
+	flex: 1;
+	min-width: 150px;
 }
 
 .sw-client-service-assets-body {
@@ -1715,7 +1718,7 @@ font-weight: 100;
 .sw-client-service-assets-body-nav-container {
     display: flex;
     flex-direction: row;
-    margin: 10px;
+    padding: 10px;
     flex-wrap: wrap;
     gap: 10px;
     width: 100%;
@@ -1723,10 +1726,10 @@ font-weight: 100;
 }
 
 .sw-client-service-assets-button {
-    max-width: 25%;
+    max-width: 50%;
     width: 20%;
+	min-width: 150px;
     border: solid #0000ff91 1px;
-    height: 20px;
     text-align: center;
     padding: 5px;
 	height: 40px;
@@ -1871,7 +1874,7 @@ font-weight: 100;
 	.sw-service-assets-count-box {
 		width: 90%;
 	}
-	.sw-client-service-assets-body-nav-container{
+	/* .sw-client-service-assets-body-nav-container{
 		flex-direction: column;
 		width: 100% !important;
 		justify-content: center;
@@ -1881,7 +1884,7 @@ font-weight: 100;
 	.sw-client-service-assets-button {
 		max-width: 100% !important;
 		width: 90% !important;
-	}
+	} */
 	
 	
     .smartwoo-assets-downloads-table thead {

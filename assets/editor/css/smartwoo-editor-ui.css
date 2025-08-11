@@ -9,6 +9,7 @@
 .tox .tox-dialog--width-lg {
     height: 525px !important;
     max-width: 724px !important;
+    
 }
 .smartwoo-playlist__item span.drag-handle {
     cursor: move;
@@ -180,8 +181,7 @@
 }
 
 .smartwoo-audio-player__control-group.smartwoo-audio-player-controls .smartwoo-control.smartwoo-next:before {
-    font-family: 'dashicons';
-    content: "\f517";
+    margin-left: -15px;
 }
 
 
@@ -218,7 +218,7 @@
 ul.smartwoo-playlist {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 10px;
     list-style: none;
     padding: 0;
     margin: 10px 0;
@@ -235,7 +235,7 @@ ul.smartwoo-playlist {
     transition: all 0.5s ease-in-out;
 }
 
-ul.smartwoo-playlist li {
+ul.smartwoo-playlist li.smartwoo-playlist__item {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -245,19 +245,21 @@ ul.smartwoo-playlist li {
     font-size: 14px;
     transition: background-color 0.5s ease-in-out;
     position: relative;
+    height: 30px;
+    width: 90%;
 }
 
-ul.smartwoo-playlist li:hover {
+ul.smartwoo-playlist li.smartwoo-playlist__item:hover {
     background-color: #f0f0f0;
 }
-ul.smartwoo-playlist li:hover:before {
+ul.smartwoo-playlist li.smartwoo-playlist__item:hover:before {
     content: "\f522";
     font-family: 'dashicons';
     color: #4caf50;
     margin-right: 10px;
 }
 
-ul.smartwoo-playlist li.is-active {
+ul.smartwoo-playlist li.smartwoo-playlist__item.is-active {
     background-color: #4caf50;
     color: #fff;
 }
@@ -281,7 +283,7 @@ audio.smartwoo-audio {
     position: absolute;
     bottom: -15px;
     left: -4px;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: opacity 0.3s ease-in-out;
 }
 .smartwoo-audio-player__control-group.smartwoo-audio-player-volume-container:hover .smartwoo-volume-slider {
@@ -293,6 +295,7 @@ audio.smartwoo-audio {
     width: 0%;
     transition: width 0.1s ease-in-out;
     border-radius: 4px;
+    cursor: pointer !important;
 }
 
 
@@ -568,48 +571,313 @@ video.smartwoo-video-player__video {
     opacity: 1;
 }
 
-.smartwoo-add-image {
-    justify-content: center;
-    display: flex;
+.editor-only {
     min-height: 170px;
     min-width: 170px;
-    width: 100%;
-    height: 100%;
-    align-items: center;
 }
-
-.smartwoo-add-image span.add-icon {
-    font-size: 2rem;
-    color: #333333;
-}
-
+/* ========================================================================= */
+/* ===== 1. Base Gallery Structure (Applies to both Editor & Front-end) ===== */
+/* ========================================================================= */
 .smartwoo-gallery {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 12px; 
-    margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* Consistent spacing between items */
+    /*
+     * Important: The .smartwoo-gallery div has contenteditable="false" in editor,
+     * but this attribute is removed for final output.
+     * The flex container itself is always present.
+     */
 }
 
 .smartwoo-gallery-item {
     position: relative;
-    width: calc(33.333% - 12px);
-    min-width: 150px;
-    box-sizing: border-box;
-    padding: 8px;
+    overflow: hidden;
     border-radius: 6px;
+    box-sizing: border-box;
+    
+    /* Default flex sizing for a 3-column layout, resilient if not in grid/masonry */
+    flex: 1 1 calc(33.333% - 8px); /* Adjusts for 12px gap: (100% - 2 * 12px) / 3 */
+    min-width: 150px; /* Minimum width for responsiveness */
+    display: flex;
+    flex-direction: column;
 }
 
+/* ================================================================= */
+/* ===== 2. Editor-Specific Styles (Only visible in TinyMCE) ===== */
+/* ================================================================= */
+
+/* Draggable items in the editor */
+.smartwoo-gallery-item[draggable="true"] {
+    cursor: grab !important;
+}
+
+.smartwoo-gallery-item[draggable="true"]:active {
+    cursor: grabbing !important;
+}
+
+/* Add Image Button (only for editor UI) */
+.smartwoo-gallery-item.editor-only {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #fafafa;
+    border: 1px solid #dcdcde;
+    text-align: center;
+    font-size: 2em; /* Example size for an add icon */
+    color: #a0a0a0; /* Example color for an add icon */
+    min-height: 150px; /* Ensure a minimum height for the add button */
+    
+    /* Ensure it also fits the flex sizing */
+    flex: 1 1 calc(33.333% - 8px); 
+    min-width: 150px;
+}
+
+/* Placeholder Styling for editable title/caption in the editor */
+.smartwoo-image-title[contenteditable="true"]:empty::before,
+.smartwoo-image-caption[contenteditable="true"]:empty::before {
+    content: attr(data-placeholder);
+    cursor: text;
+    display: block; /* Ensures it takes up space correctly */
+}
+
+.smartwoo-image-title[contenteditable="true"]:empty::before {
+    color: #999;
+    font-weight: normal;
+}
+
+.smartwoo-image-caption[contenteditable="true"]:empty::before {
+    color: #bbb;
+}
+
+/* ========================================================= */
+/* ===== 3. Image Elements (Applies to both Editor & Front-end) ===== */
+/* ========================================================= */
 .smartwoo-image-wrapper {
     position: relative;
-    overflow: hidden;
+    width: 100%;
+    /* No fixed height here, let the image determine it for masonry/natural flow,
+       or let variations define height. */
 }
+
+.smartwoo-image-wrapper img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: inherit;
+}
+
+/* ======================================================= */
+/* ===== 4. Image Actions (Applies to both Editor & Front-end) ===== */
+/* ======================================================= */
+.smartwoo-image-actions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 2; /* Ensure actions are above the image */
+    pointer-events: none; /* Allows clicks through when hidden */
+}
+
+/* Show actions on item hover */
+.smartwoo-gallery-item:hover .smartwoo-image-actions {
+    opacity: 1;
+    pointer-events: auto; /* Enable clicks when visible */
+}
+
+.smartwoo-image-actions button {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 5px; /* Space between icon and text */
+}
+
+.smartwoo-image-actions button .dashicons {
+    font-size: 1.2em; /* Adjust Dashicon size */
+}
+
+.smartwoo-image-actions button:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* ======================================================== */
+/* ===== 5. Image Metadata (Applies to both Editor & Front-end) ===== */
+/* ======================================================== */
+.smartwoo-meta {
+    padding: 8px;
+    background-color: transparent;
+    color: #333; 
+}
+
+.smartwoo-meta .smartwoo-image-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 4px;
+    color: #333;
+}
+
+.smartwoo-meta .smartwoo-image-caption {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+
+.smartwoo-gallery-hover-overlay .smartwoo-meta .smartwoo-image-title {
+    color: #FFFFFF;
+}
+
+/* ======================================== */
+/* ===== 6. Gallery Type Variations ===== */
+/* ======================================== */
+
+/* --- 6.1 Hover Overlay Gallery --- */
+.smartwoo-gallery-hover-overlay .smartwoo-image-wrapper {
+    position: relative;
+    height: 100%;
+}
+
+.smartwoo-gallery-hover-overlay .smartwoo-image-wrapper img {
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+.smartwoo-gallery-hover-overlay .smartwoo-gallery-item {
+    max-width: 200px;
+}
+.smartwoo-gallery-hover-overlay .smartwoo-gallery-item:hover .smartwoo-image-wrapper img {
+    transform: scale(1.1);
+    opacity: 0.85;
+}
+
+.smartwoo-gallery-hover-overlay .smartwoo-meta {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)); /* Gradient overlay */
+    color: #fff;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.smartwoo-gallery-hover-overlay .smartwoo-gallery-item:hover .smartwoo-meta {
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* --- 6.2 Card-Style Gallery --- */
+.smartwoo-gallery-card-style {
+    justify-content: center;
+}
+.smartwoo-gallery-card-style .smartwoo-gallery-item {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fff;
+    border: none;
+    max-width: 200px;
+}
+
+.smartwoo-gallery-card-style .smartwoo-image-wrapper img {
+    width: 100%;
+}
+
+.smartwoo-gallery-card-style .smartwoo-gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.smartwoo-gallery-card-style .smartwoo-meta {
+    background: #fff;
+    border-top: 1px solid #eee;
+    flex-grow: 1;
+    color: #333;
+}
+.smartwoo-gallery-card-style .smartwoo-image-title {
+    color: #222;
+}
+.smartwoo-gallery-card-style .smartwoo-image-caption {
+    color: #555;
+}
+
+
+/* --- 6.3 Masonry Gallery (CSS Columns) --- */
+.smartwoo-gallery-masonry {
+    display: block; /* Override flex for column-count */
+    column-count: 3;
+    column-gap: 12px;
+    /* Responsive column-count for smaller screens can be added with media queries */
+}
+
+.smartwoo-gallery-masonry .smartwoo-gallery-item {
+    display: inline-block; /* Essential for masonry layout */
+    width: 100%; /* Item takes full column width */
+    margin-bottom: 12px; /* Spacing between items in a column */
+    break-inside: avoid; /* Prevent items from breaking across columns */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* Add shadow for definition */
+    background-color: #fff; /* Item background */
+    border: none;
+}
+.smartwoo-gallery-masonry .smartwoo-image-wrapper img {
+    height: auto; /* Allow image to scale freely within its masonry item */
+    object-fit: contain; /* Don't crop, show full image */
+}
+.smartwoo-gallery-masonry .smartwoo-meta {
+    padding-top: 0; /* Reduce top padding if image is flush to the top */
+    color: #333; /* Ensure readability */
+}
+
+/* --- 6.4 Grid Gallery (CSS Grid) --- */
+.smartwoo-gallery-grid {
+    display: grid; /* Use CSS Grid for robust grid layout */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive columns */
+    gap: 12px; /* Consistent spacing */
+}
+
+.smartwoo-gallery-grid .smartwoo-gallery-item {
+    flex: none; /* Override flex property from base gallery */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border: solid 1px #dcdcde;
+    display: flex; /* Ensure inner content can be flexed if needed */
+    flex-direction: column; /* Stack image and meta vertically */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.smartwoo-gallery-grid .smartwoo-gallery-item:hover {
+    transform: translateY(-2px); /* Subtle lift */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Slightly larger shadow on hover */
+}
+.smartwoo-gallery-grid .smartwoo-meta {
+    background-color: #f9f9f9; /* Light background for meta */
+    color: #333; /* Ensure readability */
+    flex-grow: 1; /* Allow meta to take available space */
+}
+
+
 
 .smartwoo-add-to-playlist {
     border: solid 2px #dcdcde;
     width: 97%;
     border-radius: 4px;
     text-align: center;
-    height: 50px;
+    height: 35px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -619,4 +887,71 @@ video.smartwoo-video-player__video {
 .smartwoo-add-to-playlist span {
     pointer-events: none;
     color: #333333;
+}
+
+/* Container for the radio options */
+.smartwoo-gallery-type-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+/* Each option */
+.smartwoo-gallery-type-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color .15s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.smartwoo-gallery-type-option:hover {
+    border-color: #2271b1;
+    box-shadow: 0 4px 14px rgba(34,113,177,0.06);
+}
+
+/* Hide native radio visually but keep it accessible */
+.smartwoo-gallery-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+
+/* Preview box */
+.smartwoo-gallery-preview {
+    width: 84px;
+    height: 56px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 6px;
+    background: #fafafa;
+    flex: 0 0 84px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+}
+
+/* Highlight when checked */
+.smartwoo-gallery-input:checked + .smartwoo-gallery-preview {
+    outline: 3px solid rgba(34,113,177,0.14);
+    box-shadow: 0 6px 18px rgba(34,113,177,0.08);
+}
+
+/* Label text */
+.smartwoo-gallery-label {
+    font-size: 13px;
+    color: #222;
+}
+
+/* SVG sizing */
+.preview-svg {
+    width: 74px;
+    height: 46px;
+    display: block;
 }
