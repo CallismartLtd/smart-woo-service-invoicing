@@ -181,7 +181,7 @@ defined( 'ABSPATH' ) || exit;
                     
                     <div class="sw-service-form-row">
                         <label for="publish"><?php esc_html_e( 'Save Service', 'smart-woo-service-invoicing' ); ?></label>
-                        <button type="submit" class="sw-blue-button button"><span class="dashicons dashicons-cloud-saved"></span> <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
+                        <button type="submit" id="publish" class="sw-blue-button button"><span class="dashicons dashicons-cloud-saved"></span> <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
                     </div>
                     
                 </div>
