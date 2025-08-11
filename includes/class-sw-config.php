@@ -281,7 +281,7 @@ class SmartWoo_Config{
     public function load_scripts() {
         $suffix = self::script_suffix();
 
-        $l10n   =   array(
+        $utils   =   array(
             'smartwoo_plugin_url'       => SMARTWOO_DIR_URL,
             'smartwoo_assets_url'       => SMARTWOO_DIR_URL . 'assets/',
             'ajax_url'                  => admin_url( 'admin-ajax.php' ),
@@ -326,7 +326,7 @@ class SmartWoo_Config{
         wp_enqueue_script( 'smartwoo-service-asset-sript' );
         wp_enqueue_style( 'smartwoo-editor-ui' );
         
-        wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $l10n );
+        wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $utils );
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
 
         if ( is_page( $invoice_page_id ) || is_account_page() || is_admin() ) {
@@ -339,7 +339,7 @@ class SmartWoo_Config{
 
         if ( is_admin() ) {
             wp_register_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
-            wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $l10n );
+            wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $utils );
 
             if ( self::in_admin_page() ) {
                 wp_enqueue_script( 'wc-enhanced-select' );
