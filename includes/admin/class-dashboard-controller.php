@@ -285,7 +285,8 @@ class SmartWoo_Dashboard_Controller {
 				'smartwoo_client_billing_info_display', 
 				array(
 					'Company'			=> $client->get_billing_company(),
-					'Email Adrress'		=> $billing_email,
+					'Email Adrress'		=> $client->get_email(),
+					'Billing Email'		=> $billing_email,
 					'Phone Number'		=> $client->get_billing_phone(),
 					'Street Address'	=> $street_address,
 					'City'				=> $client->get_billing_city(),

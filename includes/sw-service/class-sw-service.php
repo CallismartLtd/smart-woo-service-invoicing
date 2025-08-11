@@ -1065,4 +1065,19 @@ class SmartWoo_Service {
         // Check if the current date has passed the expiration date.
         return ( $current_date > $expiration_date );
     }
+
+	/**
+	 * Check if a service subscription is expiring tomorrow.
+	 * This can be useful for sending reminders or triggering renewal prompts.
+	 *
+	 * @return bool True if the service expires tomorrow, false otherwise.
+	 * @since 2.4.3
+	 */
+	public function is_expiring_tomorrow(): bool {
+		$expiration_date = smartwoo_get_service_expiration_date( $this );
+		$tomorrow_date   = date_i18n( 'Y-m-d', strtotime( '+1 day', current_time( 'timestamp' ) ) );
+
+		return ( $expiration_date === $tomorrow_date );
+	}
+
 }

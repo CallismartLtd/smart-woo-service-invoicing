@@ -664,7 +664,8 @@ class SmartWoo_Service_Database {
 	 * Get services that are within expiry threshold.
 	 * 
 	 * @param int $page Current request page.
-	 * @param int $limit Current request limit
+	 * @param int $limit Current request limit.
+	 * @return SmartWoo_Service[]
 	 */
 	public static function get_on_expiry_threshold( $page =  1, $limit = 10 ) {
 		global $wpdb;

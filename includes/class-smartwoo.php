@@ -105,7 +105,7 @@ final class SmartWoo {
     public function invoice() {}
     
     /**
-     * Normalize the status of a service before expiration date, this is
+     * Normalize the status of a service subscription before expiration date, this is
      * used to handle 'Cancelled', 'Active NR' and other custom service, it ensures
      * the service is autocalculated at the end of each billing period.
      * 
@@ -137,21 +137,14 @@ final class SmartWoo {
             if ( empty( $service->get_status() ) ) {
                 continue;
             }
-            $expiry_date    = smartwoo_get_service_expiration_date( $service );
-            $service_status = smartwoo_service_status( $service );
     
-            if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+            if ( $service->is_expiring_tomorrow() ) {
     
                 $field = array(
-                    'status' => null, // Will be calculated on script.
+                    'status' => null, // Will be autocalculated.
                 );
                 SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
     
-            } elseif ( 'Expired' === $service_status && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
-                $field = array(
-                    'status' => 'Suspended',
-                );
-                SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
             }
         }
 
@@ -228,7 +221,7 @@ final class SmartWoo {
         /**
          * Other Products URL
          */
-        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/pricing/' );
+        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/shop/' );
 
         $smartwoo_row_meta = array(
             'smartwoo_pro'      => '<a href="' . esc_url( $smartwoo_pro_url ) . '" title="' . esc_attr__( 'Get Pro Version', 'smart-woo-service-invoicing' ) . '">' . esc_html__( 'Smart Woo Pro', 'smart-woo-service-invoicing' ) . '</a>',
@@ -1426,7 +1419,7 @@ final class SmartWoo {
          */ 
         do_action( 'smartwoo_before_activate_expired_service', $expired_service );
 
-        $order  = $invoice->get_order();
+        $order  = $invoice ? $invoice->get_order() : false;
         if ( ! $order && $strict ) {
             /**
              * Fires when service renewal fails
@@ -1438,12 +1431,8 @@ final class SmartWoo {
             return false;
         }
 
-        $interval   = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
-
-        $new_start_date =  $order ? $order->get_date_paid() : false;
-        if ( ! $new_start_date ) {
-            $new_start_date = SmartWoo_Date_Helper::create_from_timestamp( time() );
-        }
+        $interval       = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
+        $new_start_date =  $order ? $order->get_date_paid() : SmartWoo_Date_Helper::create_from_timestamp( time() );
         
         $new_end_date           = SmartWoo_Date_Helper::create_from_timestamp( strtotime( $interval, $new_start_date->getTimestamp() ) );
         $new_next_payment_date  = SmartWoo_Date_Helper::calculate_next_payment_date( 

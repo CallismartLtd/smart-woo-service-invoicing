@@ -1476,17 +1476,41 @@ function smartwoo_fast_checkout_options() {
 }
 
 /**
- * A utility function to get the value of a given key from the url query parameters.
- * 
- * @param string $key The key to retrieve from the query parameters.
- * @param string $default The default value to return if the key is not found.
- * @return string The value of the key from the query parameters or the default value.
+ * Retrieve and sanitize a query parameter from the URL, with automatic type detection.
+ *
+ * @param string $key     The key to retrieve from the query parameters.
+ * @param mixed  $default The default value to return if the key is not found.
+ * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_query_param( $key, $default = '' ) {
-	if ( isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return $default;
 	}
-	return $default;
+
+	$value = wp_unslash( $_GET[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( is_array( $value ) ) {
+		return array_map( 'sanitize_text_field', $value );
+	}
+
+	if ( is_numeric( $value ) ) {
+		return ( strpos( $value, '.' ) !== false ) ? floatval( $value ) : intval( $value );
+	}
+
+	$lower = strtolower( $value );
+	if ( in_array( $lower, [ 'true', 'false', '1', '0', 'yes', 'no' ], true ) ) {
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+	}
+
+	if ( is_email( $value ) ) {
+		return sanitize_email( $value );
+	}
+
+	if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+		return sanitize_url( $value, array( 'https', 'http' ) );
+	}
+
+	return sanitize_text_field( $value );
 }
 
 /**

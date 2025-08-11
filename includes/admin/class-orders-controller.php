@@ -105,36 +105,11 @@ class SmartWoo_Orders_Controller {
             $user_id            = $order->get_user() ? $order->get_user()->get_id() : 0;
             $start_date         = $order->get_date_paid( 'date_format' );
             $billing_cycle     	= $order->get_billing_cycle();
-            $next_payment_date 	= '';
-            $end_date          	= '';
+            $end_date          	= date_i18n( 'Y-m-d', strtotime( $start_date . ' ' . SmartWoo_Date_Helper::get_billing_cycle_interval( $billing_cycle ) ) );
+            $next_payment_date 	= date_i18n( 'Y-m-d', strtotime( $end_date . ' ' . smartwoo_get_global_nextpay() ) );
             $status            	= '';
             $user               = get_userdata( $user_id );
             $downloadables      = $product->get_smartwoo_downloads();
-        
-            // Set next payment date and end date based on billing cycle.
-            switch ( $billing_cycle ) {
-                case 'Monthly':
-                    $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +1 month' ) );
-                    $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
-                    break;
-
-                case 'Quarterly':
-                    $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +3 months' ) );
-                    $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
-                    break;
-
-                case 'Six Monthly':
-                    $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +6 months' ) );
-                    $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
-                    break;
-
-                case 'Yearly':
-                    $end_date          = date_i18n( 'Y-m-d', strtotime( $start_date . ' +1 year' ) );
-                    $next_payment_date = date_i18n( 'Y-m-d', strtotime( $end_date . ' -7 days' ) );
-                    break;
-                default:
-                    break;
-            }
 
             $status_options 	= array(
                 ''					=> esc_html__( 'Auto Calculate', 'smart-woo-service-invoicing' ),
