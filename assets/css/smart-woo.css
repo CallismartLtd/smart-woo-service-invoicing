@@ -1927,3 +1927,86 @@ font-weight: 100;
         background: #005177;
     }
 }
+/* Two-column form layout */
+#smartwoo-billing-form.smartwoo-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* space between fields */
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5em;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Default full-width for all fields */
+#smartwoo-billing-form .form-row {
+    flex: 1 1 100%;
+}
+
+/* Make specific fields half-width */
+#smartwoo-billing-form #billing_first_name_field,
+#smartwoo-billing-form #billing_last_name_field,
+#smartwoo-billing-form #billing_city_field,
+#smartwoo-billing-form #billing_postcode_field,
+#smartwoo-billing-form #billing_state_field,
+#smartwoo-billing-form #billing_country_field {
+    flex: 1 1 calc(50% - 0.5em);
+}
+
+/* Labels */
+#smartwoo-billing-form .form-row label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.4em;
+    display: block;
+}
+
+/* Inputs & selects */
+#smartwoo-billing-form .form-row input.input-text,
+#smartwoo-billing-form .form-row select {
+    width: 100%;
+    padding: 0.6em 0.8em;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fafafa;
+    font-size: 14px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+/* Focus effect */
+#smartwoo-billing-form .form-row input:focus,
+#smartwoo-billing-form .form-row select:focus {
+    border-color: #0073aa;
+    background: #fff;
+    outline: none;
+}
+
+/* Country/state select2 dropdowns */
+#smartwoo-billing-form .select2-container--default .select2-selection--single {
+    height: 40px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+#smartwoo-billing-form .select2-container--default .select2-selection--single:focus {
+    border-color: #0073aa;
+}
+
+/* Button */
+#smartwoo-billing-form .sw-blue-button {
+    display: inline-block;
+    padding: 0.6em 1.5em;
+    background: #0073aa;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#smartwoo-billing-form .sw-blue-button:hover {
+    background: #005d88;
+}
