@@ -1389,25 +1389,34 @@ function smartwoo_get_switch_toggle( array $args ) {
  * 
  * @since 1.0.15
  */
+/**
+ * Output the edit billing address form in Smart Woo client portal.
+ */
 function smartwoo_get_edit_billing_form() {
-	$user_id = get_current_user_id();
-	$customer = new WC_Customer( $user_id );
+    if ( ! is_user_logged_in() ) {
+        return;
+    }
 
-	// Get the customer's billing address fields using WooCommerce's helper functions.
-	$address_fields = WC()->countries->get_address_fields( $customer->get_billing_country(), 'billing_' );
+    $user_id  = get_current_user_id();
+    $customer = new WC_Customer( $user_id );
 
-	// Pre-fill the fields with current customer data
-	foreach ( $address_fields as $key => $field ) {
-		$address_fields[ $key ]['value'] = $customer->{"get_{$key}"}();
-	}
+    $address_fields = WC()->countries->get_address_fields(
+        $customer->get_billing_country(),
+        'billing_'
+    );
 
-	// Render the billing address form
-	wc_get_template( 'myaccount/form-edit-address.php', array(
-		'load_address'   => 'billing', 
-		'address'        => $address_fields, // Pass the address fields
-		'user_id'        => $user_id, // Pass the user ID
-	) );
+    // Pre-fill values from WC_Customer object
+    foreach ( $address_fields as $key => $field ) {
+        $getter = 'get_' . $key;
+        $address_fields[ $key ]['value'] = is_callable( [ $customer, $getter ] )
+            ? $customer->$getter()
+            : get_user_meta( $user_id, $key, true );
+    }
+
+	include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/form-edit-address.php';
 }
+
+
 
 /**
  * Get the edit account details form
