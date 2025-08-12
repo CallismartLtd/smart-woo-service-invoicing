@@ -75,7 +75,8 @@ defined( 'ABSPATH' ) || exit; ?>
             <a class="sw-blue-button" id="sw-account-log">Account Logs</a>
             <a class="sw-blue-button" id="sw-load-transaction-history">Transaction History</a>
         </div>
-	    <div id="ajax-content-container"></div>
+	    <div id="ajax-content-container"><?php smartwoo_get_edit_billing_form(); ?></div>
+        
 	</div>
 </div>
 
