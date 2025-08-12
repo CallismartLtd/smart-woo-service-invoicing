@@ -222,7 +222,7 @@ function confirmPaymentMethods() {
 }
 
 function confirmEditBilling() {
-		var confirmBilling = confirm( "Are you sure you want to edit your billing address?" );
+	var confirmBilling = confirm( "Are you sure you want to edit your billing address?" );
 	if (confirmBilling) {
 		window.location.href = smart_woo_vars.woo_billing_eddress_edit;
 	}
