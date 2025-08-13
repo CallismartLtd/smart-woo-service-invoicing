@@ -227,7 +227,7 @@ class SmartWoo_Admin_Menu {
 	 * - href	=> The button url
 	 * - active => The value for the active state in the URL query param
 	 * },
-	 * @param string $query_key The key to get the active button, default false
+	 * @param string|false $query_key The key to get the active button, default false
 	 */
 	public static function print_mordern_submenu_nav( $title, $menu_options, $query_key = false ) {
 		$add_active_class	= is_string( $query_key );
