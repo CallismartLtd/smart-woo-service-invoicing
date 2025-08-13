@@ -1416,17 +1416,55 @@ function smartwoo_get_edit_billing_form() {
 	include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/form-edit-address.php';
 }
 
-
-
 /**
- * Get the edit account details form
- * 
+ * Get the edit account details form.
+ *
  * @since 2.0.15
  */
 function smartwoo_get_edit_account_form() {
-	$user = wp_get_current_user();
-    wc_get_template( 'myaccount/form-edit-account.php', array('user' => $user ) );
+    if ( ! is_user_logged_in() ) {
+        return;
+    }
+
+    $user = wp_get_current_user();
+
+    // Define account fields (pattern follows WooCommerce form conventions)
+    $account_fields = array(
+        'account_first_name' => array(
+            'type'        => 'text',
+            'label'       => __( 'First name', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'class'       => array( 'form-row-first' ),
+            'autocomplete'=> 'given-name',
+            'value'       => $user->first_name,
+        ),
+        'account_last_name' => array(
+            'type'        => 'text',
+            'label'       => __( 'Last name', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'class'       => array( 'form-row-last' ),
+            'autocomplete'=> 'family-name',
+            'value'       => $user->last_name,
+        ),
+        'account_display_name' => array(
+            'type'        => 'text',
+            'label'       => __( 'Display name', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'description' => __( 'This will be how your name will be displayed in the account section and in reviews', 'smart-woo-service-invoicing' ),
+            'value'       => $user->display_name,
+        ),
+        'account_email' => array(
+            'type'        => 'email',
+            'label'       => __( 'Email address', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'autocomplete'=> 'email',
+            'value'       => $user->user_email,
+        ),
+    );
+
+    include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/form-edit-account.php';
 }
+
 
 /**
  * Get the correct URL format for an endpoint according to the site permalink structure
@@ -1523,6 +1561,44 @@ function smartwoo_get_query_param( $key, $default = '' ) {
 }
 
 /**
+ * Retrieve and sanitize the value(s) of a POST key, with automatic type detection.
+ *
+ * @param string $key     The key to retrieve from the query parameters.
+ * @param mixed  $default The default value to return if the key is not found.
+ * @return mixed The sanitized value of the query parameter, or the default value.
+ */
+function smartwoo_get_post_param( $key, $default = '' ) {
+	if ( ! isset( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return $default;
+	}
+
+	$value = wp_unslash( $_POST[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( is_array( $value ) ) {
+		return array_map( 'sanitize_text_field', $value );
+	}
+
+	if ( is_numeric( $value ) ) {
+		return ( strpos( $value, '.' ) !== false ) ? floatval( $value ) : intval( $value );
+	}
+
+	$lower = strtolower( $value );
+	if ( in_array( $lower, [ 'true', 'false', '1', '0', 'yes', 'no' ], true ) ) {
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+	}
+
+	if ( is_email( $value ) ) {
+		return sanitize_email( $value );
+	}
+
+	if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+		return sanitize_url( $value, array( 'https', 'http' ) );
+	}
+
+	return sanitize_text_field( $value );
+}
+
+/**
  * Render a help tooltip
  * 
  * @param string $message
@@ -1543,4 +1619,25 @@ function smartwoo_help_tooltip( $message, $echo = true ) {
  */
 function smartwoo_enqueue_media_assets() {
 	SmartWoo_Config::enqueue_asset_editor();
+}
+
+/**
+ * Get a user's payment options.
+ *
+ * @param int $user_id
+ * @return array
+ */
+function smartwoo_get_user_payment_options( $user_id ) {
+    $defaults = array(
+        'primary' => '',
+        'backup'  => '',
+    );
+
+    $stored = get_user_meta( $user_id, '_smartwoo_payment_options', true );
+
+    if ( ! is_array( $stored ) ) {
+        return $defaults;
+    }
+
+    return wp_parse_args( $stored, $defaults );
 }
