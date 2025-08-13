@@ -207,200 +207,83 @@ function hideLoadingIndicator() {
     jQuery('body').css('cursor', ''); // Reset cursor to default for body
 }
 
-function confirmEditAccount() {
-		var confirmAccount = confirm( "Are you sure you want to edit your information?" );
-	if (confirmAccount) {
-		window.location.href = smart_woo_vars.woo_my_account_edit;
-	}
-}
-
-function confirmPaymentMethods() {
-		var confirmPayment = confirm( "Are you sure you want to view your payment methods?" );
-	if (confirmPayment) {
-		window.location.href = smart_woo_vars.woo_payment_method_edit;
-	}
-}
-
-function confirmEditBilling() {
-	var confirmBilling = confirm( "Are you sure you want to edit your billing address?" );
-	if (confirmBilling) {
-		window.location.href = smart_woo_vars.woo_billing_eddress_edit;
-	}
-}
-
 /**
- * Event listener for billing details button.
+ * Fetch an account settings component from the server.
+ *
+ * @param {String} name - The name of the settings component
+ * @return {Promise<String>} The HTML component from the server, or an error HTML string.
  */
-document.addEventListener( 'DOMContentLoaded', function () {
-	var billingButton = document.getElementById( 'sw-billing-details' );
+async function fetchAccountComponent( name ) {
+	let spinner;
+    // Match name to action query var
+    let components = {
+        billingInfo: 'get_billing_details',
+		userInfo: 'get_client_details',
+		accountLogs: 'get_account_logs',
+		transactionHistory: 'load_transaction_history',
+		paymentInfo: 'get_payment_details',
+		editBilling: 'get_edit_billing_form',
+		editPrimaryPayment: 'get_edit_primary_payment_form',
+		editBackupPayment: 'get_edit_backup_payment_form',
+		editMyInfo: 'get_edit_client_form',
+		editPaymentInfo: 'get_edit_payment_form',
 
-	if ( billingButton ) {
-		billingButton.addEventListener( 'click', function() {
-			loadBillingDetails();
-		} );
-	}
-});
+    };
 
-/**
- * Show modal for User's billing details
- */
-function loadBillingDetails() {
-	// Show loading indicator
-	showLoadingIndicator();
-
-
-	// AJAX request to load billing details content
-	jQuery.ajax(
-		{
-			type: 'POST',
-			url: smart_woo_vars.ajax_url,
-			data: {
-				action: 'load_billing_details',
-				security: smart_woo_vars.security
-			},
-			success: function (response) {
-				jQuery( '#ajax-content-container' ).html( response );
-
-				var editBilling	  = document.getElementById( 'edit-billing-address' );
-				
-				if ( editBilling ) {
-					editBilling.addEventListener( 'click', function() {
-						confirmEditBilling();
-					});
-				}
-
-			},
-			complete: function () {
-				
-				// Hide loading indicator after AJAX request is complete
-				hideLoadingIndicator();
-			}
-			
-		}
-	);
-}
-
-/**
- * Event Listener for my details button
- */
-document.addEventListener('DOMContentLoaded', function() {
-	let detailsButton = document.getElementById( 'sw-load-user-details' );
-	if ( detailsButton ) {
-		detailsButton.addEventListener( 'click', function() {
-			loadMyDetails();
-		});
-	}
-
-	let accountLogButton = document.getElementById( 'sw-account-log' );
-
-    if ( accountLogButton ) {
-        accountLogButton.addEventListener( 'click', function() {
-            loadAccountLogs();
-        });
+    if ( ! components[name] ) {
+        return `<div class="sw-error-notice"><p>Error: Invalid component name provided.</p></div>`;
     }
 
-	let trButton = document.getElementById('sw-load-transaction-history');
+    spinner = smartWooAddSpinner( 'loader', true );
 
-	if (trButton) {
-		trButton.addEventListener('click', function () {
-			loadTransactionHistory();
-		});
-	}
-});
-/**
- * Show modal for User's details
- */
-function loadMyDetails() {
-	// Show loading indicator
-	showLoadingIndicator();
-	// AJAX request to load My details content
-	jQuery.ajax(
-		{
-			type: 'POST',
-			url: smart_woo_vars.ajax_url,
-			data: {
-				action: 'load_my_details',
-				security: smart_woo_vars.security
-			},
-			success: function (response) {
-				jQuery( '#ajax-content-container' ).html( response );
+    let url = new URL( smart_woo_vars.ajax_url );
+    url.searchParams.set( 'action', components[name] );
+    url.searchParams.set( 'security', smart_woo_vars.security );
 
-				var editDetailsButton = document.getElementById( 'edit-account-button' );
-				var viewPaymentButton = document.getElementById( 'view-payment-button' );
+    try {
+        let response = await fetch( url );
+        if ( ! response.ok ) {
+            let errorMessage = `Something went wrong: [${response.status}] - ${response.statusText}`;
+            let errorDetails = '';
 
-				if ( editDetailsButton ) {
-					editDetailsButton.addEventListener( 'click', function() {
-						confirmEditAccount();
-					});
-				}
+            const contentType = response.headers.get( 'content-type' );
+            if ( contentType && contentType.includes( 'application/json' ) ) {
+                try {
+                    const errorJson = await response.json();
+                    errorDetails = JSON.stringify( errorJson );
+                } catch (parseError) {
+                    errorDetails = await response.text();
+                }
+            } else {
+                errorDetails = await response.text();
+            }
 
-				if ( viewPaymentButton ) {
-					viewPaymentButton.addEventListener( 'click', function(){
-						confirmPaymentMethods();
-					});
-				}
-			},
-			complete: function () {
-				// Hide loading indicator after AJAX request is complete
-				hideLoadingIndicator();
-			}
-		}
-	);
-}
+            let displayMessage = errorMessage;
+            if (errorDetails) {
+                displayMessage += `. Details: ${errorDetails.length < 200 ? errorDetails : 'See console for details.'}`;
+            }
 
+            throw new Error(displayMessage);
+        }
 
-/**
- * Show a modal for account logs.
- * 
- */
-function loadAccountLogs() {
-	// Show loading indicator
-	showLoadingIndicator();
+        return await response.text();
 
-	// AJAX request to load Account Logs content
-	jQuery.ajax(
-		{
-			type: 'POST',
-			url: smart_woo_vars.ajax_url,
-			data: {
-				action: 'load_account_logs',
-				security: smart_woo_vars.security
-			},
-			success: function (response) {
-				jQuery( '#ajax-content-container' ).html( response );
-			},
-			complete: function () {
-				// Hide loading indicator after AJAX request is complete
-				hideLoadingIndicator();
-			}
-		}
-	);
-}
+    } catch (error) {
+        let userMessage = 'An unexpected error occurred.';
 
-/**
- * Show a modal for transaction history.
- */
-function loadTransactionHistory() {
-		// Show loading indicator
-		showLoadingIndicator();
-		// AJAX request to load Transaction History content
-		jQuery.ajax(
-			{
-				type: 'POST',
-				url: smart_woo_vars.ajax_url,
-				data: {
-					action: 'load_transaction_history',
-					security: smart_woo_vars.security
-				},
-				success: function (response) {
-					jQuery( '#ajax-content-container' ).html( response );
-				},
-				complete: function () {
-					// Hide loading indicator after AJAX request is complete
-					hideLoadingIndicator();
-				}
-			}
-		);
+        if (error instanceof TypeError) {
+            userMessage = 'Network error: Please check your internet connection or try again later.';
+        } else if (error instanceof Error) {
+            userMessage = error.message;
+        } else {
+            userMessage = `An unknown error occurred: ${String(error)}`;
+        }
+
+        return `<div class="sw-error-notice"><p>${userMessage}</p></div>`;
+
+    } finally {
+        smartWooRemoveSpinner( spinner );
+    }
 }
 
 /**
@@ -468,7 +351,7 @@ function smartwoo_ajax_logout() {
 	});
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener( 'DOMContentLoaded', function() {
     let hamburger			= document.querySelector('.sw-menu-icon');
     let navbar				= document.querySelector('.service-navbar');
 	let logoutBtn			= document.querySelector( '.smart-woo-logout' );
@@ -479,6 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	let renewalButton		= document.querySelector( '.smartwoo-service-renew-button' );
 	let allSortDivs			= document.querySelectorAll( '.sw-user-status-item' );
 	let miniCardContent		= document.querySelector( '.mini-card-content' );
+	let accountSettings		= document.querySelector( '#smartwooSettingsContainer' );
+	let assetSubBtn = document.getElementById( 'smartwoo-assets-sub-nav' );
 
     if (hamburger) {
 		let menuIcon	= hamburger.querySelector('.dashicons-menu');
@@ -514,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-	if (logoutBtn) {
+	if ( logoutBtn ) {
 		let clicked = false;
 		logoutBtn.addEventListener('click', function(){
 			if (clicked) {
@@ -566,10 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 
 			clicked = !clicked;
-
-			
-			
-
 		});
 	}
 
@@ -737,13 +618,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		getSubs( 1, limit);
 	}
-});
 
-/**
- * Toggle visility of assets and subscription tabs in frontend
- */
-document.addEventListener('DOMContentLoaded', function() {
-	var assetSubBtn = document.getElementById( 'smartwoo-assets-sub-nav' );
+	if ( accountSettings ) {
+		let currentAction		= null;
+		let responseContainer	= document.querySelector( '#ajax-content-container' );
+		accountSettings.addEventListener( 'click', async ( e ) => {
+			const clickedBtn	= e.target.closest( '#sw-billing-details, #sw-load-user-details, #sw-account-log, #sw-load-transaction-history, #edit-billing-address, #edit-account-button, #view-payment-button, .smartwoo-inline-edit' );			
+			if ( ! clickedBtn ) return;
+
+			const action		= clickedBtn.getAttribute( 'data-action' );
+			if ( ! action ) return console.warn( 'button action not found' );
+			if ( action === currentAction ) return;
+			currentAction = action;
+			
+			let response = await fetchAccountComponent( action );
+			jQuery( responseContainer ).fadeOut( 'slow', () => {
+				jQuery( responseContainer ).html( response );
+				jQuery( responseContainer ).fadeIn();
+			})
+			
+			if ( 'editBilling' === action ) {
+				jQuery( document.body ).trigger( 'wc_country_select_init' );
+				jQuery( document.body ).trigger( 'wc-enhanced-select-init' );
+				jQuery( document.body ).trigger( 'country_to_state_changed' );
+			}
+			
+		});
+	}
 
 	if ( assetSubBtn ) {
 		var subContainer	= document.getElementById( 'smartwoo-sub-info' );
@@ -766,8 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		} );
 	}
-	
-} );
+});
 
 /**
  * Database AJAX update handler
