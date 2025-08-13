@@ -4,13 +4,11 @@
  */
 defined( 'ABSPATH' ) ||  exit;
 ?>
-<div class="smartwoo-modal-fram">
-    <form id="smartwoo-billing-form" class="smartwoo-form" method="post">
-
-        <?php foreach ( $address_fields as $key => $field ) : ?>
-            <?php woocommerce_form_field( $key, $field, $field['value'] ?? '' ); ?>
-        <?php endforeach; ?>
-        <button type="submit" class="button sw-blue-button"><?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
-    </form>
-</div>
+<form id="smartwoo-billing-form" class="smartwoo-form" method="post">
+    <h3 class="smartwoo-section-card__title"><?php echo esc_html__( 'Edit Billing Address', 'smart-woo-service-invoicing' ); ?></h3>
+    <?php foreach ( $address_fields as $key => $field ) : ?>
+        <?php woocommerce_form_field( $key, $field, $field['value'] ?? '' ); ?>
+    <?php endforeach; ?>
+    <button type="submit" class="button sw-blue-button"><?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
+</form>
 
