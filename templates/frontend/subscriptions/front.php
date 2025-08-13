@@ -64,19 +64,17 @@ defined( 'ABSPATH' ) || exit; ?>
         <?php endif; ?>
     </div>
 
-    <div syle="position: relative;">
-        <div id="swloader">Just a moment</div>
-    </div>
-	<div class="settings-tools-section">
+	<div class="settings-tools-section" id="smartwooSettingsContainer">
         <h2>Account Settings</h2>
         <div class="sw-button-container">
-            <a class="sw-blue-button" id="sw-billing-details">Billing Details</a>
-            <a class="sw-blue-button" id="sw-load-user-details">My Details</a>
-            <a class="sw-blue-button" id="sw-account-log">Account Logs</a>
-            <a class="sw-blue-button" id="sw-load-transaction-history">Transaction History</a>
+            <a class="sw-blue-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></a>
+            <a class="sw-blue-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></a>
+            <a class="sw-blue-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></a>
+            <a class="sw-blue-button" id="sw-load-transaction-history" data-action="transactionHistory"> <?php echo esc_html__( 'Transaction History', 'smart-woo-service-invoicing' ); ?></a>
+            <a class="sw-blue-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></a>
         </div>
-	    <div id="ajax-content-container"><?php smartwoo_get_edit_billing_form(); ?></div>
-        
+	    <div id="ajax-content-container"></div>
+        <div id="loader"></div>
 	</div>
 </div>
 
