@@ -193,6 +193,30 @@ use inline CSS to overide some styles
 	margin: 10px !important;
 }
 
+.smartwoo-account-button {
+    background-color: #0073aa; /* WordPress blue */
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none; /* Ensure no underline if it becomes a link */
+    display: inline-block; /* Allow padding and margin */
+}
+
+.smartwoo-account-button:hover {
+    background-color: #005f8f; /* Darker blue on hover */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.smartwoo-account-button:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
 /************** Button CSS Ends here******************/
 
 /* Service Product form goes here*/
@@ -1046,7 +1070,7 @@ border-radius: 5px;
 	margin: 10px 0;
 }
 
-.smartwoo-mini-card{
+.smartwoo-mini-card {
 	background-color: #ffffff;
 	max-width: 80%;
 	width: 768px;
@@ -1065,7 +1089,7 @@ border-radius: 5px;
 	color: #333333;
 }
 
-.mini-card-content {
+.smartwoo-mini-card .mini-card-content {
 	display: flex;
 	flex-direction: column;
 	padding: 10px;
@@ -1276,6 +1300,7 @@ border-radius: 5px;
 
 /* Container for Settings and Tools Section */
 .settings-tools-section {
+	position: relative;
 	display: flex;
 	align-items: center;
     background-color: #fff;
@@ -1286,6 +1311,13 @@ border-radius: 5px;
     margin: 10px auto;
     flex-direction: column;
 	width: 90%;
+}
+
+.settings-tools-section #loader {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform:  translate(-50%);
 }
 
 /* Header Style */
@@ -1318,22 +1350,113 @@ border-radius: 5px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	padding: 20px;
 	margin: 20px auto;
-	background-color: #fff;
+	background-color: #f1f1f1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 80%;
+	width: 95%;
 
 }
 
-/* Style the heading within the container */
-.smartwoo-details-container h3 {
-	margin: 10px;
-	padding: 10px; 
-	font-size: 18px;
-	background-color: red;
-	color: white;
-	border-radius: 9px;
+/* --- Base Card Styling --- */
+.smartwoo-section-card {
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    color: #333333;
+	width: 95%;
+	margin: 10px auto;
+}
+
+.smartwoo-section-card__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222222;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dcdcde;
+    padding-bottom: 15px;
+	width: 100%;
+}
+
+/* --- Table Wrapper for Responsiveness --- */
+.smartwoo-detail-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+
+.smartwoo-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.smartwoo-detail-table__body {
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.smartwoo-detail-table__row {
+    transition: background-color 0.2s ease;
+}
+
+.smartwoo-detail-table__row:last-child {
+    border-bottom: none;
+}
+
+.smartwoo-detail-table__row:hover {
+    background-color: #f9f9f9;
+}
+
+.smartwoo-detail-table__label,
+.smartwoo-detail-table__value {
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    vertical-align: top;
+}
+
+.smartwoo-detail-table__label {
+    text-align: left;
+    font-weight: 500;
+    color: #555555;
+    width: 35%;
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+.smartwoo-detail-table__value {
+    text-align: left;
+    color: #333333;
+    word-break: break-word;
+}
+
+.smartwoo-section-card__actions {
+    padding-top: 8px;
+    border-top: 1px solid #eeeeee;
+    display: flex;
+    justify-content: flex-start;
+	gap: 10px;
+}
+
+/* --- Basic Responsive Adjustments --- */
+@media (max-width: 600px) {
+    .smartwoo-section-card {
+        padding: 15px;
+    }
+    .smartwoo-section-card__title {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    .smartwoo-detail-table__label,
+    .smartwoo-detail-table__value {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    .smartwoo-detail-table__label {
+        width: 40%;
+    }
 }
 
 #smartwoo-sub-info {
@@ -1928,24 +2051,35 @@ font-weight: 100;
     }
 }
 /* Two-column form layout */
+#smartwoo-account-form.smartwoo-form,
 #smartwoo-billing-form.smartwoo-form {
     display: flex;
     flex-wrap: wrap;
     gap: 10px; /* space between fields */
-    max-width: 800px;
+    max-width: 95%;
     margin: 0 auto;
     padding: 1.5em;
-    background: #fff;
+    background: #f1f1f1;
     border-radius: 10px;
     border: 1px solid #e0e0e0;
 }
 
+#smartwoo-account-form p,
+#smartwoo-billing-form p {
+	margin: 1px;
+}
+
 /* Default full-width for all fields */
+#smartwoo-account-form .form-row,
 #smartwoo-billing-form .form-row {
     flex: 1 1 100%;
 }
 
 /* Make specific fields half-width */
+#smartwoo-account-form #password_1_field,
+#smartwoo-account-form #password_2_field,
+#smartwoo-account-form #account_first_name_field,
+#smartwoo-account-form #account_last_name_field,
 #smartwoo-billing-form #billing_first_name_field,
 #smartwoo-billing-form #billing_last_name_field,
 #smartwoo-billing-form #billing_city_field,
@@ -1956,6 +2090,7 @@ font-weight: 100;
 }
 
 /* Labels */
+#smartwoo-account-form .form-row label,
 #smartwoo-billing-form .form-row label {
     font-weight: 600;
     color: #333;
@@ -1964,6 +2099,8 @@ font-weight: 100;
 }
 
 /* Inputs & selects */
+#smartwoo-account-form .form-row input.input-text,
+#smartwoo-account-form .form-row select,
 #smartwoo-billing-form .form-row input.input-text,
 #smartwoo-billing-form .form-row select {
     width: 100%;
@@ -1976,6 +2113,8 @@ font-weight: 100;
 }
 
 /* Focus effect */
+#smartwoo-account-form .form-row input:focus,
+#smartwoo-account-form .form-row select:focus,
 #smartwoo-billing-form .form-row input:focus,
 #smartwoo-billing-form .form-row select:focus {
     border-color: #0073aa;
@@ -1995,6 +2134,7 @@ font-weight: 100;
 }
 
 /* Button */
+#smartwoo-account-form .sw-blue-button, 
 #smartwoo-billing-form .sw-blue-button {
     display: inline-block;
     padding: 0.6em 1.5em;
@@ -2007,6 +2147,45 @@ font-weight: 100;
     cursor: pointer;
     transition: background 0.2s;
 }
+#smartwoo-account-form .sw-blue-button:hover,
 #smartwoo-billing-form .sw-blue-button:hover {
     background: #005d88;
+}
+
+#smartwoo-payment-edit-form.smartwoo-form {
+    max-width: 95%;
+    margin: 0 auto;
+    padding: 1.5em;
+    background: #f1f1f1;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+.smartwoo-payment-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    justify-content: center; /* keeps them centered when fewer items */
+}
+
+.smartwoo-payment-method {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 300px;
+    width: 100%;
+}
+
+.smartwoo-payment-method:hover {
+    border-color: #007cba;
+    background: #f8fbff;
+}
+
+.smartwoo-payment-method__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
