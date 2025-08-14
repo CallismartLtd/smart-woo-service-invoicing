@@ -1641,3 +1641,94 @@ function smartwoo_get_user_payment_options( $user_id ) {
 
     return wp_parse_args( $stored, $defaults );
 }
+
+/**
+ * Parses a user agent string and returns a short description.
+ *
+ * @param string $user_agent_string The user agent string to parse.
+ * @return string Description in the format: "Browser Version on OS (Device)".
+ */
+function smartwoo_parse_user_agent( $user_agent_string ) {
+    $info = array(
+        'browser' => 'Unknown Browser',
+        'version' => '',
+        'os'      => 'Unknown OS',
+        'device'  => 'Desktop',
+    );
+
+    // Detect OS
+    if ( preg_match( '/Windows NT ([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $os_version = $matches[1];
+        $info['os'] = match ( $os_version ) {
+            '10.0' => 'Windows 10',
+            '6.3'  => 'Windows 8.1',
+            '6.2'  => 'Windows 8',
+            '6.1'  => 'Windows 7',
+            '6.0'  => 'Windows Vista',
+            '5.1'  => 'Windows XP',
+            default => 'Windows ' . $os_version
+        };
+    } elseif ( preg_match( '/Mac OS X ([0-9_.]+)/i', $user_agent_string, $matches ) ) {
+        $info['os'] = 'macOS ' . str_replace( '_', '.', $matches[1] );
+    } elseif ( preg_match( '/Linux/i', $user_agent_string ) && ! preg_match( '/Android/i', $user_agent_string ) ) {
+        $info['os'] = 'Linux';
+    } elseif ( preg_match( '/Android ([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['os']     = 'Android ' . $matches[1];
+        $info['device'] = 'Mobile';
+    } elseif ( preg_match( '/iPhone|iPad|iPod/i', $user_agent_string, $matches ) ) {
+        $info['os']     = 'iOS';
+        $info['device'] = ( 'iPad' === $matches[0] ) ? 'Tablet' : 'Mobile';
+    }
+
+    // Detect device type
+    if ( preg_match( '/BlackBerry|Mobile Safari|Opera Mini|Opera Mobi|Firefox Mobile|webOS|NokiaBrowser|Series40|NintendoBrowser/i', $user_agent_string ) ) {
+        $info['device'] = 'Mobile';
+    } elseif ( preg_match( '/Tablet|iPad|Nexus 7|Nexus 10|GT-P|SM-T/i', $user_agent_string ) ) {
+        $info['device'] = 'Tablet';
+    }
+
+    // Detect browser & version
+    if ( preg_match( '/Edg\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        // New Chromium-based Edge
+        $info['browser'] = 'Edge';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Edge\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        // Legacy Edge
+        $info['browser'] = 'Edge';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/(OPR|Opera)\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Opera';
+        $info['version'] = $matches[2];
+    } elseif ( preg_match( '/CriOS\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Chrome iOS';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Chrome\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Chrome';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Firefox\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Firefox';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Safari\/([0-9.]+)/i', $user_agent_string, $matches ) && ! preg_match( '/Chrome|Edg/i', $user_agent_string ) ) {
+        $info['browser'] = 'Safari';
+        if ( preg_match( '/Version\/([0-9.]+)/i', $user_agent_string, $version_matches ) ) {
+            $info['version'] = $version_matches[1];
+        } else {
+            $info['version'] = $matches[1];
+        }
+    } elseif ( preg_match( '/MSIE ([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Internet Explorer';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Trident\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Internet Explorer';
+        $info['version'] = ( '7.0' === $matches[1] ) ? '11.0' : 'Unknown IE';
+    }
+
+    // Build the return string
+    return trim( sprintf(
+        '%s%s on %s (%s)',
+        $info['browser'],
+        $info['version'] ? ' ' . $info['version'] : '',
+        $info['os'],
+        $info['device']
+    ) );
+}
