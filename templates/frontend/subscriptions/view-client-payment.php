@@ -23,8 +23,8 @@ defined( 'ABSPATH' ) || exit;
                         <?php esc_html_e( 'Primary:', 'smart-woo-service-invoicing' ); ?>
                     </th>
                     <td class="smartwoo-detail-table__value">
-                        <?php if ( ! empty( $payment_details['primary']['id'] ) ) : ?>
-                            <?php echo $payment_display['primary']; ?>
+                        <?php if ( ! empty( $payment_details['primary'] ) ) : ?>
+                            <?php echo wp_kses_post( $payment_display['primary'] ); ?>
                             <button class="smartwoo-account-button smartwoo-inline-edit" 
                                     data-action="editPrimaryPayment">
                                 <?php esc_html_e( 'Edit Primary', 'smart-woo-service-invoicing' ); ?>
@@ -47,8 +47,8 @@ defined( 'ABSPATH' ) || exit;
                         <?php esc_html_e( 'Backup:', 'smart-woo-service-invoicing' ); ?>
                     </th>
                     <td class="smartwoo-detail-table__value">
-                        <?php if ( ! empty( $payment_details['backup']['id'] ) ) : ?>
-                            <?php echo $payment_display['backup']; ?>
+                        <?php if ( ! empty( $payment_details['backup'] ) ) : ?>
+                            <?php echo wp_kses_post( $payment_display['backup'] ); ?>
                             <button class="smartwoo-account-button smartwoo-inline-edit" 
                                     data-action="editBackupPayment">
                                 <?php esc_html_e( 'Edit Backup', 'smart-woo-service-invoicing' ); ?>
