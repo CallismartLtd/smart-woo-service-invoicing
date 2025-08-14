@@ -169,8 +169,8 @@ class SmartWoo_Service_Frontend_Template {
 
 		$pages			= apply_filters( 'smartwoo_subscription_pages', array() );
 		$current_page	= '';
-		$handler	= array( __CLASS__, 'main_page' );
-		$endpoints = SmartWoo_Config::instance()->get_query_vars();
+		$handler		= array( __CLASS__, 'main_page' );
+		$endpoints		= SmartWoo_Config::instance()->get_query_vars();
 
 		foreach ( $endpoints as $page ) {
 			if ( isset( $wp_query->query_vars[$page] ) ) {
@@ -211,9 +211,9 @@ class SmartWoo_Service_Frontend_Template {
 			'smartwoo_service_mini_card'
 		);
 
-		$output				= '<div class="smartwoo-mini-card">';
-		$output          	.= '<h2>' . esc_html( $atts['title'] )  . '</h2>';
-		$output				.= '<hr>';
+		$output	 = '<div class="smartwoo-mini-card">';
+		$output	.= '<h2>' . esc_html( $atts['title'] )  . '</h2>';
+		$output	.= '<hr>';
 		
 		$output	.= '<ul class="mini-card-content" limit="' . esc_attr( $atts['limit'] ) . '">';
 		$output	.= '<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>';
@@ -225,8 +225,6 @@ class SmartWoo_Service_Frontend_Template {
 		</div>';
 		$output .= '</div>';
 		return $output;
-
-
 	}
 
 	private static function login_page() {
