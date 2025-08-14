@@ -146,19 +146,16 @@ class SmartWoo_Service_Frontend_Template {
 				<h2><?php  __( 'Services', 'smart-woo-service-invoicing' ); ?></h2>
 				<?php echo wp_kses( self::mini_card( array( 'title' => 'My Subscriptions', 'limit' => 5 ) ), smartwoo_allowed_form_html() ); ?>
 				<div class="settings-tools-section" id="smartwooSettingsContainer">
-					<h2>Account Settings</h2>
-					
-					<div class="sw-button-container">
-						<a class="sw-blue-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></a>
-						<a class="sw-blue-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></a>
-						<a class="sw-blue-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></a>
-						<a class="sw-blue-button" id="sw-load-transaction-history" data-action="transactionHistory"> <?php echo esc_html__( 'Transaction History', 'smart-woo-service-invoicing' ); ?></a>
-						<a class="sw-blue-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></a>
+					<h2><?php esc_html_e( 'Account Settings', 'smart-woo-service-invoicing' ); ?></h2>
+					<div class="sw-settings-button-container">
+						<button class="button sw-client-dashboard-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="button sw-client-dashboard-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="button sw-client-dashboard-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="button sw-client-dashboard-button" id="sw-load-transaction-history" data-action="transactionHistory"> <?php echo esc_html__( 'Transaction History', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="button sw-client-dashboard-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></button>
 					</div>
-					
 					<div id="ajax-content-container"></div>
 					<div id="loader"></div>
-					
 				</div>
 			</div><?php
 		}
