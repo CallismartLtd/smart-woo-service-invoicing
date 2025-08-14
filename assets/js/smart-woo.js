@@ -287,6 +287,65 @@ async function fetchAccountComponent( name ) {
 }
 
 /**
+ * Post client settings form
+ * 
+ * @param {HTMLFormElement} form - The settings form
+ */
+async function smartwooSubmitSettingsForm( form ) {
+	if ( ! form ) return console.warn( 'Invalid form element' );
+	
+	let payload = new FormData( form );
+	payload.set( 'security', smart_woo_vars.security );
+    
+	let spinner = smartWooAddSpinner( 'loader', true );
+
+    try {
+        let response = await fetch( smart_woo_vars.ajax_url, {method: 'POST', body: payload} );
+        if ( ! response.ok ) {
+            let errorMessage = `Something went wrong: [${response.status}] - ${response.statusText}`;
+            let errorDetails = '';
+
+            const contentType = response.headers.get( 'content-type' );
+            if ( contentType && contentType.includes( 'application/json' ) ) {
+                try {
+                    const errorJson = await response.json();
+                    errorDetails = JSON.stringify( errorJson );
+                } catch (parseError) {
+                    errorDetails = await response.text();
+                }
+            } else {
+                errorDetails = await response.text();
+            }
+
+            let displayMessage = errorMessage;
+            if (errorDetails) {
+                displayMessage += `. Details: ${errorDetails.length < 200 ? errorDetails : 'See console for details.'}`;
+            }
+
+            throw new Error(displayMessage);
+        }
+
+        return await response.text();
+
+    } catch (error) {
+        let userMessage = 'An unexpected error occurred.';
+
+        if (error instanceof TypeError) {
+            userMessage = 'Network error: Please check your internet connection or try again later.';
+        } else if (error instanceof Error) {
+            userMessage = error.message;
+        } else {
+            userMessage = `An unknown error occurred: ${String(error)}`;
+        }
+
+        return `<div class="sw-error-notice"><p>${userMessage}</p></div>`;
+
+    } finally {
+        smartWooRemoveSpinner( spinner );
+    }
+}
+
+/**
  * Configure Product client Ajax handler.
  */
 document.addEventListener('DOMContentLoaded', function () {
@@ -623,6 +682,10 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		let currentAction		= null;
 		let responseContainer	= document.querySelector( '#ajax-content-container' );
 		accountSettings.addEventListener( 'click', async ( e ) => {
+			if ( e.target.closest( '.clear-radio' ) ) {
+				e.target.closest( 'form' ).querySelectorAll( 'input[type="radio"]' ).forEach( radio => radio.checked = false );
+				return;
+			}
 			const clickedBtn	= e.target.closest( '#sw-billing-details, #sw-load-user-details, #sw-account-log, #sw-load-transaction-history, #edit-billing-address, #edit-account-button, #view-payment-button, .smartwoo-inline-edit' );			
 			if ( ! clickedBtn ) return;
 
@@ -635,7 +698,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			jQuery( responseContainer ).fadeOut( 'slow', () => {
 				jQuery( responseContainer ).html( response );
 				jQuery( responseContainer ).fadeIn();
-			})
+			});
 			
 			if ( 'editBilling' === action ) {
 				jQuery( document.body ).trigger( 'wc_country_select_init' );
@@ -644,6 +707,18 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			}
 			
 		});
+
+		accountSettings.addEventListener( 'submit', async (e) => {
+			currentAction = null;
+			e.preventDefault();
+			e.target.querySelector( 'button[type="submit"]')?.setAttribute( 'disabled', true );
+			let response = await smartwooSubmitSettingsForm( e.target );
+			e.target.querySelector( 'button[type="submit"]' )?.removeAttribute( 'disabled' );
+			jQuery( responseContainer ).fadeOut( 'slow', () => {
+				jQuery( responseContainer ).html( response );
+				jQuery( responseContainer ).fadeIn();
+			});
+		})
 	}
 
 	if ( assetSubBtn ) {
