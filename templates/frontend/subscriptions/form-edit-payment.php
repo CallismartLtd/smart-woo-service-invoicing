@@ -35,9 +35,15 @@ defined( 'ABSPATH' ) || exit;
             </div>
             <input type="hidden" name="action" value="smartwoo_save_payment_method">
             <input type="hidden" name="payment_option_type" value="<?php echo esc_attr( $type ) ?>">
-            <button type="submit" class="button sw-blue-button">
-                <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?>
-            </button>
+            <div class="sw-settings-button-container ">
+                <button type="submit" class="button sw-blue-button">
+                    <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?>
+                </button>
+                <button type="button" class="button clear-radio sw-blue-button">
+                    <?php esc_html_e( 'Reset', 'smart-woo-service-invoicing' ); ?>
+                </button>
+            </div>
+
         <?php else : ?>
             <p class="smartwoo-payment-methods__empty">
                 <?php esc_html_e( 'No available payment methods found.', 'smart-woo-service-invoicing' ); ?>
