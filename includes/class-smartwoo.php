@@ -1846,7 +1846,7 @@ final class SmartWoo {
         $last_active		= smartwoo_get_last_login_date( $user_id );
         $registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
         $total_spent 		= smartwoo_client_total_spent( $user_id );
-        $user_agent			= wc_get_user_agent();
+        $user_agent			= smartwoo_parse_user_agent( wc_get_user_agent() );
         $ip_address         = WC_Geolocation::get_ip_address();
         $location_data      = WC_Geolocation::geolocate_ip( $ip_address );
         $user_location      = $location_data['country'] ?? 'Unknown';
@@ -1916,7 +1916,7 @@ final class SmartWoo {
         );
 
         foreach ( array( 'primary', 'backup' ) as $type ) {
-            $gateway_id = isset( $payment_details[ $type ]['id'] ) ? $payment_details[ $type ]['id'] : '';
+            $gateway_id = isset( $payment_details[ $type ] ) ? $payment_details[ $type ] : '';
 
             if ( $gateway_id && isset( $gateways[ $gateway_id ] ) ) {
                 $gateway = $gateways[ $gateway_id ];
@@ -1924,7 +1924,7 @@ final class SmartWoo {
                 $title   = $gateway->get_title();
 
                 $payment_display[ $type ] = $icon 
-                    ? sprintf( '<span class="smartwoo-gateway-icon">%s</span> <span class="smartwoo-gateway-title">%s</span>', $icon, esc_html( $title ) )
+                    ? sprintf( '<span class="smartwoo-gateway-title">%s</span> <span class="smartwoo-gateway-icon">%s</span>', esc_html( $title ), $icon )
                     : esc_html( $title );
             } else {
                 $payment_display[ $type ] = esc_html__( 'Not set', 'smart-woo-service-invoicing' );
@@ -1944,25 +1944,32 @@ final class SmartWoo {
         }
         
         $type = smartwoo_get_post_param( 'payment_option_type' );
-        if ( ! in_array( $type, array( 'primary', 'backup', true ) ) ) {
+        if ( ! in_array( $type, array( 'primary', 'backup' ), true ) ) {
             $message = __( 'Invalid payment method type, please contact us if you need further assistance', 'smart-woo-service-invoicing' );
             wp_die( '<div class="sw-error-notice"><p> ' . esc_html( $message ) . '</p></div>' );
         }
 
         $value = smartwoo_get_post_param( 'payment_method' );
 
-        if ( ! $value ) {
-            $message = __( 'Please select a payment method, please contact us if you need further assistance', 'smart-woo-service-invoicing' );
-            wp_die( '<div class="sw-error-notice"><p> ' . esc_html( $message ) . '</p></div>' );            
+        // Only validate if a value was provided.
+        if ( ! empty( $value ) ) {
+            $gateways = WC()->payment_gateways->get_available_payment_gateways();
+
+            if ( empty( $gateways[ $value ] ) ) {
+                $message = __( 'Invalid payment method selected. Please choose from the available options.', 'smart-woo-service-invoicing' );
+                wp_die( '<div class="sw-error-notice"><p> ' . esc_html( $message ) . '</p></div>' );
+            }
         }
 
-        $user_id    = get_current_user_id();
-        $options    = smartwoo_get_user_payment_options( $user_id );
-        $options[$type] = $value;
+        $user_id = get_current_user_id();
+        $options = smartwoo_get_user_payment_options( $user_id );
+
+        $options[ $type ] = $value;
         update_user_meta( $user_id, '_smartwoo_payment_options', $options );
 
-        self::get_payment_details();
+        self::get_payment_details(); // Show updated payment details.
     }
+
 
     /**
      * Get client's edit payment method form.
