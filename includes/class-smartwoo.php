@@ -2002,7 +2002,6 @@ final class SmartWoo {
         die();
     }
 
-
     /**
      * Ajax callback for user transaction history in the frontend
      */
