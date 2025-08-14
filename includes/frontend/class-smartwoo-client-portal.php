@@ -60,8 +60,8 @@ class SmartWoo_Client_Portal {
 		/**
 		 * @see `$this->pages`
 		 */
-		$invoice_page_handlers	= apply_filters( 'smartwoo_subscription_pages', array() );
-		$service_page_handlers	= apply_filters( 'smartwoo_invoice_pages', array() );
+		$service_page_handlers	= apply_filters( 'smartwoo_subscription_pages', array() );
+		$invoice_page_handlers	= apply_filters( 'smartwoo_invoice_pages', array() );
 		$this->pages			= apply_filters( 'smartwoo_client_portal_pages', array_merge( $invoice_page_handlers, $service_page_handlers ) );
 
 	}
@@ -72,7 +72,7 @@ class SmartWoo_Client_Portal {
 	private function dispatch() {
 		$this->get_header();
 		
-		$handler	= $this->get_page_default_handler();
+		$handler	= $this->get_default_page_handler();
 
 		if ( ! empty( $this->page ) && isset( $this->pages[$this->page] ) ) {
 			$handler = $this->pages[$this->page];
@@ -127,7 +127,7 @@ class SmartWoo_Client_Portal {
 		wp_enqueue_style( 'dashicons' );
 		$args =  array( 
 			'notice' => smartwoo_notice( 'Login to access this page.' ),
-			'redirect' => site_url( $wp->request ?? '' )
+			'redirect' => home_url( $wp->request ?? '' )
 		);
 		include_once SMARTWOO_PATH . 'templates/login.php';
 	}
@@ -149,7 +149,7 @@ class SmartWoo_Client_Portal {
 	 * 
 	 * @return 
 	 */
-	private function get_page_default_handler() {
+	private function get_default_page_handler() {
 		$service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
 		
@@ -169,7 +169,7 @@ class SmartWoo_Client_Portal {
 	 * 
 	 * @return 
 	 */
-	private function get_status_handler() {
+	private static function get_status_handler() {
 		$service_page_id = absint( get_option( 'smartwoo_service_page_id' ) );
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id' ) );
 		
