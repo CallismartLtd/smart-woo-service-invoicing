@@ -217,6 +217,42 @@ use inline CSS to overide some styles
     outline-offset: 2px;
 }
 
+.sw-client-dashboard-button {
+	display: inline;
+	padding: 10px 15px;
+	background-color: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	color: #333333;
+	text-transform: none;
+	transition: background-color .5s ease-in-out, transform .5s ease-in-out;
+}
+.sw-client-dashboard-button:focus,
+.sw-client-dashboard-button:hover {
+	background-color: #f1f1f1;
+	color: #333333;
+	transform: translateY(-1px);
+}
+.sw-settings-button-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.sw-settings-button-container > button {
+	text-transform: none;
+}
+
+
+.sw-button-container {
+    display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+	align-items: center;
+	justify-content: space-evenly;
+}
 /************** Button CSS Ends here******************/
 
 /* Service Product form goes here*/
@@ -1018,6 +1054,9 @@ border-radius: 5px;
 }
 /* Media query for smaller screens */
 @media (min-width: 280px) and (max-width: 768px) {
+	.smartwoo-account-button {
+		padding: 5px;
+	}
 	.main-page-card {
 		width: 45%;
 	}
@@ -1313,6 +1352,10 @@ border-radius: 5px;
 	width: 90%;
 }
 
+.settings-tools-section button {
+	text-transform: none;
+}
+
 .settings-tools-section #loader {
 	position: absolute;
 	left: 50%;
@@ -1323,14 +1366,6 @@ border-radius: 5px;
 /* Header Style */
 .settings-tools-section h2 {
     font-size: 24px;
-}
-.sw-button-container {
-    display: flex;
-	flex-wrap: wrap;
-	width: 100%;
-	align-items: center;
-	justify-content: space-evenly;
-	
 }
 
 /* AJAX Content Container Style */
@@ -1389,7 +1424,9 @@ border-radius: 5px;
 .smartwoo-detail-table {
     width: 100%;
     border-collapse: collapse;
+	border: none;
 }
+
 
 .smartwoo-detail-table__body {
     border: 1px solid #dcdcde;
@@ -1414,6 +1451,7 @@ border-radius: 5px;
     padding: 12px 18px;
     font-size: 0.95rem;
     vertical-align: top;
+	border: none;
 }
 
 .smartwoo-detail-table__label {
@@ -1426,6 +1464,9 @@ border-radius: 5px;
 }
 
 .smartwoo-detail-table__value {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
     text-align: left;
     color: #333333;
     word-break: break-word;
@@ -1592,11 +1633,6 @@ font-weight: 100;
 		transform: scale(1.2);
 	}
 }
-/* @media ( min-width: 320px ) and (max-width: 720px ) {
-	#swloader {
-		left: 30%;
-	}
-} */
 
 .sw-table-limit-container {
     display: flex;
@@ -1792,19 +1828,6 @@ font-weight: 100;
 	flex-direction: column;
 	margin: 10px;
 	gap: 10px;
-}
-
-@media ( min-width: 1px) and ( max-width: 703px) {
-	@media ( min-width: 425px ) and ( max-width: 703px ) {
-		
-
-		@media ( min-width: 425px ) and ( max-width: 566px ) {
-			
-		}
-	}
-	@media ( min-width: 19px )  and ( max-width: 424px ) {
-		
-	}
 }
 
 .sw-client-service-assets-header {
@@ -2134,6 +2157,7 @@ font-weight: 100;
 }
 
 /* Button */
+.smartwoo-payment-methods-grid .sw-blue-button,
 #smartwoo-account-form .sw-blue-button, 
 #smartwoo-billing-form .sw-blue-button {
     display: inline-block;
@@ -2159,6 +2183,11 @@ font-weight: 100;
     background: #f1f1f1;
     border-radius: 10px;
     border: 1px solid #e0e0e0;
+}
+.smartwoo-payment-methods-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 .smartwoo-payment-methods {
     display: grid;
@@ -2188,4 +2217,16 @@ font-weight: 100;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+	cursor: pointer;
+	width: 100%;
+	height: 100%;
+}
+.smartwoo-gateway-title {
+	font-size: 18px;
+	color: #333333;
+	font-weight: 700;
+}
+
+.smartwoo-gateway-icon {
+	max-width: 300px;
 }
