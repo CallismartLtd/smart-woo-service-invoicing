@@ -1,21 +1,24 @@
+let spinnerIsactive = false;
 function smartWooAddSpinner(targetId, large = false) {
+	if ( spinnerIsactive ) return;
 	let spinnerImage		= large ? smart_woo_vars.wp_spinner_gif_2x : smart_woo_vars.wp_spinner_gif;
 	const loadingSpinner = document.createElement('div');
-	loadingSpinner.classList.add('loading-spinner');
+	loadingSpinner.setAttribute( 'style', 'position: absolute; left: 50%; top: 50%; transform: translate(-50%)' );
 	loadingSpinner.innerHTML = '<img src=" ' + spinnerImage +'" alt="Loading...">';
   
 	const targetElement = document.getElementById(targetId);
 
 	targetElement.appendChild(loadingSpinner);
-	targetElement.parentElement.style.cursor = 'progress';
+	document.body.style.setProperty( 'cursor', 'progress' );
 	targetElement.style.display = 'block';
-  
+	spinnerIsactive = true;
 	return loadingSpinner; // Return the created element for potential removal
 }
   
 function smartWooRemoveSpinner(spinnerElement) {
-	spinnerElement.parentElement.parentElement.style.cursor = '';
-	spinnerElement.remove();
+	document.body.style.removeProperty( 'cursor' );
+	spinnerElement?.remove();
+	spinnerIsactive = false;
 }
 
 function showNotification(message, duration = 1000) {
@@ -127,7 +130,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				erroDiv.innerHTML = "A password reset email will be sent to the account if it exists.";
 				resetBtn.remove();
 				try {
-					let response = await fetch( url, {method: 'GET'} );
+					let response = await fetch( url, { credentials: 'same-origin' } );
 					if ( ! response.ok ) {
 						throw new Error(`Response status: ${response.status}`);
 					}
@@ -208,14 +211,21 @@ function hideLoadingIndicator() {
 }
 
 /**
+ * Client settings component cache
+ */
+const smartwooClientComponentCache = new Map();
+/**
  * Fetch an account settings component from the server.
  *
  * @param {String} name - The name of the settings component
  * @return {Promise<String>} The HTML component from the server, or an error HTML string.
  */
 async function fetchAccountComponent( name ) {
-	let spinner;
-    // Match name to action query var
+	if ( smartwooClientComponentCache.has( name ) ) {
+		return smartwooClientComponentCache.get( name );
+	}
+
+	// Match name to action query var
     let components = {
         billingInfo: 'get_billing_details',
 		userInfo: 'get_client_details',
@@ -234,14 +244,14 @@ async function fetchAccountComponent( name ) {
         return `<div class="sw-error-notice"><p>Error: Invalid component name provided.</p></div>`;
     }
 
-    spinner = smartWooAddSpinner( 'loader', true );
+    let spinner = smartWooAddSpinner( 'new-smartwoo-loader', true );
 
     let url = new URL( smart_woo_vars.ajax_url );
     url.searchParams.set( 'action', components[name] );
     url.searchParams.set( 'security', smart_woo_vars.security );
 
     try {
-        let response = await fetch( url );
+        let response = await fetch( url, { credentials: 'same-origin' });
         if ( ! response.ok ) {
             let errorMessage = `Something went wrong: [${response.status}] - ${response.statusText}`;
             let errorDetails = '';
@@ -266,7 +276,10 @@ async function fetchAccountComponent( name ) {
             throw new Error(displayMessage);
         }
 
-        return await response.text();
+		const result = await response.text();
+		smartwooClientComponentCache.set( name, result );
+		setTimeout( () => smartwooClientComponentCache.delete( name ), 300000 );
+        return result;
 
     } catch (error) {
         let userMessage = 'An unexpected error occurred.';
@@ -297,10 +310,10 @@ async function smartwooSubmitSettingsForm( form ) {
 	let payload = new FormData( form );
 	payload.set( 'security', smart_woo_vars.security );
     
-	let spinner = smartWooAddSpinner( 'loader', true );
+	let spinner = smartWooAddSpinner( 'new-smartwoo-loader', true );
 
     try {
-        let response = await fetch( smart_woo_vars.ajax_url, {method: 'POST', body: payload} );
+        let response = await fetch( smart_woo_vars.ajax_url, {method: 'POST', body: payload, credentials: 'same-origin'} );
         if ( ! response.ok ) {
             let errorMessage = `Something went wrong: [${response.status}] - ${response.statusText}`;
             let errorDetails = '';
@@ -342,6 +355,7 @@ async function smartwooSubmitSettingsForm( form ) {
 
     } finally {
         smartWooRemoveSpinner( spinner );
+		smartwooClientComponentCache.clear(); // Changes, invalidate the cache.
     }
 }
 
@@ -558,7 +572,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			url.searchParams.set( 'service_id', service_id );
 			url.searchParams.set( 'security', smart_woo_vars.security );
 			
-			fetch( url)
+			fetch( url, { credentials: 'same-origin' })
 			.then( ( response ) =>{
 				if ( ! response.ok ) {
 					console.error( response.statusText );
@@ -616,7 +630,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			url.searchParams.set( 'security', smart_woo_vars.security );
 			url.searchParams.set( 'context', context );
 			url.searchParams.set( 'page', page );
-			fetch( url )
+			fetch( url, { credentials: 'same-origin' })
 			.then( response =>{
 				if ( ! response.ok ) {
 					throw new Error( `Error unable to fetch service subscriptions [${response.statusText}]`)
@@ -697,14 +711,15 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			let response = await fetchAccountComponent( action );
 			jQuery( responseContainer ).fadeOut( 'slow', () => {
 				jQuery( responseContainer ).html( response );
-				jQuery( responseContainer ).fadeIn();
+				
+				jQuery( responseContainer ).fadeIn( 'slow', () => {
+					if ( 'editBilling' === action ) {
+						jQuery( document.body ).trigger( 'wc_country_select_init' );
+						jQuery( document.body ).trigger( 'wc-enhanced-select-init' );
+						jQuery( document.body ).trigger( 'country_to_state_changed' );
+					}					
+				});
 			});
-			
-			if ( 'editBilling' === action ) {
-				jQuery( document.body ).trigger( 'wc_country_select_init' );
-				jQuery( document.body ).trigger( 'wc-enhanced-select-init' );
-				jQuery( document.body ).trigger( 'country_to_state_changed' );
-			}
 			
 		});
 
