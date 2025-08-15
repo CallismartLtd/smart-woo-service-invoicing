@@ -18,7 +18,7 @@ class SmartWoo_Service_Frontend_Template {
 	 */
 	public static function main_page() {	
 		$current_user			= wp_get_current_user();
-		$full_name				= $current_user->first_name . ' '. $current_user->last_name  ;
+		$full_name				= $current_user->display_name;
 		$user_id				= $current_user->ID;
 		$active_count			= smartwoo_count_active_services() + smartwoo_count_nr_services();
 		$due_for_renewal_count	= smartwoo_count_due_for_renewal_services();
@@ -148,14 +148,14 @@ class SmartWoo_Service_Frontend_Template {
 				<div class="settings-tools-section" id="smartwooSettingsContainer">
 					<h2><?php esc_html_e( 'Account Settings', 'smart-woo-service-invoicing' ); ?></h2>
 					<div class="sw-settings-button-container">
-						<button class="button sw-client-dashboard-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></button>
-						<button class="button sw-client-dashboard-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></button>
-						<button class="button sw-client-dashboard-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></button>
-						<button class="button sw-client-dashboard-button" id="sw-load-transaction-history" data-action="transactionHistory"> <?php echo esc_html__( 'Transaction History', 'smart-woo-service-invoicing' ); ?></button>
-						<button class="button sw-client-dashboard-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-load-transaction-history" data-action="transactionHistory"> <?php echo esc_html__( 'Transaction History', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></button>
 					</div>
 					<div id="ajax-content-container"></div>
-					<div id="loader"></div>
+					<div id="new-smartwoo-loader"></div>
 				</div>
 			</div><?php
 		}
