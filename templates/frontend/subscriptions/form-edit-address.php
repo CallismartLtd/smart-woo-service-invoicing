@@ -9,6 +9,7 @@ defined( 'ABSPATH' ) ||  exit;
     <?php foreach ( $address_fields as $key => $field ) : ?>
         <?php woocommerce_form_field( $key, $field, $field['value'] ?? '' ); ?>
     <?php endforeach; ?>
+    <input type="hidden" name="action" value="smartwoo_save_client_billing_details">
     <button type="submit" class="button sw-blue-button"><?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?></button>
 </form>
 
