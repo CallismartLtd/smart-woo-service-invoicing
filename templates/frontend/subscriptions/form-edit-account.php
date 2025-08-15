@@ -53,6 +53,7 @@ defined( 'ABSPATH' ) || exit;
         )
     );
     ?>
+    <input type="hidden" name="action" value="smartwoo_save_client_details">
 
     <button type="submit" class="button sw-blue-button">
         <?php esc_html_e( 'Save', 'smart-woo-service-invoicing' ); ?>
