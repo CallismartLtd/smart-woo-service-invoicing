@@ -200,8 +200,6 @@ class SmartWoo_Config{
 
         /** Load fontend file. */ 
         if ( smartwoo_is_frontend() ) {
-
-            require_once SMARTWOO_PATH . 'includes/frontend/woocommerce/woo-forms.php';
             require_once SMARTWOO_PATH . 'includes/frontend/invoice/template.php';
             require_once SMARTWOO_PATH . 'includes/frontend/shortcode.php';
             require_once SMARTWOO_PATH . 'includes/frontend/service/template.php';
