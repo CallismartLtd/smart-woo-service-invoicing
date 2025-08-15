@@ -31,10 +31,6 @@ defined( 'ABSPATH' ) || exit;
                     <td class="smartwoo-detail-table__value"><?php echo esc_html( $phone ); ?></td>
                 </tr>
                 <tr class="smartwoo-detail-table__row">
-                    <th scope="row" class="smartwoo-detail-table__label">Website:</th>
-                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $website ); ?></td>
-                </tr>
-                <tr class="smartwoo-detail-table__row">
                     <th scope="row" class="smartwoo-detail-table__label">Address:</th>
                     <td class="smartwoo-detail-table__value"><?php echo esc_html( $billingAddress ); ?></td>
                 </tr>
