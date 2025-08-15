@@ -19,6 +19,10 @@ defined( 'ABSPATH' ) || exit;
                     <td class="smartwoo-detail-table__value"><?php echo esc_html( $full_name ); ?></td>
                 </tr>
                 <tr class="smartwoo-detail-table__row">
+                    <th scope="row" class="smartwoo-detail-table__label">Display Name:</th>
+                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $display_name ); ?></td>
+                </tr>
+                <tr class="smartwoo-detail-table__row">
                     <th scope="row" class="smartwoo-detail-table__label">Email:</th>
                     <td class="smartwoo-detail-table__value"><?php echo esc_html( $email ); ?></td>
                 </tr>
