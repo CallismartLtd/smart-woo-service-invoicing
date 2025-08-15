@@ -856,6 +856,26 @@ border-radius: 5px;
 	min-height: 50vh;
 	font-size: medium;
 }
+.smartwoo-portal-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px;
+}
+.smartwoo-portal-header__greeting {
+	text-align: center;
+	font-size: 2.5rem;
+	font-weight: 600;
+}
+
+.smartwoo-portal-header__sorting #smartwooChangeLimitValue {
+	padding: 10px;
+	width: 70px;
+}
+.smartwoo-portal-header__sorting #smartwooChangeLimitBtn {
+	cursor: pointer;
+}
 .smartwoo-page a {
 	text-decoration: none;
 }
@@ -998,22 +1018,36 @@ border-radius: 5px;
 }
 
 /* Style for the outer container of service cards on the main page */
-.client-services {
-	display: flex;
+.smartwoo-portal__subscription-item-container {
+    display: flex;
+    flex-direction: row;
 	flex-wrap: wrap;
+    gap: 10px;
+	padding: 10px 15px;
 }
 
+.smartwoo-portal__subscription-item-container:has(> .main-page-card:only-child) {
+    justify-content: center;
+}
+.smartwoo-portal__subscription-item-container:has(> .main-page-card:only-child) .main-page-card {
+    flex: unset;
+	width: 400px;
+}
 /* Style for each individual service card on the main page */
 .main-page-card {
+	flex: 1 1 250px;
 	border: 1px solid #dcdcde;
 	border-radius: 8px;
-	padding: 20px;
-	margin: 10px auto;
-	width: 350px;
+	padding: 10px 15px;
+	width: clamp(250px, 350px, 400px);
 	box-shadow: 2px 4px 4px rgb(0 0 0 / 29%);
 	background-color: #fff;
 	text-align: center;
-	transition: transform 0.2s ease-in-out;
+	transition: transform 0.5s ease-in-out;
+}
+.main-page-card:nth-last-of-type(2),.main-page-card:nth-last-of-type(3), .main-page-card:last-of-type {
+	flex: 1 1 250px;
+	max-width: 400px;
 }
 
 .main-page-card:hover {
@@ -1034,21 +1068,6 @@ border-radius: 5px;
 	margin: 10px 0;
 }
 
-/* Style for the "View Details" button on the main page */
-.main-page-card .view-details-button {
-	display: inline-block;
-	padding: 10px 20px;
-	background-color: #0073e6;
-	color: #fff;
-	text-decoration: none;
-	border-radius: 5px;
-	transition: background-color 0.2s ease-in-out;
-}
-
-.main-page-card .view-details-button:hover {
-	background-color: #0056b3;
-}
-
 .main-page-card .sw-notice {
 	width: 100%;
 }
@@ -1057,20 +1076,15 @@ border-radius: 5px;
 	.smartwoo-account-button {
 		padding: 5px;
 	}
-	.main-page-card {
-		width: 45%;
-	}
-	@media (min-width:280px) and (max-width:425px) {
-		.client-services {
-			flex-direction: column;
-		}
+
+	@media (min-width:280px) and (max-width:539px) {
 		.main-page-card {
-			width: 90%;
+			min-width: 100%;
 		}
 	}
-	.client-services {
+	/* .client-services {
 		flex-wrap: wrap;
-	}
+	} */
 }
 
 /* Style for the service details card */
@@ -1449,7 +1463,7 @@ border-radius: 5px;
 .smartwoo-detail-table__label,
 .smartwoo-detail-table__value {
     padding: 12px 18px;
-    font-size: 0.95rem;
+    font-size: 14px;
     vertical-align: top;
 	border: none;
 }
@@ -1744,9 +1758,9 @@ font-weight: 100;
 }
 .smartwoo-cart-container .smartwoo-cart-items{
 	display: block;
-	border: solid #33333375 .5px;
+	border: solid #dcdcde .5px;
 	padding: 5px;
-	border-radius: 4px;
+	border-radius: 8px;
 }
 .smartwoo-cart-items p {
 	font-weight: bold;
