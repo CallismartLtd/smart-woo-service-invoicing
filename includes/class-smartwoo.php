@@ -2109,12 +2109,17 @@ final class SmartWoo {
             wp_die( 'Refresh current page!' );
         }
 
+        $limit  = smartwoo_get_post_param( 'limit', 10 );
+        $page   = smartwoo_get_post_param( 'page', 1 );
+
         $args = array(
-            'page'  => smartwoo_get_post_param( 'page', 1 ),
-            'limit' => smartwoo_get_post_param( 'limit', 10 )
+            'page'  => $page,
+            'limit' => $limit
         );
 
-        $orders = SmartWoo_Order::get_user_orders( $args );
+        $orders         = SmartWoo_Order::get_user_orders( $args );
+        $orders_count   = SmartWoo_Order::count_user_orders();
+        $total_pages    =  (int) ceil( $orders_count / $limit );
 
         include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-order-history.php';
         die();
