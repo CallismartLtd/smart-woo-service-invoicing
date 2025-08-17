@@ -545,7 +545,7 @@ class SmartWoo_Invoice {
 	}
 
 	/**
-	 * Get payment method class
+	 * Get payment gateway class
 	 * 
 	 * @return string|WC_Payment_Gateway
 	 */
