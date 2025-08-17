@@ -278,3 +278,13 @@ function smartwoo_db_update_243_service_date_created() {
 		}
 	}
 }
+
+/**
+ * Clear deprecated cron hooks
+ */
+function smartwoo_243_clear_deprecated_cron_hooks() {
+	wp_clear_scheduled_hook( 'smartwoo_auto_service_renewal' );
+	wp_clear_scheduled_hook( 'smartwoo_5_minutes_task' );
+	wp_clear_scheduled_hook( 'smartwoo_once_in48hrs_task' );
+	wp_clear_scheduled_hook( 'smartwoo_service_scan' );
+}
