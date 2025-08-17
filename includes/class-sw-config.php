@@ -118,7 +118,7 @@ class SmartWoo_Config{
      * Init hooks
      */
     public function init_hooks() {
-        self::add_automations();
+        SmartWoo_Automation::init();
         $this->add_rules();
         $this->add_actions();
         // SmartWoo_Blocks::instance();
@@ -184,6 +184,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/new-order-email.php';
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-processed-mail.php';
         require_once SMARTWOO_PATH . 'includes/class-smartwoo-blocks.php';
+        require_once SMARTWOO_PATH . 'includes/class-automation.php';
 
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
@@ -528,55 +529,6 @@ class SmartWoo_Config{
 
         return  $schedules;
     }
-
-    /**
-	 * Add automation schedules.
-	 */
-	private static function add_automations() {
-
-		/**
-		 * Schedule the auto-renewal event.
-		 */
-		if ( ! wp_next_scheduled( 'smartwoo_auto_service_renewal' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_auto_service_renewal' );
-		}
-
-        /**
-         * Five Hourly schedule
-         */
-		if ( ! wp_next_scheduled( 'smartwoo_five_hourly' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_five_hourly' );
-		}
-
-        /**
-         * Schedule to periodically count all services in the database.
-         * 
-         * @since 2.0.12
-         */
-        if ( ! wp_next_scheduled( 'smartwoo_service_scan' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_5_hours', 'smartwoo_service_scan' );
-		}
-
-		/** Daily task automation. */
-		if ( ! wp_next_scheduled( 'smartwoo_daily_task' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_daily', 'smartwoo_daily_task' );
-		}
-
-		/** Once in 48hrs( runs one in two days) task */
-		if ( ! wp_next_scheduled( 'smartwoo_once_in48hrs_task' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_once_every_two_days', 'smartwoo_once_in48hrs_task' );
-		}
-
-		/** Twice Daily task automation */
-		if ( ! wp_next_scheduled( 'smartwoo_twice_daily_task' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'smartwoo_12_hours', 'smartwoo_twice_daily_task' );
-		}
-
-        if ( false === get_option( '__smartwoo_automation_last_scheduled_date', false ) ) {
-    		update_option( '__smartwoo_automation_last_scheduled_date', current_time( 'timestamp' ) );
-        
-        }
-	}
 
     /**
      * Fire some actions hooks for our GET actions.
