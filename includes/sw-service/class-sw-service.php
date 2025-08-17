@@ -708,7 +708,7 @@ class SmartWoo_Service {
             $expiry_date = smartwoo_get_service_expiration_date( $this );
             if ( $expiry_date === smartwoo_extract_only_date( current_time( 'mysql' ) ) ) {
                 $output .= smartwoo_notice( 'Expiring Today' );
-            } elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
+            } elseif ( $this->is_expiring_tomorrow() ) {
                 $output .= smartwoo_notice( 'Expiring Tomorrow' );
             } elseif ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '-1 day' ) ) ) {
                 $output .= smartwoo_notice( 'Expired Yesterday' );
