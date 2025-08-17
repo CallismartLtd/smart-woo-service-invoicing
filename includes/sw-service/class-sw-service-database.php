@@ -165,7 +165,7 @@ class SmartWoo_Service_Database {
 	 * @since 2.0.12
 	 * @return array|null Array of services or null if parameters are invalid.
 	 */
-	public static function get_all_active( $page = 1, $limit = null ) {
+	public static function get_all_active( $page = 1, $limit = 25 ) {
 		if ( empty( $page ) ) {
 			return null; // Return null for invalid input.
 		}
