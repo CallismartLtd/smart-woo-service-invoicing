@@ -78,12 +78,12 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="sw-button-container">
     <form>
-        <button type="submit" <?php echo esc_html( absint( $args['page'] ) > 1 ? '' : 'disabled="true"' ); ?>><?php esc_html_e( 'Prev', 'smart-woo-service-invoicing' ); ?></button>
+        <button type="submit" class="smartwoo-account-button" <?php echo esc_html( absint( $args['page'] ) > 1 ? '' : 'disabled="true"' ); ?>><?php esc_html_e( 'Prev', 'smart-woo-service-invoicing' ); ?></button>
         <input type="hidden" name="action" value="smartwoo_get_order_history">
         <input type="hidden" name="page" value="<?php echo absint( $args['page'] - 1 ); ?>">
     </form>
     <form>
-        <button type="submit" <?php echo esc_html( empty( $orders ) ? 'disabled="true"' : '' ); ?>><?php esc_html_e( 'Next', 'smart-woo-service-invoicing' ); ?></button>
+        <button type="submit" class="smartwoo-account-button" <?php echo esc_html( $total_pages === $page ? 'disabled="true"' : '' ); ?>><?php esc_html_e( 'Next', 'smart-woo-service-invoicing' ); ?></button>
         <input type="hidden" name="action" value="smartwoo_get_order_history">
         <input type="hidden" name="page" value="<?php echo absint( $args['page'] + 1 ); ?>">
     </form>
