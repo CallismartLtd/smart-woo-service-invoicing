@@ -224,7 +224,7 @@ class SmartWoo_Invoice_Database {
 				return array();
 			}
 
-			$page	= ( isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ) ? absint( $wp_query->query_vars['paged'] ) : 1;
+			$page	= absint( get_query_var( 'paged' ) ?: 1 );
 			$limit 	= 10; 
 			$offset = ( $page - 1 ) * $limit;
 
