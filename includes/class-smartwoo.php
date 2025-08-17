@@ -50,7 +50,6 @@ final class SmartWoo {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
 
         add_action( 'smartwoo_download', array( $this, 'asset_download' ) );
-        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
         add_action( 'smartwoo_admin_view_service_button_area', array( __CLASS__, 'sell_renewal_button' ) );
 
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
@@ -61,11 +60,7 @@ final class SmartWoo {
         add_action( 'admin_post_smartwoo_mail_preview', array( __CLASS__, 'mail_preview' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
-
-        add_action( 'smartwoo_daily_task', array( __CLASS__, 'regulate_service_status' ) );
-        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'check_expired_today' ) );
-        add_action( 'smartwoo_service_scan', array( __CLASS__, 'count_all_services' ) );
-        add_action( 'smartwoo_auto_service_renewal', array( __CLASS__, 'auto_renew_due' ) );
+        
         add_action( 'template_redirect', array( __CLASS__, 'payment_link_handler' ) );
 
         // Service renewal action hooks.
@@ -112,96 +107,6 @@ final class SmartWoo {
 
     /** Invoice */
     public function invoice() {}
-    
-    /**
-     * Normalize the status of a service subscription before expiration date, this is
-     * used to handle 'Cancelled', 'Active NR' and other custom service, it ensures
-     * the service is autocalculated at the end of each billing period.
-     * 
-     * If the service has already expired, it's automatically suspend in 7days time
-     */
-    public static function regulate_service_status() {
-        $last_checked = get_transient( 'smartwoo_regulate_service_status' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-        $cache_key = 'smartwoo_regulate_service_status_loop';
-        $loop_args = get_transient( $cache_key );
-
-        if ( false === $loop_args ) {
-            $loop_args = array( 'page' => 1, 'limit' => 40 );
-        }
-
-        $services = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit'] );
-    
-        if ( empty( $services ) ) {
-            set_transient( 'smartwoo_regulate_service_status', time(), DAY_IN_SECONDS );
-            delete_transient( $cache_key );
-            return;
-        }
-    
-        foreach ( $services as $service ) {
-            if ( empty( $service->get_status() ) ) {
-                continue;
-            }
-    
-            if ( $service->is_expiring_tomorrow() ) {
-    
-                $field = array(
-                    'status' => null, // Will be autocalculated.
-                );
-                SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
-    
-            }
-        }
-
-        $loop_args['page']++;
-        set_transient( $cache_key, $loop_args, 6 * HOUR_IN_SECONDS );
-    }
-
-    /**
-     * Check services for expiration today and trigger 'smartwoo_service_expired' action if found.
-     *
-     * @return void
-     */
-    public static function check_expired_today() {
-        $last_checked = get_transient( 'smartwoo_expired_service_check' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-        $cache_key = 'smartwoo_expired_service_loop';
-        $loop_args = get_transient( $cache_key );
-
-        if ( false === $loop_args ) {
-            $loop_args = array( 'page' => 1, 'limit' => 40 );
-        }
-
-        $on_expiry_threshold    = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit']  );
-        if ( empty( $on_expiry_threshold ) ) {
-            set_transient( 'smartwoo_expired_service_check', time(), DAY_IN_SECONDS );
-            delete_transient( $cache_key );
-            return;
-        }
-
-        foreach ( $on_expiry_threshold as $service ) {
-            $current_date		= smartwoo_extract_only_date( current_time( 'mysql' ) );
-            $expiration_date	= $service->get_expiry_date();
-
-            if ( $current_date === $expiration_date ) {
-                /**
-                 * @hook 'smartwoo_service_expired' fires the day a service is expiring.
-                 * @param SmartWoo_Service $service
-                 */
-                do_action( 'smartwoo_service_expired', $service );
-            }
-        }
-        $loop_args['page']++;
-        set_transient( $cache_key, $loop_args, HOUR_IN_SECONDS );
-    }
 
     /**
      * Add useful links to our plugin row meta
@@ -936,17 +841,6 @@ final class SmartWoo {
             'avatar_url'        => get_avatar_url( $user_data->get_id() )
         );
         wp_send_json_success( array( 'user' => $response ), 200 );
-
-    }
-
-    /**
-     * Count all services in the database every five hours.
-     * 
-     * @since 2.0.12.
-     */
-    public static function count_all_services() {
-        $count  = SmartWoo_Service_Database::count_all();
-        update_option( 'smartwoo_all_services_count', $count );
     }
 
     /**
@@ -958,69 +852,6 @@ final class SmartWoo {
         check_ajax_referer( 'smart_woo_nonce', 'security' );
         wp_logout();
         wp_send_json_success();
-    }
-
-    /**
-     * Initiates an automatic service renewal process by creating renewal invoice on due date
-     * for services that are due.
-     *
-     * @Do_action "smartwoo_auto_invoice_created" triggers after successful invoice creation
-     * @return bool False if no service is due | True otherwise
-     */
-    public static function auto_renew_due() {
-        add_filter( 'smartwoo_is_frontend', '__return_false' ); // Ensures the process runs in backend context.
-
-        $args = get_transient( 'smartwoo_auto_renew_args' );
-        if ( false === $args ) {
-            $args = array( 'page' => 1, 'limit' => 20 ); // Default pagination args
-        }
-
-        // Fetch due services
-        $all_services = SmartWoo_Service_Database::get_all_due( $args['page'], $args['limit'] );
-        
-        if ( empty( $all_services ) ) {
-            delete_transient( 'smartwoo_auto_renew_args' ); // Remove the transient if no more services are due
-            return false;
-        }
-
-        $invoices_created = false;
-
-        foreach ( $all_services as $service ) {
-            $user_id        = $service->get_user_id();
-            $service_id     = $service->get_service_id();
-            $service_name   = $service->getServiceName();
-            $product_id     = $service->getProductId();
-            $service_status = smartwoo_service_status( $service );
-
-            // Check if the service is due for renewal
-            if ( 'Due for Renewal' === $service_status ) {
-                $has_invoice = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
-                
-                if ( $has_invoice ) {
-                    continue; // Skip if unpaid renewal invoice already exists.
-                }
-
-                // Prepare invoice data
-                $payment_status = 'unpaid';
-                $invoice_type   = 'Service Renewal Invoice';
-                $date_due       = SmartWoo_Date_Helper::create_from( $service->get_end_date() )->format( 'Y-m-d H:i:s' );
-
-                // Create a new unpaid invoice
-                $new_invoice_id = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
-                
-                if ( $new_invoice_id ) {
-                    $newInvoice = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
-                    do_action( 'smartwoo_auto_invoice_created', $newInvoice, $service );
-                    $invoices_created = true;
-                }
-            }
-        }
-
-        // Increment page for next batch of services
-        $args['page']++;
-        set_transient( 'smartwoo_auto_renew_args', $args, 12 * HOUR_IN_SECONDS );
-
-        return $invoices_created;
     }
 
     /**
@@ -1062,44 +893,6 @@ final class SmartWoo {
                 wp_send_json_success( array( 'message' => 'Invoice created, redirecting to pay...','redirect_url' => $checkout_url ) );
             }
         }
-    }
-
-    /**
-     * Invoice payment reminder email action trigger.
-     * 
-     * @return void
-     */
-    public static function payment_reminder() {
-        $last_checked = get_transient( 'smartwoo_checked_payment_reminder' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-		if ( wp_doing_cron() ) {
-			add_filter( 'smartwoo_is_frontend', '__return_false' );
-            $page = get_transient( 'smartwoo_payment_reminder_page' );
-
-            if ( false === $page ) {
-                $page = 1;
-            }
-            $_GET['limit'] = 20;
-            $_GET['paged'] = absint( $page );
-		}
-
-        $unpaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
-        if ( empty( $unpaid_invoices ) ) {
-            set_transient( 'smartwoo_checked_payment_reminder', time(), 2 * DAY_IN_SECONDS );
-            delete_transient( 'smartwoo_payment_reminder_page' ); // Reset the pagination.
-            return;
-        }
-
-        foreach( $unpaid_invoices as $invoice ) {
-            do_action( 'smartwoo_invoice_payment_reminder', $invoice );
-        }
-        $page++;
-        set_transient( 'smartwoo_payment_reminder_page', $page, DAY_IN_SECONDS );
-
     }
 
     /**
