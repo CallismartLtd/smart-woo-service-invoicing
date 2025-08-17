@@ -72,7 +72,7 @@ defined( 'ABSPATH' ) || exit; ?>
             <button class="button sw-client-dashboard-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></button>
             <button class="button sw-client-dashboard-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></button>
             <button class="button sw-client-dashboard-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></button>
-            <button class="button sw-client-dashboard-button" id="sw-load-transaction-history" data-action="transactionHistory"> <?php echo esc_html__( 'Transaction History', 'smart-woo-service-invoicing' ); ?></button>
+            <button class="button sw-client-dashboard-button" id="sw-load-order-history" data-action="orderHistory"> <?php echo esc_html__( 'Order History', 'smart-woo-service-invoicing' ); ?></button>
             <button class="button sw-client-dashboard-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></button>
         </div>
 	    <div id="ajax-content-container"></div>
