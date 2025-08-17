@@ -221,16 +221,16 @@ const smartwooClientComponentCache = new Map();
  * @return {Promise<String>} The HTML component from the server, or an error HTML string.
  */
 async function fetchAccountComponent( name ) {
-	if ( smartwooClientComponentCache.has( name ) ) {
-		return smartwooClientComponentCache.get( name );
-	}
+	// if ( smartwooClientComponentCache.has( name ) ) {
+	// 	return smartwooClientComponentCache.get( name );
+	// }
 
 	// Match name to action query var
     let components = {
         billingInfo: 'get_billing_details',
 		userInfo: 'get_client_details',
 		accountLogs: 'get_account_logs',
-		transactionHistory: 'load_transaction_history',
+		orderHistory: 'smartwoo_get_order_history',
 		paymentInfo: 'get_payment_details',
 		editBilling: 'get_edit_billing_form',
 		editPrimaryPayment: 'get_edit_primary_payment_form',
@@ -277,8 +277,8 @@ async function fetchAccountComponent( name ) {
         }
 
 		const result = await response.text();
-		smartwooClientComponentCache.set( name, result );
-		setTimeout( () => smartwooClientComponentCache.delete( name ), 300000 );
+		// smartwooClientComponentCache.set( name, result );
+		// setTimeout( () => smartwooClientComponentCache.delete( name ), 300000 );
         return result;
 
     } catch (error) {
@@ -700,7 +700,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				e.target.closest( 'form' ).querySelectorAll( 'input[type="radio"]' ).forEach( radio => radio.checked = false );
 				return;
 			}
-			const clickedBtn	= e.target.closest( '#sw-billing-details, #sw-load-user-details, #sw-account-log, #sw-load-transaction-history, #edit-billing-address, #edit-account-button, #view-payment-button, .smartwoo-inline-edit' );			
+			const clickedBtn	= e.target.closest( '#sw-billing-details, #sw-load-user-details, #sw-account-log, #sw-load-order-history, #edit-billing-address, #edit-account-button, #view-payment-button, .smartwoo-inline-edit' );			
 			if ( ! clickedBtn ) return;
 
 			const action		= clickedBtn.getAttribute( 'data-action' );
