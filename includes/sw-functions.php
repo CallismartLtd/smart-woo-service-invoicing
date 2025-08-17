@@ -1486,34 +1486,7 @@ function smartwoo_fast_checkout_options() {
  * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_query_param( $key, $default = '' ) {
-	if ( ! isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return $default;
-	}
-
-	$value = wp_unslash( $_GET[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	if ( is_array( $value ) ) {
-		return array_map( 'sanitize_text_field', $value );
-	}
-
-	if ( is_numeric( $value ) ) {
-		return ( strpos( $value, '.' ) !== false ) ? floatval( $value ) : intval( $value );
-	}
-
-	$lower = strtolower( $value );
-	if ( in_array( $lower, [ 'true', 'false', '1', '0', 'yes', 'no' ], true ) ) {
-		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
-	}
-
-	if ( is_email( $value ) ) {
-		return sanitize_email( $value );
-	}
-
-	if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
-		return sanitize_url( $value, array( 'https', 'http' ) );
-	}
-
-	return sanitize_text_field( $value );
+    return smartwoo_get_param( $key, $default, $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 }
 
 /**
@@ -1524,36 +1497,56 @@ function smartwoo_get_query_param( $key, $default = '' ) {
  * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_post_param( $key, $default = '' ) {
-	if ( ! isset( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return $default;
-	}
-
-	$value = wp_unslash( $_POST[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-	if ( is_array( $value ) ) {
-		return array_map( 'sanitize_text_field', $value );
-	}
-
-	if ( is_numeric( $value ) ) {
-		return ( strpos( $value, '.' ) !== false ) ? floatval( $value ) : intval( $value );
-	}
-
-	$lower = strtolower( $value );
-	if ( in_array( $lower, [ 'true', 'false', '1', '0', 'yes', 'no' ], true ) ) {
-		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
-	}
-
-	if ( is_email( $value ) ) {
-		return sanitize_email( $value );
-	}
-
-	if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
-		return sanitize_url( $value, array( 'https', 'http' ) );
-	}
-
-	return sanitize_text_field( $value );
+    return smartwoo_get_param( $key, $default, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 }
 
+/**
+ * Retrieve and sanitize a parameter from a given source array, with automatic type detection.
+ *
+ * This function supports automatic type detection and sanitization for common data types:
+ * - Arrays: sanitized recursively with `sanitize_text_field()`.
+ * - Numeric strings: cast to `int` or `float`.
+ * - Boolean-like values: evaluated with `FILTER_VALIDATE_BOOLEAN` (supports "true", "false", "1", "0", "yes", "no").
+ * - Email addresses: validated and sanitized with `sanitize_email()`.
+ * - URLs: validated with `FILTER_VALIDATE_URL` and sanitized with `esc_url_raw()`.
+ * - All other strings: sanitized with `sanitize_text_field()`.
+ *
+ * @param string $key     The key to retrieve from the source array.
+ * @param mixed  $default Optional. The default value to return if the key is not set. Default ''.
+ * @param array  $source  Optional. The source array to read from (e.g., $_GET or $_POST). Default empty array.
+ *
+ * @return mixed The sanitized value if found, or the default value if the key is not present.
+ */
+function smartwoo_get_param( $key, $default = '', $source = array() ) {
+    if ( ! isset( $source[ $key ] ) ) {
+        return $default;
+    }
+
+    $value = wp_unslash( $source[ $key ] );
+
+    if ( is_array( $value ) ) {
+        return array_map( 'sanitize_text_field', $value );
+    }
+
+    if ( is_numeric( $value ) ) {
+        return ( strpos( $value, '.' ) !== false ) ? floatval( $value ) : intval( $value );
+    }
+
+    $lower = strtolower( $value );
+    if ( in_array( $lower, [ 'true', 'false', '1', '0', 'yes', 'no' ], true ) ) {
+        return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+    }
+
+    if ( is_email( $value ) ) {
+        return sanitize_email( $value );
+    }
+
+    if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+        return esc_url_raw( $value );
+    }
+
+    return sanitize_text_field( $value );
+}
 /**
  * Render a help tooltip
  * 
