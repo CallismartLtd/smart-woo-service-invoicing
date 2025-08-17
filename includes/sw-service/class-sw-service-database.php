@@ -293,11 +293,11 @@ class SmartWoo_Service_Database {
 	 * @param int $page  The current page being requested.
 	 * @param int $limit The limit for the current page.
 	 * @since 2.0.12
-	 * @return array|null Array of services or null if parameters are invalid.
+	 * @return SmartWoo_Service[] Array of services.
 	 */
 	public static function get_all_due( $page = 1, $limit = 10 ) {
 		if ( empty( $page ) ) {
-			return null; // Return null for invalid input.
+			$page = 1;
 		}
 
 		$offset = ( $page - 1 ) * $limit;
