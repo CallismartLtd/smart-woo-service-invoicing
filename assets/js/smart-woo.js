@@ -221,9 +221,9 @@ const smartwooClientComponentCache = new Map();
  * @return {Promise<String>} The HTML component from the server, or an error HTML string.
  */
 async function fetchAccountComponent( name ) {
-	// if ( smartwooClientComponentCache.has( name ) ) {
-	// 	return smartwooClientComponentCache.get( name );
-	// }
+	if ( smartwooClientComponentCache.has( name ) ) {
+		return smartwooClientComponentCache.get( name );
+	}
 
 	// Match name to action query var
     let components = {
@@ -277,8 +277,8 @@ async function fetchAccountComponent( name ) {
         }
 
 		const result = await response.text();
-		// smartwooClientComponentCache.set( name, result );
-		// setTimeout( () => smartwooClientComponentCache.delete( name ), 300000 );
+		smartwooClientComponentCache.set( name, result );
+		setTimeout( () => smartwooClientComponentCache.delete( name ), 300000 );
         return result;
 
     } catch (error) {
