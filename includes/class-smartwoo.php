@@ -94,7 +94,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_get_client_details', array( __CLASS__, 'get_client_details' ) );
         add_action( 'wp_ajax_get_payment_details', array( __CLASS__, 'get_payment_details' ) );
         add_action( 'wp_ajax_get_account_logs', array( __CLASS__, 'get_account_logs' ) );
-        add_action( 'wp_ajax_load_transaction_history', array( __CLASS__, 'client_transaction_history' ) );  
+        add_action( 'wp_ajax_smartwoo_get_order_history', array( __CLASS__, 'get_order_history' ) );  
         add_action( 'wp_ajax_get_subscriptions', array( __CLASS__, 'fetch_user_subscriptions' ) );
         add_action( 'wp_ajax_get_edit_billing_form', array( __CLASS__, 'get_edit_billing_form' ) );
         add_action( 'wp_ajax_get_edit_client_form', array( __CLASS__, 'get_edit_client_form' ) );
@@ -2102,26 +2102,21 @@ final class SmartWoo {
     }
 
     /**
-     * Ajax callback for user transaction history in the frontend
+     * Ajax callback for user order history in the frontend
      */
-    public static function client_transaction_history() {
-
-        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
-            wp_die();
+    public static function get_order_history() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
         }
 
-        if ( is_user_logged_in() ) {
+        $args = array(
+            'page'  => smartwoo_get_post_param( 'page', 1 ),
+            'limit' => smartwoo_get_post_param( 'limit', 10 )
+        );
 
-            $html = '<h3>Transaction History</h3>';
-            $html .= smartwoo_transactions_shortcode();
+        $orders = SmartWoo_Order::get_user_orders( $args );
 
-            echo wp_kses_post( $html );
-        } else {
-            // User is not logged in
-            echo esc_html__( 'Please log in to view transaction history.', 'smart-woo-service-invoicing' );
-        }
-
-        // prevent further outputing
+        include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-order-history.php';
         die();
     }
 
