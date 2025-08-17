@@ -688,6 +688,157 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get all service orders belonging to a specific user.
+     *
+     * @param array $args An associative array of key => value arguments
+     *
+     * @return self[] Array of SmartWoo_Order objects.
+     */
+    public static function get_user_orders( $args = array() ) {
+        global $wpdb;
+
+        $default_args = array(
+            'customer_id'   => get_current_user_id(),
+            'page'          => 1,
+            'limit'         => 25,
+            'status'        => ''
+        );
+
+        $parsed_args    = wp_parse_args( $args, $default_args );
+        $limit          = intval( $parsed_args['limit'] );
+        $offset         = ( intval( $parsed_args['page'] ) - 1 ) * $limit;
+
+        $orders_table           = $wpdb->prefix . 'wc_orders';
+        $order_items_table      = $wpdb->prefix . 'woocommerce_order_items';
+        $order_itemmeta_table   = $wpdb->prefix . 'woocommerce_order_itemmeta';
+
+        $base_query = 
+        "SELECT DISTINCT oim.order_item_id
+            FROM {$order_itemmeta_table} AS oim
+            INNER JOIN {$order_items_table} AS oi
+                ON oim.order_item_id = oi.order_item_id
+            INNER JOIN {$orders_table} AS o
+                ON oi.order_id = o.id
+            WHERE o.customer_id = %d
+            AND (
+                    oim.meta_key = %s OR 
+                    oim.meta_key = %s OR 
+                    oim.meta_key = %s OR 
+                    oim.meta_key = %s OR 
+                    oim.meta_key = %s
+            )";
+        $param = array(
+            absint( $parsed_args['customer_id'] ),
+            '_smartwoo_sign_up_fee',
+            '_smartwoo_service_name',
+            '_smartwoo_service_url',
+            'Service Name', // Backward compatibility
+            'Service URL',  // Backward compatibility
+        );
+
+        if ( ! empty( $parsed_args['status'] ) ) {
+            $status = strpos( $parsed_args['status'], 'wc-' ) === 0 ? $parsed_args['status'] : 'wc-' . $parsed_args['status'];
+            $base_query .= " AND o.status = %s";
+            $param[] = $status;
+        }
+
+        $base_query .= " ORDER BY `order_item_id` DESC";
+
+        if ( $limit > 0 ) {
+            $base_query .= " LIMIT %d OFFSET %d";
+            $param[]    = $limit;
+            $param[]    = $offset;
+        }
+        
+        $query = $wpdb->prepare( $base_query, $param );
+
+        $data    = array();
+        $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB
+
+        if ( ! empty( $results ) ) {
+            foreach ( $results as $result ) {
+                $self = self::convert_to_self( $result );
+                if ( $self ) {
+                    $data[] = $self;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the total count of service orders belonging to a specific user.
+     * This method mirrors the filtering logic of get_user_orders but returns a count.
+     *
+     * @param array $args {
+     * Optional arguments.
+     *
+     * @type int $customer_id User ID. Default current user ID.
+     * @type string $status    Order status to include. Default empty (all statuses for relevant items).
+     * }
+     * @return int The total number of SmartWoo_Order items (service orders).
+     */
+    public static function count_user_orders( $args = array() ) {
+        global $wpdb;
+
+        $default_args = array(
+            'customer_id' => get_current_user_id(),
+            'status'      => '', // Empty string means all statuses
+        );
+
+        $parsed_args = wp_parse_args( $args, $default_args );
+
+        $orders_table         = $wpdb->prefix . 'wc_orders';
+        $order_items_table    = $wpdb->prefix . 'woocommerce_order_items';
+        $order_itemmeta_table = $wpdb->prefix . 'woocommerce_order_itemmeta';
+
+        // Base SELECT for counting distinct order_item_ids based on your logic
+        $base_query = "
+            SELECT COUNT(DISTINCT oim.order_item_id)
+            FROM {$order_itemmeta_table} AS oim
+            INNER JOIN {$order_items_table} AS oi
+                ON oim.order_item_id = oi.order_item_id
+            INNER JOIN {$orders_table} AS o
+                ON oi.order_id = o.id
+            WHERE o.customer_id = %d
+            AND (
+                oim.meta_key = %s OR
+                oim.meta_key = %s OR
+                oim.meta_key = %s OR
+                oim.meta_key = %s OR
+                oim.meta_key = %s
+            )
+        ";
+
+        // Parameters for the base query
+        $param = array(
+            absint( $parsed_args['customer_id'] ),
+            '_smartwoo_sign_up_fee',
+            '_smartwoo_service_name',
+            '_smartwoo_service_url',
+            'Service Name', // Backward compatibility
+            'Service URL',  // Backward compatibility
+        );
+
+        // Add status condition if provided, mirroring your get_user_orders
+        if ( ! empty( $parsed_args['status'] ) ) {
+            $status = strpos( $parsed_args['status'], 'wc-' ) === 0 ? $parsed_args['status'] : 'wc-' . $parsed_args['status'];
+            $base_query .= " AND o.status = %s";
+            $param[] = $status;
+        }
+
+        // Prepare the SQL query with all parameters
+        $query = $wpdb->prepare( $base_query, ...$param );
+
+        // Get the count result
+        $count = $wpdb->get_var( $query );
+
+        // Ensure an integer is always returned
+        return (int) $count;
+    }
+
+    /**
      * Get all Service Orders
      * 
      * @param int $page The current page(for pagination).
