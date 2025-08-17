@@ -150,7 +150,8 @@ class SmartWoo_Order {
     }
 
     /**
-     * Check whether this order is valid
+     * Check whether this order is valid.
+     * Performs metadata checks on the parent order, to find our configuration data.
      * 
      * @return bool True when we find our meta data, false otherwise.
      */
@@ -481,7 +482,7 @@ class SmartWoo_Order {
      * Get billing Email
      */
     public function get_billing_email() {
-        return $order->get_billing_email();
+        return $this->order->get_billing_email();
     }
 
     
@@ -516,6 +517,7 @@ class SmartWoo_Order {
      * the order status when all items has been processed.
      */
     public function maybe_update_parent_order() {
+        $parent = wc_get_order( $this->get_order_id() );
         $has_pending_item   = $this->has_pending_item( $parent );
         if ( ! $has_pending_item ) {
             $parent->set_status( 'completed' );
@@ -528,9 +530,10 @@ class SmartWoo_Order {
     /**
      * Check whether the parent order still has items not processed, and updates
      * the order status when all items has been processed.
+     * 
+     * @param WC_Order $parent The parent order
     */
-    public function has_pending_item( &$parent ) {
-        $parent = wc_get_order( $this->get_order_id() );
+    public function has_pending_item( WC_Order $parent ) {
         $has_pending_item = false;
         foreach( $parent->get_items() as $item ) {
             if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
@@ -579,7 +582,7 @@ class SmartWoo_Order {
      */
     public static function display_meta( $formatted_meta, $order_item ){
         if ( ! is_a( $order_item, 'WC_Order_Item_Product' ) || ! is_a( $order_item->get_product(), SmartWoo_Product::class ) ) {
-            $formatted_meta;
+            return $formatted_meta;
         }
         
         foreach( $formatted_meta as $id => &$data ) {
@@ -599,7 +602,7 @@ class SmartWoo_Order {
     }
 
     /**
-     * Ajax callback for order table actions
+     * Ajax callback for order table actions in admin area.
      * 
      * @param string $selected_action The selected action.
      * @param mixed $data The data to be processed.
@@ -682,53 +685,6 @@ class SmartWoo_Order {
             return wc_update_order_item_meta( $this->get_id(), $name, $value  );
         } catch( Exception $e ){}
         return false;
-    }
-
-    /**
-     * Get orders for a given user
-     * 
-     * @param array $args
-     */
-    public static function get_user_orders( $args = array() ) {
-        $default_args = array(
-            'customer'	=> get_current_user_id(),
-            'status'	=> 'processing',
-            'limit'     => -1
-        );
-
-        $parsed_args = wp_parse_args( $args, $default_args );
-        
-        $orders = wc_get_orders( $parsed_args );
-    
-        if ( empty( $orders ) ) {
-            return array();
-        }
-    
-        $order_item_ids		= [];
-        $smartwoo_orders	= [];
-    
-        foreach ( $orders as $order ) {
-            if ( empty( $order->get_items() ) ) {
-                continue;
-            }
-            
-            foreach ( $order->get_items() as $item_id => $item ) {
-                $order_item_ids[]['order_item_id'] = $item_id;
-            }
-            
-        }
-    
-        if ( ! empty( $order_item_ids )  ) {
-            foreach( $order_item_ids as $item ) {
-                $self = self::convert_to_self( $item );
-                if ( ! $self ) {
-                    continue;
-                }
-                $smartwoo_orders[] = $self;
-            }
-        }
-
-        return $smartwoo_orders;
     }
 
     /**
