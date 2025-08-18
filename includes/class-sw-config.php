@@ -254,23 +254,20 @@ class SmartWoo_Config{
         }
 
         if ( is_admin() ) {           
-            $our_pages = array( 'Dashboard', 'Invoices', 'Service Orders', 'Service Products', 'Settings' );
             if ( self::in_admin_page() ) {
                 wp_add_inline_style( 'smartwoo-inline', '#wpcontent { padding-left: 0 !important; } #screen-meta { z-index: 99 !important; }' );
                 wp_enqueue_style( 'woocommerce_admin_styles' );
+                wp_enqueue_style( 'jquery-ui-style' );
+                wp_enqueue_style( 'smartwoo-jquery-timepicker' );
             }
 
             wp_enqueue_style( 'smartwoo-admin-utm-style' );
             wp_enqueue_style( 'smartwoo-admin-style' );
             wp_enqueue_style( 'smartwoo-invoice-style' );
             wp_enqueue_style( 'smartwoo-icon-style' );
-            
-            
-        }
+            wp_enqueue_style( 'smartwoo-inline' );
 
-        wp_enqueue_style( 'smartwoo-inline' );
-        wp_enqueue_style( 'jquery-ui-style' );
-        wp_enqueue_style( 'smartwoo-jquery-timepicker' );
+        }
         wp_enqueue_style( 'smartwoo-service-asset-style' );
     }
 
@@ -317,7 +314,6 @@ class SmartWoo_Config{
         wp_register_script( 'smartwoo-invoice-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-invoice' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
         wp_register_script( 'smartwoo-fast-checkout', SMARTWOO_DIR_URL . 'assets/js/smart-woo-fast-checkout' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
         
-        // wp_register_script( 'smartwoo-tinymce', SMARTWOO_DIR_URL . 'assets/editor/tinymce/tinymce.min.js', array(), SMARTWOO_VER, array( 'in_footer' => true ) );
         wp_register_script( 'smartwoo-editor-ui', SMARTWOO_DIR_URL . 'assets/editor/js/editor-ui' . $suffix . '.js', array(), SMARTWOO_VER, array( 'in_footer' => true, 'strategy' => 'defer' ) );
         wp_register_script( 'smartwoo-service-asset-sript', SMARTWOO_DIR_URL . 'assets/js/smartwoo-service-asset-script' . $suffix . '.js', array(), SMARTWOO_VER, true );
 
@@ -330,6 +326,12 @@ class SmartWoo_Config{
 
         if ( is_page( $invoice_page_id ) || is_account_page() || is_admin() ) {
             wp_enqueue_script( 'smartwoo-invoice-script' );
+        }
+
+        if ( is_page( get_option( 'smartwoo_service_page_id', 0 ) ) || is_account_page() ) {
+            wp_enqueue_script( 'selectWoo' );
+            wp_enqueue_style( 'select2' );
+            wp_enqueue_script( 'wc-country-select' );
         }
 
         if ( get_option( 'smartwoo_allow_fast_checkout', false ) && smartwoo_is_frontend() ) {
@@ -349,9 +351,6 @@ class SmartWoo_Config{
             }
             
         }
-            wp_enqueue_script( 'selectWoo' );
-            wp_enqueue_style( 'select2' );
-            wp_enqueue_script( 'wc-country-select' );
     }
 
     /**
@@ -362,7 +361,6 @@ class SmartWoo_Config{
     public static function enqueue_asset_editor() {
         wp_enqueue_media();        
         wp_enqueue_script( 'smartwoo-editor-ui' );
-        
     }
 
     /**
