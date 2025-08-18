@@ -21,7 +21,6 @@ class SmartWoo_Automation {
         add_action( 'smartwoo_five_hourly', array( __CLASS__, 'do_five_hourly' ) );        
         add_action( 'smartwoo_daily_task', array( __CLASS__, 'do_daily' ) );
         add_action( 'smartwoo_twice_daily_task', array( __CLASS__, 'do_twice_daily' ) );
-        // delete_transient( 'smartwoo_auto_renew_args' );
 
     }
     
@@ -111,11 +110,24 @@ class SmartWoo_Automation {
                 $invoice = smartwoo_create_invoice( $inv_args );
                 
                 if ( $invoice ) {
+                    
                     $client_payment_options = smartwoo_get_user_payment_options( $service->get_user_id() );
                     if ( $client_payment_options['primary'] ) {
                         $invoice->set_payment_method( $client_payment_options['primary'] );
+                        if ( $order = $invoice->get_order() ) {
+                            $order->set_payment_method( $client_payment_options['primary'] );
+                            $order->save();
+
+                        }
+                        $invoice->save();
                     } else if ( $client_payment_options['backup'] ) {
                         $invoice->set_payment_method( $client_payment_options['backup'] );
+                        if ( $order = $invoice->get_order() ) {
+                            $order->set_payment_method( $client_payment_options['backup'] );
+                            $order->save();
+
+                        }
+                        $invoice->save();
                     }
 
                     /**
