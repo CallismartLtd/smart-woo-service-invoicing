@@ -65,7 +65,6 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
      */
     public static function init(){
         add_action( 'smartwoo_service_expired', array( __CLASS__, 'send_mail' ), 100 );
-        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'send_to_admin' ) );
         add_filter( 'smartwoo_register_email_templates', array( __CLASS__, 'register_template' ) );
     }
 
@@ -82,45 +81,6 @@ class SmartWoo_Service_Expiration_Mail extends SmartWoo_Service_Mails {
             $self->send();
 
         }
-    }
-
-    /**
-     * Send service expiry mail to admin a day prior toexpiration date.
-     */
-    public static function send_to_admin() {
-        $last_checked = get_transient( 'smartwoo_admin_expiry_service_mail_sent' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-        $cache_key = 'smartwoo_admin_expiry_service_mail_loop';
-        $loop_args = get_transient( $cache_key );
-
-        if ( false === $loop_args ) {
-            $loop_args = array( 'page' => 1, 'limit' => 40 );
-        }
-
-        $on_expiry_threshold    = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit']  );
-        if ( empty( $on_expiry_threshold ) ) {
-            set_transient( 'smartwoo_admin_expiry_service_mail_sent', time(), DAY_IN_SECONDS );
-            delete_transient( $cache_key );
-            return;
-        }
-
-        $services = array();
-        foreach ( $on_expiry_threshold as $the_service ){
-            if ( $the_service->get_expiry_date() === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
-                $services[] = $the_service;
-            }
-        }
-
-        if ( ! empty( $services ) && apply_filters( 'smartwoo_send_expiry_mail_to_admin', get_option( 'smartwoo_service_expiration_mail_to_admin', false ) ) ) {
-            $self = new self( $services, 'admin' );
-            $self->send();
-        }
-        $loop_args['page']++;
-        set_transient( $cache_key, $loop_args, DAY_IN_SECONDS );
     }
 
     /**

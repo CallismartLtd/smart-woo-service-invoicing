@@ -37,7 +37,8 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
             'smartwoo_230_alter_product_id_column'
         ),
         '2.4.3' => array(
-            'smartwoo_db_update_243_service_date_created'
+            'smartwoo_db_update_243_service_date_created',
+            'smartwoo_243_clear_deprecated_cron_hooks'
         )
     );
 

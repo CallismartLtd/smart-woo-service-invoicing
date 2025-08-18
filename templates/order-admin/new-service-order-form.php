@@ -101,7 +101,7 @@ defined( 'ABSPATH' ) || exit;
                             </h4>
                             <input type="text" name="additiional_asset_names[]" placeholder="Asset Name" />
                             <input type="number" name="access_limits[]" class="sw-form-input" min="-1" placeholder="<?php esc_attr_e( 'Limit (optional).', 'smart-woo-service-invoicing' ); ?>">
-                            <textarea type="text" name="additional_asset_values[]" placeholder="Asset Value (also supports html and shortcodes)" style="width: 90%; min-height: 100px"></textarea>
+                            <textarea type="text" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Start building: rich text, immersive audio & video playlists, stunning image galleries, custom HTML, or shortcodes."></textarea>
                         </div>
                         
                         <button id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
@@ -169,3 +169,4 @@ defined( 'ABSPATH' ) || exit;
 
     </div>
 <?php endif; ?>
+<?php smartwoo_enqueue_media_assets(); ?>

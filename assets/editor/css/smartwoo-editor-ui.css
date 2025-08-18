@@ -1,0 +1,170 @@
+.tox-promotion {
+    display: none !important;
+}
+
+.tox-fullscreen {
+    position: relative;
+    z-index: 9999 !important;
+}
+.tox .tox-dialog--width-lg {
+    height: 525px !important;
+    max-width: 724px !important;
+    
+}
+.smartwoo-playlist__item span.drag-handle {
+    cursor: move;
+    width: 30px;
+    height: 24px;
+    position: absolute;
+    right: 0;
+   
+}
+.smartwoo-playlist__item.dragging span.drag-handle{
+    cursor: grabbing;
+}
+
+.smartwoo-video-playlist-item span.drag-handle {
+    cursor: move;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    right: 0;
+    background-color: transparent;
+}
+
+.editor-only {
+    min-height: 170px;
+    min-width: 170px;
+}
+
+/* ================================================================= */
+/* ===== 2. Editor-Specific Styles (Only visible in TinyMCE) ===== */
+/* ================================================================= */
+
+/* Draggable items in the editor */
+.smartwoo-gallery-item[draggable="true"] {
+    cursor: grab !important;
+}
+
+.smartwoo-gallery-item[draggable="true"]:active {
+    cursor: grabbing !important;
+}
+
+/* Add Image Button (only for editor UI) */
+.smartwoo-gallery-item.editor-only {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #fafafa;
+    border: 1px solid #dcdcde;
+    text-align: center;
+    font-size: 2em; /* Example size for an add icon */
+    color: #a0a0a0; /* Example color for an add icon */
+    min-height: 150px; /* Ensure a minimum height for the add button */
+    
+    /* Ensure it also fits the flex sizing */
+    flex: 1 1 calc(33.333% - 8px); 
+    min-width: 150px;
+}
+
+/* Placeholder Styling for editable title/caption in the editor */
+.smartwoo-image-title[contenteditable="true"]:empty::before,
+.smartwoo-image-caption[contenteditable="true"]:empty::before {
+    content: attr(data-placeholder);
+    cursor: text;
+    display: block; /* Ensures it takes up space correctly */
+}
+
+.smartwoo-image-title[contenteditable="true"]:empty::before {
+    color: #999;
+    font-weight: normal;
+}
+
+.smartwoo-image-caption[contenteditable="true"]:empty::before {
+    color: #bbb;
+}
+
+.smartwoo-add-to-playlist {
+    border: solid 2px #dcdcde;
+    width: 97%;
+    border-radius: 4px;
+    text-align: center;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    
+}
+.smartwoo-add-to-playlist span {
+    pointer-events: none;
+    color: #333333;
+}
+
+/* Container for the radio options */
+.smartwoo-gallery-type-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+/* Each option */
+.smartwoo-gallery-type-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color .15s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.smartwoo-gallery-type-option:hover {
+    border-color: #2271b1;
+    box-shadow: 0 4px 14px rgba(34,113,177,0.06);
+}
+
+/* Hide native radio visually but keep it accessible */
+.smartwoo-gallery-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+
+/* Preview box */
+.smartwoo-gallery-preview {
+    width: 84px;
+    height: 56px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 6px;
+    background: #fafafa;
+    flex: 0 0 84px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+}
+
+/* Highlight when checked */
+.smartwoo-gallery-input:checked + .smartwoo-gallery-preview {
+    outline: 3px solid rgba(34,113,177,0.14);
+    box-shadow: 0 6px 18px rgba(34,113,177,0.08);
+}
+
+/* Label text */
+.smartwoo-gallery-label {
+    font-size: 13px;
+    color: #222;
+}
+
+/* SVG sizing */
+.preview-svg {
+    width: 74px;
+    height: 46px;
+    display: block;
+}

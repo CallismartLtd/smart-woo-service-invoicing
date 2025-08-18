@@ -51,10 +51,8 @@ class SmartWoo_Install {
 	 * Deactivation. 
 	 */
 	public static function deactivate() {
-		wp_clear_scheduled_hook( 'smartwoo_auto_service_renewal' );
-		wp_clear_scheduled_hook( 'smartwoo_5_minutes_task' );
+		
 		wp_clear_scheduled_hook( 'smartwoo_daily_task' );
-		wp_clear_scheduled_hook( 'smartwoo_once_in48hrs_task' );
 		wp_clear_scheduled_hook( 'smartwoo_five_hourly' );
 		wp_clear_scheduled_hook( 'smartwoo_twice_daily_task' );
 		wp_clear_scheduled_hook( 'smartwoo_service_scan' );

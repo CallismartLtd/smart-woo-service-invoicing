@@ -50,7 +50,6 @@ final class SmartWoo {
         add_filter( 'plugin_row_meta', array( __CLASS__, 'smartwoo_row_meta' ), 10, 2 );
 
         add_action( 'smartwoo_download', array( $this, 'asset_download' ) );
-        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'payment_reminder' ) );
         add_action( 'smartwoo_admin_view_service_button_area', array( __CLASS__, 'sell_renewal_button' ) );
 
         add_filter( 'plugin_action_links_' . SMARTWOO_PLUGIN_BASENAME, array( $this, 'options_page' ), 10, 2 );
@@ -61,11 +60,7 @@ final class SmartWoo {
         add_action( 'admin_post_smartwoo_mail_preview', array( __CLASS__, 'mail_preview' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
-
-        add_action( 'smartwoo_daily_task', array( __CLASS__, 'regulate_service_status' ) );
-        add_action( 'smartwoo_five_hourly', array( __CLASS__, 'check_expired_today' ) );
-        add_action( 'smartwoo_service_scan', array( __CLASS__, 'count_all_services' ) );
-        add_action( 'smartwoo_auto_service_renewal', array( __CLASS__, 'auto_renew_due' ) );
+        
         add_action( 'template_redirect', array( __CLASS__, 'payment_link_handler' ) );
 
         // Service renewal action hooks.
@@ -86,14 +81,23 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_pro_button_action', array( __CLASS__, 'pro_button_action' ) );
         add_action( 'wp_ajax_nopriv_smartwoo_password_reset', array( __CLASS__, 'ajax_password_reset' ) );
         add_action( 'wp_ajax_smartwoo_admin_invoice_action', array( __CLASS__, 'admin_invoice_ajax_actions' ) );
-        add_action( 'wp_ajax_smartwoo_get_user_data', array( __CLASS__, 'ajax_get_user_data' ) );
-        add_action( 'wp_ajax_load_billing_details', array( __CLASS__, 'client_billing_info' ) );
-        add_action( 'wp_ajax_load_my_details', array( __CLASS__, 'client_details' ) );
-        add_action( 'wp_ajax_load_account_logs', array( __CLASS__, 'client_account_log' ) );
-        add_action( 'wp_ajax_load_transaction_history', array( __CLASS__, 'client_transaction_history' ) );
-        add_action( 'wp_ajax_smartwoo_manual_renew', array( __CLASS__, 'manual_renew_due' ) );
-        add_action( 'wp_ajax_get_subscriptions', array( __CLASS__, 'fetch_user_subscriptions' ) );
         add_action( 'wp_ajax_smartwoo_reset_fast_checkout', array( __CLASS__, 'reset_fast_checkout' ) );
+        add_action( 'wp_ajax_smartwoo_get_user_data', array( __CLASS__, 'ajax_get_user_data' ) );
+        add_action( 'wp_ajax_smartwoo_manual_renew', array( __CLASS__, 'manual_renew_due' ) );
+
+        add_action( 'wp_ajax_get_billing_details', array( __CLASS__, 'get_billing_details' ) );
+        add_action( 'wp_ajax_get_client_details', array( __CLASS__, 'get_client_details' ) );
+        add_action( 'wp_ajax_get_payment_details', array( __CLASS__, 'get_payment_details' ) );
+        add_action( 'wp_ajax_get_account_logs', array( __CLASS__, 'get_account_logs' ) );
+        add_action( 'wp_ajax_smartwoo_get_order_history', array( __CLASS__, 'get_order_history' ) );  
+        add_action( 'wp_ajax_get_subscriptions', array( __CLASS__, 'fetch_user_subscriptions' ) );
+        add_action( 'wp_ajax_get_edit_billing_form', array( __CLASS__, 'get_edit_billing_form' ) );
+        add_action( 'wp_ajax_get_edit_client_form', array( __CLASS__, 'get_edit_client_form' ) );
+        add_action( 'wp_ajax_get_edit_primary_payment_form', array( __CLASS__, 'get_edit_payment_form' ) );
+        add_action( 'wp_ajax_get_edit_backup_payment_form', array( __CLASS__, 'get_edit_payment_form' ) );
+        add_action( 'wp_ajax_smartwoo_save_payment_method', array( __CLASS__, 'save_payment_method' ) );
+        add_action( 'wp_ajax_smartwoo_save_client_billing_details', array( __CLASS__, 'save_client_billing_details' ) );
+        add_action( 'wp_ajax_smartwoo_save_client_details', array( __CLASS__, 'save_client_details' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
     }
@@ -103,103 +107,6 @@ final class SmartWoo {
 
     /** Invoice */
     public function invoice() {}
-    
-    /**
-     * Normalize the status of a service before expiration date, this is
-     * used to handle 'Cancelled', 'Active NR' and other custom service, it ensures
-     * the service is autocalculated at the end of each billing period.
-     * 
-     * If the service has already expired, it's automatically suspend in 7days time
-     */
-    public static function regulate_service_status() {
-        $last_checked = get_transient( 'smartwoo_regulate_service_status' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-        $cache_key = 'smartwoo_regulate_service_status_loop';
-        $loop_args = get_transient( $cache_key );
-
-        if ( false === $loop_args ) {
-            $loop_args = array( 'page' => 1, 'limit' => 40 );
-        }
-
-        $services = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit'] );
-    
-        if ( empty( $services ) ) {
-            set_transient( 'smartwoo_regulate_service_status', time(), DAY_IN_SECONDS );
-            delete_transient( $cache_key );
-            return;
-        }
-    
-        foreach ( $services as $service ) {
-            if ( empty( $service->get_status() ) ) {
-                continue;
-            }
-            $expiry_date    = smartwoo_get_service_expiration_date( $service );
-            $service_status = smartwoo_service_status( $service );
-    
-            if ( $expiry_date === date_i18n( 'Y-m-d', strtotime( '+1 day' ) ) ) {
-    
-                $field = array(
-                    'status' => null, // Will be calculated on script.
-                );
-                SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
-    
-            } elseif ( 'Expired' === $service_status && $expiry_date <= date_i18n( 'Y-m-d', strtotime( '-7 days' ) ) ) {
-                $field = array(
-                    'status' => 'Suspended',
-                );
-                SmartWoo_Service_Database::update_service_fields( $service->get_service_id(), $field );
-            }
-        }
-
-        $loop_args['page']++;
-        set_transient( $cache_key, $loop_args, 6 * HOUR_IN_SECONDS );
-    }
-
-    /**
-     * Check services for expiration today and trigger 'smartwoo_service_expired' action if found.
-     *
-     * @return void
-     */
-    public static function check_expired_today() {
-        $last_checked = get_transient( 'smartwoo_expired_service_check' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-        $cache_key = 'smartwoo_expired_service_loop';
-        $loop_args = get_transient( $cache_key );
-
-        if ( false === $loop_args ) {
-            $loop_args = array( 'page' => 1, 'limit' => 40 );
-        }
-
-        $on_expiry_threshold    = SmartWoo_Service_Database::get_on_expiry_threshold( $loop_args['page'], $loop_args['limit']  );
-        if ( empty( $on_expiry_threshold ) ) {
-            set_transient( 'smartwoo_expired_service_check', time(), DAY_IN_SECONDS );
-            delete_transient( $cache_key );
-            return;
-        }
-
-        foreach ( $on_expiry_threshold as $service ) {
-            $current_date		= smartwoo_extract_only_date( current_time( 'mysql' ) );
-            $expiration_date	= $service->get_expiry_date();
-
-            if ( $current_date === $expiration_date ) {
-                /**
-                 * @hook 'smartwoo_service_expired' fires the day a service is expiring.
-                 * @param SmartWoo_Service $service
-                 */
-                do_action( 'smartwoo_service_expired', $service );
-            }
-        }
-        $loop_args['page']++;
-        set_transient( $cache_key, $loop_args, HOUR_IN_SECONDS );
-    }
 
     /**
      * Add useful links to our plugin row meta
@@ -228,7 +135,7 @@ final class SmartWoo {
         /**
          * Other Products URL
          */
-        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/pricing/' );
+        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/shop/' );
 
         $smartwoo_row_meta = array(
             'smartwoo_pro'      => '<a href="' . esc_url( $smartwoo_pro_url ) . '" title="' . esc_attr__( 'Get Pro Version', 'smart-woo-service-invoicing' ) . '">' . esc_html__( 'Smart Woo Pro', 'smart-woo-service-invoicing' ) . '</a>',
@@ -310,7 +217,7 @@ final class SmartWoo {
             );
 
 
-            $user = wp_signon( $credentials, false );
+            $user = wp_signon( $credentials, true );
 
             if ( is_wp_error( $user ) ) {
                 if ( 'incorrect_password' === $user->get_error_code() ) {
@@ -934,17 +841,6 @@ final class SmartWoo {
             'avatar_url'        => get_avatar_url( $user_data->get_id() )
         );
         wp_send_json_success( array( 'user' => $response ), 200 );
-
-    }
-
-    /**
-     * Count all services in the database every five hours.
-     * 
-     * @since 2.0.12.
-     */
-    public static function count_all_services() {
-        $count  = SmartWoo_Service_Database::count_all();
-        update_option( 'smartwoo_all_services_count', $count );
     }
 
     /**
@@ -956,69 +852,6 @@ final class SmartWoo {
         check_ajax_referer( 'smart_woo_nonce', 'security' );
         wp_logout();
         wp_send_json_success();
-    }
-
-    /**
-     * Initiates an automatic service renewal process by creating renewal invoice on due date
-     * for services that are due.
-     *
-     * @Do_action "smartwoo_auto_invoice_created" triggers after successful invoice creation
-     * @return bool False if no service is due | True otherwise
-     */
-    public static function auto_renew_due() {
-        add_filter( 'smartwoo_is_frontend', '__return_false' ); // Ensures the process runs in backend context.
-
-        $args = get_transient( 'smartwoo_auto_renew_args' );
-        if ( false === $args ) {
-            $args = array( 'page' => 1, 'limit' => 20 ); // Default pagination args
-        }
-
-        // Fetch due services
-        $all_services = SmartWoo_Service_Database::get_all_due( $args['page'], $args['limit'] );
-        
-        if ( empty( $all_services ) ) {
-            delete_transient( 'smartwoo_auto_renew_args' ); // Remove the transient if no more services are due
-            return false;
-        }
-
-        $invoices_created = false;
-
-        foreach ( $all_services as $service ) {
-            $user_id        = $service->get_user_id();
-            $service_id     = $service->get_service_id();
-            $service_name   = $service->getServiceName();
-            $product_id     = $service->getProductId();
-            $service_status = smartwoo_service_status( $service );
-
-            // Check if the service is due for renewal
-            if ( 'Due for Renewal' === $service_status ) {
-                $has_invoice = smartwoo_evaluate_service_invoices( $service_id, 'Service Renewal Invoice', 'unpaid' );
-                
-                if ( $has_invoice ) {
-                    continue; // Skip if unpaid renewal invoice already exists.
-                }
-
-                // Prepare invoice data
-                $payment_status = 'unpaid';
-                $invoice_type   = 'Service Renewal Invoice';
-                $date_due       = SmartWoo_Date_Helper::create_from( $service->get_end_date() )->format( 'Y-m-d H:i:s' );
-
-                // Create a new unpaid invoice
-                $new_invoice_id = smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
-                
-                if ( $new_invoice_id ) {
-                    $newInvoice = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
-                    do_action( 'smartwoo_auto_invoice_created', $newInvoice, $service );
-                    $invoices_created = true;
-                }
-            }
-        }
-
-        // Increment page for next batch of services
-        $args['page']++;
-        set_transient( 'smartwoo_auto_renew_args', $args, 12 * HOUR_IN_SECONDS );
-
-        return $invoices_created;
     }
 
     /**
@@ -1045,59 +878,31 @@ final class SmartWoo {
                 wp_send_json_success( array( 'message' => 'Check outstanding invoice...','redirect_url' => smartwoo_invoice_preview_url( $has_invoice_id ) ) );
             }
 
-            $product_id     = $service->get_product_id();
-            $payment_status = 'unpaid';
             $date_due       = ( 'Expired' === $service_status ) ? SmartWoo_Date_Helper::create_from( $service->get_end_date() ): SmartWoo_Date_Helper::create_from( $service->get_next_payment_date() );
             $date_due       = $date_due->format( 'Y-m-d H:i:s' );
+            $inv_args	= array(
+                'user_id'		=> $service->get_user_id(), 
+                'product_id'	=> $service->get_product_id(), 
+                'status'		=> 'unpaid',
+                'type'			=> 'Service Renewal Invoice', 
+                'service_id'	=>  $service->get_service_id(),
+                'fee' 			=> 0,
+                'date_due'		=> $date_due,
+            );
 
-            // Generate Unpaid invoice
-            $new_invoice_id = smartwoo_create_invoice( get_current_user_id(), $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
+            $invoice = smartwoo_create_invoice( $inv_args );
 
-            if ( $new_invoice_id ) {
-                $the_invoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
-                do_action( 'smartwoo_service_reactivation_initiated', $the_invoice, $service );
-                $checkout_url = $the_invoice->pay_url();
-                wp_send_json_success( array( 'message' => 'Invoice created, redirecting to pay...','redirect_url' => $checkout_url ) );
+            if ( $invoice ) {
+                /**
+                 * Fires when the client generates a renewal invoice from the portal.
+                 * 
+                 * @param SmartWoo_Invoice $invoice The invoice object
+                 * @param SmartWoo_Service $service The service subscription object
+                 */
+                do_action( 'smartwoo_manual_invoice_created', $invoice, $service );
+                wp_send_json_success( array( 'message' => 'Invoice created, redirecting to pay...','redirect_url' => $invoice->pay_url() ) );
             }
         }
-    }
-
-    /**
-     * Invoice payment reminder email action trigger.
-     * 
-     * @return void
-     */
-    public static function payment_reminder() {
-        $last_checked = get_transient( 'smartwoo_checked_payment_reminder' );
-
-        if ( $last_checked && ( $last_checked + DAY_IN_SECONDS ) > time() ) {
-            return;
-        }
-
-		if ( wp_doing_cron() ) {
-			add_filter( 'smartwoo_is_frontend', '__return_false' );
-            $page = get_transient( 'smartwoo_payment_reminder_page' );
-
-            if ( false === $page ) {
-                $page = 1;
-            }
-            $_GET['limit'] = 20;
-            $_GET['paged'] = absint( $page );
-		}
-
-        $unpaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
-        if ( empty( $unpaid_invoices ) ) {
-            set_transient( 'smartwoo_checked_payment_reminder', time(), 2 * DAY_IN_SECONDS );
-            delete_transient( 'smartwoo_payment_reminder_page' ); // Reset the pagination.
-            return;
-        }
-
-        foreach( $unpaid_invoices as $invoice ) {
-            do_action( 'smartwoo_invoice_payment_reminder', $invoice );
-        }
-        $page++;
-        set_transient( 'smartwoo_payment_reminder_page', $page, DAY_IN_SECONDS );
-
     }
 
     /**
@@ -1426,7 +1231,7 @@ final class SmartWoo {
          */ 
         do_action( 'smartwoo_before_activate_expired_service', $expired_service );
 
-        $order  = $invoice->get_order();
+        $order  = $invoice ? $invoice->get_order() : false;
         if ( ! $order && $strict ) {
             /**
              * Fires when service renewal fails
@@ -1438,12 +1243,8 @@ final class SmartWoo {
             return false;
         }
 
-        $interval   = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
-
-        $new_start_date =  $order ? $order->get_date_paid() : false;
-        if ( ! $new_start_date ) {
-            $new_start_date = SmartWoo_Date_Helper::create_from_timestamp( time() );
-        }
+        $interval       = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
+        $new_start_date =  $order ? $order->get_date_paid() : SmartWoo_Date_Helper::create_from_timestamp( time() );
         
         $new_end_date           = SmartWoo_Date_Helper::create_from_timestamp( strtotime( $interval, $new_start_date->getTimestamp() ) );
         $new_next_payment_date  = SmartWoo_Date_Helper::calculate_next_payment_date( 
@@ -1790,69 +1591,180 @@ final class SmartWoo {
     }
 
     /**
-     * Ajax callback for user billing details in frontend.
+     * Ajax callback for user billing details component in the frontend.
      */
 
-    public static function client_billing_info() {
-        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) || ! is_user_logged_in() ) {
-            wp_die();
+    public static function get_billing_details() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
         }
 
         $user_id 	= get_current_user_id();
         $user		= new WC_Customer( $user_id );
+        
         // Get additional customer details
         $billingFirstName = $user->get_billing_first_name();
         $billingLastName  = $user->get_billing_last_name();
         $company_name     = $user->get_billing_company();
         $email            = $user->get_billing_email();
         $phone            = $user->get_billing_phone();
-        $website          = get_user_meta( $user_id, 'billing_website', true );
         $billingAddress   = smartwoo_get_user_billing_address( $user_id );
     
         include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-billing.php';
-    
-
         die();
     }
 
     /**
+     * Ajax callback to get the client billing form
+     */
+    public static function get_edit_billing_form() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+
+        smartwoo_get_edit_billing_form();
+        die();
+    }
+
+    /**
+     * Save client's billing details
+     */
+    public static function save_client_billing_details() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+
+        $customer = new WC_Customer( get_current_user_id() );
+
+        // Define mapping of POST keys to WC_Customer setter methods.
+        $billing_fields = array(
+            'billing_first_name',
+            'billing_last_name',
+            'billing_company',
+            'billing_country',
+            'billing_address_1',
+            'billing_address_2',
+            'billing_city',
+            'billing_state',
+            'billing_postcode',
+            'billing_phone',
+            'billing_email',
+        );
+
+        foreach ( $billing_fields as $field ) {
+            if ( isset( $_POST[ $field ] ) ) {
+                $setter = 'set_' . $field;
+                if ( is_callable( array( $customer, $setter ) ) ) {
+                    $customer->{$setter}( wc_clean( wp_unslash( $_POST[ $field ] ) ) );
+                }
+            }
+        }
+
+        $customer->save();
+        self::get_billing_details();
+    }
+    /**
      * Ajax callback for user details in frontend.
      */
-    public static function client_details() {
+    public static function get_client_details() {
 
-        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) || ! is_user_logged_in() ) {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
             wp_die();
         }
 
-        $current_user   = wp_get_current_user();
-        $full_name      = $current_user->display_name ;
-        $email          = $current_user->user_email ;
-        $bio            = $current_user->description ;
-        $user_role      = implode( ', ', $current_user->roles );
-        $user_url       = $current_user->user_url ;
+        $user_id        = get_current_user_id();
+        $user           = new WC_Customer( $user_id );
+        $full_name      = $user->get_first_name() . ' ' . $user->get_last_name();
+        $email          = $user->get_email();
+        $user_name      = $user->get_username();
+        $display_name   = $user->get_display_name();
+        $user_role      = $user->get_role();
 
-        $html  = '<div class="smartwoo-details-container">';
-        $html .= '<h3>' . esc_html__( 'My Details', 'smart-woo-service-invoicing' ) . '</h3>';
-        $html .= '<p class="smartwoo-container-item"><span><strong>Full Name:</strong></span> ' . esc_html( $full_name ) . '</p>';
-        $html .= '<p class="smartwoo-container-item"><span><strong>Email:</strong></span> ' . esc_html( $email ) . '</p>';
-        $html .= '<p class="smartwoo-container-item"><span><strong>Bio:</strong></span> ' . esc_html( $bio ) . '</p>';
-        $html .= '<p class="smartwoo-container-item"><span><strong>Website:</strong></span> <a href="' . esc_url( $user_url ) . '">' . esc_html( $user_url ) . '</a></p>';
-        $html .= '<p class="smartwoo-container-item"><span><strong>Account Type:</strong></span> ' . esc_html( ucwords( $user_role ) ) . '</p>';
-        $html .= '</div>';		
-        $html .= '<button class="account-button" id="edit-account-button">' . esc_html__( 'Edit My Information', 'smart-woo-service-invoicing' ) . '</button>';
-        $html .= '<button class="account-button" id="view-payment-button">' . esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ) . '</button>';
-        $html .= '</div>';
-
-        echo wp_kses_post( $html );
+        include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-details.php';
+        
         die();
+    }
+
+    /**
+     * Ajax callback to get client edit form.
+     */
+    public static function get_edit_client_form() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+
+        smartwoo_get_edit_account_form();
+        die();
+
+    }
+
+    /**
+     *  Save client details
+     */
+    public static function save_client_details() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+        $user_id   = get_current_user_id();
+        $user      = get_user_by( 'id', $user_id );
+
+        if ( ! $user ) {
+            wp_die( '<div class="sw-error-notice"><p>' . esc_html__( 'User not found.', 'smart-woo-service-invoicing' ) . '</p></div>' );
+        }
+
+        $first_name    = smartwoo_get_post_param( 'account_first_name' );
+        $last_name     = smartwoo_get_post_param( 'account_last_name' );
+        $display_name  = smartwoo_get_post_param( 'account_display_name' );
+        $email         = smartwoo_get_post_param( 'account_email' );
+        $pass_current  = $_POST['password_current']; // phpcs:disable -- Don't tamper with raw password.
+        $pass_1        = $_POST['password_1']; // phpcs:disable -- Don't tamper with raw password.
+        $pass_2        = $_POST['password_2']; // phpcs:disable -- Don't tamper with raw password.
+
+        $userdata = array(
+            'ID'           => $user_id,
+            'first_name'   => $first_name,
+            'last_name'    => $last_name,
+            'display_name' => $display_name,
+        );
+
+        // Validate email change.
+        if ( ! empty( $email ) && $email !== $user->user_email ) {
+            if ( ! is_email( $email ) ) {
+                wp_die( '<div class="sw-error-notice"><p>' . esc_html__( 'Invalid email address.', 'smart-woo-service-invoicing' ) . '</p></div>' );
+            }
+            if ( email_exists( $email ) ) {
+                wp_die( '<div class="sw-error-notice"><p>' . esc_html__( 'Email address is already registered.', 'smart-woo-service-invoicing' ) . '</p></div>' );
+            }
+            $userdata['user_email'] = $email;
+        }
+
+        // Validate password change.
+        if ( ! empty( $pass_1 ) || ! empty( $pass_2 ) ) {
+            if ( empty( $pass_current ) || ! wp_check_password( $pass_current, $user->user_pass, $user_id ) ) {
+                wp_die( '<div class="sw-error-notice"><p>' . esc_html__( 'Your current password is incorrect.', 'smart-woo-service-invoicing' ) . '</p></div>' );
+            }
+            if ( $pass_1 !== $pass_2 ) {
+                wp_die( '<div class="sw-error-notice"><p>' . esc_html__( 'New passwords do not match.', 'smart-woo-service-invoicing' ) . '</p></div>' );
+            }
+            $userdata['user_pass'] = $pass_1;
+        }
+
+        // Update the user.
+        $updated = wp_update_user( $userdata );
+
+        if ( is_wp_error( $updated ) ) {
+            wp_die( '<div class="sw-error-notice"><p>' . esc_html( $updated->get_error_message() ) . '</p></div>' );
+        }
+
+        self::get_client_details();
     }
 
     /**
      * Ajax function callback for account logs in frontend
      */
-    public static function client_account_log() {
+    public static function get_account_logs() {
 
-        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) || ! is_user_logged_in() ) {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
             wp_die();
         }
 
@@ -1862,61 +1774,157 @@ final class SmartWoo {
         $last_active		= smartwoo_get_last_login_date( $user_id );
         $registration_date 	= smartwoo_check_and_format( $current_user->user_registered, true );
         $total_spent 		= smartwoo_client_total_spent( $user_id );
-        $user_agent			= wc_get_user_agent();
-        $html = '<div class="smartwoo-details-container">';
-        $html .= '<h3>' . esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ) . '</h3>';
-        $html .= '<ul class="account-logs-list">';
-        $html .= '<li>' . esc_html__( 'Total Amount Spent: ', 'smart-woo-service-invoicing' ) . smartwoo_price( $total_spent ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        //$html .= '<li>' . esc_html__( 'User Agent: ', 'smart-woo-service-invoicing' ) . esc_html( $user_agent ) . '</li>';
-        $html .= '<li>' . esc_html__( 'Current Login Time: ', 'smart-woo-service-invoicing' ) . esc_html( $current_login_time )  . '</li>';
-        $html .= '<li>' . esc_html__( 'Last logged In: ', 'smart-woo-service-invoicing' ) . esc_html( $last_active ) . '</li>';
-        $html .= '<li>' . esc_html__( 'Registration Date: ', 'smart-woo-service-invoicing' ) . esc_html( $registration_date ) . '</li>';
+        $user_agent			= smartwoo_parse_user_agent( wc_get_user_agent() );
+        $ip_address         = WC_Geolocation::get_ip_address();
+        $location_data      = WC_Geolocation::geolocate_ip( $ip_address );
+        $user_location      = $location_data['country'] ?? 'Unknown';
+
+        $log_data = array(
+            esc_html__( 'Total Amount Spent', 'smart-woo-service-invoicing' ) => smartwoo_price( $total_spent ), // Assumes smartwoo_price handles escaping
+            esc_html__( 'User Agent', 'smart-woo-service-invoicing' )        => $user_agent,
+            esc_html__( 'Current Login Time', 'smart-woo-service-invoicing' ) => $current_login_time,
+            esc_html__( 'Last Logged In', 'smart-woo-service-invoicing' )     => $last_active,
+            esc_html__( 'Registration Date', 'smart-woo-service-invoicing' )  => $registration_date,
+            esc_html__( 'IP Address', 'smart-woo-service-invoicing' )        => $ip_address,
+            esc_html__( 'Location', 'smart-woo-service-invoicing' )          => $user_location,
+        );
 
         /**
-         * Retrieve User's Personal logged information using WooCommerce geolocation feature.
+         * Filters the account log data displayed to the client.
+         *
+         * @since 2.4.3
+         * @param array $log_data An associative array of log detail titles and their values.
          */
-
-        $ip_address 	  = WC_Geolocation::get_ip_address();
-        $location_data    = WC_Geolocation::geolocate_ip( $ip_address );
-        
-        $html .= '<li>IP Address: ' . esc_html( $ip_address ) . '</li>';
-
-        if ( ! empty( $location_data ) ) {
-            $user_location	= $location_data['country'];
-            $html .= '<li>' . esc_html__( 'Location: ', 'smart-woo-service-invoicing' ) . esc_html( $user_location ) . '</li>';
-        } else {
-            $html .= '<li>Location: ' . esc_html__( 'Unknown', 'smart-woo-service-invoicing' ) . '</li>';
-        }
-
-        $html .= '</ul>';
-        $html .= '</div>';
-
-        echo wp_kses_post( $html );
-
+        $filtered_log_data = apply_filters( 'smartwoo_client_log', $log_data );
+        include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-account-logs.php';
         die();
     }
 
     /**
-     * Ajax callback for user transaction history in the frontend
+     * Ajax callback to get client payment methods
      */
-    public static function client_transaction_history() {
-
-        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security' ) ) {
-            wp_die();
+    public static function get_payment_details() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
         }
 
-        if ( is_user_logged_in() ) {
+        $user_id         = get_current_user_id();
+        $payment_details = smartwoo_get_user_payment_options( $user_id );
+        $gateways        = WC()->payment_gateways()->get_available_payment_gateways();
 
-            $html = '<h3>Transaction History</h3>';
-            $html .= smartwoo_transactions_shortcode();
+        // Pre-build display-ready data
+        $payment_display = array(
+            'primary' => '',
+            'backup'  => '',
+        );
 
-            echo wp_kses_post( $html );
-        } else {
-            // User is not logged in
-            echo esc_html__( 'Please log in to view transaction history.', 'smart-woo-service-invoicing' );
+        foreach ( array( 'primary', 'backup' ) as $type ) {
+            $gateway_id = isset( $payment_details[ $type ] ) ? $payment_details[ $type ] : '';
+
+            if ( $gateway_id && isset( $gateways[ $gateway_id ] ) ) {
+                $gateway = $gateways[ $gateway_id ];
+                $icon    = $gateway->get_icon();
+                $title   = $gateway->get_title();
+
+                $payment_display[ $type ] = $icon 
+                    ? sprintf( '<span class="smartwoo-gateway-title">%s</span> <span class="smartwoo-gateway-icon">%s</span>', esc_html( $title ), $icon )
+                    : esc_html( $title );
+            } else {
+                $payment_display[ $type ] = esc_html__( 'Not set', 'smart-woo-service-invoicing' );
+            }
         }
 
-        // prevent further outputing
+        include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-payment.php';
+        die();
+    }
+
+    /**
+     * Get client's edit payment method form.
+     * Serves for both primary and backup payment method depending on the action query variable.
+     */
+    public static function get_edit_payment_form() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+
+        $action = smartwoo_get_query_param( 'action' );
+        $action_map = array(
+            'get_edit_primary_payment_form' => 'primary',
+            'get_edit_backup_payment_form'  => 'backup'
+        );
+
+        $type = $action_map[$action] ?? false;
+
+        if ( ! $type ) {
+            $message = __( 'Invalid payment form request, please contact us if you need further assistance', 'smart-woo-service-invoicing' );
+            wp_die( '<div class="sw-error-notice"><p> ' . esc_html( $message ) . '</p></div>' );
+        }
+
+        /* translators: %s: Payment method type */
+        $form_title     = sprintf( __( 'Edit %s Payment Method' ), ucfirst( $type ) );
+        $gateways       = WC()->payment_gateways()->get_available_payment_gateways();
+        $user_option    = smartwoo_get_user_payment_options( get_current_user_id() )[$type];
+        
+        include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/form-edit-payment.php';
+        die();
+    }
+
+    /**
+     * Save the client's payment method options
+     */
+    public static function save_payment_method() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+        
+        $type = smartwoo_get_post_param( 'payment_option_type' );
+        if ( ! in_array( $type, array( 'primary', 'backup' ), true ) ) {
+            $message = __( 'Invalid payment method type, please contact us if you need further assistance', 'smart-woo-service-invoicing' );
+            wp_die( '<div class="sw-error-notice"><p> ' . esc_html( $message ) . '</p></div>' );
+        }
+
+        $value = smartwoo_get_post_param( 'payment_method' );
+
+        // Only validate if a value was provided.
+        if ( ! empty( $value ) ) {
+            $gateways = WC()->payment_gateways->get_available_payment_gateways();
+
+            if ( empty( $gateways[ $value ] ) ) {
+                $message = __( 'Invalid payment method selected. Please choose from the available options.', 'smart-woo-service-invoicing' );
+                wp_die( '<div class="sw-error-notice"><p> ' . esc_html( $message ) . '</p></div>' );
+            }
+        }
+
+        $user_id = get_current_user_id();
+        $options = smartwoo_get_user_payment_options( $user_id );
+
+        $options[ $type ] = $value;
+        update_user_meta( $user_id, '_smartwoo_payment_options', $options );
+
+        self::get_payment_details(); // Show updated payment details.
+    }
+
+    /**
+     * Ajax callback for user order history in the frontend
+     */
+    public static function get_order_history() {
+        if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) || ! is_user_logged_in() ) {
+            wp_die( 'Refresh current page!' );
+        }
+
+        $limit  = smartwoo_get_post_param( 'limit', 10 );
+        $page   = smartwoo_get_post_param( 'page', 1 );
+
+        $args = array(
+            'page'  => $page,
+            'limit' => $limit
+        );
+
+        $orders         = SmartWoo_Order::get_user_orders( $args );
+        $orders_count   = SmartWoo_Order::count_user_orders();
+        $total_pages    =  (int) ceil( $orders_count / $limit );
+
+        include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/view-client-order-history.php';
         die();
     }
 

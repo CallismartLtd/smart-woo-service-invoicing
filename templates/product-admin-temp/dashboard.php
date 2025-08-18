@@ -41,17 +41,17 @@ defined( 'ABSPATH' ) || exit;
                         <td><input type="checkbox" data-value="<?php echo absint( $product->get_id() );?>" class="sw-table-body-checkbox"></td>
                         <td>
                             <div class="smartwoo-product-table-name">
-                                <p><?php echo esc_html( $product->get_name() ); ?></p>
+                                <?php echo esc_html( $product->get_name() ); ?>
                                 <small>ID: <?php echo esc_html( $product->get_id() ); ?></small>
                             </div>
                         </td>
                         <td><?php echo esc_html( smartwoo_price( $product->get_price() ) ); ?></td>
                         <td><?php echo esc_html( smartwoo_price( $product->get_sign_up_fee() ) ); ?></td>
                         <td><?php echo esc_html( $product->get_billing_cycle() ); ?></td>
-                        <td>
-                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $product->get_id() ) ); ?>"><button title="Edit Product"><span class="dashicons dashicons-edit"></span></button></a>
-                            <a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>"><button title="Preview"><span class="dashicons dashicons-visibility"></span></button></a>
-                            <button class="sw-delete-product" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"><span class="dashicons dashicons-trash"></span></button>
+                        <td class="smartwoo-admin-table-td-options">
+                            <a class="sw-icon-button-admin" href="<?php echo esc_url( admin_url( 'admin.php?page=sw-products&tab=edit&product_id=' . $product->get_id() ) ); ?>" title="<?php esc_html_e( 'Edit Product', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-edit"></span></a>
+                            <a class="sw-icon-button-admin" href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>" title="<?php esc_html_e( 'Preview', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-visibility"></span></a>
+                            <a class="sw-delete-product sw-icon-button-admin" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" title="<?php esc_html_e( 'Delete Product', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-trash"></span></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -421,50 +421,6 @@ function smartwoo_redirect_to_invoice_preview( $invoice_id ) {
 	exit();
 }
 
-
-/**
- * Get all orders configured for service subscription.
- *
- * @param int|null  $order_id	If provided, returns the ID of the specified order.
- * @param bool $current_user Whether or not to get for current user.
- * @return int|array $order_id | $orders	ID of or Configured orders.
- */
-function smartwoo_get_configured_orders_for_service( $order_id = null, $current_user = false ) {
-
-	if ( null !== $order_id ) {
-		$order = wc_get_order( $order_id );
-		if ( $order && smartwoo_check_if_configured( $order ) ) {
-			return $order_id;
-		} else {
-			return 0;
-		}
-	}
-
-	$args =	array(
-		'limit' => -1,
-	);
-
-	if ( true === $current_user ) {
-		$args['customer'] = get_current_user_id();	 	
-	}
-
-
-	$wc_orders 	= wc_get_orders( $args );
-	$orders		= array();
-
-	if ( empty( $wc_orders ) ) {
-		return false;
-	}
-
-	foreach ( $wc_orders as $order ) {
-
-		if ( smartwoo_check_if_configured( $order ) ) {
-			$orders[] = $order;
-		}
-	}
-	return $orders;
-}
-
 /**
  * Check if an order has configured products.
  *
@@ -1147,7 +1103,7 @@ function smartwoo_dropdown_users( $selected = '', $args = array() ) {
 
 /**
  * Add an input field to control the limit of items displayed on sw table or any table
- * that uses the `$_GET['limit']` to render items.
+ * that sets the `limit` value in the url query arg.
  */
 function smartwoo_table_limit_field( $limit = 25 ) {
 	?>
@@ -1389,35 +1345,82 @@ function smartwoo_get_switch_toggle( array $args ) {
  * 
  * @since 1.0.15
  */
+/**
+ * Output the edit billing address form in Smart Woo client portal.
+ */
 function smartwoo_get_edit_billing_form() {
-	$user_id = get_current_user_id();
-	$customer = new WC_Customer( $user_id );
+    if ( ! is_user_logged_in() ) {
+        return;
+    }
 
-	// Get the customer's billing address fields using WooCommerce's helper functions.
-	$address_fields = WC()->countries->get_address_fields( $customer->get_billing_country(), 'billing_' );
+    $user_id  = get_current_user_id();
+    $customer = new WC_Customer( $user_id );
 
-	// Pre-fill the fields with current customer data
-	foreach ( $address_fields as $key => $field ) {
-		$address_fields[ $key ]['value'] = $customer->{"get_{$key}"}();
-	}
+    $address_fields = WC()->countries->get_address_fields(
+        $customer->get_billing_country(),
+        'billing_'
+    );
 
-	// Render the billing address form
-	wc_get_template( 'myaccount/form-edit-address.php', array(
-		'load_address'   => 'billing', 
-		'address'        => $address_fields, // Pass the address fields
-		'user_id'        => $user_id, // Pass the user ID
-	) );
+    // Pre-fill values from WC_Customer object
+    foreach ( $address_fields as $key => $field ) {
+        $getter = 'get_' . $key;
+        $address_fields[ $key ]['value'] = is_callable( [ $customer, $getter ] )
+            ? $customer->$getter()
+            : get_user_meta( $user_id, $key, true );
+    }
+
+	include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/form-edit-address.php';
 }
 
 /**
- * Get the edit account details form
- * 
+ * Get the edit account details form.
+ *
  * @since 2.0.15
  */
 function smartwoo_get_edit_account_form() {
-	$user = wp_get_current_user();
-    wc_get_template( 'myaccount/form-edit-account.php', array('user' => $user ) );
+    if ( ! is_user_logged_in() ) {
+        return;
+    }
+
+    $user = wp_get_current_user();
+
+    // Define account fields (pattern follows WooCommerce form conventions)
+    $account_fields = array(
+        'account_first_name' => array(
+            'type'        => 'text',
+            'label'       => __( 'First name', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'class'       => array( 'form-row-first' ),
+            'autocomplete'=> 'given-name',
+            'value'       => $user->first_name,
+        ),
+        'account_last_name' => array(
+            'type'        => 'text',
+            'label'       => __( 'Last name', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'class'       => array( 'form-row-last' ),
+            'autocomplete'=> 'family-name',
+            'value'       => $user->last_name,
+        ),
+        'account_display_name' => array(
+            'type'        => 'text',
+            'label'       => __( 'Display name', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'description' => __( 'This will be how your name will be displayed in the account section and in reviews', 'smart-woo-service-invoicing' ),
+            'value'       => $user->display_name,
+        ),
+        'account_email' => array(
+            'type'        => 'email',
+            'label'       => __( 'Email address', 'smart-woo-service-invoicing' ),
+            'required'    => true,
+            'autocomplete'=> 'email',
+            'value'       => $user->user_email,
+        ),
+    );
+
+    include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/form-edit-account.php';
 }
+
 
 /**
  * Get the correct URL format for an endpoint according to the site permalink structure
@@ -1476,19 +1479,74 @@ function smartwoo_fast_checkout_options() {
 }
 
 /**
- * A utility function to get the value of a given key from the url query parameters.
- * 
- * @param string $key The key to retrieve from the query parameters.
- * @param string $default The default value to return if the key is not found.
- * @return string The value of the key from the query parameters or the default value.
+ * Retrieve and sanitize a query parameter from the URL, with automatic type detection.
+ *
+ * @param string $key     The key to retrieve from the query parameters.
+ * @param mixed  $default The default value to return if the key is not found.
+ * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_query_param( $key, $default = '' ) {
-	if ( isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	}
-	return $default;
+    return smartwoo_get_param( $key, $default, $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 }
 
+/**
+ * Retrieve and sanitize the value(s) of a POST key, with automatic type detection.
+ *
+ * @param string $key     The key to retrieve from the query parameters.
+ * @param mixed  $default The default value to return if the key is not found.
+ * @return mixed The sanitized value of the query parameter, or the default value.
+ */
+function smartwoo_get_post_param( $key, $default = '' ) {
+    return smartwoo_get_param( $key, $default, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+}
+
+/**
+ * Retrieve and sanitize a parameter from a given source array, with automatic type detection.
+ *
+ * This function supports automatic type detection and sanitization for common data types:
+ * - Arrays: sanitized recursively with `sanitize_text_field()`.
+ * - Numeric strings: cast to `int` or `float`.
+ * - Boolean-like values: evaluated with `FILTER_VALIDATE_BOOLEAN` (supports "true", "false", "1", "0", "yes", "no").
+ * - Email addresses: validated and sanitized with `sanitize_email()`.
+ * - URLs: validated with `FILTER_VALIDATE_URL` and sanitized with `esc_url_raw()`.
+ * - All other strings: sanitized with `sanitize_text_field()`.
+ *
+ * @param string $key     The key to retrieve from the source array.
+ * @param mixed  $default Optional. The default value to return if the key is not set. Default ''.
+ * @param array  $source  Optional. The source array to read from (e.g., $_GET or $_POST). Default empty array.
+ *
+ * @return mixed The sanitized value if found, or the default value if the key is not present.
+ */
+function smartwoo_get_param( $key, $default = '', $source = array() ) {
+    if ( ! isset( $source[ $key ] ) ) {
+        return $default;
+    }
+
+    $value = wp_unslash( $source[ $key ] );
+
+    if ( is_array( $value ) ) {
+        return array_map( 'sanitize_text_field', $value );
+    }
+
+    if ( is_numeric( $value ) ) {
+        return ( strpos( $value, '.' ) !== false ) ? floatval( $value ) : intval( $value );
+    }
+
+    $lower = strtolower( $value );
+    if ( in_array( $lower, [ 'true', 'false', '1', '0', 'yes', 'no' ], true ) ) {
+        return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+    }
+
+    if ( is_email( $value ) ) {
+        return sanitize_email( $value );
+    }
+
+    if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+        return esc_url_raw( $value );
+    }
+
+    return sanitize_text_field( $value );
+}
 /**
  * Render a help tooltip
  * 
@@ -1503,4 +1561,123 @@ function smartwoo_help_tooltip( $message, $echo = true ) {
 	} else{
 		return $helptab;
 	}
+}
+
+/**
+ * Enqueue the css and javascript files for the asset media player
+ */
+function smartwoo_enqueue_media_assets() {
+	SmartWoo_Config::enqueue_asset_editor();
+}
+
+/**
+ * Get a user's payment options.
+ *
+ * @param int $user_id
+ * @return array
+ */
+function smartwoo_get_user_payment_options( $user_id ) {
+    $defaults = array(
+        'primary' => '',
+        'backup'  => '',
+    );
+
+    $stored = get_user_meta( $user_id, '_smartwoo_payment_options', true );
+
+    if ( ! is_array( $stored ) ) {
+        return $defaults;
+    }
+
+    return wp_parse_args( $stored, $defaults );
+}
+
+/**
+ * Parses a user agent string and returns a short description.
+ *
+ * @param string $user_agent_string The user agent string to parse.
+ * @return string Description in the format: "Browser Version on OS (Device)".
+ */
+function smartwoo_parse_user_agent( $user_agent_string ) {
+    $info = array(
+        'browser' => 'Unknown Browser',
+        'version' => '',
+        'os'      => 'Unknown OS',
+        'device'  => 'Desktop',
+    );
+
+    // Detect OS
+    if ( preg_match( '/Windows NT ([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $os_version = $matches[1];
+        $info['os'] = match ( $os_version ) {
+            '10.0' => 'Windows 10',
+            '6.3'  => 'Windows 8.1',
+            '6.2'  => 'Windows 8',
+            '6.1'  => 'Windows 7',
+            '6.0'  => 'Windows Vista',
+            '5.1'  => 'Windows XP',
+            default => 'Windows ' . $os_version
+        };
+    } elseif ( preg_match( '/Mac OS X ([0-9_.]+)/i', $user_agent_string, $matches ) ) {
+        $info['os'] = 'macOS ' . str_replace( '_', '.', $matches[1] );
+    } elseif ( preg_match( '/Linux/i', $user_agent_string ) && ! preg_match( '/Android/i', $user_agent_string ) ) {
+        $info['os'] = 'Linux';
+    } elseif ( preg_match( '/Android ([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['os']     = 'Android ' . $matches[1];
+        $info['device'] = 'Mobile';
+    } elseif ( preg_match( '/iPhone|iPad|iPod/i', $user_agent_string, $matches ) ) {
+        $info['os']     = 'iOS';
+        $info['device'] = ( 'iPad' === $matches[0] ) ? 'Tablet' : 'Mobile';
+    }
+
+    // Detect device type
+    if ( preg_match( '/BlackBerry|Mobile Safari|Opera Mini|Opera Mobi|Firefox Mobile|webOS|NokiaBrowser|Series40|NintendoBrowser/i', $user_agent_string ) ) {
+        $info['device'] = 'Mobile';
+    } elseif ( preg_match( '/Tablet|iPad|Nexus 7|Nexus 10|GT-P|SM-T/i', $user_agent_string ) ) {
+        $info['device'] = 'Tablet';
+    }
+
+    // Detect browser & version
+    if ( preg_match( '/Edg\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        // New Chromium-based Edge
+        $info['browser'] = 'Edge';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Edge\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        // Legacy Edge
+        $info['browser'] = 'Edge';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/(OPR|Opera)\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Opera';
+        $info['version'] = $matches[2];
+    } elseif ( preg_match( '/CriOS\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Chrome iOS';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Chrome\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Chrome';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Firefox\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Firefox';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Safari\/([0-9.]+)/i', $user_agent_string, $matches ) && ! preg_match( '/Chrome|Edg/i', $user_agent_string ) ) {
+        $info['browser'] = 'Safari';
+        if ( preg_match( '/Version\/([0-9.]+)/i', $user_agent_string, $version_matches ) ) {
+            $info['version'] = $version_matches[1];
+        } else {
+            $info['version'] = $matches[1];
+        }
+    } elseif ( preg_match( '/MSIE ([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Internet Explorer';
+        $info['version'] = $matches[1];
+    } elseif ( preg_match( '/Trident\/([0-9.]+)/i', $user_agent_string, $matches ) ) {
+        $info['browser'] = 'Internet Explorer';
+        $info['version'] = ( '7.0' === $matches[1] ) ? '11.0' : 'Unknown IE';
+    }
+
+    // Build the return string
+    return trim( sprintf(
+        '%s%s on %s (%s)',
+        $info['browser'],
+        $info['version'] ? ' ' . $info['version'] : '',
+        $info['os'],
+        $info['device']
+    ) );
 }

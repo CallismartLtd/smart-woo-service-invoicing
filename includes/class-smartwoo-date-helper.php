@@ -146,6 +146,13 @@ class SmartWoo_Date_Helper {
     }
 
     /**
+     * Wrapper to get timestamp in camelCased pattern
+     */
+    public function getTimestamp() {
+        return $this->get_timestamp();
+    }
+
+    /**
      * Magic method to convert the object to string.
      *
      * Returns the date formatted as 'Y-m-d' by default.
@@ -232,7 +239,6 @@ class SmartWoo_Date_Helper {
 
         $interval_seconds = $old_end->get_timestamp() - $old_next_payment->get_timestamp();
 
-        // No exception if interval is zero or negative, just use the same logic.
         $new_next_payment_timestamp = $new_end->get_timestamp() - $interval_seconds;
 
         $new_next_payment = SmartWoo_Date_Helper::create_from_timestamp( $new_next_payment_timestamp );

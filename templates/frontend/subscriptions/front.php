@@ -10,8 +10,11 @@ defined( 'ABSPATH' ) || exit; ?>
 
 <div class="smartwoo-page">
     <?php echo wp_kses_post( smartwoo_get_navbar( 'My Services' ) ); ?>
-    <span style="float:right;"><?php smartwoo_table_limit_field( $limit ); ?></span>
-    <p style="text-align: center; margin-top: 10px;">Welcome, <?php echo esc_html( $full_name ); ?>!</p>
+
+    <div class="smartwoo-portal-header">
+        <p class="smartwoo-portal-header__greeting"><?php printf( __( 'Welcome, %s!', 'smart-woo-service-invoicing' ), esc_html( $full_name ) ); ?></p>
+        <span class="smartwoo-portal-header__sorting"><?php smartwoo_table_limit_field( $limit ); ?></span>
+    </div>
     
     <div class="status-counts portal"> 
         <p class="active-count"><a href="<?php echo esc_url( $active_count_url ); ?>">Active: <?php echo esc_html( $active_count ); ?></a></p>
@@ -21,11 +24,11 @@ defined( 'ABSPATH' ) || exit; ?>
 	</div>
 
     
-    <div class="client-services">
+    <div class="smartwoo-portal__subscription-item-container">
         <?php if ( empty( $services ) ) : ?>
             <div class="main-page-card">
                 <p><?php esc_html_e( 'No service found.', 'smart-woo-service-invoicing' ); ?></p>
-                <a href="<?php echo esc_url( $buy_product_page ); ?>" class="sw-blue-button"><?php esc_html_e( 'Buy New Service', 'smart-woo-service-invoicing' ); ?></a>
+                <a href="<?php echo esc_url( $buy_product_page ); ?>" class="sw-client-dashboard-button"><?php esc_html_e( 'Buy New Service', 'smart-woo-service-invoicing' ); ?></a>
             </div>
         <?php else: ?>
             
@@ -34,11 +37,10 @@ defined( 'ABSPATH' ) || exit; ?>
                     <h3><?php echo esc_html( $service->get_name() ); ?> <small>(<?php echo esc_html( smartwoo_service_status( $service ) ); ?>)</small></h3>
                     <?php echo wp_kses_post( $service->print_expiry_notice() ); ?>
                     <?php if( 'Processing' !== smartwoo_service_status( $service ) ) : ?>
-                        <p style="overflow-wrap: anywhere;">Service ID: <?php echo esc_html( $service->get_service_id() ); ?></p>
-                        <a href="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ); ?>" class="sw-blue-button"><?php esc_html_e( 'View Details', 'smart-woo-service-invoicing' ); ?></a>
-    
+                        <p>Service ID: <?php echo esc_html( $service->get_service_id() ); ?></p>
+                        <a href="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ); ?>" class="sw-client-dashboard-button"><?php esc_html_e( 'View Details', 'smart-woo-service-invoicing' ); ?></a>
                     <?php else: ?>
-                        <p><?php echo wp_kses_post( smartwoo_notice( 'Your order has been received and is currently being processed, we will notify you shortly.' ) ); ?></p>
+                        <p><?php echo wp_kses_post( smartwoo_notice( __( 'Your order has been received and is currently being processed, we will notify you shortly.', 'smart-woo-service-invoicing' ) ) ); ?></p>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -64,18 +66,17 @@ defined( 'ABSPATH' ) || exit; ?>
         <?php endif; ?>
     </div>
 
-    <div syle="position: relative;">
-        <div id="swloader">Just a moment</div>
-    </div>
-	<div class="settings-tools-section">
-        <h2>Account Settings</h2>
-        <div class="sw-button-container">
-            <a class="sw-blue-button" id="sw-billing-details">Billing Details</a>
-            <a class="sw-blue-button" id="sw-load-user-details">My Details</a>
-            <a class="sw-blue-button" id="sw-account-log">Account Logs</a>
-            <a class="sw-blue-button" id="sw-load-transaction-history">Transaction History</a>
+	<div class="settings-tools-section" id="smartwooSettingsContainer">
+        <h2><?php esc_html_e( 'Account Settings', 'smart-woo-service-invoicing' ); ?></h2>
+        <div class="sw-settings-button-container">
+            <button class="button sw-client-dashboard-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></button>
+            <button class="button sw-client-dashboard-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></button>
+            <button class="button sw-client-dashboard-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></button>
+            <button class="button sw-client-dashboard-button" id="sw-load-order-history" data-action="orderHistory"> <?php echo esc_html__( 'Order History', 'smart-woo-service-invoicing' ); ?></button>
+            <button class="button sw-client-dashboard-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></button>
         </div>
 	    <div id="ajax-content-container"></div>
+        <div id="new-smartwoo-loader"></div>
 	</div>
 </div>
 

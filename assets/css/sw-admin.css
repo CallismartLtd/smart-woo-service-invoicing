@@ -73,7 +73,7 @@
 }
 
 .sw-pro-upgrade-button:hover {
-    background-color: #2af018; /* Darken the button color on hover */
+    background-color: #2af018;
     color: rgb(12, 0, 0);
     font-weight: bold;
 }
@@ -201,7 +201,7 @@ h2.sw-not-found {
     width: calc( 100% - 160px);
     right: auto;
     min-height: 70px;
-    z-index: 2;
+    z-index: 10;
 }
 .folded .sw-admin-dash-header {
     width: calc(100% - 36px);
@@ -626,12 +626,13 @@ body .sw-admin-dash-nav ul li a:focus {
     margin: 20px 10px 20px 10px;
     gap: 10px;
 }
+
 .smartwoo-admin-invoice-actions {
     position: absolute;
     right: 10%;
     width: 60px;
     height: 40px;
-    background-color: #ffffff;
+    background-color: #ffffff !important;
     color: blue;
 }
 
@@ -919,7 +920,7 @@ body .sw-admin-dash-nav ul li a:focus {
 .smartwoo-product-table-name small {
     color: #1d05fc;
     font-weight: 500;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .smart-woo-product-form-page {
@@ -1774,6 +1775,10 @@ body .sw-admin-dash-nav ul li a:focus {
     height: 40px;
     width: 35%;
 }
+
+#more-addi-assets {
+    margin-top: 15px;
+}
 .sw-service-form-right-container {
     display: flex;
     flex-direction: column;
@@ -2024,4 +2029,10 @@ body .sw-admin-dash-nav ul li a:focus {
 
 .sw-admin-fast-checkout-option .sw-service-form-row {
     flex-grow: 1;
+}
+
+.remove-field {
+    cursor: pointer;
+    float: right;
+    color: #ff0000;
 }

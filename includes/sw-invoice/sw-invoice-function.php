@@ -185,7 +185,7 @@ function smartwoo_generate_pending_order( $invoice, $total = null ) {
 	$order = wc_create_order( array( 'customer_id' => $invoice->get_user_id() ) );
 
 	// Add fees from invoice as a line item.
-	if ( $invoice->get_fee() > 0 || $invoice->get_fee() < 0 ) {
+	if ( $invoice->get_fee() ) {
 		$fee_amount = $invoice->get_fee();
 		$fee_name   = 'Invoice Fee';
 		$fee        = new WC_Order_Item_Fee();
@@ -295,52 +295,58 @@ function smartwoo_get_invoice_id_prefix() {
 /**
  * Generates a new invoice and saves it to the database.
  *
- * @param int    $user_id        The user ID associated with the invoice.
- * @param int    $product_id     The product ID for the invoice.
- * @param string $payment_status The payment status of the invoice.
- * @param string $invoice_type   The type of the invoice.
- * @param string $service_id     (Optional) The service ID associated with the invoice.
- * @param float  $fee            (Optional) The fee associated with the invoice.
- * @param string $date_due       (Optional) The due date for the invoice in YYYY-MM-DD format.
+ * @param array $args
  *
- * @return int|false The ID of the newly created invoice or false on failure.
+ * @return SmartWoo_Invoice|false The invoice object, false on failure.
  *
  * @since 1.0.0
  */
-function smartwoo_create_invoice( $user_id, $product_id, $payment_status, $invoice_type, $service_id = null, $fee = null, $date_due = null ) {
-	$invoice_id 		= smartwoo_generate_invoice_id();
-	$billing_address 	= smartwoo_get_user_billing_address( $user_id );
-	$amount 			= wc_get_product( $product_id )->get_price();
-	$total 				= $amount + ( $fee ?? 0 );
+function smartwoo_create_invoice( $args = array() ) {
+	$default_args	= array(
+		'user_id'		=> 0, 
+		'product_id'	=> '', 
+		'status'		=> '',
+		'type'			=> '', 
+		'service_id'	=> null,
+		'fee' 			=> null,
+		'date_due'		=> null,
+		'amount'		=> 0,
+		'date_paid'		=> null
+	);
+
+	$parsed_args	= wp_parse_args( $args, $default_args );	
 
 	$newInvoice = new SmartWoo_Invoice();
-	$newInvoice->set_invoice_id( $invoice_id );
-	$newInvoice->set_product_id( $product_id );
-	$newInvoice->set_amount( $amount );
-	$newInvoice->set_total( $total );
-	$newInvoice->set_status( $payment_status );
+	$newInvoice->set_invoice_id( smartwoo_generate_invoice_id() );
+
+	if ( is_numeric( $parsed_args['product_id'] ) && ! empty( is_int( $parsed_args['product_id'] ) ) ) {
+		$newInvoice->set_product_id( $parsed_args['product_id'] );
+	}
+
+	if ( $parsed_args['amount'] ) {
+		$newInvoice->set_amount( $parsed_args['amount'] );
+	} else if( $product = wc_get_product( $parsed_args['product_id'] ) ) {
+		$newInvoice->set_amount( $product->get_price() );
+	}
+
+	$newInvoice->set_status( $parsed_args['status'] );
+	$newInvoice->set_user_id( $parsed_args['user_id'] );
+	
+	$newInvoice->set_billing_address( smartwoo_get_user_billing_address( $parsed_args['user_id'] ) );
+	$newInvoice->set_type( $parsed_args['type'] );
+	$newInvoice->set_service_id( $parsed_args['service_id'] );
+	$newInvoice->set_fee( $parsed_args['fee'] );
+	$newInvoice->set_date_due( $parsed_args['date_due'] );
+
+	$newInvoice->set_total( $newInvoice->get_amount() + $newInvoice->get_fee() );
 	$newInvoice->set_date_created( current_time( 'mysql' ) );
-	$newInvoice->set_user_id( $user_id );
-	$newInvoice->set_billing_address( $billing_address );
-	$newInvoice->set_type( $invoice_type );
-	$newInvoice->set_service_id( $service_id );
-	$newInvoice->set_fee( $fee );
 
-	if ( $date_due ) {
-		$newInvoice->set_date_due( $date_due );
-	}
-
-	if ( 'paid' === $payment_status ) {
-		$newInvoice->set_date_paid( 'now' );
-	}
-
-	if ( 'unpaid' === strtolower( $payment_status ) ) {
-		$newInvoice->save(); // Persist changes before order creation.
-		$order_id = smartwoo_generate_pending_order( $invoice_id );
+	if ( 'unpaid' === strtolower( $parsed_args['status'] ) ) {
+		$order_id = smartwoo_generate_pending_order( $newInvoice );
 		$newInvoice->set_order_id( $order_id );
 	}
 
-	return $newInvoice->save();
+	return $newInvoice->save() ? $newInvoice : false;
 }
 
 /**
@@ -563,7 +569,7 @@ function smartwoo_invoice_page_url() {
   * Product deletion button.
   */
 function smartwoo_delete_invoice_button( $invoice_id ) {
-	return '<button title="Delete Invoice" class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '"><span class="dashicons dashicons-trash"></span></button>';
+	return '<button title="Delete Invoice" class="delete-invoice-button sw-icon-button-admin" data-invoice-id="' . esc_attr( $invoice_id ) . '"><span class="dashicons dashicons-trash"></span></button>';
 }
 
 // Add Ajax actions

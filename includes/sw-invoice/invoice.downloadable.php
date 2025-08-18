@@ -17,10 +17,8 @@ function smartwoo_invoice_download() {
 		return;
 	}
 	
-	if ( isset( $_GET['_sw_download_token'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_sw_download_token'] ) ), '_sw_download_token' ) ) {
-
-		$invoice_id = isset( $_GET['invoice_id'] ) ? sanitize_text_field( wp_unslash( $_GET['invoice_id'] ) ) : '';
-
+	if ( wp_verify_nonce( sanitize_text_field( wp_unslash( smartwoo_get_query_param( '_sw_download_token' ) ) ), '_sw_download_token' ) ) {
+		$invoice_id = smartwoo_get_query_param( 'invoice_id' );
 		smartwoo_pdf_invoice_template( $invoice_id );
 	}
 }

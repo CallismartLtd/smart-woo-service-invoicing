@@ -8,14 +8,38 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="smartwoo-details-container">
-    <h3>Billing Details</h3>
-    <p class="smartwoo-container-item"><span>Name: </span><?php echo esc_html( $billingFirstName . ' ' . $billingLastName ); ?></p>
-    <p class="smartwoo-container-item"><span>Company Name:</span> <?php echo esc_html( $company_name ); ?></p>
-    <p class="smartwoo-container-item"><span>Email Address:</span> <?php echo esc_html( $email ); ?></p>
-    <p class="smartwoo-container-item"><span>Phone:</span> <?php echo esc_html( $phone ); ?></p>
-    <p class="smartwoo-container-item"><span>Website</span> <?php echo esc_html( $website ); ?></p>
-    <p class="smartwoo-container-item"><span>Address</span> <?php echo esc_html( $billingAddress ); ?></p>
-    <br>
-    <button class="account-button" id="edit-billing-address"><?php echo esc_html__( 'Edit My Billing Address', 'smart-woo-service-invoicing' ); ?></button>
-</div>		
+
+<div class="smartwoo-section-card">
+    <h3 class="smartwoo-section-card__title">Billing Details</h3>
+    <div class="smartwoo-detail-table-wrapper">
+        <table class="smartwoo-detail-table">
+            <tbody class="smartwoo-detail-table__body">
+                <tr class="smartwoo-detail-table__row">
+                    <th scope="row" class="smartwoo-detail-table__label">Name:</th>
+                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $billingFirstName . ' ' . $billingLastName ); ?></td>
+                </tr>
+                <tr class="smartwoo-detail-table__row">
+                    <th scope="row" class="smartwoo-detail-table__label">Company Name:</th>
+                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $company_name ); ?></td>
+                </tr>
+                <tr class="smartwoo-detail-table__row">
+                    <th scope="row" class="smartwoo-detail-table__label">Email Address:</th>
+                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $email ); ?></td>
+                </tr>
+                <tr class="smartwoo-detail-table__row">
+                    <th scope="row" class="smartwoo-detail-table__label">Phone:</th>
+                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $phone ); ?></td>
+                </tr>
+                <tr class="smartwoo-detail-table__row">
+                    <th scope="row" class="smartwoo-detail-table__label">Address:</th>
+                    <td class="smartwoo-detail-table__value"><?php echo esc_html( $billingAddress ); ?></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="smartwoo-section-card__actions">
+        <button class="smartwoo-account-button" id="edit-billing-address" data-action="editBilling">
+            <?php echo esc_html__( 'Edit Billing Address', 'smart-woo-service-invoicing' ); ?>
+        </button>
+    </div>
+</div>

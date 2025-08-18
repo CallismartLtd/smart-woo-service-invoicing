@@ -690,7 +690,7 @@ class SmartWoo_Product extends WC_Product {
 	public static function ajax_product_search() {
 		check_ajax_referer( 'search-products', 'security' );
 
-		$search_term = isset( $_GET['term'] ) ? sanitize_text_field( wp_unslash( $_GET['term'] ) ) : '';
+		$search_term = smartwoo_get_query_param( 'term' );
 
 		if ( ! $search_term ) {
 			wp_send_json( [ 'results' => [] ] );
@@ -701,8 +701,10 @@ class SmartWoo_Product extends WC_Product {
 			's'        => $search_term,
 		);
 
-		if ( isset( $_GET['exclude'] ) ) {
-			$args['exclude'] = array_map( 'absint', array( $_GET['exclude'] ) );
+		$exclude = smartwoo_get_query_param( 'exclude' );
+
+		if ( $exclude ) {
+			$args['exclude'] = array_map( 'absint', array( $exclude ) );
 		}
 
 		$products = self::get_all( $args );

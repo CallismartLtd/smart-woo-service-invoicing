@@ -47,8 +47,8 @@ class SmartWoo_Service_Database {
 	public static function get_all() {
 		global $wpdb;
 
-		$page	= ( isset( $_GET['paged'] ) && ! empty( $_GET['paged'] ) ) ? absint( $_GET['paged'] ) : 1; // phpcs:disable
-		$limit 	= ( isset( $_GET['limit'] ) && ! empty( $_GET['limit'] ) ) ? absint( $_GET['limit'] ) : 10; // phpcs:disable
+		$page	= smartwoo_get_query_param( 'paged', 1 );
+		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 		
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
@@ -165,7 +165,7 @@ class SmartWoo_Service_Database {
 	 * @since 2.0.12
 	 * @return array|null Array of services or null if parameters are invalid.
 	 */
-	public static function get_all_active( $page = 1, $limit = null ) {
+	public static function get_all_active( $page = 1, $limit = 25 ) {
 		if ( empty( $page ) ) {
 			return null; // Return null for invalid input.
 		}
@@ -293,11 +293,11 @@ class SmartWoo_Service_Database {
 	 * @param int $page  The current page being requested.
 	 * @param int $limit The limit for the current page.
 	 * @since 2.0.12
-	 * @return array|null Array of services or null if parameters are invalid.
+	 * @return SmartWoo_Service[] Array of services.
 	 */
 	public static function get_all_due( $page = 1, $limit = 10 ) {
 		if ( empty( $page ) ) {
-			return null; // Return null for invalid input.
+			$page = 1;
 		}
 
 		$offset = ( $page - 1 ) * $limit;
@@ -318,7 +318,7 @@ class SmartWoo_Service_Database {
 				WHERE (
 					`status` = %s
 					OR ( (`status` IS NULL OR `status` = %s)
-						AND `next_payment_date` <= CURDATE() AND `end_date` > CURDATE()
+						AND `next_payment_date` <= CURDATE() AND `end_date` >= CURDATE()
 					)
 					
 				
@@ -494,9 +494,9 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		// Check if search term is present in the URL parameters.
-		$search_term 	= isset( $_GET['search_term'] ) ? sanitize_text_field( wp_unslash( $_GET['search_term'] ) ) : wp_die( 'Search term missing' );
-        $limit  		= isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 10;
-		$page			= isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
+		$search_term 	= smartwoo_get_query_param( 'search_term', false ) || wp_die( 'Search term missing' );
+        $limit  		= smartwoo_get_query_param( 'limit', 10 );
+		$page			= smartwoo_get_query_param( 'paged', 1 );
 		$offset 		= ( $page - 1 ) * $limit;
 
 		// Try to retrieve the results from the cache.
@@ -664,7 +664,8 @@ class SmartWoo_Service_Database {
 	 * Get services that are within expiry threshold.
 	 * 
 	 * @param int $page Current request page.
-	 * @param int $limit Current request limit
+	 * @param int $limit Current request limit.
+	 * @return SmartWoo_Service[]
 	 */
 	public static function get_on_expiry_threshold( $page =  1, $limit = 10 ) {
 		global $wpdb;

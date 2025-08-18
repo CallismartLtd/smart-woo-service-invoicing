@@ -18,7 +18,7 @@ class SmartWoo_Service_Frontend_Template {
 	 */
 	public static function main_page() {	
 		$current_user			= wp_get_current_user();
-		$full_name				= $current_user->first_name . ' '. $current_user->last_name  ;
+		$full_name				= $current_user->display_name;
 		$user_id				= $current_user->ID;
 		$active_count			= smartwoo_count_active_services() + smartwoo_count_nr_services();
 		$due_for_renewal_count	= smartwoo_count_due_for_renewal_services();
@@ -144,17 +144,18 @@ class SmartWoo_Service_Frontend_Template {
 		} else { 
 			?><div class="smartwoo-page">
 				<h2><?php  __( 'Services', 'smart-woo-service-invoicing' ); ?></h2>
-				<?php echo wp_kses( self::mini_card( array( 'title' => 'My Subscriptions', 'limit' => 5 ) ), smartwoo_allowed_form_html() );?>
-				<div class="settings-tools-section">
-					<h2>Settings and Tools</h2>
-					<div id="swloader">Just a moment</div>
-					<div class="sw-button-container">
-						<a class="sw-blue-button" id="sw-billing-details">Billing Details</a>
-						<a class="sw-blue-button" id="sw-load-user-details">My Details</a>
-						<a class="sw-blue-button" id="sw-account-log">Account Logs</a>
-						<a class="sw-blue-button" id="sw-load-transaction-history">Transaction History</a>
+				<?php echo wp_kses( self::mini_card( array( 'title' => 'My Subscriptions', 'limit' => 5 ) ), smartwoo_allowed_form_html() ); ?>
+				<div class="settings-tools-section" id="smartwooSettingsContainer">
+					<h2><?php esc_html_e( 'Account Settings', 'smart-woo-service-invoicing' ); ?></h2>
+					<div class="sw-settings-button-container">
+						<button class="sw-client-dashboard-button" id="sw-billing-details" data-action="billingInfo"> <?php echo esc_html__( 'Billing Details', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-load-user-details" data-action="userInfo"> <?php echo esc_html__( 'My Details', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-account-log" data-action="accountLogs"> <?php echo esc_html__( 'Account Logs', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="sw-load-order-history" data-action="orderHistory"> <?php echo esc_html__( 'Order History', 'smart-woo-service-invoicing' ); ?></button>
+						<button class="sw-client-dashboard-button" id="view-payment-button" data-action="paymentInfo"> <?php echo esc_html__( 'Payment Methods', 'smart-woo-service-invoicing' ); ?></button>
 					</div>
 					<div id="ajax-content-container"></div>
+					<div id="new-smartwoo-loader"></div>
 				</div>
 			</div><?php
 		}
@@ -168,8 +169,8 @@ class SmartWoo_Service_Frontend_Template {
 
 		$pages			= apply_filters( 'smartwoo_subscription_pages', array() );
 		$current_page	= '';
-		$handler	= array( __CLASS__, 'main_page' );
-		$endpoints = SmartWoo_Config::instance()->get_query_vars();
+		$handler		= array( __CLASS__, 'main_page' );
+		$endpoints		= SmartWoo_Config::instance()->get_query_vars();
 
 		foreach ( $endpoints as $page ) {
 			if ( isset( $wp_query->query_vars[$page] ) ) {
@@ -210,9 +211,9 @@ class SmartWoo_Service_Frontend_Template {
 			'smartwoo_service_mini_card'
 		);
 
-		$output				= '<div class="smartwoo-mini-card">';
-		$output          	.= '<h2>' . esc_html( $atts['title'] )  . '</h2>';
-		$output				.= '<hr>';
+		$output	 = '<div class="smartwoo-mini-card">';
+		$output	.= '<h2>' . esc_html( $atts['title'] )  . '</h2>';
+		$output	.= '<hr>';
 		
 		$output	.= '<ul class="mini-card-content" limit="' . esc_attr( $atts['limit'] ) . '">';
 		$output	.= '<li class="smartwoo-skeleton"><span class="smartwoo-skeleton-text"></span></li>';
@@ -224,8 +225,6 @@ class SmartWoo_Service_Frontend_Template {
 		</div>';
 		$output .= '</div>';
 		return $output;
-
-
 	}
 
 	private static function login_page() {
