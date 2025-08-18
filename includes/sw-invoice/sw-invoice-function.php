@@ -342,7 +342,7 @@ function smartwoo_create_invoice( $args = array() ) {
 	$newInvoice->set_date_created( current_time( 'mysql' ) );
 
 	if ( 'unpaid' === strtolower( $parsed_args['status'] ) ) {
-		$order_id = smartwoo_generate_pending_order( $newInvoice->get_invoice_id() );
+		$order_id = smartwoo_generate_pending_order( $newInvoice );
 		$newInvoice->set_order_id( $order_id );
 	}
 
@@ -569,7 +569,7 @@ function smartwoo_invoice_page_url() {
   * Product deletion button.
   */
 function smartwoo_delete_invoice_button( $invoice_id ) {
-	return '<button title="Delete Invoice" class="delete-invoice-button" data-invoice-id="' . esc_attr( $invoice_id ) . '"><span class="dashicons dashicons-trash"></span></button>';
+	return '<button title="Delete Invoice" class="delete-invoice-button sw-icon-button-admin" data-invoice-id="' . esc_attr( $invoice_id ) . '"><span class="dashicons dashicons-trash"></span></button>';
 }
 
 // Add Ajax actions
