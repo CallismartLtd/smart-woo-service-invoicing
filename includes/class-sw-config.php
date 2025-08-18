@@ -256,7 +256,7 @@ class SmartWoo_Config{
         if ( is_admin() ) {           
             $our_pages = array( 'Dashboard', 'Invoices', 'Service Orders', 'Service Products', 'Settings' );
             if ( self::in_admin_page() ) {
-                wp_add_inline_style( 'smartwoo-inline', '#wpcontent { padding-left: 0 !important; }' );
+                wp_add_inline_style( 'smartwoo-inline', '#wpcontent { padding-left: 0 !important; } #screen-meta { z-index: 99 !important; }' );
                 wp_enqueue_style( 'woocommerce_admin_styles' );
             }
 
