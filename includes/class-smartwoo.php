@@ -878,19 +878,29 @@ final class SmartWoo {
                 wp_send_json_success( array( 'message' => 'Check outstanding invoice...','redirect_url' => smartwoo_invoice_preview_url( $has_invoice_id ) ) );
             }
 
-            $product_id     = $service->get_product_id();
-            $payment_status = 'unpaid';
             $date_due       = ( 'Expired' === $service_status ) ? SmartWoo_Date_Helper::create_from( $service->get_end_date() ): SmartWoo_Date_Helper::create_from( $service->get_next_payment_date() );
             $date_due       = $date_due->format( 'Y-m-d H:i:s' );
+            $inv_args	= array(
+                'user_id'		=> $service->get_user_id(), 
+                'product_id'	=> $service->get_product_id(), 
+                'status'		=> 'unpaid',
+                'type'			=> 'Service Renewal Invoice', 
+                'service_id'	=>  $service->get_service_id(),
+                'fee' 			=> 0,
+                'date_due'		=> $date_due,
+            );
 
-            // Generate Unpaid invoice
-            $new_invoice_id = smartwoo_create_invoice( get_current_user_id(), $product_id, $payment_status, $invoice_type, $service_id, null, $date_due );
+            $invoice = smartwoo_create_invoice( $inv_args );
 
-            if ( $new_invoice_id ) {
-                $the_invoice   = SmartWoo_Invoice_Database::get_invoice_by_id( $new_invoice_id );
-                do_action( 'smartwoo_service_reactivation_initiated', $the_invoice, $service );
-                $checkout_url = $the_invoice->pay_url();
-                wp_send_json_success( array( 'message' => 'Invoice created, redirecting to pay...','redirect_url' => $checkout_url ) );
+            if ( $invoice ) {
+                /**
+                 * Fires when the client generates a renewal invoice from the portal.
+                 * 
+                 * @param SmartWoo_Invoice $invoice The invoice object
+                 * @param SmartWoo_Service $service The service subscription object
+                 */
+                do_action( 'smartwoo_manual_invoice_created', $invoice, $service );
+                wp_send_json_success( array( 'message' => 'Invoice created, redirecting to pay...','redirect_url' => $invoice->pay_url() ) );
             }
         }
     }
