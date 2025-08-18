@@ -37,26 +37,25 @@ defined( 'ABSPATH' ) || exit;
                 </tr>
             </thead>
 
-            <tr>
-                <tbody>
-                    <?php foreach ( $all_invoices as $invoice ) : ?>
-                        <tr>
-                            <td><input type="checkbox" data-value="<?php echo esc_html( $invoice->get_invoice_id() );?>" class="sw-table-body-checkbox"></td>
-                            <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_type() ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_status() ); ?></td>
-                            <td><?php echo esc_html( $invoice->get_date_created() ); ?></td>
-                            <td>
-                                <a href="<?php echo esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ); ?>"><button title="Preview"><span class="dashicons dashicons-visibility"></span></button></a>
-                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>"><button title="Edit Invoice"><span class="dashicons dashicons-edit"></span></button></a>
-                                <a href="<?php echo esc_url( $invoice->download_url() ); ?>"><button title="Download Invoice"><span class="dashicons dashicons-download"></span></button></a>
-                                <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ) ?>
-                                <span id="sw-admin-spinner" style="text-align:center;"></span>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </tr>
+            
+            <tbody>
+                <?php foreach ( $all_invoices as $invoice ) : ?>
+                    <tr>
+                        <td><input type="checkbox" data-value="<?php echo esc_html( $invoice->get_invoice_id() );?>" class="sw-table-body-checkbox"></td>
+                        <td><?php echo esc_html( $invoice->get_invoice_id() ); ?></td>
+                        <td><?php echo esc_html( $invoice->get_type() ); ?></td>
+                        <td><?php echo esc_html( $invoice->get_status() ); ?></td>
+                        <td><?php echo esc_html( $invoice->get_date_created() ); ?></td>
+                        <td class="smartwoo-admin-table-td-options">
+                            <a class="sw-icon-button-admin" href="<?php echo esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ); ?>" title="<?php esc_html_e( 'Preview', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-visibility"></span></a>
+                            <a class="sw-icon-button-admin" href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>" title="<?php esc_html_e( 'Edit Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-edit"></span></a>
+                            <a class="sw-icon-button-admin" href="<?php echo esc_url( $invoice->download_url() ); ?>" title="<?php esc_html_e( 'Download Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-download"></span></a>
+                            <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ) ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+            
         </table>
     </div>
     <div id="swloader" style="background-color:#f1f1f100"></div>
