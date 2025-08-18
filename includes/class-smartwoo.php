@@ -58,6 +58,7 @@ final class SmartWoo {
         add_action( 'admin_post_smartwoo_login_form', array( $this, 'login_form' ) );
         add_action( 'admin_post_smartwoo_admin_download_invoice', array( __CLASS__, 'admin_download_invoice' ) );
         add_action( 'admin_post_smartwoo_mail_preview', array( __CLASS__, 'mail_preview' ) );
+        add_action( 'admin_post_smartwoo_print_invoice', array( __CLASS__, 'print_invoice' ) );
 
         add_action( 'woocommerce_order_details_before_order_table', array( $this, 'before_order_table' ) );
         
@@ -2018,6 +2019,22 @@ final class SmartWoo {
                 <?php
             }
         }
+        
+    }
+
+    /**
+     * Print user invoice
+     */
+    public static function print_invoice() {
+        if ( ! wp_verify_nonce( smartwoo_get_query_param( '_wpnonce' ) ) ) {
+            /* translators: %s: Invoice ID */
+            wp_die( sprintf( __( 'Expired link, please return to <a href="%s">invoice page</a>', 'smart-woo-service-invoicing' ), esc_html( smartwoo_invoice_preview_url( smartwoo_get_query_param( 'invoice_id' ) ) ) ) );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You do not have the required permission to print invoices', 'smart-woo-service-invoicing' ) );
+        }
+
+        smartwoo_pdf_invoice_template( smartwoo_get_query_param( 'invoice_id' ), 'I' );
         
     }
 

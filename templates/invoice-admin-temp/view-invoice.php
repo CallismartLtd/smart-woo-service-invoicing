@@ -17,7 +17,7 @@ smartwoo_set_document_title( 'Invoice Details');
     <div class="smartwoo-admin-invoice-view">
         <div class="smartwoo-admin-invoice-options">
             <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>" class="sw-icon-button-admin" title="<?php esc_html_e( 'Edit Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-edit"></span></a>
-            <a title="<?php esc_html_e( 'Print Invoice', 'smart-woo-service-invoicing' ); ?>" id="smartwoo-print-invoice-btn" class="sw-icon-button-admin" disabled><span class="dashicons dashicons-printer"></span></a>
+            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=smartwoo_print_invoice&invoice_id=' . $invoice->get_invoice_id() ) ) ); ?>" title="<?php esc_html_e( 'Print Invoice', 'smart-woo-service-invoicing' ); ?>" id="smartwoo-print-invoice-btn" class="sw-icon-button-admin"><span class="dashicons dashicons-printer"></span></a>
             <a href="<?php echo esc_url( $invoice->download_url( 'admin' ) ); ?>" class="sw-icon-button-admin" title="<?php esc_html_e( 'Download Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-download"></span></a>
             <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ); ?>
             <div id="swloader" style="background-color:#f1f1f100"></div>
