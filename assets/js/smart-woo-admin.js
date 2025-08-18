@@ -1469,15 +1469,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (deleteInvoiceBtns && deleteInvoiceBtns.length !== 0) {
         deleteInvoiceBtns.forEach((deleteInvoiceBtn)=>{
-            let siblings = deleteInvoiceBtn.parentElement.querySelectorAll('a button');
-            let invoiceId = deleteInvoiceBtn.getAttribute('data-invoice-id');
-            deleteInvoiceBtn.classList.add('sw-icon-button-admin');
-            siblings.forEach((Btn)=>{
-                Btn.classList.add('sw-icon-button-admin');
-    
-            });
             deleteInvoiceBtn.addEventListener('click', ()=>{
-                smartwooDeleteInvoice(invoiceId);
+                smartwooDeleteInvoice(deleteInvoiceBtn.getAttribute( 'data-invoice-id' ) );
             });
         });
 
@@ -1485,13 +1478,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (deleteProductIds && deleteProductIds.length !== 0) {
         deleteProductIds.forEach((deleteProductId)=>{
-            let siblings = deleteProductId.parentElement.querySelectorAll('a button');
             let productId = deleteProductId.getAttribute('data-product-id');
-            deleteProductId.classList.add('sw-icon-button-admin');
-            siblings.forEach((Btn)=>{
-                Btn.classList.add('sw-icon-button-admin');
-    
-            });
+ 
             deleteProductId.addEventListener('click', ()=>{
                 smartwooDeleteProduct(productId);
             });
