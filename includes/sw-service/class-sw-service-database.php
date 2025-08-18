@@ -318,7 +318,7 @@ class SmartWoo_Service_Database {
 				WHERE (
 					`status` = %s
 					OR ( (`status` IS NULL OR `status` = %s)
-						AND `next_payment_date` <= CURDATE() AND `end_date` > CURDATE()
+						AND `next_payment_date` <= CURDATE() AND `end_date` >= CURDATE()
 					)
 					
 				
