@@ -1512,7 +1512,7 @@ final class SmartWoo {
     }
 
     /**
-     * Sell Smart Woo Pro with 50% discount promo (no coupon required).
+     * Sell Smart Woo Pro with 80% discount promo (limited to first 30 sign-ups).
      */
     public static function sell_pro() {
         if ( self::pro_is_installed() ) {
@@ -1533,9 +1533,9 @@ final class SmartWoo {
             }
         }
 
-        // Stop showing after July 5
+        // Stop showing after September 6, 2025
         $today = current_time( 'timestamp' );
-        $end   = strtotime( '2025-07-06 00:00:00' );
+        $end   = strtotime( '2025-09-06 00:00:00' );
 
         if ( $today >= $end || ! $show_notification ) {
             return;
@@ -1543,9 +1543,9 @@ final class SmartWoo {
         ?>
             <div class="sw-dash-pro-sell-bg">
                 <div class="sw-pro-sell-content">
-                    <h2>🔥 Smart Woo Pro is now 50% Off</h2>
-                    <p>We’re running a special sales promo — from <strong>June 26 to July 5</strong>, you can get Smart Woo Pro at <strong>half the price</strong>.</p>
-                    <p>No coupon needed. Just upgrade and the discount is already applied.</p>
+                    <h2>🔥 Launch Promo: Smart Woo Pro at 80% OFF</h2>
+                    <p>We’re celebrating the launch of Smart Woo Pro with an exclusive early-bird offer. The first <strong>30 sign-ups</strong> get a massive <strong>80% discount</strong>.</p>
+                    <p>Hurry — once the 30 spots are gone or after <strong>September 6</strong>, this deal disappears!</p>
 
                     <div class="sw-pro-sell-buttons">
                         <button id="smartwoo-pro-dismiss-fornow" style="border: solid .5px red;">Dismiss</button>
@@ -1558,6 +1558,7 @@ final class SmartWoo {
             </div>
         <?php
     }
+
 
 
     /**
