@@ -6,7 +6,7 @@ Tested up to: 6.8
 Requires WooCommerce: 8.0
 WooCommerce tested up to: 9.9.5
 Requires PHP: 7.4
-Stable Tag: 2.4.2
+Stable Tag: 2.4.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -157,6 +157,27 @@ For release notes, upcoming features, and future updates, visit the [official re
 
 
 == Changelog ==
+= 2.4.3 2025-08-18 =
+**New Feature**
+- Introduced a tinymce for subscription asset editor.
+- Image gallery builder in service subscription asset editor, supports: Hover Overlay, Masonry, Card Style and Grid gallery types.
+- Audio playlist builder for service subscription assets.
+- Video playlist builder for service subscription assets.
+
+**Improved**
+- Client Portal UI.
+- Order history replaces transaction history in the client portal.
+- Account Settings component replaces the old Settings and tools section in the client portal.
+- Full client account management without leaving the client portal.
+- The automation handler now rubost, now handles overdue invoices.
+- Performance optimization.
+
+**Fixed**
+- Infinite payment reminder emails sent even when invoice is overdue.
+- Theme styles conflict in the client portals.
+
+**Tested**
+- PHP 8.4+
 
 = 2.4.2 - 2025-07-02 =
 **Fixed**
