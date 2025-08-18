@@ -187,6 +187,7 @@ For release notes, upcoming features, and future updates, visit the [official re
 * Image gallery builder in service subscription asset editor, supports: Hover Overlay, Masonry, Card Style and Grid gallery types.
 * Audio playlist builder for service subscription assets.
 * Video playlist builder for service subscription assets.
+* .
 
 **Improved**
 * Client Portal UI.
