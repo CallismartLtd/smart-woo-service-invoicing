@@ -1304,6 +1304,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let adminAutoRenewBtn       = document.querySelector( '#auto-renew-btn' );
     let smartwooProductDropdown = document.querySelector( '#service_products' );
     let smartwooKnowledgeBase   = document.querySelector( '.smartwoo-admin-knowledgebase' );
+    let proDiv          = document.querySelector('.sw-dash-pro-sell-bg');
+    
+    if (proDiv) {
+        setTimeout( () =>{
+            jQuery(proDiv).fadeIn();
+        }, 5000 );
+    }
 
     /**
      * The assets is downloadable checkbox.
@@ -2424,7 +2431,6 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
     let dashboardCount  = document.querySelectorAll('.sw-dash-content');
     let dashboardBtn    = document.getElementById('dashboardBtn');
     let contentDiv      = document.querySelector('.sw-dash-content-container');
-    let proDiv          = document.querySelector('.sw-dash-pro-sell-bg');
 
     // Loop through each dashboard statistic container and attach event listener
     dashboardCount.forEach((stat, index) => {
@@ -2442,12 +2448,6 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
         smartwooRemoveTable();  // Remove table when dashboard button is clicked
         jQuery(contentDiv).fadeIn().css('display', 'flex');// Show dashboard content
     });
-
-    if (proDiv) {
-        setTimeout( () =>{
-            jQuery(proDiv).fadeIn();
-        }, 5000 );
-    }
 });
 
 /**

@@ -100,6 +100,7 @@ final class SmartWoo {
         add_action( 'wp_ajax_smartwoo_save_client_details', array( __CLASS__, 'save_client_details' ) );
 
         add_action( 'smartwoo_admin_dash_footer', array( __CLASS__, 'sell_pro' ) );
+        add_action( 'admin_notices', array( __CLASS__, 'notice_manager' ) );
     }
 
     /** Service Subscription */
@@ -2018,6 +2019,31 @@ final class SmartWoo {
             }
         }
         
+    }
+
+    /**
+     * Manage admin notices
+     */
+    public static function notice_manager() {
+        $screen = get_current_screen();
+        if ( ! $screen ) {
+            return;
+        }
+
+        $target_screens = array(
+            'dashboard',
+            'plugins',
+            'themes',
+            'edit-product',
+            'edit-shop_order',
+        );
+        
+        if ( ! in_array( $screen->id, $target_screens, true ) && ! SmartWoo_Config::in_admin_page() ) {
+            return;
+        }
+
+        self::sell_pro();
+
     }
 
 }

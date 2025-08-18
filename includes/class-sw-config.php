@@ -344,12 +344,11 @@ class SmartWoo_Config{
 
             if ( self::in_admin_page() ) {
                 wp_enqueue_script( 'wc-enhanced-select' );
-                wp_enqueue_script( 'smartwoo-admin-script' );
                 wp_enqueue_script( 'smartwoo-jquery-timepicker' );
                 wp_enqueue_media();
                 wp_enqueue_editor();
             }
-            
+            wp_enqueue_script( 'smartwoo-admin-script' );
         }
     }
 
