@@ -177,15 +177,23 @@ use inline CSS to overide some styles
 }
 
 .sw-icon-button-admin {
-	border: 1px solid blue; 
+	display: inline-block;
+	background-color: #f1f1f1;
+	color: #333333;
+	border: 2px solid #dcdcde; 
 	margin: 3px;
 	cursor: pointer;
 	text-decoration: none;
-	border-radius: 2px;
+	border-radius: 4px;
+	padding: 4px 10px;
 }
 
+.sw-icon-button-admin[disabled],
 .sw-icon-button-admin.sw-not-allowed {
     cursor: not-allowed;
+	background-color: #eeeded;
+	color: #fb9898;
+	
 }
 
 .sw-invoice-editor-form-submit-button {
