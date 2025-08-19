@@ -181,6 +181,19 @@ class SmartWooEditor {
             el.querySelector( '.smartwoo-video-player__frame' )?.removeAttribute( 'style' );
             el.querySelector( '.smartwoo-play' )?.removeAttribute( 'style' );
             el.querySelector( '.smartwoo-pause' )?.setAttribute( 'style', 'display: none' );
+
+            if ( ! el.querySelector( '.smartwoo-video-nowplaying-info .smartwoo-video-playlist-toggle' ) ) {
+                // Playlist toggle for mobile screens.
+                const toggleSpan = document.createElement( 'span' );
+                toggleSpan.className = 'dashicons dashicons-playlist-video smartwoo-video-playlist-toggle';
+                el.querySelector( '.smartwoo-video-nowplaying-info' )?.appendChild( toggleSpan );
+            }
+
+            if ( ! el.querySelector( '.smartwoo-video-player-right .smartwoo-video-playlist-toggle' ) ) {
+                const closeIcon = document.createElement( 'span' );
+                closeIcon.className = 'dashicons dashicons-no smartwoo-video-playlist-toggle';
+                el.querySelector( '.smartwoo-video-player-right' ).prepend( closeIcon );
+            }
         });
 
         // Clean audio block.
@@ -197,13 +210,6 @@ class SmartWooEditor {
             el.querySelectorAll( '.smartwoo-gallery-item' ).forEach( gallery => gallery.classList.remove( 'dragging' ) );
             el.querySelectorAll( 'img' ).forEach( img => img.setAttribute( 'loading', 'lazy' ) );
         });
-
-        // Remove empty block elements (efficient single pass)
-        // body.querySelectorAll( 'p, h1, h2, h3, h4, h5, h6' ).forEach(el => {
-        //     if (!el.textContent.replace(/\u00A0/g, '').trim() && el.children.length === 0) {
-        //         el.remove();
-        //     }
-        // });
 
         e.content = body.innerHTML;        
     }
@@ -868,6 +874,8 @@ class SmartWooEditor {
             console.warn( 'Invalid playlist JSON:', e );
             return;
         }
+
+        container.querySelectorAll( '.smartwoo-video-playlist-toggle' ).forEach( el => el.remove() );
 
         const playlistEl = container.querySelector( '.smartwoo-video-player-playlist-container' );
         const videoPlayerRight = container.querySelector( '.smartwoo-video-player-right' );

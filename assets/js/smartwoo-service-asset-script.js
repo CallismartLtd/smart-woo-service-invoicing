@@ -456,6 +456,7 @@ class SmartwooVideoPlayer {
         // Now Playing info.
         this.currentTitleSpan   = el.querySelector('.smartwoo-current-title');
         this.currentArtistSpan  = el.querySelector('.smartwoo-current-artist');
+        this.playlistToggle     = el.querySelectorAll( '.smartwoo-video-playlist-toggle' );
 
         this.playlistItemsContainer = el.querySelector('ul.smartwoo-video-player-playlist-container');
         this.fullscreenToggle       = el.querySelector('.smartwoo-video-fullscreen-toggle');
@@ -464,7 +465,7 @@ class SmartwooVideoPlayer {
         this.playBtn        = el.querySelector('.smartwoo-play');
         this.pauseBtn       = el.querySelector('.smartwoo-pause');
         this.prevBtn        = el.querySelector('.smartwoo-prev');
-        this.nextBtn        = el.querySelector('.smartwoo-next');
+        this.nextBtn        = el.querySelector('.smartwoo-next');        
 
     }
 
@@ -893,6 +894,14 @@ class SmartwooVideoPlayer {
             if ( this.videoFrame ) this.videoFrame.classList.add( 'is-paused' );
         }
     }
+
+    /**
+     * Toggle the video playlist on mobile screens
+     */
+    togglePlaylist() {        
+        const playslistContainer = this.assetVideoPlayer.querySelector( '.smartwoo-video-player-right' );
+        playslistContainer.classList.toggle( 'is-active' );
+    }
     
     /**
      * Initializes all event listeners for the player.
@@ -1037,6 +1046,9 @@ class SmartwooVideoPlayer {
 
             lastTap = now;
         });
+
+        this.playlistToggle.forEach(el => el.addEventListener( 'click', this.togglePlaylist.bind(this) ) );
+
     }
 
     /**

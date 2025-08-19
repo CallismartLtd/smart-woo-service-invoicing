@@ -10,6 +10,7 @@
     padding: 10px;
     margin: 8px auto;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .smartwoo-audio-player {
@@ -129,7 +130,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 50%;
+    width: 60%;
     padding: 5px;
     
 }
@@ -213,29 +214,28 @@ ul.smartwoo-playlist li.smartwoo-playlist__item {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+    gap: 4px;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.5s ease-in-out;
     position: relative;
-    height: 30px;
+    min-height: 30px;
     width: 90%;
 }
 
 ul.smartwoo-playlist li.smartwoo-playlist__item:hover {
     background-color: #f0f0f0;
 }
-ul.smartwoo-playlist li.smartwoo-playlist__item:hover:before {
-    content: "\f522";
-    font-family: 'dashicons';
-    color: #4caf50;
-    margin-right: 10px;
-}
 
 ul.smartwoo-playlist li.smartwoo-playlist__item.is-active {
     background-color: #4caf50;
     color: #fff;
+}
+.smartwoo-playlist__title {
+    overflow-wrap: anywhere;
 }
 
 audio.smartwoo-audio {
@@ -276,6 +276,7 @@ audio.smartwoo-audio {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    overflow: hidden;
 }
 
 .smartwoo-video-player-container:focus {
@@ -292,11 +293,13 @@ audio.smartwoo-audio {
 }
 
 .smartwoo-video-player-right {
+    position: relative;
     width: 32%;
     box-shadow: 2px 4px 9px 2px rgb(0 0 0 / 22%);
     border-radius: 10px;
     padding: 5px;
     max-height: 400px;
+    background-color: #FFFFFF;
 }
 
 .smartwoo-video-player-right h3 {
@@ -345,6 +348,13 @@ video.smartwoo-video-player__video {
     background-color: #33333361;
     opacity: 0;
     transition: all .5s ease-in-out;
+}
+.smartwoo-video-playlist-toggle {
+    margin-right: 20px;
+    position: absolute;
+    right: 0;
+    font-size: 30px;
+    display: none;
 }
 .smartwoo-video-player__frame.is-paused .smartwoo-video-nowplaying-info,
 .smartwoo-video-player__frame.is-hovered .smartwoo-video-nowplaying-info {
@@ -872,4 +882,27 @@ video.smartwoo-video-player__video {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@media (min-width: 280px) and (max-width: 768px) {
+    body:not(#tinymce) .smartwoo-video-player-container {
+        position: relative;
+        flex-wrap: wrap-reverse;
+    }
+    body:not(#tinymce) .smartwoo-video-player-left {
+        width: 100%;
+    }
+    body:not(#tinymce) .smartwoo-video-player-right {
+        position: absolute;
+        right: 0;
+        width: 80%;
+        transform: translateX(100%);
+        transition: transform 0.5s ease-in-out;
+    }
+    body:not(#tinymce) .smartwoo-video-playlist-toggle {
+        display: inline;
+    }
+    body:not(#tinymce) .smartwoo-video-player-right.is-active {
+        transform: translateX(0);
+    }
 }
