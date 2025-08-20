@@ -1137,7 +1137,7 @@ final class SmartWoo {
         $invoice_is_paid = smartwoo_mark_invoice_as_paid( $invoice_id );
 
         if ( ! $service ) {
-             /**
+            /**
              * Fires when service renewal fails
              * 
              * @param string $reason Reason for the failure.
@@ -1180,10 +1180,33 @@ final class SmartWoo {
         $service->set_next_payment_date( $new_next_payment_date->format( 'Y-m-d') );
         $service->set_end_date( $new_end_date->format( 'Y-m-d') );
         $service->set_status( null ); // Renewed service is calculated automatically.
-        SmartWoo_Service_Database::update_service( $service );
-        do_action( 'smartwoo_service_renewed', $service );
+        $updated = SmartWoo_Service_Database::update_service( $service );
 
-        return true;
+        if ( $updated ) {
+
+            /**
+             * Fires when a service subscription is renewed.
+             */
+            do_action( 'smartwoo_service_renewed', $service );
+
+            /**
+             * Fires when the status of a subscription becomes active
+             * 
+             * @param SmartWoo_Service $service the service subscription object.
+             */
+            do_action( 'smartwoo_service_activated', $service );
+            return true;            
+        }
+
+        /**
+         * Fires when service renewal fails
+         * 
+         * @param string $reason Reason for the failure.
+         * @param SmartWoo_Service|false The service subscription object or false
+         */
+        do_action( 'smartwoo_service_renewal_failed', 'Unable to update records in the database.', $service  );
+            
+        
     }
 
     /**
@@ -1268,19 +1291,25 @@ final class SmartWoo {
              * @param SmartWoo_Service $expired_service.
              */
             do_action( 'smartwoo_expired_service_activated', $expired_service );
-            return true;
-        } else {
-            /**
-             * Fires when service renewal fails
-             * 
-             * @param string $reason Reason for the failure.
-             * @param SmartWoo_Service The service subscription object
-             */
-            do_action( 'smartwoo_service_renewal_failed', 'Unable to update records in the database.', $expired_service  );
 
-            return false;
+            /**
+             * Fires when the status of a subscription becomes active
+             * 
+             * @param SmartWoo_Service $service the service subscription object.
+             */
+            do_action( 'smartwoo_service_activated', $service );
+            return true;
         }
-               
+
+        /**
+         * Fires when service renewal fails
+         * 
+         * @param string $reason Reason for the failure.
+         * @param SmartWoo_Service The service subscription object
+         */
+        do_action( 'smartwoo_service_renewal_failed', 'Unable to update records in the database.', $expired_service  );
+
+        return false;  
     }
 
     /**
