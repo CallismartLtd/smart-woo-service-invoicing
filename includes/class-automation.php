@@ -142,9 +142,9 @@ class SmartWoo_Automation {
                      * Fires when an auto renewal invoice creation fails
                      * 
                      * @param SmartWoo_Invoice $invoice The invoice object.
-                     * @param SmartWoo_Service $service The service subscription object.
+                     * @param string $message The reason for the failure.
                      */
-                    do_action( 'smartwoo_auto_invoice_failed', $invoice, $service );
+                    do_action( 'smartwoo_auto_invoice_failed', $service, 'Invoice creation failed: database insertion error.' );
                 }
             }
         }
