@@ -104,7 +104,10 @@ use inline CSS to overide some styles
 	background-color: #3f8fe6;
 	color: rgb(236, 236, 13);
 }
-
+.sw-blue-button:disabled,
+.sw-red-button:disabled {
+	cursor: not-allowed;
+}
 
 .account-button {
 	margin: 0 10px;
