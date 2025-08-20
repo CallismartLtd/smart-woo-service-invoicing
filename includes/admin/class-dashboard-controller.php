@@ -419,7 +419,12 @@ class SmartWoo_Dashboard_Controller {
 		if ( in_array( $status, $deactivated_statuses, true ) ) {
 			do_action( 'smartwoo_service_deactivated', $service );
 		} else {
-			do_action( 'smartwoo_service_active', $service );
+            /**
+             * Fires when the status of a subscription becomes active
+             * 
+             * @param SmartWoo_Service $service the service subscription object.
+             */
+            do_action( 'smartwoo_service_activated', $service );
 		}
 
 		wp_send_json_success( array( 'message' => 'Service has been saved', 'redirect_url' => smartwoo_service_edit_url( $service->get_service_id() ) ) );
