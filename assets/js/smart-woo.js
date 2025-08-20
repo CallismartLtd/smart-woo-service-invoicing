@@ -20,7 +20,12 @@ function smartWooRemoveSpinner(spinnerElement) {
 	spinnerElement?.remove();
 	spinnerIsactive = false;
 }
-
+/**
+ * Show a popup notification.
+ * 
+ * @param {String} message Th message to be shown.
+ * @param {Number} duration The duration of the notification in miliseconds.
+ */
 function showNotification(message, duration = 1000) {
     // Create a div element for the notification
     const notification = document.createElement('div');
