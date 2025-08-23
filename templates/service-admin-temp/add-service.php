@@ -52,10 +52,10 @@ defined( 'ABSPATH' ) || exit;
 					<div class="sw-product-download-fields">
 						<input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
 						<input type="text" class="fileUrl" name="sw_downloadable_file_urls[]" smartwoo-media-url placeholder="File URL" />
-						<button class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
+						<button type="button" class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
 					</div>
 					
-					<button class="button" id="add-field"> <?php esc_html_e( 'Add File', 'smart-woo-service-invoicing' );?></button>   
+					<button type="button" class="button" id="add-field"> <?php esc_html_e( 'Add File', 'smart-woo-service-invoicing' );?></button>   
 					
 					<div class="sw-service-assets-downloads-meta">
 						<div class="sw-service-form-row">
@@ -89,7 +89,7 @@ defined( 'ABSPATH' ) || exit;
 						<textarea type="text" class="smartwoo-asset-editor-ui" name="additional_asset_values[]" placeholder="Start building: rich text, immersive audio & video playlists, stunning image galleries, custom HTML, or shortcodes."></textarea>
 						
 					</div>
-					<button id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
+					<button type="button" id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
 				</div>
 				
 			</div>
