@@ -53,7 +53,7 @@ defined( 'ABSPATH' ) || exit;
                                 <div class="sw-product-download-fields">
                                     <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" value="<?php echo esc_html( $file_name ); ?>" placeholder="File Name"/>
                                     <input type="text" class="fileUrl" name="sw_downloadable_file_urls[]" value="<?php echo esc_html( $url ); ?>" smartwoo-media-url placeholder="File URL" />
-                                    <button class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
+                                    <button type="button" class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
                                     <span type="button" class="dashicons dashicons-dismiss swremove-field"></span>
                                 </div>
                             <?php endforeach; ?>
@@ -62,11 +62,11 @@ defined( 'ABSPATH' ) || exit;
                             <div class="sw-product-download-fields">
                                 <input type="text" class="sw-filename" name="sw_downloadable_file_names[]" placeholder="File Name"/>
                                 <input type="text" class="fileUrl" name="sw_downloadable_file_urls[]" smartwoo-media-url placeholder="File URL" />
-                                <button class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
+                                <button type="button" class="smartwooOpenWpMedia button"><?php esc_html_e( 'Choose file', 'smart-woo-service-invoicing' ); ?></button>
                             </div>
                         <?php endif; ?>
 
-                        <button class="button" id="add-field"> <?php esc_html_e( 'Add File', 'smart-woo-service-invoicing' );?></button>   
+                        <button type="button" class="button" id="add-field"> <?php esc_html_e( 'Add File', 'smart-woo-service-invoicing' );?></button>   
                         
                         <div class="sw-service-assets-downloads-meta">
                             <div class="sw-service-form-row">
@@ -119,7 +119,7 @@ defined( 'ABSPATH' ) || exit;
                             </div>
                         <?php endif;?>
                         
-                        <button id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
+                        <button type="button" id="more-addi-assets" class="button"><?php esc_html_e( 'Add Asset', 'smart-woo-service-invoicing' );?></button> 
                     </div>
                     
                 </div>
