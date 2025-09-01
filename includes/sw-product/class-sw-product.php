@@ -78,6 +78,10 @@ class SmartWoo_Product extends WC_Product {
 		add_action( 'wp_ajax_smartwoo_delete_product', array( __CLASS__, 'ajax_delete' ) );
 		add_action( 'wp_ajax_smartwoo_json_search_sw_products', array( __CLASS__, 'ajax_product_search' ) );
 		add_action( 'woocommerce_before_shop_loop_item', array( __CLASS__, 'add_product_config_data' ), 4 );
+		add_filter( 'woocommerce_rest_prepare_product_object', array( __CLASS__, 'filter_woo_rest_response' ), 10, 3 );
+
+		// filter the new store API response.
+		add_action( 'init', array( __CLASS__, 'store_api_response' ), 99 );
 
 	}
 
@@ -720,5 +724,78 @@ class SmartWoo_Product extends WC_Product {
 		wp_send_json( $results );
 	}
 
+	/**
+	 * Filter Woo REST API response to include custom fields.
+	 * 
+	 * @param WP_REST_Response $response The response object.
+	 * @param WC_Product $product The product object.
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response The modified response object.
+	 */
+	public static function filter_woo_rest_response( $response, $product, $request ) {
+		if ( ! $product || ! ( $product instanceof self ) ) {
+			return $response;
+		}
+		$data = $response->get_data();
+		$data['sign_up_fee'] = $product->get_sign_up_fee();
+		$data['billing_cycle'] = $product->get_billing_cycle();
+
+		$data['grace_period_number'] = $product->get_grace_period_number();
+		$data['grace_period_unit'] = $product->get_grace_period_unit();
+		$data['is_smartwoo_product'] = true;
+		$response->set_data( $data );
+		return $response;
+	}
+
+	/**
+	 * Filter the new Store API response to include custom fields.
+	 */
+	public static function store_api_response() {
+		if ( ! function_exists( 'woocommerce_store_api_register_endpoint_data' ) ) {
+			return;
+		}
+
+		$args = [
+			'endpoint'        => 'product',
+			'namespace'       => 'smartwoo',
+			'schema_callback' => function() {
+				return [
+					'billing_cycle' => [
+						'description' => __( 'Billing cycle of SmartWoo product.', 'smartwoo' ),
+						'type'        => 'string',
+						'context'     => [ 'view', 'edit' ],
+					],
+					'sign_up_fee'   => [
+						'description' => __( 'Sign-up fee for SmartWoo product.', 'smartwoo' ),
+						'type'        => 'number',
+						'context'     => [ 'view', 'edit' ],
+					],
+					'grace_period_number' => [
+						'description' => __( 'Grace period number for SmartWoo product.', 'smartwoo' ),
+						'type'        => 'integer',
+						'context'     => [ 'view', 'edit' ],
+					],
+					'grace_period_unit' => [
+						'description' => __( 'Grace period unit for SmartWoo product.', 'smartwoo' ),
+						'type'        => 'string',
+						'context'     => [ 'view', 'edit' ],
+					],
+				];
+			},
+			'data_callback'   => function( $product ) {
+				if ( $product instanceof self ) {
+					return [
+						'billing_cycle'			=> $product->get_billing_cycle(),
+						'sign_up_fee'			=> $product->get_sign_up_fee(),
+						'grace_period_number'	=> $product->get_grace_period_number(),
+						'grace_period_unit'		=> $product->get_grace_period_unit(),
+					];
+				}
+				return [];
+			},
+		];
+
+		woocommerce_store_api_register_endpoint_data( $args );
+	}
 }
 SmartWoo_Product::listen();
