@@ -11,7 +11,7 @@
 **Requires WooCommerce:** 8.0
 **WooCommerce tested up to:** 9.9.5
 **Requires PHP:** 7.4
-**Stable Tag:** 2.4.2
+**Stable Tag:** 2.4.4
 **License:** GPLv3
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -180,6 +180,12 @@ For release notes, upcoming features, and future updates, visit the [official re
 ---
 
 ## Changelog
+
+## 2.4.4 2025-09-11
+**Improved**
+* Performance optimization.
+* REST API response for WooCommerce product type query.
+* Support for the WooCommerce store API
 
 ### 2.4.3 2025-08-18
 **New Feature**
