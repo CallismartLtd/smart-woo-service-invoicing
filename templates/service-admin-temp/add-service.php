@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="smart-woo-service-form-page">
+<div class="smartwoo-admin-page-content smart-woo-service-form-page">
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
             <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
         <?php elseif ( $success = smartwoo_get_form_success() ): ?>
