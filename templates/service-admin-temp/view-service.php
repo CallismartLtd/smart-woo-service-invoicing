@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 
-<div class="sw-admin-view-details">
+<div class="smartwoo-admin-page-content sw-admin-view-details">
     <?php if ( ! $service ) : ?>
         
         <?php printf(
