@@ -8,13 +8,14 @@
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
-smartwoo_set_document_title( 'Invoice Details');
-?>
-<?php if ( ! $invoice ) : ?>
-    <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted invoice <a href="' . admin_url( 'admin.php?page=sw-invoices') .'">Back</a>' ) ); ?>
+smartwoo_set_document_title( 'Invoice Details'); ?>
 
-<?php else: ?>
-    <div class="smartwoo-admin-invoice-view">
+<div class="smartwoo-admin-page-content smartwoo-admin-invoice-view">
+    <?php if ( ! $invoice ) : ?>
+        <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted invoice <a href="' . admin_url( 'admin.php?page=sw-invoices') .'">Back</a>' ) ); ?>
+
+    <?php else: ?>
+    
         <div class="smartwoo-admin-invoice-options">
             <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>" class="sw-icon-button-admin" title="<?php esc_html_e( 'Edit Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-edit"></span></a>
             <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=smartwoo_print_invoice&invoice_id=' . $invoice->get_invoice_id() ) ) ); ?>" title="<?php esc_html_e( 'Print Invoice', 'smart-woo-service-invoicing' ); ?>" id="smartwoo-print-invoice-btn" class="sw-icon-button-admin"><span class="dashicons dashicons-printer"></span></a>
@@ -107,21 +108,21 @@ smartwoo_set_document_title( 'Invoice Details');
                                 <tr>
                                     <td><?php echo esc_html( $item ); ?></td>
                                     <td><?php echo esc_html( $data['quantity'] ); ?></td>
-                                    <td><?php echo esc_html( smartwoo_price( $data['price'] ) ); ?></td>
-                                    <td><?php echo esc_html( smartwoo_price( $data['total'] ) ); ?></td>
+                                    <td><?php echo esc_html( smartwoo_price( $data['price'], array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
+                                    <td><?php echo esc_html( smartwoo_price( $data['total'], array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                             <tr>
                                 <td colspan="3" style="text-align:right;"><strong><?php echo esc_html__( 'Subtotal:', 'smart-woo-service-invoicing' ); ?></strong></td>
-                                <td><?php echo esc_html( smartwoo_price( $invoice->get_subtotal() ) ); ?></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_subtotal(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                             </tr>
                             <tr>
                                 <td colspan="3" style="text-align:right;"><strong><?php echo esc_html__( 'Discount:', 'smart-woo-service-invoicing' ); ?></strong></td>
-                                <td><?php echo esc_html( smartwoo_price( $invoice->get_discount() ) ); ?></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_discount(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                             </tr>
                             <tr>
                                 <td colspan="3" style="text-align:right;"><strong><?php echo esc_html__( 'Total:', 'smart-woo-service-invoicing' ); ?></strong></td>
-                                <td><?php echo esc_html( smartwoo_price( $invoice->get_totals() ) ); ?></td>
+                                <td><?php echo esc_html( smartwoo_price( $invoice->get_totals(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -197,6 +198,6 @@ smartwoo_set_document_title( 'Invoice Details');
                 </div>
             </div>
         </div>
-    </div>
-
-<?php endif; ?>
+    
+    <?php endif; ?>
+</div>
