@@ -264,8 +264,6 @@ class SmartWoo_Admin_Menu {
 					<?php endif;?>
 				</div>
 			</div>
-			<div style="margin-top: 100px"></div>
-
 		<?php
 	}
 
