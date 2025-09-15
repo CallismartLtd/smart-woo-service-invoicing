@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 smartwoo_set_document_title( 'Related Service');
 ?>
-<div class="sw-admin-view-details">
+<div class="smartwoo-admin-page-content sw-admin-view-details">
     <?php if ( ! $invoice ) : ?>
         <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid or deleted invoice' ) ); ?>
         <?php return; ?>
