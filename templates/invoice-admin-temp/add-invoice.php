@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 smartwoo_set_document_title( 'Add New Invoice' );
 ?>
-<div class="sw-admin-view-details">
+<div class="smartwoo-admin-page-content sw-admin-view-details">
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
         <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
     <?php elseif ( $success = smartwoo_get_form_success() ): ?>
