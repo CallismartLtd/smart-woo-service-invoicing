@@ -1509,17 +1509,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (adminDashHeader ) {
-        let wpHelpTab = document.getElementById('contextual-help-link-wrap');
-        let wpHelpDiv = document.getElementById('contextual-help-wrap');
-        let wpScreen  = document.querySelector('.contextual-help-tabs');
-        let wpLinks  = document.querySelector('#screen-meta-links');
-        if (wpHelpTab) {
-            
-            wpLinks.style.marginTop = '70px';
-            wpLinks.style.marginBottom = '10px';
-            wpHelpDiv.style.zIndex = '3';
-            wpScreen.style.backgroundColor = '#ffffff';
-        }
         document.addEventListener('scroll', ()=>{
             let scrollUp = window.scrollY > 0;
             if( scrollUp ) {
