@@ -494,7 +494,7 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		// Check if search term is present in the URL parameters.
-		$search_term 	= smartwoo_get_query_param( 'search_term', false ) || wp_die( 'Search term missing' );
+		$search_term 	= smartwoo_get_query_param( 'search_term', null ) ?? wp_die( 'Search term missing' );
         $limit  		= smartwoo_get_query_param( 'limit', 10 );
 		$page			= smartwoo_get_query_param( 'paged', 1 );
 		$offset 		= ( $page - 1 ) * $limit;
@@ -510,7 +510,7 @@ class SmartWoo_Service_Database {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$query = $wpdb->prepare( 
 				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . "
-				WHERE `id` LIKE %s 
+				WHERE `id` LIKE %d 
 				OR `user_id` LIKE %s 
 				OR `service_name` LIKE %s 
 				OR `service_url` LIKE %s 
@@ -531,7 +531,6 @@ class SmartWoo_Service_Database {
 				$limit,
 				$offset
 			);
-
 			// Execute the query.
 			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
@@ -704,13 +703,12 @@ class SmartWoo_Service_Database {
 		}
 
 		$data = array(
-			'user_id'           => absint( $service->getUserId() ),
+			'user_id'           => absint( $service->get_user_id() ),
 			'product_id'        => absint( $service->get_product_id() ),
 			'service_name'      => sanitize_text_field( $service->get_name() ),
 			'service_url'       => sanitize_url( $service->get_service_url(), array( 'http', 'https') ),
 			'service_type'      => sanitize_text_field( $service->get_type() ),
 			'service_id'        => sanitize_text_field( $service->get_service_id() ),
-			'invoice_id'        => sanitize_text_field( $service->get_invoice_id() ),
 			'start_date'        => sanitize_text_field( $service->get_start_date() ),
 			'end_date'          => sanitize_text_field( $service->get_end_date() ),
 			'next_payment_date' => sanitize_text_field( $service->get_next_payment_date() ),
@@ -726,7 +724,6 @@ class SmartWoo_Service_Database {
 			'%s', // service_url
 			'%s', // service_type
 			'%s', // service_id
-			'%s', // invoice_id
 			'%s', // start_date
 			'%s', // end_date
 			'%s', // next_payment_date
@@ -739,7 +736,8 @@ class SmartWoo_Service_Database {
 		$saved = $wpdb->insert( SMARTWOO_SERVICE_TABLE, $data, $data_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		
 		if ( $saved ) {
-			SmartWoo::count_all_services();
+			self::save_all_metadata( $service );
+			self::count_all();
 			$service->set_id( $wpdb->insert_id );
 
 			/**
@@ -767,12 +765,11 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 
 		$data 		= array(
-			'user_id'           => absint( $service->getUserId() ),
+			'user_id'           => absint( $service->get_user_id() ),
 			'product_id'        => absint( $service->get_product_id() ),
 			'service_name'      => sanitize_text_field( $service->get_name() ),
 			'service_url'       => esc_url_raw( $service->get_service_url() ),
 			'service_type'      => sanitize_text_field( $service->get_type() ),
-			'invoice_id'        => sanitize_text_field( $service->get_invoice_id() ),
 			'start_date'        => sanitize_text_field( $service->get_start_date() ),
 			'end_date'          => sanitize_text_field( $service->get_end_date() ),
 			'next_payment_date' => sanitize_text_field( $service->get_next_payment_date() ),
@@ -787,7 +784,6 @@ class SmartWoo_Service_Database {
 			'%s', // service_name
 			'%s', // service_url
 			'%s', // service_type
-			'%s', // invoice_id
 			'%s', // start_date
 			'%s', // end_date
 			'%s', // next_payment_date
@@ -805,12 +801,67 @@ class SmartWoo_Service_Database {
 		);
 
 		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		self::save_all_metadata( $service );
 		delete_transient( 'smartwoo_print_expiry_notice_' . $service->get_id() );
 		delete_transient( 'smartwoo_status_' . $service->get_service_id() );
 		wp_cache_delete( 'smartwoo_status_' . $service->get_service_id() );
 		return $updated !== false;
 	}
 
+	/**
+	 * Save or update all service meta data to the database.
+	 * 
+	 * @param SmartWoo_Service $service
+	 */
+	public static function save_all_metadata( SmartWoo_Service $service ) {
+		global $wpdb;
+		$table_name = SMARTWOO_SERVICE_META_TABLE;
+		$meta_data	= $service->get_all_meta();
+		$updated = 0;
+		foreach( $meta_data as $name => $value ) {
+			$data = array(
+				'meta_name'		=> $name,
+				'meta_value'	=> $value, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
+				'service_id'	=> $service->get_service_id()
+			);
+
+			$data_format = [];
+			foreach( $data as $v ) {
+				$data_format[] = self::get_data_format( $v );
+			}
+
+			$data_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( "SELECT `meta_id` FROM {$table_name} WHERE `service_id` = %s AND `meta_name` = %s", $service->get_service_id(), $name )// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- False positive, query is prepared
+			);
+
+			if ( $data_exists ) {
+				$where = array( 'service_id' => $service->get_service_id(), 'meta_name' => $name );
+				if ( $wpdb->update( $table_name, $data, $where, $data_format, array( '%s' ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$updated++;
+				}
+
+				continue;
+			} elseif ( $wpdb->insert( $table_name, $data, $data_format ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$updated++;
+	
+			}
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * Get All Metadata.
+	 * 
+	 * @return array
+	 */
+	public static function get_all_metadata( SmartWoo_Service $service ) {
+		global $wpdb;
+		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_META_TABLE ." WHERE `service_id` = %s", $service->get_service_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return ( ! empty( $results ) ) ?  $results : array();
+	}
 
 	/**
 	 * Get the data format for a given value.
@@ -908,6 +959,8 @@ class SmartWoo_Service_Database {
 		$assets_obj = new SmartWoo_Service_Assets();
 		$assets_obj->set_service_id( $service_id );
 		$assets_obj->delete_all();
+		self::delete_all_meta( $existing_service );
+
 		/**
 		 * Delete all invoices.
 		 */
@@ -916,7 +969,29 @@ class SmartWoo_Service_Database {
 		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		delete_transient( 'smartwoo_status_' . $service_id );
 		wp_cache_delete( 'smartwoo_status_' . $service_id );
-		SmartWoo::count_all_services();
+		
+		self::count_all()();
+		return $deleted !== false;
+	}
+
+	/**
+	 * Delete All Metadata
+	 */
+	public static function delete_all_meta( SmartWoo_Service $service ) {
+		global $wpdb;
+		$deleted	= $wpdb->delete( SMARTWOO_SERVICE_META_TABLE, array( 'service_id' => $service->get_service_id() ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $deleted !== false;
+	}
+
+	/**
+	 * Delete a single metadata from the database.
+	 * 
+	 * @param string $service_id The service public ID.
+	 * @param string $meta_name The meta name.
+	 */
+	public static function delete_meta( $service_id, $meta_name ) {
+		global $wpdb;
+		$deleted	= $wpdb->delete( SMARTWOO_SERVICE_META_TABLE, array( 'service_id' => $service_id, 'meta_name' => $meta_name ), array( '%s', '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $deleted !== false;
 	}
 }
