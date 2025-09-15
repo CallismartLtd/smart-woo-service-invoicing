@@ -309,8 +309,10 @@ class SmartWoo_Invoice {
 	 * @param string $date_created.
 	 */
 	public function set_date_created( $date ){
-		if ( 'now' === $date || '0000-00-00 00:00:00' === $date || empty( $date ) ) {
+		if ( 'now' === $date ) {
 			$this->date_created = current_time( 'mysql' );
+		} elseif( '0000-00-00 00:00:00' === $date || empty( $date ) ) {
+			$this->date_paid = '';
 		} else {
 			$this->date_created = sanitize_text_field( wp_unslash( $date ) );		
 		}
@@ -322,8 +324,11 @@ class SmartWoo_Invoice {
 	 * @param string $date
 	 */
 	public function set_date_paid( $date ) {
-		if ( 'now' === $date || '0000-00-00 00:00:00' === $date || empty( $date ) ) {
+
+		if ( 'now' === $date ) {
 			$this->date_paid = current_time( 'mysql' );
+		} elseif( '0000-00-00 00:00:00' === $date || empty( $date ) ) {
+			$this->date_paid = '';
 		} else {
 			$this->date_paid = sanitize_text_field( wp_unslash( $date ) );
 		}
@@ -335,8 +340,10 @@ class SmartWoo_Invoice {
 	 * @param string $date
 	 */
 	public function set_date_due( $date ) {
-		if ( 'now' === $date || '0000-00-00 00:00:00' === $date || empty( $date ) ) {
+		if ( 'now' === $date ) {
 			$this->date_due = current_time( 'mysql' );
+		} elseif( '0000-00-00 00:00:00' === $date || empty( $date ) ) {
+			$this->date_paid = '';
 		} else {
 			$this->date_due = sanitize_text_field( wp_unslash( $date ) );
 		}
@@ -455,9 +462,6 @@ class SmartWoo_Invoice {
 		$GLOBALS['product']	= $product;
 
 		return $product;
-	}
-	public function getProductId() {
-		return $this->get_product_id();
 	}
 
 	/**
@@ -992,15 +996,11 @@ class SmartWoo_Invoice {
 		 * Set up metadata
 		 */
 		$all_meta = SmartWoo_Invoice_Database::get_all_metadata( $self );
-		$metadata = [];
 
-		if ( ! empty( $all_meta ) ) {
-			foreach( $all_meta as $meta ) {
-				$metadata[$meta['meta_name']] = $meta['meta_value'];
-			}
+		foreach( $all_meta as $meta ) {
+			$self->set_meta( $meta['meta_name'], $meta['meta_value'] );
 		}
 
-		$self->meta_data = $metadata;
 		return $self;
 	}
 
@@ -1035,11 +1035,12 @@ class SmartWoo_Invoice {
 
 	/**
 	 * Get a meta data on an invoice object.
+	 * 
 	 * @param int|string $meta_name The meta name.
 	 * @param mixed $return The default value to return, defaults to false.
 	 * @return mixed
 	 */
-	public function get_meta( $meta_name, $return = false ) {
+	public function get_meta( $meta_name, $return = null ) {
 		return isset( $this->meta_data[$meta_name] ) ? $this->meta_data[$meta_name] : $return;
 	}
 
