@@ -41,6 +41,7 @@ class SmartWoo_Config{
         // Define the database table names as constants.
         global $wpdb;
         define( 'SMARTWOO_SERVICE_TABLE', $wpdb->prefix . 'sw_service' );
+        define( 'SMARTWOO_SERVICE_META_TABLE', $wpdb->prefix . 'sw_service_meta' );
         define( 'SMARTWOO_INVOICE_TABLE', $wpdb->prefix . 'sw_invoice' );
         define( 'SMARTWOO_INVOICE_META_TABLE', $wpdb->prefix . 'sw_invoice_meta' );
         define( 'SMARTWOO_ASSETS_TABLE', $wpdb->prefix . 'sw_assets' );
