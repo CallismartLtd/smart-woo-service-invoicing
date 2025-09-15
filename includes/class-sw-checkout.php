@@ -110,6 +110,7 @@ class SmartWoo_Checkout {
 			$invoice->set_order_id( $order->get_id() );
 			$invoice->set_date_due( 'now' );
 			$invoice->set_payment_method( $order->get_payment_method() );
+			$invoice->set_currency( $order->get_currency() );
 
 			$new_invoice_id = $invoice->save();
 
