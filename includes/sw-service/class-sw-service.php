@@ -24,76 +24,70 @@ class SmartWoo_Service {
 	 * 
 	 * @var int $id
 	 */
-	private $id;
+	protected $id;
 
 	/**
 	 * The ID of user associated with the service
 	 * 
 	 * @var int $user_id
 	 */
-	private $user_id;
+	protected $user_id;
 
 	/**
 	 * The product id
 	 * 
 	 * @var int $product_id
 	 */
-	private $product_id;
+	protected $product_id;
 
 	/**
 	 * The Service Name
 	 * 
 	 * @var string $service_name
 	 */
-	private $service_name;
+	protected $service_name;
 
 	/**
 	 * Service URL
 	 * 
 	 * @var string $service_url Service Url when the service is an external service.
 	 */
-	private $service_url;
+	protected $service_url;
 
 	/**
 	 * Service type
 	 * 
 	 * @var string $service_type
 	 */
-	private $service_type;
+	protected $service_type;
 
 	/**
 	 * Public service ID
 	 * 
 	 * @var string $service_id
 	 */
-	private $service_id;
-
-	/**
-	 * Deprecated property
-	 * @var string $invoice_id
-	 */
-	private $invoice_id;
+	protected $service_id;
 
 	/**
 	 * Service start date
 	 * 
 	 * @var string $start_date
 	 */
-	private $start_date;
+	protected $start_date;
 
 	/**
 	 * Service End Date
 	 * 
 	 * @var string $end_date
 	 */
-	private $end_date;
+	protected $end_date;
 
 	/**
 	 * Service Due date or Next payment date
 	 * 
 	 * @var string $next_payment_date
 	 */
-	private $next_payment_date;
+	protected $next_payment_date;
 
 	/**
 	 * Date created.
@@ -101,21 +95,21 @@ class SmartWoo_Service {
 	 * @var string $date_created
 	 * @since 2.4.3
 	 */
-	private $date_created;
+	protected $date_created;
 
 	/**
 	 * Service billing cycle
 	 * 
 	 * @var string $billing_cycle
 	 */
-	private $billing_cycle;
+	protected $billing_cycle;
 
 	/**
 	 * Service Status
 	 * 
 	 * @var string $status
 	 */
-	private $status;
+	protected $status;
 
 	/**
 	 * Service Subscription Assets
@@ -123,7 +117,14 @@ class SmartWoo_Service {
 	 * @since 2.0.0
 	 * @var SmartWoo_Service_Assets
 	 */
-	private $assets = array();
+	protected $assets = array();
+
+	/**
+	 * Meta data
+	 * 
+	 * @var array $meta_data 
+	 */
+	protected $meta_data = array();
 
 	/**
 	 * SmartWoo_Service constructor.
@@ -162,10 +163,6 @@ class SmartWoo_Service {
 		}
 	}
 
-	public function setUserId( $user_id ) {
-		$this->set_user_id( $user_id );
-	}
-
 	/**
 	 * Set product ID
 	 * 
@@ -179,12 +176,6 @@ class SmartWoo_Service {
 		}
 	}
 
-	public function setProductId( $product_id ){
-		$this->set_product_id( $product_id );
-	}
-
-
-
 	/**
 	 * Set the name of the service.
 	 *
@@ -192,10 +183,6 @@ class SmartWoo_Service {
 	 */
 	public function set_name( $service_name ) {
 		$this->service_name = sanitize_text_field( wp_unslash( $service_name ) );
-	}
-
-	public function setServiceName( $service_name ) {
-		$this->set_name( $service_name );
 	}
 
 	/**
@@ -207,10 +194,6 @@ class SmartWoo_Service {
 		$this->service_url = sanitize_url( $service_url, array( 'https', 'http' ) );
 	}
 
-	public function setServiceUrl( $service_url ) {
-		$this->set_service_url( $service_url );
-	}
-
 	/**
 	 * Set the type of the service.
 	 *
@@ -218,10 +201,6 @@ class SmartWoo_Service {
 	 */
 	public function set_type( $service_type ) {
 		$this->service_type = sanitize_text_field( wp_unslash( $service_type ) );
-	}
-
-	public function setServiceType( $service_type ) {
-		$this->set_type( $service_type );
 	}
 
 	/**
@@ -234,29 +213,12 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Set the invoice ID associated with the service.
-	 *
-	 * @param string $invoice_id Invoice ID associated with the service.
-	 */
-	public function set_invoice_id( $invoice_id ) {
-		$this->invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
-	}
-
-	public function setInvoiceId( $invoice_id ) {
-		$this->set_invoice_id( $invoice_id );
-	}
-
-	/**
 	 * Set the start date of the service.
 	 *
 	 * @param string $start_date Start date of the service.
 	 */
 	public function set_start_date( $start_date ) {
 		$this->start_date = sanitize_text_field( wp_unslash( $start_date ) );
-	}
-
-	public function setStartDate( $start_date ) {
-		$this->set_start_date( $start_date );
 	}
 
 	/**
@@ -267,9 +229,6 @@ class SmartWoo_Service {
 	public function set_end_date( $end_date ) {
 		$this->end_date = sanitize_text_field( wp_unslash( $end_date ) );
 	}
-	public function setEndDate( $end_date ) {
-		$this->set_end_date( $end_date );
-	}
 
 	/**
 	 * Set the date of the next payment for the service.
@@ -278,10 +237,6 @@ class SmartWoo_Service {
 	 */
 	public function set_next_payment_date( $next_payment_date ) {
 		$this->next_payment_date = sanitize_text_field( wp_unslash( $next_payment_date ) );
-	}
-
-	public function setNextPaymentDate( $next_payment_date ) {
-		$this->set_next_payment_date( $next_payment_date );
 	}
 
 	/**
@@ -304,10 +259,6 @@ class SmartWoo_Service {
 		}
 	}
 
-	public function setBillingCycle( $billing_cycle ) {
-		$this->set_billing_cycle( $billing_cycle );
-	}
-
 	/**
 	 * Set the status of the service.
 	 *
@@ -315,10 +266,6 @@ class SmartWoo_Service {
 	 */
 	public function set_status( $status ) {
 		$this->status = ( is_null( $status ) || '' === $status ) ? null : sanitize_text_field( wp_unslash( $status ) );
-	}
-
-	public function setStatus( $status ) {
-		$this->set_status( $status );
 	}
 
 	/*
@@ -345,10 +292,6 @@ class SmartWoo_Service {
 		return $this->user_id;
 	}
 
-	public function getUserId() {
-		return $this->get_user_id();
-	}
-
 	/**
 	 * Get the product ID associated with the service.
 	 *
@@ -356,10 +299,6 @@ class SmartWoo_Service {
 	 */
 	public function get_product_id() {
 		return $this->product_id;
-	}
-
-	public function getProductId() {
-		return $this->get_product_id();
 	}
 
 	/**
@@ -371,10 +310,6 @@ class SmartWoo_Service {
 		return $this->service_name;
 	}
 
-	public function getServiceName() {
-		return $this->get_name();
-	}
-
 	/**
 	 * Get the URL associated with the service.
 	 *
@@ -382,10 +317,6 @@ class SmartWoo_Service {
 	 */
 	public function get_service_url() {
 		return $this->service_url;
-	}
-	
-	public function getServiceUrl() {
-		return $this->get_service_url();
 	}
 
 	/**
@@ -396,34 +327,14 @@ class SmartWoo_Service {
 	public function get_type() {
 		return $this->service_type;
 	}
-	public function getServiceType() {
-		return $this->get_type();
-	}
 
 	/**
-	 * Get the unique identifier for the service.
+	 * Get the public id for this service subscription.
 	 *
-	 * @return string Unique identifier for the service.
+	 * @return string
 	 */
 	public function get_service_id() {
 		return $this->service_id;
-	}
-
-	public function getServiceId() {
-		return $this->get_service_id();
-	}
-
-	/**
-	 * Get the invoice ID associated with the service.
-	 *
-	 * @return string|null Invoice ID associated with the service.
-	 */
-	public function get_invoice_id() {
-		return $this->invoice_id;
-	}
-
-	public function getInvoiceId() {
-		return $this->get_invoice_id();
 	}
 
 	/**
@@ -435,10 +346,6 @@ class SmartWoo_Service {
 		return $this->start_date;
 	}
 
-	public function getStartDate() {
-		return $this->get_start_date();
-	}
-
 	/**
 	 * Get the end date of the service.
 	 *
@@ -448,10 +355,6 @@ class SmartWoo_Service {
 		return $this->end_date;
 	}
 
-	public function getEndDate() {
-		return $this->get_end_date();
-	}
-
 	/**
 	 * Get the date of the next payment for the service.
 	 *
@@ -459,10 +362,6 @@ class SmartWoo_Service {
 	 */
 	public function get_next_payment_date() {
 		return $this->next_payment_date;
-	}
-
-	public function getNextPaymentDate() {
-		return $this->get_next_payment_date();
 	}
 
 	/**
@@ -482,10 +381,6 @@ class SmartWoo_Service {
 	public function get_billing_cycle() {
 		return $this->billing_cycle;
 	}
-	
-	public function getBillingCycle() {
-		return $this->get_billing_cycle();
-	}
 
 	/**
 	 * Get the status of the service.
@@ -494,10 +389,6 @@ class SmartWoo_Service {
 	 */
 	public function get_status() {
 		return $this->status;
-	}
-
-	public function getStatus() {
-		return $this->get_status();
 	}
 
 	/**
@@ -524,6 +415,69 @@ class SmartWoo_Service {
 		}
 		
 		return SmartWoo_Service_Database::create_service( $this );
+	}
+
+	/*
+	|-----------------
+	| META DATA METHODS
+	|-----------------
+	*/
+
+	/**
+	 * Set the value of a metadata
+	 * 
+	 * @param string $meta_name The name of the metadata.
+	 * @param mixed $meta_value The value of the metadata
+	 */
+	public function set_meta( $meta_name, $meta_value ) {
+		$this->meta_data[sanitize_key( $meta_name )] = sanitize_text_field( wp_unslash( $meta_value ) );
+	}
+
+	/**
+	 * Get the value of a metadata
+	 * 
+	 * @param string $meta_name The metadata name.
+	 * @param mixed $default The default value to return when the metadata is not found
+	 * @return mixed
+	 */
+	public function get_meta( $meta_name, $default = null ) {
+		return $this->meta_data[$meta_name] ?? $default;
+	}
+
+	/**
+	 * Get all the metadata on an service object.
+	 * 
+	 * @return array An associative array of meta_name => meta_value
+	 */
+	public function get_all_meta() {
+		return $this->meta_data;
+	}
+
+	/**
+	 * Delete All Meta data from the database.
+	 */
+	public function delete_all_meta() {
+		return SmartWoo_Service_Database::delete_all_meta( $this );
+	}
+
+	/**
+	 * Delete a single meta data from the invoice object, the caller should save the object to persist the changes
+	 *  or pass `true` to the second parameter to delete the meta data from the database.
+	 * 
+	 * @param string $meta_name The name of the meta data to delete.
+	 * @param bool $deep Whether to delete the meta data from the database.
+	 * @return bool True if the meta data was deleted, false otherwise.
+	 */
+	public function delete_meta( $meta_name, $deep = false ) {
+		if ( isset( $this->meta_data[$meta_name] ) ) {
+			unset( $this->meta_data[$meta_name] );
+
+			if ( true === $deep ) {
+				return SmartWoo_Service_Database::delete_meta( $this->get_service_id(), $meta_name );
+			}
+		}
+
+		return false;
 	}
 
 	/*
@@ -625,7 +579,12 @@ class SmartWoo_Service {
 		return apply_filters( 'smartwoo_service_props', $data );
 	}
 
-	// Helper method to convert database results to SmartWoo_Service objects
+	/**
+	 * Convert an associative array to a service subscription object.
+	 * 
+	 * @param array $data
+	 * @return self
+	 */
 	public static function set_from_array( $data ) {
 		$self = new self();
 		$self->set_id( isset( $data['id'] ) ? $data['id'] : 0 );
@@ -641,6 +600,16 @@ class SmartWoo_Service {
 		$self->set_date_created( isset( $data['date_created'] ) ? $data['date_created'] : '' );
 		$self->set_billing_cycle( isset( $data['billing_cycle'] ) ? $data['billing_cycle'] : '' );
 		$self->set_status( isset( $data['status'] ) ? $data['status'] : null );
+
+		/**
+		 * Set up metadata
+		 */
+		$all_meta = SmartWoo_Service_Database::get_all_metadata( $self );
+
+		foreach( $all_meta as $meta ) {
+			$self->set_meta( $meta['meta_name'], $meta['meta_value'] );
+		}
+		
 		return $self;
 	}
 
@@ -649,6 +618,7 @@ class SmartWoo_Service {
 	 * 
 	 * @param mixed $product
 	 * @since 2.0.0
+	 * @return bool
 	 */
 	public function is_smartwoo_product( $product ) {
 		return ( $product instanceof SmartWoo_Product ) ? true : false;
@@ -695,10 +665,12 @@ class SmartWoo_Service {
 
 		return false;
 	}
+
     /**
      * Service Expiry notice
      * 
-     * @param bool $echo Whether to print or return notice
+     * @param bool $echo Whether to print or return notice.
+	 * @return string|void
      */
     public function print_expiry_notice( $echo = false ) {
 		$cache_key = 'smartwoo_print_expiry_notice_' . $this->get_id();
@@ -728,6 +700,7 @@ class SmartWoo_Service {
 	 * Check and print notice of unpaid invoices for this service.
 	 * 
 	 * @param bool $echo Whether to print or return notice.
+	 * @return string|void
 	 */
 	public function unpaid_invoices_notice( $echo = false ) {
 		$notice = get_transient( 'smartwoo_unpaid_invoices_notice' );
@@ -775,7 +748,7 @@ class SmartWoo_Service {
 	 * 
 	 * @param string $type The notice type.
 	 * @param bool $echo Whether to print or return the notice.
-	 * @return string $notice.
+	 * @return string|void
 	 */
 	public function print_notice( $type = '', $echo = false ) {
 		$allowed_types = apply_filters( 'smartwoo_service_allowed_notice_types', array( 'expiry', 'unpaid_invoice', 'due_invoice' ) );
@@ -853,35 +826,6 @@ class SmartWoo_Service {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Sync Downloadable Product items to subscription.
-	 * 
-	 * @param string $asset_name The name of the asset.
-	 * @since 2.0.0
-	 */
-	public function save_assets( $asset_name = '' ) {
-		if ( 'downloads' === $asset_name ) {
-			if ( empty( $this->getProductId() ) ) {
-				return false;
-			}
-
-			$product = wc_get_product( $this->getProductId() );
-
-			if ( $this->is_smartwoo_product( $product ) && $product->is_downloadable() ) {
-				$this->assets['asset_name']		= ucfirst( $asset_name );
-				$this->assets['service_id'] 	= $this->get_service_id();
-				$this->assets['asset_data'] 	= $product->get_smartwoo_downloads();
-				$this->assets['access_limit'] 	= -1; // Will allow users to set access limit in later updates.
-				$this->assets['expiry'] 		= $this->getEndDate();
-				$obj = SmartWoo_Service_Assets::convert_arrays( $this->assets );
-				return $obj->save();
-			}
-
-			return false;
-		}
-
 	}
 
 	/**
@@ -1040,7 +984,7 @@ class SmartWoo_Service {
         $current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
         if ( $current_date >= $end_date ) {
-            $product_id        = $this->getProductId();
+            $product_id        = $this->get_product_id();
             $grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
             return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
