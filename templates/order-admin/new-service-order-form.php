@@ -9,13 +9,13 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-
-<?php if ( ! $order ) : ?>
-    <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid Order, please check whether the item exists. <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Back</a>' ) ); ?>
-<?php elseif ( $order->is_processed() ): ?>
-    <?php echo wp_kses_post( smartwoo_error_notice( 'This order can no longer be processed. <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Back</a>' ) ); ?>
-<?php else: ?>
-    <div class="smart-woo-service-form-page">
+<div class="smartwoo-admin-page-content smart-woo-service-form-page">
+    <?php if ( ! $order ) : ?>
+        <?php echo wp_kses_post( smartwoo_error_notice( 'Invalid Order, please check whether the item exists. <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Back</a>' ) ); ?>
+    <?php elseif ( $order->is_processed() ): ?>
+        <?php echo wp_kses_post( smartwoo_error_notice( 'This order can no longer be processed. <a href="' . admin_url( 'admin.php?page=sw-service-orders' ) .'">Back</a>' ) ); ?>
+    <?php else: ?>
+        
         <?php do_action( 'smartwoo_process_new_order_form_header', $order, $product ); ?>
         <p><span class="dashicons dashicons-info" style="color: red;"></span> After processing, this order will be marked as completed.</p>
         <div id="response-container"></div>
@@ -166,7 +166,7 @@ defined( 'ABSPATH' ) || exit;
             </div>
             
         </form>
-
-    </div>
-<?php endif; ?>
+        
+    <?php endif; ?>
+</div>
 <?php smartwoo_enqueue_media_assets(); ?>
