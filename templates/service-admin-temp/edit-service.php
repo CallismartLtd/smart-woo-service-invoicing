@@ -9,11 +9,11 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<?php if ( empty( $service ) ) : ?>
-    <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service subscription <a href="' . esc_url( admin_url( 'admin.php?page=sw-admin' ) ) . '">Back</a>' ) ) ?>
-<?php else : ?>
-    <div class="smart-woo-service-form-page">
-
+<div class="smartwoo-admin-page-content smart-woo-service-form-page">
+    <?php if ( empty( $service ) ) : ?>
+        <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service subscription <a href="' . esc_url( admin_url( 'admin.php?page=sw-admin' ) ) . '">Back</a>' ) ) ?>
+    <?php else : ?>
+    
         <div id="response-container"></div>
 
         <form class="sw-service-form" id="smartwooServiceForm" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php') ) ?>">
@@ -188,7 +188,7 @@ defined( 'ABSPATH' ) || exit;
             </div>
             
         </form>
-
-    </div>
-<?php endif; ?>
+    
+    <?php endif; ?>
+</div>
 <?php smartwoo_enqueue_media_assets(); ?>
