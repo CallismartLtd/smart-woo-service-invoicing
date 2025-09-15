@@ -611,7 +611,7 @@ class SmartWoo_Invoice_Database {
 	}
 
 	/**
-	 * Save or update all invoice meta data into the database.
+	 * Save or update all invoice meta data to the database.
 	 * 
 	 * @param SmartWoo_Invoice $invoice
 	 */
