@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-<div class="sw-admin-invoice-status-counts">
+<div class="smartwoo-admin-page-content sw-admin-invoice-status-counts">
     <?php foreach ( $status_counts as $name => $count ) : ?>
         <a class="sw-admin-status-item<?php echo esc_attr( ( $name === $status ) ? ' sw-active-border' : '' ) ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=sort-by&status=' . $name ) ); ?>" data-count="<?php echo absint( $count ); ?>">
            <span><?php echo esc_html( ucfirst( $name ) ); ?></span>
