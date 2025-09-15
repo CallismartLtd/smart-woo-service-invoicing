@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit; ?>
 
-<div class="wrap">
+<div class="smartwoo-admin-page-content smartwoo-settings-page">
 	<h2><?php esc_html_e( 'General Settings and Knowledge Base', 'smart-woo-service-invoicing' ); ?></h2>
 
 	<div class="sw-container smartwoo-admin-knowledgebase">
