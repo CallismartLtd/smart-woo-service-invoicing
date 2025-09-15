@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="sw-admin-view-details">
+<div class="smartwoo-admin-page-content sw-admin-view-details">
     <?php if ( ! $service ) : ?>
         <?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted service <a href="' . admin_url( 'admin.php?page=sw-admin' ) . '">back</a>' ) ); ?>
     <?php else : ?>
