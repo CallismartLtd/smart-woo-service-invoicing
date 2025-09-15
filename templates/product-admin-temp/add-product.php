@@ -10,8 +10,7 @@
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
 ?>
 
-<div class="smart-woo-product-form-page">
-    <h2>Create service subscription product</h2>
+<div class="smartwoo-admin-page-content smart-woo-product-form-page">
     <?php if ( $form_errors = smartwoo_get_form_error() ): ?>
             <?php echo wp_kses_post( smartwoo_error_notice( $form_errors ) );?>
         <?php elseif ( $success = smartwoo_get_form_success() ): ?>
