@@ -40,6 +40,23 @@ function smartwoo_db_schema() {
 	smartwoo_create_database_table( $service_table_name, $service_structure );
 
 	/**
+	 * Service meta table.
+	 * 
+	 * @since 2.5
+	 */
+	$service_meta_table = SMARTWOO_SERVICE_META_TABLE;
+	$service_meta_table_structure = array(
+		'meta_id MEDIUMINT(9) UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+		'service_id VARCHAR(255) DEFAULT NULL',
+		'meta_name VARCHAR(255) DEFAULT NULL',
+		'meta_value TEXT DEFAULT NULL',
+		'INDEX service_meta_name_index (meta_name)',
+		'INDEX service_meta_service_id_index (service_id)',
+	);
+
+	smartwoo_create_database_table( $service_meta_table, $service_meta_table_structure );
+
+	/**
 	 * Define the structure for the 'sw_invoice' table.
 	 * This table contains the main invoice data.
 	 */
@@ -205,7 +222,7 @@ function smartwoo_migrate_options_201() {
  * Count all services and save to option
  */
 function smartwoo_2012_update_service_count() {
-	SmartWoo::count_all_services();
+	SmartWoo_Service_Database::count_all();
 }
 
 /**
