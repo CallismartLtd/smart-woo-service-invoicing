@@ -177,7 +177,7 @@ function smartwoo_get_service( $user_id = null, $service_id = null, $invoice_id 
 /**
  * Check if a service is on grace period.
  *
- * @param object $service The service object.
+ * @param SmartWoo_Service $service The service object.
  *
  * @return bool true if the subscription is on grace period, false otherwise.
  */
@@ -189,7 +189,7 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 	if ( $current_date >= $end_date ) {
-		$product_id			= $service->getProductId();
+		$product_id			= $service->get_product_id();
 		$grace_period_date 	= smartwoo_get_grace_period_end_date( $product_id, $end_date );
 
 		return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
@@ -303,7 +303,7 @@ function smartwoo_generate_service_id( $service_name ) {
  */
 function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
 	$end_date			= smartwoo_extract_only_date( $service->get_end_date() );
-	$product_id			= $service->getProductId();
+	$product_id			= $service->get_product_id();
 	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $product_id, $end_date ) );
 	$expiration_date	= $grace_period_date ?? $end_date;
 
@@ -320,7 +320,7 @@ function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
 function smartwoo_get_service_price( SmartWoo_Service $service ) {
 
 	if ( $service !== false ) {
-		$product_id = $service->getProductId();
+		$product_id = $service->get_product_id();
 		$product    = wc_get_product( $product_id );
 
 		if ( $product ) {
