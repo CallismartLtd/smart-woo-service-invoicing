@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="sw-admin-dashboard" id="sw-admin-dash">
+<div class="smartwoo-admin-page-content sw-admin-dashboard" id="sw-admin-dash">
     <div class="sw-admin-dash-header">
         <div class="sw-admin-header-content">
             <!-- Smart Woo Info -->
@@ -41,7 +41,6 @@ defined( 'ABSPATH' ) || exit;
             <?php endif;?>
         </div>
     </div>
-    <div style="margin-top: 100px"></div>
 
     <div id="swloader" style="background-color: #f1f1f100"></div>
 
