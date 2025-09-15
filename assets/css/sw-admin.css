@@ -1,3 +1,6 @@
+#wpbody-content:has(.sw-admin-dash-header)  {
+    margin-top: 70px;
+}
 .sw-action-container {
     display: none;
     position:fixed;
@@ -938,7 +941,6 @@ body .sw-admin-dash-nav ul li a:focus {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    width: 100%;
 }
 
 .sw-product-form-product-data {
@@ -1230,7 +1232,7 @@ body .sw-admin-dash-nav ul li a:focus {
 }
 
 .admin-view-details-data {
-    margin: 30px 10px 0px 10px;
+    margin: 10px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1654,8 +1656,8 @@ body .sw-admin-dash-nav ul li a:focus {
     
 }
 
-.smart-woo-service-form-page {
-    margin-top: 120px;
+.smartwoo-admin-page-content {
+    margin-top: 40px;
 }
 .sw-service-form {
     display: flex;
