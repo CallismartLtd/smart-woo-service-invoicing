@@ -199,7 +199,7 @@ function smartwoo_pdf_invoice_template( $invoice_id, $dest = 'D' ) {
 	$invoice_footer_section = '<p style="text-align: center;">Auto-generated on ' . smartwoo_check_and_format( current_time( 'mysql' ), true ) . '</p>';
 	$pdf->SetHTMLFooter( $invoice_footer_section );
 
-	$invoice_id = esc_html( $invoice->getInvoiceId() );
+	$invoice_id = esc_html( $invoice->get_invoice_id() );
 
 	if ( get_option( 'smartwoo_allow_invoice_tracking', false ) ) {
 		$pdf->SetTitle( $invoice->getInvoiceType() );
