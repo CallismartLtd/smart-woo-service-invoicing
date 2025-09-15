@@ -602,7 +602,7 @@ final class SmartWoo {
 
         if ( ! empty( $all_services ) ) {
             foreach ( $all_services as $service ) {
-                $data[] = array( $service->getServiceName(), $service->get_service_id(), smartwoo_service_status( $service ) );
+                $data[] = array( $service->get_name(), $service->get_service_id(), smartwoo_service_status( $service ) );
                 $row_names[] = $service->get_service_id();
             }
             
@@ -877,7 +877,7 @@ final class SmartWoo {
             $has_invoice_id = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
             
             if ( $has_invoice_id ) {
-                wp_send_json_success( array( 'message' => 'Check outstanding invoice...','redirect_url' => smartwoo_invoice_preview_url( $has_invoice_id ) ) );
+                wp_send_json_success( array( 'message' => 'Pay outstanding invoice...','redirect_url' => smartwoo_invoice_preview_url( $has_invoice_id ) ) );
             }
 
             $date_due       = ( 'Expired' === $service_status ) ? SmartWoo_Date_Helper::create_from( $service->get_end_date() ): SmartWoo_Date_Helper::create_from( $service->get_next_payment_date() );
@@ -895,6 +895,24 @@ final class SmartWoo {
             $invoice = smartwoo_create_invoice( $inv_args );
 
             if ( $invoice ) {
+                $client_payment_options = smartwoo_get_user_payment_options( $service->get_user_id() );
+                if ( $client_payment_options['primary'] ) {
+                    $invoice->set_payment_method( $client_payment_options['primary'] );
+                    if ( $order = $invoice->get_order() ) {
+                        $order->set_payment_method( $client_payment_options['primary'] );
+                        $order->save();
+
+                    }
+                    $invoice->save();
+                } else if ( $client_payment_options['backup'] ) {
+                    $invoice->set_payment_method( $client_payment_options['backup'] );
+                    if ( $order = $invoice->get_order() ) {
+                        $order->set_payment_method( $client_payment_options['backup'] );
+                        $order->save();
+
+                    }
+                    $invoice->save();
+                }
                 /**
                  * Fires when the client generates a renewal invoice from the portal.
                  * 
