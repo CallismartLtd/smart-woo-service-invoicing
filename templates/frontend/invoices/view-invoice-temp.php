@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 
 			<!-- Invoice Number section. -->
 			<div class="sw-invoice-number">
-				<span><?php echo esc_html__( 'Invoice #', 'smart-woo-service-invoicing' ) . esc_html( $invoice->getInvoiceId() ); ?></span>
+				<span><?php echo esc_html__( 'Invoice #', 'smart-woo-service-invoicing' ) . esc_html( $invoice->get_invoice_id() ); ?></span>
 				<!--Invoice Date. -->
 				<div class="sw-invoice-dates">
 					<p><?php echo esc_html__( 'Invoice Date: ', 'smart-woo-service-invoicing' ) . esc_html( $invoice_date ); ?></p>
@@ -90,23 +90,23 @@ defined( 'ABSPATH' ) || exit;
 									<tr>
 										<td data-label="Item(s)"><?php echo esc_html( $item ); ?></td>
 										<td data-label="Qty"><?php echo esc_html( $data['quantity'] ); ?></td>
-										<td data-label="Price"><?php echo esc_html( smartwoo_price( $data['price'] ) ); ?></td>
-										<td data-label="Total"><?php echo esc_html( smartwoo_price( $data['total'] ) ); ?></td>
+										<td data-label="Price"><?php echo esc_html( smartwoo_price( $data['price'], array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
+										<td data-label="Total"><?php echo esc_html( smartwoo_price( $data['total'], array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
 									</tr>
 								<?php endforeach; ?>
 							<?php endif; ?>
 
 							<tr>
 								<th style="font-size: 14px;" colspan="3"><?php echo esc_html__( 'Subtotal', 'smart-woo-service-invoicing' ); ?></td>
-								<td data-label="Subtotal"><?php echo esc_html( smartwoo_price( $invoice->get_subtotal() ) ); ?></td>
+								<td data-label="Subtotal"><?php echo esc_html( smartwoo_price( $invoice->get_subtotal(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
 							</tr>
 							<tr>
 								<th colspan="3" style="font-size: 14px;" ><strong><?php echo esc_html__( 'Discount:', 'smart-woo-service-invoicing' ); ?></strong></td>
-								<td data-label="Discount"><?php echo esc_html( smartwoo_price( $invoice->get_discount() ) ); ?></td>
+								<td data-label="Discount"><?php echo esc_html( smartwoo_price( $invoice->get_discount(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
 							</tr>
 							<tr style="height:90px;">
 								<th colspan="3"><?php echo esc_html__( 'Total', 'smart-woo-service-invoicing' );?></th>
-								<td data-label="Total"><?php echo esc_html( smartwoo_price( $invoice->get_totals() ) ); ?></td>
+								<td data-label="Total"><?php echo esc_html( smartwoo_price( $invoice->get_totals(), array( 'currency' => $invoice->get_currency() ) ) ); ?></td>
 							</tr>
 						</tbody>
 					</table>
