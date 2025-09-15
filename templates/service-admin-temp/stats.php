@@ -7,10 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="sw-admin-view-details">
+<div class="smartwoo-admin-page-content sw-admin-view-details">
 
-    <?php if( class_exists( 'SmartWooPro', false ) && method_exists( 'SmartWooPro', 'load_usage' ) ) : ?>
-        <?php call_user_func_array( array( new SmartWooPro(), 'load_usage' ), array( $service_id, true ) ) ?>
+    <?php if( is_callable( [SmartWooPro::class, 'load_usage'] ) ) : ?>
+        <?php call_user_func( [SmartWooPro::class, 'load_usage'], $service_id ) ?>
     <?php else: ?>
         <?php echo wp_kses_post( smartwoo_pro_feature( 'advanced stats' ) ); ?>
     <?php endif; ?>
