@@ -206,6 +206,7 @@ h2.sw-not-found {
     min-height: 70px;
     z-index: 10;
 }
+
 .folded .sw-admin-dash-header {
     width: calc(100% - 36px);
 }
@@ -386,6 +387,162 @@ body .sw-admin-dash-nav ul li a:focus {
     color: blue;
     font-weight: 500;
 }
+.sw-admin-dashboard-summary-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    width: 100%;
+    gap: 15px;
+}
+
+.sw-admin-dashboard-summary-item {
+    background-color: #FFFFFF;
+    border-radius: 4px;
+
+}
+
+.sw-admin-dashboard-summary-item_heading {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    padding: 3px 5px;
+    
+}
+
+.sw-admin-dashboard-summary-item_heading span.dashicons {
+    color: rgb(250, 135, 59);
+    font-size: 25px;
+}
+
+.sw-admin-dashboard-summary-item_heading h3 {
+    font-size: 14px;
+    color: #333333;
+}
+
+.sw-admin-dashboard-summary-item_data {
+    padding: 10px;
+}
+
+.sw-admin-dashboard-summary-item_data-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333333;
+}
+
+.sw-admin-dashboard-interactivity-section {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-top: 15px;
+
+}
+
+.sw-admin-dashboard-interactivity-section_left {
+    flex: 40% 0 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+}
+
+.sw-admin-dashboard-interactivity-section_left .sw-table {
+    width: 100%;
+}
+
+.sw-admin-dashboard-interactivity-section_service-subscription-lists,
+.sw-admin-dashboard-interactivity-section_right-top {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-radius: 4px;
+    border: solid 1px #dcdcde;
+    background-color: #fff;
+    
+}
+
+.sw-admin-dashboard-interactivity-section_service-subscription-lists-content {
+    padding: 5px;
+}
+.sw-service-subscription-lists_heading {
+    background-color: #f1f1f1;
+    padding: 10px;
+    margin: 0 0 5px 0;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.sw-admin-dashboard-interactivity-section_right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
+
+.sw-admin-dashboard-interactivity-section_right-top-data-container {
+    width: 100%;
+    background-color: #f1f1f1;
+    margin: 10px auto 5px auto;
+}
+
+.sw-admin-dashboard-urgent-tasks-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sw-admin-dashboard-urgent-tasks-list thead th,
+.sw-admin-dashboard-urgent-tasks-list tbody td {
+    padding: 10px 15px;
+    text-align: left;
+}
+
+.sw-admin-dashboard-urgent-tasks-list tbody tr {
+    box-shadow: -5px 4px 10px rgba(218, 3, 110, 0.2);
+    margin-top: 10px;
+    transition: all 0.5s ease-out;
+}
+.sw-admin-dashboard-urgent-tasks-list tbody tr:nth-of-type(odd) {
+    background-color: #ffffff;
+}
+
+.sw-admin-dashboard-urgent-tasks-list span.dashicons-ellipsis {
+    cursor: pointer;
+}
+
+.sw-admin-dashboard-interactivity-section_right-bottom {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.sw-admin-dashboard-interactivity-section_right-bottom-left,
+.sw-admin-dashboard-interactivity-section_right-bottom-right {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 4px;
+    border: 1px solid #dcdcde;
+}
+
+.sw-dashboard-invoices-section {
+    padding: 5px;
+    text-align: right;
+}
+
+.sw-dashboard-activities-section {
+    padding: 5px;
+}
+
+.sw-dashboard-invoices-section .sw-table {
+    width: 100%;
+}
+
+
+
+
+
 @media (min-width: 783px) and (max-width: 960px) {
     .folded .sw-admin-dash-header {
         width: 100%;
