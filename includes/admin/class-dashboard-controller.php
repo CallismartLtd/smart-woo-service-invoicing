@@ -179,8 +179,11 @@ class SmartWoo_Dashboard_Controller {
 	/**
 	 * The admin dashboard page
 	 */
-	private static function dashboard() {
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
+	private static function dashboard() {		
+		$services		= SmartWoo_Service_Database::get_all();
+		$total_services = SmartWoo_Service_Database::get_total_records();
+
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
 	}
 
 	/**
