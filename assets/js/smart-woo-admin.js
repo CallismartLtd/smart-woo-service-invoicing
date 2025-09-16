@@ -21,7 +21,7 @@ function renderTable(headers, bodyData, rowNames, totalPages, currentPage, index
     
     // Create table element
     let table = document.createElement('table');
-    table.classList.add('sw-table');
+    table.classList.add('sw-table', 'widefat', 'striped');
 
     // Create table header
     let thead = document.createElement('thead');
