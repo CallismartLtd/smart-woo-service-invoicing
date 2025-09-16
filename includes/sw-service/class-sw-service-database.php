@@ -43,12 +43,12 @@ class SmartWoo_Service_Database {
 
 	/**
 	 * Get all services from database with pagination technique.
+	 * 
+	 * @param int $page   The current pagination number.
+	 * @param int $limit  The number of results needed.
 	 */
-	public static function get_all() {
+	public static function get_all( $page = 1, $limit = 10 ) {
 		global $wpdb;
-
-		$page	= smartwoo_get_query_param( 'paged', 1 );
-		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 		
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
@@ -640,6 +640,19 @@ class SmartWoo_Service_Database {
 
 		return $count;
 	}
+
+	/**
+	 * Get total number of service subscriptions in the database.
+	 * 
+	 * @return int
+	 */
+	public static function get_total_records() {
+		return get_option( 'smartwoo_all_services_count', 0 );
+	}
+
+	/**
+	 * 
+	 */
 
 	/**
 	 * Count all services owned by a user
