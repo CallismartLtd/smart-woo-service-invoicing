@@ -562,6 +562,10 @@ function smartwoo_invoice_page_url() {
 	if ( is_account_page () ){
 		return wc_get_account_endpoint_url( 'smartwoo-invoice' );
 	}
+
+	if ( is_admin() ) {
+		return admin_url( 'admin.php?page=sw-invoices' );
+	}
 	return get_permalink( $invoice_page );
 }
 
