@@ -568,8 +568,8 @@ final class SmartWoo {
             $all_services   = SmartWoo_Service_Database::search();
             $total_services = count( $all_services );
             
-        } elseif ( 'all_services_table' === $action ) {
-            $all_services   = SmartWoo_Service_Database::get_all();
+        } elseif ( 'all_services_table' === $action ) {    
+            $all_services   = SmartWoo_Service_Database::get_all( $paged, $limit );
             $total_services = absint( get_option( 'smartwoo_all_services_count', 0 ) );
 
         } elseif ( 'all_active_services_table' === $action ) {
