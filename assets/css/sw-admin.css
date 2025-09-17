@@ -442,6 +442,7 @@ body .sw-admin-dash-nav ul li a:focus {
     display: flex;
     flex-direction: column;
     width: 100%;
+    gap: 1rem;
 
 }
 
