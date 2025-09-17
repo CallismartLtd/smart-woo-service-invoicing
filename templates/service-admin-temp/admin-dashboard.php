@@ -78,7 +78,7 @@ defined( 'ABSPATH' ) || exit;
                 <hr>
                 <div class="sw-admin-dashboard-summary-item_data">
                     <div class="sw-admin-dashboard-summary-item_data-number">
-                        120
+                        <?php echo absint( $total_active_subscribers ); ?>
                     </div>
                     <div class="sw-admin-dashboard-summary-item_data-stat">
                        
