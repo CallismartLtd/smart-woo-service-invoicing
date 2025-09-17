@@ -220,14 +220,14 @@ function smartwoo_service_status( $service_id ): string {
  * Count the number of 'Active' services.
  */
 function smartwoo_count_active_services() {
-	return count( SmartWoo_Service_Database::get_all_active() );
+	return SmartWoo_Service_Database::count_active();
 }
 
 /**
  * Count the number of 'Due for Renewal' services.
  */
 function smartwoo_count_due_for_renewal_services() {
-	return count( SmartWoo_Service_Database::get_all_due( 1, null ) );
+	return count( SmartWoo_Service_Database::count_due() );
 }
 
 /**
