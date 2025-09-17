@@ -180,8 +180,10 @@ class SmartWoo_Dashboard_Controller {
 	 * The admin dashboard page
 	 */
 	private static function dashboard() {		
-		$services		= SmartWoo_Service_Database::get_all();
-		$total_services = SmartWoo_Service_Database::get_total_records();
+		$services			= SmartWoo_Service_Database::get_all();
+		$total_services		= SmartWoo_Service_Database::get_total_records();
+		$active_subscribers	= SmartWoo_Service_Database::get_active_subscribers();
+		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
 
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
 	}
