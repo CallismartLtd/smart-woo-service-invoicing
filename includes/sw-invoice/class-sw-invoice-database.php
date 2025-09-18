@@ -200,20 +200,27 @@ class SmartWoo_Invoice_Database {
 	 * Method to get invoices by Payment Status.
 	 * 
 	 * @param string $payment_status The invoice payment status.
-	 * 
+	 * @param array $args
 	 * @return SmartWoo_Invoice[]
 	 */
-	public static function get_invoices_by_payment_status( $payment_status = '' ) {
+	public static function get_invoices_by_payment_status( $payment_status = '', $args = array() ) {
 		global $wpdb, $wp_query;
 
 		if ( empty( $payment_status ) ) {
-			return array();
+			return [];
 		}
 
 		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
 
-		$page	= smartwoo_get_query_param( 'paged', 1 );
-		$limit 	= smartwoo_get_query_param( 'limit', 10 );
+		$default_args = array(
+			'page'	=> smartwoo_is_frontend() ? absint( get_query_var( 'paged' ) ?: 1 ) : smartwoo_get_query_param( 'paged', 1 ),
+			'limit'	=> smartwoo_get_query_param( 'limit', 10 )
+		);
+
+		$parsed_args = wp_parse_args( $args, $default_args );
+
+		$page	= absint( $parsed_args['page'] );
+		$limit 	= absint( $parsed_args['limit'] );
 		// Calculate the offset.
 		$offset = ( $page - 1 ) * $limit;
 		
@@ -223,10 +230,6 @@ class SmartWoo_Invoice_Database {
 			if ( ! is_user_logged_in() ) {
 				return array();
 			}
-
-			$page	= absint( get_query_var( 'paged' ) ?: 1 );
-			$limit 	= 10; 
-			$offset = ( $page - 1 ) * $limit;
 
 			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s AND `user_id` = %d ORDER BY `date_created` DESC LIMIT %d OFFSET %d", $payment_status , get_current_user_id(), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
