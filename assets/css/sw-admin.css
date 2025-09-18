@@ -497,6 +497,11 @@ body .sw-admin-dash-nav ul li a:focus {
     text-align: left;
 }
 
+.smartwoo-linked-table-row:hover {
+    cursor: pointer;
+}
+
+
 .sw-admin-dashboard-urgent-tasks-list tbody tr {
     box-shadow: -5px 4px 10px rgba(218, 3, 110, 0.2);
     margin-top: 10px;
@@ -556,8 +561,10 @@ body .sw-admin-dash-nav ul li a:focus {
     align-items: center;
     justify-content: flex-end;
     gap: 1rem;
+    margin: 10px 5px;
 }
 
+.smartwoo-dasboard-filter-button,
 .sw-dashboard-pagination button {
     background-color: #f6f7f7;
     padding: 1px 10px;
@@ -565,13 +572,20 @@ body .sw-admin-dash-nav ul li a:focus {
     border: solid 1px #2271b1;
     border-radius: 4px;
     cursor: pointer;
+    transition: transform 0.1s ease-in-out;
 }
+
+.sw-service-subscription-lists_filters .smartwoo-dasboard-filter-button:disabled,
 .sw-dashboard-pagination button:disabled {
     cursor: not-allowed;
     background-color: #dfdfff;
 }
 
-
+.smartwoo-dasboard-filter-button:active,
+.sw-dashboard-pagination button:active {
+    transform: translateY(-2px);
+    border-style: dotted;
+}
 
 
 
