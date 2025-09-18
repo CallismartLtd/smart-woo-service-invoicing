@@ -107,7 +107,7 @@ class SmartWoo_Config{
         add_action( 'woocommerce_customer_save_address', 'smartwoo_save_edited_bio_and_user_url', 20, 2 );
         
         add_action( 'woocommerce_new_order', array( $this, 'clear_order_cache' ), 20 );
-        // add_action( 'smartwoo_new_service_purchase_complete', array( $this, 'clear_order_cache' ), 20 );
+        add_action( 'smartwoo_new_service_purchase_complete', array( $this, 'clear_order_cache' ), 20 );
 		add_filter( 'smartwoo_subscription_pages', array( __CLASS__, 'register_service_page_callbacks' ) );
 		add_filter( 'smartwoo_invoice_pages', array( __CLASS__, 'register_invoice_page_callbacks' ) );
 
