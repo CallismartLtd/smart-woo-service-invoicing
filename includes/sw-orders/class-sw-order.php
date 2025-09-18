@@ -470,6 +470,15 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get payment url
+     * 
+     * @return string
+     */
+    public function get_payment_url() {
+        return $this->order->get_checkout_payment_url();
+    }
+
+    /**
      * Get the transaction ID
      * 
      * @return string
