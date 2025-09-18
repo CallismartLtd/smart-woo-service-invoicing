@@ -185,7 +185,7 @@ class SmartWoo_Dashboard_Controller {
 		$active_subscribers			= SmartWoo_Service_Database::get_active_subscribers();
 		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
 		$expiring_soon_count		= SmartWoo_Service_Database::count_by_status( 'expiry-threshold' );
-		$pending_order_count		= smartwoo_count_unprocessed_orders();
+		$new_order_count			= smartwoo_count_unprocessed_orders();
 		$pending_invoices			= SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', ['limit' => 10, 'page' => 1] );
 		$unpaid_invoices_count		= SmartWoo_Invoice_Database::count_this_status( 'unpaid' );
 		$recent_invoices			= SmartWoo_Invoice_Database::get_all_invoices( 1, 10 );
