@@ -510,6 +510,10 @@ body .sw-admin-dash-nav ul li a:focus {
     cursor: pointer;
 }
 
+.sw-table-avatar {
+    border-radius: 50%;
+}
+
 .sw-admin-dashboard-interactivity-section_right-bottom {
     display: flex;
     flex-direction: row;
@@ -539,6 +543,34 @@ body .sw-admin-dash-nav ul li a:focus {
 .sw-dashboard-invoices-section .sw-table {
     width: 100%;
 }
+
+.smartwoo-status.dashboard-status {
+    padding: 5px;
+    border-radius: 1rem;
+    font-size: 12px;
+}
+
+.sw-dashboard-pagination {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.sw-dashboard-pagination button {
+    background-color: #f6f7f7;
+    padding: 1px 10px;
+    color: #2271b1;
+    border: solid 1px #2271b1;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.sw-dashboard-pagination button:disabled {
+    cursor: not-allowed;
+    background-color: #dfdfff;
+}
+
 
 
 
