@@ -180,10 +180,15 @@ class SmartWoo_Dashboard_Controller {
 	 * The admin dashboard page
 	 */
 	private static function dashboard() {		
-		$services			= SmartWoo_Service_Database::get_all();
-		$total_services		= SmartWoo_Service_Database::get_total_records();
-		$active_subscribers	= SmartWoo_Service_Database::get_active_subscribers();
+		$services					= SmartWoo_Service_Database::get_all( 1, 10 );
+		$total_services				= SmartWoo_Service_Database::get_total_records();
+		$active_subscribers			= SmartWoo_Service_Database::get_active_subscribers();
 		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
+		$expiring_soon_count		= SmartWoo_Service_Database::count_by_status( 'expiry-threshold' );
+		$pending_order_count		= smartwoo_count_unprocessed_orders();
+		$pending_invoices			= SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', ['limit' => 10, 'page' => 1] );
+		$unpaid_invoices_count		= SmartWoo_Invoice_Database::count_this_status( 'unpaid' );
+		$recent_invoices			= SmartWoo_Invoice_Database::get_all_invoices( 1, 10 );
 
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
 	}
