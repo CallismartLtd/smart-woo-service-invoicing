@@ -664,3 +664,41 @@ function smartwoo_all_user_invoices_count() {
 
 	return $output;
 }
+
+/**
+ * Print invoice status with mapped labels.
+ * 
+ * @param SmartWoo_Invoice $invoice The invoice object.
+ * @param array            $classes Additional classes to apply.
+ */
+function smartwoo_print_invoice_status( SmartWoo_Invoice $invoice, $classes = array() ) {
+	$status       = strtolower( $invoice->get_status() );
+
+	// Map invoice statuses to friendly labels.
+	$status_labels = array(
+		'paid'     => __( 'Paid', 'smart-woo-service-invoicing' ),
+		'unpaid'   => __( 'Unpaid', 'smart-woo-service-invoicing' ),
+		'cancelled'=> __( 'Cancelled', 'smart-woo-service-invoicing' ),
+		'due'      => __( 'Overdue', 'smart-woo-service-invoicing' ),
+	);
+
+	$label = isset( $status_labels[ $status ] )
+		? $status_labels[ $status ]
+		: ucfirst( $status ); // Fallback to raw status.
+
+	// Format status into a valid class name.
+	$status_class = str_replace(
+		array( ' ', '(', ')' ),
+		array( '-', '', '' ),
+		$status
+	);
+
+	$class_string = implode( ' ', $classes );
+
+	printf(
+		'<span class="smartwoo-invoice-status %s %s">%s</span>',
+		esc_attr( $class_string ),
+		esc_attr( $status_class ),
+		esc_html( $label )
+	);
+}
