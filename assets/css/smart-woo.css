@@ -9,22 +9,23 @@ use inline CSS to overide some styles
     --smartwoo-status-suspended: #6c757d; /* Gray for Suspended */
 	--smartwoo-status-grace-period: #17a2b8;
 	--smartwoo-status-cancelled: #333333;
+
+    --smartwoo-invoice-paid: #28a745;      /* Green for Paid */
+    --smartwoo-invoice-unpaid: #dc3545;    /* Red for Unpaid */
+    --smartwoo-invoice-cancelled: #6c757d; /* Gray for Cancelled */
+    --smartwoo-invoice-due: #fd7e14;       /* Orange for Due */
 }
 
 .smartwoo-status {
     float: right;
     color: #ffffff;
     padding: 21.5px;
-    
     font-weight: 500;
 }
 
-.smartwoo-status.active {
-    background-color: var(--smartwoo-status-active);
-}
+.smartwoo-status.active,
 .smartwoo-status.active-nr {
-	background-color: var(--smartwoo-status-active);
-
+    background-color: var(--smartwoo-status-active);
 }
 
 .smartwoo-status.due-for-renewal {
@@ -44,6 +45,31 @@ use inline CSS to overide some styles
 
 .smartwoo-status.cancelled {
     background-color: var(--smartwoo-status-cancelled);
+}
+
+.smartwoo-invoice-status {
+    float: right;
+    color: #ffffff;
+    padding: 4px 8px;
+	font-weight: 500;
+    font-size: 14px;
+    border-radius: 20px;
+}
+
+.smartwoo-invoice-status.paid {
+    background-color: var(--smartwoo-invoice-paid);
+}
+
+.smartwoo-invoice-status.unpaid {
+    background-color: var(--smartwoo-invoice-unpaid);
+}
+
+.smartwoo-invoice-status.cancelled {
+    background-color: var(--smartwoo-invoice-cancelled);
+}
+
+.smartwoo-invoice-status.due {
+    background-color: var(--smartwoo-invoice-due);
 }
 
 .smartwoo-hide {
