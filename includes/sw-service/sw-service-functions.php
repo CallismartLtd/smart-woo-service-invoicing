@@ -227,14 +227,14 @@ function smartwoo_count_active_services() {
  * Count the number of 'Due for Renewal' services.
  */
 function smartwoo_count_due_for_renewal_services() {
-	return count( SmartWoo_Service_Database::count_due() );
+	return SmartWoo_Service_Database::count_due();
 }
 
 /**
  * Count the number of 'Active No Renewal' services.
  */
 function smartwoo_count_nr_services() {
-	return count( SmartWoo_Service_Database::get_( array( 'status' => 'Active (NR)', 'limit' => 0 ) ) );
+	return SmartWoo_Service_Database::count_by_status( 'Active (NR)' );
 }
 
 /**
@@ -429,4 +429,17 @@ function smartwoo_active_service_statuses() {
 	apply_filters( 'smartwoo_active_service_statuses', array(
 		'Active', 'Active (NR)', 'Due for Renewal', 'Due', 'Grace Period' )
 	);
+}
+
+/**
+ * Print service status.
+ * 
+ * @param SmartWoo_Service $service The service subscription object.
+ * @param array $classes $addtional classes.
+ */
+function smartwoo_print_service_status( SmartWoo_Service $service, $classes = [] ) {
+	$status			= smartwoo_service_status( $service );
+	$status_class	= strtolower( str_replace( array( ' ', '(', ')'), array( '-', '', '' ), $status ) );
+	$classes		= implode( ' ', $classes );
+	printf( '<span class="smartwoo-status %s %s">%s</span>', esc_attr( $classes ), esc_attr( $status_class ), esc_html( $status ) );
 }
