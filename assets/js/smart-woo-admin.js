@@ -567,16 +567,16 @@ function smartwooDeleteInvoice(invoiceId) {
 		jQuery.ajax(
 			{
 				type: 'POST',
-				url: smart_woo_vars.ajax_url,
+				url: smartwoo_admin_vars.ajax_url,
 				data: {
 					action: 'delete_invoice',
 					invoice_id: invoiceId,
-					security: smart_woo_vars.security
+					security: smartwoo_admin_vars.security
 				},
 				success: function ( response ) {
 					if ( response.success ) {
 						alert( response.data.message );
-						window.location.href = smart_woo_vars.admin_invoice_page;	
+						window.location.href = smartwoo_admin_vars.admin_invoice_page;	
 					} else {
 						alert( response.data.message );
 					}
@@ -615,9 +615,9 @@ function smartwooProBntAction( action_name ) {
     setTimeout(() => {
         jQuery(adDiv.parentElement).fadeOut(() => adDiv.remove());
     }, 2000);
-    let url = new URL( smart_woo_vars.ajax_url );
+    let url = new URL( smartwoo_admin_vars.ajax_url );
     url.searchParams.set( 'action', 'smartwoo_pro_button_action' );
-    url.searchParams.set( 'security', smart_woo_vars.security );
+    url.searchParams.set( 'security', smartwoo_admin_vars.security );
     url.searchParams.set( 'real_action', action_name );
     fetch( url )
     .then( response =>{
@@ -643,17 +643,17 @@ function smartwooDeleteProduct(productId) {
         jQuery.ajax(
             {
                 type: 'POST',
-                url: smart_woo_vars.ajax_url,
+                url: smartwoo_admin_vars.ajax_url,
                 data: {
                     action: 'smartwoo_delete_product',
                     product_id: productId,
-                    security: smart_woo_vars.security
+                    security: smartwoo_admin_vars.security
                 },
                 success: function ( response ) {
                     
                     if ( response.success ) {
                         alert( response.data.message );
-                        window.location.href = smart_woo_vars.sw_product_page;
+                        window.location.href = smartwoo_admin_vars.sw_product_page;
                     } else {
                         alert( response.data.message );
                     }
@@ -684,17 +684,17 @@ function smartwooDeleteService(serviceId) {
         jQuery.ajax(
             {
                 type: 'POST',
-                url: smart_woo_vars.ajax_url,
+                url: smartwoo_admin_vars.ajax_url,
                 data: {
                     action: 'smartwoo_delete_service',
                     service_id: serviceId,
-                    security: smart_woo_vars.security
+                    security: smartwoo_admin_vars.security
                 },
                 success: function (response) {
                     if ( response.success) {
 
                         alert( response.data.message );
-                        window.location.href = smart_woo_vars.sw_admin_page;
+                        window.location.href = smartwoo_admin_vars.sw_admin_page;
                     } else {
                         alert( response.data.message );
                     }
@@ -1032,7 +1032,7 @@ function smartwooDatesInputsHandler() {
                     return;
             }
             // Get the interval setting from localized script
-            let globalNextPayInterval = smart_woo_vars.global_nextpay_date || { operator: '-', number: 7, unit: 'days' };
+            let globalNextPayInterval = smartwoo_admin_vars.global_nextpay_date || { operator: '-', number: 7, unit: 'days' };
 
             // Extract values safely
             let operator = globalNextPayInterval.operator || '-';
@@ -1085,7 +1085,7 @@ function smartwooDatesInputsHandler() {
                 }
             };
             
-            if ( 'Invoices' === smart_woo_vars.currentScreen ) {
+            if ( 'Invoices' === smartwoo_admin_vars.currentScreen ) {
                 jQuery( input ).on( 'focus', function () {
                     requestAnimationFrame( () => {
                         const $input = jQuery( this );
@@ -1304,12 +1304,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let adminAutoRenewBtn       = document.querySelector( '#auto-renew-btn' );
     let smartwooProductDropdown = document.querySelector( '#service_products' );
     let smartwooKnowledgeBase   = document.querySelector( '.smartwoo-admin-knowledgebase' );
-    let proDiv          = document.querySelector('.sw-dash-pro-sell-bg');
+    let proDiv                  = document.querySelector('.sw-dash-pro-sell-bg');
+    let allLinkedTableRow       = document.querySelectorAll( '.smartwoo-linked-table-row' );
     
     if (proDiv) {
         setTimeout( () =>{
             jQuery(proDiv).fadeIn();
         }, 5000 );
+    }
+
+    if ( allLinkedTableRow.length ) {
+        allLinkedTableRow.forEach(element => {
+            element.addEventListener( 'click', (e) => {
+                if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
+
+                let mainRow = e.target.closest( 'tr' );
+                let url     = mainRow?.dataset?.url;
+                
+                if ( ! url ) return;
+                window.location.href = url;
+            });
+        });
     }
 
     /**
@@ -1651,10 +1666,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         showNotification( 'This user does not exist.', 5000 );
                         return;
                     }
-                    let url = new URL( smart_woo_vars.get_user_data );
+                    let url = new URL( smartwoo_admin_vars.get_user_data );
                     let spinner = smartWooAddSpinner( 'swloader' );
                     url.searchParams.append( 'user_id', userID )
-                    url.searchParams.append( 'security', smart_woo_vars.security )
+                    url.searchParams.append( 'security', smartwoo_admin_vars.security )
 
                     fetch(url, {
                         method: 'GET'
@@ -2191,7 +2206,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let spinner     = smartWooAddSpinner( 'swloader', true );
             let formData    = new FormData( theProductForm );
             let url         = new URL( smartwoo_admin_vars.ajax_url );
-            formData.append( 'security', smart_woo_vars.security );
+            formData.append( 'security', smartwoo_admin_vars.security );
 
             fetch( url, {
                 method : 'POST',
@@ -2255,7 +2270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let userEmail       = clientMeta.querySelector( '.sw-user-email' );
         let image           = clientMeta.querySelector( 'img' );
         
-        let defaultAvatar   = smart_woo_vars.default_avatar_url;
+        let defaultAvatar   = smartwoo_admin_vars.default_avatar_url;
         let defaultText     = 'No user selected';
         serviceFormUserDropdown.addEventListener( 'change', (e) =>{
             if ( ! e.target.value.length ) {
@@ -2271,9 +2286,9 @@ document.addEventListener('DOMContentLoaded', () => {
             spinner.style.top = '50%';
             let userID  = e.target.value.split( '|' )[0];
             
-            let url             = new URL( smart_woo_vars.get_user_data );
+            let url             = new URL( smartwoo_admin_vars.get_user_data );
             url.searchParams.append( 'user_id', userID )
-            url.searchParams.append( 'security', smart_woo_vars.security )
+            url.searchParams.append( 'security', smartwoo_admin_vars.security )
 
             fetch(url, {
                 method: 'GET'
@@ -2321,8 +2336,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let spinner         = smartWooAddSpinner( 'swloader', true );
             let sbmtBtn         = serviceForm.querySelector( 'button[type="submit"]' );
             let theFormData     = new FormData( serviceForm );
-            let url             = new URL( smart_woo_vars.ajax_url );
-            theFormData.append( 'security', smart_woo_vars.security );
+            let url             = new URL( smartwoo_admin_vars.ajax_url );
+            theFormData.append( 'security', smartwoo_admin_vars.security );
             sbmtBtn.disabled    = true;
 
             fetch( url, {
@@ -2368,9 +2383,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            let url = new URL( smart_woo_vars.ajax_url );
+            let url = new URL( smartwoo_admin_vars.ajax_url );
             url.searchParams.set( 'action', 'smartwoo_reset_fast_checkout' );
-            url.searchParams.set( 'security', smart_woo_vars.security );
+            url.searchParams.set( 'security', smartwoo_admin_vars.security );
             
             fetch( url )
             .then( response => {
@@ -2444,7 +2459,7 @@ document.addEventListener('SmartWooDashboardLoaded', () => {
  */
 document.addEventListener( 'smartwooTableChecked', (e)=>{
     // Get the page where this action is fired.
-    let adminPage = smart_woo_vars.currentScreen;
+    let adminPage = smartwoo_admin_vars.currentScreen;
     if ( 'Service Orders' === adminPage ) {
         smartwooBulkActionForTable({
             options: [
@@ -2529,9 +2544,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if ( confirmed ) {
 					let spinner     = smartWooAddSpinner( 'swloader', true );
                     const payload   = new FormData();
-                    const url       = smart_woo_vars.ajax_url;
+                    const url       = smartwoo_admin_vars.ajax_url;
                     payload.set( 'action', 'smartwoo_asset_delete' );
-                    payload.set( 'security', smart_woo_vars.security );
+                    payload.set( 'security', smartwoo_admin_vars.security );
                     payload.set( 'asset_id', assetID );
 
                     fetch( url, {
@@ -2573,8 +2588,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			}
 			
-		} );
-
+		});
 	}
 
 });
