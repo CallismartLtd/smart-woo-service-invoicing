@@ -219,6 +219,7 @@ use inline CSS to overide some styles
 }
 
 .smartwoo-account-button:hover {
+	color: #ffffff;
     background-color: #005f8f; /* Darker blue on hover */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
