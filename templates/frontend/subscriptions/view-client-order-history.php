@@ -64,6 +64,16 @@ defined( 'ABSPATH' ) || exit;
                                             esc_html__( 'Date: %s', 'smart-woo-service-invoicing' ),
                                             esc_html( smartwoo_check_and_format( $order->get_date_created() ) )
                                         );
+
+                                        if ( 'awaiting payment' === strtolower( $order->get_status() ) ) {
+                                            echo '<br />';
+                                            printf(
+                                                /* translators: %s: Payment URL */
+                                                esc_html__( 'Action:', 'smart-woo-service-invoicing' ) . ' <a href="%s" class="smartwoo-account-button">%s</a>',
+                                                esc_url( $order->get_payment_url() ),
+                                                esc_html__( 'Pay', 'smart-woo-service-invoicing' )
+                                            );
+                                        }
                                         ?>
                                     </div>
                                 </div>
