@@ -22,12 +22,12 @@ defined( 'ABSPATH' ) || exit;
             <!-- Navigation buvttons -->
             <div class="sw-admin-dash-nav">
                 <ul>
-                    <li id="dashboardBtn" class="active">Dashboard</li>
-                    <li id="dashAddNew">Add New</li>
-                    <li id="dashOrderBtn">Orders</li>
-                    <li id="dashInvoicesBtn">Invoices</li>
-                    <li id="dashProductBtn">Products</li>
-                    <li id="dashSettingsBtn">Settings</li>
+                    <li id="dashboardBtn" class="active"><?php esc_html_e( 'Dashboard', 'smart-woo-service-invoicing' ); ?></li>
+                    <li id="dashAddNew"><?php esc_html_e( 'Add New Service', 'smart-woo-service-invoicing' ); ?></li>
+                    <li id="dashOrderBtn"><?php esc_html_e( 'Orders', 'smart-woo-service-invoicing' ); ?></li>
+                    <li id="dashInvoicesBtn"><?php esc_html_e( 'Invoices', 'smart-woo-service-invoicing' ); ?></li>
+                    <li id="dashProductBtn"><?php esc_html_e( 'Products', 'smart-woo-service-invoicing' ); ?></li>
+                    <li id="dashSettingsBtn"><?php esc_html_e( 'Settings', 'smart-woo-service-invoicing' ); ?></li>
                 </ul>
             </div>
             <div class="sw-admin-menu-icon">
@@ -73,7 +73,7 @@ defined( 'ABSPATH' ) || exit;
             <div class="sw-admin-dashboard-summary-item">
                 <div class="sw-admin-dashboard-summary-item_heading">
                     <span class="dashicons dashicons-groups"></span>
-                    <h3>Active Subscribers</h3>
+                    <h3><?php esc_html_e( 'Active Subscribers', 'smart-woo-service-invoicing' ); ?></h3>
                 </div>
                 <hr>
                 <div class="sw-admin-dashboard-summary-item_data">
@@ -88,12 +88,12 @@ defined( 'ABSPATH' ) || exit;
             <div class="sw-admin-dashboard-summary-item">
                 <div class="sw-admin-dashboard-summary-item_heading">
                     <span class="dashicons dashicons-calendar-alt"></span>
-                    <h3>Expiring Soon</h3>
+                    <h3><?php esc_html_e( 'Expiring Soon', 'smart-woo-service-invoicing' ); ?></h3>
                 </div>
                 <hr>
                 <div class="sw-admin-dashboard-summary-item_data">
                     <div class="sw-admin-dashboard-summary-item_data-number">
-                        15
+                        <?php echo absint( $expiring_soon_count ) ?>
                     </div>
                     <div class="sw-admin-dashboard-summary-item_data-stat">
                        
@@ -103,12 +103,12 @@ defined( 'ABSPATH' ) || exit;
             <div class="sw-admin-dashboard-summary-item">
                 <div class="sw-admin-dashboard-summary-item_heading">
                     <span class="dashicons dashicons-cart"></span>
-                    <h3>Pending Orders</h3>
+                    <h3><?php esc_html_e( 'Pending Orders', 'smart-woo-service-invoicing' ); ?></h3>
                 </div>
                 <hr>
                 <div class="sw-admin-dashboard-summary-item_data">
                     <div class="sw-admin-dashboard-summary-item_data-number">
-                        150
+                        <?php echo absint( $pending_order_count ) ?>
                     </div>
                     <div class="sw-admin-dashboard-summary-item_data-stat">
                        
@@ -118,12 +118,12 @@ defined( 'ABSPATH' ) || exit;
             <div class="sw-admin-dashboard-summary-item">
                 <div class="sw-admin-dashboard-summary-item_heading">
                     <span class="dashicons dashicons-analytics"></span>
-                    <h3>Unpaid Invoices</h3>
+                    <h3><?php esc_html_e( 'Unpaid Invoices', 'smart-woo-service-invoicing' ); ?></h3>
                 </div>
                 <hr>
                 <div class="sw-admin-dashboard-summary-item_data">
                     <div class="sw-admin-dashboard-summary-item_data-number">
-                        9
+                        <?php echo absint( $unpaid_invoices_count ) ?>
                     </div>
                     <div class="sw-admin-dashboard-summary-item_data-stat">
                        
@@ -132,6 +132,7 @@ defined( 'ABSPATH' ) || exit;
             </div>
      
         </div>
+
         <hr>
 
         <div class="sw-admin-dashboard-interactivity-section">
@@ -149,8 +150,8 @@ defined( 'ABSPATH' ) || exit;
                         </div>
                         
                         <div class="sw-service-subscription-lists_table-wrapper">
-                            <h3 class="sw-service-subscription-lists_current-heading">All Subscriptions</h3>
-                            <table class="sw-table widefat striped">
+                            <h3 class="sw-service-subscription-lists_current-heading"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></h3>
+                            <table class="sw-table widefat">
                                 <thead>
                                     <tr>
                                         <th><input type="checkbox" name="" id=""></th>
@@ -167,12 +168,16 @@ defined( 'ABSPATH' ) || exit;
                                             <td><?php echo absint( $service->get_id() ); ?></td>
                                             <td><?php echo esc_html( $service->get_name() ); ?></td>
                                             <td><?php echo esc_html( $service->get_service_id() ); ?></td>
-                                            <td><?php echo esc_html( smartwoo_service_status( $service ) ) ?></td>
+                                            <td><?php smartwoo_print_service_status( $service, ['dashboard-status'] ); ?></td>
                                             
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            <div class="sw-dashboard-pagination">
+                                <button><span class="dashicons dashicons-arrow-left-alt2"></span></button>
+                                <button><span class="dashicons dashicons-arrow-right-alt2"></span></button>
+                            </div>
                         </div>                        
                     </div>
 
@@ -182,52 +187,25 @@ defined( 'ABSPATH' ) || exit;
                     <div class="sw-admin-dashboard-interactivity-section_service-subscription-lists-content">
                         
                         <div class="sw-service-subscription-lists_table-wrapper">
-                            <table class="sw-table widefat striped">
+                            <table class="sw-table widefat">
                                 <thead>
                                     <tr>
-                                        <th><input type="checkbox" name="" id=""></th>
-                                        <th><?php esc_html_e( 'ID', 'smart-woo-service-invoicing' ); ?></th>
+                                        <th></th>
                                         <th><?php esc_html_e( 'Name', 'smart-woo-service-invoicing' ); ?></th>
-                                        <th><?php esc_html_e( 'Service ID', 'smart-woo-service-invoicing' ); ?></th>
-                                        <th><?php esc_html_e( 'Status', 'smart-woo-service-invoicing' ); ?></th>
+                                        <th><?php esc_html_e( 'Subscribed Since', 'smart-woo-service-invoicing' ); ?></th>
+                                        <th><?php esc_html_e( 'Last Since', 'smart-woo-service-invoicing' ); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><input type="checkbox" name="" id=""></td>
-                                        <td>1</td>
-                                        <td>Comprehensive Asset</td>
-                                        <td>Smliser-2025-04938834</td>
-                                        <td>Active</td>
-                                        
-                                    </tr>
-                        
-                                    <tr>
-                                        <td><input type="checkbox" name="" id=""></td>
-                                        <td>2</td>
-                                        <td>Comprehensive Asset</td>
-                                        <td>Smliser-2025-04938834</td>
-                                        <td>Active</td>
-                                        
-                                    </tr>
-                        
-                                    <tr>
-                                        <td><input type="checkbox" name="" id=""></td>
-                                        <td>3</td>
-                                        <td>Comprehensive Asset</td>
-                                        <td>Smliser-2025-04938834</td>
-                                        <td>Active</td>
-                                        
-                                    </tr>
-                            
-                                    <tr>
-                                        <td><input type="checkbox" name="" id=""></td>
-                                        <td>4</td>
-                                        <td>Comprehensive Asset</td>
-                                        <td>Smliser-2025-04938834</td>
-                                        <td>Active</td>
-                                        
-                                    </tr>
+                                    <?php foreach( $active_subscribers as $subscriber ) : ?>
+                                        <tr>
+                                            <td><img class="sw-table-avatar" src="<?php echo esc_url( $subscriber->avatar_url ); ?>" alt="<?php echo esc_attr( $subscriber->name ); ?> photo" width="48" height="48"></td>
+                                            <td><?php echo esc_html( $subscriber->name ); ?></td>
+                                            <td><?php echo esc_attr( smartwoo_check_and_format( $subscriber->member_since, true ) ); ?></td>
+                                            <td><?php echo esc_attr( $subscriber->last_seen ); ?></td>
+                                            
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>                        
@@ -247,38 +225,27 @@ defined( 'ABSPATH' ) || exit;
 
                         <div class="sw-admin-dashboard-interactivity-section_right-top-data-container">
                             <table class="sw-admin-dashboard-urgent-tasks-list">
-                                <thead>
+                                <thead class="<?php echo esc_attr( empty( $pending_invoices ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
-                                        <th>Type</th>
-                                        <th>ID</th>
-                                        <th>Actions</th>
+                                        <th><?php esc_html_e( 'Type', 'smart-woo-service-invoicing' ); ?></th>
+                                        <th><?php esc_html_e( 'ID', 'smart-woo-service-invoicing' ); ?></th>
+                                        <th><?php esc_html_e( 'Actions', 'smart-woo-service-invoicing' ); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                       <td>Invoice</td>
-                                        <td>CINV-4923894948</td>
-                                        <td><span class="dashicons dashicons-ellipsis"></span></td>  
-                                    </tr>
-                                   
-                                    <tr>
-                                       <td>Invoice</td>
-                                        <td>CINV-4923894948</td>
-                                        <td><span class="dashicons dashicons-ellipsis"></span></td>  
-                                    </tr>
-                                   
-                                    <tr>
-                                       <td>Invoice</td>
-                                        <td>CINV-4923894948</td>
-                                        <td><span class="dashicons dashicons-ellipsis"></span></td>  
-                                    </tr>
-                                   
-                                    <tr>
-                                       <td>Invoice</td>
-                                        <td>CINV-4923894948</td>
-                                        <td><span class="dashicons dashicons-ellipsis"></span></td>  
-                                    </tr>
-                                   
+                                    <?php if ( ! empty( $pending_invoices ) ) : ?>
+                                        <?php foreach( $pending_invoices as $unpaid_inv ) : ?>
+                                        <tr>
+                                        <td><?php esc_html_e( 'Invoice', 'smart-woo-service-invoicing' ); ?></td>
+                                            <td><?php echo esc_html( $unpaid_inv->get_invoice_id() ); ?></td>
+                                            <td><span class="dashicons dashicons-ellipsis"></span></td>  
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="3" class="sw-not-found"><?php esc_html_e( 'No unpaid invoice at this time', 'smart-woo-service-invoicing' ); ?></td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>                    
@@ -286,10 +253,10 @@ defined( 'ABSPATH' ) || exit;
                 </div>
                 <div class="sw-admin-dashboard-interactivity-section_right-bottom">
                     <div class="sw-admin-dashboard-interactivity-section_right-bottom-left">
-                        <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Invoices', 'smart-woo-service-invoicing' ); ?></h3>
+                        <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Recent Invoices', 'smart-woo-service-invoicing' ); ?></h3>
                         <div class="sw-dashboard-invoices-section">
-                            <table class="sw-table widefat striped">
-                                <thead>
+                            <table class="sw-table widefat">
+                                <thead class="<?php echo esc_attr( empty( $recent_invoices ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
                                         <th><?php esc_html_e( 'Invoice ID', 'smart-woo-service-invoicing' ); ?></th>
                                         <th><?php esc_html_e( 'Date', 'smart-woo-service-invoicing' ); ?></th>
@@ -297,31 +264,21 @@ defined( 'ABSPATH' ) || exit;
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>CINV-2025-4433245</td>
-                                        <td>February 12, 2025</td>
-                                        <td>Paid</td>
-                                    </tr>
-                                    <tr>
-                                        <td>CINV-2025-4433245</td>
-                                        <td>February 12, 2025</td>
-                                        <td>Paid</td>
-                                    </tr>
-                                    <tr>
-                                        <td>CINV-2025-4433245</td>
-                                        <td>February 12, 2025</td>
-                                        <td>Paid</td>
-                                    </tr>
-                                    <tr>
-                                        <td>CINV-2025-4433245</td>
-                                        <td>February 12, 2025</td>
-                                        <td>Paid</td>
-                                    </tr>
-                                    <tr>
-                                        <td>CINV-2025-4433245</td>
-                                        <td>February 12, 2025</td>
-                                        <td>Paid</td>
-                                    </tr>
+
+                                    <?php if ( empty( $recent_invoices ) ) : ?>
+                                        <tr>
+                                            <td class="sw-not-found" colspan="3"><?php esc_html_e( 'Recent invoices will be shown here', 'smart-woo-service-invoicing' ); ?></td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach( $recent_invoices as $recent_inv ): ?>
+                                            <tr>
+                                                <td><?php echo esc_html( $recent_inv->get_invoice_id() ); ?></td>
+                                                <td><?php echo esc_html( $recent_inv->get_date_created() ); ?></td>
+                                                <td><?php echo esc_html( $recent_inv->get_status() ); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                    
                                 </tbody>
                             </table>
 
