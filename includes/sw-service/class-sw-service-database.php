@@ -93,7 +93,7 @@ class SmartWoo_Service_Database {
 	 * @since 2.0.12 Implemented object caching.
 	 */
 	public static function get_service_by_id( $service_id ) {
-		$cache_key	= sprinf( 'get_service_by_id_%s', $service_id );
+		$cache_key	= sprintf( 'get_service_by_id_%s', $service_id );
 		$service	= wp_cache_get( $cache_key, 'smartwoo_service_database' );
 		if ( false !== $service ) {
 			return $service;
@@ -525,6 +525,7 @@ class SmartWoo_Service_Database {
 					'name'			=> $user->display_name,
 					'avatar_url'	=> get_avatar_url( $user->ID ),
 					'member_since'	=> $user->user_registered,
+					'last_seen'		=> smartwoo_get_last_login_date( $user->ID ),
 					'email'			=> $user->user_email,
 					'billing_email'	=> smartwoo_get_client_billing_email( $user->ID ),
 					'total_service'	=> self::count_user_services( $user )
@@ -755,7 +756,7 @@ class SmartWoo_Service_Database {
 	 *
 	 * Uses transient API to cache results for 1 hour.
 	 *
-	 * @since 2.0.12
+	 * @since 2.5
 	 * @return int The number of active services.
 	 */
 	public static function count_active() {
@@ -803,7 +804,7 @@ class SmartWoo_Service_Database {
 	 *
 	 * Uses transient API to cache results for 1 hour.
 	 *
-	 * @since 2.0.12
+	 * @since 2.5
 	 * @return int The number of due-for-renewal services.
 	 */
 	public static function count_due() {
@@ -863,13 +864,11 @@ class SmartWoo_Service_Database {
 
 	/**
 	 * Count services currently "On Grace" (expired + grace status).
-	 *
-	 * Returns a bucketed string like "10+", "20+", "50+", "100+", "1k+", etc.
 	 * 
 	 * Uses transient caching to avoid expensive recalculations.
 	 *
-	 * @return string
-	 * @since 2.0.12
+	 * @return int $count
+	 * @since 2.5
 	 */
 	public static function count_on_grace() {
 		$cache_key = 'smartwoo_count_on_grace';
@@ -914,28 +913,23 @@ class SmartWoo_Service_Database {
 		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		$services = self::convert_results_to_services( $results );
 
-		$raw_count = 0;
+		$count = 0;
 		foreach ( $services as $service ) {
 			if ( smartwoo_is_service_on_grace( $service ) ) {
-				$raw_count++;
+				$count++;
 			}
 		}
 
-		// Bucketize the count into display-friendly format.
-		$count = self::format_count_bucket( $raw_count );
-
-		// Cache for 1 hour.
 		set_transient( $cache_key, $count, HOUR_IN_SECONDS );
 
 		return $count;
 	}
+
 	/**
 	 * Count services that are expired (end_date passed OR status = "Expired"),
 	 * excluding those currently on grace.
 	 *
-	 * Returns a bucketed string like "10+", "20+", "50+", "100+", "1k+".
-	 *
-	 * @return string
+	 * @return int
 	 * @since 2.0.12
 	 */
 	public static function count_expired() {
@@ -986,9 +980,7 @@ class SmartWoo_Service_Database {
 			}
 		}
 
-		$raw_count = count( $services );
-		$count     = self::format_count_bucket( $raw_count );
-
+		$count = count( $services );
 		set_transient( $cache_key, $count, HOUR_IN_SECONDS );
 
 		return $count;
@@ -1018,9 +1010,7 @@ class SmartWoo_Service_Database {
 		          WHERE `end_date` >= CURDATE() 
 		            AND `next_payment_date` < CURDATE()";
 
-		$total = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
-
-		$count = self::format_count_bucket( $total );
+		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
 		// Cache for an hour
 		set_transient( $cache_key, $count, HOUR_IN_SECONDS );
@@ -1044,7 +1034,7 @@ class SmartWoo_Service_Database {
 
 		switch ( strtolower( $status ) ) {
 			case 'due for renewal':
-				return self::count_all_due();
+				return self::count_due();
 
 			case 'grace period':
 				return self::count_on_grace();
@@ -1054,6 +1044,8 @@ class SmartWoo_Service_Database {
 
 			case 'expiry-threshold':
 				return self::count_on_expiry_threshold();
+			case 'active':
+				return self::count_active();
 
 			default:
 				break;
@@ -1080,9 +1072,7 @@ class SmartWoo_Service_Database {
 				$query .= $wpdb->prepare( " AND `user_id` = %d", get_current_user_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			}
 
-			$total = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
-
-			$count = self::format_count_bucket( $total );
+			$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
 			// Cache result.
 			set_transient( $cache_key, $count, HOUR_IN_SECONDS );
