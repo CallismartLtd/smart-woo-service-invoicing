@@ -250,10 +250,10 @@ class SmartWooAdminDashboard {
      * @return {Promise<?Object|string>}
      */
     async _fetchSectionData( sectionKey, params ) {
-        const url = this.serverConfig.admin_rest_endpoint;
+        const url = new URL( this.serverConfig.admin_rest_endpoint );
+        url.pathname += 'dashboard';
         const body = new FormData();
 
-        body.append( 'action', 'smartwoo_dashboard_fetch' );
         if ( this.serverConfig.nonce ) {
             body.append( '_ajax_nonce', this.serverConfig.nonce );
         }
