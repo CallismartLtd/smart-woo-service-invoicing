@@ -61,6 +61,7 @@ class SmartWoo_Config{
         add_action( 'woocommerce_loaded', array( $this, 'check_woocommerce' ) );
         add_action( 'smartwoo_init', array( $this, 'load_dependencies' ) );
         add_action( 'smartwoo_loaded', array( $this, 'run_hooks' ) );
+        add_action( 'rest_api_init', [$this, 'register_rest_routes'] );
     }
 
     /**
@@ -186,6 +187,9 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/emails/service-emails/service-processed-mail.php';
         require_once SMARTWOO_PATH . 'includes/class-smartwoo-blocks.php';
         require_once SMARTWOO_PATH . 'includes/class-automation.php';
+        require_once SMARTWOO_PATH . 'includes/rest-api/class-sanitize.php';
+        require_once SMARTWOO_PATH . 'includes/rest-api/class-validate.php';
+        require_once SMARTWOO_PATH . 'includes/rest-api/class-admin-dashboard.php';
 
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
@@ -707,4 +711,61 @@ class SmartWoo_Config{
 
 		return $handlers;
 	}
+
+    /**
+     * Get supported REST API Routes.
+     *
+     * @return array
+     */
+    private function get_rest_routes() {
+        $routes = array(
+            'smartwoo-admin/v1' => array(
+                'routes' => array(
+                    '/dashboard' => array(
+                        array(
+                            'methods'             => WP_REST_Server::ALLMETHODS,
+                            'callback'            => array( \SmartWoo_REST_API\AdminDashboard::class, 'dispatch' ),
+                            'permission_callback' => [\SmartWoo_REST_API\AdminDashboard::class, 'can_view_admin'],
+                            'args'  => array(
+                                'section'   => array(
+                                    'required'      => true,
+                                    'type'          => 'string',
+                                    'description'   => 'The admin section needed',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
+                                ),
+
+                            )
+                        ),
+                    )
+                    
+                ),
+            ),
+        );
+
+        /**
+         * Filter the SmartWoo REST API routes.
+         *
+         * @param array $routes
+         */
+        return apply_filters( 'smartwoo_rest_routes', $routes );
+    }
+
+    /**
+     * Register the REST API Routes.
+     */
+    public function register_rest_routes() {
+        $routesets = $this->get_rest_routes();
+
+        foreach ( $routesets as $namespace => $set ) {
+            if ( empty( $set['routes'] ) || ! is_array( $set['routes'] ) ) {
+                continue;
+            }
+
+            foreach ( $set['routes'] as $route => $args ) {
+                register_rest_route( $namespace, $route, $args );
+            }
+        }
+    }
+
 }
