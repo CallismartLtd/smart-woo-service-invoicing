@@ -792,7 +792,7 @@ class SmartWoo_Service_Database {
 			}
 
 			// Store in transient for 1 hour.
-			set_transient( $cache_key, (int) $count, HOUR_IN_SECONDS );
+			set_transient( $cache_key, (int) $count, 5 * MINUTE_IN_SECONDS );
 		}
 
 		return (int) $count;
@@ -856,7 +856,7 @@ class SmartWoo_Service_Database {
 			$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
 			// Save to cache for 1 hour.
-			set_transient( $cache_key, $count, HOUR_IN_SECONDS );
+			set_transient( $cache_key, $count, 5 * MINUTE_IN_SECONDS );
 		}
 
 		return (int) $count;
@@ -920,7 +920,7 @@ class SmartWoo_Service_Database {
 			}
 		}
 
-		set_transient( $cache_key, $count, HOUR_IN_SECONDS );
+		set_transient( $cache_key, $count, 5 * MINUTE_IN_SECONDS );
 
 		return $count;
 	}
@@ -981,7 +981,7 @@ class SmartWoo_Service_Database {
 		}
 
 		$count = count( $services );
-		set_transient( $cache_key, $count, HOUR_IN_SECONDS );
+		set_transient( $cache_key, $count, 5 * MINUTE_IN_SECONDS );
 
 		return $count;
 	}
@@ -1013,7 +1013,7 @@ class SmartWoo_Service_Database {
 		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
 		// Cache for an hour
-		set_transient( $cache_key, $count, HOUR_IN_SECONDS );
+		set_transient( $cache_key, $count, 5 * MINUTE_IN_SECONDS );
 
 		return $count;
 	}
@@ -1075,7 +1075,7 @@ class SmartWoo_Service_Database {
 			$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
 			// Cache result.
-			set_transient( $cache_key, $count, HOUR_IN_SECONDS );
+			set_transient( $cache_key, $count, 5 * MINUTE_IN_SECONDS );
 		}
 
 		return $count;
@@ -1097,7 +1097,7 @@ class SmartWoo_Service_Database {
 			$table_name = SMARTWOO_SERVICE_TABLE;
 			$query = "SELECT COUNT( DISTINCT `user_id`) FROM `{$table_name}` WHERE  `end_date` > CURDATE()";
 			$total = (int) $wpdb->get_var( $query );
-			wp_cache_set( $cache_key, $total, 'smartwoo_service_database', 6 * HOUR_IN_SECONDS );
+			wp_cache_set( $cache_key, $total, 'smartwoo_service_database',5 * MINUTE_IN_SECONDS );
 		}
 
 		return $total;
@@ -1190,7 +1190,7 @@ class SmartWoo_Service_Database {
 		
 		if ( $saved ) {
 			self::save_all_metadata( $service );
-			self::count_all();
+			update_option( 'smartwoo_all_services_count', self::count_all() );
 			$service->set_id( $wpdb->insert_id );
 
 			/**
@@ -1455,7 +1455,7 @@ class SmartWoo_Service_Database {
 		delete_transient( 'smartwoo_status_' . $service_id );
 		wp_cache_delete( 'smartwoo_status_' . $service_id );
 		
-		self::count_all()();
+		update_option( 'smartwoo_all_services_count', self::count_all() );
 		return $deleted !== false;
 	}
 
