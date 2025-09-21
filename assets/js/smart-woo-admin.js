@@ -1312,21 +1312,30 @@ document.addEventListener('DOMContentLoaded', () => {
             jQuery(proDiv).fadeIn();
         }, 5000 );
     }
-
+    
     if ( allLinkedTableRow.length ) {
-        allLinkedTableRow.forEach(element => {
-            const mainTable = element.closest( 'table' );
-            mainTable.addEventListener( 'click', (e) => {
-                if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
+        const boundTables = new Set();
 
-                let mainRow = e.target.closest( 'tr' );
-                let url     = mainRow?.dataset?.url;
-                
-                if ( ! url ) return;
-                window.location.href = url;
-            });
+        allLinkedTableRow.forEach( element => {
+            const mainTable = element.closest( 'table' );
+
+            if ( ! boundTables.has( mainTable ) ) {
+                mainTable.addEventListener( 'click', ( e ) => {
+                    if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
+
+                    const mainRow = e.target.closest( 'tr' );
+                    const url     = mainRow?.dataset?.url;
+                    
+                    if ( url ) {
+                        window.location.href = url;
+                    }
+                });
+
+                boundTables.add( mainTable );
+            }
         });
     }
+
 
     /**
      * The assets is downloadable checkbox.
