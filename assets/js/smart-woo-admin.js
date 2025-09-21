@@ -1315,7 +1315,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if ( allLinkedTableRow.length ) {
         allLinkedTableRow.forEach(element => {
-            element.addEventListener( 'click', (e) => {
+            const mainTable = element.closest( 'table' );
+            mainTable.addEventListener( 'click', (e) => {
                 if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
 
                 let mainRow = e.target.closest( 'tr' );
