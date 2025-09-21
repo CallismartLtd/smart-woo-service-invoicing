@@ -180,15 +180,17 @@ class SmartWoo_Dashboard_Controller {
 	 * The admin dashboard page
 	 */
 	private static function dashboard() {		
-		$services					= SmartWoo_Service_Database::get_all( 1, 10 );
+		$current_args				= ['limit' => 10, 'page' => 1];
 		$total_services				= SmartWoo_Service_Database::get_total_records();
-		$active_subscribers			= SmartWoo_Service_Database::get_active_subscribers();
 		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
 		$expiring_soon_count		= SmartWoo_Service_Database::count_by_status( 'expiry-threshold' );
 		$new_order_count			= smartwoo_count_unprocessed_orders();
-		$pending_invoices			= SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', ['limit' => 10, 'page' => 1] );
 		$unpaid_invoices_count		= SmartWoo_Invoice_Database::count_this_status( 'unpaid' );
-		$recent_invoices			= SmartWoo_Invoice_Database::get_all_invoices( 1, 10 );
+		
+		$active_subscribers			= SmartWoo_Service_Database::get_active_subscribers( $current_args['page'], $current_args['limit'] );
+		$pending_invoices			= SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', $current_args );
+		$services					= SmartWoo_Service_Database::get_all( $current_args['page'], $current_args['limit'] );
+		$recent_invoices			= SmartWoo_Invoice_Database::get_all_invoices( $current_args['page'], $current_args['limit'] );
 
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
 	}
