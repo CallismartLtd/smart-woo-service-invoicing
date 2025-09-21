@@ -62,6 +62,7 @@ class SmartWoo_Config{
         add_action( 'smartwoo_init', array( $this, 'load_dependencies' ) );
         add_action( 'smartwoo_loaded', array( $this, 'run_hooks' ) );
         add_action( 'rest_api_init', [$this, 'register_rest_routes'] );
+        add_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 10, 3 );
     }
 
     /**
@@ -189,7 +190,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/class-automation.php';
         require_once SMARTWOO_PATH . 'includes/rest-api/class-sanitize.php';
         require_once SMARTWOO_PATH . 'includes/rest-api/class-validate.php';
-        require_once SMARTWOO_PATH . 'includes/rest-api/class-admin-dashboard.php';
+        require_once SMARTWOO_PATH . 'includes/rest-api/adminDashboard.php';
 
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
@@ -311,7 +312,8 @@ class SmartWoo_Config{
             'fast_checkout_config'      => smartwoo_fast_checkout_options(),
             'dashicons_asset_url'       => includes_url( 'css/dashicons.min.css' ),
             'editor_css_url'            => SMARTWOO_DIR_URL . 'assets/editor/css/smartwoo-editor-ui.css',
-            'subscription_asset_url'    => SMARTWOO_DIR_URL . 'assets/css/subscription-assets' . $suffix . '.css'
+            'subscription_asset_url'    => SMARTWOO_DIR_URL . 'assets/css/subscription-assets' . $suffix . '.css',
+            'charset'                   => get_bloginfo( 'charset' )
         );
 
         wp_register_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
@@ -347,7 +349,10 @@ class SmartWoo_Config{
         if ( is_admin() ) {
             wp_register_script( 'smartwoo-admin-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo-admin' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
             
-            $utils['admin_rest_endpoint'] = site_url( 'wp-json/smartwoo-admin/v1/' );
+            $utils['restApi'] = [
+                'admin_url'     => rest_url( 'smartwoo-admin/v1/' ),
+                'WP_API_nonce'  => wp_create_nonce( 'wp_rest' )
+            ];
 
             if ( self::in_admin_page() ) {
                 wp_enqueue_script( 'wc-enhanced-select' );
@@ -572,6 +577,13 @@ class SmartWoo_Config{
     }
 
     /**
+     * Clear cache
+     */
+    public static function clear_cache() {
+        $cache_keys = [];
+    }
+
+    /**
      * Revoke cookie tracking for form submission when user withdraws their conscent.
      * 
      */
@@ -725,15 +737,70 @@ class SmartWoo_Config{
                         array(
                             'methods'             => WP_REST_Server::ALLMETHODS,
                             'callback'            => array( \SmartWoo_REST_API\AdminDashboard::class, 'dispatch' ),
-                            'permission_callback' => [\SmartWoo_REST_API\AdminDashboard::class, 'can_view_admin'],
+                            'permission_callback' => [\SmartWoo_REST_API\AdminDashboard::class, 'authorize_request'],
                             'args'  => array(
-                                'section'   => array(
-                                    'required'      => true,
-                                    'type'          => 'string',
-                                    'description'   => 'The admin section needed',
+                                'filter' => array(
+                                    'required'    => true,
+                                    'type'        => 'string',
+                                    'enum'        => array(
+                                        'allServices',
+                                        'allActiveServices',
+                                        'allActiveNRServices',
+                                        'allExpiredServices',
+                                        'allCancelledServices',
+                                        'allSuspendedServices',
+                                        'allUnPaidInvoice',
+                                        'allNewOrders',
+                                        'allDueServices',
+                                        'allGracePeriodServices',
+                                    ),
+                                    'description' => 'The dataset filter to apply. Valid values include:
+                                        - allServices: All services
+                                        - allActiveServices: Active services
+                                        - allActiveNRServices: Active non-recurring services
+                                        - allExpiredServices: Expired services
+                                        - allCancelledServices: Cancelled services
+                                        - allSuspendedServices: Suspended services
+                                        - allUnPaidInvoice: Unpaid invoices
+                                        - allNewOrders: New orders
+                                        - allDueServices: Due services
+                                        - allGracePeriodServices: Services in grace period.',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
                                 ),
+
+                                'page' => array(
+                                    'required'          => false,
+                                    'type'              => 'integer',
+                                    'default'           => 1,
+                                    'description'       => 'The current pagination number',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'integer' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'integer' ),
+                                ),
+                                'limit' => array(
+                                    'required'          => false,
+                                    'type'              => 'integer',
+                                    'default'           => 25,
+                                    'description'       => 'The number of results to return',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'integer' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'integer' ),
+                                ),
+
+                                'section'   => array(
+                                    'required'  => true,
+                                    'type'      => 'string',
+                                    'enum'      => array(
+                                        'subscriptionList',
+                                        'subscribersList',
+                                        'needsAttention',
+                                        'activities'
+                                    ),
+                                    'description'       => 'The current admin dashboard section where the response is being rendered',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => function( $value ) {
+                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities' ) );
+                                    },
+                                )
 
                             )
                         ),
@@ -768,4 +835,33 @@ class SmartWoo_Config{
         }
     }
 
+    /**
+     * Ensures HTTPS/TLS for REST API endpoints within the plugin's namespace.
+     *
+     * Checks if the current REST API request belongs to the plugin's namespace
+     * and enforces HTTPS/TLS requirements if the environment is production.
+     *
+     * @return WP_Error|null WP_Error object if HTTPS/TLS requirement is not met, null otherwise.
+     */
+    public function rest_pre_dispatch( $result, $server, $request ) {
+        // Check if current request belongs to the plugin's namespace.
+        if ( ! str_contains( $request->get_route(), '/smartwoo-' ) ) {
+            return;
+        }
+
+        // Check if environment is production and request is not over HTTPS.
+        if ( 'production' === wp_get_environment_type() && ! is_ssl() ) {
+            // Create WP_Error object to indicate insecure SSL.
+            $error = new WP_Error( 'connection_not_secure', 'HTTPS/TLS is required for secure communication.', array( 'status' => 400, ) );
+            
+            // Return the WP_Error object.
+            return $error;
+        }
+
+        if ( str_contains( $request->get_route(), '/smartwoo-admin/' ) ) {
+            add_filter( 'smartwoo_is_frontend', '__return_false' );
+        }
+
+        error_log( $request->get_route() );
+    }
 }
