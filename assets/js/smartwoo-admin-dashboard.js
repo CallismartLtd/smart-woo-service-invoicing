@@ -111,24 +111,33 @@ class SmartWooAdminDashboard {
 
         }
 
-        if ( params ) {
-            const response  = await this._fetch( params );
-            
-            if ( ! response ) return;
+        if ( ! params ) return;
+        
+        const response  = await this._fetch( params );
+        
+        if ( ! response ) return;
 
-            const tableRows = response?.table_rows ?? [];
-            
-            let rows = ``;
+        const tableRows = response?.table_rows ?? [];
+        
+        let rows = ``;
 
-            tableRows.map( row => {
-                rows += row;
-            });
+        tableRows.map( row => {
+            rows += row;
+        });
 
-            this._replaceSectionBodyHtml( sectionEl, rows ); 
-            this._updateSectionPagination( sectionEl, response.pagination );
+        this._replaceSectionBodyHtml( sectionEl, rows ); 
+        this._updateSectionPagination( sectionEl, response.pagination );
+        this._updateSectionHeading( sectionEl, response.title ?? 'Subscriptions' );
+        
 
-            sectionEl.setAttribute( 'data-current-filter', params.filter );
+        if ( ! pagBtn ) {
+            this._resetDisabledButtons( sectionEl );
+            event.target.closest( '.smartwoo-dasboard-filter-button' )?.setAttribute( 'disabled', true );
         }
+
+        sectionEl.setAttribute( 'data-current-filter', params.filter );
+        
+        
     }
 
     _handleSubscribersSectionEvent( event, sectionEl ) {
@@ -178,7 +187,7 @@ class SmartWooAdminDashboard {
      * @param {HTMLElement} sectionEl - The section element
      */
     _resetDisabledButtons( sectionEl ) {
-        sectionEl?.querySelectorAll( '.smartwoo-dasboard-filter-button[dasabled="true"]').forEach( btn => btn.disabled = false );
+        sectionEl?.querySelectorAll( '.smartwoo-dasboard-filter-button[disabled="true"]').forEach( btn => btn.disabled = false );
     }
 
     /* -------------------------
@@ -213,11 +222,7 @@ class SmartWooAdminDashboard {
         if ( params ) {
             Object.keys( params ).forEach( ( key ) => {
                 const val = params[ key ];
-                if ( typeof val === 'object' ) {
-                    payload[key] = val;
-                } else {
-                    payload[key] = String( val );
-                }
+                payload[key] = typeof val === 'object' ? val : String( val );
             });
         }
 
@@ -233,26 +238,33 @@ class SmartWooAdminDashboard {
                 credentials: 'same-origin',
                 body: JSON.stringify( payload ),
             } );
-            
-            const responseJson  = await response.json(); // Our REST endpoint always returns JSON Object.
+
+            const responseJson = await response.json(); // REST always returns JSON
 
             if ( ! response.ok ) {
-                let errorMessage = `HTTP error: ${ response.status }`;
-                const error = new Error( responseJson?.message ?? errorMessage );
+                // Distinguish auth/cookie problems
+                if ( response.status === 401 || response.status === 403 ) {
+                    const error = new Error( responseJson?.message ?? 'Authentication failed. Please refresh current page.' );
+                    error.type = 'AUTH_ERROR';
+                    throw error;
+                }
 
+                const error = new Error( responseJson?.message ?? `HTTP error: ${ response.status }` );
                 error.type = 'SMARTWOO_REST_ERROR';
                 throw error;
             }
 
             return responseJson;            
-        } catch (error) {
+        } catch ( error ) {
             if ( error instanceof TypeError ) {
-                showNotification( 'Please check your internet connection and try again later.', 3000 );
-            } else if ( 'SMARTWOO_REST_ERROR' === error.type ) {
+                showNotification( 'Please check your internet connection and try again later.', 5000 );
+            } else if ( error.type === 'AUTH_ERROR' ) {
                 showNotification( error.message, 5000 );
+            } else if ( error.type === 'SMARTWOO_REST_ERROR' ) {
+                showNotification( error.message, 5000 );
+            } else {
+                console.error('Unexpected error:', error);
             }
-
-            console.error(error);
         } finally {
             this._hideLoader();
         }
@@ -267,8 +279,18 @@ class SmartWooAdminDashboard {
         if ( tBody ) {
             jQuery( tBody ).fadeOut( 'slow', () => {
                 tBody.innerHTML = html;
+
+                if ( tBody.querySelector( 'tr td.sw-not-found' ) ) {
+                    tBody.closest( 'table.sw-table' )?.querySelector( 'thead' )?.classList.add( 'smartwoo-hide' );
+                    sectionEl.querySelector( '.sw-dashboard-pagination' )?.classList.add( 'smartwoo-hide' );
+                
+                } else {
+                    tBody.closest( 'table.sw-table' )?.querySelector( 'thead' )?.classList.remove( 'smartwoo-hide' );
+                    sectionEl.querySelector( '.sw-dashboard-pagination' )?.classList.remove( 'smartwoo-hide' );
+                }
+
                 jQuery( tBody ).fadeIn();
-            })
+            });
             
         }
     }
