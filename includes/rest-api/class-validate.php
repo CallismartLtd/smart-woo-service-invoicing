@@ -3,7 +3,7 @@
  * The Validation class file.
  * 
  * @author  Callistus Nwachukwu
- * @package Callismart\Classes
+ * @package SmartWoo_REST_API\Classes
  * @version 1.0.0
  * @since   1.0.0
  */
@@ -29,7 +29,7 @@ class VALIDATE {
 
         return new \WP_Error(
             'invalid_integer',
-            __( 'The provided value must be an integer.', 'callismart' ),
+            __( 'The provided value must be an integer.', 'smart-woo-service-invoicing' ),
             array( 'status' => 400 )
         );
     }
@@ -47,7 +47,7 @@ class VALIDATE {
 
         return new \WP_Error(
             'invalid_string',
-            __( 'The provided value must be a non-empty string.', 'callismart' ),
+            __( 'The provided value must be a non-empty string.', 'smart-woo-service-invoicing' ),
             array( 'status' => 400 )
         );
     }
@@ -65,7 +65,7 @@ class VALIDATE {
 
         return new \WP_Error(
             'invalid_email',
-            __( 'The provided value must be a valid email address.', 'callismart' ),
+            __( 'The provided value must be a valid email address.', 'smart-woo-service-invoicing' ),
             array( 'status' => 400 )
         );
     }
@@ -83,7 +83,7 @@ class VALIDATE {
 
         return new \WP_Error(
             'invalid_url',
-            __( 'The provided value must be a valid URL.', 'callismart' ),
+            __( 'The provided value must be a valid URL.', 'smart-woo-service-invoicing' ),
             array( 'status' => 400 )
         );
     }
@@ -101,7 +101,7 @@ class VALIDATE {
 
         return new \WP_Error(
             'invalid_boolean',
-            __( 'The provided value must be a boolean.', 'callismart' ),
+            __( 'The provided value must be a boolean.', 'smart-woo-service-invoicing' ),
             array( 'status' => 400 )
         );
     }
@@ -119,7 +119,7 @@ class VALIDATE {
 
         return new \WP_Error(
             'invalid_array',
-            __( 'The provided value must be an array.', 'callismart' ),
+            __( 'The provided value must be an array.', 'smart-woo-service-invoicing' ),
             array( 'status' => 400 )
         );
     }
@@ -135,7 +135,7 @@ class VALIDATE {
         if ( is_string( $value ) && trim( $value ) === '' ) {
             return new \WP_Error(
                 'rest_invalid_param',
-                __( 'The value cannot be an empty string.', 'callismart' ),
+                __( 'The value cannot be an empty string.', 'smart-woo-service-invoicing' ),
                 array( 'status' => 400 )
             );
         }
@@ -144,7 +144,7 @@ class VALIDATE {
         if ( is_array( $value ) && empty( $value ) ) {
             return new \WP_Error(
                 'rest_invalid_param',
-                __( 'The array cannot be empty.', 'callismart' ),
+                __( 'The array cannot be empty.', 'smart-woo-service-invoicing' ),
                 array( 'status' => 400 )
             );
         }
@@ -153,7 +153,7 @@ class VALIDATE {
         if ( $value === null ) {
             return new \WP_Error(
                 'rest_invalid_param',
-                __( 'The value cannot be null.', 'callismart' ),
+                __( 'The value cannot be null.', 'smart-woo-service-invoicing' ),
                 array( 'status' => 400 )
             );
         }
@@ -161,5 +161,29 @@ class VALIDATE {
         // Scalars like 0, false, etc. are allowed
         return true;
     }
+
+    /**
+     * Validate that a value exists in a given enum set.
+     *
+     * @param mixed $value   The value to validate.
+     * @param array $allowed The allowed values.
+     * @return true|\WP_Error True if valid, WP_Error otherwise.
+     */
+    public static function enum( $value, array $allowed ) {
+        if ( in_array( $value, $allowed, true ) ) {
+            return true;
+        }
+
+        return new \WP_Error(
+            'invalid_enum',
+            sprintf(
+                __( 'Invalid value "%s". Allowed values are: %s', 'smart-woo-service-invoicing' ),
+                $value,
+                implode( ', ', $allowed )
+            ),
+            array( 'status' => 400 )
+        );
+    }
+
 
 }
