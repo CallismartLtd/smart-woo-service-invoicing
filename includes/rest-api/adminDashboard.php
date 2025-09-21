@@ -77,6 +77,7 @@ class AdminDashboard {
         
         
         $response_data['current_filter']    = $current_filter;
+        $response_data['title']    = self::get_response_title( $current_filter );
         $response_data['pagination']        = $pagination;
         
         $response   = new WP_REST_Response( $response_data, 200 );
@@ -181,6 +182,30 @@ class AdminDashboard {
             'prev_page'     => ( $current_page > 1 ) ? $current_page - 1 : null,
             'next_page'     => ( $current_page < $total_pages ) ? $current_page + 1 : null,
         );
+    }
+
+    /**
+     * Get the request response title.
+     * 
+     * @param string $filter
+     * @return string
+     */
+    private static function get_response_title( string $filter ) {
+        $titles = array(
+            'allServices'            => __( 'All Subscriptions', 'smart-woo-service-invoicing' ),
+            'allActiveServices'      => __( 'All Active Services', 'smart-woo-service-invoicing' ),
+            'allActiveNRServices'    => __( 'All Active Non-Renewing Services', 'smart-woo-service-invoicing' ),
+            'allExpiredServices'     => __( 'All Expired Services', 'smart-woo-service-invoicing' ),
+            'allCancelledServices'   => __( 'All Cancelled Services', 'smart-woo-service-invoicing' ),
+            'allSuspendedServices'   => __( 'All Suspended Services', 'smart-woo-service-invoicing' ),
+            'allUnPaidInvoice'       => __( 'All Unpaid Invoices', 'smart-woo-service-invoicing' ),
+            'allNewOrders'           => __( 'All New Orders', 'smart-woo-service-invoicing' ),
+            'allDueServices'         => __( 'All Due Services', 'smart-woo-service-invoicing' ),
+            'allGracePeriodServices' => __( 'All Services in Grace Period', 'smart-woo-service-invoicing' ),
+        );
+
+        return $titles[$filter] ?? '';
+
     }
 
 
