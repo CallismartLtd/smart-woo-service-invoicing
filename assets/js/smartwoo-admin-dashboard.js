@@ -85,25 +85,49 @@ class SmartWooAdminDashboard {
      * ------------------------- 
      */
 
-    _handleSubscriptionSectionEvent( event, sectionEl ) {
+    async _handleSubscriptionSectionEvent( event, sectionEl ) {
         // Filter buttons
         const filterBtn = event.target.closest( '.smartwoo-dasboard-filter-button' );
+        let params = null;
         if ( filterBtn ) {
             event.preventDefault();
-            return this._fetchAndRenderSection( sectionEl, { filter: filterBtn.dataset.action } );
+            params = {
+                filter: filterBtn.getAttribute( 'data-get-filter' ),
+                section: 'subscriptionList',
+                ...this._parseJSONSafe( filterBtn.getAttribute( 'data-state-args' ) )
+            };
         }
 
-        // Pagination buttons
         const pagBtn = event.target.closest( '.sw-pagination-button' );
+
         if ( pagBtn ) {
             event.preventDefault();
-            return this._handlePaginationClick( sectionEl, pagBtn );
+            const currentFilter = sectionEl.getAttribute( 'data-current-filter' );
+            params = {
+                filter: currentFilter,
+                section: 'subscriptionList',
+                ...this._parseJSONSafe( pagBtn.getAttribute( 'data-pagination' ) )
+            };
+
         }
 
-        // Row navigation (but avoid navigation on inputs/buttons)
-        const row = event.target.closest( '.smartwoo-linked-table-row' );
-        if ( row ) {
-            return this._maybeNavigateRow( event, row );
+        if ( params ) {
+            const response  = await this._fetch( params );
+            
+            if ( ! response ) return;
+
+            const tableRows = response?.table_rows ?? [];
+            
+            let rows = ``;
+
+            tableRows.map( row => {
+                rows += row;
+            });
+
+            this._replaceSectionBodyHtml( sectionEl, rows ); 
+            this._updateSectionPagination( sectionEl, response.pagination );
+
+            sectionEl.setAttribute( 'data-current-filter', params.filter );
         }
     }
 
@@ -120,11 +144,6 @@ class SmartWooAdminDashboard {
             event.preventDefault();
             return this._handlePaginationClick( sectionEl, pagBtn );
         }
-
-        const row = event.target.closest( '.smartwoo-linked-table-row' );
-        if ( row ) {
-            return this._maybeNavigateRow( event, row );
-        }
     }
 
     _handleNeedsAttentionSectionEvent( event, sectionEl ) {
@@ -139,11 +158,6 @@ class SmartWooAdminDashboard {
             event.preventDefault();
             return this._handlePaginationClick( sectionEl, pagBtn );
         }
-
-        const row = event.target.closest( '.smartwoo-linked-table-row' );
-        if ( row ) {
-            return this._maybeNavigateRow( event, row );
-        }
     }
 
     _handleRecentInvoicesSectionEvent( event, sectionEl ) {
@@ -152,26 +166,19 @@ class SmartWooAdminDashboard {
             event.preventDefault();
             return this._handlePaginationClick( sectionEl, pagBtn );
         }
-
-        const row = event.target.closest( '.smartwoo-linked-table-row' );
-        if ( row ) {
-            return this._maybeNavigateRow( event, row );
-        }
     }
 
     _handleActivitiesSectionEvent( event, sectionEl ) {
-        // Activities may contain custom controls — for now, treat click targets generically
-        const targetRow = event.target.closest( '.smartwoo-linked-table-row' );
-        if ( targetRow ) {
-            return this._maybeNavigateRow( event, targetRow );
-        }
 
-        // If activities include a refresh button in future, handle it here
-        const refreshBtn = event.target.closest( '.smartwoo-activities-refresh' );
-        if ( refreshBtn ) {
-            event.preventDefault();
-            return this._fetchAndRenderSection( sectionEl, { action: 'refreshActivities' } );
-        }
+    }
+
+    /**
+     * Reset all disabled section button
+     * 
+     * @param {HTMLElement} sectionEl - The section element
+     */
+    _resetDisabledButtons( sectionEl ) {
+        sectionEl?.querySelectorAll( '.smartwoo-dasboard-filter-button[dasabled="true"]').forEach( btn => btn.disabled = false );
     }
 
     /* -------------------------
@@ -192,105 +199,63 @@ class SmartWooAdminDashboard {
         return this._fetchAndRenderSection( sectionEl, { pagination: pagination } );
     }
 
-    /* -------------------------
-     * Fetch + render helpers
-     * ------------------------- */
-
     /**
-     * Fetch server data for a given section and render it.
+     * Fetches dashboard data from our `wp-json/smartwoo-admin/v1/` REST endpoint.
      *
-     * Server contract (recommended): return either HTML string (rows/markup) OR JSON:
-     * {
-     *   html: '<tr>...</tr>',
-     *   pagination: { prev_disabled: false, next_disabled: false, page: 2, total_pages: 5 },
-     *   heading: 'All Subscriptions'
-     * }
-     *
-     * @param  {HTMLElement} sectionEl
-     * @param  {Object}      params
-     * @return {Promise}
-     */
-    async _fetchAndRenderSection( sectionEl, params ) {
-        const sectionKey = sectionEl.getAttribute( 'data-section' ) || '';
-        this._showLoader( sectionEl );
-
-        try {
-            const payload = await this._fetchSectionData( sectionKey, params );
-
-            // payload may be string (HTML) or object
-            if ( typeof payload === 'string' ) {
-                this._replaceSectionBodyHtml( sectionEl, payload );
-            } else if ( payload && typeof payload === 'object' ) {
-                if ( payload.html ) {
-                    this._replaceSectionBodyHtml( sectionEl, payload.html );
-                }
-
-                if ( payload.pagination ) {
-                    this._updateSectionPagination( sectionEl, payload.pagination );
-                }
-
-                if ( payload.heading ) {
-                    this._updateSectionHeading( sectionEl, payload.heading );
-                }
-            }
-        } catch ( err ) {
-            // Minimal in-UI error reporting: insert a friendly row or use console
-            console.error( 'SmartWoo dashboard fetch error:', err );
-            this._displaySectionError( sectionEl, 'Could not load data. Please try again.' );
-        } finally {
-            this._hideLoader( sectionEl );
-        }
-    }
-
-    /**
-     * Performs the actual fetch to admin-ajax.php
-     *
-     * @param  {string} sectionKey
      * @param  {Object} params
      * @return {Promise<?Object|string>}
      */
-    async _fetchSectionData( sectionKey, params ) {
-        const url = new URL( this.serverConfig.admin_rest_endpoint );
+    async _fetch( params ) {
+        const url = new URL( this.serverConfig.restApi.admin_url );
         url.pathname += 'dashboard';
-        const body = new FormData();
+        const payload = {};
 
-        if ( this.serverConfig.nonce ) {
-            body.append( '_ajax_nonce', this.serverConfig.nonce );
-        }
-
-        body.append( 'section', sectionKey );
-
-        // Append the params object: filter/pagination etc.
         if ( params ) {
-            // If params contains an object (pagination), stringify sub-values
             Object.keys( params ).forEach( ( key ) => {
                 const val = params[ key ];
                 if ( typeof val === 'object' ) {
-                    body.append( key, JSON.stringify( val ) );
+                    payload[key] = val;
                 } else {
-                    body.append( key, String( val ) );
+                    payload[key] = String( val );
                 }
+            });
+        }
+
+        this._showLoader();
+
+        try {
+            const response = await fetch( url, {
+                method: 'POST',
+                headers: {
+                    'X-WP-Nonce': this.serverConfig.restApi.WP_API_nonce,
+                    'Content-Type': `application/json; charset=${this.serverConfig.charset}`,
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify( payload ),
             } );
+            
+            const responseJson  = await response.json(); // Our REST endpoint always returns JSON Object.
+
+            if ( ! response.ok ) {
+                let errorMessage = `HTTP error: ${ response.status }`;
+                const error = new Error( responseJson?.message ?? errorMessage );
+
+                error.type = 'SMARTWOO_REST_ERROR';
+                throw error;
+            }
+
+            return responseJson;            
+        } catch (error) {
+            if ( error instanceof TypeError ) {
+                showNotification( 'Please check your internet connection and try again later.', 3000 );
+            } else if ( 'SMARTWOO_REST_ERROR' === error.type ) {
+                showNotification( error.message, 5000 );
+            }
+
+            console.error(error);
+        } finally {
+            this._hideLoader();
         }
-
-        const response = await fetch( url, {
-            method: 'POST',
-            credentials: 'same-origin',
-            body: body,
-        } );
-
-        if ( ! response.ok ) {
-            throw new Error( `HTTP error: ${ response.status }` );
-        }
-
-        const contentType = response.headers.get( 'content-type' ) || '';
-
-        if ( contentType.includes( 'application/json' ) ) {
-            return await response.json();
-        }
-
-        // Fallback to raw text (HTML) — server returns <tr>...</tr> or markup fragment
-        return await response.text();
     }
 
     /* -------------------------
@@ -298,12 +263,23 @@ class SmartWooAdminDashboard {
      * ------------------------- */
 
     _replaceSectionBodyHtml( sectionEl, html ) {
-        const body = sectionEl.querySelector( '.smartwoo-table-content' ) || sectionEl.querySelector( '.sw-dashboard-activities-section' ) || sectionEl;
-        if ( body ) {
-            body.innerHTML = html;
+        const tBody = sectionEl.querySelector( '.smartwoo-table-content' ) || sectionEl.querySelector( '.sw-dashboard-activities-section' ) || sectionEl;
+        if ( tBody ) {
+            jQuery( tBody ).fadeOut( 'slow', () => {
+                tBody.innerHTML = html;
+                jQuery( tBody ).fadeIn();
+            })
+            
         }
     }
 
+    /**
+     * Updates the pagination buttons for the given section.
+     * 
+     * @param {HTMLElement} sectionEl 
+     * @param {Object} pagination 
+     * @returns 
+     */
     _updateSectionPagination( sectionEl, pagination ) {
         // Find pagination container inside section and update button disabled states & data-pagination
         const pagContainer = sectionEl.querySelector( '.sw-dashboard-pagination' );
@@ -311,32 +287,26 @@ class SmartWooAdminDashboard {
             return;
         }
 
-        // Example pagination object expected: { prev_disabled: true, next_disabled: false, prev_number: 0, next_number: 2 }
-        const prevBtn = pagContainer.querySelector( '.sw-pagination-button[data-pagination*="prev"]' );
-        const nextBtn = pagContainer.querySelector( '.sw-pagination-button[data-pagination*="next"]' );
+        // Example pagination object expected: {"current_page": 2, "limit": 25, "total_items": 53, "total_pages": 3, "prev_page": 1, "next_page": 3}
+        const buttons   = pagContainer.querySelectorAll( 'button' );
+        const prevBtn   = buttons[0];
+        const nextBtn   = buttons[1];
 
-        if ( prevBtn && typeof pagination.prev_disabled !== 'undefined' ) {
-            if ( pagination.prev_disabled ) {
-                prevBtn.setAttribute( 'disabled', 'true' );
-            } else {
-                prevBtn.removeAttribute( 'disabled' );
-            }
+        prevBtn.setAttribute( 'data-pagination', JSON.stringify( { page: pagination.prev_page, limit: pagination.limit} ) );
+        nextBtn.setAttribute( 'data-pagination', JSON.stringify( { page: pagination.next_page, limit: pagination.limit} ) );
+
+        if ( ! pagination.next_page ) {
+            nextBtn.setAttribute( 'disabled', true );
+        } else {
+            nextBtn.removeAttribute( 'disabled' );
+
         }
 
-        if ( nextBtn && typeof pagination.next_disabled !== 'undefined' ) {
-            if ( pagination.next_disabled ) {
-                nextBtn.setAttribute( 'disabled', 'true' );
-            } else {
-                nextBtn.removeAttribute( 'disabled' );
-            }
-        }
+        if ( ! pagination.prev_page ) {
+            prevBtn.setAttribute( 'disabled', true );
+        } else {
+            prevBtn.removeAttribute( 'disabled' );
 
-        // If server returns updated data-pagination numbers, set them
-        if ( prevBtn && typeof pagination.prev_number !== 'undefined' ) {
-            prevBtn.setAttribute( 'data-pagination', JSON.stringify( { name: 'prev', number: Number( pagination.prev_number ) } ) );
-        }
-        if ( nextBtn && typeof pagination.next_number !== 'undefined' ) {
-            nextBtn.setAttribute( 'data-pagination', JSON.stringify( { name: 'next', number: Number( pagination.next_number ) } ) );
         }
     }
 
@@ -355,46 +325,19 @@ class SmartWooAdminDashboard {
     }
 
     /* -------------------------
-     * Row navigation helper
-     * ------------------------- */
-
-    _maybeNavigateRow( event, row ) {
-        // If the click originated from an interactive control, do not navigate
-        if ( event.target.closest( 'input, button, a, label, select' ) ) {
-            return;
-        }
-
-        // Avatar images or action dots should not trigger row nav if they are clickable elements
-        if ( event.target.classList && ( event.target.classList.contains( 'sw-table-avatar' ) || event.target.classList.contains( 'smartwoo-options-dots' ) ) ) {
-            return;
-        }
-
-        const url = row.getAttribute( 'data-url' );
-        if ( url ) {
-            window.location.href = url;
-        }
-    }
-
-    /* -------------------------
      * Loader helpers
      * ------------------------- */
 
-    _showLoader( sectionEl ) {
-        // Prefer an overlay loader for the section; fallback to global loader
-        if ( sectionEl ) {
-            sectionEl.setAttribute( 'aria-busy', 'true' );
-        }
+    _showLoader() {
         if ( this.globalLoader ) {
-            this.globalLoader.style.display = 'block';
+            this.spinner = smartWooAddSpinner( this.globalLoader, true );
         }
     }
 
-    _hideLoader( sectionEl ) {
-        if ( sectionEl ) {
-            sectionEl.removeAttribute( 'aria-busy' );
-        }
+    _hideLoader() {
+
         if ( this.globalLoader ) {
-            this.globalLoader.style.display = 'none';
+            smartWooRemoveSpinner( this.spinner );
         }
     }
 
