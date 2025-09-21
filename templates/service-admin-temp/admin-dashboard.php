@@ -141,7 +141,7 @@ defined( 'ABSPATH' ) || exit;
                     <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Service Subscription List', 'smart-woo-service-invoicing' ); ?></h3>
                     <div class="sw-admin-dashboard-interactivity-section_service-subscription-lists-content">
                         <div class="sw-service-subscription-lists_filters">
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allServices" data-state-args="<?php echo esc_attr( wp_json_encode( ['page' => 2, 'limit' => $current_args['limit']] ) ) ?>" disabled="true"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Active', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveNRServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Not Renewable', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allExpiredServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Expired', 'smart-woo-service-invoicing' ); ?></button>
@@ -152,7 +152,7 @@ defined( 'ABSPATH' ) || exit;
                         <div class="sw-service-subscription-lists_table-wrapper">
                             <h3 class="sw-service-subscription-lists_current-heading"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></h3>
                             <table class="sw-table widefat">
-                                <thead>
+                                <thead class="<?php echo esc_attr( empty( $services ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
                                         <th><input type="checkbox" id="serviceListMasterCheckbox"></th>
                                         <th><?php esc_html_e( 'ID', 'smart-woo-service-invoicing' ); ?></th>
@@ -162,19 +162,26 @@ defined( 'ABSPATH' ) || exit;
                                     </tr>
                                 </thead>
                                 <tbody class="smartwoo-table-content">
-                                    <?php foreach ( $services as $service ) : ?>
-                                        <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ) ?>" title="<?php esc_html_e( 'View', 'smart-woo-service-invoicing' ); ?>">
-                                            <td><input type="checkbox" id="<?php echo absint( $service->get_id() ); ?>"></td>
-                                            <td><?php echo absint( $service->get_id() ); ?></td>
-                                            <td><?php echo esc_html( $service->get_name() ); ?></td>
-                                            <td><?php echo esc_html( $service->get_service_id() ); ?></td>
-                                            <td><?php smartwoo_print_service_status( $service, ['dashboard-status'] ); ?></td>
-                                            
+                                    <?php if ( empty( $services ) ) : ?>
+                                        <tr>
+                                            <?php /*translators %s: Create new subscription link. */ ?>
+                                            <td class="sw-not-found"><?php printf( __( 'No service subscriptions found. <a href="%s">Create new service</a>', 'smart-woo-service-invoicing'), esc_url( admin_url( 'admin.php?page=sw-admin&tab=add-new-service' ) ) ); ?></td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <?php foreach ( $services as $service ) : ?>
+                                            <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( smartwoo_service_preview_url( $service->get_service_id() ) ) ?>" title="<?php esc_html_e( 'View', 'smart-woo-service-invoicing' ); ?>">
+                                                <td><input type="checkbox" id="<?php echo absint( $service->get_id() ); ?>"></td>
+                                                <td><?php echo absint( $service->get_id() ); ?></td>
+                                                <td><?php echo esc_html( $service->get_name() ); ?></td>
+                                                <td><?php echo esc_html( $service->get_service_id() ); ?></td>
+                                                <td><?php smartwoo_print_service_status( $service, ['dashboard-status'] ); ?></td>
+                                                
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
-                            <div class="sw-dashboard-pagination<?php printf( '%s', ( $total_services < 10 ) ? ' smartwoo-hide' : '' ); ?>">
+                            <div class="sw-dashboard-pagination<?php printf( '%s', ( $total_services < 10  || empty( $services ) ) ? ' smartwoo-hide' : '' ); ?>">
                                 <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2"></span></button>
                                 <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2"></span></button>
                             </div>
@@ -188,7 +195,7 @@ defined( 'ABSPATH' ) || exit;
                     <div class="sw-admin-dashboard-interactivity-section_service-subscription-lists-content">
                         <div class="sw-service-subscription-lists_table-wrapper">
                             <table class="sw-table widefat">
-                                <thead>
+                                <thead class="<?php echo esc_attr( empty( $active_subscribers ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
                                         <th></th>
                                         <th><?php esc_html_e( 'Name', 'smart-woo-service-invoicing' ); ?></th>
@@ -197,15 +204,21 @@ defined( 'ABSPATH' ) || exit;
                                     </tr>
                                 </thead>
                                 <tbody class="smartwoo-table-content">
-                                    <?php foreach( $active_subscribers as $subscriber ) : ?>
-                                        <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( get_edit_user_link( $subscriber->id ) ) ?>" title="<?php esc_html_e( 'View', 'smart-woo-service-invoicing' ); ?>">
-                                            <td><img class="sw-table-avatar" src="<?php echo esc_url( $subscriber->avatar_url ); ?>" alt="<?php echo esc_attr( $subscriber->name ); ?> photo" width="48" height="48"></td>
-                                            <td><?php echo esc_html( $subscriber->name ); ?></td>
-                                            <td><?php echo esc_attr( smartwoo_check_and_format( $subscriber->member_since, true ) ); ?></td>
-                                            <td><?php echo esc_attr( $subscriber->last_seen ); ?></td>
-                                            
+                                    <?php  if ( empty( $active_subscribers ) ) : ?>
+                                        <tr>
+                                            <td class="sw-not-found"><?php esc_html_e( 'No active subscribers found.', 'smart-woo-serivice-invoicing' ); ?></td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <?php foreach( $active_subscribers as $subscriber ) : ?>
+                                            <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( get_edit_user_link( $subscriber->id ) ) ?>" title="<?php esc_html_e( 'View', 'smart-woo-service-invoicing' ); ?>">
+                                                <td><img class="sw-table-avatar" src="<?php echo esc_url( $subscriber->avatar_url ); ?>" alt="<?php echo esc_attr( $subscriber->name ); ?> photo" width="48" height="48"></td>
+                                                <td><?php echo esc_html( $subscriber->name ); ?></td>
+                                                <td><?php echo esc_attr( smartwoo_check_and_format( $subscriber->member_since, true ) ); ?></td>
+                                                <td><?php echo esc_attr( $subscriber->last_seen ); ?></td>
+                                                
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                             <div class="sw-dashboard-pagination<?php printf( '%s', ( $total_active_subscribers < 10 ) ? ' smartwoo-hide' : '' ); ?>">
