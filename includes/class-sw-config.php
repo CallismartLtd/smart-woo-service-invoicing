@@ -862,6 +862,5 @@ class SmartWoo_Config{
             add_filter( 'smartwoo_is_frontend', '__return_false' );
         }
 
-        error_log( $request->get_route() );
     }
 }
