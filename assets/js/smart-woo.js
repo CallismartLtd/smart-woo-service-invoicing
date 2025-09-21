@@ -2,11 +2,11 @@ let spinnerIsactive = false;
 function smartWooAddSpinner(targetId, large = false) {
 	if ( spinnerIsactive ) return;
 	let spinnerImage		= large ? smart_woo_vars.wp_spinner_gif_2x : smart_woo_vars.wp_spinner_gif;
-	const loadingSpinner = document.createElement('div');
+	const loadingSpinner	= document.createElement('div');
 	loadingSpinner.setAttribute( 'style', 'position: absolute; left: 50%; top: 50%; transform: translate(-50%)' );
 	loadingSpinner.innerHTML = '<img src=" ' + spinnerImage +'" alt="Loading...">';
   
-	const targetElement = document.getElementById(targetId);
+	const targetElement = ( targetId instanceof HTMLElement ) ? targetId : document.getElementById(targetId);
 
 	targetElement.appendChild(loadingSpinner);
 	document.body.style.setProperty( 'cursor', 'progress' );
