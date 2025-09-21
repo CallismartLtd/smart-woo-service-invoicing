@@ -553,6 +553,8 @@ body .sw-admin-dash-nav ul li a:focus {
     padding: 5px;
     border-radius: 1rem;
     font-size: 12px;
+    width: 100%;
+    text-align: center;
 }
 
 .sw-dashboard-pagination {
@@ -573,6 +575,13 @@ body .sw-admin-dash-nav ul li a:focus {
     border-radius: 4px;
     cursor: pointer;
     transition: transform 0.1s ease-in-out;
+}
+
+.sw-service-subscription-lists_filters {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .sw-service-subscription-lists_filters .smartwoo-dasboard-filter-button:disabled,
