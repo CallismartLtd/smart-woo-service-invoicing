@@ -238,7 +238,7 @@ class SmartWoo_Service_Database {
 	 * Get services that have custom labels (status).
 	 * 
 	 * @param array $args Associative array of args.
-	 * @return array Array of SmartWoo_Service Objects or empty array.
+	 * @return SmartWoo_Service[] Array of SmartWoo_Service Objects or empty array.
 	 */
 	public static function get_( $args ) {
 		// Ensure that $args is an array.
