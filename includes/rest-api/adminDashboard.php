@@ -14,6 +14,8 @@ use \WP_REST_Response;
 use \SmartWoo_Service_Database;
 use \SmartWoo_Invoice_Database;
 use \SmartWoo_Service;
+use \SmartWoo_Invoice;
+use \SmartWoo_Order;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -125,6 +127,16 @@ class AdminDashboard {
             case 'allGracePeriodServices':
                 return array( SmartWoo_Service_Database::class, 'get_all_on_grace' );
 
+            case 'subscribersList':
+                return array( SmartWoo_Service_Database::class, 'get_active_subscribers' );
+            
+            case 'allUnPaidInvoice':
+                return function( $page, $limit ) {
+                    return SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', ['page' => $page, 'limit' => $limit] );
+                };
+
+            case 'allNewOrders':
+                return array( SmartWoo_Order::class, 'get_awaiting_processing_orders' );
             default:
                 return new WP_Error(
                     'smartwoo_rest_no_handler',
@@ -142,22 +154,25 @@ class AdminDashboard {
     private static function response_pagination( WP_REST_Request $request ) {
 
         $count_callback_map = array(
-            'allServices'            => 'SmartWoo_Service_Database::get_total_records',
-            'allActiveServices'      => 'SmartWoo_Service_Database::count_active',
-            'allActiveNRServices'    => function () {
+            'allServices'               => 'SmartWoo_Service_Database::get_total_records',
+            'allActiveServices'         => 'SmartWoo_Service_Database::count_active',
+            'allActiveNRServices'       => function () {
                 return SmartWoo_Service_Database::count_by_status( 'Active (NR)' );
             },
-            'allExpiredServices'     => 'SmartWoo_Service_Database::count_expired',
-            'allCancelledServices'   => function () {
+            'allExpiredServices'        => 'SmartWoo_Service_Database::count_expired',
+            'allCancelledServices'      => function () {
                 return SmartWoo_Service_Database::count_by_status( 'Cancelled' );
             },
-            'allSuspendedServices'   => function () {
+            'allSuspendedServices'      => function () {
                 return SmartWoo_Service_Database::count_by_status( 'Suspended' );
             },
-            'allUnPaidInvoice'       => '',
-            'allNewOrders'           => '',
-            'allDueServices'         => 'SmartWoo_Service_Database::count_due',
-            'allGracePeriodServices' => 'SmartWoo_Service_Database::count_on_grace',
+            'allUnPaidInvoice'          => function(){
+                return SmartWoo_Invoice_Database::count_this_status( 'unpaid' );
+            },
+            'allNewOrders'              => 'smartwoo_count_unprocessed_orders',
+            'allDueServices'            => 'SmartWoo_Service_Database::count_due',
+            'allGracePeriodServices'    => 'SmartWoo_Service_Database::count_on_grace',
+            'subscribersList'           => 'SmartWoo_Service_Database::get_total_active_subscribers',
         );
 
         $filter       = $request->get_param( 'filter' );
@@ -207,7 +222,6 @@ class AdminDashboard {
         return $titles[$filter] ?? '';
 
     }
-
 
     /**
      * Check if an array is a collection of a specific object type.
@@ -263,7 +277,7 @@ class AdminDashboard {
 
         if ( ! self::is_collection_of( $services, SmartWoo_Service::class ) ) {
             $table_rows[] = sprintf( '<tr><td class="sw-not-found" colspan="5">%s</td></tr>',
-                esc_html__( 'No service subscriptions found.', 'smart-woo-service-invoicing' )
+                __( 'No service subscriptions found.', 'smart-woo-service-invoicing' )
             );
 
             return [ 'table_rows' => $table_rows];
@@ -280,12 +294,160 @@ class AdminDashboard {
                                             
                 </tr>',
                 esc_url( $service->preview_url() ),
-                esc_html__( 'View', 'smart-woo-service-invoicing' ),
+                esc_html__( 'View subscription', 'smart-woo-service-invoicing' ),
                 absint( $service->get_id() ),
                 esc_html( $service->get_name() ),
                 esc_html( $service->get_service_id() ),
                 self::capture_output( 'smartwoo_print_service_status', $service, ['dashboard-status'] )
 
+            );
+        }
+
+        return [ 'table_rows' => $table_rows];
+    }
+
+    /**
+     * Prepare response data for `subscribersList` section of the dashboard.
+     * 
+     * @param object[] $subscribers
+     * @return string[] Array of formatted html string for the Subscribers List section.
+     */
+    private static function prepare_subscribersList_data( $subscribers ) {
+        $table_rows = [];
+
+        if ( ! self::is_collection_of( $subscribers, \stdClass::class ) ) {
+            $table_rows[] = sprintf(
+                '<tr><td class="sw-not-found" colspan="4">%s</td></tr>',
+                __( 'No active subscribers found.', 'smart-woo-service-invoicing' )
+            );
+
+            return [ 'table_rows' => $table_rows ];
+        }
+
+        foreach ( $subscribers as $subscriber ) {
+            $table_rows[] = sprintf(
+                '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
+                    <td><img class="sw-table-avatar" src="%3$s" alt="%7$s" width="48" height="48"></td>
+                    <td>%4$s</td>
+                    <td>%5$s</td>
+                    <td>%6$s</td>
+                </tr>',
+                esc_url( get_edit_user_link( $subscriber->id ) ),
+                esc_html__( 'View subscriber', 'smart-woo-service-invoicing' ),
+                esc_url( $subscriber->avatar_url ),
+                esc_html( $subscriber->name ),
+                esc_html( smartwoo_check_and_format( $subscriber->member_since, true ) ),
+                esc_html( $subscriber->last_seen ),
+                // translators: %s is the subscriber's name, used in the image alt text.
+                esc_attr( sprintf( __( '%s photo', 'smart-woo-service-invoicing' ), $subscriber->name ) )
+            );
+        }
+
+        return [ 'table_rows' => $table_rows ];
+    }
+
+    /**
+     * Prepare response data for `needsAttention` section of the dashboard.
+     *  
+     * @param SmartWoo_Invoice[]|SmartWoo_Order[]|SmartWoo_Service $collection An array of either invoice, order or service subscription object.
+     * @return string[] Array of formatted html string for the Needs Attention section.
+     */
+    public static function prepare_needsAttention_data( $collection ) {
+
+        if ( self::is_collection_of( $collection, SmartWoo_Invoice::class ) ) {
+            return self::prepare_needsAttention_invoice_data( $collection );
+        }
+
+        if ( self::is_collection_of( $collection, SmartWoo_Order::class ) ) {
+            return self::prepare_needsAttention_order_data( $collection );
+        }
+
+        if ( self::is_collection_of( $collection, SmartWoo_Service::class ) ) {
+            return self::prepare_needsAttention_subscription_data( $collection );
+        }
+
+        return array(
+            'table_rows' => array(
+                sprintf(
+                    '<tr>
+                        <td colspan="3" class="sw-not-found">%s</td>
+                    </tr>',
+                    __( 'No unpaid invoices at this time', 'smart-woo-service-invoicing' )
+                )
+            )
+        );
+        
+    }
+
+    /**
+     * Prepare invoice data for the `needsAttention` section of the dasboard.
+     * 
+     * @param SmartWoo_Invoice[] $invoices An array of Invoice objects.
+     * @return string[] Array of formatted html string of invoice data for the Needs Attention section.
+     */
+    private static function prepare_needsAttention_invoice_data( $invoices ) {
+        $table_rows = [];
+        foreach ( $invoices as $invoice ) {
+            $table_rows[] = sprintf(
+                '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
+                    <td>%3$s</td>
+                    <td>%4$s</td>
+                    <td><span class="dashicons smartwoo-options-dots dashicons-ellipsis"></span></td>  
+                </tr>',
+                esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ),
+                __( 'View invoice', 'smart-woo-service-invoicing' ),
+                __( 'Invoice', 'smart-woo-service-invoicing' ),
+                esc_html( $invoice->get_invoice_id() ),
+            );
+        }
+
+        return [ 'table_rows' => $table_rows];
+    }
+
+    /**
+     * Prepare order data for the `needsAttention` section of the dashboard.
+     * 
+     * @param SmartWoo_Order[] $orders An array of Smart Woo Order objects.
+     * @return string[] Array of formatted html string of order data for the Needs Attention section.
+     */
+    private static function prepare_needsAttention_order_data( $orders ) {
+        $table_rows = [];
+        foreach ( $orders as $order ) {
+            $table_rows[] = sprintf(
+                '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
+                    <td>%3$s</td>
+                    <td>%4$s</td>
+                    <td><span class="dashicons smartwoo-options-dots dashicons-ellipsis"></span></td>  
+                </tr>',
+                esc_url( admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id=' . $order->get_id()  ) ),
+                __( 'View order', 'smart-woo-service-invoicing' ),
+                __( 'Order', 'smart-woo-service-invoicing' ),
+                esc_html( $order->get_id() ),
+            );
+        }
+
+        return [ 'table_rows' => $table_rows];
+    }
+
+    /**
+     * Prepare subscription data for the `needsAttention` section of the dashboard.
+     * 
+     * @param SmartWoo_Service[] $services An array of subscription objects.
+     * @return string[] Array of formatted html string of service subscription data for the Needs Attention section.
+     */
+    private static function prepare_needsAttention_subscription_data( $services ) {
+        $table_rows = [];
+        foreach ( $services as $service ) {
+            $table_rows[] = sprintf(
+                '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
+                    <td>%3$s</td>
+                    <td>%4$s</td>
+                    <td><span class="dashicons smartwoo-options-dots dashicons-ellipsis"></span></td>  
+                </tr>',
+                esc_url( $service->preview_url() ),
+                __( 'View subscription', 'smart-woo-service-invoicing' ),
+                __( 'Subscription', 'smart-woo-service-invoicing' ),
+                esc_html( $service->get_service_id() ),
             );
         }
 
