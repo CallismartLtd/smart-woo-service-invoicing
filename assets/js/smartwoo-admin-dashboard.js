@@ -136,37 +136,87 @@ class SmartWooAdminDashboard {
         }
 
         sectionEl.setAttribute( 'data-current-filter', params.filter );
-        
-        
     }
 
-    _handleSubscribersSectionEvent( event, sectionEl ) {
-        // This section shares similar interaction patterns as subscriptionList
+    async _handleSubscribersSectionEvent( event, sectionEl ) {
+        // We only handle pagination of subscribers list pagination.
+        const pagBtn = event.target.closest( '.sw-pagination-button' );
+
+        if ( pagBtn ) {
+            event.preventDefault();
+            const params = {
+                filter: 'subscribersList',
+                section: 'subscribersList',
+                ...this._parseJSONSafe( pagBtn.getAttribute( 'data-pagination' ) )
+            };
+            const response  = await this._fetch( params );
+                    
+            if ( ! response ) return;
+
+            const tableRows = response?.table_rows ?? [];
+            
+            let rows = ``;
+
+            tableRows.map( row => {
+                rows += row;
+            });
+
+            this._replaceSectionBodyHtml( sectionEl, rows ); 
+            this._updateSectionPagination( sectionEl, response.pagination );
+        }
+    }
+
+    async _handleNeedsAttentionSectionEvent( event, sectionEl ) {
+        // Filter buttons
         const filterBtn = event.target.closest( '.smartwoo-dasboard-filter-button' );
+        let params = null;
         if ( filterBtn ) {
             event.preventDefault();
-            return this._fetchAndRenderSection( sectionEl, { filter: filterBtn.dataset.action } );
+            params = {
+                filter: filterBtn.getAttribute( 'data-get-filter' ),
+                section: 'needsAttention',
+                ...this._parseJSONSafe( filterBtn.getAttribute( 'data-state-args' ) )
+            };
         }
 
         const pagBtn = event.target.closest( '.sw-pagination-button' );
+
         if ( pagBtn ) {
             event.preventDefault();
-            return this._handlePaginationClick( sectionEl, pagBtn );
-        }
-    }
+            const currentFilter = sectionEl.getAttribute( 'data-current-filter' );
+            params = {
+                filter: currentFilter,
+                section: 'needsAttention',
+                ...this._parseJSONSafe( pagBtn.getAttribute( 'data-pagination' ) )
+            };
 
-    _handleNeedsAttentionSectionEvent( event, sectionEl ) {
-        const filterBtn = event.target.closest( '.smartwoo-dasboard-filter-button' );
-        if ( filterBtn ) {
-            event.preventDefault();
-            return this._fetchAndRenderSection( sectionEl, { filter: filterBtn.dataset.action } );
         }
 
-        const pagBtn = event.target.closest( '.sw-pagination-button' );
-        if ( pagBtn ) {
-            event.preventDefault();
-            return this._handlePaginationClick( sectionEl, pagBtn );
+        if ( ! params ) return;
+        
+        const response  = await this._fetch( params );
+        
+        if ( ! response ) return;
+
+        const tableRows = response?.table_rows ?? [];
+        
+        let rows = ``;
+
+        tableRows.map( row => {
+            rows += row;
+        });
+
+        this._replaceSectionBodyHtml( sectionEl, rows ); 
+        this._updateSectionPagination( sectionEl, response.pagination );
+        this._updateSectionHeading( sectionEl, response.title ?? 'Subscriptions' );
+        
+
+        if ( ! pagBtn ) {
+            this._resetDisabledButtons( sectionEl );
+            event.target.closest( '.smartwoo-dasboard-filter-button' )?.setAttribute( 'disabled', true );
         }
+
+        sectionEl.setAttribute( 'data-current-filter', params.filter );
     }
 
     _handleRecentInvoicesSectionEvent( event, sectionEl ) {
@@ -188,24 +238,6 @@ class SmartWooAdminDashboard {
      */
     _resetDisabledButtons( sectionEl ) {
         sectionEl?.querySelectorAll( '.smartwoo-dasboard-filter-button[disabled="true"]').forEach( btn => btn.disabled = false );
-    }
-
-    /* -------------------------
-     * Pagination handler
-     * ------------------------- */
-
-    _handlePaginationClick( sectionEl, pagBtn ) {
-        const raw = pagBtn.getAttribute( 'data-pagination' );
-        let pagination = this._parseJSONSafe( raw );
-        if ( ! pagination ) {
-            // If data-pagination is not a JSON string, try data attributes directly
-            pagination = {
-                name: pagBtn.dataset.name || null,
-                number: pagBtn.dataset.number || null,
-            };
-        }
-
-        return this._fetchAndRenderSection( sectionEl, { pagination: pagination } );
     }
 
     /**
