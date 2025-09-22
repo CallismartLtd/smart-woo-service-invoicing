@@ -457,52 +457,26 @@ function smartwoo_check_if_configured( $order ) {
 
 /**
  * Get the count for service orders awaiting processing.
- * 
- * @return int $count The total number of unprocessed orders.
+ *
+ * Acts as a wrapper around SmartWoo_Order::count_awaiting_processing(),
+ * caching the result in a transient for performance.
+ *
+ * @return int The total number of unprocessed orders.
  * @since 2.0.0
  */
 function smartwoo_count_unprocessed_orders() {
-	$count	= get_transient( 'smartwoo_count_unprocessed_orders' );
+	$count = get_transient( 'smartwoo_count_unprocessed_orders' );
+
 	if ( false === $count ) {
-		$count	= 0;
+		// Delegate actual counting to the SmartWoo_Order class.
+		$count = SmartWoo_Order::count_awaiting_processing();
 
-		$args = array(
-			'limit'		=> -1,
-			'status'	=> 'processing',
-		);
-
-		if ( smartwoo_is_frontend() ) {
-			$args['customer'] = get_current_user_id();
-		}
-	
-		$wc_orders	= wc_get_orders( $args );
-		
-	
-		if ( empty( $wc_orders ) ) {
-			set_transient( 'smartwoo_count_unprocessed_orders', $count, HOUR_IN_SECONDS );
-			return $count;
-		}
-		
-	
-		foreach ( $wc_orders as $order ) {
-			if ( ! smartwoo_check_if_configured( $order ) ) {
-				continue;
-			}
-			
-			foreach ( $order->get_items() as $item ) {
-				if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
-					continue;
-				}
-
-				if ( ! $item->get_meta( '_smartwoo_order_item_status' ) || 'complete' !==  $item->get_meta( '_smartwoo_order_item_status' ) ) {
-					$count++;
-				}
-			}
-		}
 		set_transient( 'smartwoo_count_unprocessed_orders', $count, HOUR_IN_SECONDS );
 	}
+
 	return $count;
 }
+
 /**
  * Frontend navigation menu bar
  *
