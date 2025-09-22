@@ -789,12 +789,7 @@ class SmartWoo_Config{
                                 'section'   => array(
                                     'required'  => true,
                                     'type'      => 'string',
-                                    'enum'      => array(
-                                        'subscriptionList',
-                                        'subscribersList',
-                                        'needsAttention',
-                                        'activities'
-                                    ),
+                                    'enum'      => array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities' ),
                                     'description'       => 'The current admin dashboard section where the response is being rendered',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => function( $value ) {
