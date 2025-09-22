@@ -95,6 +95,14 @@ class SmartWoo_Order {
      */
     protected $order_item;
 
+    
+    const STATUS_AWAITING_PROCESSING = 'awaiting_processing';
+    const STATUS_ACTIVE              = 'active';
+    const STATUS_COMPLETED           = 'completed';
+    const STATUS_CANCELED            = 'canceled';
+    const STATUS_EXPIRED             = 'expired';
+    const STATUS_FAILED              = 'failed';
+
     /**
      * Class constructor
      * 
@@ -636,8 +644,9 @@ class SmartWoo_Order {
                     break;
             }
 
-            wp_send_json_success( $response );
+            
         }
+        wp_send_json_success( $response );
     }
 
     /**
@@ -848,7 +857,7 @@ class SmartWoo_Order {
     }
 
     /**
-     * Get all Service Orders
+     * Get all Smart Woo Orders
      * 
      * @param int $page The current page(for pagination).
      * @param int $limit The query limit per page.
@@ -919,6 +928,68 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get orders that are awaiting payment.
+     * 
+     * @param array $args Array of arguments.
+     * @return self[]
+     */
+    public static function get_awaiting_processing_orders() {
+        $data = array();
+        $query_args = array(
+            'limit'  => 10,
+            'status' => 'processing',
+        );
+
+        if ( smartwoo_is_frontend() ) {
+            $query_args['customer'] = get_current_user_id();
+        }
+
+        $wc_orders = wc_get_orders( $query_args );
+
+        foreach ( $wc_orders as $wc_order ) {
+            $smartwoo_orders = self::extract_items( $wc_order );
+            foreach ( $smartwoo_orders as $order ) {
+                if ( 'awaiting processing' === $order->get_status() ) {
+                    $data[] = $order;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Count orders awaiting processing.
+     * 
+     * @return int
+     */
+    public static function count_awaiting_processing() {
+        $count	= 0;
+
+		$args = array(
+			'limit'		=> -1,
+			'status'	=> 'processing',
+		);
+
+		if ( smartwoo_is_frontend() ) {
+			$args['customer'] = get_current_user_id();
+		}
+	
+		$wc_orders = wc_get_orders( $args );
+
+        foreach ( $wc_orders as $wc_order ) {
+            $smartwoo_orders = self::extract_items( $wc_order );
+            foreach( $smartwoo_orders as $order ) {
+                if ( 'awaiting processing' === $order->get_status() ) {
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * Recommended way to get a SmartWoo_Order
      * 
      * @param int $id The order item id.
@@ -934,6 +1005,13 @@ class SmartWoo_Order {
         return $self;
     }
 
+
+    /**
+    |-----------------
+    | UTILITY METHODS
+    |----------------- 
+    */
+
     /**
      * Get all valid items from a WC_Order.
      * 
@@ -946,7 +1024,12 @@ class SmartWoo_Order {
             if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
                 continue;
             }
-            $self[] = self::convert_to_self( array( 'order_item_id' => $item_id ) );
+
+            $order = self::convert_to_self( array( 'order_item_id' => $item_id ) );
+            if ( ! $order ) {
+                continue;
+            }
+            $self[] = $order;
         }
 
         return $self;
