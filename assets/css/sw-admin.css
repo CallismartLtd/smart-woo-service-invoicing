@@ -389,7 +389,7 @@ body .sw-admin-dash-nav ul li a:focus {
 }
 .sw-admin-dashboard-summary-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     width: 100%;
     gap: 15px;
 }
@@ -432,18 +432,21 @@ body .sw-admin-dash-nav ul li a:focus {
 .sw-admin-dashboard-interactivity-section {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: 10px;
     margin-top: 15px;
-
+}
+@media(max-width: 960px) {
+    .sw-admin-dashboard-interactivity-section {
+        flex-wrap: wrap;
+    }
 }
 
 .sw-admin-dashboard-interactivity-section_left {
-    flex: 40% 0 1;
+    flex: 1 1 calc(40% - 5px);
     display: flex;
     flex-direction: column;
-    width: 100%;
     gap: 1rem;
-
+    width: 40%;
 }
 
 .sw-admin-dashboard-interactivity-section_left .sw-table {
@@ -473,16 +476,14 @@ body .sw-admin-dash-nav ul li a:focus {
 }
 
 .sw-admin-dashboard-interactivity-section_right {
-    flex: 1;
+    flex: 1 1 calc(60% - 5px);
     display: flex;
     flex-direction: column;
-    width: 100%;
     gap: 1rem;
 }
 
 .sw-admin-dashboard-interactivity-section_right-top-data-container {
     width: 100%;
-    background-color: #f1f1f1;
     margin: 10px auto 5px auto;
 }
 
@@ -501,6 +502,11 @@ body .sw-admin-dash-nav ul li a:focus {
     cursor: pointer;
 }
 
+.sw-service-subscription-lists_table-wrapper {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ffff #f1f1f1;
+}
 
 .sw-admin-dashboard-urgent-tasks-list tbody tr {
     box-shadow: -5px 4px 10px rgba(218, 3, 110, 0.2);
