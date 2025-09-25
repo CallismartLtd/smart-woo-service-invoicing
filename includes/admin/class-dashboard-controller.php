@@ -183,6 +183,7 @@ class SmartWoo_Dashboard_Controller {
 		$current_args				= ['limit' => 10, 'page' => 1];
 		$total_services				= SmartWoo_Service_Database::get_total_records();
 		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
+		$total_active_services		= SmartWoo_Service_Database::count_by_status( 'active' ) + SmartWoo_Service_Database::count_by_status( 'Active (NR)' );
 		$expiring_soon_count		= SmartWoo_Service_Database::count_by_status( 'expiry-threshold' );
 		$new_order_count			= smartwoo_count_unprocessed_orders();
 		$unpaid_invoices_count		= SmartWoo_Invoice_Database::count_this_status( 'unpaid' );
