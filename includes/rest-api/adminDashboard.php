@@ -70,7 +70,7 @@ class AdminDashboard {
         $limit  = $request->get_param( 'limit' );
         $page   = $request->get_param( 'page' );
 
-        $results        = call_user_func( self::$callback_handler, $page, $limit );
+        $results        = call_user_func( self::$callback_handler, $page, $limit, $request );
         $pagination     = self::response_pagination( $request );
         $section        = $request->get_param( 'section' );
         $current_filter = $request->get_param( 'filter' );
@@ -137,6 +137,10 @@ class AdminDashboard {
 
             case 'allNewOrders':
                 return array( SmartWoo_Order::class, 'get_awaiting_processing_orders' );
+
+            case 'markInvoicePaid':
+            case 'sendPaymentReminder':
+                return array( __CLASS__, 'handle_invoice_actions' );
             default:
                 return new WP_Error(
                     'smartwoo_rest_no_handler',
@@ -352,7 +356,7 @@ class AdminDashboard {
      * @param SmartWoo_Invoice[]|SmartWoo_Order[]|SmartWoo_Service $collection An array of either invoice, order or service subscription object.
      * @return string[] Array of formatted html string for the Needs Attention section.
      */
-    public static function prepare_needsAttention_data( $collection ) {
+    private static function prepare_needsAttention_data( $collection ) {
 
         if ( self::is_collection_of( $collection, SmartWoo_Invoice::class ) ) {
             return self::prepare_needsAttention_invoice_data( $collection );
@@ -392,12 +396,29 @@ class AdminDashboard {
                 '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
                     <td>%3$s</td>
                     <td>%4$s</td>
-                    <td><span class="dashicons smartwoo-options-dots dashicons-ellipsis"></span></td>  
+                    <td>
+                        <div class="smartwoo-options-dots" tabindex="0">
+                            <ul class="smartwoo-options-dots-items" title="">
+                                <li data-action="composeEmail" data-args="%5$s">%6$s</li>
+                                <li data-action="markAsPaid" data-args="%7$s">%8$s</li>
+                                <li data-action="sendPaymentReminder" data-args="%9$s">%10$s</li>
+                            </ul>
+                            <span class="dashicons dashicons-ellipsis" title="%11$s"></span>
+                        </div>
+                    </td>  
                 </tr>',
                 esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ),
                 __( 'View invoice', 'smart-woo-service-invoicing' ),
                 __( 'Invoice', 'smart-woo-service-invoicing' ),
                 esc_html( $invoice->get_invoice_id() ),
+                esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'compose_email'] ) ),
+                __( 'Compose Email', 'smart-woo-service-invoicing' ),
+                esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ),
+                __( 'Mark as Paid', 'smart-woo-service-invoicing' ),
+                esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ),
+                __( 'Send payment reminder', 'smart-woo-service-invoicing' ),
+                __( 'Options', 'smart-woo-service-invoicing' )
+
             );
         }
 
@@ -413,16 +434,52 @@ class AdminDashboard {
     private static function prepare_needsAttention_order_data( $orders ) {
         $table_rows = [];
         foreach ( $orders as $order ) {
+            $order_details = [
+                'order_id'          => $order->get_id(),
+                'biling_details'    => smartwoo_get_user_billing_address( $order->get_user_id() ),
+                'email'             => $order->get_billing_email(),
+                'phone'             => $order->get_parent_order()->get_billing_phone(),
+                'product'   => array(
+                    'id'            => $order->get_product_id(),
+                    'name'          => $order->get_product_name(),
+                    'service_name'  => $order->get_service_name(),
+                    'sign_up_fee'   => $order->get_sign_up_fee(),
+                    'price'         => $order->get_price(),
+                    'qty'           => $order->get_quantity(),
+                    'total'         => $order->get_total(),
+                ),
+                'payment'           => array(
+                    'method'        => $order->get_payment_method_title(),
+                    'transaction'   => $order->get_transaction_id(),
+                ),
+            ];
             $table_rows[] = sprintf(
                 '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
                     <td>%3$s</td>
                     <td>%4$s</td>
-                    <td><span class="dashicons smartwoo-options-dots dashicons-ellipsis"></span></td>  
+                    <td>
+                        <div class="smartwoo-options-dots" tabindex="0">
+                            <ul class="smartwoo-options-dots-items" title="">
+                                <li data-action="composeEmail" data-args="%5$s">%6$s</li>
+                                <li data-action="autoProcessOrder" data-args="%7$s">%8$s</li>
+                                <li data-action="viewOrderDetails" data-args="%9$s">%10$s</li>
+                            </ul>
+                            <span class="dashicons dashicons-ellipsis" title="%11$s"></span>
+                        </div>
+                    </td>  
                 </tr>',
                 esc_url( admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id=' . $order->get_id()  ) ),
                 __( 'View order', 'smart-woo-service-invoicing' ),
                 __( 'Order', 'smart-woo-service-invoicing' ),
                 esc_html( $order->get_id() ),
+                esc_attr( wp_json_encode( [ 'order_id' => $order->get_id(), 'filter' => 'compose_email'] ) ),
+                __( 'Compose Email', 'smart-woo-service-invoicing' ),
+                esc_attr( wp_json_encode( [ 'order_id' => $order->get_id(), 'filter' => 'autoProcessOrder'] ) ),
+                __( 'Auto Process Order', 'smart-woo-service-invoicing' ),
+                esc_attr( wp_json_encode( [ 'order_details' => $order_details, 'filter' => 'viewOrderDetails'] ) ),
+                __( 'View Order Details', 'smart-woo-service-invoicing' ),
+                __( 'Options', 'smart-woo-service-invoicing' )
+
             );
         }
 
@@ -452,6 +509,61 @@ class AdminDashboard {
         }
 
         return [ 'table_rows' => $table_rows];
+    }
+
+    /**
+     * Handles invoice actions in the dashboard
+     */
+    private static function handle_invoice_actions() {
+        $request    = func_get_arg( 2 );
+        $invoice    = SmartWoo_Invoice_Database::get_invoice_by_id( $request->get_param( 'invoice_id' ) );
+
+        if ( ! $invoice ) {
+            return array( $invoice,  __( 'Invalid or deleted invoice', 'smart-woo-service-invoicing' ) );
+        }
+
+        $filter = $request->get_param( 'filter' );
+        $result = array( false, __( 'Unsupported invoice action', 'smart-woo-service-invoicing' ) );
+
+        if ( 'markInvoicePaid' === $filter ) {
+            $paid = smartwoo_mark_invoice_as_paid( $invoice );
+            if ( $paid ) {
+                $invoice->set_status( 'paid' );
+                $message = sprintf( __( 'Invoice status changed to "%s"', 'smart-woo-service-invoicing' ), $invoice->get_status() );
+            } else{
+                $message = __( 'unable to mark invoice as paid', 'smart-woo-service-invoicing' );
+            }
+
+            $result = array( $paid, $message );
+        } elseif( 'sendPaymentReminder' === $filter ) {
+            $sent = \SmartWoo_Invoice_Payment_Reminder::send_mail( $invoice );
+            if ( $sent ) {
+                $message = __( 'Payment reminder email sent!', 'smart-woo-service-invoicing' );
+            } else {
+                $message = __( 'Unable to sent payment reminder email', 'smart-woo-service-invoicing' );
+            }
+        
+            $result = array( $sent, $message );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Prepare response for the needsAttention - option actions.
+     * 
+     * @param array $args
+     */
+    private static function prepare_needsAttention_options_data( array $args ) {
+        list( $result, $message ) = $args;
+        $messages = array(
+            'success' => $message,
+            'error'   => $message ?? __( 'Something went wrong', 'smart-woo-service-invoicing' ),
+        );
+
+        $message = $result ? $messages['success'] : $messages['error'];
+
+        return array( 'message' => $message );
     }
 
     /**
