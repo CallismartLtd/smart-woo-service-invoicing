@@ -1637,7 +1637,7 @@ final class SmartWoo {
      * @return bool True if Smart Woo Pro is installed and activated, false otherwise.
      */
     public static function pro_is_installed() {
-        return class_exists( 'SmartWooPro' );
+        return class_exists( 'SmartWooPro', false );
     }
 
     /**
