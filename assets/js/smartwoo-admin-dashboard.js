@@ -8,10 +8,27 @@
  */
 
 class SmartWooAdminDashboard {
+    static _events  = {};
+
+    static _instance;
+    
     constructor() {
+        if ( SmartWooAdminDashboard._instance ) {
+            throw new Error("Use MySingleton.getInstance()");
+        }
+        SmartWooAdminDashboard._instance = this;
         this.serverConfig = smartwoo_admin_vars || {};
         this._hydrateDashboard();
         this._bindEvents();
+        
+    }
+
+    static getInstance() {
+        if ( ! SmartWooAdminDashboard._instance ) {
+            SmartWooAdminDashboard._instance = new SmartWooAdminDashboard();
+        }
+
+        return SmartWooAdminDashboard._instance;
     }
 
     /**
@@ -77,7 +94,14 @@ class SmartWooAdminDashboard {
                     // Unknown section — ignore
                     break;
             }
-        } );
+        });
+
+        SmartWooAdminDashboard.on( 'markAsPaid', 'needsAttention', this._processInvoiceOptions );
+        SmartWooAdminDashboard.on( 'sendPaymentReminder', 'needsAttention', this._processInvoiceOptions );
+        SmartWooAdminDashboard.on( 'composeEmail', 'needsAttention', this._proComposeEmail );
+        SmartWooAdminDashboard.on( 'autoProcessOrder', 'needsAttention', this._proAutoProcessOrder );
+        SmartWooAdminDashboard.on( 'viewOrderDetails', 'needsAttention', this._showOrderDetails );
+        
     }
 
     /* -------------------------
@@ -85,6 +109,13 @@ class SmartWooAdminDashboard {
      * ------------------------- 
      */
 
+    /**
+     * Handles the subscription list section of the dashboard.
+     * 
+     * @param {Event} event 
+     * @param {HTMLElement} sectionEl 
+     * @returns void
+     */
     async _handleSubscriptionSectionEvent( event, sectionEl ) {
         // Filter buttons
         const filterBtn = event.target.closest( '.smartwoo-dasboard-filter-button' );
@@ -138,6 +169,13 @@ class SmartWooAdminDashboard {
         sectionEl.setAttribute( 'data-current-filter', params.filter );
     }
 
+    /**
+     * Handles the subscribers list section of the dashboard.
+     * 
+     * @param {Event} event 
+     * @param {HTMLElement} sectionEl 
+     * @returns void
+     */
     async _handleSubscribersSectionEvent( event, sectionEl ) {
         // We only handle pagination of subscribers list pagination.
         const pagBtn = event.target.closest( '.sw-pagination-button' );
@@ -166,6 +204,13 @@ class SmartWooAdminDashboard {
         }
     }
 
+    /**
+     * Handles the needs attention section of the dashboard.
+     * 
+     * @param {Event} event 
+     * @param {HTMLElement} sectionEl 
+     * @returns void
+     */
     async _handleNeedsAttentionSectionEvent( event, sectionEl ) {
         // Filter buttons
         const filterBtn = event.target.closest( '.smartwoo-dasboard-filter-button' );
@@ -192,31 +237,58 @@ class SmartWooAdminDashboard {
 
         }
 
-        if ( ! params ) return;
-        
-        const response  = await this._fetch( params );
-        
-        if ( ! response ) return;
+        if ( params ) {
+            const response  = await this._fetch( params );
+            
+            if ( ! response ) return;
 
-        const tableRows = response?.table_rows ?? [];
-        
-        let rows = ``;
+            const tableRows = response?.table_rows ?? [];
+            
+            let rows = ``;
 
-        tableRows.map( row => {
-            rows += row;
-        });
+            tableRows.map( row => {
+                rows += row;
+            });
 
-        this._replaceSectionBodyHtml( sectionEl, rows ); 
-        this._updateSectionPagination( sectionEl, response.pagination );
-        this._updateSectionHeading( sectionEl, response.title ?? 'Subscriptions' );
-        
+            this._replaceSectionBodyHtml( sectionEl, rows ); 
+            this._updateSectionPagination( sectionEl, response.pagination );
+            this._updateSectionHeading( sectionEl, response.title ?? 'Subscriptions' );
+            
 
-        if ( ! pagBtn ) {
-            this._resetDisabledButtons( sectionEl );
-            event.target.closest( '.smartwoo-dasboard-filter-button' )?.setAttribute( 'disabled', true );
+            if ( ! pagBtn ) {
+                this._resetDisabledButtons( sectionEl );
+                event.target.closest( '.smartwoo-dasboard-filter-button' )?.setAttribute( 'disabled', true );
+            }
+
+            sectionEl.setAttribute( 'data-current-filter', params.filter );
+            return;         
         }
 
-        sectionEl.setAttribute( 'data-current-filter', params.filter );
+        const optionsBtn    = event.target.closest( '.smartwoo-options-dots' );
+        const targetOption  = optionsBtn?.querySelector( '.smartwoo-options-dots-items' );
+        
+        sectionEl.querySelectorAll( '.smartwoo-options-dots-items' ).forEach( el =>{
+            if ( el.classList.contains( 'active' ) && el !== targetOption ) {
+                el.classList.remove( 'active' );
+            }
+        });
+
+        if ( targetOption && ! event.target.closest( '.smartwoo-options-dots-items' ) ) {
+            targetOption.classList.toggle( 'active' );
+        }
+
+        const optionsAction = event.target.closest( '.smartwoo-options-dots-items li' );
+
+        if ( optionsAction ) {
+            const action    = optionsAction.getAttribute( 'data-action' );
+            let args      = this._parseJSONSafe( optionsAction.getAttribute( 'data-args' ) );
+            
+            if ( SmartWooAdminDashboard._events['needsAttention'][action] ) {
+                SmartWooAdminDashboard._events['needsAttention'][action].forEach( handler => handler( args, optionsAction ) )
+            }
+            
+            
+        }
     }
 
     _handleRecentInvoicesSectionEvent( event, sectionEl ) {
@@ -371,13 +443,6 @@ class SmartWooAdminDashboard {
         }
     }
 
-    _displaySectionError( sectionEl, message ) {
-        const tbody = sectionEl.querySelector( '.smartwoo-table-content' );
-        if ( tbody ) {
-            tbody.innerHTML = `<tr><td class="sw-not-found" colspan="99">${ message }</td></tr>`;
-        }
-    }
-
     /* -------------------------
      * Loader helpers
      * ------------------------- */
@@ -392,6 +457,7 @@ class SmartWooAdminDashboard {
 
         if ( this.globalLoader ) {
             smartWooRemoveSpinner( this.spinner );
+            this.globalLoader.querySelectorAll( 'img' ).forEach( loader => loader.remove() );
         }
     }
 
@@ -409,9 +475,87 @@ class SmartWooAdminDashboard {
             return null;
         }
     }
+
+    /**
+     * Register event listener and callback handler for a given section of the dashboard.
+     * 
+     * @param {String} eventName - The name of the event
+     * @param {String} section  - The name of the dashboard section.
+     * @param {Function} func - The function to call on the event.
+     */
+    static on( eventName, section, func ) {
+        if ( typeof func !== 'function' ) {
+            console.warn( 'Even handler must be a valid callback function.' );
+            return;
+        }
+
+        if ( ! this._events[section] ) {
+            this._events[section] = {};
+        }
+
+        if ( ! this._events[section][eventName] ) {
+            this._events[section][eventName] = [];
+        }
+
+        const boundFunc = func.bind(this._instance);
+        this._events[section][eventName].push(boundFunc);
+
+    }
+
+    /**
+     * Mark the given invoice as paid
+     * 
+     * @param {object} args
+     * @param {HTMLElement} el
+     */
+    async _processInvoiceOptions( args, el ) {
+        const params = {
+            'section': 'needsAttention_options',
+            ...args
+        }
+
+        const response = await this._fetch( params );
+
+        if ( ! response ) return;
+
+        showNotification( response.message ?? 'Something went wrong', 10000 );
+        const row = el.closest( 'tr' );
+        if ( row ) {
+            jQuery( row ).fadeOut( 2000, () => {
+                row.remove();
+            });
+        }
+    }
+
+    /**
+     * Show pro ads for email compose feature.
+     */
+    _proComposeEmail() {
+        if ( this.serverConfig.smartwoo_pro_is_installed ) return;
+        smartwoo_pro_ad( 'Compose Email', 'Compose and send custom emails to your clients exclusively with Smart Woo Pro.' );
+    }
+
+    /**
+     * Show pro ads for auto process order feature.
+     */
+    _proAutoProcessOrder() {
+        if ( this.serverConfig.smartwoo_pro_is_installed ) return;
+        smartwoo_pro_ad( 'Auto Process Order', 'Automatically process subscription orders, create ordered service and send order confirmation emails to customers using Smart Woo Pro.' );
+    }
+
+    /**
+     * Show order details in modal.
+     * @param {object} args
+     */
+    _showOrderDetails( args ) {
+        console.log( args );
+        
+    }
+    
 }
 
 addEventListener( 'DOMContentLoaded', () => {
     // eslint-disable-next-line no-new
-    new SmartWooAdminDashboard();
+    SmartWooAdminDashboard.getInstance();
 } );
+
