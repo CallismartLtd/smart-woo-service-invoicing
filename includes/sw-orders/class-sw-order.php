@@ -393,6 +393,15 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get user ID
+     * 
+     * @return int $user_id
+     */
+    public function get_user_id() {
+        return $this->user ? $this->user->get_id() : 0;
+    }
+
+    /**
      * Get the parent Order
      * @return WC_Order|false $order
      */
@@ -420,9 +429,20 @@ class SmartWoo_Order {
 
     /**
      * Get product name
+     * 
+     * @return string
      */
     public function get_product_name() {
         return $this->get_product() ? $this->get_product()->get_name() : 'N/A';
+    }
+
+    /**
+     * Get product ID
+     * 
+     * @return int
+     */
+    public function get_product_id() {
+        return $this->get_product() ? $this->get_product()->get_id() : 0;
     }
 
     /**
