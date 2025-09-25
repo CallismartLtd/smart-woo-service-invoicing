@@ -313,7 +313,8 @@ class SmartWoo_Config{
             'dashicons_asset_url'       => includes_url( 'css/dashicons.min.css' ),
             'editor_css_url'            => SMARTWOO_DIR_URL . 'assets/editor/css/smartwoo-editor-ui.css',
             'subscription_asset_url'    => SMARTWOO_DIR_URL . 'assets/css/subscription-assets' . $suffix . '.css',
-            'charset'                   => get_bloginfo( 'charset' )
+            'charset'                   => get_bloginfo( 'charset' ),
+            'smartwoo_pro_is_installed' => SmartWoo::pro_is_installed()
         );
 
         wp_register_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
@@ -753,6 +754,7 @@ class SmartWoo_Config{
                                         'allNewOrders',
                                         'allDueServices',
                                         'allGracePeriodServices',
+                                        'markInvoicePaid'
                                     ),
                                     'description' => 'The dataset filter to apply. Valid values include:
                                         - allServices: All services
@@ -764,7 +766,8 @@ class SmartWoo_Config{
                                         - allUnPaidInvoice: Unpaid invoices
                                         - allNewOrders: New orders
                                         - allDueServices: Due services
-                                        - allGracePeriodServices: Services in grace period.',
+                                        - allGracePeriodServices: Services in grace period
+                                        -markInvoicePaid: Mark invoice as paid.',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
                                 ),
@@ -789,12 +792,21 @@ class SmartWoo_Config{
                                 'section'   => array(
                                     'required'  => true,
                                     'type'      => 'string',
-                                    'enum'      => array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities' ),
+                                    'enum'      => array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ),
                                     'description'       => 'The current admin dashboard section where the response is being rendered',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => function( $value ) {
-                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities' ) );
+                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ) );
                                     },
+                                ),
+
+                                'invoice_id'            => array(
+                                    'required'          => false,
+                                    'type'              => 'string',
+                                    'description'       => 'The public invoice ID of the invoice in context.',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
+
                                 )
 
                             )
