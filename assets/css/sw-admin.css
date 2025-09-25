@@ -137,8 +137,10 @@
 h2.sw-not-found {
     margin-top: 8%;
 }
+
 /************************** ADMIN DASHBOARD STYLES *******************************/
 .sw-search-container {
+    position: relative;
     display: flex;
     width: 100%;
     margin: 10px;
@@ -602,8 +604,36 @@ body .sw-admin-dash-nav ul li a:focus {
     border-style: dotted;
 }
 
+.smartwoo-options-dots {
+    position: relative;
 
+}
 
+.smartwoo-options-dots-items {
+    position: absolute;
+    transform: translate(-100px, -150px);
+    border: solid 1px #dcdcde;
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background-color: #ffffff;
+    width: 150px;
+    cursor: default;
+}
+.smartwoo-options-dots-items.active {
+    display: flex;
+}
+
+.smartwoo-options-dots-items li {
+    padding: 5px;
+    font-weight: 600;
+    transition: all .5s ease-in-out;
+}
+
+.smartwoo-options-dots-items li:hover {
+    cursor: pointer;
+    border: solid 1px #dcdcde;
+}
 
 @media (min-width: 783px) and (max-width: 960px) {
     .folded .sw-admin-dash-header {
