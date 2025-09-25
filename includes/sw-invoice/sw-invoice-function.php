@@ -494,14 +494,13 @@ function smartwoo_client_total_spent( $user_id ) {
  * @since 2.0.15
  */
 function smartwoo_get_client_billing_email( $user_id ) {
-	$user	= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
+	$user			= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
 	$billing_email	= $user->get_billing_email();
 
 	if ( empty( $billing_email ) ) {
 		// Fallback to user's login email address.
 		$billing_email = $user->get_email();
 	}
-
 
 	return $billing_email;
 }
@@ -604,11 +603,11 @@ function smartwoo_delete_invoice_ajax_callback() {
 /**
  * Marks invoice as paid.
  *
- * @param  string $invoice_id   The ID of the invoice to be updated
+ * @param string|SmartWoo_Invoice $invoice_id   The ID of the invoice to be updated
  * @return bool     false if the invoice is already 'Paid' | true if update is successful
  */
 function smartwoo_mark_invoice_as_paid( $invoice_id ) {
-	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+	$invoice = ( $invoice_id instanceof SmartWoo_Invoice ) ? $invoice_id : SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( $invoice && 'paid' !== $invoice->get_status() ) {
 		$order = $invoice->get_order();
@@ -623,7 +622,12 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 			'transaction_id'  => $order->get_transaction_id(),
 			'payment_gateway' => $order->get_payment_method(),
 		);
-		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
+		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice->get_invoice_id(), $fields );
+
+		if ( false === $updated_invoice ) {
+			return false;
+		}
+		
 		/**
 		 * Fires after an invoice is marked as paid.
 		 * @param SmartWoo_Invoice $updated_invoice The updated invoice object.
