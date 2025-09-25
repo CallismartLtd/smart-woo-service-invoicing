@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
                 <span class="dashicons dashicons-menu"></span>
             </div>
 
-            <?php if( ! class_exists( 'SmartWooPro', false ) ):?>
+            <?php if ( ! SmartWoo::pro_is_installed() ) : ?>
                 <div class="sw-upgrade-to-pro">
                     <a><?php echo esc_html( apply_filters( 'smartwoo_dash_pro_button_text', __( 'Activate Pro Features', 'smart-woo-service-invoicing' ) ) );?></a>
                 </div>
@@ -73,13 +73,13 @@ defined( 'ABSPATH' ) || exit;
 
             <div class="sw-admin-dashboard-summary-item">
                 <div class="sw-admin-dashboard-summary-item_heading">
-                    <span class="dashicons dashicons-groups"></span>
-                    <h3><?php esc_html_e( 'Active Subscribers', 'smart-woo-service-invoicing' ); ?></h3>
+                    <span class="dashicons dashicons-vault"></span>
+                    <h3><?php esc_html_e( 'Active Subscriptions', 'smart-woo-service-invoicing' ); ?></h3>
                 </div>
                 <hr>
                 <div class="sw-admin-dashboard-summary-item_data">
                     <div class="sw-admin-dashboard-summary-item_data-number">
-                        <?php echo absint( $total_active_subscribers ); ?>
+                        <?php echo absint( $total_active_services ); ?>
                     </div>
                     <div class="sw-admin-dashboard-summary-item_data-stat">
                        
@@ -169,7 +169,7 @@ defined( 'ABSPATH' ) || exit;
                         
                         <div class="sw-service-subscription-lists_table-wrapper">
                             <h3 class="sw-service-subscription-lists_current-heading"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></h3>
-                            <table class="sw-table widefat">
+                            <table class="sw-table has-checkbox widefat">
                                 <thead class="<?php echo esc_attr( empty( $services ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
                                         <th><input type="checkbox" id="serviceListMasterCheckbox"></th>
@@ -188,7 +188,7 @@ defined( 'ABSPATH' ) || exit;
                                     <?php else : ?>
                                         <?php foreach ( $services as $service ) : ?>
                                             <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( $service->preview_url() ) ?>" title="<?php esc_html_e( 'View subscription', 'smart-woo-service-invoicing' ); ?>">
-                                                <td><input type="checkbox" id="<?php echo absint( $service->get_id() ); ?>"></td>
+                                                <td><input type="checkbox" id="<?php echo absint( $service->get_id() ); ?>" data-action="composeEmail" data-args=""></td>
                                                 <td><?php echo absint( $service->get_id() ); ?></td>
                                                 <td><?php echo esc_html( $service->get_name() ); ?></td>
                                                 <td><?php echo esc_html( $service->get_service_id() ); ?></td>
@@ -273,7 +273,16 @@ defined( 'ABSPATH' ) || exit;
                                             <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( smartwoo_invoice_preview_url( $unpaid_inv->get_invoice_id() ) ) ?>" title="<?php esc_html_e( 'View invoice', 'smart-woo-service-invoicing' ); ?>">
                                                 <td><?php esc_html_e( 'Invoice', 'smart-woo-service-invoicing' ); ?></td>
                                                 <td><?php echo esc_html( $unpaid_inv->get_invoice_id() ); ?></td>
-                                                <td><span class="dashicons smartwoo-options-dots dashicons-ellipsis"></span></td>  
+                                                <td>
+                                                    <div class="smartwoo-options-dots" tabindex="0">
+                                                        <ul class="smartwoo-options-dots-items" title="">
+                                                            <li data-action="composeEmail" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'compose_email'] ) ) ?>"><?php esc_html_e( 'Compose Email', 'smart-woo-service-invoicing' ); ?></li>
+                                                            <li data-action="markAsPaid" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ) ?>"><?php esc_html_e( 'Mark as Paid', 'smart-woo-service-invoicing' ); ?></li>
+                                                            <li data-action="sendPaymentReminder" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ) ?>"><?php esc_html_e( 'Send payment reminder', 'smart-woo-service-invoicing' ); ?></li>
+                                                        </ul>
+                                                        <span class="dashicons dashicons-ellipsis" title="<?php esc_html_e( 'Options', 'smart-woo-service-invoicing' ); ?>"></span>
+                                                    </div>
+                                                </td>  
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
@@ -339,6 +348,17 @@ defined( 'ABSPATH' ) || exit;
             </div>
 
         </div>
+    </div>
+    <div id="pro-target"></div>
+
+    <div class="smartwoo-modal-frame">
+        <div class="smartwoo-modal-content">
+            <span class="smartwoo-close-modal dashicons dashicons-dismiss" title="<?php esc_html_e( 'Close', 'smart-woo-service-invoicing' ); ?>"></span>
+            <div class="smartwoo-modal-body">
+                
+            </div>
+        </div>
+
     </div>
 
     <div class="sw-admin-dash-footer">
