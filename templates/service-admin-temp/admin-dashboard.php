@@ -1,4 +1,12 @@
 <?php
+
+
+
+
+
+
+
+
 /**
  * The Smart Woo Admin dashboard template file.
  * 
