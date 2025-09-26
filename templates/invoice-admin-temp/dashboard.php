@@ -49,7 +49,7 @@ defined( 'ABSPATH' ) || exit;
                         <td class="smartwoo-admin-table-td-options">
                             <a class="sw-icon-button-admin" href="<?php echo esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ); ?>" title="<?php esc_html_e( 'Preview', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-visibility"></span></a>
                             <a class="sw-icon-button-admin" href="<?php echo esc_url( admin_url( 'admin.php?page=sw-invoices&tab=edit-invoice&invoice_id=' . $invoice->get_invoice_id() ) ); ?>" title="<?php esc_html_e( 'Edit Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-edit"></span></a>
-                            <a class="sw-icon-button-admin" href="<?php echo esc_url( $invoice->download_url() ); ?>" title="<?php esc_html_e( 'Download Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-download"></span></a>
+                            <a class="sw-icon-button-admin" href="<?php echo esc_url( $invoice->download_url( 'admin' ) ); ?>" title="<?php esc_html_e( 'Download Invoice', 'smart-woo-service-invoicing' ); ?>"><span class="dashicons dashicons-download"></span></a>
                             <?php echo wp_kses_post( smartwoo_delete_invoice_button( $invoice->get_invoice_id() ) ) ?>
                         </td>
                     </tr>
