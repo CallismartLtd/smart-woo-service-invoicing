@@ -162,6 +162,8 @@ defined( 'ABSPATH' ) || exit;
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Active', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveNRServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Non-Renewing', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allGracePeriodServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Grace Period', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allExpiredServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Expired', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allCancelledServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Cancelled', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allSuspendedServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Suspended', 'smart-woo-service-invoicing' ); ?></button>
@@ -351,12 +353,13 @@ defined( 'ABSPATH' ) || exit;
     </div>
     <div id="pro-target"></div>
 
-    <div class="smartwoo-modal-frame">
+    <div class="smartwoo-modal-frame" data-section="modal">
         <div class="smartwoo-modal-content">
-            <span class="smartwoo-close-modal dashicons dashicons-dismiss" title="<?php esc_html_e( 'Close', 'smart-woo-service-invoicing' ); ?>"></span>
-            <div class="smartwoo-modal-body">
-                
-            </div>
+            <button class="smartwoo-modal-close-btn dashicons dashicons-dismiss" title="<?php esc_html_e( 'Close', 'smart-woo-service-invoicing' ); ?>"></button>
+
+            <div class="smartwoo-modal-heading"></div>
+            <div class="smartwoo-modal-body"></div>
+            <div class="smartwoo-modal-footer"></div>
         </div>
 
     </div>
