@@ -134,7 +134,8 @@ function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $paymen
 	$args = array(
 		'service_id'	=> $service_id,
 		'type'			=> $invoice_type,
-		'status'		=> $payment_status
+		'status'		=> $payment_status,
+		'limit'			=> 1
 		
 	);
 	$invoices	= SmartWoo_Invoice_Database::get_service_invoices( $args );
