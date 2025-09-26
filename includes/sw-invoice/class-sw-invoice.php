@@ -784,7 +784,7 @@ class SmartWoo_Invoice {
 	/**
 	 * Get invoice download URL
 	 * 
-	 * @param string $context Pass "admin"if in admin area.
+	 * @param string $context Pass "admin" if in admin area.
 	 * @return string $ur formatted invoice download url.
 	 */
 	public function download_url( $context = 'frontend' ) {
@@ -807,6 +807,13 @@ class SmartWoo_Invoice {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Invoice print URL
+	 */
+	public function print_url() {
+		return wp_nonce_url( admin_url( 'admin-post.php?action=smartwoo_print_invoice&invoice_id=' . $this->get_invoice_id() ) );
 	}
 
 	/**
