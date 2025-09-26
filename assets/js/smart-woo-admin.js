@@ -1564,7 +1564,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if ( adminAutoRenewBtn ) {
         adminAutoRenewBtn.addEventListener( 'click', () =>{
-            smartwoo_pro_ad( 'Auto Renew Service', 'Automatic service renewal from the backend is exclusively available in Smart Woo Pro.' );
+            smartwoo_pro_ad( 'Auto Renew Service', 'Skip the manual work. With Smart Woo Pro, admins can instantly trigger a full subscription renewal — update invoices, mark services renewed, and send client emails — all in one click. Perfect for offline payments or fixing failed renewals.' );
         })
     }
 
