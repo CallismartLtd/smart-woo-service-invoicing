@@ -41,11 +41,12 @@ class SmartWooAdminDashboard {
         }
 
         this.sections = {
-            subscriptionList: this.dashboardContainer.querySelector( '[data-section="subscriptionList"]' ),
-            subscribersList:  this.dashboardContainer.querySelector( '[data-section="subscribersList"]' ),
-            needsAttention:   this.dashboardContainer.querySelector( '[data-section="needsAttention"]' ),
-            recentInvoices:   this.dashboardContainer.querySelector( '[data-section="recentInvoices"]' ),
-            activities:       this.dashboardContainer.querySelector( '[data-section="activities"]' ),
+            subscriptionList:   this.dashboardContainer.querySelector( '[data-section="subscriptionList"]' ),
+            subscribersList:    this.dashboardContainer.querySelector( '[data-section="subscribersList"]' ),
+            needsAttention:     this.dashboardContainer.querySelector( '[data-section="needsAttention"]' ),
+            recentInvoices:     this.dashboardContainer.querySelector( '[data-section="recentInvoices"]' ),
+            activities:         this.dashboardContainer.querySelector( '[data-section="activities"]' ),
+            modal:              this.dashboardContainer.closest( '.sw-admin-dashboard' ).querySelector( '[data-section="modal"]' )
         };
 
         this.globalLoader = document.getElementById( 'swloader' );
@@ -96,11 +97,16 @@ class SmartWooAdminDashboard {
             }
         });
 
+        this.sections.modal.addEventListener( 'click', this._modalEventHandler.bind(this) );
+        document.addEventListener( 'keydown', this._modalEventHandler.bind(this) );
         SmartWooAdminDashboard.on( 'markAsPaid', 'needsAttention', this._processInvoiceOptions );
         SmartWooAdminDashboard.on( 'sendPaymentReminder', 'needsAttention', this._processInvoiceOptions );
         SmartWooAdminDashboard.on( 'composeEmail', 'needsAttention', this._proComposeEmail );
         SmartWooAdminDashboard.on( 'autoProcessOrder', 'needsAttention', this._proAutoProcessOrder );
+        SmartWooAdminDashboard.on( 'autoRenewService', 'needsAttention', this._proAutoRenewService );
+
         SmartWooAdminDashboard.on( 'viewOrderDetails', 'needsAttention', this._showOrderDetails );
+        SmartWooAdminDashboard.on( 'viewRelatedInvoice', 'needsAttention', this._showRelatedInvoice );
         
     }
 
@@ -532,7 +538,10 @@ class SmartWooAdminDashboard {
      */
     _proComposeEmail() {
         if ( this.serverConfig.smartwoo_pro_is_installed ) return;
-        smartwoo_pro_ad( 'Compose Email', 'Compose and send custom emails to your clients exclusively with Smart Woo Pro.' );
+        smartwoo_pro_ad(
+        'Compose Email',
+        'Craft and send personalized emails to your clients directly from your dashboard. Elevate your communication with the professional power of Smart Woo Pro.'
+        );
     }
 
     /**
@@ -540,7 +549,23 @@ class SmartWooAdminDashboard {
      */
     _proAutoProcessOrder() {
         if ( this.serverConfig.smartwoo_pro_is_installed ) return;
-        smartwoo_pro_ad( 'Auto Process Order', 'Automatically process subscription orders, create ordered service and send order confirmation emails to customers using Smart Woo Pro.' );
+        smartwoo_pro_ad(
+        'Hands-Free Order Processing',
+        'Eliminate the endless cycle of manual reviews. Smart Woo Pro automatically processes subscription orders, sets up services, and notifies customers — saving you time and effort.'
+        );
+
+    }
+
+    /**
+     * Show pro ads for auto renew service feature.
+     */
+    _proAutoRenewService() {
+        if ( this.serverConfig.smartwoo_pro_is_installed ) return;
+        smartwoo_pro_ad(
+        'Auto Renew Service',
+        'Skip the manual work. With Smart Woo Pro, admins can instantly trigger a full subscription renewal — update invoices, mark services renewed, and send client emails — all in one click. Perfect for offline payments or fixing failed renewals.'
+        );
+
     }
 
     /**
@@ -548,10 +573,68 @@ class SmartWooAdminDashboard {
      * @param {object} args
      */
     _showOrderDetails( args ) {
-        console.log( args );
+        // Build HTML content.
+        const orderDetails = args.order_details;
+
+        if ( ! orderDetails ) {
+            this._openModal( '<p>No order details found.</p>' );
+            return;
+        }
+                
+        this._openModal( orderDetails.heading, orderDetails.body, orderDetails.footer  );
+    }
+
+    /**
+     * Show related invoice in modal.
+     * 
+     * @param {object} args
+     */
+    _showRelatedInvoice( args ) {
+        const invoiceDetails = args.invoice_details;
+        if ( ! invoiceDetails ) {
+            this._openModal( '<p>No invoice details found.</p>' );
+            return;
+        }
+        this._openModal( invoiceDetails.heading, invoiceDetails.body, invoiceDetails.footer  );
+    }
+
+    /**
+     * Open modal.
+     * 
+     * @param {String} heading - HTML content for the modal heading section.
+     * @param {String} body - HTML content for the modal body section
+     * @param {String} footer - HTML content for the modal footer section.
+     */
+    _openModal( heading, body, footer ) {
+        jQuery( this.sections.modal ).fadeOut( 'fast', () => {
+            this.sections.modal.querySelector( '.smartwoo-modal-heading' ).innerHTML = heading || '<h2>Modal</h2>';
+            this.sections.modal.querySelector( '.smartwoo-modal-body' ).innerHTML = body || '<p>No content</p>';
+            this.sections.modal.querySelector( '.smartwoo-modal-footer' ).innerHTML = footer || '';
+
+            jQuery( this.sections.modal ).fadeIn( 'slow' );
+        });
         
     }
+
+    /**
+     * Close modal
+     */
+    _closeModal() {
+        jQuery( this.sections.modal ).fadeOut( 'slow' );
+    }
     
+    /**
+     * Handle modal events.
+     * 
+     * @param {Event} event
+     */
+    _modalEventHandler( event ) {
+
+        if ( 'Escape' === event.key || this.sections.modal === event.target || event.target.classList?.contains( 'smartwoo-modal-close-btn' ) ) {
+            this._closeModal();
+            return;
+        }
+    }
 }
 
 addEventListener( 'DOMContentLoaded', () => {
