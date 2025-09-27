@@ -51,7 +51,7 @@ defined( 'ABSPATH' ) || exit;
             </div>
 
             <div class="sw-admin-client-info-pro-data<?php echo esc_attr( class_exists( 'SmartWooPro', false ) ? ' has-pro': '' ); ?>">
-                <h3>Client Data</h3>
+                <h3>Client Log</h3>
                 <?php if ( has_filter( 'smartwoo_additional_client_details' ) && class_exists( 'SmartWooPro' ) ) : ?>
                     <div class="sw-admin-client-info-pro-items">
                         <?php foreach( $additional_details as $title => $value ) :?>

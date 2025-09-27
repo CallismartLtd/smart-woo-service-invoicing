@@ -79,7 +79,7 @@ class AdminDashboard {
         
         
         $response_data['current_filter']    = $current_filter;
-        $response_data['title']    = self::get_response_title( $current_filter );
+        $response_data['title']             = self::get_response_title( $current_filter );
         $response_data['pagination']        = $pagination;
         
         $response   = new WP_REST_Response( $response_data, 200 );
@@ -124,11 +124,10 @@ class AdminDashboard {
             case 'allDueServices':
                 return array( SmartWoo_Service_Database::class, 'get_all_due' );
 
-            case 'allGracePeriodServices':
-                return array( SmartWoo_Service_Database::class, 'get_all_on_grace' );
-
             case 'subscribersList':
                 return array( SmartWoo_Service_Database::class, 'get_active_subscribers' );
+            case 'allOnExpiryThreshold':
+                return array( SmartWoo_Service_Database::class, 'get_on_expiry_threshold' );
             
             case 'allUnPaidInvoice':
                 return function( $page, $limit ) {
@@ -141,6 +140,8 @@ class AdminDashboard {
             case 'markInvoicePaid':
             case 'sendPaymentReminder':
                 return array( __CLASS__, 'handle_invoice_actions' );
+            case 'bulkActions':
+                return array( __CLASS__, 'handle_bulk_actions' );
             default:
                 return new WP_Error(
                     'smartwoo_rest_no_handler',
@@ -175,8 +176,8 @@ class AdminDashboard {
             },
             'allNewOrders'              => 'smartwoo_count_unprocessed_orders',
             'allDueServices'            => 'SmartWoo_Service_Database::count_due',
-            'allGracePeriodServices'    => 'SmartWoo_Service_Database::count_on_grace',
             'subscribersList'           => 'SmartWoo_Service_Database::get_total_active_subscribers',
+            'allOnExpiryThreshold'      => 'SmartWoo_Service_Database::count_on_expiry_threshold',
         );
 
         $filter       = $request->get_param( 'filter' );
@@ -220,8 +221,8 @@ class AdminDashboard {
             'allUnPaidInvoice'       => __( 'All Unpaid Invoices', 'smart-woo-service-invoicing' ),
             'allNewOrders'           => __( 'All New Orders', 'smart-woo-service-invoicing' ),
             'allDueServices'         => __( 'All Due Services', 'smart-woo-service-invoicing' ),
-            'allGracePeriodServices' => __( 'All Services in Grace Period', 'smart-woo-service-invoicing' ),
-        );
+            'allOnExpiryThreshold'   => __( 'All Expiring Soon', 'smart-woo-service-invoicing' ),
+            );
 
         return $titles[$filter] ?? '';
 
@@ -267,7 +268,7 @@ class AdminDashboard {
             return self::$method( $results );
         }
 
-        return array();
+        return self::message_response( $results );
     }
 
     /**
@@ -290,7 +291,7 @@ class AdminDashboard {
         foreach ( $services as $service ) {
             $table_rows[] = sprintf(
                 '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
-                    <td><input type="checkbox" id="%3$d"></td>
+                    <td><input type="checkbox" id="%3$d" class="serviceListCheckbox" data-value="%5$s"></td>
                     <td>%3$d</td>
                     <td>%4$s</td>
                     <td>%5$s</td>
@@ -392,6 +393,35 @@ class AdminDashboard {
     private static function prepare_needsAttention_invoice_data( $invoices ) {
         $table_rows = [];
         foreach ( $invoices as $invoice ) {
+            $body = sprintf(
+                '<object data="%1$s" type="application/pdf" class="smartwoo-invoice-pdf-viewer">
+                    <p>%2$s</p>
+                </object>',
+                esc_url( $invoice->print_url() ),
+                smartwoo_error_notice( __( 'It appears your browser cannot display PDF files. Please use the buttons below to manage, print, or download the invoice.', 'smart-woo-service-invoicing' ) )
+            );
+
+            $footer = sprintf(
+                '<div class="sw-button-container">
+                    <a href="%1$s" class="sw-blue-button button">%2$s</a>
+                    <a href="%3$s" class="sw-blue-button button" download>%4$s</a>
+                    <a href="%5$s" class="sw-blue-button button" target="_blank">%6$s</a>
+                </div>',
+                esc_url( $invoice->preview_url( 'admin' ) ),
+                __( 'Manage Invoice', 'smart-woo-service-invoicing' ),
+                esc_url( $invoice->download_url( 'admin' ) ),
+                __( 'Download PDF', 'smart-woo-service-invoicing' ),
+                esc_url( $invoice->print_url() ),
+                __( 'Print Invoice', 'smart-woo-service-invoicing' )
+            
+            );
+
+            $invoice_details = array(
+                /* translators: %s is the invoice public ID */
+                'heading'   => sprintf( __( '<h2>Invoice #%s</h2>', 'smart-woo-service-invoicing' ), $invoice->get_invoice_id() ),
+                'body'      => $body,
+                'footer'    => $footer
+            );
             $table_rows[] = sprintf(
                 '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
                     <td>%3$s</td>
@@ -402,12 +432,13 @@ class AdminDashboard {
                                 <li data-action="composeEmail" data-args="%5$s">%6$s</li>
                                 <li data-action="markAsPaid" data-args="%7$s">%8$s</li>
                                 <li data-action="sendPaymentReminder" data-args="%9$s">%10$s</li>
+                                <li data-action="viewInvoiceDetails" data-args="%11$s">%12$s</li>
                             </ul>
-                            <span class="dashicons dashicons-ellipsis" title="%11$s"></span>
+                            <span class="dashicons dashicons-ellipsis" title="%13$s"></span>
                         </div>
                     </td>  
                 </tr>',
-                esc_url( smartwoo_invoice_preview_url( $invoice->get_invoice_id() ) ),
+                esc_url( $invoice->preview_url( 'admin' ) ),
                 __( 'View invoice', 'smart-woo-service-invoicing' ),
                 __( 'Invoice', 'smart-woo-service-invoicing' ),
                 esc_html( $invoice->get_invoice_id() ),
@@ -417,6 +448,8 @@ class AdminDashboard {
                 __( 'Mark as Paid', 'smart-woo-service-invoicing' ),
                 esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ),
                 __( 'Send payment reminder', 'smart-woo-service-invoicing' ),
+                esc_attr( wp_json_encode( [ 'invoice_details' => $invoice_details, 'filter' => 'viewInvoiceDetails'] ) ),
+                __( 'View Invoice Details', 'smart-woo-service-invoicing' ),
                 __( 'Options', 'smart-woo-service-invoicing' )
 
             );
@@ -567,7 +600,7 @@ class AdminDashboard {
             $related_invoice = ! empty( $related_invoice ) ? $related_invoice[0] : null;
             
             if ( $related_invoice ) {
-                $body = sprintf(
+                $inv_body = sprintf(
                     '<object data="%1$s" type="application/pdf" class="smartwoo-invoice-pdf-viewer">
                         <p>%2$s</p>
                     </object>',
@@ -575,14 +608,14 @@ class AdminDashboard {
                     smartwoo_error_notice( __( 'It appears your browser cannot display PDF files. Please use the buttons below to manage, print, or download the invoice.', 'smart-woo-service-invoicing' ) )
                 );
 
-                $footer = sprintf(
+                $inv_footer = sprintf(
                     '<div class="sw-button-container">
                         <a href="%1$s" class="sw-blue-button button">%2$s</a>
                         <a href="%3$s" class="sw-blue-button button" download>%4$s</a>
                         <a href="%5$s" class="sw-blue-button button" target="_blank">%6$s</a>
                         <a href="%7$s" class="sw-blue-button button">%8$s</a>
                     </div>',
-                    esc_url( $related_invoice->preview_url() ),
+                    esc_url( $related_invoice->preview_url( 'admin' ) ),
                     __( 'Manage Invoice', 'smart-woo-service-invoicing' ),
                     esc_url( $related_invoice->download_url( 'admin' ) ),
                     __( 'Download PDF', 'smart-woo-service-invoicing' ),
@@ -596,13 +629,13 @@ class AdminDashboard {
                 $invoice_details = array(
                     /* translators: %s is the invoice public ID */
                     'heading'   => sprintf( __( '<h2>Invoice #%s</h2>', 'smart-woo-service-invoicing' ), $related_invoice->get_invoice_id() ),
-                    'body'      => $body,
-                    'footer'    => $footer
+                    'body'      => $inv_body,
+                    'footer'    => $inv_footer
                 );
             } else {
                 $invoice_details = array(
                     'heading'   => sprintf( '<h2>%s</h2>', __( 'Invoice', 'smart-woo-service-invoicing' ) ),
-                    'body'      => smartwoo_notice( __( 'No related unpaid invoice found for this subscription.', 'smart-woo-service-invoicing' ) ),
+                    'body'      => smartwoo_notice( __( 'This subscription does not have a pending renewal invoice.', 'smart-woo-service-invoicing' ) ),
                     'footer'    => sprintf(
                         '<div class="sw-button-container">
                             <a href="%1$s" class="sw-blue-button button">%2$s</a>
@@ -612,6 +645,59 @@ class AdminDashboard {
                     )
                 );
             }
+
+            // Service details
+            $service_body = sprintf(
+                '<div class="sw-admin-subinfo">
+                    %1$s
+                    <h3>%2$s</h3>
+                    <hr>
+                    <div>
+                        <p class="smartwoo-container-item"><span>%3$s:</span> %4$s</p>
+                        <p class="smartwoo-container-item"><span>%5$s:</span> %6$s</p>
+                        <p class="smartwoo-container-item"><span>%7$s:</span> %8$s</p>
+                        <p class="smartwoo-container-item"><span>%9$s:</span> %10$s</p>
+                        <p class="smartwoo-container-item"><span>%11$s:</span> %12$s</p>
+                    </div>
+                </div>',
+                self::capture_output( 'smartwoo_print_service_status', $service, ['modal-status'] ),
+                esc_html( $service->get_name() ),
+                esc_html__( 'ID', 'smart-woo-service-invoicing' ),
+                esc_html( $service->get_id() ),                    
+                esc_html__( 'Service ID', 'smart-woo-service-invoicing' ),
+                esc_html( $service->get_service_id() ),            
+                esc_html__( 'Type', 'smart-woo-service-invoicing' ),
+                esc_html( $service->get_type() ? $service->get_type() : 'N/A' ),
+                esc_html__( 'Billing Cycle', 'smart-woo-service-invoicing' ),   // %9$s
+                esc_html( $service->get_billing_cycle() ),
+                esc_html__( 'URL', 'smart-woo-service-invoicing' ),
+                esc_html( $service->get_service_url() )
+            );
+
+            $service_footer = sprintf(
+                '<div class="sw-button-container">
+                    <a href="%s" class="sw-blue-button button">%s</a>
+                    <a href="%s" class="sw-blue-button button">%s</a>
+                    <a href="%s" class="sw-blue-button button">%s</a>
+                    <a href="%s" class="sw-blue-button button">%s</a>
+                </div>',(
+                esc_url( $service->preview_url() ) ),
+                __( 'View Subscription', 'smart-woo-service-invoicing' ),
+                esc_url( add_query_arg( array( 'tab' => 'client' ), $service->preview_url() ) ),
+                __( 'View Client', 'smart-woo-service-invoicing' ),
+                esc_url( add_query_arg( array( 'tab' => 'edit-service' ), $service->preview_url() ) ),
+                __( 'Edit Subscription', 'smart-woo-service-invoicing' ),
+                esc_url( add_query_arg( array( 'tab' => 'stats' ), $service->preview_url() ) ),
+                __( 'View Statistics', 'smart-woo-service-invoicing' )
+            );
+
+            $service_heading = sprintf( '<h2>%1$s (#%2$s)</h2>', $service->get_name(), $service->get_service_id() );
+
+            $service_details = array(
+                'heading'   => $service_heading,
+                'body'      => $service_body,
+                'footer'    => $service_footer
+            );
 
 
             $table_rows[] = sprintf(
@@ -624,8 +710,9 @@ class AdminDashboard {
                                 <li data-action="composeEmail" data-args="%5$s">%6$s</li>
                                 <li data-action="autoRenewService" data-args="%7$s">%8$s</li>
                                 <li data-action="viewRelatedInvoice" data-args="%9$s">%10$s</li>
+                                <li data-action="previewServiceDetails" data-args="%11$s">%12$s</li>
                             </ul>
-                            <span class="dashicons dashicons-ellipsis" title="%11$s"></span>
+                            <span class="dashicons dashicons-ellipsis" title="%13$s"></span>
                         </div>
                     </td>  
                 </tr>',
@@ -639,6 +726,8 @@ class AdminDashboard {
                 __( 'Auto Renew Subscription', 'smart-woo-service-invoicing' ),
                 esc_attr( wp_json_encode( [ 'invoice_details' => $invoice_details, 'filter' => 'viewRelatedInvoice'] ) ),
                 __( 'View Related Invoice', 'smart-woo-service-invoicing' ),
+                esc_attr( wp_json_encode( [ 'service_details' => $service_details, 'filter' => 'previewServiceDetails'] ) ),
+                __( 'View Service Details', 'smart-woo-service-invoicing' ),
                 __( 'Options', 'smart-woo-service-invoicing' )
             );
         }
@@ -685,11 +774,27 @@ class AdminDashboard {
     }
 
     /**
-     * Prepare response for the needsAttention - option actions.
+     * Handles bulk actions in the dashboard
+     */
+    private static function handle_bulk_actions() {
+        $request    = func_get_arg( 2 );
+        $section    = $request->get_param( 'section' );
+
+        switch ( $section ) {
+            case 'subscriptionList_bulk_action':
+                return self::perform_subscription_bulk_action( $request );
+            default:
+            return array( false, __( 'Unsupported bulk action', 'smart-woo-service-invoicing' ) );  
+        }
+              
+    }
+
+    /**
+     * Get a message-based REST response.
      * 
      * @param array $args
      */
-    private static function prepare_needsAttention_options_data( array $args ) {
+    private static function message_response( array $args ) {
         list( $result, $message ) = $args;
         $messages = array(
             'success' => $message,
@@ -700,6 +805,61 @@ class AdminDashboard {
 
         return array( 'message' => $message );
     }
+
+    /**
+     * Perform subscription bulk actions.
+     * 
+     * @param WP_REST_Request $request
+     * @return array
+     */
+    private static function perform_subscription_bulk_action( WP_REST_Request $request ) {
+        $service_ids    = $request->get_param( 'service_ids' );
+                
+        if ( empty( $service_ids ) || ! is_array( $service_ids ) ) {
+            return array( false, __( 'No services selected', 'smart-woo-service-invoicing' ) );
+        }
+
+        // Instatiate all selected services.
+        $services = array_map( 'SmartWoo_Service_Database::get_service_by_id', $service_ids );
+        $services = array_filter( $services ); // Remove any null values.
+
+        $action = $request->get_param( 'action' );
+
+        // Delete services.
+        if ( 'delete' === $action ) {
+            $deleted_count = 0;
+            foreach ( $services as $service ) {
+                if ( $service->delete() ) {
+                    $deleted_count++;
+                }
+            }
+
+            // translators: %d is the number of deleted services.
+            $message = sprintf( _n( '%d service deleted', '%d services deleted', $deleted_count, 'smart-woo-service-invoicing' ), $deleted_count );
+            return array( $deleted_count > 0, $message );
+        }
+
+        // This is a status bulk action.
+        $status         = smartwoo_interprete_service_status( $action );
+        $updated_count  = 0;
+        foreach ( $services as $service ) {
+            $service->set_status( $status );
+            if ( $service->save() ) {
+                $updated_count++;
+            }
+
+        }
+
+        $status_labels  = array_values( smartwoo_supported_service_status() );
+        $status_labels  = array_combine( $status_labels, smartwoo_supported_service_status() );
+
+        $status = is_null( $status ) ? __( 'Automatic Cancellation', 'smart-woo-service-invoicing' ) : ( $status_labels[ $status ] ?? $status );
+        // translators: %d: is the number of updated services: %s is the status label.
+        $message = sprintf( _n( '%d service updated to "%s"', '%d services updated to "%s"', $updated_count, 'smart-woo-service-invoicing' ), $updated_count, $status );
+        
+        return array( $updated_count > 0, $message );
+    }
+
 
     /**
      * Helper function to capture and return the output of a given callback

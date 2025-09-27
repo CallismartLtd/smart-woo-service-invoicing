@@ -407,7 +407,9 @@ class SmartWoo_Service {
 	*/
 
 	/**
-	 * Insert into the database.
+	 * Insert or update this service subscription.
+	 * 
+	 * @return bool True if saved, false otherwise.
 	 */
 	public function save() {
 		if ( empty( $this->get_service_id() ) ) {
@@ -415,6 +417,19 @@ class SmartWoo_Service {
 		}
 		
 		return SmartWoo_Service_Database::create_service( $this );
+	}
+
+	/**
+	 * Delete this service subscription from the database.
+	 * 
+	 * @return bool True if deleted, false otherwise.
+	 */
+	public function delete() {
+		if ( empty( $this->get_id() ) ) {
+			return false; // Cannot delete a service without an ID.
+		}
+
+		return SmartWoo_Service_Database::delete_service( $this );
 	}
 
 	/*

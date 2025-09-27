@@ -171,18 +171,24 @@ defined( 'ABSPATH' ) || exit;
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Active', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveNRServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Non-Renewing', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allGracePeriodServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Grace Period', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allExpiredServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Expired', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allCancelledServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Cancelled', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allSuspendedServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Suspended', 'smart-woo-service-invoicing' ); ?></button>
                         </div>
                         
                         <div class="sw-service-subscription-lists_table-wrapper">
-                            <h3 class="sw-service-subscription-lists_current-heading"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></h3>
+                            <div class="sw-table-heading">
+                                <h3 class="sw-service-subscription-lists_current-heading"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></h3>
+                                <form class="sw-table-bulk-action-container">
+                                    <?php smartwoo_service_status_dropdown( '', $service_bulk_action_select_args ); ?>
+                                    <button type="submit" class="button">Apply</button>
+                                </form>
+
+                            </div>
                             <table class="sw-table has-checkbox widefat">
                                 <thead class="<?php echo esc_attr( empty( $services ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
-                                        <th><input type="checkbox" id="serviceListMasterCheckbox"></th>
+                                        <th><input type="checkbox" class="serviceListMasterCheckbox"></th>
                                         <th><?php esc_html_e( 'ID', 'smart-woo-service-invoicing' ); ?></th>
                                         <th><?php esc_html_e( 'Name', 'smart-woo-service-invoicing' ); ?></th>
                                         <th><?php esc_html_e( 'Service ID', 'smart-woo-service-invoicing' ); ?></th>
@@ -198,7 +204,7 @@ defined( 'ABSPATH' ) || exit;
                                     <?php else : ?>
                                         <?php foreach ( $services as $service ) : ?>
                                             <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( $service->preview_url() ) ?>" title="<?php esc_html_e( 'View subscription', 'smart-woo-service-invoicing' ); ?>">
-                                                <td><input type="checkbox" id="<?php echo absint( $service->get_id() ); ?>" data-action="composeEmail" data-args=""></td>
+                                                <td><input type="checkbox" id="<?php echo absint( $service->get_id() ); ?>" class="serviceListCheckbox" data-value="<?php echo esc_attr( $service->get_service_id() ) ?>"></td>
                                                 <td><?php echo absint( $service->get_id() ); ?></td>
                                                 <td><?php echo esc_html( $service->get_name() ); ?></td>
                                                 <td><?php echo esc_html( $service->get_service_id() ); ?></td>
@@ -264,7 +270,7 @@ defined( 'ABSPATH' ) || exit;
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allUnPaidInvoice" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'Unpaid Invoices', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allNewOrders" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'New Orders', 'smart-woo-service-invoicing' ); ?></button>
                             <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allGracePeriodServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Grace Period', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allOnExpiryThreshold" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Expiring Soon', 'smart-woo-service-invoicing' ); ?></button>
                         </div>
 
                         <div class="sw-admin-dashboard-interactivity-section_right-top-data-container">
@@ -289,6 +295,7 @@ defined( 'ABSPATH' ) || exit;
                                                             <li data-action="composeEmail" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'compose_email'] ) ) ?>"><?php esc_html_e( 'Compose Email', 'smart-woo-service-invoicing' ); ?></li>
                                                             <li data-action="markAsPaid" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ) ?>"><?php esc_html_e( 'Mark as Paid', 'smart-woo-service-invoicing' ); ?></li>
                                                             <li data-action="sendPaymentReminder" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ) ?>"><?php esc_html_e( 'Send payment reminder', 'smart-woo-service-invoicing' ); ?></li>
+                                                            <li data-action="viewInvoiceDetails" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_details' => $prepare_invoice_args( $unpaid_inv ), 'filter' => 'viewInvoiceDetails'] ) ) ?>"><?php esc_html_e( 'View Invoice Details', 'smart-woo-service-invoicing' ) ?></li>
                                                         </ul>
                                                         <span class="dashicons dashicons-ellipsis" title="<?php esc_html_e( 'Options', 'smart-woo-service-invoicing' ); ?>"></span>
                                                     </div>

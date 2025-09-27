@@ -835,6 +835,9 @@ border-radius: 5px;
 	padding: 0;
 }
 
+.smartwoo-modal-body .modal-status {
+	padding: 10px;
+}
 .smartwoo-modal-body p {
 	font-size: 12px;
 }

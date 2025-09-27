@@ -753,8 +753,8 @@ class SmartWoo_Config{
                                         'allUnPaidInvoice',
                                         'allNewOrders',
                                         'allDueServices',
-                                        'allGracePeriodServices',
-                                        'markInvoicePaid'
+                                        'markInvoicePaid',
+                                        'bulkActions'
                                     ),
                                     'description' => 'The dataset filter to apply. Valid values include:
                                         - allServices: All services
@@ -766,8 +766,8 @@ class SmartWoo_Config{
                                         - allUnPaidInvoice: Unpaid invoices
                                         - allNewOrders: New orders
                                         - allDueServices: Due services
-                                        - allGracePeriodServices: Services in grace period
-                                        -markInvoicePaid: Mark invoice as paid.',
+                                        - markInvoicePaid: Mark invoice as paid
+                                        - bulkActions: Bulk action to perform on the selected table.',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
                                 ),
@@ -792,11 +792,11 @@ class SmartWoo_Config{
                                 'section'   => array(
                                     'required'  => true,
                                     'type'      => 'string',
-                                    'enum'      => array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ),
+                                    'enum'      => array( 'subscriptionList', 'subscriptionList_bulk_action', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ),
                                     'description'       => 'The current admin dashboard section where the response is being rendered',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => function( $value ) {
-                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'subscriptionList', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ) );
+                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'subscriptionList', 'subscriptionList_bulk_action', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ) );
                                     },
                                 ),
 

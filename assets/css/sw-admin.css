@@ -611,6 +611,7 @@ body .sw-admin-dash-nav ul li a:focus {
 
 .smartwoo-options-dots-items {
     position: absolute;
+    top: -40px;
     transform: translate(-100px, -150px);
     border: solid 1px #dcdcde;
     display: none;
@@ -633,6 +634,21 @@ body .sw-admin-dash-nav ul li a:focus {
 .smartwoo-options-dots-items li:hover {
     cursor: pointer;
     border: solid 1px #dcdcde;
+}
+
+.sw-table.has-checkbox {
+    position: relative;
+}
+.sw-table-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.sw-table-heading select {
+    width: 130px;
 }
 
 @media (min-width: 783px) and (max-width: 960px) {

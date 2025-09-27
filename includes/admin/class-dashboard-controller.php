@@ -193,6 +193,49 @@ class SmartWoo_Dashboard_Controller {
 		$services					= SmartWoo_Service_Database::get_all( $current_args['page'], $current_args['limit'] );
 		$recent_invoices			= SmartWoo_Invoice_Database::get_all_invoices( $current_args['page'], $current_args['limit'] );
 
+		$prepare_invoice_args	= function( $invoice ) {
+			$body = sprintf(
+				'<object data="%1$s" type="application/pdf" class="smartwoo-invoice-pdf-viewer">
+					<p>%2$s</p>
+				</object>',
+				esc_url( $invoice->print_url() ),
+				smartwoo_error_notice( __( 'It appears your browser cannot display PDF files. Please use the buttons below to manage, print, or download the invoice.', 'smart-woo-service-invoicing' ) )
+			);
+
+			$footer = sprintf(
+				'<div class="sw-button-container">
+					<a href="%1$s" class="sw-blue-button button">%2$s</a>
+					<a href="%3$s" class="sw-blue-button button" download>%4$s</a>
+					<a href="%5$s" class="sw-blue-button button" target="_blank">%6$s</a>
+				</div>',
+				esc_url( $invoice->preview_url( 'admin' ) ),
+				__( 'Manage Invoice', 'smart-woo-service-invoicing' ),
+				esc_url( $invoice->download_url( 'admin' ) ),
+				__( 'Download PDF', 'smart-woo-service-invoicing' ),
+				esc_url( $invoice->print_url() ),
+				__( 'Print Invoice', 'smart-woo-service-invoicing' )
+			
+			);
+
+			return array(
+				/* translators: %s is the invoice public ID */
+				'heading'   => sprintf( __( '<h2>Invoice #%s</h2>', 'smart-woo-service-invoicing' ), $invoice->get_invoice_id() ),
+				'body'      => $body,
+				'footer'    => $footer
+			);
+		};
+
+		$service_bulk_action_select_args = [
+			'name' => 'selected_action',
+			'id' => 'selected_action',
+			'class' => '',
+			'option_none' => __( 'Bulk Actions', 'smart-woo-service-invoicing' ),
+			'additional_options' => array(
+				'auto_calc'	=> __( 'Auto Calculate', 'smart-woo-service-invoicing' ),
+				'delete'	=> __( 'Delete', 'smart-woo-service-invoicing' )
+			)
+		];
+
 		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
 	}
 

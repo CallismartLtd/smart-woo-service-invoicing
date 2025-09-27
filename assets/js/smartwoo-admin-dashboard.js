@@ -98,15 +98,23 @@ class SmartWooAdminDashboard {
         });
 
         this.sections.modal.addEventListener( 'click', this._modalEventHandler.bind(this) );
+        this.sections.subscriptionList.addEventListener( 'change', this._tableCheckboxHandler.bind(this) );
+        this.sections.subscriptionList.addEventListener( 'submit', this._submitBulkAction.bind(this) );
         document.addEventListener( 'keydown', this._modalEventHandler.bind(this) );
+
+        // Register section-specific event handlers
         SmartWooAdminDashboard.on( 'markAsPaid', 'needsAttention', this._processInvoiceOptions );
         SmartWooAdminDashboard.on( 'sendPaymentReminder', 'needsAttention', this._processInvoiceOptions );
+        SmartWooAdminDashboard.on( 'viewInvoiceDetails', 'needsAttention', this._showInvoiceDetails );
+
         SmartWooAdminDashboard.on( 'composeEmail', 'needsAttention', this._proComposeEmail );
+        
         SmartWooAdminDashboard.on( 'autoProcessOrder', 'needsAttention', this._proAutoProcessOrder );
         SmartWooAdminDashboard.on( 'autoRenewService', 'needsAttention', this._proAutoRenewService );
 
         SmartWooAdminDashboard.on( 'viewOrderDetails', 'needsAttention', this._showOrderDetails );
-        SmartWooAdminDashboard.on( 'viewRelatedInvoice', 'needsAttention', this._showRelatedInvoice );
+        SmartWooAdminDashboard.on( 'viewRelatedInvoice', 'needsAttention', this._showInvoiceDetails );
+        SmartWooAdminDashboard.on( 'previewServiceDetails', 'needsAttention', this._showServiceDetails );
         
     }
 
@@ -573,7 +581,6 @@ class SmartWooAdminDashboard {
      * @param {object} args
      */
     _showOrderDetails( args ) {
-        // Build HTML content.
         const orderDetails = args.order_details;
 
         if ( ! orderDetails ) {
@@ -589,13 +596,26 @@ class SmartWooAdminDashboard {
      * 
      * @param {object} args
      */
-    _showRelatedInvoice( args ) {
+    _showInvoiceDetails( args ) {
         const invoiceDetails = args.invoice_details;
         if ( ! invoiceDetails ) {
             this._openModal( '<p>No invoice details found.</p>' );
             return;
         }
         this._openModal( invoiceDetails.heading, invoiceDetails.body, invoiceDetails.footer  );
+    }
+
+    /**
+     * Show service details in modal.
+     * @param {object} args
+     */
+    _showServiceDetails( args ) {
+        const serviceDetails = args.service_details;
+        if ( ! serviceDetails ) {
+            this._openModal( '<p>No service details found.</p>' );
+            return;
+        }
+        this._openModal( serviceDetails.heading, serviceDetails.body, serviceDetails.footer  );
     }
 
     /**
@@ -634,6 +654,110 @@ class SmartWooAdminDashboard {
             this._closeModal();
             return;
         }
+    }
+
+    /**
+     * Handle table checkbox events.
+     * 
+     * @param {Event} event
+     */
+    _tableCheckboxHandler( event ) {
+        const masterCheckbox = event.target.closest( '.serviceListMasterCheckbox' );
+        if ( masterCheckbox ) {
+            const allCheckboxes = this.sections.subscriptionList.querySelectorAll( 'tbody .serviceListCheckbox' );
+            const isChecked     = masterCheckbox.checked;
+            allCheckboxes.forEach( checkbox => {
+                checkbox.checked = isChecked;
+                
+            });
+            return;
+        }
+        const rowCheckbox = event.target.closest( '.serviceListCheckbox' );
+        if ( rowCheckbox ) {
+            const allCheckboxes     = this.sections.subscriptionList.querySelectorAll( 'tbody .serviceListCheckbox' );
+            const allChecked        = Array.from( allCheckboxes ).every( checkbox => checkbox.checked );
+            const masterCheckbox    = this.sections.subscriptionList.querySelector( '.serviceListMasterCheckbox' );
+            if ( masterCheckbox ) {
+                masterCheckbox.checked = allChecked;
+            }
+        }
+    }
+
+    /**
+     * Submit bulk actions
+     * 
+     * @param {Event} event
+     */
+    async _submitBulkAction( event ) {
+        event.preventDefault();
+        const allCheckboxes = this.sections.subscriptionList.querySelectorAll( 'tbody .serviceListCheckbox' );
+        const selectedRows  = Array.from( allCheckboxes ).filter( checkbox => checkbox.checked ).map( checkbox => checkbox.getAttribute( 'data-value' ) );
+
+        if ( selectedRows.length === 0 ) {
+            showNotification( 'Please select at least one subscription to perform bulk action.', 5000 );
+            return;
+        }
+
+        const actionSelect  = this.sections.subscriptionList.querySelector( 'form.sw-table-bulk-action-container select[name="selected_action"]' );
+        const selectedAction = actionSelect?.value;
+
+        if ( ! selectedAction ) {
+            showNotification( 'Please select a bulk action to perform.', 5000 );
+            return;
+        }
+
+        if ( 'delete' === selectedAction && ! confirm( `Are you sure you want to delete the selected subscription${ selectedRows.length > 1 ? 's' : '' }? This action cannot be undone.` ) ) {
+            return;
+        }
+
+        const params = {
+            filter: 'bulkActions',
+            section: 'subscriptionList_bulk_action',
+            action: selectedAction,
+            service_ids: selectedRows
+        };
+        
+        const response  = await this._fetch( params );
+                
+        if ( ! response ) return;
+        showNotification( response.message ?? 'Bulk action completed.', 10000 );
+
+        // Refresh the table
+        const currentFilter = this.sections.subscriptionList.getAttribute( 'data-current-filter' ) || 'allServices';
+        // Get current pagination by parsing the previous pagination button data attributes and adding 1 to the page number.
+        const paginationBtns = this.sections.subscriptionList.querySelectorAll( '.sw-dashboard-pagination button' );
+        const prevBtn = paginationBtns[0];
+        const args = this._parseJSONSafe( prevBtn.getAttribute( 'data-pagination' ) );
+        const currentPage = args?.page ? parseInt( args.page, 10 ) + 1 : 1;
+        const currentLimit = args?.limit ? parseInt( args.limit, 10 ) : 10;
+
+        const refreshParams = {
+            filter: currentFilter,
+            section: 'subscriptionList',
+            page: currentPage,
+            limit: currentLimit
+        };
+        const refreshResponse  = await this._fetch( refreshParams );
+        if ( ! refreshResponse ) return;
+        const tableRows = refreshResponse?.table_rows ?? [];
+        
+        let rows = ``;
+        tableRows.map( row => {
+            rows += row;
+        });
+
+        this._replaceSectionBodyHtml( this.sections.subscriptionList, rows ); 
+        this._updateSectionPagination( this.sections.subscriptionList, refreshResponse.pagination );
+        this._updateSectionHeading( this.sections.subscriptionList, refreshResponse.title ?? 'Subscriptions' );
+        this.sections.subscriptionList.setAttribute( 'data-current-filter', refreshParams.filter );
+
+        // Reset bulk action form
+        actionSelect.value = '';
+        const masterCheckbox = this.sections.subscriptionList.querySelector( '.serviceListMasterCheckbox' );
+        if ( masterCheckbox ) {
+            masterCheckbox.checked = false;
+        }
+        
     }
 }
 

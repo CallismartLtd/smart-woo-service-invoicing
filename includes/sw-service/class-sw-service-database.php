@@ -910,7 +910,7 @@ class SmartWoo_Service_Database {
 		}
 
 		// Fetch IDs and filter in PHP (to respect smartwoo_is_service_on_grace).
-		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+		return $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		$services = self::convert_results_to_services( $results );
 
 		$count = 0;
@@ -1426,7 +1426,7 @@ class SmartWoo_Service_Database {
 	/**
 	 * Deletes a service from the database.
 	 *
-	 * @param string $service The ID of the service to delete.
+	 * @param SmartWoo_Service|string $service The service object or the public ID of the service to delete.
 	 *
 	 * @return bool True on success, false on failure.
 	 *
@@ -1435,11 +1435,13 @@ class SmartWoo_Service_Database {
 	public static function delete_service( $service_id ) {
 		global $wpdb;
 
-		// Check if the service exists
-		$existing_service = self::get_service_by_id( $service_id );
+		// Check if the service exists.
+		$existing_service = ( $service_id instanceof SmartWoo_Service ) ? $service_id : self::get_service_by_id( $service_id );
 		if ( ! $existing_service ) {
 			return false;
 		}
+
+		$service_id = $existing_service->get_service_id();
 
 		$assets_obj = new SmartWoo_Service_Assets();
 		$assets_obj->set_service_id( $service_id );

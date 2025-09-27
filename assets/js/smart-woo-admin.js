@@ -880,11 +880,12 @@ function smartwooPostswTableBulkAction( actions = {hook_name: '', value: ''}, va
  * @param {Array} params.options The options for the bulk action.
  * @param {Array} params.selectedRows The selected rows for the bulk action.
  * @param {String} params.hookName The hook name that will be used to process action submission.
+ * @param {HTMLTableElement} tableEl The table element to which the bulk action will be added.
  * @returns void
  */
-function smartwooBulkActionForTable( params = { options: [], selectedRows: [], hookName } ) {
+function smartwooBulkActionForTable( params = { options: [], selectedRows: [], hookName }, tableEl ) {
     let prevDiv = document.querySelector('.sw-action-container');
-    let swTable = document.querySelector('.sw-table');
+    let swTable = ( tableEl instanceof HTMLElement ) ? tableEl : document.querySelector('.sw-table');
     
     // Remove previouse divs
     if( prevDiv ) {
@@ -925,6 +926,8 @@ function smartwooBulkActionForTable( params = { options: [], selectedRows: [], h
     applyBtn.addEventListener( 'click', ()=>{
         smartwooPostswTableBulkAction( { hook_name: params.hookName, value: selectElement.value }, values );
     });
+
+    return actionDiv;
 }
 
 /**
