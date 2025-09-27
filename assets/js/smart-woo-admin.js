@@ -1324,13 +1324,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if ( ! boundTables.has( mainTable ) ) {
                 mainTable.addEventListener( 'click', ( e ) => {
+                    // Ignore clicks on inputs/options
                     if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
+
+                    // Ignore clicks when user is selecting text
+                    if ( window.getSelection().toString().length > 0 ) return;
 
                     const mainRow = e.target.closest( 'tr' );
                     const url     = mainRow?.dataset?.url;
-                    
+
                     if ( url ) {
-                        window.location.href = url;
+                        if ( e.ctrlKey || e.metaKey ) {
+                            // Ctrl+Click or Cmd+Click → new tab
+                            window.open( url, '_blank' );
+                        } else {
+                            // Normal click → same tab
+                            window.location.href = url;
+                        }
                     }
                 });
 
@@ -1338,8 +1348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-
+    
     /**
      * The assets is downloadable checkbox.
      */
