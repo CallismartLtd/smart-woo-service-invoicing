@@ -658,20 +658,33 @@ class AdminDashboard {
                         <p class="smartwoo-container-item"><span>%7$s:</span> %8$s</p>
                         <p class="smartwoo-container-item"><span>%9$s:</span> %10$s</p>
                         <p class="smartwoo-container-item"><span>%11$s:</span> %12$s</p>
+                        <p class="smartwoo-container-item"><span>%13$s:</span> %14$s</p>
+                        <p class="smartwoo-container-item"><span>%15$s:</span> %15$s</p>
+                        <p class="smartwoo-container-item"><span>%17$s:</span> %18$s</p>
+                        <p class="smartwoo-container-item"><span>%19$s:</span> %20$s</p>
                     </div>
                 </div>',
                 self::capture_output( 'smartwoo_print_service_status', $service, ['modal-status'] ),
                 esc_html( $service->get_name() ),
-                esc_html__( 'ID', 'smart-woo-service-invoicing' ),
+                __( 'ID', 'smart-woo-service-invoicing' ),
                 esc_html( $service->get_id() ),                    
-                esc_html__( 'Service ID', 'smart-woo-service-invoicing' ),
+                __( 'Service ID', 'smart-woo-service-invoicing' ),
                 esc_html( $service->get_service_id() ),            
-                esc_html__( 'Type', 'smart-woo-service-invoicing' ),
+                __( 'Type', 'smart-woo-service-invoicing' ),
                 esc_html( $service->get_type() ? $service->get_type() : 'N/A' ),
-                esc_html__( 'Billing Cycle', 'smart-woo-service-invoicing' ),   // %9$s
+                __( 'Billing Cycle', 'smart-woo-service-invoicing' ),   // %9$s
                 esc_html( $service->get_billing_cycle() ),
-                esc_html__( 'URL', 'smart-woo-service-invoicing' ),
-                esc_html( $service->get_service_url() )
+                __( 'URL', 'smart-woo-service-invoicing' ),
+                esc_html( $service->get_service_url() ),
+                __( 'Start Date', 'smart-woo-service-invoicing' ),
+                esc_html( smartwoo_check_and_format( $service->get_start_date(), true ) ),
+                __( 'Nex Payment Date', 'smart-woo-service-invoicing' ),
+                esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), true ) ),
+                __( 'End Date', 'smart-woo-service-invoicing' ),
+                esc_html( smartwoo_check_and_format( $service->get_end_date(), true ) ),
+                __( 'Expiry Date', 'smart-woo-service-invoicing' ),
+                esc_html( smartwoo_check_and_format( $service->get_expiry_date(), true ) )
+
             );
 
             $service_footer = sprintf(
