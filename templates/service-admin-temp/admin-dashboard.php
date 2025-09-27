@@ -188,7 +188,7 @@ defined( 'ABSPATH' ) || exit;
                             <table class="sw-table has-checkbox widefat">
                                 <thead class="<?php echo esc_attr( empty( $services ) ? 'smartwoo-hide' : ''  ); ?>">
                                     <tr>
-                                        <th><input type="checkbox" class="serviceListMasterCheckbox"></th>
+                                        <th><input type="checkbox" id="<?php echo absint( time() ) ?>" class="serviceListMasterCheckbox"></th>
                                         <th><?php esc_html_e( 'ID', 'smart-woo-service-invoicing' ); ?></th>
                                         <th><?php esc_html_e( 'Name', 'smart-woo-service-invoicing' ); ?></th>
                                         <th><?php esc_html_e( 'Service ID', 'smart-woo-service-invoicing' ); ?></th>
