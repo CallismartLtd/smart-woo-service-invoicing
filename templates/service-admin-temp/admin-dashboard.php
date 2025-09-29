@@ -167,13 +167,13 @@ defined( 'ABSPATH' ) || exit;
                     <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Service Subscription List', 'smart-woo-service-invoicing' ); ?></h3>
                     <div class="sw-admin-dashboard-interactivity-section_service-subscription-lists-content">
                         <div class="sw-service-subscription-lists_filters">
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Active', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveNRServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Non-Renewing', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allExpiredServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Expired', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allCancelledServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Cancelled', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allSuspendedServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Suspended', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'All Subscriptions', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Active', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allActiveNRServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Non-Renewing', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allExpiredServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Expired', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allCancelledServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Cancelled', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allSuspendedServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Suspended', 'smart-woo-service-invoicing' ); ?></button>
                         </div>
                         
                         <div class="sw-service-subscription-lists_table-wrapper">
@@ -217,8 +217,8 @@ defined( 'ABSPATH' ) || exit;
                             </table>
                         </div>
                         <div class="sw-dashboard-pagination<?php printf( '%s', ( $total_services < 10  || empty( $services ) ) ? ' smartwoo-hide' : '' ); ?>">
-                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2" title="<?php esc_html_e( 'Previous Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
-                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2" title="<?php esc_html_e( 'Next Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
+                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( smartwoo_json_encode_attr( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2" title="<?php esc_html_e( 'Previous Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
+                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( smartwoo_json_encode_attr( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2" title="<?php esc_html_e( 'Next Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
                         </div>
                     </div>
                 </div>
@@ -256,8 +256,8 @@ defined( 'ABSPATH' ) || exit;
                             </table>
                         </div>
                         <div class="sw-dashboard-pagination<?php printf( '%s', ( $total_active_subscribers <= 10 ) ? ' smartwoo-hide' : '' ); ?>">
-                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2" title="<?php esc_html_e( 'Previous Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
-                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2" title="<?php esc_html_e( 'Next Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
+                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( smartwoo_json_encode_attr( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2" title="<?php esc_html_e( 'Previous Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
+                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( smartwoo_json_encode_attr( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2" title="<?php esc_html_e( 'Next Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
                         </div>
                     </div>
                 </div>
@@ -267,10 +267,10 @@ defined( 'ABSPATH' ) || exit;
                     <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Needs attention', 'smart-woo-service-invoicing' ); ?></h3>
                     <div class="sw-admin-dashboard-interactivity-section_service-subscription-lists-content">
                         <div class="sw-service-subscription-lists_filters">
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allUnPaidInvoice" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'Unpaid Invoices', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allNewOrders" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'New Orders', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
-                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allOnExpiryThreshold" data-state-args="<?php echo esc_attr( wp_json_encode( $current_args ) ) ?>"><?php esc_html_e( 'Expiring Soon', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allUnPaidInvoice" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>" disabled="true"><?php esc_html_e( 'Unpaid Invoices', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allNewOrders" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'New Orders', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allDueServices" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Due', 'smart-woo-service-invoicing' ); ?></button>
+                            <button class="button smartwoo-dasboard-filter-button" data-get-filter="allOnExpiryThreshold" data-state-args="<?php echo esc_attr( smartwoo_json_encode_attr( $current_args ) ) ?>"><?php esc_html_e( 'Expiring Soon', 'smart-woo-service-invoicing' ); ?></button>
                         </div>
 
                         <div class="sw-admin-dashboard-interactivity-section_right-top-data-container">
@@ -292,10 +292,10 @@ defined( 'ABSPATH' ) || exit;
                                                 <td>
                                                     <div class="smartwoo-options-dots" tabindex="0">
                                                         <ul class="smartwoo-options-dots-items" title="">
-                                                            <li data-action="composeEmail" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'compose_email'] ) ) ?>"><?php esc_html_e( 'Compose Email', 'smart-woo-service-invoicing' ); ?></li>
-                                                            <li data-action="markAsPaid" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ) ?>"><?php esc_html_e( 'Mark as Paid', 'smart-woo-service-invoicing' ); ?></li>
-                                                            <li data-action="sendPaymentReminder" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ) ?>"><?php esc_html_e( 'Send payment reminder', 'smart-woo-service-invoicing' ); ?></li>
-                                                            <li data-action="viewInvoiceDetails" data-args="<?php echo esc_attr( wp_json_encode( [ 'invoice_details' => $prepare_invoice_args( $unpaid_inv ), 'filter' => 'viewInvoiceDetails'] ) ) ?>"><?php esc_html_e( 'View Invoice Details', 'smart-woo-service-invoicing' ) ?></li>
+                                                            <li data-action="composeEmail" data-args="<?php echo esc_attr( smartwoo_json_encode_attr( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'compose_email'] ) ) ?>"><?php esc_html_e( 'Compose Email', 'smart-woo-service-invoicing' ); ?></li>
+                                                            <li data-action="markAsPaid" data-args="<?php echo esc_attr( smartwoo_json_encode_attr( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ) ?>"><?php esc_html_e( 'Mark as Paid', 'smart-woo-service-invoicing' ); ?></li>
+                                                            <li data-action="sendPaymentReminder" data-args="<?php echo esc_attr( smartwoo_json_encode_attr( [ 'invoice_id' => $unpaid_inv->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ) ?>"><?php esc_html_e( 'Send payment reminder', 'smart-woo-service-invoicing' ); ?></li>
+                                                            <li data-action="viewInvoiceDetails" data-args="<?php echo esc_attr( smartwoo_json_encode_attr( [ 'invoice_details' => $prepare_invoice_args( $unpaid_inv ), 'filter' => 'viewInvoiceDetails'] ) ) ?>"><?php esc_html_e( 'View Invoice Details', 'smart-woo-service-invoicing' ) ?></li>
                                                         </ul>
                                                         <span class="dashicons dashicons-ellipsis" title="<?php esc_html_e( 'Options', 'smart-woo-service-invoicing' ); ?>"></span>
                                                     </div>
@@ -311,8 +311,8 @@ defined( 'ABSPATH' ) || exit;
                             </table>
                         </div>
                         <div class="sw-dashboard-pagination<?php printf( '%s', ( $unpaid_invoices_count < 10 ) ? ' smartwoo-hide' : '' ); ?>">
-                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2" title="<?php esc_html_e( 'Previous Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
-                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( wp_json_encode( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2" title="<?php esc_html_e( 'Next Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
+                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( smartwoo_json_encode_attr( ['page' => 0, 'limit' => $current_args['limit']] ) ); ?>" disabled="true"><span class="dashicons dashicons-arrow-left-alt2" title="<?php esc_html_e( 'Previous Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
+                            <button class="sw-pagination-button" data-pagination="<?php echo esc_attr( smartwoo_json_encode_attr( ['page' => 2, 'limit' => $current_args['limit']] ) ); ?>"><span class="dashicons dashicons-arrow-right-alt2" title="<?php esc_html_e( 'Next Page', 'smart-woo-service-invoicing' ); ?>"></span></button>
                         </div>
                     </div>
                 </div>
@@ -352,8 +352,8 @@ defined( 'ABSPATH' ) || exit;
                     <div class="sw-admin-dashboard-interactivity-section_right-bottom-right" data-section="activities">
                         <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Activities', 'smart-woo-service-invoicing' ); ?></h3>
                         <div class="sw-dashboard-activities-section">
-                            <?php if ( is_callable( [SmartWooPro::class, 'render_dashboard_activitie'] ) ) : ?>
-                                <?php call_user_func( [SmartWooPro::class, 'render_dashboard_activitie'] ) ?>
+                            <?php if ( is_callable( [SmartWooPro::class, 'render_dashboard_activities'] ) ) : ?>
+                                <?php call_user_func( [SmartWooPro::class, 'render_dashboard_activities'] ) ?>
                             <?php else: ?>
                                 TODO: We will render an image for what this section looks like in the pro plugin
                             <?php endif; ?>
