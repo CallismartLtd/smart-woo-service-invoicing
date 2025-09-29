@@ -540,8 +540,11 @@ class AdminDashboard {
             $details_footer = sprintf(
                 '<div class="sw-button-container">
                     <a href="%s" class="sw-blue-button button">%s</a>
-                </div>',(
-                esc_url( admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id='. $order->get_id() ) ) ),
+                    <a href="%s" class="sw-blue-button button">%s</a>
+                </div>',
+                esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ),
+                __( 'Manage Orders', 'smart-woo-service-invoicing' ),
+                esc_url( admin_url( 'admin.php?page=sw-service-orders&section=process-order&order_id='. $order->get_id() ) ),
                 __( 'View Order', 'smart-woo-service-invoicing' )
             );
 
