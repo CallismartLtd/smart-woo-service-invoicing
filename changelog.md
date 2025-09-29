@@ -6,6 +6,9 @@
 * New UI header preventing admin notices.
 * Searching service subscription not working.
 
+**Introduced**
+* New admin dashboard featuring powerful tools to make subscription management easier.
+
 ### 2.4.3 2025-08-18
 **New Feature**
 * Introduced a tinymce for subscription asset editor.
