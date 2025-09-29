@@ -79,6 +79,9 @@ use inline CSS to overide some styles
 .m-20-auto {
 	margin: 20px auto;
 }
+.mt-10 {
+	margin-top: 10px;
+}
 
 /************************************************************************************/
 /**************************CSS for admin pages starts here **********************************/
