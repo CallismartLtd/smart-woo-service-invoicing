@@ -300,8 +300,6 @@ class SmartWooAdminDashboard {
             if ( SmartWooAdminDashboard._events['needsAttention'][action] ) {
                 SmartWooAdminDashboard._events['needsAttention'][action].forEach( handler => handler( args, optionsAction ) )
             }
-            
-            
         }
     }
 
@@ -313,8 +311,21 @@ class SmartWooAdminDashboard {
         }
     }
 
-    _handleActivitiesSectionEvent( event, sectionEl ) {
-
+    /**
+     * 
+     * @param {Event} event 
+     * @param {HTMLElement} sectionEl 
+     * @returns 
+     */
+    _handleActivitiesSectionEvent( event, sectionEl ) {    
+        //This section is handled by Smart Woo Pro.
+        if ( ! this.serverConfig.smartwoo_pro_is_installed ) return;
+        // Pro should register event types and handlers.
+        const sectionEvents = SmartWooAdminDashboard._events['activities'] || {};
+        const eventType     = event.type;
+        if ( sectionEvents[eventType] ) {
+            sectionEvents[eventType].forEach( handler => handler( event, sectionEl ) );
+        }
     }
 
     /**
@@ -484,7 +495,7 @@ class SmartWooAdminDashboard {
             return null;
         }
         try {
-            return JSON.parse( raw );
+            return JSON.parse( decodeURIComponent( raw ) );
         } catch ( e ) {
             return null;
         }
@@ -511,9 +522,22 @@ class SmartWooAdminDashboard {
             this._events[section][eventName] = [];
         }
 
-        const boundFunc = func.bind(this._instance);
+        const boundFunc = func.bind(this._instance || SmartWooAdminDashboard.getInstance() );
         this._events[section][eventName].push(boundFunc);
 
+    }
+
+    /**
+     * Trigger an event for a given section of the dashboard.
+     * 
+     * @param {String} eventName - The name of the event
+     * @param {String} section  - The name of the dashboard section.
+     * @param {any} args - Arguments to pass to the event handler.
+     */
+    static trigger( eventName, section, args ) {
+        if ( this._events[section] && this._events[section][eventName] ) {
+            this._events[section][eventName].forEach( handler => handler( args ) );
+        }
     }
 
     /**
