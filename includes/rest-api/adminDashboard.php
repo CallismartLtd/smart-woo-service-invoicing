@@ -94,6 +94,18 @@ class AdminDashboard {
      * @return callable|\WP_Error Callback handler or WP_Error on failure.
      */
     private static function set_handler( WP_REST_Request $request ) {
+        /**
+         * Prempt a REST API handler for the admin dashboard.
+         * 
+         * @param callable|null $handler The callback function that handles the request.
+         * @param WP_REST_Request $request The REST API request object.
+         * @param string The fully qualified class name of the AdminDashboard REST class.
+         */
+        $handler = apply_filters( 'smartwoo_pre_admin_rest_handler', null, $request, __CLASS__ );
+        if ( is_callable( $handler ) ) {
+            return $handler;
+        }
+
         $filter = $request->get_param( 'filter' );
 
         switch ( $filter ) {
@@ -143,6 +155,20 @@ class AdminDashboard {
             case 'bulkActions':
                 return array( __CLASS__, 'handle_bulk_actions' );
             default:
+
+                /**
+                 * Filters admin REST API handler to allow plugins handle additional filter params.
+                 * 
+                 * @param callable|null $handler The callback function that handles the request.
+                 * @param WP_REST_Request $request The REST API request object.
+                 * @param string The fully qualified class name of the AdminDashboard REST class.
+                 */
+                $handler = apply_filters( 'smartwoo_admin_rest_handler', null, $request, __CLASS__ );
+
+                if ( is_callable( $handler ) ) {
+                    return $handler;
+                }
+
                 return new WP_Error(
                     'smartwoo_rest_no_handler',
                     __( 'Invalid request handler', 'smart-woo-service-invoicing' )
@@ -180,11 +206,20 @@ class AdminDashboard {
             'allOnExpiryThreshold'      => 'SmartWoo_Service_Database::count_on_expiry_threshold',
         );
 
-        $filter       = $request->get_param( 'filter' );
-        $current_page = max( 1, intval( $request->get_param( 'page' ) ) );
-        $limit        = max( 1, intval( $request->get_param( 'limit' ) ) );
+        $filter         = $request->get_param( 'filter' );
+        $current_page   = max( 1, intval( $request->get_param( 'page' ) ) );
+        $limit          = max( 1, intval( $request->get_param( 'limit' ) ) );
 
-        $callback     = $count_callback_map[ $filter ] ?? null;
+        $callback       = $count_callback_map[ $filter ] ?? null;
+
+        /**
+         * Filters the dashboard REST API pagination callback to get total count for a given request filter.
+         * 
+         * @param callable|null $callback The pagination callback function.
+         * @param string $filter The REST API request filter.
+         * @param WP_REST_Request $request The REST API request object.
+         */
+        $callback = apply_filters( 'smartwoo_AdminDashboard_response_pagination_total', $callback, $filter, $request );
 
         if ( is_callable( $callback ) ) {
             $total_items = call_user_func( $callback );
@@ -266,6 +301,19 @@ class AdminDashboard {
 
         if ( method_exists( __CLASS__, $method ) ) {
             return self::$method( $results );
+        }
+
+        /**
+         * Add a callback function that prepares response data for a given admin dashboard section.
+         * 
+         * @param string $section The dynamic variable in this hookname refers to the section param of
+         *                        the REST request.
+         * @param string Fully qualified name of the admin REST API class.
+         */
+        $response_handler = apply_filters( "smartwoo_AdminDashboard_prepare_{$section}_data", null, $results, __CLASS__ );
+
+        if ( is_callable( $response_handler ) ) {
+            return call_user_func( $response_handler, $results );
         }
 
         return self::message_response( $results );
@@ -884,7 +932,7 @@ class AdminDashboard {
      * @param mixed    ...$args  Arguments to pass to the function.
      * @return string The captured output.
     */
-    private static function capture_output( callable $callback, ...$args ) {
+    public static function capture_output( callable $callback, ...$args ) {
         ob_start();
         $result = $callback( ...$args );
         $output = ob_get_clean();
