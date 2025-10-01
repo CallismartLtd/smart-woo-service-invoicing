@@ -168,12 +168,7 @@ class SmartWooAdminDashboard {
         if ( ! response ) return;
 
         const tableRows = response?.table_rows ?? [];
-        
-        let rows = ``;
-
-        tableRows.map( row => {
-            rows += row;
-        });
+        const rows      = tableRows.join('');
 
         this._replaceSectionBodyHtml( sectionEl, rows ); 
         this._updateSectionPagination( sectionEl, response.pagination );
@@ -211,12 +206,8 @@ class SmartWooAdminDashboard {
             if ( ! response ) return;
 
             const tableRows = response?.table_rows ?? [];
-            
-            let rows = ``;
+            const rows      = tableRows.join('');
 
-            tableRows.map( row => {
-                rows += row;
-            });
 
             this._replaceSectionBodyHtml( sectionEl, rows ); 
             this._updateSectionPagination( sectionEl, response.pagination );
@@ -262,12 +253,8 @@ class SmartWooAdminDashboard {
             if ( ! response ) return;
 
             const tableRows = response?.table_rows ?? [];
-            
-            let rows = ``;
+            const rows      = tableRows.join('');
 
-            tableRows.map( row => {
-                rows += row;
-            });
 
             this._replaceSectionBodyHtml( sectionEl, rows ); 
             this._updateSectionPagination( sectionEl, response.pagination );
@@ -773,11 +760,8 @@ class SmartWooAdminDashboard {
         const refreshResponse  = await this._fetch( refreshParams );
         if ( ! refreshResponse ) return;
         const tableRows = refreshResponse?.table_rows ?? [];
-        
-        let rows = ``;
-        tableRows.map( row => {
-            rows += row;
-        });
+        const rows      = tableRows.join('');
+
 
         this._replaceSectionBodyHtml( this.sections.subscriptionList, rows ); 
         this._updateSectionPagination( this.sections.subscriptionList, refreshResponse.pagination );
