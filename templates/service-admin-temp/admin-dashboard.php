@@ -349,7 +349,7 @@ defined( 'ABSPATH' ) || exit;
                         </div>
 
                     </div>
-                    <div class="sw-admin-dashboard-interactivity-section_right-bottom-right" data-section="activities">
+                    <div class="sw-admin-dashboard-interactivity-section_right-bottom-right" data-section="activities" data-current-filter="serviceLogs">
                         <h3 class="sw-service-subscription-lists_heading"><?php esc_html_e( 'Activities', 'smart-woo-service-invoicing' ); ?></h3>
                         <div class="sw-dashboard-activities-section">
                             <?php if ( is_callable( [SmartWooPro::class, 'render_dashboard_activities'] ) ) : ?>
