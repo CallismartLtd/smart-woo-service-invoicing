@@ -100,6 +100,11 @@ class SmartWooAdminDashboard {
         this.sections.modal.addEventListener( 'click', this._modalEventHandler.bind(this) );
         this.sections.subscriptionList.addEventListener( 'change', this._tableCheckboxHandler.bind(this) );
         this.sections.subscriptionList.addEventListener( 'submit', this._submitBulkAction.bind(this) );
+        
+        this.sections.activities.addEventListener( 'submit', this._handleActivitiesSectionEvent.bind(this) );
+        this.sections.activities.addEventListener( 'change', this._handleActivitiesSectionEvent.bind(this) );
+        this.sections.activities.addEventListener( 'input', this._handleActivitiesSectionEvent.bind(this) );
+
         document.addEventListener( 'keydown', this._modalEventHandler.bind(this) );
 
         // Register section-specific event handlers
@@ -323,6 +328,10 @@ class SmartWooAdminDashboard {
         // Pro should register event types and handlers.
         const sectionEvents = SmartWooAdminDashboard._events['activities'] || {};
         const eventType     = event.type;
+        if ( ! sectionEl ) {
+            sectionEl = this.sections.activities;
+        }
+        
         if ( sectionEvents[eventType] ) {
             sectionEvents[eventType].forEach( handler => handler( event, sectionEl ) );
         }
