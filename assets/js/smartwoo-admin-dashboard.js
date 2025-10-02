@@ -98,6 +98,10 @@ class SmartWooAdminDashboard {
         });
 
         this.sections.modal.addEventListener( 'click', this._modalEventHandler.bind(this) );
+        this.sections.modal.addEventListener( 'submit', this._modalEventHandler.bind(this) );
+        this.sections.modal.addEventListener( 'input', this._modalEventHandler.bind(this) );
+        this.sections.modal.addEventListener( 'change', this._modalEventHandler.bind(this) );
+
         this.sections.subscriptionList.addEventListener( 'change', this._tableCheckboxHandler.bind(this) );
         this.sections.subscriptionList.addEventListener( 'submit', this._submitBulkAction.bind(this) );
         
@@ -698,11 +702,12 @@ class SmartWooAdminDashboard {
      * @param {Event} event
      */
     _modalEventHandler( event ) {
-
         if ( 'Escape' === event.key || this.sections.modal === event.target || event.target.classList?.contains( 'smartwoo-modal-close-btn' ) ) {
             this._closeModal();
             return;
         }
+        
+        SmartWooAdminDashboard.trigger(event.type, 'modal', event )
     }
 
     /**
