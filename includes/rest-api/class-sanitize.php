@@ -85,4 +85,13 @@ class SANITIZE {
         }
         return array();
     }
+
+    /**
+     * Sanitize HTML string
+     * 
+     * @param $value
+     */
+    public static function html( $value ) {
+        return wp_kses_post( $value );
+    }
 }
