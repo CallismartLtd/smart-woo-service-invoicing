@@ -806,7 +806,7 @@ class SmartWoo_Dashboard_Controller {
 		}
 
 		$args = array(
-			'filter' => 'compose_mail'
+			'filter' => 'compose_email'
 		);
 
 		if ( $object instanceof SmartWoo_Service ) {
