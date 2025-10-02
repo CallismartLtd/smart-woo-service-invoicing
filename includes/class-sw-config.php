@@ -796,7 +796,7 @@ class SmartWoo_Config{
                                     'description'       => 'The current admin dashboard section where the response is being rendered',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => function( $value ) {
-                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'subscriptionList', 'subscriptionList_bulk_action', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ) );
+                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, \SmartWoo_REST_API\AdminDashboard::allowed_sections_params() );
                                     },
                                 ),
 
@@ -807,7 +807,29 @@ class SmartWoo_Config{
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
                                     'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
 
-                                )
+                                ),
+
+                                'user_email'    => array(
+                                    'required' => false,
+                                    'type'          => 'String',
+                                    'description'   => 'User email',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'email' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'email' ),
+                                ),
+                                'email_subject'    => array(
+                                    'required' => false,
+                                    'type'          => 'String',
+                                    'description'   => 'Email subject',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
+                                ),
+                                'email_body'    => array(
+                                    'required' => false,
+                                    'type'          => 'String',
+                                    'description'   => 'User email',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'html' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'not_empty' ),
+                                ),
 
                             )
                         ),
