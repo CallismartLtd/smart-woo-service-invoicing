@@ -16,6 +16,7 @@ use \SmartWoo_Invoice_Database;
 use \SmartWoo_Service;
 use \SmartWoo_Invoice;
 use \SmartWoo_Order;
+use \SmartWoo_Dashboard_Controller;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -55,6 +56,10 @@ class AdminDashboard {
 
         if ( is_wp_error( self::$callback_handler ) ) {
             return self::$callback_handler;
+        }
+
+        if ( ! class_exists( SmartWoo_Dashboard_Controller::class, false ) ) {
+            require_once SMARTWOO_PATH . 'includes/admin/class-dashboard-controller.php';
         }
 
         return true;
@@ -490,13 +495,13 @@ class AdminDashboard {
                 __( 'View invoice', 'smart-woo-service-invoicing' ),
                 __( 'Invoice', 'smart-woo-service-invoicing' ),
                 esc_html( $invoice->get_invoice_id() ),
-                esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'compose_email'] ) ),
+                esc_attr( smartwoo_json_encode_attr( SmartWoo_Dashboard_Controller::prepare_modal_mail_data( $invoice ) ) ),
                 __( 'Compose Email', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'markInvoicePaid'] ) ),
                 __( 'Mark as Paid', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'invoice_id' => $invoice->get_invoice_id(), 'filter' => 'sendPaymentReminder'] ) ),
                 __( 'Send payment reminder', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'invoice_details' => $invoice_details, 'filter' => 'viewInvoiceDetails'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'invoice_details' => $invoice_details, 'filter' => 'viewInvoiceDetails'] ) ),
                 __( 'View Invoice Details', 'smart-woo-service-invoicing' ),
                 __( 'Options', 'smart-woo-service-invoicing' )
 
@@ -623,11 +628,11 @@ class AdminDashboard {
                 __( 'View order', 'smart-woo-service-invoicing' ),
                 __( 'Order', 'smart-woo-service-invoicing' ),
                 esc_html( $order->get_id() ),
-                esc_attr( wp_json_encode( [ 'order_id' => $order->get_id(), 'filter' => 'compose_email'] ) ),
+                esc_attr( smartwoo_json_encode_attr( SmartWoo_Dashboard_Controller::prepare_modal_mail_data( $order ) ) ),
                 __( 'Compose Email', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'order_id' => $order->get_id(), 'filter' => 'autoProcessOrder'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'order_id' => $order->get_id(), 'filter' => 'autoProcessOrder'] ) ),
                 __( 'Auto Process Order', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'order_details' => $order_details, 'filter' => 'viewOrderDetails'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'order_details' => $order_details, 'filter' => 'viewOrderDetails'] ) ),
                 __( 'View Order Details', 'smart-woo-service-invoicing' ),
                 __( 'Options', 'smart-woo-service-invoicing' )
 
@@ -784,13 +789,13 @@ class AdminDashboard {
                 __( 'View subscription', 'smart-woo-service-invoicing' ),
                 __( 'Subscription', 'smart-woo-service-invoicing' ),
                 esc_html( $service->get_service_id() ),
-                esc_attr( wp_json_encode( [ 'service_id' => $service->get_service_id(), 'filter' => 'compose_email'] ) ),
+                esc_attr( smartwoo_json_encode_attr( SmartWoo_Dashboard_Controller::prepare_modal_mail_data( $service ) ) ),
                 __( 'Compose Email', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'service_id' => $service->get_service_id(), 'filter' => 'autoRenewService'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'service_id' => $service->get_service_id(), 'filter' => 'autoRenewService'] ) ),
                 __( 'Auto Renew Subscription', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'invoice_details' => $invoice_details, 'filter' => 'viewRelatedInvoice'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'invoice_details' => $invoice_details, 'filter' => 'viewRelatedInvoice'] ) ),
                 __( 'View Related Invoice', 'smart-woo-service-invoicing' ),
-                esc_attr( wp_json_encode( [ 'service_details' => $service_details, 'filter' => 'previewServiceDetails'] ) ),
+                esc_attr( smartwoo_json_encode_attr( [ 'service_details' => $service_details, 'filter' => 'previewServiceDetails'] ) ),
                 __( 'View Service Details', 'smart-woo-service-invoicing' ),
                 __( 'Options', 'smart-woo-service-invoicing' )
             );
@@ -867,7 +872,10 @@ class AdminDashboard {
 
         $message = $result ? $messages['success'] : $messages['error'];
 
-        return array( 'message' => $message );
+        return array(
+            'success' => boolval( $result ),
+            'message' => $message
+        );
     }
 
     /**
@@ -938,5 +946,14 @@ class AdminDashboard {
         $output = ob_get_clean();
 
         return $output !== '' ? $output : (string) $result;
+    }
+
+    /**
+     * Allowed dashboard sections parameter
+     * 
+     * @return array
+     */
+    public static function allowed_sections_params() {
+        return apply_filters( 'smartwoo_AdminDashboard_allowed_sections_params', array( 'subscriptionList', 'subscriptionList_bulk_action', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ) );
     }
 }
