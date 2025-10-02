@@ -353,11 +353,11 @@ function smartwoo_create_invoice( $args = array() ) {
 /**
  * Get a formated user billing address.
  *
- * @param int $user_id  The ID of the user
+ * @param WC_Customer|int $user_id  The ID of the user
  * @return string Readable address format.
  */
 function smartwoo_get_user_billing_address( $user_id ) {
-	$customer				= new WC_Customer( $user_id );
+	$customer				= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
     $billing_address_1		= $customer->get_billing_address_1();
     $billing_address_2		= $customer->get_billing_address_2();
     $billing_city			= $customer->get_billing_city();

@@ -642,25 +642,54 @@ class SmartWooAdminDashboard {
      * Open modal.
      * 
      * @param {String} heading - HTML content for the modal heading section.
-     * @param {String} body - HTML content for the modal body section
+     * @param {String} body - HTML content for the modal body section.
      * @param {String} footer - HTML content for the modal footer section.
      */
-    _openModal( heading, body, footer ) {
-        jQuery( this.sections.modal ).fadeOut( 'fast', () => {
-            this.sections.modal.querySelector( '.smartwoo-modal-heading' ).innerHTML = heading || '<h2>Modal</h2>';
-            this.sections.modal.querySelector( '.smartwoo-modal-body' ).innerHTML = body || '<p>No content</p>';
-            this.sections.modal.querySelector( '.smartwoo-modal-footer' ).innerHTML = footer || '';
+    async _openModal( heading, body, footer ) {
+        try {
+            jQuery( this.sections.modal ).fadeOut( 'fast', () => {
+                const modalHeading = this.sections.modal.querySelector( '.smartwoo-modal-heading' );
+                const modalBody    = this.sections.modal.querySelector( '.smartwoo-modal-body' );
+                const modalFooter  = this.sections.modal.querySelector( '.smartwoo-modal-footer' );
 
-            jQuery( this.sections.modal ).fadeIn( 'slow' );
-        });
-        
+                modalHeading.innerHTML = heading || '<h2>Modal</h2>';
+                modalBody.innerHTML    = body || '<p>No content</p>';
+                modalFooter.innerHTML  = footer || '';
+
+                // If modal body contains <object>, handle loader
+                const objectEl = modalBody.querySelector( 'object' );
+                if ( objectEl ) {
+                    this._awaitInvoicePreview( objectEl, modalBody );
+                }
+
+                jQuery( this.sections.modal ).fadeIn( 'slow' );
+            });
+        } catch ( error ) {
+            return false;
+        } finally {
+            const event = new CustomEvent( 'SmartWooDashboardModalOpen', {
+                detail: {
+                    modal: this.sections.modal
+                }
+            });
+            document.dispatchEvent( event );
+        }
     }
 
     /**
      * Close modal
      */
     _closeModal() {
-        jQuery( this.sections.modal ).fadeOut( 'slow' );
+        jQuery( this.sections.modal ).fadeOut( 'slow', () => {
+            // Dispatch close event after fadeOut completes
+            const event = new CustomEvent( 'SmartWooDashboardModalClose', {
+                detail: {
+                    modal: this.sections.modal
+                }
+            });
+            event.modal = this.sections.modal;
+            document.dispatchEvent( event );
+        });
     }
     
     /**
@@ -674,6 +703,60 @@ class SmartWooAdminDashboard {
             this._closeModal();
             return;
         }
+    }
+
+    /**
+     * Handles the loading preview in the modal while invoice data is being fetched.
+     * 
+     * @param {HTMLObjectElement} objectEl - The object element.
+     * @param {HTMLElement} modalBody - The body section of the dashboard body.
+     */
+    _awaitInvoicePreview( objectEl, modalBody ) {
+        objectEl.style.opacity = '0';
+
+        const spinDiv = document.createElement( 'div' );
+        modalBody.insertBefore( spinDiv, objectEl );
+
+        const spinner = smartWooAddSpinner( spinDiv );
+
+        let resolved = false;
+
+        const cleanup = () => {
+            if (resolved) return;
+            resolved = true;
+            smartWooRemoveSpinner( spinner );
+            objectEl.style.removeProperty( 'opacity' );
+        };
+
+        // Success
+        objectEl.addEventListener( 'load', cleanup, { once: true });
+
+        // Some browsers fire error
+        objectEl.addEventListener( 'error', cleanup, { once: true });
+
+        // Fallback after 30 seconds: ping the URL
+        setTimeout(() => {
+            if (!resolved) {
+                fetch(objectEl.data, { method: 'HEAD' })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Bad response');
+                        // Resource reachable → let spinner continue until load/error
+                    })
+                    .catch(() => {
+                        // Replace <object> with error notice
+                        const errorNotice = document.createElement('div');
+                        errorNotice.className = 'sw-error-notice';
+                        errorNotice.innerHTML = `
+                            <div class="sw-notice"><p>Error!</p></div>
+                            <p>It appears your browser cannot display PDF files. 
+                            Please use the buttons below to manage, print, or download the invoice.</p>
+                        `;
+                        smartWooRemoveSpinner( spinner );
+                        objectEl.replaceWith(errorNotice);
+                        resolved = true;
+                    });
+            }
+        }, 30000); // 30 secs
     }
 
     /**

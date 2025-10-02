@@ -225,6 +225,8 @@ class SmartWoo_Dashboard_Controller {
 			);
 		};
 
+		$prepare_mail_args		= function( $invoice ) {};
+
 		$service_bulk_action_select_args = [
 			'name' => 'selected_action',
 			'id' => 'selected_action',
@@ -790,6 +792,73 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	public static function min_minus_1( $value ) {
 		return ( empty( $value ) || $value < 0 ) ? -1 : intval( $value ); 
+	}
+
+	/**
+	 * Prepare client mailing data from either an invoice, service subscription or smart woo order object.
+	 * 
+	 * @param SmartWoo_Service|SmartWoo_Invoice|SmartWoo_Order $object The entity object.
+	 * @return array $data
+	 */
+	public static function prepare_mailling_data( $object ) {
+		/**
+		 * @var WC_Customer $user
+		 */
+		$user	= $object->get_user();
+		
+		$user_html_section = sprintf(
+			'<div class="customer-top">
+				<img src="%1$s"> <span>%2$s</span>
+			</div>
+			<div class="customer-down">
+				<p><a href="mailto:%3$s">%3$s</a></p>
+				<p><a href="tel:%4$s">%4$s</a></p>
+				<p>%5$s</p>
+			</div>',
+			esc_url( get_avatar_url( $user->get_id() ) ),
+			esc_html( $user->get_display_name() ),
+			esc_html( smartwoo_get_client_billing_email( $user ) ),
+			esc_html( $user->get_billing_phone() ),
+			esc_html( smartwoo_get_user_billing_address( $user ) )
+		);
+
+		$table = '';
+
+		if ( ( $object instanceof SmartWoo_Service ) ) {
+			$table = sprintf(
+				'<table class="widefat striped">
+					<tr>
+						<th>%1$s</th>
+						<td>%2$s</td>
+					</tr>
+					<tr>
+						<th>%3$s</th>
+						<td>%4$s</td>
+					</tr>
+					<tr>
+						<th>%1$s</th>
+						<td>%2$s</td>
+					</tr>
+					<tr>
+						<th>%1$s</th>
+						<td>%2$s</td>
+					</tr>
+				</table>',
+				__( 'Type', 'smart-woo-service-invoicing' ),
+				__( 'Service Subscription', 'smart-woo-service-invoicing' ),
+				__( 'Status', 'smart-woo-service-invoicing' ),
+				smartwoo_print
+			);
+		}
+
+		$html	= sprintf(
+			'<div class="smartwoo-modal-mailing-header">
+				<div class="smartwoo-modal-mailing-header_left customer">%1$s</div>
+				<div class="smartwoo-modal-mailing-header_right data">%2$s</div>
+			</div>',
+			$user_html_section,
+			$table
+		);
 	}
 }
 
