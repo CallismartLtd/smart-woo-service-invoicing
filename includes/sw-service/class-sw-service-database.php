@@ -161,7 +161,7 @@ class SmartWoo_Service_Database {
 				$service = new SmartWoo_Service();
 				$service->set_name( $order->get_service_name() );
 				$service->set_status( 'Processing' );
-				$service->set_start_date( $order->get_date_created() );
+				$service->set_start_date( $order->get_date_created()->format( 'Y-m-d' ) );
 				$service->set_billing_cycle( $order->get_billing_cycle() );
 				$services[] = $service;
 			}
