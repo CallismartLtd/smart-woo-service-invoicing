@@ -643,13 +643,13 @@ class SmartWoo_Dashboard_Controller {
 		$form_fields 	= self::instance()->get_form_data();
 		$new_service	= true;
 		if ( ! empty( $form_fields['sw_service_id'] ) ) {
-			$service	= SmartWoo_Service_Database::get_service_by_id( $form_fields['sw_service_id'] );
+			$service = SmartWoo_Service_Database::get_service_by_id( $form_fields['sw_service_id'] );
 
 			if ( ! $service ) {
 				return new WP_Error( 'invalid_service', 'This service subscription does not exist.' );
 			}
 
-			$new_service	= false;
+			$new_service = false;
 
 		} else {
 			$service	= new SmartWoo_Service();
