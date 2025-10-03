@@ -776,7 +776,7 @@ class SmartWoo_Config{
                                     'required'          => false,
                                     'type'              => 'integer',
                                     'default'           => 1,
-                                    'description'       => 'The current pagination number',
+                                    'description'       => 'The current pagination number.',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'integer' ),
                                     'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'integer' ),
                                 ),
@@ -785,6 +785,14 @@ class SmartWoo_Config{
                                     'type'              => 'integer',
                                     'default'           => 25,
                                     'description'       => 'The number of results to return',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'integer' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'integer' ),
+                                ),
+
+                                'order_id' => array(
+                                    'required'          => false,
+                                    'type'              => 'integer',
+                                    'description'       => 'The ID of the Smart Woo Order you are working with.',
                                     'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'integer' ),
                                     'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'integer' ),
                                 ),
