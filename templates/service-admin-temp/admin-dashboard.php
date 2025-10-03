@@ -338,7 +338,7 @@ defined( 'ABSPATH' ) || exit;
                                         <?php foreach( $recent_invoices as $recent_inv ): ?>
                                             <tr class="smartwoo-linked-table-row" data-url="<?php echo esc_url( smartwoo_invoice_preview_url( $recent_inv->get_invoice_id() ) ) ?>" title="<?php esc_html_e( 'View invoice', 'smart-woo-service-invoicing' ); ?>">
                                                 <td><?php echo esc_html( $recent_inv->get_invoice_id() ); ?></td>
-                                                <td><?php echo esc_html( $recent_inv->get_date_created() ); ?></td>
+                                                <td><?php echo esc_html( smartwoo_check_and_format( $recent_inv->get_date_created() ) ); ?></td>
                                                 <td><?php smartwoo_print_invoice_status( $recent_inv ); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
