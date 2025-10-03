@@ -541,7 +541,7 @@ class SmartWooAdminDashboard {
     }
 
     /**
-     * Mark the given invoice as paid
+     * Process actions on invoice table such as marking invoice as paid, and sending payment reminder
      * 
      * @param {object} args
      * @param {HTMLElement} el
