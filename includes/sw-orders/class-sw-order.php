@@ -145,14 +145,16 @@ class SmartWoo_Order {
             return $self;
         }
 
+        $date_created                   = $self->order->get_date_created();
+        $date_paid                      = $self->order->get_date_paid();
         $self->orders['order_item_id']  = $order_item_id;
         $self->orders['order_id']       = $self->order->get_id();
         $self->sign_up_fee              = floatval( $self->order_item->get_meta( '_smartwoo_sign_up_fee' ) );
         $self->service_name             = $self->order_item->get_meta( '_smartwoo_service_name' ) ? $self->order_item->get_meta( '_smartwoo_service_name' ) : $self->order_item->get_meta( 'Service Name' ) ;
         $self->invoice_id               = $self->order_item->get_meta( '_sw_invoice_id' );
         $self->service_url              = $self->order_item->get_meta( '_smartwoo_service_url' );
-        $self->date_created             = $self->order->get_date_created();
-        $self->date_paid                = $self->order->get_date_paid();
+        $self->date_created             = SmartWoo_Date_Helper::create_from( $date_created->__toString() )->set_timezone();
+        $self->date_paid                = SmartWoo_Date_Helper::create_from( $date_paid->__toString() )->set_timezone();
         $self->billing_cycle            = is_a( $self->order_item->get_product(), SmartWoo_Product::class ) ? $self->order_item->get_product()->get_billing_cycle() : '';
         $self->user                     = new WC_Customer( $self->order->get_user_id() );
     }
@@ -342,16 +344,10 @@ class SmartWoo_Order {
      *                  `plain`         = Formatted as plain text according to the site's date and time format.
      *                  `date_format`   = Returned in Y-m-d  format
      * 
-     * @return WC_Dateime|string
+     * @return SmartWoo_Date_Helper|string
      */
-    public function get_date_created( $context = 'raw' ) {
-        if ( 'plain' === $context ) {
-            return smartwoo_check_and_format( $this->date_created, true );
-        } elseif ( 'date_format' === $context ) {
-            return date_i18n( 'Y-m-d', strtotime( $this->date_created ) );
-        }
+    public function get_date_created() {
         return $this->date_created;
-
     }
 
     /**
@@ -364,12 +360,7 @@ class SmartWoo_Order {
      * 
      * @return SmartWoo_Date_Helper|string
      */
-    public function get_date_paid( $context = 'raw' ) {
-        if ( 'plain' === $context ) {
-            return smartwoo_check_and_format( $this->date_paid, true );
-        } elseif ( 'date_format' === $context ) {
-            return date_i18n( 'Y-m-d', strtotime( $this->date_paid ) );
-        }
+    public function get_date_paid() {
         return $this->date_paid;
 
     }
