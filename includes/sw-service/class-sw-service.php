@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * SmartWoo Service class
- * Represents the service subscription.
+ * Represents the core service subscription model.
  * 
  * @author Callistus
  * @since 1.0.0
@@ -810,7 +810,7 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Check whether the current subscription has an asset.
+	 * Tells whether the current subscription has an asset.
 	 * 
 	 * @return bool True if has assets, false otherwise.
 	 * @since 2.0.0
@@ -823,7 +823,7 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Check whether this subscription owns an asset with the given ID
+	 * Tells whether this subscription owns an asset with the given ID
 	 * 
 	 * @param int $asset_id The ID of the asset
 	 * @return bool True when the asset belongs to this service, false otherwise.
