@@ -290,6 +290,10 @@ use inline CSS to overide some styles
 	text-transform: none;
 }
 
+.sw-email-send-button {
+	vertical-align: middle !important; 
+	margin-right: 4px !important;
+}
 
 .sw-button-container {
     display: flex;
