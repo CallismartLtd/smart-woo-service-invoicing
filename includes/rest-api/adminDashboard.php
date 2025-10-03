@@ -430,7 +430,7 @@ class AdminDashboard {
                     '<tr>
                         <td colspan="3" class="sw-not-found">%s</td>
                     </tr>',
-                    __( 'No unpaid invoices at this time', 'smart-woo-service-invoicing' )
+                    __( 'No rocord found matching this filter.', 'smart-woo-service-invoicing' )
                 )
             )
         );
