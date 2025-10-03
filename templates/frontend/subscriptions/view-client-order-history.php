@@ -62,7 +62,7 @@ defined( 'ABSPATH' ) || exit;
                                         printf(
                                             /* translators: %s: order date */
                                             esc_html__( 'Date: %s', 'smart-woo-service-invoicing' ),
-                                            esc_html( smartwoo_check_and_format( $order->get_date_created() ) )
+                                            esc_html( smartwoo_check_and_format( $order->get_date_created()->format( 'Y-m-d H:i:s' ), true ) )
                                         );
 
                                         if ( 'awaiting payment' === strtolower( $order->get_status() ) ) {
