@@ -97,7 +97,6 @@ class SmartWoo_Service_Assets {
         if ( ! empty( $id ) && ! is_string( $id ) ) {
             $this->get_asset( $id, false );
         }
-
     }
 
     /*
