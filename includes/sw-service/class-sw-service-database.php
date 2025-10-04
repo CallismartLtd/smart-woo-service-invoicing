@@ -544,15 +544,22 @@ class SmartWoo_Service_Database {
 	/**
 	 * Search a service by a search term.
 	 *
-	 * @return array Array of SmartWoo_Service Objects or empty array.
+	 * @return SmartWoo_Service[] Array of SmartWoo_Service Objects or empty array.
 	 */
-	public static function search() {
+	public static function search( $args = array() ) {
 		global $wpdb;
 
-		// Check if search term is present in the URL parameters.
-		$search_term 	= smartwoo_get_query_param( 'search_term', null ) ?? wp_die( 'Search term missing' );
-        $limit  		= smartwoo_get_query_param( 'limit', 10 );
-		$page			= smartwoo_get_query_param( 'paged', 1 );
+		$defaults = array(
+			'search_term'	=> smartwoo_get_query_param( 'search_term', null ),
+			'page'			=> smartwoo_get_query_param( 'paged', 1 ),
+			'limit'			=> smartwoo_get_query_param( 'limit', 10 )
+		);
+
+		$parsed_args	= wp_parse_args( $args, $defaults );
+
+		$search_term 	= $parsed_args['search_term'];
+        $limit  		= $parsed_args['limit'];
+		$page			= $parsed_args['page'];
 		$offset 		= ( $page - 1 ) * $limit;
 
 		// Try to retrieve the results from the cache.
@@ -560,12 +567,14 @@ class SmartWoo_Service_Database {
 		$services	= wp_cache_get( $cache_key, 'smartwoo_service_database' );
 
 		if ( false === $services ) {
-			$services = array(); // Initialize an empty array for services.
+			$services	= array(); // Initialize an empty array for services.
+			$like		= '%' . $wpdb->esc_like( $search_term ) . '%';
+			$table_name = SMARTWOO_SERVICE_TABLE;
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$query = $wpdb->prepare( 
-				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . "
-				WHERE `id` LIKE %d 
+				"SELECT * FROM {$table_name}
+				WHERE `id` LIKE %s
 				OR `user_id` LIKE %s 
 				OR `service_name` LIKE %s 
 				OR `service_url` LIKE %s 
@@ -575,21 +584,20 @@ class SmartWoo_Service_Database {
 				OR `status` LIKE %s
 				LIMIT %d
 				OFFSET %d", 
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
-				'%' . $wpdb->esc_like( $search_term ) . '%',
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
-				'%' . $wpdb->esc_like( $search_term ) . '%', 
+				$like,
+				$like,
+				$like,
+				$like,
+				$like,
+				$like, 
+				$like, 
+				$like, 
 				$limit,
 				$offset
 			);
-			// Execute the query.
+
 			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
-			// If results are found, convert them to services and cache them.
 			if ( ! empty( $results ) ) {
 				$services = self::convert_results_to_services( $results );
 				wp_cache_set( $cache_key, $services, 'smartwoo_service_database', HOUR_IN_SECONDS );
