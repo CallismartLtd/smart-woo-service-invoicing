@@ -14,7 +14,7 @@ class SmartWooAdminDashboard {
     
     constructor() {
         if ( SmartWooAdminDashboard._instance ) {
-            throw new Error("Use MySingleton.getInstance()");
+            throw new Error("Use SmartWooAdminDashboard.getInstance()");
         }
         SmartWooAdminDashboard._instance = this;
         this.serverConfig = smartwoo_admin_vars || {};
@@ -35,18 +35,19 @@ class SmartWooAdminDashboard {
      * Hydrate/cache the dashboard interactivity elements.
      */
     _hydrateDashboard() {
-        this.dashboardContainer = document.querySelector( '.sw-admin-dashboard-interactivity-section' );
-        if ( ! this.dashboardContainer ) {
+        this.interactivitySection = document.querySelector( '.sw-admin-dashboard-interactivity-section' );
+        if ( ! this.interactivitySection ) {
             return;
         }
 
         this.sections = {
-            subscriptionList:   this.dashboardContainer.querySelector( '[data-section="subscriptionList"]' ),
-            subscribersList:    this.dashboardContainer.querySelector( '[data-section="subscribersList"]' ),
-            needsAttention:     this.dashboardContainer.querySelector( '[data-section="needsAttention"]' ),
-            recentInvoices:     this.dashboardContainer.querySelector( '[data-section="recentInvoices"]' ),
-            activities:         this.dashboardContainer.querySelector( '[data-section="activities"]' ),
-            modal:              this.dashboardContainer.closest( '.sw-admin-dashboard' ).querySelector( '[data-section="modal"]' )
+            subscriptionList:   this.interactivitySection.querySelector( '[data-section="subscriptionList"]' ),
+            subscribersList:    this.interactivitySection.querySelector( '[data-section="subscribersList"]' ),
+            needsAttention:     this.interactivitySection.querySelector( '[data-section="needsAttention"]' ),
+            recentInvoices:     this.interactivitySection.querySelector( '[data-section="recentInvoices"]' ),
+            activities:         this.interactivitySection.querySelector( '[data-section="activities"]' ),
+            modal:              this.interactivitySection.closest( '.sw-admin-dashboard' ).querySelector( '[data-section="modal"]' ),
+            search:             this.interactivitySection.closest( '.sw-admin-dashboard' ).querySelector( '.smartwoo-interactivity-dashboard-search-container' )
         };
 
         this.globalLoader = document.getElementById( 'swloader' );
@@ -56,11 +57,11 @@ class SmartWooAdminDashboard {
      * Bind event listeners at dashboard wrapper level and dispatch to section handlers.
      */
     _bindEvents() {
-        if ( ! this.dashboardContainer ) {
+        if ( ! this.interactivitySection ) {
             return;
         }
 
-        this.dashboardContainer.addEventListener( 'click', ( event ) => {
+        this.interactivitySection.addEventListener( 'click', ( event ) => {
             const sectionEl = event.target.closest( '[data-section]' );
 
             if ( ! sectionEl ) {
@@ -97,6 +98,9 @@ class SmartWooAdminDashboard {
             }
         });
 
+        this.sections.search.addEventListener( 'submit', this._performSearch.bind(this) );
+        this.sections.search.addEventListener( 'input', this._resetFormInput.bind(this) );
+
         this.sections.modal.addEventListener( 'click', this._modalEventHandler.bind(this) );
         this.sections.modal.addEventListener( 'submit', this._modalEventHandler.bind(this) );
         this.sections.modal.addEventListener( 'input', this._modalEventHandler.bind(this) );
@@ -110,6 +114,8 @@ class SmartWooAdminDashboard {
         this.sections.activities.addEventListener( 'input', this._handleActivitiesSectionEvent.bind(this) );
 
         document.addEventListener( 'keydown', this._modalEventHandler.bind(this) );
+        document.addEventListener( 'keydown', this._restoreInteractitySection.bind(this) );
+        document.addEventListener( 'click', this._restoreInteractitySection.bind(this) );
 
         // Register section-specific event handlers
         SmartWooAdminDashboard.on( 'markAsPaid', 'needsAttention', this._processInvoiceOptions );
@@ -410,11 +416,11 @@ class SmartWooAdminDashboard {
                 tBody.innerHTML = html;
 
                 if ( tBody.querySelector( 'tr td.sw-not-found' ) ) {
-                    tBody.closest( 'table.sw-table' )?.querySelector( 'thead' )?.classList.add( 'smartwoo-hide' );
+                    tBody.closest( 'table' )?.querySelector( 'thead' )?.classList.add( 'smartwoo-hide' );
                     sectionEl.querySelector( '.sw-dashboard-pagination' )?.classList.add( 'smartwoo-hide' );
                 
                 } else {
-                    tBody.closest( 'table.sw-table' )?.querySelector( 'thead' )?.classList.remove( 'smartwoo-hide' );
+                    tBody.closest( 'table' )?.querySelector( 'thead' )?.classList.remove( 'smartwoo-hide' );
                     sectionEl.querySelector( '.sw-dashboard-pagination' )?.classList.remove( 'smartwoo-hide' );
                 }
 
@@ -765,6 +771,18 @@ class SmartWooAdminDashboard {
     }
 
     /**
+     * Clear custom validity on form inputs
+     * 
+     * @param {Event} event - Even object.
+     */
+    _resetFormInput( event ) {
+        const input = event.target.closest( 'input' );
+        if ( input ) {            
+            input.setCustomValidity( '' );
+        }        
+    }
+
+    /**
      * Handle table checkbox events.
      * 
      * @param {Event} event
@@ -863,6 +881,59 @@ class SmartWooAdminDashboard {
             masterCheckbox.checked = false;
         }
         
+    }
+
+    /**
+     * Perform search
+     * 
+     * @param {Event} event
+     */
+    async _performSearch( event ){
+        const form = event.target.closest( 'form.smartwoo-interactivity-dashboard-search-container' );
+
+        if ( ! form ) return;
+        event.preventDefault();
+
+        const searchTerm    = form.querySelector( 'input#smartwoo-search-input' );
+        const searchType    = form.querySelector( 'select#search-select' );
+
+        if ( ! searchTerm.value.trim().length ) {
+            searchTerm.setCustomValidity( 'Please enter a search term' );
+        }
+
+        if ( ! searchType.value.trim().length ) {
+            searchTerm.setCustomValidity( 'Please select a search type' );
+        }
+
+        if ( ! form.reportValidity() ) {
+            return;
+        }
+
+        const params = {
+            search_term: searchTerm.value.trim(),
+            search_type: searchType.value.trim(),
+            filter: 'search',
+            section: 'search'
+        };
+
+        const response = this._fetch( params );
+
+        if ( response || ! response.table_rows ) return;
+
+
+
+    }
+
+    /**
+     * Restore interactivity section.
+     */
+    _restoreInteractitySection( event ) {
+        if ( 'Escape' === event.key || event.target.classList?.contains( 'smartwoo-modal-close-btn' ) ) {
+            if ( this.interactivitySection.classList.contains( 'smartwoo-hide' ) ) {
+               this.interactivitySection.classList.remove( 'smartwoo-hide' ); 
+            }
+            return;
+        }
     }
 }
 
