@@ -54,13 +54,6 @@ defined( 'ABSPATH' ) || exit;
 
     <div class="sw-admin-dash-body">
         <?php do_action( 'smartwoo_admin_header' ) ?>
-        <div class="sw-search-container">
-           <div class="sw-search-item-container">
-                <input type="search" name="sw_service_search" id="sw_service_search" placeholder="Search for services">
-                <button id="swSearchBtn" title="click to search"><span class="dashicons dashicons-search"></span></button>
-                <div id="search-notification" class="notification-tooltip"></div>
-            </div> 
-        </div>
         
         <div class="sw-admin-dashboard-summary-container">
             <div class="sw-admin-dashboard-summary-item">
@@ -160,6 +153,18 @@ defined( 'ABSPATH' ) || exit;
         </div>
 
         <hr>
+
+        <form class="smartwoo-interactivity-dashboard-search-container">
+           <div class="smartwoo-interactivity-search">
+                <input type="search" name="search_term" id="smartwoo-search-input" placeholder="Search">
+                <select name="search_type" id="search-select">
+                    <option value="service"><?php esc_html_e( 'Subscriptions', 'smart-woo-service-invoicing' ); ?></option>
+                    <option value="invoice"><?php esc_html_e( 'Invoice', 'smart-woo-service-invoicing' ); ?></option>
+                    <option value="order"><?php esc_html_e( 'Order', 'smart-woo-service-invoicing' ); ?></option>
+                </select>
+                <button type="submit" class="button" id="smartwoo-search-btn" title="click to search"><?php esc_html_e( 'Search', 'smart-woo-service-invoicing' ); ?></button>
+            </div> 
+        </form>
 
         <div class="sw-admin-dashboard-interactivity-section">
             <div class="sw-admin-dashboard-interactivity-section_left">
