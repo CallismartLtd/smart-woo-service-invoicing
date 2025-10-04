@@ -159,6 +159,10 @@ class AdminDashboard {
                 return array( __CLASS__, 'handle_invoice_actions' );
             case 'bulkActions':
                 return array( __CLASS__, 'handle_bulk_actions' );
+            case 'search':
+                return function() use( $request ) {
+                    return self::perform_search( $request );
+                };
             default:
 
                 /**
@@ -859,6 +863,29 @@ class AdminDashboard {
     }
 
     /**
+     * Perform search on for either a service subscription or an invoice or a Smart Woo Order
+     * 
+     * @param WP_REST_Request $request
+     */
+    private static function perform_search( $request ) {
+        $search_term    = $request->get_param( 'search_term' );
+        $search_type    = $request->get_param( 'search_type' );
+        $page           = $request->get_param( 'page' ) ?? 1;
+        $limit          = $request->get_param( 'limit' ) ?? 20;
+
+        $table_rows     = [];
+
+        if ( 'service' === $search_type ) {
+            $services = SmartWoo_Service_Database::search( compact( 'search_term', 'page', 'limit' ) );
+        }
+
+
+        elseif ( 'invoice' === $search_type ) {
+            
+        }
+    }
+
+    /**
      * Get a message-based REST response.
      * 
      * @param array $args
@@ -954,6 +981,16 @@ class AdminDashboard {
      * @return array
      */
     public static function allowed_sections_params() {
-        return apply_filters( 'smartwoo_AdminDashboard_allowed_sections_params', array( 'subscriptionList', 'subscriptionList_bulk_action', 'subscribersList', 'needsAttention', 'activities', 'needsAttention_options' ) );
+        $sections = array(
+            'search',
+            'subscriptionList',
+            'subscriptionList_bulk_action',
+            'subscribersList',
+            'needsAttention',
+            'activities',
+            'needsAttention_options'
+        );
+
+        return apply_filters( 'smartwoo_AdminDashboard_allowed_sections_params', $sections );
     }
 }
