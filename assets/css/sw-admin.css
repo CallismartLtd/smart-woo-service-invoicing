@@ -188,6 +188,10 @@ h2.sw-not-found {
     cursor: not-allowed;
 }
 
+.notification-tooltip.active {
+    display: block;
+}
+
 .sw-pagination-buttons {
     float: right !important;
 }
@@ -429,6 +433,27 @@ body .sw-admin-dash-nav ul li a:focus {
     font-size: 20px;
     font-weight: 700;
     color: #333333;
+}
+
+.smartwoo-interactivity-dashboard-search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 8px;
+}
+.smartwoo-interactivity-search {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.smartwoo-interactivity-search select,
+.smartwoo-interactivity-search input,
+.smartwoo-interactivity-search button {
+    border: solid 1px #dcdcde;
+
 }
 
 .sw-admin-dashboard-interactivity-section {
