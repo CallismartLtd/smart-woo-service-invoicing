@@ -817,6 +817,33 @@ class SmartWoo_Config{
 
                                 ),
 
+                                'service_id'            => array(
+                                    'required'          => false,
+                                    'type'              => 'string',
+                                    'description'       => 'The public ID of the service in context.',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
+
+                                ),
+                                'search_term'            => array(
+                                    'required'          => false,
+                                    'type'              => 'string',
+                                    'description'       => 'The search keyword when performing a search.',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => array( \SmartWoo_REST_API\VALIDATE::class, 'string' ),
+
+                                ),
+                                'search_type'            => array(
+                                    'required'          => false,
+                                    'type'              => 'string',
+                                    'description'       => 'The type of search being performed must be either service or invoice or order.',
+                                    'sanitize_callback' => array( \SmartWoo_REST_API\SANITIZE::class, 'string' ),
+                                    'validate_callback' => function( $value ) {
+                                        return \SmartWoo_REST_API\VALIDATE::enum( $value, array( 'service', 'invoice', 'order' ) );
+                                    },
+
+                                ),
+
                                 'user_email'    => array(
                                     'required' => false,
                                     'type'          => 'String',
