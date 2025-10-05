@@ -437,13 +437,15 @@ body .sw-admin-dash-nav ul li a:focus {
 
 .smartwoo-interactivity-dashboard-search-container {
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    flex-direction: column;
     padding: 8px;
+    gap: 10px;
+    
 }
 .smartwoo-interactivity-search {
     display: flex;
     flex-direction: row;
+    align-self: flex-end;
     gap: 5px;
     align-items: center;
     flex-wrap: wrap;
@@ -454,6 +456,42 @@ body .sw-admin-dash-nav ul li a:focus {
 .smartwoo-interactivity-search button {
     border: solid 1px #dcdcde;
 
+}
+
+#smartwoo-search-result {
+    max-height: 0;
+    overflow: hidden;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px dotted transparent;
+    transition: max-height 0.5s ease-in-out, border-color 0.5s ease-in-out;
+}
+
+#smartwoo-search-result.has-content {
+    max-height: 600px;
+    border-color: #333;
+}
+
+
+.smartwoo-search-result-heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.smartwoo-search-result-heading button.close-search {
+    border-radius: 50%;
+    border: none;
+    background-color: #f6f7f7;
+    box-shadow: 0px 2px 8px 2px rgb(15 15 16 / 16%);
+    cursor: pointer;
+    transition: box-shadow 0.1s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.smartwoo-search-result-heading button.close-search:active {
+    box-shadow: none;
+    transform: translateY(-3px);
 }
 
 .sw-admin-dashboard-interactivity-section {
@@ -576,6 +614,10 @@ body .sw-admin-dash-nav ul li a:focus {
 
 .sw-dashboard-activities-section {
     padding: 5px;
+}
+
+.sw-dashboard-activities-section .sw-admin-client-pro-sell {
+    width: 100%;
 }
 
 .sw-dashboard-invoices-section .sw-table {
@@ -1838,7 +1880,9 @@ body .sw-admin-dash-nav ul li a:focus {
     opacity: .3;
     background-color: hsla(0, 0%, 87%, 0.219);
     border: solid .4px #dcdcde;
+    pointer-events: none;
 }
+
 .sw-admin-client-pro-sell button {
     position: absolute;
     left: 10%;
