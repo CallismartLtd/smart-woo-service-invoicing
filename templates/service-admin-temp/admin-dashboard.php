@@ -155,7 +155,7 @@ defined( 'ABSPATH' ) || exit;
         <hr>
 
         <form class="smartwoo-interactivity-dashboard-search-container">
-           <div class="smartwoo-interactivity-search">
+            <div class="smartwoo-interactivity-search">
                 <input type="search" name="search_term" id="smartwoo-search-input" placeholder="Search">
                 <select name="search_type" id="search-select">
                     <option value="service"><?php esc_html_e( 'Subscriptions', 'smart-woo-service-invoicing' ); ?></option>
@@ -163,7 +163,9 @@ defined( 'ABSPATH' ) || exit;
                     <option value="order"><?php esc_html_e( 'Order', 'smart-woo-service-invoicing' ); ?></option>
                 </select>
                 <button type="submit" class="button" id="smartwoo-search-btn" title="click to search"><?php esc_html_e( 'Search', 'smart-woo-service-invoicing' ); ?></button>
-            </div> 
+            </div>
+
+            <div id="smartwoo-search-result"></div>
         </form>
 
         <div class="sw-admin-dashboard-interactivity-section">
@@ -360,7 +362,10 @@ defined( 'ABSPATH' ) || exit;
                             <?php if ( is_callable( [SmartWooPro::class, 'render_dashboard_activities'] ) ) : ?>
                                 <?php call_user_func( [SmartWooPro::class, 'render_dashboard_activities'] ) ?>
                             <?php else: ?>
-                                TODO: We will render an image for what this section looks like in the pro plugin
+                                <div class="sw-admin-client-pro-sell">
+                                    <img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/activity-log.png' ); ?>" alt="smart woo activity logs">
+                                    <button class="sw-upgrade-to-pro">Activate Pro Feature</button>
+                                </div>
                             <?php endif; ?>
 
                         </div>
@@ -368,7 +373,6 @@ defined( 'ABSPATH' ) || exit;
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     <div id="pro-target"></div>
