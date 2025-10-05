@@ -144,7 +144,9 @@ class AdminDashboard {
             case 'subscribersList':
                 return array( SmartWoo_Service_Database::class, 'get_active_subscribers' );
             case 'allOnExpiryThreshold':
-                return array( SmartWoo_Service_Database::class, 'get_on_expiry_threshold' );
+                return function( $page, $limit ) {
+                    return SmartWoo_Service_Database::get_on_expiry_threshold( $page, $limit, 7 );
+                };
             
             case 'allUnPaidInvoice':
                 return function( $page, $limit ) {
@@ -809,6 +811,29 @@ class AdminDashboard {
     }
 
     /**
+     * Prepare response for search query
+     * 
+     * @param array $response
+     */
+    private static function prepare_search_data( $response ) {
+        $table          = $response['table'] ?? '';
+        $search_term    = $response['search_term'] ?? '';
+        $search_type    = $response['search_type'] ?? '';
+
+        $html = sprintf( '
+            <div class="smartwoo-search-result-heading">
+                <h2>%1$s "%2$s"</h2>
+                <button type="button" class="close-search"><span class="dashicons dashicons-dismiss"></span></button>
+            </div>
+            <div class="sw-table-wrapper">%3$s</div>',
+            __( 'Search result for', 'smart-woo-service-invoicing' ),
+            $search_term, $table
+        );
+
+        return array( 'htmlContent' => $html );
+    }
+
+    /**
      * Handles invoice actions in the dashboard
      */
     private static function handle_invoice_actions() {
@@ -863,27 +888,114 @@ class AdminDashboard {
     }
 
     /**
-     * Perform search on for either a service subscription or an invoice or a Smart Woo Order
-     * 
+     * Perform search for either a service subscription, an invoice, or a Smart Woo Order.
+     *
      * @param WP_REST_Request $request
+     * @return array The response data.
      */
     private static function perform_search( $request ) {
-        $search_term    = $request->get_param( 'search_term' );
-        $search_type    = $request->get_param( 'search_type' );
-        $page           = $request->get_param( 'page' ) ?? 1;
-        $limit          = $request->get_param( 'limit' ) ?? 20;
+        $search_term = $request->get_param( 'search_term' );
+        $search_type = $request->get_param( 'search_type' );
+        $page        = $request->get_param( 'page' ) ?? 1;
+        $limit       = $request->get_param( 'limit' ) ?? 20;
 
-        $table_rows     = [];
+        $args        = compact( 'search_term', 'page', 'limit' );
+
+        // Start building the table.
+        $table = sprintf(
+            '<table class="sw-table has-checkbox">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="%1$s" class="tableListMasterCheckbox"></th>
+                        <th>%2$s</th>
+                        <th>%3$s</th>
+                        <th>%4$s</th>
+                    </tr>
+                </thead>
+                <tbody>',
+            time(),
+            esc_html__( 'Public ID', 'smart-woo-service-invoicing' ),
+            esc_html__( 'Date Created', 'smart-woo-service-invoicing' ),
+            esc_html__( 'Status', 'smart-woo-service-invoicing' )
+        );
 
         if ( 'service' === $search_type ) {
-            $services = SmartWoo_Service_Database::search( compact( 'search_term', 'page', 'limit' ) );
+            $services = SmartWoo_Service_Database::search( $args );
+
+            if ( ! empty( $services ) ) {
+                foreach ( $services as $service ) {
+                    $table .= sprintf(
+                        '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
+                            <td><input type="checkbox" id="service-%3$s" class="tableListCheckbox"></td>
+                            <td>%4$s</td>
+                            <td>%5$s</td>
+                            <td>%6$s</td>
+                        </tr>',
+                        esc_url( $service->preview_url() ),
+                        __( 'View subscription', 'smart-woo-service-invoicing' ),
+                        esc_attr( $service->get_id() ),
+                        esc_html( $service->get_service_id() ),
+                        esc_html( $service->get_date_created() ),
+                        self::capture_output( 'smartwoo_print_service_status', $service, [ 'dashboard-status' ] )
+                    );
+                }
+            } else {
+                $table .= '<tr><td class="sw-not-found" colspan="4">' . esc_html__( 'No services found.', 'smart-woo-service-invoicing' ) . '</td></tr>';
+            }
+        } elseif ( 'invoice' === $search_type ) {
+            $invoices = SmartWoo_Invoice_Database::search( $args );
+
+            if ( ! empty( $invoices ) ) {
+                foreach ( $invoices as $invoice ) {
+                    $table .= sprintf(
+                        '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
+                            <td><input type="checkbox" id="invoice-%3$s" class="tableListCheckbox"></td>
+                            <td>%4$s</td>
+                            <td>%5$s</td>
+                            <td>%6$s</td>
+                        </tr>',
+                        esc_url( $invoice->preview_url( 'admin' ) ),
+                        __( 'View invoice', 'smart-woo-service-invoicing' ),
+                        esc_attr( $invoice->get_id() ),
+                        esc_html( $invoice->get_invoice_id() ),
+                        esc_html( $invoice->get_date_created() ),
+                        self::capture_output( 'smartwoo_print_invoice_status', $invoice, [ 'dashboard-status' ] )
+                    );
+                }
+            } else {
+                $table .= '<tr><td class="sw-not-found" colspan="4">' . esc_html__( 'No invoices found.', 'smart-woo-service-invoicing' ) . '</td></tr>';
+            }
+        } elseif ( 'order' === $search_type ) {
+            $order = SmartWoo_Order::get_order( absint( $search_term ) );
+
+            if ( $order ) {
+                $table .= sprintf(
+                    '<tr>
+                        <td><input type="checkbox" id="order-%1$s" class="tableListCheckbox"></td>
+                        <td>%2$s</td>
+                        <td>%3$s</td>
+                        <td><span class="smartwoo-status dashboard-status active">%4$s</span></td>
+                    </tr>',
+                    esc_attr( $order->get_id() ),
+                    esc_html( $order->get_id() ),
+                    esc_html( $order->get_date_created() ),
+                    $order->get_status()
+                );
+            } else {
+                $table .= '<tr><td class="sw-not-found" colspan="4">' . esc_html__( 'No order found.', 'smart-woo-service-invoicing' ) . '</td></tr>';
+            }
         }
 
+        
+        $table .= '</tbody></table>';
 
-        elseif ( 'invoice' === $search_type ) {
-            
-        }
+        return array(
+            'table'         => $table,
+            'search_term'   => $search_term,
+            'search_type'   => $search_type,
+        );
     }
+
 
     /**
      * Get a message-based REST response.
