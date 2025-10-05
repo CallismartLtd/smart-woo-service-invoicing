@@ -1308,47 +1308,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let smartwooProductDropdown = document.querySelector( '#service_products' );
     let smartwooKnowledgeBase   = document.querySelector( '.smartwoo-admin-knowledgebase' );
     let proDiv                  = document.querySelector('.sw-dash-pro-sell-bg');
-    let allLinkedTableRow       = document.querySelectorAll( '.smartwoo-linked-table-row' );
     
     if (proDiv) {
         setTimeout( () =>{
             jQuery(proDiv).fadeIn();
         }, 5000 );
     }
-    
-    if ( allLinkedTableRow.length ) {
-        const boundTables = new Set();
 
-        allLinkedTableRow.forEach( element => {
-            const mainTable = element.closest( 'table' );
+    document.addEventListener( 'click', ( e ) => {
+        const linkedTable = e.target.closest( '.smartwoo-linked-table-row' );
+        if ( ! linkedTable ) return;
+        
+        // Ignore clicks on inputs/options
+        if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
 
-            if ( ! boundTables.has( mainTable ) ) {
-                mainTable.addEventListener( 'click', ( e ) => {
-                    // Ignore clicks on inputs/options
-                    if ( e.target.closest( '.smartwoo-options-dots, input, select' ) ) return;
+        // Ignore clicks when user is selecting text
+        if ( window.getSelection().toString().length > 0 ) return;
 
-                    // Ignore clicks when user is selecting text
-                    if ( window.getSelection().toString().length > 0 ) return;
-
-                    const mainRow = e.target.closest( 'tr' );
-                    const url     = mainRow?.dataset?.url;
-
-                    if ( url ) {
-                        if ( e.ctrlKey || e.metaKey ) {
-                            // Ctrl+Click or Cmd+Click → new tab
-                            window.open( url, '_blank' );
-                        } else {
-                            // Normal click → same tab
-                            window.location.href = url;
-                        }
-                    }
-                });
-
-                boundTables.add( mainTable );
+        const mainRow = e.target.closest( 'tr' );
+        const url     = mainRow?.dataset?.url;
+        if ( url ) {
+            if ( e.ctrlKey || e.metaKey ) {
+                // Ctrl+Click or Cmd+Click → new tab
+                window.open( url, '_blank' );
+            } else {
+                // Normal click → same tab
+                window.location.href = url;
             }
-        });
-    }
-    
+        }
+    });
+
     /**
      * The assets is downloadable checkbox.
      */
