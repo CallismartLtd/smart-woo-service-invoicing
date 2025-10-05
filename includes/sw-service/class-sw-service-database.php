@@ -691,28 +691,58 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
-	 * Get services that are within expiry threshold.
-	 * 
-	 * @param int $page Current request page.
-	 * @param int $limit Current request limit.
+	 * Get services that are on expiry threshold.
+	 *
+	 * A service is considered "on expiry threshold" when either:
+	 *  - its next_payment_date has passed (next_payment_date < NOW()) AND the service
+	 *    is still within its end_date (end_date >= NOW()), OR
+	 *  - the service has expired (end_date < NOW()) but the end_date is within the
+	 *    last $threshold days (end_date >= DATE_SUB( NOW(), INTERVAL %d DAY )).
+	 *
+	 * Signature preserved: ( $page, $limit, $threshold ) so existing callers won't break.
+	 *
+	 * @param int $page      Current request page. Default 1.
+	 * @param int $limit     Items per page. Default 10.
+	 * @param int $threshold Number of days after expiry to include (grace period). Default 7.
 	 * @return SmartWoo_Service[]
 	 */
-	public static function get_on_expiry_threshold( $page =  1, $limit = 10 ) {
+	public static function get_on_expiry_threshold( $page = 1, $limit = 10, $threshold = 7 ) {
 		global $wpdb;
+
 		$table_name = SMARTWOO_SERVICE_TABLE;
 
-		$offset 		= ( absint( $page ) - 1 ) * absint( $limit );
+		$page      = max( 1, absint( $page ) );
+		$limit     = max( 1, absint( $limit ) );
+		$threshold = max( 0, absint( $threshold ) );
+		$offset    = ( $page - 1 ) * $limit;
 
-		$query = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `end_date` >= CURDATE() AND `next_payment_date` < CURDATE() LIMIT %d OFFSET %d", $limit, $offset );
+		$sql = " SELECT * FROM {$table_name}
+			WHERE (
+				next_payment_date IS NOT NULL
+				AND next_payment_date < NOW()
+				AND end_date IS NOT NULL
+				AND end_date >= NOW()
+			)
+			OR (
+				end_date IS NOT NULL
+				AND end_date < NOW()
+				AND end_date >= DATE_SUB( NOW(), INTERVAL %d DAY )
+			)
+			ORDER BY end_date ASC
+			LIMIT %d
+			OFFSET %d
+		";
+
+		$query   = $wpdb->prepare( $sql, $threshold, $limit, $offset );
 		$results = $wpdb->get_results( $query, ARRAY_A );
-		$services = array();
-		if ( ! empty( $results ) ) {
-			$services = self::convert_results_to_services( $results );
 
+		if ( empty( $results ) ) {
+			return array();
 		}
 
-		return $services;
+		return self::convert_results_to_services( $results );
 	}
+
 
 	/**
 	 * Get All Metadata.
@@ -995,15 +1025,17 @@ class SmartWoo_Service_Database {
 	}
 
 	/**
-	 * Count services that are within the expiry threshold
-	 * (end_date >= today AND next_payment_date < today).
+	 * Count services that are within the expiry threshold.
 	 *
-	 * Returns a bucketed string like "10+", "20+", "50+", "100+", "1k+".
+	 * A service is considered "on expiry threshold" when either:
+	 *  - next_payment_date < NOW() and end_date >= NOW(), OR
+	 *  - end_date < NOW() but end_date is within the last $threshold days.
 	 *
-	 * @return string
+	 * @param int $threshold Number of days after expiry to include (grace period). Default 7.
+	 * @return int
 	 * @since 2.0.12
 	 */
-	public static function count_on_expiry_threshold() {
+	public static function count_on_expiry_threshold( $threshold = 7 ) {
 		$cache_key = 'smartwoo_count_on_expiry_threshold';
 
 		$count = get_transient( $cache_key );
@@ -1014,17 +1046,29 @@ class SmartWoo_Service_Database {
 		global $wpdb;
 		$table_name = SMARTWOO_SERVICE_TABLE;
 
-		$query = "SELECT COUNT(*) FROM {$table_name} 
-		          WHERE `end_date` >= CURDATE() 
-		            AND `next_payment_date` < CURDATE()";
+		$sql = " SELECT COUNT(*) FROM {$table_name}
+			WHERE (
+				next_payment_date IS NOT NULL
+				AND next_payment_date < NOW()
+				AND end_date IS NOT NULL
+				AND end_date >= NOW()
+			)
+			OR (
+				end_date IS NOT NULL
+				AND end_date < NOW()
+				AND end_date >= DATE_SUB( NOW(), INTERVAL %d DAY )
+			)
+		";
 
+		$query = $wpdb->prepare( $sql, absint( $threshold ) );
 		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
-		// Cache for an hour
+		// Cache for 5 minutes.
 		set_transient( $cache_key, $count, 5 * MINUTE_IN_SECONDS );
 
 		return $count;
 	}
+
 
 	/**
 	 * Count services by custom labels (status).
