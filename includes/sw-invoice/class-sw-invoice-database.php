@@ -426,6 +426,72 @@ class SmartWoo_Invoice_Database {
 	}
 
 	/**
+	 * Search a service by a search term.
+	 *
+	 * @return SmartWoo_Invoice[] Array of SmartWoo_Service Objects or empty array.
+	 */
+	public static function search( $args = array() ) {
+		global $wpdb;
+
+		$defaults = array(
+			'search_term'	=> smartwoo_get_query_param( 'search_term', null ),
+			'page'			=> smartwoo_get_query_param( 'paged', 1 ),
+			'limit'			=> smartwoo_get_query_param( 'limit', 10 )
+		);
+
+		$parsed_args	= wp_parse_args( $args, $defaults );
+
+		$search_term 	= $parsed_args['search_term'];
+        $limit  		= $parsed_args['limit'];
+		$page			= $parsed_args['page'];
+		$offset 		= ( $page - 1 ) * $limit;
+
+		// Try to retrieve the results from the cache.
+		$cache_key	= sprintf( 'smartwoo_services_%s_%d_%d', $search_term, $page, $limit );
+		$services	= wp_cache_get( $cache_key, 'smartwoo_service_database' );
+
+		if ( false === $services ) {
+			$services	= array(); // Initialize an empty array for services.
+			$like		= '%' . $wpdb->esc_like( $search_term ) . '%';
+			$table_name = SMARTWOO_INVOICE_TABLE;
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$query = $wpdb->prepare( 
+				"SELECT * FROM {$table_name}
+				WHERE `id` LIKE %s
+				OR `user_id` LIKE %s 
+				OR `amount` LIKE %s 
+				OR `invoice_id` LIKE %s 
+				OR `invoice_type` LIKE %s 
+				OR `service_id` LIKE %s 
+				OR `product_id` LIKE %s 
+				OR `payment_status` LIKE %s
+				LIMIT %d
+				OFFSET %d", 
+				$like,
+				$like,
+				$like,
+				$like,
+				$like,
+				$like, 
+				$like, 
+				$like, 
+				$limit,
+				$offset
+			);
+
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( ! empty( $results ) ) {
+				$services = self::convert_results_to_invoices( $results );
+				wp_cache_set( $cache_key, $services, 'smartwoo_service_database', HOUR_IN_SECONDS );
+			}
+		}
+
+		return $services;
+	}
+
+	/**
 	 * convert database result(s) to SmartWoo_Invoice object.
 	 * 
 	 * @param mixed|array can be array or anything else.
