@@ -1029,6 +1029,7 @@ border-radius: 5px;
 	font-family: 'Inter', sans-serif;
 	min-height: 50vh;
 	font-size: medium;
+	overflow: hidden;
 }
 .smartwoo-portal-header {
 	display: flex;
@@ -1244,6 +1245,7 @@ border-radius: 5px;
 
 .main-page-card .sw-notice {
 	width: 100%;
+	padding: 0;
 }
 /* Media query for smaller screens */
 @media (min-width: 280px) and (max-width: 768px) {
