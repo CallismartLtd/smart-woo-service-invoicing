@@ -114,8 +114,8 @@ class SmartWooAdminDashboard {
         this.sections.activities.addEventListener( 'input', this._handleActivitiesSectionEvent.bind(this) );
 
         document.addEventListener( 'keydown', this._modalEventHandler.bind(this) );
-        document.addEventListener( 'keydown', this._restoreInteractitySection.bind(this) );
-        document.addEventListener( 'click', this._restoreInteractitySection.bind(this) );
+        document.addEventListener( 'keydown', this._closeSearchSection.bind(this) );
+        document.addEventListener( 'click', this._closeSearchSection.bind(this) );
 
         // Register section-specific event handlers
         SmartWooAdminDashboard.on( 'markAsPaid', 'needsAttention', this._processInvoiceOptions );
@@ -916,25 +916,57 @@ class SmartWooAdminDashboard {
             section: 'search'
         };
 
-        const response = this._fetch( params );
+        const response = await this._fetch( params );
 
-        if ( response || ! response.table_rows ) return;
+        if ( ! response ) return;
 
-
-
+        const responseContainer     = form.querySelector( '#smartwoo-search-result' );
+        responseContainer.innerHTML = this._cleanHTML( response.htmlContent );
+        if ( responseContainer.querySelector( 'tr td.sw-not-found' ) ) {
+            responseContainer.querySelector( 'table thead' )?.classList.add( 'smartwoo-hide' );
+        }
+        
+        responseContainer.classList.add( 'has-content' );
     }
 
     /**
      * Restore interactivity section.
+     * 
+     * @param {Event} event
      */
-    _restoreInteractitySection( event ) {
-        if ( 'Escape' === event.key || event.target.classList?.contains( 'smartwoo-modal-close-btn' ) ) {
-            if ( this.interactivitySection.classList.contains( 'smartwoo-hide' ) ) {
-               this.interactivitySection.classList.remove( 'smartwoo-hide' ); 
-            }
-            return;
+    _closeSearchSection( event ) {
+        const responseContainer     = document.querySelector( '#smartwoo-search-result' );
+        
+        if ( ( 'Escape' === event.key && responseContainer?.classList.contains( 'has-content' ) ) || event.target.closest( '.close-search' ) ) {
+            event.preventDefault();
+            
+            responseContainer.classList.remove( 'has-content' );
+
+            setTimeout( () => responseContainer.innerHTML = '', 2000 );
+
         }
     }
+    
+    _cleanHTML(dirtyHtml) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(dirtyHtml, 'text/html');
+
+        // Remove <script> elements
+        doc.querySelectorAll('script').forEach(el => el.remove());
+
+        // Remove dangerous event handler attributes (onclick, onerror, etc.)
+        doc.querySelectorAll('*').forEach(el => {
+            [...el.attributes].forEach(attr => {
+                if (/^on/i.test(attr.name)) {
+                    el.removeAttribute(attr.name);
+                }
+            });
+        });
+
+        // Return cleaned markup
+        return doc.body.innerHTML;
+    }
+
 }
 
 addEventListener( 'DOMContentLoaded', () => {
