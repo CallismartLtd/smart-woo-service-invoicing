@@ -1557,7 +1557,7 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => $user->get_error_message() ) );
         }
 
-        wp_send_json_success( array( 'message' => 'Password Reset email sent' ), 200 );
+        wp_send_json_success( array( 'message' => __( 'Password Reset email sent', 'smart-woo-service-invoing' ) ), 200 );
     }
 
     /**
