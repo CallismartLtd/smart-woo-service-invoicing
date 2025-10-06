@@ -198,7 +198,7 @@ class Smartwoo_New_Service_Order extends SmartWoo_Mail {
                 $value = $order->get_parent_order()->get_id();
                 break;
             case '{{order_date}}':
-                $value = smartwoo_check_and_format( $order->get_date_created()->format( 'Y-m-d h' ), true );
+                $value = smartwoo_check_and_format( $order->get_date_created()->format( 'Y-m-d H:i:s' ), true );
                 break;
             case '{{payment_method}}':
                 $value = $order->get_payment_method_title();

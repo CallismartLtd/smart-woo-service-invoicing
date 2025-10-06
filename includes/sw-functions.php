@@ -457,52 +457,26 @@ function smartwoo_check_if_configured( $order ) {
 
 /**
  * Get the count for service orders awaiting processing.
- * 
- * @return int $count The total number of unprocessed orders.
+ *
+ * Acts as a wrapper around SmartWoo_Order::count_awaiting_processing(),
+ * caching the result in a transient for performance.
+ *
+ * @return int The total number of unprocessed orders.
  * @since 2.0.0
  */
 function smartwoo_count_unprocessed_orders() {
-	$count	= get_transient( 'smartwoo_count_unprocessed_orders' );
+	$count = get_transient( 'smartwoo_count_unprocessed_orders' );
+
 	if ( false === $count ) {
-		$count	= 0;
+		// Delegate actual counting to the SmartWoo_Order class.
+		$count = SmartWoo_Order::count_awaiting_processing();
 
-		$args = array(
-			'limit'		=> -1,
-			'status'	=> 'processing',
-		);
-
-		if ( smartwoo_is_frontend() ) {
-			$args['customer'] = get_current_user_id();
-		}
-	
-		$wc_orders	= wc_get_orders( $args );
-		
-	
-		if ( empty( $wc_orders ) ) {
-			set_transient( 'smartwoo_count_unprocessed_orders', $count, HOUR_IN_SECONDS );
-			return $count;
-		}
-		
-	
-		foreach ( $wc_orders as $order ) {
-			if ( ! smartwoo_check_if_configured( $order ) ) {
-				continue;
-			}
-			
-			foreach ( $order->get_items() as $item ) {
-				if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
-					continue;
-				}
-
-				if ( ! $item->get_meta( '_smartwoo_order_item_status' ) || 'complete' !==  $item->get_meta( '_smartwoo_order_item_status' ) ) {
-					$count++;
-				}
-			}
-		}
 		set_transient( 'smartwoo_count_unprocessed_orders', $count, HOUR_IN_SECONDS );
 	}
+
 	return $count;
 }
+
 /**
  * Frontend navigation menu bar
  *
@@ -1221,6 +1195,9 @@ function smartwoo_get_avatar_placeholder_url() {
  * 
  * @param mixed $selected The selected option.
  * @param array $args	List of html attributes
+ * 
+ * @since 2.5 Support for additional options.
+ * @return string The dropdown HTML.
  */
 function smartwoo_service_status_dropdown( $selected = '', $args = array() ) {
 	$default_args = array(
@@ -1229,7 +1206,8 @@ function smartwoo_service_status_dropdown( $selected = '', $args = array() ) {
 		'required'	=> false,
 		'echo'		=> true,
 		'name'		=> 'status',
-		'option_none'	=> __( 'Auto Calculate', 'smart-woo-service-invoicing' )
+		'option_none'	=> __( 'Auto Calculate', 'smart-woo-service-invoicing' ),
+		'additional_options' => array()
 	);
 
 	$parsed_args = wp_parse_args( $args, $default_args );
@@ -1241,6 +1219,13 @@ function smartwoo_service_status_dropdown( $selected = '', $args = array() ) {
 	foreach ( $statuses as $value => $label ) {
 		$attr = selected( $selected, $value, false );
 		$dropdown .= '<option value="' . $value . '" ' . $attr . '>' . $label . '</option>';
+	}
+
+	if ( ! empty( $parsed_args['additional_options'] ) && is_array( $parsed_args['additional_options'] ) ) {
+		foreach ( $parsed_args['additional_options'] as $value => $label ) {
+			$attr = selected( $selected, $value, false );
+			$dropdown .= '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $attr ) . '>' . esc_html( $label ) . '</option>';
+		}
 	}
 
 	$dropdown .= '</select>';
@@ -1255,7 +1240,7 @@ function smartwoo_service_status_dropdown( $selected = '', $args = array() ) {
 }
 
 /**
- * Get supported service status.
+ * Get supported service status with descripion label.
  */
 function smartwoo_supported_service_status() {
 	return apply_filters( 'smartwoo_supported_service_status',
@@ -1268,6 +1253,87 @@ function smartwoo_supported_service_status() {
 			'Expired'			=> __( 'Expired', 'smart-woo-service-invoicing' )
 		)
 	);
+}
+
+/**
+ * Interpretes the value of a service subscription status to a system value.
+ * 
+ * @param string|null $status The status to interprete.
+ * @return string|null The interpretted status.
+ * @since 2.5.0
+ */
+function smartwoo_interprete_service_status( $status ) {
+	// This describes the way we determine the status of a service subscription.
+	// The system auto calculates status that are set to null, so empty values are set to null.
+	if ( is_null( $status ) || '' === $status ) {
+		return null;
+	}
+
+	// We attempt to interprete the status value to a system value.
+	// The system values are: Active, Active (NR), Suspended, Cancelled, Due for Renewal, Expired.
+	// Any other value is filtered through `smartwoo_interprete_service_status`.
+	switch ( strtolower( $status ) ) {
+		case 'active':
+		case 'is_active':
+		case 'service_active':
+		case 'activate':
+		case 'activated':
+			$status = 'Active';
+			break;
+		case 'active (nr)':
+		case 'active (no renewal)':
+		case 'disable renewal':
+		case 'disable_renewal':
+		case 'renewal_disabled':
+		case 'no_renewal':
+		case 'active_nr':
+		case 'active_no_renewal':
+			$status = 'Active (NR)';
+			break;
+		case 'suspended':
+		case 'suspend service':
+		case 'is_suspended':
+		case 'service_suspended':
+		case 'suspend':
+			$status = 'Suspended';
+			break;
+		case 'cancelled':
+		case 'canceled':
+		case 'cancel service':
+		case 'is_cancelled':
+		case 'service_cancelled':
+			$status = 'Cancelled';
+			break;
+		case 'due for renewal':
+		case 'due_renewal':
+		case 'due for_renewal':
+		case 'due_renewal':
+		case 'due':
+		case 'is_due':
+		case 'renewal_due':
+			$status = 'Due for Renewal';
+			break;
+		case 'expired':
+		case 'expire':
+		case 'is_expired':
+		case 'has_expired':
+		case 'service_expired':
+			$status = 'Expired';
+			break;
+		case 'auto':
+		case 'automatic':
+		case 'auto_calc':
+		case 'auto_calculate':
+		case 'auto-calculate':
+			$status = null;
+			break;
+		default:
+		$status = $status;
+		break;
+
+	}
+
+	return apply_filters( 'smartwoo_interprete_service_status', $status );
 }
 
 /**
@@ -1486,7 +1552,7 @@ function smartwoo_fast_checkout_options() {
  * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_query_param( $key, $default = '' ) {
-    return smartwoo_get_param( $key, $default, $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    return smartwoo_get_param( $key, $default, $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 }
 
 /**
@@ -1497,7 +1563,7 @@ function smartwoo_get_query_param( $key, $default = '' ) {
  * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_post_param( $key, $default = '' ) {
-    return smartwoo_get_param( $key, $default, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    return smartwoo_get_param( $key, $default, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 }
 
 /**
@@ -1680,4 +1746,22 @@ function smartwoo_parse_user_agent( $user_agent_string ) {
         $info['os'],
         $info['device']
     ) );
+}
+
+/**
+ * Safely JSON-encode data for use inside HTML attributes.
+ *
+ * This ensures that characters like quotes, apostrophes, tags, and ampersands
+ * are safely escaped so they won’t break the HTML structure or parsing.
+ *
+ * @param mixed $data The data to encode.
+ * @return string The safely JSON-encoded string for use in attributes.
+ */
+function smartwoo_json_encode_attr( $data ) {
+	return esc_attr(
+		wp_json_encode(
+			$data,
+			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+		)
+	);
 }

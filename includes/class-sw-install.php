@@ -126,6 +126,7 @@ class SmartWoo_Install {
 		add_option( 'smartwoo_service_cancellation_mail_to_admin', 1 );
 		add_option( 'smartwoo_service_expiration_mail_to_admin', 1 );
 		add_option( 'smartwoo_product_text_on_shop', __( 'Add to Cart', 'smart-woo-service-invoicing' ) );
+		add_option( 'smartwoo_use_new_admin_dash', true );
 	}
 
 	/**

@@ -174,13 +174,86 @@ class SmartWoo_Dashboard_Controller {
 		add_action( 'wp_ajax_smartwoo_add_service', array( __CLASS__, 'new_service_form_submission' ) );
         add_action( 'wp_ajax_smartwoo_edit_service', array( __CLASS__, 'edit_service_form_submission' ) );
 		add_action( 'wp_ajax_smartwoo_service_from_order', array( __CLASS__, 'process_new_service_order_form' ) );
+		add_action( 'wp_ajax_smartwoo_toggle_use_new_admin_dash', [__CLASS__, 'toggle_use_new_admin_dash'] );
 	}
 
 	/**
 	 * The admin dashboard page
 	 */
 	private static function dashboard() {
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
+		$is_advanced_dashboard = get_option( 'smartwoo_use_new_admin_dash', false );
+		if ( ! $is_advanced_dashboard ) {
+			include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
+			return;
+		}
+		
+		$current_args				= ['limit' => 10, 'page' => 1];
+		$total_services				= SmartWoo_Service_Database::get_total_records();
+		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
+		$total_active_services		= SmartWoo_Service_Database::count_by_status( 'active' ) + SmartWoo_Service_Database::count_by_status( 'Active (NR)' );
+		$expiring_soon_count		= SmartWoo_Service_Database::count_by_status( 'expiry-threshold' );
+		$new_order_count			= smartwoo_count_unprocessed_orders();
+		$unpaid_invoices_count		= SmartWoo_Invoice_Database::count_this_status( 'unpaid' );
+		
+		$active_subscribers			= SmartWoo_Service_Database::get_active_subscribers( $current_args['page'], $current_args['limit'] );
+		$pending_invoices			= SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', $current_args );
+		$services					= SmartWoo_Service_Database::get_all( $current_args['page'], $current_args['limit'] );
+		$recent_invoices			= SmartWoo_Invoice_Database::get_all_invoices( $current_args['page'], $current_args['limit'] );
+
+		$prepare_invoice_args	= function( $invoice ) {
+			$body = sprintf(
+				'<object data="%1$s" type="application/pdf" class="smartwoo-invoice-pdf-viewer">
+					<p>%2$s</p>
+				</object>',
+				esc_url( $invoice->print_url() ),
+				smartwoo_error_notice( __( 'It appears your browser cannot display PDF files. Please use the buttons below to manage, print, or download the invoice.', 'smart-woo-service-invoicing' ) )
+			);
+
+			$footer = sprintf(
+				'<div class="sw-button-container">
+					<a href="%1$s" class="sw-blue-button button">%2$s</a>
+					<a href="%3$s" class="sw-blue-button button" download>%4$s</a>
+					<a href="%5$s" class="sw-blue-button button" target="_blank">%6$s</a>
+				</div>',
+				esc_url( $invoice->preview_url( 'admin' ) ),
+				__( 'Manage Invoice', 'smart-woo-service-invoicing' ),
+				esc_url( $invoice->download_url( 'admin' ) ),
+				__( 'Download PDF', 'smart-woo-service-invoicing' ),
+				esc_url( $invoice->print_url() ),
+				__( 'Print Invoice', 'smart-woo-service-invoicing' )
+			
+			);
+
+			return array(
+				
+				'heading' => sprintf(
+					'<h2>%s</h2>',
+					sprintf(
+						/* translators: %s is the invoice public ID */
+						__( 'Invoice #%s', 'smart-woo-service-invoicing' ),
+						$invoice->get_invoice_id()
+					)
+				),
+				'body'   => $body,
+				'footer' => $footer,
+			);
+
+		};
+
+		$prepare_mail_args		= function( $invoice ) {};
+
+		$service_bulk_action_select_args = [
+			'name' => 'selected_action',
+			'id' => 'selected_action',
+			'class' => '',
+			'option_none' => __( 'Bulk Actions', 'smart-woo-service-invoicing' ),
+			'additional_options' => array(
+				'auto_calc'	=> __( 'Auto Calculate', 'smart-woo-service-invoicing' ),
+				'delete'	=> __( 'Delete', 'smart-woo-service-invoicing' )
+			)
+		];
+
+		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
 	}
 
 	/**
@@ -585,13 +658,13 @@ class SmartWoo_Dashboard_Controller {
 		$form_fields 	= self::instance()->get_form_data();
 		$new_service	= true;
 		if ( ! empty( $form_fields['sw_service_id'] ) ) {
-			$service	= SmartWoo_Service_Database::get_service_by_id( $form_fields['sw_service_id'] );
+			$service = SmartWoo_Service_Database::get_service_by_id( $form_fields['sw_service_id'] );
 
 			if ( ! $service ) {
 				return new WP_Error( 'invalid_service', 'This service subscription does not exist.' );
 			}
 
-			$new_service	= false;
+			$new_service = false;
 
 		} else {
 			$service	= new SmartWoo_Service();
@@ -735,6 +808,49 @@ class SmartWoo_Dashboard_Controller {
 	public static function min_minus_1( $value ) {
 		return ( empty( $value ) || $value < 0 ) ? -1 : intval( $value ); 
 	}
+
+	/**
+	 * Prepare client mailing data from either an invoice, service subscription or smart woo order object.
+	 * 
+	 * @param SmartWoo_Service|SmartWoo_Invoice|SmartWoo_Order $object The entity object.
+	 * @return array $data
+	 */
+	public static function prepare_modal_mail_data( $object ) {
+		if ( is_callable( [SmartWooPro::class, 'prepare_modal_mail_data'] ) ) {
+			return call_user_func( [SmartWooPro::class, 'prepare_modal_mail_data'], $object );
+		}
+
+		$args = array(
+			'filter' => 'compose_email'
+		);
+
+		if ( $object instanceof SmartWoo_Service ) {
+			$args['service_id']	= $object->get_service_id();
+		} elseif ( $object instanceof SmartWoo_Invoice ) {
+			$args['invoice_id']	= $object->get_invoice_id();
+		} elseif ( $object instanceof SmartWoo_Order ) {
+			$args['order_id']	= $object->get_id();
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Ajax callback to handle toggling of dashboard template
+	 */
+	public static function toggle_use_new_admin_dash() {
+		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+			wp_send_json_error( array( 'message' => 'Action failed basic authentication' ), 400 );
+		}
+
+		$value		= get_option( 'smartwoo_use_new_admin_dash', false );
+		$new_value	= boolval( !$value );
+
+		update_option( 'smartwoo_use_new_admin_dash', $new_value );
+
+		wp_send_json_success();
+	}
+
 }
 
 SmartWoo_Dashboard_Controller::listen();

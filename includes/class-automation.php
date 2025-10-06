@@ -88,7 +88,7 @@ class SmartWoo_Automation {
             $service_status = smartwoo_service_status( $service );
 
             if ( in_array( $service_status, ['Due for Renewal', 'Grace Period'], true ) ) {
-                $has_invoice = smartwoo_evaluate_service_invoices( $service->get_service_id(), 'Service Renewal Invoice', 'unpaid' );
+                $has_invoice = SmartWoo_Invoice_Database::get_outstanding_invoice( $service->get_service_id() );
                 
                 if ( $has_invoice ) {
                     continue; // Skip if unpaid renewal invoice already exists.

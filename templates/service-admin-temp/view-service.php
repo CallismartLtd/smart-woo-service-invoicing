@@ -15,8 +15,8 @@ defined( 'ABSPATH' ) || exit;
         <?php printf(
             wp_kses_post(
                 smartwoo_notice(
-                    /* translators: %s: link to service admin page */
                     sprintf(
+                        /* translators: %s link to service admin page */
                         __( 'Invalid or deleted service. %s', 'smart-woo-service-invoicing' ),
                         '<a href="' . esc_url( admin_url( 'admin.php?page=sw-admin' ) ) . '">' . esc_html__( 'Back', 'smart-woo-service-invoicing' ) . '</a>'
                     )

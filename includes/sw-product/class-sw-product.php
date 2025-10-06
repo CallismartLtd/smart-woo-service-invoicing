@@ -761,22 +761,22 @@ class SmartWoo_Product extends WC_Product {
 			'schema_callback' => function() {
 				return [
 					'billing_cycle' => [
-						'description' => __( 'Billing cycle of SmartWoo product.', 'smartwoo' ),
+						'description' => __( 'Billing cycle of SmartWoo product.', 'smart-woo-service-invoicing' ),
 						'type'        => 'string',
 						'context'     => [ 'view', 'edit' ],
 					],
 					'sign_up_fee'   => [
-						'description' => __( 'Sign-up fee for SmartWoo product.', 'smartwoo' ),
+						'description' => __( 'Sign-up fee for SmartWoo product.', 'smart-woo-service-invoicing' ),
 						'type'        => 'number',
 						'context'     => [ 'view', 'edit' ],
 					],
 					'grace_period_number' => [
-						'description' => __( 'Grace period number for SmartWoo product.', 'smartwoo' ),
+						'description' => __( 'Grace period number for SmartWoo product.', 'smart-woo-service-invoicing' ),
 						'type'        => 'integer',
 						'context'     => [ 'view', 'edit' ],
 					],
 					'grace_period_unit' => [
-						'description' => __( 'Grace period unit for SmartWoo product.', 'smartwoo' ),
+						'description' => __( 'Grace period unit for SmartWoo product.', 'smart-woo-service-invoicing' ),
 						'type'        => 'string',
 						'context'     => [ 'view', 'edit' ],
 					],

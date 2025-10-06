@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * SmartWoo Service class
- * Represents the service subscription.
+ * Represents the core service subscription model.
  * 
  * @author Callistus
  * @since 1.0.0
@@ -407,7 +407,9 @@ class SmartWoo_Service {
 	*/
 
 	/**
-	 * Insert into the database.
+	 * Insert or update this service subscription.
+	 * 
+	 * @return bool True if saved, false otherwise.
 	 */
 	public function save() {
 		if ( empty( $this->get_service_id() ) ) {
@@ -415,6 +417,19 @@ class SmartWoo_Service {
 		}
 		
 		return SmartWoo_Service_Database::create_service( $this );
+	}
+
+	/**
+	 * Delete this service subscription from the database.
+	 * 
+	 * @return bool True if deleted, false otherwise.
+	 */
+	public function delete() {
+		if ( empty( $this->get_id() ) ) {
+			return false; // Cannot delete a service without an ID.
+		}
+
+		return SmartWoo_Service_Database::delete_service( $this );
 	}
 
 	/*
@@ -795,7 +810,7 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Check whether the current subscription has an asset.
+	 * Tells whether the current subscription has an asset.
 	 * 
 	 * @return bool True if has assets, false otherwise.
 	 * @since 2.0.0
@@ -808,7 +823,7 @@ class SmartWoo_Service {
 	}
 
 	/**
-	 * Check whether this subscription owns an asset with the given ID
+	 * Tells whether this subscription owns an asset with the given ID
 	 * 
 	 * @param int $asset_id The ID of the asset
 	 * @return bool True when the asset belongs to this service, false otherwise.

@@ -6,7 +6,7 @@ Tested up to: 6.8
 Requires WooCommerce: 8.0
 WooCommerce tested up to: 9.9.5
 Requires PHP: 7.4
-Stable Tag: 2.4.4
+Stable Tag: 2.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -157,6 +157,21 @@ For release notes, upcoming features, and future updates, visit the [official re
 
 
 == Changelog ==
+= 2.5 2025-10-06 =
+**Fixed**
+- Invoice date display issue.
+- New UI header preventing admin notices.
+- Searching service subscriptions not working.
+- Edge cases where multiple unpaid invoices were generated.
+
+**Introduced**
+- New admin dashboard featuring powerful tools for easier subscription management.
+
+**Improved**
+- Plugin security: performed a comprehensive security audit across the entire codebase.
+- Performance optimization including request pagination, caching, and response limits.
+- Activity logs enhanced to provide detailed insights into subscription and invoice activities.
+
 = 2.4.4 2025-09-11 =
 **Improved**
 - Performance optimization.

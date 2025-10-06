@@ -568,8 +568,8 @@ final class SmartWoo {
             $all_services   = SmartWoo_Service_Database::search();
             $total_services = count( $all_services );
             
-        } elseif ( 'all_services_table' === $action ) {
-            $all_services   = SmartWoo_Service_Database::get_all();
+        } elseif ( 'all_services_table' === $action ) {    
+            $all_services   = SmartWoo_Service_Database::get_all( $paged, $limit );
             $total_services = absint( get_option( 'smartwoo_all_services_count', 0 ) );
 
         } elseif ( 'all_active_services_table' === $action ) {
@@ -874,10 +874,10 @@ final class SmartWoo {
         $service_status = smartwoo_service_status( $service );
         if ( 'Due for Renewal' === $service_status || 'Expired' === $service_status || 'Grace Period' === $service_status ) {
             $invoice_type   = 'Service Renewal Invoice';
-            $has_invoice_id = smartwoo_evaluate_service_invoices( $service_id, $invoice_type, 'unpaid' );
+            $unpaid_invoice = SmartWoo_Invoice_Database::get_outstanding_invoice( $service_id );
             
-            if ( $has_invoice_id ) {
-                wp_send_json_success( array( 'message' => 'Pay outstanding invoice...','redirect_url' => smartwoo_invoice_preview_url( $has_invoice_id ) ) );
+            if ( $unpaid_invoice ) {
+                wp_send_json_success( array( 'message' => __( 'Please pay outstanding invoice', 'smart-woo-service-invoicing' ),'redirect_url' => smartwoo_invoice_preview_url( $unpaid_invoice->get_invoice_id() ) ) );
             }
 
             $date_due       = ( 'Expired' === $service_status ) ? SmartWoo_Date_Helper::create_from( $service->get_end_date() ): SmartWoo_Date_Helper::create_from( $service->get_next_payment_date() );
@@ -1557,7 +1557,7 @@ final class SmartWoo {
             wp_send_json_error( array( 'message' => $user->get_error_message() ) );
         }
 
-        wp_send_json_success( array( 'message' => 'Password Reset email sent' ), 200 );
+        wp_send_json_success( array( 'message' => __( 'Password Reset email sent', 'smart-woo-service-invoicing' ) ), 200 );
     }
 
     /**
@@ -1637,7 +1637,7 @@ final class SmartWoo {
      * @return bool True if Smart Woo Pro is installed and activated, false otherwise.
      */
     public static function pro_is_installed() {
-        return class_exists( 'SmartWooPro' );
+        return class_exists( 'SmartWooPro', false );
     }
 
     /**
@@ -1702,10 +1702,10 @@ final class SmartWoo {
         );
 
         foreach ( $billing_fields as $field ) {
-            if ( isset( $_POST[ $field ] ) ) {
+            if ( $value = smartwoo_get_post_param( $field ) ) {
                 $setter = 'set_' . $field;
                 if ( is_callable( array( $customer, $setter ) ) ) {
-                    $customer->{$setter}( wc_clean( wp_unslash( $_POST[ $field ] ) ) );
+                    $customer->{$setter}( $value );
                 }
             }
         }

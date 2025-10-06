@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 	<?php echo wp_kses_post( smartwoo_get_navbar( 'My Invoice', smartwoo_invoice_page_url() ) ); ?>
 
 	<?php if ( empty( $invoice ) || ! $invoice->current_user_can_access() ) : ?>
-		<?php echo wp_kses_post( smartwoo_notice( 'Invalid or deleted invoice' ) ); ?>
+		<?php echo wp_kses_post( smartwoo_notice( __( 'Invalid or deleted invoice', 'smart-woo-service-invoicing' ) ) ); ?>
 	<?php else : ?>
 		<div style="margin: 20px">
 			<a href="<?php echo esc_url( smartwoo_invoice_page_url() ); ?>" class="sw-blue-button"><span class="dashicons dashicons-admin-home"></span> <?php echo esc_html__( 'Invoices', 'smart-woo-service-invoicing' ); ?></a>

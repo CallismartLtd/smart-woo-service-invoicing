@@ -95,6 +95,14 @@ class SmartWoo_Order {
      */
     protected $order_item;
 
+    
+    const STATUS_AWAITING_PROCESSING = 'awaiting_processing';
+    const STATUS_ACTIVE              = 'active';
+    const STATUS_COMPLETED           = 'completed';
+    const STATUS_CANCELED            = 'canceled';
+    const STATUS_EXPIRED             = 'expired';
+    const STATUS_FAILED              = 'failed';
+
     /**
      * Class constructor
      * 
@@ -137,14 +145,16 @@ class SmartWoo_Order {
             return $self;
         }
 
+        $date_created                   = $self->order->get_date_created();
+        $date_paid                      = $self->order->get_date_paid();
         $self->orders['order_item_id']  = $order_item_id;
         $self->orders['order_id']       = $self->order->get_id();
         $self->sign_up_fee              = floatval( $self->order_item->get_meta( '_smartwoo_sign_up_fee' ) );
         $self->service_name             = $self->order_item->get_meta( '_smartwoo_service_name' ) ? $self->order_item->get_meta( '_smartwoo_service_name' ) : $self->order_item->get_meta( 'Service Name' ) ;
         $self->invoice_id               = $self->order_item->get_meta( '_sw_invoice_id' );
         $self->service_url              = $self->order_item->get_meta( '_smartwoo_service_url' );
-        $self->date_created             = $self->order->get_date_created();
-        $self->date_paid                = $self->order->get_date_paid();
+        $self->date_created             = SmartWoo_Date_Helper::create_from( $date_created->__toString() )->set_timezone();
+        $self->date_paid                = SmartWoo_Date_Helper::create_from( $date_paid->__toString() )->set_timezone();
         $self->billing_cycle            = is_a( $self->order_item->get_product(), SmartWoo_Product::class ) ? $self->order_item->get_product()->get_billing_cycle() : '';
         $self->user                     = new WC_Customer( $self->order->get_user_id() );
     }
@@ -334,16 +344,10 @@ class SmartWoo_Order {
      *                  `plain`         = Formatted as plain text according to the site's date and time format.
      *                  `date_format`   = Returned in Y-m-d  format
      * 
-     * @return WC_Dateime|string
+     * @return SmartWoo_Date_Helper|string
      */
-    public function get_date_created( $context = 'raw' ) {
-        if ( 'plain' === $context ) {
-            return smartwoo_check_and_format( $this->date_created, true );
-        } elseif ( 'date_format' === $context ) {
-            return date_i18n( 'Y-m-d', strtotime( $this->date_created ) );
-        }
+    public function get_date_created() {
         return $this->date_created;
-
     }
 
     /**
@@ -356,12 +360,7 @@ class SmartWoo_Order {
      * 
      * @return SmartWoo_Date_Helper|string
      */
-    public function get_date_paid( $context = 'raw' ) {
-        if ( 'plain' === $context ) {
-            return smartwoo_check_and_format( $this->date_paid, true );
-        } elseif ( 'date_format' === $context ) {
-            return date_i18n( 'Y-m-d', strtotime( $this->date_paid ) );
-        }
+    public function get_date_paid() {
         return $this->date_paid;
 
     }
@@ -382,6 +381,15 @@ class SmartWoo_Order {
      */
     public function get_user() {
         return $this->user;
+    }
+
+    /**
+     * Get user ID
+     * 
+     * @return int $user_id
+     */
+    public function get_user_id() {
+        return $this->user ? $this->user->get_id() : 0;
     }
 
     /**
@@ -412,9 +420,20 @@ class SmartWoo_Order {
 
     /**
      * Get product name
+     * 
+     * @return string
      */
     public function get_product_name() {
         return $this->get_product() ? $this->get_product()->get_name() : 'N/A';
+    }
+
+    /**
+     * Get product ID
+     * 
+     * @return int
+     */
+    public function get_product_id() {
+        return $this->get_product() ? $this->get_product()->get_id() : 0;
     }
 
     /**
@@ -467,6 +486,15 @@ class SmartWoo_Order {
      */
     public function get_payment_method_title() {
         return $this->order->get_payment_method_title();
+    }
+
+    /**
+     * Get payment url
+     * 
+     * @return string
+     */
+    public function get_payment_url() {
+        return $this->order->get_checkout_payment_url();
     }
 
     /**
@@ -627,8 +655,9 @@ class SmartWoo_Order {
                     break;
             }
 
-            wp_send_json_success( $response );
+            
         }
+        wp_send_json_success( $response );
     }
 
     /**
@@ -750,7 +779,7 @@ class SmartWoo_Order {
             $param[]    = $offset;
         }
         
-        $query = $wpdb->prepare( $base_query, $param );
+        $query = $wpdb->prepare( $base_query, $param ); // phpcs:ignore WordPress.DB
 
         $data    = array();
         $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB
@@ -829,17 +858,16 @@ class SmartWoo_Order {
         }
 
         // Prepare the SQL query with all parameters
-        $query = $wpdb->prepare( $base_query, ...$param );
+        $query = $wpdb->prepare( $base_query, ...$param ); // phpcs:ignore WordPress.DB
 
         // Get the count result
-        $count = $wpdb->get_var( $query );
+        $count = $wpdb->get_var( $query );// phpcs:ignore WordPress.DB
 
-        // Ensure an integer is always returned
         return (int) $count;
     }
 
     /**
-     * Get all Service Orders
+     * Get all Smart Woo Orders
      * 
      * @param int $page The current page(for pagination).
      * @param int $limit The query limit per page.
@@ -910,6 +938,68 @@ class SmartWoo_Order {
     }
 
     /**
+     * Get orders that are awaiting payment.
+     * 
+     * @param array $args Array of arguments.
+     * @return self[]
+     */
+    public static function get_awaiting_processing_orders() {
+        $data = array();
+        $query_args = array(
+            'limit'  => 10,
+            'status' => 'processing',
+        );
+
+        if ( smartwoo_is_frontend() ) {
+            $query_args['customer'] = get_current_user_id();
+        }
+
+        $wc_orders = wc_get_orders( $query_args );
+
+        foreach ( $wc_orders as $wc_order ) {
+            $smartwoo_orders = self::extract_items( $wc_order );
+            foreach ( $smartwoo_orders as $order ) {
+                if ( 'awaiting processing' === $order->get_status() ) {
+                    $data[] = $order;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Count orders awaiting processing.
+     * 
+     * @return int
+     */
+    public static function count_awaiting_processing() {
+        $count	= 0;
+
+		$args = array(
+			'limit'		=> -1,
+			'status'	=> 'processing',
+		);
+
+		if ( smartwoo_is_frontend() ) {
+			$args['customer'] = get_current_user_id();
+		}
+	
+		$wc_orders = wc_get_orders( $args );
+
+        foreach ( $wc_orders as $wc_order ) {
+            $smartwoo_orders = self::extract_items( $wc_order );
+            foreach( $smartwoo_orders as $order ) {
+                if ( 'awaiting processing' === $order->get_status() ) {
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * Recommended way to get a SmartWoo_Order
      * 
      * @param int $id The order item id.
@@ -925,6 +1015,13 @@ class SmartWoo_Order {
         return $self;
     }
 
+
+    /**
+    |-----------------
+    | UTILITY METHODS
+    |----------------- 
+    */
+
     /**
      * Get all valid items from a WC_Order.
      * 
@@ -937,7 +1034,12 @@ class SmartWoo_Order {
             if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
                 continue;
             }
-            $self[] = self::convert_to_self( array( 'order_item_id' => $item_id ) );
+
+            $order = self::convert_to_self( array( 'order_item_id' => $item_id ) );
+            if ( ! $order ) {
+                continue;
+            }
+            $self[] = $order;
         }
 
         return $self;

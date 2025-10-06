@@ -12,7 +12,8 @@ defined( 'ABSPATH' ) || exit; ?>
     <?php echo wp_kses_post( smartwoo_get_navbar( 'My Services' ) ); ?>
 
     <div class="smartwoo-portal-header">
-        <p class="smartwoo-portal-header__greeting"><?php printf( __( 'Welcome, %s!', 'smart-woo-service-invoicing' ), esc_html( $full_name ) ); ?></p>
+        <?php /* translators: %s user full name */ ?>
+        <p class="smartwoo-portal-header__greeting"><?php printf( esc_html__( 'Welcome, %s!', 'smart-woo-service-invoicing' ), esc_html( $full_name ) ); ?></p>
         <span class="smartwoo-portal-header__sorting"><?php smartwoo_table_limit_field( $limit ); ?></span>
     </div>
     

@@ -36,7 +36,7 @@ defined( 'ABSPATH' ) || exit;
                         <tr>
                             <td><input type="checkbox" data-value="<?php echo absint( $order->get_id() );?>" class="sw-table-body-checkbox"></td>
                             <td><?php echo esc_html( $order->get_order_id() . ' | ' . $order->get_id() ); ?></td>
-                            <td><?php echo esc_html( $order->get_date_created( 'plain' ) ); ?></td>
+                            <td><?php echo esc_html( smartwoo_check_and_format( $order->get_date_created()->format( 'Y-m-d H:i:s' ), true ) ); ?></td>
                             <td><?php echo esc_html( $order->get_status() ); ?></td>
                             <td><?php echo esc_html( $order->get_service_name() ); ?></td>
                             <td><?php echo wp_kses_post( $btn_text( $order->get_status(), $order->get_id() ) ) ?></td>

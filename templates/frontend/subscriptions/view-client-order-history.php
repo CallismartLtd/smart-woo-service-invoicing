@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
                                 <?php
                                 printf(
                                     /* translators: %s: Parent order ID */
-                                    __( 'Order: #%s', 'smart-woo-service-invoicing' ),
+                                    esc_html__( 'Order: #%s', 'smart-woo-service-invoicing' ),
                                     absint( $order->get_order_id() )
                                 );
                                 ?>
@@ -46,7 +46,7 @@ defined( 'ABSPATH' ) || exit;
                                             /* translators: 1: quantity, 2: price */
                                             esc_html__( 'Qty: %1$s | Price: %2$s', 'smart-woo-service-invoicing' ),
                                             absint( $order->get_quantity() ),
-                                            smartwoo_price( $order->get_total() )
+                                            esc_html( smartwoo_price( $order->get_total() ) )
                                         );
 
                                         echo '<br />';
@@ -62,8 +62,18 @@ defined( 'ABSPATH' ) || exit;
                                         printf(
                                             /* translators: %s: order date */
                                             esc_html__( 'Date: %s', 'smart-woo-service-invoicing' ),
-                                            esc_html( smartwoo_check_and_format( $order->get_date_created() ) )
+                                            esc_html( smartwoo_check_and_format( $order->get_date_created()->format( 'Y-m-d H:i:s' ), true ) )
                                         );
+
+                                        if ( 'awaiting payment' === strtolower( $order->get_status() ) ) {
+                                            echo '<br />';
+                                            printf(
+                                                /* translators: %s: Payment URL */
+                                                esc_html__( 'Action:', 'smart-woo-service-invoicing' ) . ' <a href="%s" class="smartwoo-account-button">%s</a>',
+                                                esc_url( $order->get_payment_url() ),
+                                                esc_html__( 'Pay', 'smart-woo-service-invoicing' )
+                                            );
+                                        }
                                         ?>
                                     </div>
                                 </div>

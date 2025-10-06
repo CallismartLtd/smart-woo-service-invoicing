@@ -134,7 +134,8 @@ function smartwoo_evaluate_service_invoices( $service_id, $invoice_type, $paymen
 	$args = array(
 		'service_id'	=> $service_id,
 		'type'			=> $invoice_type,
-		'status'		=> $payment_status
+		'status'		=> $payment_status,
+		'limit'			=> 1
 		
 	);
 	$invoices	= SmartWoo_Invoice_Database::get_service_invoices( $args );
@@ -352,11 +353,11 @@ function smartwoo_create_invoice( $args = array() ) {
 /**
  * Get a formated user billing address.
  *
- * @param int $user_id  The ID of the user
+ * @param WC_Customer|int $user_id  The ID of the user
  * @return string Readable address format.
  */
 function smartwoo_get_user_billing_address( $user_id ) {
-	$customer				= new WC_Customer( $user_id );
+	$customer				= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
     $billing_address_1		= $customer->get_billing_address_1();
     $billing_address_2		= $customer->get_billing_address_2();
     $billing_city			= $customer->get_billing_city();
@@ -494,14 +495,13 @@ function smartwoo_client_total_spent( $user_id ) {
  * @since 2.0.15
  */
 function smartwoo_get_client_billing_email( $user_id ) {
-	$user	= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
+	$user			= ( $user_id instanceof WC_Customer ) ? $user_id : new WC_Customer( $user_id );
 	$billing_email	= $user->get_billing_email();
 
 	if ( empty( $billing_email ) ) {
 		// Fallback to user's login email address.
 		$billing_email = $user->get_email();
 	}
-
 
 	return $billing_email;
 }
@@ -562,6 +562,10 @@ function smartwoo_invoice_page_url() {
 	if ( is_account_page () ){
 		return wc_get_account_endpoint_url( 'smartwoo-invoice' );
 	}
+
+	if ( is_admin() ) {
+		return admin_url( 'admin.php?page=sw-invoices' );
+	}
 	return get_permalink( $invoice_page );
 }
 
@@ -600,11 +604,11 @@ function smartwoo_delete_invoice_ajax_callback() {
 /**
  * Marks invoice as paid.
  *
- * @param  string $invoice_id   The ID of the invoice to be updated
+ * @param string|SmartWoo_Invoice $invoice_id   The ID of the invoice to be updated
  * @return bool     false if the invoice is already 'Paid' | true if update is successful
  */
 function smartwoo_mark_invoice_as_paid( $invoice_id ) {
-	$invoice = SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
+	$invoice = ( $invoice_id instanceof SmartWoo_Invoice ) ? $invoice_id : SmartWoo_Invoice_Database::get_invoice_by_id( $invoice_id );
 
 	if ( $invoice && 'paid' !== $invoice->get_status() ) {
 		$order = $invoice->get_order();
@@ -619,7 +623,12 @@ function smartwoo_mark_invoice_as_paid( $invoice_id ) {
 			'transaction_id'  => $order->get_transaction_id(),
 			'payment_gateway' => $order->get_payment_method(),
 		);
-		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice_id, $fields );
+		$updated_invoice = SmartWoo_Invoice_Database::update_invoice_fields( $invoice->get_invoice_id(), $fields );
+
+		if ( false === $updated_invoice ) {
+			return false;
+		}
+		
 		/**
 		 * Fires after an invoice is marked as paid.
 		 * @param SmartWoo_Invoice $updated_invoice The updated invoice object.
@@ -659,4 +668,42 @@ function smartwoo_all_user_invoices_count() {
 	$output .= '</div>';
 
 	return $output;
+}
+
+/**
+ * Print invoice status with mapped labels.
+ * 
+ * @param SmartWoo_Invoice $invoice The invoice object.
+ * @param array            $classes Additional classes to apply.
+ */
+function smartwoo_print_invoice_status( SmartWoo_Invoice $invoice, $classes = array() ) {
+	$status       = strtolower( $invoice->get_status() );
+
+	// Map invoice statuses to friendly labels.
+	$status_labels = array(
+		'paid'     => __( 'Paid', 'smart-woo-service-invoicing' ),
+		'unpaid'   => __( 'Unpaid', 'smart-woo-service-invoicing' ),
+		'cancelled'=> __( 'Cancelled', 'smart-woo-service-invoicing' ),
+		'due'      => __( 'Overdue', 'smart-woo-service-invoicing' ),
+	);
+
+	$label = isset( $status_labels[ $status ] )
+		? $status_labels[ $status ]
+		: ucfirst( $status ); // Fallback to raw status.
+
+	// Format status into a valid class name.
+	$status_class = str_replace(
+		array( ' ', '(', ')' ),
+		array( '-', '', '' ),
+		$status
+	);
+
+	$class_string = implode( ' ', $classes );
+
+	printf(
+		'<span class="smartwoo-invoice-status %s %s">%s</span>',
+		esc_attr( $class_string ),
+		esc_attr( $status_class ),
+		esc_html( $label )
+	);
 }

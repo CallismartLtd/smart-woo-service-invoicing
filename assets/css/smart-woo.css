@@ -9,22 +9,23 @@ use inline CSS to overide some styles
     --smartwoo-status-suspended: #6c757d; /* Gray for Suspended */
 	--smartwoo-status-grace-period: #17a2b8;
 	--smartwoo-status-cancelled: #333333;
+
+    --smartwoo-invoice-paid: #28a745;      /* Green for Paid */
+    --smartwoo-invoice-unpaid: #dc3545;    /* Red for Unpaid */
+    --smartwoo-invoice-cancelled: #6c757d; /* Gray for Cancelled */
+    --smartwoo-invoice-due: #fd7e14;       /* Orange for Due */
 }
 
 .smartwoo-status {
     float: right;
     color: #ffffff;
     padding: 21.5px;
-    
     font-weight: 500;
 }
 
-.smartwoo-status.active {
-    background-color: var(--smartwoo-status-active);
-}
+.smartwoo-status.active,
 .smartwoo-status.active-nr {
-	background-color: var(--smartwoo-status-active);
-
+    background-color: var(--smartwoo-status-active);
 }
 
 .smartwoo-status.due-for-renewal {
@@ -46,8 +47,40 @@ use inline CSS to overide some styles
     background-color: var(--smartwoo-status-cancelled);
 }
 
+.smartwoo-invoice-status {
+    float: right;
+    color: #ffffff;
+    padding: 4px 8px;
+	font-weight: 500;
+    font-size: 14px;
+    border-radius: 20px;
+}
+
+.smartwoo-invoice-status.paid {
+    background-color: var(--smartwoo-invoice-paid);
+}
+
+.smartwoo-invoice-status.unpaid {
+    background-color: var(--smartwoo-invoice-unpaid);
+}
+
+.smartwoo-invoice-status.cancelled {
+    background-color: var(--smartwoo-invoice-cancelled);
+}
+
+.smartwoo-invoice-status.due {
+    background-color: var(--smartwoo-invoice-due);
+}
+
 .smartwoo-hide {
 	display: none !important;
+}
+
+.m-20-auto {
+	margin: 20px auto;
+}
+.mt-10 {
+	margin-top: 10px;
 }
 
 /************************************************************************************/
@@ -219,6 +252,7 @@ use inline CSS to overide some styles
 }
 
 .smartwoo-account-button:hover {
+	color: #ffffff;
     background-color: #005f8f; /* Darker blue on hover */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -256,6 +290,10 @@ use inline CSS to overide some styles
 	text-transform: none;
 }
 
+.sw-email-send-button {
+	vertical-align: middle !important; 
+	margin-right: 4px !important;
+}
 
 .sw-button-container {
     display: flex;
@@ -744,6 +782,131 @@ border-radius: 5px;
 	background-color: #ffffff;
 	width: 100%;
 }
+
+.smartwoo-modal-content {
+	position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    margin: auto;
+    border: 1px solid #888;
+    width: 100%;
+    min-height: 90vh;
+    max-height: 650px;
+    overflow: hidden;
+    max-width: 700px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    transition: transform 0.3s ease-out;
+    z-index: 999999 !important;
+}
+
+.smartwoo-modal-heading {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #f1f1f1;
+	padding: 1px 10px;
+	border-bottom: solid 1px #dcdcde;
+
+}
+
+.smartwoo-modal-close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    line-height: 1;
+    padding: 0;
+}
+
+.smartwoo-modal-close-btn:hover,
+.smartwoo-modal-close-btn:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.smartwoo-modal-body {
+    padding: 10px;
+	max-height: 500px;
+	height: 500px;
+	overflow-y: auto;
+}
+
+.smartwoo-modal-body:has( object.smartwoo-invoice-pdf-viewer ) {
+	padding: 0;
+}
+
+.smartwoo-modal-body .modal-status {
+	padding: 10px;
+}
+.smartwoo-modal-body p {
+	font-size: 12px;
+}
+.smartwoo-modal-body h3 {
+	font-size: 16px;
+	margin: 5px 0;
+}
+
+.smartwoo-modal-body strong {
+    min-width: 100px;
+    display: inline-block;
+}
+
+.smartwoo-modal-body object.smartwoo-invoice-pdf-viewer {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.smartwoo-modal-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.smartwoo-modal-details-table th,
+.smartwoo-modal-details-table td {
+    border: none;
+    padding: 6px 0;
+    text-align: left;
+    vertical-align: top;
+}
+
+.smartwoo-modal-details-table th {
+    font-weight: bold;
+    color: #333;
+    padding-right: 15px;
+    white-space: nowrap;
+    width: 120px;
+}
+
+.smartwoo-modal-details-table td {
+    color: #555;
+}
+
+.smartwoo-modal-footer {
+	position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+	min-height: 40px;
+	background-color: #f1f1f1;
+	border-top: solid 1px #dcdcde;
+	padding: 5px;
+}
+
 @media (max-width: 768px) {
 
 	@media (max-width: 617px) {
@@ -866,6 +1029,7 @@ border-radius: 5px;
 	font-family: 'Inter', sans-serif;
 	min-height: 50vh;
 	font-size: medium;
+	overflow: hidden;
 }
 .smartwoo-portal-header {
 	display: flex;
@@ -1081,6 +1245,7 @@ border-radius: 5px;
 
 .main-page-card .sw-notice {
 	width: 100%;
+	padding: 0;
 }
 /* Media query for smaller screens */
 @media (min-width: 280px) and (max-width: 768px) {

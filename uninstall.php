@@ -69,6 +69,7 @@ $options = array(
     '__smartwoo_automation_last_scheduled_date',
     'smartwoo_allow_fast_checkout',
     'smartwoo_allow_optout/Cancellation',
+    'smartwoo_use_new_admin_dash'
 
 );
 
