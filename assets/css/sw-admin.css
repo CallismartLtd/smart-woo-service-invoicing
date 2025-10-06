@@ -460,7 +460,7 @@ body .sw-admin-dash-nav ul li a:focus {
 
 #smartwoo-search-result {
     max-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
     padding: 5px;
     border-radius: 8px;
     border: 1px dotted transparent;
@@ -2372,4 +2372,16 @@ body .sw-admin-dash-nav ul li a:focus {
     cursor: pointer;
     float: right;
     color: #ff0000;
+}
+
+#smartwoo-dashboard-switcher {
+    margin: 10px;
+}
+
+.sw-admin-dash-body:has( .smartwoo-interactivity-dashboard-search-container ) #smartwoo-dashboard-switcher {
+    position: absolute;
+}
+
+.sw-admin-dash-body:has( .sw-search-container ) #smartwoo-dashboard-switcher {
+    float: right;
 }

@@ -1308,6 +1308,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let smartwooProductDropdown = document.querySelector( '#service_products' );
     let smartwooKnowledgeBase   = document.querySelector( '.smartwoo-admin-knowledgebase' );
     let proDiv                  = document.querySelector('.sw-dash-pro-sell-bg');
+    let adminDashboardSwitcher  = document.querySelector( '#smartwoo-dashboard-switcher' );
+
+    if ( adminDashboardSwitcher ) {
+        adminDashboardSwitcher.addEventListener( 'click', ( e ) => {
+            e.target.disabled = true;
+            const spinner = smartWooAddSpinner('swloader', true );
+            const url = new URL( smartwoo_admin_vars.ajax_url );
+            url.searchParams.set( 'action', 'smartwoo_toggle_use_new_admin_dash' );
+            url.searchParams.set( 'security', smartwoo_admin_vars.security );
+            fetch( url.href )
+            .then( response => {
+                if ( ! response.ok ) {
+                    throw new Error( 'Something went wrong!' );
+                }
+            })
+            .then( () => window.location.reload() )
+            .catch( error => showNotification( error.message, 10000 ) )
+            .finally( () => smartWooRemoveSpinner( spinner ), e.target.disabled = false );
+
+        });
+    }
     
     if (proDiv) {
         setTimeout( () =>{

@@ -174,12 +174,19 @@ class SmartWoo_Dashboard_Controller {
 		add_action( 'wp_ajax_smartwoo_add_service', array( __CLASS__, 'new_service_form_submission' ) );
         add_action( 'wp_ajax_smartwoo_edit_service', array( __CLASS__, 'edit_service_form_submission' ) );
 		add_action( 'wp_ajax_smartwoo_service_from_order', array( __CLASS__, 'process_new_service_order_form' ) );
+		add_action( 'wp_ajax_smartwoo_toggle_use_new_admin_dash', [__CLASS__, 'toggle_use_new_admin_dash'] );
 	}
 
 	/**
 	 * The admin dashboard page
 	 */
-	private static function dashboard() {		
+	private static function dashboard() {
+		$is_advanced_dashboard = get_option( 'smartwoo_use_new_admin_dash', false );
+		if ( ! $is_advanced_dashboard ) {
+			include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
+			return;
+		}
+		
 		$current_args				= ['limit' => 10, 'page' => 1];
 		$total_services				= SmartWoo_Service_Database::get_total_records();
 		$total_active_subscribers	= SmartWoo_Service_Database::get_total_active_subscribers();
@@ -818,6 +825,22 @@ class SmartWoo_Dashboard_Controller {
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Ajax callback to handle toggling of dashboard template
+	 */
+	public static function toggle_use_new_admin_dash() {
+		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+			wp_send_json_error( array( 'message' => 'Action failed basic authentication' ), 400 );
+		}
+
+		$value		= get_option( 'smartwoo_use_new_admin_dash', false );
+		$new_value	= boolval( !$value );
+
+		update_option( 'smartwoo_use_new_admin_dash', $new_value );
+
+		wp_send_json_success();
 	}
 
 }

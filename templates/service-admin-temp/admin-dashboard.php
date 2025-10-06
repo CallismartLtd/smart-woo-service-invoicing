@@ -54,7 +54,7 @@ defined( 'ABSPATH' ) || exit;
 
     <div class="sw-admin-dash-body">
         <?php do_action( 'smartwoo_admin_header' ) ?>
-        
+
         <div class="sw-admin-dashboard-summary-container">
             <div class="sw-admin-dashboard-summary-item">
                 <div class="sw-admin-dashboard-summary-item_heading">
@@ -151,9 +151,11 @@ defined( 'ABSPATH' ) || exit;
             </div>
      
         </div>
-
+        
         <hr>
-
+        <button type="button" class="button" id="smartwoo-dashboard-switcher">
+            <?php printf( '%s', $is_advanced_dashboard ? __( 'Switch to minimal dashboad', 'smart-woo-service-invoincing' ) : __( 'Switch to advanced dashboad', 'smart-woo-service-invoincing' ) ); ?>
+        </button>
         <form class="smartwoo-interactivity-dashboard-search-container">
             <div class="smartwoo-interactivity-search">
                 <input type="search" name="search_term" id="smartwoo-search-input" placeholder="Search">

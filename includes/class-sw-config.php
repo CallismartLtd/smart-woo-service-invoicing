@@ -388,7 +388,7 @@ class SmartWoo_Config{
             return '';
         }
 
-        return '-min';
+        return '.min';
     }
 
     /**

@@ -416,12 +416,9 @@ class SmartWooAdminDashboard {
                 tBody.innerHTML = html;
 
                 if ( tBody.querySelector( 'tr td.sw-not-found' ) ) {
-                    tBody.closest( 'table' )?.querySelector( 'thead' )?.classList.add( 'smartwoo-hide' );
-                    sectionEl.querySelector( '.sw-dashboard-pagination' )?.classList.add( 'smartwoo-hide' );
-                
+                    tBody.closest( 'table' )?.querySelector( 'thead' )?.classList.add( 'smartwoo-hide' );                
                 } else {
                     tBody.closest( 'table' )?.querySelector( 'thead' )?.classList.remove( 'smartwoo-hide' );
-                    sectionEl.querySelector( '.sw-dashboard-pagination' )?.classList.remove( 'smartwoo-hide' );
                 }
 
                 jQuery( tBody ).fadeIn();
@@ -456,14 +453,18 @@ class SmartWooAdminDashboard {
             nextBtn.setAttribute( 'disabled', true );
         } else {
             nextBtn.removeAttribute( 'disabled' );
-
         }
 
         if ( ! pagination.prev_page ) {
             prevBtn.setAttribute( 'disabled', true );
         } else {
             prevBtn.removeAttribute( 'disabled' );
+        }
 
+        if ( prevBtn.disabled && nextBtn.disabled ) {
+            pagContainer.classList.add( 'smartwoo-hide' );
+        } else {
+            pagContainer.classList.remove( 'smartwoo-hide' );
         }
     }
 
