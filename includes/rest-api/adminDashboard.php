@@ -697,7 +697,7 @@ class AdminDashboard {
             } else {
                 $invoice_details = array(
                     'heading'   => sprintf( '<h2>%s</h2>', __( 'Invoice', 'smart-woo-service-invoicing' ) ),
-                    'body'      => smartwoo_notice( __( 'This subscription does not have a pending renewal invoice.', 'smart-woo-service-invoicing' ) ),
+                    'body'      => smartwoo_notice( __( 'This subscription does not have a pending renewal invoice yet.', 'smart-woo-service-invoicing' ) ),
                     'footer'    => sprintf(
                         '<div class="sw-button-container">
                             <a href="%1$s" class="sw-blue-button button">%2$s</a>
