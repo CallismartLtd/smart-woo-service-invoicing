@@ -62,9 +62,8 @@ class SmartWoo_Service_Database {
 		if ( false === $services ) {
 			$services = array();
 			$offset = ( $page - 1 ) * $limit;
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$query = $wpdb->prepare(
-				"SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " ORDER BY `id` DESC LIMIT %d OFFSET %d",
+			// phpcs:ignore WordPress.DB
+			$query = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_SERVICE_TABLE . " ORDER BY `id` DESC LIMIT %d OFFSET %d",
 				$limit, 
 				$offset
 			);

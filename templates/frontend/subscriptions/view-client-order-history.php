@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
                                 <?php
                                 printf(
                                     /* translators: %s: Parent order ID */
-                                    __( 'Order: #%s', 'smart-woo-service-invoicing' ),
+                                    esc_html__( 'Order: #%s', 'smart-woo-service-invoicing' ),
                                     absint( $order->get_order_id() )
                                 );
                                 ?>
@@ -46,7 +46,7 @@ defined( 'ABSPATH' ) || exit;
                                             /* translators: 1: quantity, 2: price */
                                             esc_html__( 'Qty: %1$s | Price: %2$s', 'smart-woo-service-invoicing' ),
                                             absint( $order->get_quantity() ),
-                                            smartwoo_price( $order->get_total() )
+                                            esc_html( smartwoo_price( $order->get_total() ) )
                                         );
 
                                         echo '<br />';

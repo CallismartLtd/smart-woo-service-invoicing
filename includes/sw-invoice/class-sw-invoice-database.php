@@ -125,7 +125,7 @@ class SmartWoo_Invoice_Database {
 	 * Method to get invoices associated with a service subscription.
 	 *
 	 * @param array $args Associative array of arguments.
-	 * @return SmartWoo_Invoice[] Returns an array of SmartWoo_Invoice object or false if no results.
+	 * @return SmartWoo_Invoice[] Returns an array of SmartWoo_Invoice objects or an empty array if no results.
 	 */
 	public static function get_service_invoices( $args = array() ) {
 		global $wpdb;
@@ -141,17 +141,26 @@ class SmartWoo_Invoice_Database {
 		$parsed_args = wp_parse_args( array_map( 'sanitize_text_field', wp_unslash( $args ) ), $default_args );
 
 		if ( empty( $parsed_args['service_id'] ) ) {
-			return [];
+			return array();
 		}
 
-		$page  = max( 1, (int) $parsed_args['page'] );
-		$limit = max( 1, (int) $parsed_args['limit'] );
+		$cache_group = 'smartwoo_invoice_database';
+		$cache_key   = 'get_service_invoices_' . md5( wp_json_encode( $parsed_args ) );
+
+		// Try fetching from cache first.
+		$cached_invoices = wp_cache_get( $cache_key, $cache_group );
+		if ( false !== $cached_invoices ) {
+			return $cached_invoices;
+		}
+
+		$page   = max( 1, (int) $parsed_args['page'] );
+		$limit  = max( 1, (int) $parsed_args['limit'] );
 		$offset = ( $page - 1 ) * $limit;
 
 		$query = "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE `service_id` = %s";
 		$placeholders = array( $parsed_args['service_id'] );
 
-		// Add conditions dynamically
+		// Add optional conditions.
 		if ( ! empty( $parsed_args['type'] ) ) {
 			$query .= " AND `invoice_type` = %s";
 			$placeholders[] = $parsed_args['type'];
@@ -162,18 +171,69 @@ class SmartWoo_Invoice_Database {
 			$placeholders[] = $parsed_args['status'];
 		}
 
-		// Add ordering and pagination
+		// Add ordering and pagination.
 		$query .= " ORDER BY `date_created` DESC LIMIT %d OFFSET %d";
 		$placeholders[] = $limit;
 		$placeholders[] = $offset;
 
-		// Prepare and execute the query
-		$query = $wpdb->prepare( $query, ...$placeholders ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
+		// Prepare and execute the query.
+		$query   = $wpdb->prepare( $query, ...$placeholders ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
-		return $results ? self::convert_results_to_invoices( $results ) : [];
+		$invoices = $results ? self::convert_results_to_invoices( $results ) : array();
+
+		// Cache results for faster retrieval next time.
+		wp_cache_set( $cache_key, $invoices, $cache_group, HOUR_IN_SECONDS );
+
+		return $invoices;
 	}
 
+	/**
+	 * Get unpaid service renewal invoice associated with a given subscription.
+	 * 
+	 * @param string $service_id Service identifier.
+	 * @return SmartWoo_Invoice|null
+	 */
+	public static function get_outstanding_invoice( string $service_id ) {
+		global $wpdb;
+
+		$service_id  = sanitize_text_field( wp_unslash( $service_id ) );
+		$cache_group = 'smartwoo_invoice_database';
+		$cache_key   = 'get_outstanding_invoice_' . md5( $service_id );
+
+		// Try to get the invoice from cache first.
+		$cached_invoice = wp_cache_get( $cache_key, $cache_group );
+		if ( false !== $cached_invoice ) {
+			return $cached_invoice;
+		}
+
+		$table_name = SMARTWOO_INVOICE_TABLE;
+
+		$query = "SELECT * FROM {$table_name}
+			WHERE `payment_status` IN ( %s, %s )
+			AND `invoice_type` = %s
+			AND `service_id` = %s
+			ORDER BY `date_created` DESC
+			LIMIT %d
+		";
+
+		$query  = $wpdb->prepare( $query, 'unpaid', 'due', 'Service Renewal Invoice', $service_id, 1 ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
+		$result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
+
+		if ( $result ) {
+			$invoice = SmartWoo_Invoice::convert_array_to_invoice( $result );
+
+			// Cache the invoice object for future requests.
+			wp_cache_set( $cache_key, $invoice, $cache_group, HOUR_IN_SECONDS );
+
+			return $invoice;
+		}
+
+		// Cache a null result to avoid repeated queries for missing records.
+		wp_cache_set( $cache_key, null, $cache_group, 5 * MINUTE_IN_SECONDS );
+
+		return null;
+	}
 
 	/**
 	 * Method to get invoices by Invoice Type.
@@ -455,7 +515,7 @@ class SmartWoo_Invoice_Database {
 			$like		= '%' . $wpdb->esc_like( $search_term ) . '%';
 			$table_name = SMARTWOO_INVOICE_TABLE;
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:disable
 			$query = $wpdb->prepare( 
 				"SELECT * FROM {$table_name}
 				WHERE `id` LIKE %s
@@ -488,6 +548,7 @@ class SmartWoo_Invoice_Database {
 			}
 		}
 
+		// phpcs:enable
 		return $services;
 	}
 

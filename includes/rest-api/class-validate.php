@@ -177,13 +177,13 @@ class VALIDATE {
         return new \WP_Error(
             'invalid_enum',
             sprintf(
-                __( 'Invalid value "%s". Allowed values are: %s', 'smart-woo-service-invoicing' ),
+                /* translators: 1: invalid value, 2: list of allowed values */
+                __( 'Invalid value "%1$s". Allowed values are: %2$s', 'smart-woo-service-invoicing' ),
                 $value,
                 implode( ', ', $allowed )
             ),
             array( 'status' => 400 )
         );
     }
-
 
 }

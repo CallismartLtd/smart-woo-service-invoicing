@@ -225,11 +225,19 @@ class SmartWoo_Dashboard_Controller {
 			);
 
 			return array(
-				/* translators: %s is the invoice public ID */
-				'heading'   => sprintf( __( '<h2>Invoice #%s</h2>', 'smart-woo-service-invoicing' ), $invoice->get_invoice_id() ),
-				'body'      => $body,
-				'footer'    => $footer
+				
+				'heading' => sprintf(
+					'<h2>%s</h2>',
+					sprintf(
+						/* translators: %s is the invoice public ID */
+						__( 'Invoice #%s', 'smart-woo-service-invoicing' ),
+						$invoice->get_invoice_id()
+					)
+				),
+				'body'   => $body,
+				'footer' => $footer,
 			);
+
 		};
 
 		$prepare_mail_args		= function( $invoice ) {};

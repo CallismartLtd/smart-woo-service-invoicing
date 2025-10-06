@@ -476,11 +476,19 @@ class AdminDashboard {
             );
 
             $invoice_details = array(
-                /* translators: %s is the invoice public ID */
-                'heading'   => sprintf( __( '<h2>Invoice #%s</h2>', 'smart-woo-service-invoicing' ), $invoice->get_invoice_id() ),
-                'body'      => $body,
-                'footer'    => $footer
+                
+                'heading' => sprintf(
+                    '<h2>%s</h2>',
+                    sprintf(
+                        // translators: %s is the invoice public ID.
+                        __( 'Invoice #%s', 'smart-woo-service-invoicing' ),
+                        $invoice->get_invoice_id()
+                    )
+                ),
+                'body'   => $body,
+                'footer' => $footer,
             );
+
             $table_rows[] = sprintf(
                 '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
                     <td>%3$s</td>
@@ -689,11 +697,19 @@ class AdminDashboard {
                 );
 
                 $invoice_details = array(
-                    /* translators: %s is the invoice public ID */
-                    'heading'   => sprintf( __( '<h2>Invoice #%s</h2>', 'smart-woo-service-invoicing' ), $related_invoice->get_invoice_id() ),
-                    'body'      => $inv_body,
-                    'footer'    => $inv_footer
+                    
+                    'heading' => sprintf(
+                        '<h2>%s</h2>',
+                        sprintf(
+                            // translators: %s is the invoice public ID.
+                            __( 'Invoice #%s', 'smart-woo-service-invoicing' ),
+                            $related_invoice->get_invoice_id()
+                        )
+                    ),
+                    'body'   => $inv_body,
+                    'footer' => $inv_footer,
                 );
+
             } else {
                 $invoice_details = array(
                     'heading'   => sprintf( '<h2>%s</h2>', __( 'Invoice', 'smart-woo-service-invoicing' ) ),
@@ -851,6 +867,7 @@ class AdminDashboard {
             $paid = smartwoo_mark_invoice_as_paid( $invoice );
             if ( $paid ) {
                 $invoice->set_status( 'paid' );
+                /* translators: %s invoice status */
                 $message = sprintf( __( 'Invoice status changed to "%s"', 'smart-woo-service-invoicing' ), $invoice->get_status() );
             } else{
                 $message = __( 'unable to mark invoice as paid', 'smart-woo-service-invoicing' );
@@ -1065,8 +1082,18 @@ class AdminDashboard {
         $status_labels  = array_combine( $status_labels, smartwoo_supported_service_status() );
 
         $status = is_null( $status ) ? __( 'Automatic Cancellation', 'smart-woo-service-invoicing' ) : ( $status_labels[ $status ] ?? $status );
-        // translators: %d: is the number of updated services: %s is the status label.
-        $message = sprintf( _n( '%d service updated to "%s"', '%d services updated to "%s"', $updated_count, 'smart-woo-service-invoicing' ), $updated_count, $status );
+        
+        $message = sprintf(
+            // translators: 1: number of updated services, 2: status label.
+            _n(
+                '%1$d service updated to “%2$s”',
+                '%1$d services updated to “%2$s”',
+                $updated_count,
+                'smart-woo-service-invoicing'
+            ),
+            $updated_count,
+            $status
+        );
         
         return array( $updated_count > 0, $message );
     }

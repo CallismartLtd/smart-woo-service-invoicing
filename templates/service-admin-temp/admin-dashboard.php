@@ -154,7 +154,7 @@ defined( 'ABSPATH' ) || exit;
         
         <hr>
         <button type="button" class="button" id="smartwoo-dashboard-switcher">
-            <?php printf( '%s', $is_advanced_dashboard ? __( 'Switch to minimal dashboad', 'smart-woo-service-invoincing' ) : __( 'Switch to advanced dashboad', 'smart-woo-service-invoincing' ) ); ?>
+            <?php printf( '%s', $is_advanced_dashboard ? esc_html__( 'Switch to minimal dashboad', 'smart-woo-service-invoicing' ) : esc_html__( 'Switch to advanced dashboad', 'smart-woo-service-invoicing' ) ); ?>
         </button>
         <form class="smartwoo-interactivity-dashboard-search-container">
             <div class="smartwoo-interactivity-search">
@@ -208,7 +208,7 @@ defined( 'ABSPATH' ) || exit;
                                     <?php if ( empty( $services ) ) : ?>
                                         <tr>
                                             <?php /*translators %s: Create new subscription link. */ ?>
-                                            <td class="sw-not-found"><?php printf( __( 'No service subscriptions found. <a href="%s">Create new service</a>', 'smart-woo-service-invoicing'), esc_url( admin_url( 'admin.php?page=sw-admin&tab=add-new-service' ) ) ); ?></td>
+                                            <td class="sw-not-found"><?php printf( '%s <a href="%s">Create new service</a>', esc_html__( 'No service subscriptions found. ', 'smart-woo-service-invoicing'), esc_url( admin_url( 'admin.php?page=sw-admin&tab=add-new-service' ) ) ); ?></td>
                                         </tr>
                                     <?php else : ?>
                                         <?php foreach ( $services as $service ) : ?>
@@ -248,7 +248,7 @@ defined( 'ABSPATH' ) || exit;
                                 <tbody class="smartwoo-table-content">
                                     <?php  if ( empty( $active_subscribers ) ) : ?>
                                         <tr>
-                                            <td class="sw-not-found"><?php esc_html_e( 'No active subscribers found.', 'smart-woo-serivice-invoicing' ); ?></td>
+                                            <td class="sw-not-found"><?php esc_html_e( 'No active subscribers found.', 'smart-woo-service-invoicing' ); ?></td>
                                         </tr>
                                     <?php else : ?>
                                         <?php foreach( $active_subscribers as $subscriber ) : ?>

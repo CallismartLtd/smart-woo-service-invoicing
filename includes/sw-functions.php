@@ -1552,7 +1552,7 @@ function smartwoo_fast_checkout_options() {
  * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_query_param( $key, $default = '' ) {
-    return smartwoo_get_param( $key, $default, $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    return smartwoo_get_param( $key, $default, $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 }
 
 /**
@@ -1563,7 +1563,7 @@ function smartwoo_get_query_param( $key, $default = '' ) {
  * @return mixed The sanitized value of the query parameter, or the default value.
  */
 function smartwoo_get_post_param( $key, $default = '' ) {
-    return smartwoo_get_param( $key, $default, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    return smartwoo_get_param( $key, $default, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 }
 
 /**

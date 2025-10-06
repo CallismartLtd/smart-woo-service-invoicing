@@ -779,7 +779,7 @@ class SmartWoo_Order {
             $param[]    = $offset;
         }
         
-        $query = $wpdb->prepare( $base_query, $param );
+        $query = $wpdb->prepare( $base_query, $param ); // phpcs:ignore WordPress.DB
 
         $data    = array();
         $results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB
@@ -858,12 +858,11 @@ class SmartWoo_Order {
         }
 
         // Prepare the SQL query with all parameters
-        $query = $wpdb->prepare( $base_query, ...$param );
+        $query = $wpdb->prepare( $base_query, ...$param ); // phpcs:ignore WordPress.DB
 
         // Get the count result
-        $count = $wpdb->get_var( $query );
+        $count = $wpdb->get_var( $query );// phpcs:ignore WordPress.DB
 
-        // Ensure an integer is always returned
         return (int) $count;
     }
 

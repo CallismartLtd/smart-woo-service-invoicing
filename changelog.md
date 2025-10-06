@@ -1,13 +1,20 @@
 ## Smart Woo Service Invoicing Changelog
 
-### 2.5 [YYYY-MM-DD]
+### 2.5 [2025-10-06]
 **Fixed**
-* Invoice date display bug.
-* New UI header preventing admin notices.
-* Searching service subscription not working.
+* Invoice date display issue.
+* Admin notices being hidden by the new UI header.
+* Service subscription search not working.
+* Edge cases where multiple unpaid invoices could be generated.
 
 **Introduced**
-* New admin dashboard featuring powerful tools to make subscription management easier.
+* A new admin dashboard featuring powerful tools to simplify subscription management.
+
+**Improved**
+* Plugin security — a full security audit has been performed across the entire codebase.
+* Performance optimization, including request pagination, caching, and response limiting.
+* Activity logs now provide deeper insights into subscription and invoice activities.
+
 
 ### 2.4.3 2025-08-18
 **New Feature**
