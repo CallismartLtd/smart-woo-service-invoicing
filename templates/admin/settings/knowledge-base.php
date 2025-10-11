@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit; ?>
 
 <div class="smartwoo-admin-page-content smartwoo-settings-page">
 	<h2><?php esc_html_e( 'General Settings and Knowledge Base', 'smart-woo-service-invoicing' ); ?></h2>
+	<div class="notice notice-info"><p><?php esc_html_e( 'If you encountered any issues, found a bug or you find it difficult setting up this plugin, please use the help tab above.', 'smart-woo-service-invoicing' ); ?></p></div>
 
 	<div class="sw-container smartwoo-admin-knowledgebase">
 		<div class="sw-knowledgebase-left-column">
