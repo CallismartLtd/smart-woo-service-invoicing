@@ -88,13 +88,26 @@
     border: 1px solid #dcdcde;
     border-radius: 9px;
     box-shadow: 0 10px 10px rgba(3, 1, 2, 0.2);
+    margin: 5px auto;
 }
 .sw-default-overlay {
-    padding: 15px;
+    padding: 5px 10px;
 }
 
-.sw-default-overlay ul {
-    list-style-type: none;
+.sw-default-overlay ul#smartwoo-pro-feature-list {
+    list-style-type: disc !important;
+    padding-left: 15px;
+}
+
+.sw-default-overlay header.smartwoo-pro-ad-header {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    border-top: dashed #4a4aeb 1px;
+    border-right: dashed #4a4aeb 1px;
+    border-top-right-radius: 4px;
+    border-bottom: solid #4a4aeb 3px;
+    border-bottom-right-radius: 4px;
 }
 
 .sw-round-up {
@@ -2384,4 +2397,14 @@ body .sw-admin-dash-nav ul li a:focus {
 
 .sw-admin-dash-body:has( .sw-search-container ) #smartwoo-dashboard-switcher {
     float: right;
+}
+
+.smartwoo-support-dot {
+    display: inline-block;
+    height: 10px;
+    width: 10px;
+    background-color: #d63638;
+    line-height: 1.6;
+    text-align: center;
+    border-radius: 50%;
 }
