@@ -1243,14 +1243,13 @@ class SmartWoo_Service_Database {
 			self::save_all_metadata( $service );
 			update_option( 'smartwoo_all_services_count', self::count_all() );
 			$service->set_id( $wpdb->insert_id );
-
+			wp_cache_flush_group( 'smartwoo_service_database' );
 			/**
 			 * @action_hook smartwoo_new_service_created Fires when a new service is inserted into the database.
 			 * 				@param SmartWoo_Service
 			 */
 			do_action( 'smartwoo_new_service_created', $service );
 			return true;
-
 		}
 		
 		return false;
@@ -1309,6 +1308,7 @@ class SmartWoo_Service_Database {
 		delete_transient( 'smartwoo_print_expiry_notice_' . $service->get_id() );
 		delete_transient( 'smartwoo_status_' . $service->get_service_id() );
 		wp_cache_delete( 'smartwoo_status_' . $service->get_service_id() );
+		wp_cache_flush_group( 'smartwoo_service_database' );
 		return $updated !== false;
 	}
 
@@ -1344,7 +1344,7 @@ class SmartWoo_Service_Database {
 		$updated = $wpdb->update( SMARTWOO_SERVICE_TABLE, $data, $where, $data_format, $where_format );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		delete_transient( 'smartwoo_status_' . $service_id );
 		wp_cache_delete( 'smartwoo_status_' . $service_id );
-
+		wp_cache_flush_group( 'smartwoo_service_database' );
 		return $updated !== false;
 	}
 
@@ -1507,7 +1507,7 @@ class SmartWoo_Service_Database {
 		$deleted = $wpdb->delete( SMARTWOO_SERVICE_TABLE, array( 'service_id' => $service_id ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		delete_transient( 'smartwoo_status_' . $service_id );
 		wp_cache_delete( 'smartwoo_status_' . $service_id );
-		
+		wp_cache_flush_group( 'smartwoo_service_database' );
 		update_option( 'smartwoo_all_services_count', self::count_all() );
 		return $deleted !== false;
 	}
