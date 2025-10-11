@@ -17,7 +17,13 @@ defined( 'ABSPATH' ) || exit; // Prevent direct access.
  * @since   1.0.0
  * @package SmartWooInvoice
  */
-class SmartWoo_Invoice_Database { 
+class SmartWoo_Invoice_Database {
+	/**
+	 * Cache group name
+	 * 
+	 * @var string $cache_group
+	 */
+	public static $cache_group	= 'smartwoo_invoice_database';
 
 	/**
 	 * Get paginated invoices from the database.
@@ -27,22 +33,28 @@ class SmartWoo_Invoice_Database {
 	public static function get_all_invoices( $page = 1, $limit = 20 ) {
 		global $wpdb;
 		
-		// Calculate the offset.
-		$offset = ( $page - 1 ) * $limit;
-		
-		$query = $wpdb->prepare( 
-			"SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " ORDER BY `date_created` DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$limit, 
-			$offset 
-		);
-		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$cache_key	= self::get_cache_key( __METHOD__, [$page, $limit] );
+		$invoices	= wp_cache_get( $cache_key, self::$cache_group );
 
-		if ( ! empty( $results ) ) {
-			return $invoices = self::convert_results_to_invoices( $results );
+		if ( false === $invoices ) {
+			$invoices	= array();
+			$offset		= ( $page - 1 ) * $limit;
+			
+			$query = $wpdb->prepare( 
+				"SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " ORDER BY `date_created` DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$limit, 
+				$offset 
+			);
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
+			if ( ! empty( $results ) ) {
+				$invoices = self::convert_results_to_invoices( $results );
+			}
+
+			wp_cache_set( $cache_key, $invoices, self::$cache_group, HOUR_IN_SECONDS );
 		}
 
-		return array();
+		return $invoices;
 	}
 
 	/**
@@ -53,9 +65,16 @@ class SmartWoo_Invoice_Database {
 	public static function count_all() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE;
-		$total_invoices = (int) $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$cache_key		= self::get_cache_key( __METHOD__ );
+		$total_invoices	= wp_cache_get( $cache_key, self::$cache_group );
 
+		if ( false === $total_invoices ) {
+			$query = "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE;
+			$total_invoices = (int) $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+			
+			wp_cache_set( $cache_key, $total_invoices, self::$cache_group, HOUR_IN_SECONDS );
+		}
+		
 		return $total_invoices;
 	}
 
@@ -68,6 +87,11 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function get_invoices_by_user( $user_id = 0 ) {
 		global $wpdb, $wp_query;
+		
+		if ( empty( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
 		$page	= smartwoo_get_query_param( 'paged', 1 );
 		$limit 	= smartwoo_get_query_param( 'limit', 10 );
 
@@ -75,50 +99,55 @@ class SmartWoo_Invoice_Database {
 			$page	= ( isset( $wp_query->query_vars['paged'] ) && ! empty( $wp_query->query_vars['paged'] ) ) ? absint( $wp_query->query_vars['paged'] ) : 1;
 		}
 
-		
-		// Calculate the offset.
-		$offset = ( $page - 1 ) * $limit;
+		$cache_key	= self::get_cache_key( __METHOD__, [$page, $limit] );
+		$invoices	= wp_cache_get( $cache_key, self::$cache_group );
 
-		if ( empty( $user_id ) ) {
-			$user_id = get_current_user_id();
-		}
-		$user_id = absint( $user_id );
+		if ( false === $invoices ) {
+			$invoices	= array();
+			$offset		= ( $page - 1 ) * $limit;
+			$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %s ORDER BY `date_created` DESC LIMIT %d OFFSET %d", absint( $user_id ), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$results	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			
+			if ( $results ) {
+				$invoices = self::convert_results_to_invoices( $results );
+			}
 
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %s ORDER BY `date_created` DESC LIMIT %d OFFSET %d", absint( $user_id ), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$results	= $wpdb->get_results( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		
-		if ( $results ) {
-			return self::convert_results_to_invoices( $results );
+			wp_cache_set( $cache_key, $invoices, self::$cache_group, HOUR_IN_SECONDS );
 		}
-		return array();
+
+		return $invoices;
 	}
 
 	/**
 	 * Get an Invoice by it's invoice_id.
 	 * 
 	 * @param string $invoice_id	The invoice id.
-	 * @return SmartWoo_Invoice|false
+	 * @return SmartWoo_Invoice|null
 	 */
 	public static function get_invoice_by_id( $invoice_id = '' ) {
 		global $wpdb;
 
-		if ( empty( $invoice_id ) ) {
-			return false;
-		}
-
 		if ( $invoice_id instanceof SmartWoo_Invoice ) {
 			$invoice_id = $invoice_id->get_invoice_id();
 		}
+
+		$cache_key	= self::get_cache_key( __METHOD__, [$invoice_id] );
+		$invoice	= wp_cache_get( $cache_key, self::$cache_group );
 		
-		$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
-		$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE invoice_id = %s", $invoice_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$result = $wpdb->get_row( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching,	WordPress.DB.PreparedSQL.NotPrepared
+		if ( false === $invoice ) {
+			$invoice	= null;
+			$invoice_id = sanitize_text_field( wp_unslash( $invoice_id ) );
+			$query  = $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE invoice_id = %s", $invoice_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$result = $wpdb->get_row( $query, ARRAY_A );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching,	WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( $result ) {
-			return SmartWoo_Invoice::convert_array_to_invoice( $result );
+			if ( $result ) {
+				$invoice = SmartWoo_Invoice::convert_array_to_invoice( $result );
+			}
+
+			wp_cache_set( $cache_key, $invoice, self::$cache_group, HOUR_IN_SECONDS );
 		}
-
-		return false;
+		
+		return $invoice;
 	}
 
 	/**
@@ -144,46 +173,44 @@ class SmartWoo_Invoice_Database {
 			return array();
 		}
 
-		$cache_group = 'smartwoo_invoice_database';
-		$cache_key   = 'get_service_invoices_' . md5( wp_json_encode( $parsed_args ) );
+		$cache_key	= self::get_cache_key( __METHOD__, $parsed_args );
+		$invoices	= wp_cache_get( $cache_key, self::$cache_group );
 
-		// Try fetching from cache first.
-		$cached_invoices = wp_cache_get( $cache_key, $cache_group );
-		if ( false !== $cached_invoices ) {
-			return $cached_invoices;
+		if ( false === $invoices ) {
+			$invoices	= array();
+			$page		= max( 1, (int) $parsed_args['page'] );
+			$limit		= max( 1, (int) $parsed_args['limit'] );
+			$offset		= ( $page - 1 ) * $limit;
+
+			$query = "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE `service_id` = %s";
+			$placeholders = array( $parsed_args['service_id'] );
+
+			// Add optional conditions.
+			if ( ! empty( $parsed_args['type'] ) ) {
+				$query .= " AND `invoice_type` = %s";
+				$placeholders[] = $parsed_args['type'];
+			}
+
+			if ( ! empty( $parsed_args['status'] ) ) {
+				$query .= " AND `payment_status` = %s";
+				$placeholders[] = $parsed_args['status'];
+			}
+
+			// Add ordering and pagination.
+			$query .= " ORDER BY `date_created` DESC LIMIT %d OFFSET %d";
+			$placeholders[] = $limit;
+			$placeholders[] = $offset;
+
+			// Prepare and execute the query.
+			$query   = $wpdb->prepare( $query, ...$placeholders ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( ! empty( $results ) ) {
+				$invoices = self::convert_results_to_invoices( $results );
+			}
+
+			wp_cache_set( $cache_key, $invoices, self::$cache_group, HOUR_IN_SECONDS );
 		}
-
-		$page   = max( 1, (int) $parsed_args['page'] );
-		$limit  = max( 1, (int) $parsed_args['limit'] );
-		$offset = ( $page - 1 ) * $limit;
-
-		$query = "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE `service_id` = %s";
-		$placeholders = array( $parsed_args['service_id'] );
-
-		// Add optional conditions.
-		if ( ! empty( $parsed_args['type'] ) ) {
-			$query .= " AND `invoice_type` = %s";
-			$placeholders[] = $parsed_args['type'];
-		}
-
-		if ( ! empty( $parsed_args['status'] ) ) {
-			$query .= " AND `payment_status` = %s";
-			$placeholders[] = $parsed_args['status'];
-		}
-
-		// Add ordering and pagination.
-		$query .= " ORDER BY `date_created` DESC LIMIT %d OFFSET %d";
-		$placeholders[] = $limit;
-		$placeholders[] = $offset;
-
-		// Prepare and execute the query.
-		$query   = $wpdb->prepare( $query, ...$placeholders ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-
-		$invoices = $results ? self::convert_results_to_invoices( $results ) : array();
-
-		// Cache results for faster retrieval next time.
-		wp_cache_set( $cache_key, $invoices, $cache_group, HOUR_IN_SECONDS );
 
 		return $invoices;
 	}
@@ -197,63 +224,69 @@ class SmartWoo_Invoice_Database {
 	public static function get_outstanding_invoice( string $service_id ) {
 		global $wpdb;
 
-		$service_id  = sanitize_text_field( wp_unslash( $service_id ) );
-		$cache_group = 'smartwoo_invoice_database';
-		$cache_key   = 'get_outstanding_invoice_' . md5( $service_id );
+		$service_id	= sanitize_text_field( wp_unslash( $service_id ) );
+		$cache_key	= self::get_cache_key( __METHOD__, [$service_id] );
+		$invoice	= wp_cache_get( $cache_key, self::$cache_group );
 
-		// Try to get the invoice from cache first.
-		$cached_invoice = wp_cache_get( $cache_key, $cache_group );
-		if ( false !== $cached_invoice ) {
-			return $cached_invoice;
+		if ( false === $invoice ) {
+			$invoice	= null;
+			$table_name = SMARTWOO_INVOICE_TABLE;
+
+			$query = "SELECT * FROM {$table_name}
+				WHERE `payment_status` IN ( %s, %s )
+				AND `invoice_type` = %s
+				AND `service_id` = %s
+				ORDER BY `date_created` DESC
+				LIMIT %d
+			";
+
+			$query  = $wpdb->prepare( $query, 'unpaid', 'due', 'Service Renewal Invoice', $service_id, 1 ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
+			$result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
+
+			if ( $result ) {
+				$invoice = SmartWoo_Invoice::convert_array_to_invoice( $result );
+			}
+			
+			wp_cache_set( $cache_key, $invoice, self::$cache_group, HOUR_IN_SECONDS );
 		}
 
-		$table_name = SMARTWOO_INVOICE_TABLE;
-
-		$query = "SELECT * FROM {$table_name}
-			WHERE `payment_status` IN ( %s, %s )
-			AND `invoice_type` = %s
-			AND `service_id` = %s
-			ORDER BY `date_created` DESC
-			LIMIT %d
-		";
-
-		$query  = $wpdb->prepare( $query, 'unpaid', 'due', 'Service Renewal Invoice', $service_id, 1 ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
-		$result = $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
-
-		if ( $result ) {
-			$invoice = SmartWoo_Invoice::convert_array_to_invoice( $result );
-
-			// Cache the invoice object for future requests.
-			wp_cache_set( $cache_key, $invoice, $cache_group, HOUR_IN_SECONDS );
-
-			return $invoice;
-		}
-
-		// Cache a null result to avoid repeated queries for missing records.
-		wp_cache_set( $cache_key, null, $cache_group, 5 * MINUTE_IN_SECONDS );
-
-		return null;
+		return $invoice;
 	}
 
 	/**
 	 * Method to get invoices by Invoice Type.
 	 * 
-	 * @param string $type	The invoice type.
+	 * @param array $args	Array of arguments.
 	 */
-	public static function get_invoices_by_type( $invoice_type = '' ) {
+	public static function get_invoices_by_type( $args = array() ) {
 		global $wpdb;
-		if ( empty( $invoice_type ) ) {
-			return false;
+		$default_args	= array(
+			'type'	=> '',
+			'limit'	=> 25,
+			'page'	=> 1
+		);
+
+		$parsed_args	= wp_parse_args( array_map( 'sanitize_text_field', wp_unslash( $args ) ), $default_args );
+		$cache_key		= self::get_cache_key( __METHOD__, $parsed_args );
+		$invoices		= wp_cache_get( $cache_key, self::$cache_group );
+
+		if ( false === $invoices ) {
+			$invoices	= array();
+			$page		= absint( $parsed_args['page'] );
+			$limit		= absint( $parsed_args['limit'] );
+			$offset		= self::get_offset( $page, $limit );
+			$table		= SMARTWOO_INVOICE_TABLE;
+			$query		= $wpdb->prepare( "SELECT * FROM {$table} WHERE invoice_type = %s LIMIT %d OFFSET %d", $parsed_args['type'], $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL
+			$results	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( $results ) {
+				$invoices = self::convert_results_to_invoices( $results );	
+			}
+
+			wp_cache_set( $cache_key, $invoices, self::$cache_group, HOUR_IN_SECONDS );
 		}
 
-		$invoice_type	= sanitize_text_field( wp_unslash( $invoice_type ) );
-		$query			= $wpdb->prepare( "SELECT * FROM ". SMARTWOO_INVOICE_TABLE ." WHERE invoice_type = %s", $invoice_type ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$results 		= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-
-		if ( $results ) {
-			return self::convert_results_to_invoices( $results );	
-		}
-		return false;
+		return $invoices;
 	}
 
 	/**
@@ -266,68 +299,76 @@ class SmartWoo_Invoice_Database {
 	public static function get_invoices_by_payment_status( $payment_status = '', $args = array() ) {
 		global $wpdb, $wp_query;
 
-		if ( empty( $payment_status ) ) {
-			return [];
-		}
-
 		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
 
 		$default_args = array(
-			'page'	=> smartwoo_is_frontend() ? absint( get_query_var( 'paged' ) ?: 1 ) : smartwoo_get_query_param( 'paged', 1 ),
-			'limit'	=> smartwoo_get_query_param( 'limit', 10 )
+			'page'	=> 1,
+			'limit'	=> 25
 		);
 
-		$parsed_args = wp_parse_args( $args, $default_args );
+		$parsed_args			= wp_parse_args( $args, $default_args );
+		$parsed_args['status']	= $payment_status;
 
-		$page	= absint( $parsed_args['page'] );
-		$limit 	= absint( $parsed_args['limit'] );
-		// Calculate the offset.
-		$offset = ( $page - 1 ) * $limit;
-		
-		$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s ORDER BY `date_created` DESC LIMIT %d OFFSET %d", $payment_status , $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$cache_key	= self::get_cache_key( __METHOD__, $parsed_args );
+		$invoices	= wp_cache_get( $cache_key, self::$cache_group );
 
-		if ( smartwoo_is_frontend() ) {
-			if ( ! is_user_logged_in() ) {
-				return array();
+		if ( false === $invoices ) {
+			$invoices	= array();
+			$page		= absint( $parsed_args['page'] );
+			$limit		= absint( $parsed_args['limit'] );
+			$offset		= self::get_offset( $page, $limit );
+			
+			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s ORDER BY `date_created` DESC LIMIT %d OFFSET %d", $parsed_args['status'] , $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( smartwoo_is_frontend() ) {
+				$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s AND `user_id` = %d ORDER BY `date_created` DESC LIMIT %d OFFSET %d", $parsed_args['status'] , $parsed_args['user_id'] ?? get_current_user_id(), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			}
+			
+			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching,	WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( $results ) {
+				$invoices = self::convert_results_to_invoices( $results );	
 			}
 
-			$query	= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s AND `user_id` = %d ORDER BY `date_created` DESC LIMIT %d OFFSET %d", $payment_status , get_current_user_id(), $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			wp_cache_set( $cache_key, $invoices, self::$cache_group, HOUR_IN_SECONDS );
 
 		}
-		
-		$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching,	WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( $results ) {
-			return self::convert_results_to_invoices( $results );	
-		}
-		return array();
+		return $invoices;
 
 	}
 
 	/**
-	 * Method to get an invoice by Order ID.
+	 * Get the invoice associated with a given WooCommerce Order.
 	 * 
-	 * @param int $order_id	The order ID associated with the invoices.
+	 * @param int $order_id	The order ID associated with the invoice.
+	 * @return SmartWoo_Invoice
 	 */
-	public static function get_invoice_by_order_id( $order_id = 0 ) {
+	public static function get_invoice_by_order_id( $order_id ) {
 		global $wpdb;
-
-		if ( empty( $order_id ) ) {
-			return false;
-		}
 
 		if ( $order_id instanceof WC_Order ) {
 			$order_id = $order_id->get_id();
 		}
 
 		$order_id	= absint( $order_id );
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE order_id = %s", $order_id ); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$results 	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-	
-		if ( $results ) {
-			return self::convert_results_to_invoices( $results );	
+
+		$cache_key	= self::get_cache_key( __METHOD__, [$order_id] );
+		$invoice	= wp_cache_get( $cache_key, self::$cache_group );
+
+		if ( false === $invoice ) {
+			$invoice	= null;
+			$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE order_id = %s", $order_id ); //phpcs:ignore WordPress.DB
+			$results 	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB
+		
+			if ( $results ) {
+				$invoice = self::convert_results_to_invoices( $results );	
+			}
+
+			wp_cache_set( $cache_key, $invoice, self::$cache_group, HOUR_IN_SECONDS );
 		}
-		return false;	
+
+		return $invoice;
 	}
 
 
@@ -335,22 +376,26 @@ class SmartWoo_Invoice_Database {
 	 * Method to get invoices by date_due.
 	 * 
 	 * @param string $due_date The due date.
+	 * @return SmartWoo_Invoice[]
 	 */
 	public static function get_invoices_by_date_due( $date_due ) {
 		global $wpdb;
 
-		if ( empty( $date_due ) ) {
-			return array();
+		$cache_key	= self::get_cache_key( __METHOD__, [$due_date] );
+		$invoices	= wp_cache_get( $cache_key, self::$cache_group );
+		if ( false === $invoices ) {
+			$invoices	= array();
+			$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE date_due = %s", $date_due ); // phpcs:ignore 	WordPress.DB.PreparedSQL.NotPrepared
+			$results 	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( $results ) {
+				$invoices = self::convert_results_to_invoices( $results );	
+			}
+			
+			wp_cache_set( $cache_key, $invoices, self::$cache_group, HOUR_IN_SECONDS );
 		}
 
-		$date_due	= sanitize_text_field( $date_due );
-		$query		= $wpdb->prepare( "SELECT * FROM " . SMARTWOO_INVOICE_TABLE . " WHERE date_due = %s", $date_due ); // phpcs:ignore 	WordPress.DB.PreparedSQL.NotPrepared
-		$results 	= $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-
-		if ( $results ) {
-			return self::convert_results_to_invoices( $results );	
-		}
-		return array();
+		return $invoices;
 	}
 
 	/**
@@ -362,17 +407,25 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function count_this_status( $payment_status ) {
 		global $wpdb;
-
+		
 		$payment_status = sanitize_text_field( wp_unslash( $payment_status  ) );
+		$cache_key		= self::get_cache_key( __METHOD__, [$payment_status] );
+		$count			= wp_cache_get( $cache_key, self::$cache_group );
 
-		$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s", $payment_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		if ( smartwoo_is_frontend() ) {
-			$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s AND `user_id` = %d", $payment_status, get_current_user_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( false === $count ) {
+			$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s", $payment_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			if ( smartwoo_is_frontend() ) {
+				$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE payment_status = %s AND `user_id` = %d", $payment_status, get_current_user_id() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			}
+
+			$count = (int) $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB
+
+			wp_cache_set( $cache_key, $count, self::$cache_group, HOUR_IN_SECONDS );
 
 		}
-		$count = $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
-		return absint( $count );
+		return $count;
 	}
 
 	/**
@@ -385,16 +438,19 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function count_payment_status( $user_id, $payment_status ) {
 		global $wpdb;
-		if ( ! is_numeric( $user_id ) || ! is_string( $payment_status ) ) {
-			return false;
+
+		$cache_key		= self::get_cache_key( __METHOD__, [$user_id, $payment_status,] );
+		$count			= wp_cache_get( $cache_key, self::$cache_group );
+
+		if ( false === $count ) {
+			$user_id		= absint( $user_id );
+			$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
+			$query			= $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %d AND payment_status = %s", $user_id, $payment_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$count 			= (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB
+			wp_cache_set( $cache_key, $count, self::$cache_group, HOUR_IN_SECONDS );
 		}
 
-		$user_id		= absint( $user_id );
-		$payment_status = sanitize_text_field( wp_unslash( $payment_status ) );
-		$query			= $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %d AND payment_status = %s", $user_id, $payment_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count 			= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-
-		return absint( $count );
+		return $count;
 	}
 
 	/**
@@ -405,13 +461,16 @@ class SmartWoo_Invoice_Database {
 	 */
 	public static function count_all_by_user( $user_id ) {
 		global $wpdb;
-		$count = 0;
-		if ( empty( $user_id ) ) {
-			return $count;
+		$cache_key	= self::get_cache_key( __METHOD__, [$user_id] );
+		$count	= wp_cache_get( $cache_key, self::$cache_group );
+		
+		if ( false === $count  ) {
+			$query	= $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %d", absint( $user_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$count	= (int) $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB
+			wp_cache_set( $cache_key, $count, self::$cache_group, HOUR_IN_SECONDS );
 		}
-		$query = $wpdb->prepare( "SELECT COUNT(*) FROM " . SMARTWOO_INVOICE_TABLE . " WHERE user_id = %d", absint( $user_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		return absint( $count );
+
+		return $count;
 	}
 
 	/**
@@ -507,11 +566,11 @@ class SmartWoo_Invoice_Database {
 		$offset 		= ( $page - 1 ) * $limit;
 
 		// Try to retrieve the results from the cache.
-		$cache_key	= sprintf( 'smartwoo_services_%s_%d_%d', $search_term, $page, $limit );
-		$services	= wp_cache_get( $cache_key, 'smartwoo_service_database' );
+		$cache_key	= sprintf( 'search_%s_%d_%d', $search_term, $page, $limit );
+		$invoices	= wp_cache_get( $cache_key, 'smartwoo_invoice_database' );
 
-		if ( false === $services ) {
-			$services	= array(); // Initialize an empty array for services.
+		if ( false === $invoices ) {
+			$invoices	= array(); // Initialize an empty array for invoices.
 			$like		= '%' . $wpdb->esc_like( $search_term ) . '%';
 			$table_name = SMARTWOO_INVOICE_TABLE;
 
@@ -543,40 +602,14 @@ class SmartWoo_Invoice_Database {
 			$results = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 
 			if ( ! empty( $results ) ) {
-				$services = self::convert_results_to_invoices( $results );
-				wp_cache_set( $cache_key, $services, 'smartwoo_service_database', HOUR_IN_SECONDS );
+				$invoices = self::convert_results_to_invoices( $results );
+				wp_cache_set( $cache_key, $invoices, 'smartwoo_invoice_database', HOUR_IN_SECONDS );
 			}
 		}
 
 		// phpcs:enable
-		return $services;
+		return $invoices;
 	}
-
-	/**
-	 * convert database result(s) to SmartWoo_Invoice object.
-	 * 
-	 * @param mixed|array can be array or anything else.
-	 * @param string $mode How results where gotten.
-	 * @return array|SmartWoo_Invoice|int|string An array collection of SmartWoo_Invoice or SmartWoo_Invoice object, intiger or string.
-	 * @since 2.0.15 Expanded support for data type args and return value.
-	 */
-	private static function convert_results_to_invoices( $results, $mode = 'all' ) {
-		if ( 'single' === $mode ) {
-			return $results;
-		}
-
-		if ( 'row' === $mode ) {
-			return SmartWoo_Invoice::convert_array_to_invoice( $results );
-		}
-
-		return array_map(
-			function ( $result ) {
-				return SmartWoo_Invoice::convert_array_to_invoice( $result );
-			},
-			$results
-		);
-	}
-
 
 	/**
 	 * Creates and saves a new invoice in the database.
@@ -650,8 +683,10 @@ class SmartWoo_Invoice_Database {
 			 */
 			do_action( 'smartwoo_new_invoice_created', $invoice );
 			
+			wp_cache_flush_group( self::$cache_group );
 			return $invoice->get_invoice_id();
 		}
+
 		return false;
 	}
 
@@ -734,6 +769,7 @@ class SmartWoo_Invoice_Database {
 			 * @param SmartWoo_Invoice $invoice_id
 			 */
 			do_action( 'smartwoo_invoice_updated', $invoice );
+			wp_cache_flush_group( self::$cache_group );
 			return $invoice->get_invoice_id();
 		}
 
@@ -833,30 +869,13 @@ class SmartWoo_Invoice_Database {
 			// Fetch the updated invoice from the database
 			$updated_invoice = self::get_invoice_by_id( $invoice_id );
 
+			wp_cache_flush_group( self::$cache_group );
 			if ( $updated_invoice ) {
 				return $updated_invoice;
 			}
 		}
 
 		return false;
-	}
-
-
-	/**
-	 * Get the data format for a given value.
-	 *
-	 * @param mixed $value The value for which to determine the data format.
-	 *
-	 * @return string The data format.
-	 */
-	private static function get_data_format( $value ) {
-		if ( is_numeric( $value ) ) {
-			return is_float( $value ) ? '%f' : '%d';
-		} elseif ( is_bool( $value ) ) {
-			return '%d';
-		} else {
-			return '%s';
-		}
 	}
 
 	/**
@@ -897,6 +916,7 @@ class SmartWoo_Invoice_Database {
 		 * @param SmartWoo_Invoice $existing_invoice
 		 */
 		do_action( 'smartwoo_invoice_deleted', $existing_invoice );
+		wp_cache_flush_group( self::$cache_group );
 		return $deleted !== false;
 	}
 
@@ -906,6 +926,7 @@ class SmartWoo_Invoice_Database {
 	public static function delete_all_meta( SmartWoo_Invoice $invoice ) {
 		global $wpdb;
 		$deleted	= $wpdb->delete( SMARTWOO_INVOICE_META_TABLE, array( 'invoice_id' => $invoice->get_invoice_id() ), array( '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		wp_cache_flush_group( self::$cache_group );
 		return $deleted !== false;
 	}
 
@@ -918,6 +939,84 @@ class SmartWoo_Invoice_Database {
 	public static function delete_meta( $invoice_id, $meta_name ) {
 		global $wpdb;
 		$deleted	= $wpdb->delete( SMARTWOO_INVOICE_META_TABLE, array( 'invoice_id' => $invoice_id, 'meta_name' => $meta_name ), array( '%s', '%s' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		wp_cache_flush_group( self::$cache_group );
 		return $deleted !== false;
+	}
+
+	/*
+	|----------------------
+	| UTILITY METHODS
+	|----------------------
+	*/
+
+	/**
+	 * convert database result(s) to SmartWoo_Invoice object.
+	 * 
+	 * @param mixed|array can be array or anything else.
+	 * @param string $mode How results where gotten.
+	 * @return array|SmartWoo_Invoice|int|string An array collection of SmartWoo_Invoice or SmartWoo_Invoice object, intiger or string.
+	 * @since 2.0.15 Expanded support for data type args and return value.
+	 */
+	private static function convert_results_to_invoices( $results, $mode = 'all' ) {
+		if ( 'single' === $mode ) {
+			return $results;
+		}
+
+		if ( 'row' === $mode ) {
+			return SmartWoo_Invoice::convert_array_to_invoice( $results );
+		}
+
+		return array_map(
+			function ( $result ) {
+				return SmartWoo_Invoice::convert_array_to_invoice( $result );
+			},
+			$results
+		);
+	}
+	
+	/**
+	 * Generate cache key for a given method
+	 * 
+	 * @param string $method_name	The method name.
+	 * @param array $args			The arguments that is passed to the method name.
+	 */
+	private static function get_cache_key( $method_name, $args = array() ) {
+		$args_str	= implode( '_', $args );
+		
+		if ( empty( $args_str ) ) {
+			return $method_name;
+		}
+
+		return sprintf( '%s_%s', $method_name, $args_str );
+	}
+
+	/**
+	 * Calcualte query offset from page and limit
+	 * 
+	 * @param int $page The current pagination number.
+	 * @param int $limit The result limit for the current request.
+	 * @return int $offset Calculated offset
+	 */
+	private static function get_offset( $page, $limit ) {
+		$page	= max( 1, $page );
+
+		return absint( max( 0, ( $page - 1 ) * $limit ) );
+	}
+
+	/**
+	 * Get the data format for a given value.
+	 *
+	 * @param mixed $value The value for which to determine the data format.
+	 *
+	 * @return string The data format.
+	 */
+	private static function get_data_format( $value ) {
+		if ( is_numeric( $value ) ) {
+			return is_float( $value ) ? '%f' : '%d';
+		} elseif ( is_bool( $value ) ) {
+			return '%d';
+		} else {
+			return '%s';
+		}
 	}
 }
