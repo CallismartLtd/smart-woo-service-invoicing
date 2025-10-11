@@ -141,7 +141,7 @@ class SmartWoo_Product_Controller{
         $status = ''; // For compatibility with the sort_by method.
         $not_found_text = __( 'When you create a new service product, it will appear here.', 'smart-woo-service-invoicing' );
     
-        include_once SMARTWOO_PATH . 'templates/product-admin-temp/dashboard.php';
+        include_once SMARTWOO_PATH . 'templates/admin/products/dashboard.php';
     }
 
     /**
@@ -168,7 +168,7 @@ class SmartWoo_Product_Controller{
 
         $not_found_text = 'No "' . ucfirst( $status ) . '" product found.';
     
-        include_once SMARTWOO_PATH . 'templates/product-admin-temp/dashboard.php';
+        include_once SMARTWOO_PATH . 'templates/admin/products/dashboard.php';
     }
 
     /**
@@ -189,7 +189,7 @@ class SmartWoo_Product_Controller{
             $menus      = array_keys( $product_data_tabs );
             $callbacks  = array_values( $product_data_tabs );
         }
-        include_once SMARTWOO_PATH . 'templates/product-admin-temp/add-product.php';
+        include_once SMARTWOO_PATH . 'templates/admin/products/add-product.php';
 
     }
 
@@ -226,7 +226,7 @@ class SmartWoo_Product_Controller{
             $callbacks  = array_values( $product_data_tabs );
         }
 
-        include_once SMARTWOO_PATH . 'templates/product-admin-temp/edit-product.php';
+        include_once SMARTWOO_PATH . 'templates/admin/products/edit-product.php';
         
     }
 
