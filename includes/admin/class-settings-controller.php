@@ -89,7 +89,7 @@ class SmartWoo_Settings_Controller {
 				'title'			=> 'Business name',
 				'description'	=> __( 'This is the business name that will be shown on invoice addresses and emails.', 'smart-woo-service-invoicing' ),
 				'missing'	=> empty( get_option( 'smartwoo_business_name' ) ),
-				'url'		=> admin_url( 'admin.php?sw-options&tab=business' )
+				'url'		=> admin_url( 'admin.php?page=sw-options&tab=business' )
 			),
 			
 			'smartwoo_invoice_page_id' => array(
@@ -110,7 +110,7 @@ class SmartWoo_Settings_Controller {
 				'title'			=> 'Business Phones',
 				'description'	=> __( 'These are the busines phone number(s) that will be shown on invoice addresses and emails.', 'smart-woo-service-invoicing' ),
 				'missing'		=> empty( get_option( 'smartwoo_business_name' ) ),
-				'url'			=> admin_url( 'admin.php?sw-options&tab=business' )
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=business' )
 			),
 
 			'smartwoo_invoice_id_prefix' => array(
@@ -124,14 +124,14 @@ class SmartWoo_Settings_Controller {
 				'title'			=> 'Service ID prefix',
 				'description'	=> __( 'This is the character(s) that will be placed before all service subscription IDs', 'smart-woo-service-invoicing' ),
 				'missing'		=> empty( get_option( 'smartwoo_service_id_prefix' ) ),
-				'url'			=> admin_url( 'admin.php?sw-options&tab=business' )
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=business' )
 			),
 		
 			'smartwoo_email_sender_name' => array(
 				'title'			=> 'Email sender name',
 				'description'	=> __( 'This is the name that will be used to send emails to your clients.', 'smart-woo-service-invoicing' ),
 				'missing'		=> empty( get_option( 'smartwoo_email_sender_name' ) ),
-				'url'			=> admin_url( 'admin.php?sw-options&tab=emails' )
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=emails' )
 			),
 
 
@@ -139,21 +139,21 @@ class SmartWoo_Settings_Controller {
 				'title'			=> 'Billing Email',
 				'description'	=> __( 'This is the email address that will be used to send all subscription and invoice related emails.', 'smart-woo-service-invoicing' ),
 				'missing'		=> empty( get_option( 'smartwoo_billing_email' ) ),
-				'url'			=> admin_url( 'admin.php?sw-options&tab=emails' )
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=emails' )
 			),
 
 			'smartwoo_email_image_header' => array(
 				'title'			=> 'Email header image',
 				'description'	=> __( 'This is the image used in email template header.', 'smart-woo-service-invoicing' ),
 				'missing'	=> empty( get_option( 'smartwoo_email_image_header' ) ),
-				'url'		=> admin_url( 'admin.php?sw-options&tab=emails' )
+				'url'		=> admin_url( 'admin.php?page=sw-options&tab=emails' )
 			),
 			
 			'smartwoo_product_text_on_shop' => array(
 				'title'			=> 'Product add to cart text',
 				'description'	=> __( 'The "add to cart text" for all subscription products', 'smart-woo-service-invoicing' ),				
 				'missing'		=> empty( get_option( 'smartwoo_product_text_on_shop' ) ),
-				'url'			=> admin_url( 'admin.php?sw-options&tab=advanced' )
+				'url'			=> admin_url( 'admin.php?page=sw-options&tab=advanced' )
 			),
 		
 		);
@@ -168,7 +168,7 @@ class SmartWoo_Settings_Controller {
 		}
 
 
-		include_once SMARTWOO_PATH . 'templates/settings/knowledge-base.php';
+		include_once SMARTWOO_PATH . 'templates/admin/settings/knowledge-base.php';
 	}
 
 	/**
@@ -184,7 +184,7 @@ class SmartWoo_Settings_Controller {
 		$pages                 = get_pages();
 		$service_id_prefix     = get_option( 'smartwoo_service_id_prefix', 'SID' );
 
-		include_once SMARTWOO_PATH . 'templates/settings/business-settings.php';
+		include_once SMARTWOO_PATH . 'templates/admin/settings/business-settings.php';
 		
 	}
 
@@ -201,7 +201,7 @@ class SmartWoo_Settings_Controller {
 		$invoice_watermark_url	= get_option( 'smartwoo_invoice_watermark_url' );
 		$global_next_pay		= smartwoo_get_global_nextpay( 'edit' );
 
-		include_once SMARTWOO_PATH . 'templates/settings/invoice-settings.php';
+		include_once SMARTWOO_PATH . 'templates/admin/settings/invoice-settings.php';
 	}
 
 	/**
@@ -225,7 +225,7 @@ class SmartWoo_Settings_Controller {
 		$email_image   = get_option( 'smartwoo_email_image_header' );
 		$pro_installed = class_exists( 'SmartWooPro', false );
 
-		include_once SMARTWOO_PATH . 'templates/settings/email-settings.php';
+		include_once SMARTWOO_PATH . 'templates/admin/settings/email-settings.php';
 	}
 
 	/**
@@ -239,7 +239,7 @@ class SmartWoo_Settings_Controller {
 		$fc_options			= smartwoo_fast_checkout_options();
 		$options			= self::get_advaced_options();
 
-		include_once SMARTWOO_PATH . 'templates/settings/advanced-settings.php';
+		include_once SMARTWOO_PATH . 'templates/admin/settings/advanced-settings.php';
 	}
 
 	/**
