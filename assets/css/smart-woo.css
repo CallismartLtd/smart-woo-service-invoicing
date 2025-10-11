@@ -864,7 +864,7 @@ border-radius: 5px;
 
 .smartwoo-modal-body object.smartwoo-invoice-pdf-viewer {
     width: 100%;
-    height: 100%;
+    height: 90%;
     border: none;
     display: block;
 }
@@ -1199,6 +1199,11 @@ border-radius: 5px;
 	flex-wrap: wrap;
     gap: 10px;
 	padding: 10px 15px;
+}
+
+.smartwoo-page .sw-products-container:has( > .main-page-card:only-child ) {
+    justify-content: center;
+	margin: 20px;
 }
 
 .smartwoo-portal__subscription-item-container:has(> .main-page-card:only-child) {
