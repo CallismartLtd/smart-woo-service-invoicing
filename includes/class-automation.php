@@ -168,21 +168,20 @@ class SmartWoo_Automation {
             return;
         }
 
+        $args = get_transient( 'smartwoo_payment_reminder_loop' );
+
+        if ( false === $args || ! is_array( $args ) ) {
+            $args = array(
+                'page'  => 1,
+                'limit' => 20
+            );
+        }
+
 		if ( wp_doing_cron() ) {
 			add_filter( 'smartwoo_is_frontend', '__return_false' );
-            $args = get_transient( 'smartwoo_payment_reminder_loop' );
-
-            if ( false === $args || ! is_array( $args ) ) {
-                $args = array(
-                    'page'  => 1,
-                    'limit' => 20
-                );
-            }
-            $_GET['limit'] = $args['limit'] ?? 20;
-            $_GET['paged'] = $args['page'] ?? 1;
 		}
 
-        $unpaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid' );
+        $unpaid_invoices = SmartWoo_Invoice_Database::get_invoices_by_payment_status( 'unpaid', $args );
 
         if ( empty( $unpaid_invoices ) ) {
             set_transient( 'smartwoo_checked_payment_reminder', time(), 2 * DAY_IN_SECONDS );
