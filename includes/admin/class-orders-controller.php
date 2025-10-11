@@ -81,7 +81,7 @@ class SmartWoo_Orders_Controller {
                 return '<button class="sw-icon-button-admin sw-not-allowed" title="' . __( 'Cannot be processed', 'smart-woo-service-invoicing' ) . '"><span style="color: #2217ee" class="dashicons dashicons-info"></span></button>';
             }
         });
-        include_once SMARTWOO_PATH . 'templates/order-admin/dashboard.php';
+        include_once SMARTWOO_PATH . 'templates/admin/service-orders/dashboard.php';
     }
 
     /**
@@ -121,6 +121,6 @@ class SmartWoo_Orders_Controller {
             );
         }
         
-        include_once SMARTWOO_PATH . 'templates/order-admin/new-service-order-form.php';
+        include_once SMARTWOO_PATH . 'templates/admin/service-orders/process-order-form.php';
     }
 }
