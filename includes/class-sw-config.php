@@ -200,6 +200,7 @@ class SmartWoo_Config{
             require_once SMARTWOO_PATH . 'includes/admin/class-invoice-controller.php';
             require_once SMARTWOO_PATH . 'includes/admin/class-product-controller.php';
             require_once SMARTWOO_PATH . 'includes/admin/class-settings-controller.php';
+            require_once SMARTWOO_PATH . 'includes/admin/class-support-controller.php';
             require_once SMARTWOO_PATH . 'includes/class-sw-db-update.php';
             require_once SMARTWOO_PATH . 'includes/class-setup-wizard.php';
             
@@ -621,6 +622,7 @@ class SmartWoo_Config{
             $id . '_page_sw-invoices'       => 'Invoices',
             $id . '_page_sw-service-orders' => 'Service Orders',
             $id . '_page_sw-products'       => 'Service Products',
+            $id . '_page_sw-support'        => 'Support',
             $id . '_page_sw-options'        => 'Settings',
         );
         
