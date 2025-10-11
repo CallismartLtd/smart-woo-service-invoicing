@@ -183,7 +183,7 @@ class SmartWoo_Dashboard_Controller {
 	private static function dashboard() {
 		$is_advanced_dashboard = get_option( 'smartwoo_use_new_admin_dash', false );
 		if ( ! $is_advanced_dashboard ) {
-			include_once SMARTWOO_PATH . 'templates/service-admin-temp/dashboard.php';
+			include_once SMARTWOO_PATH . 'templates/admin/dashboard/minimal-dash.php';
 			return;
 		}
 		
@@ -253,7 +253,7 @@ class SmartWoo_Dashboard_Controller {
 			)
 		];
 
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/admin-dashboard.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/advanced-dash.php';
 	}
 
 	/**
@@ -264,7 +264,7 @@ class SmartWoo_Dashboard_Controller {
 			return '';
 		});
 		smartwoo_set_document_title( 'Create New Service' );
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/add-service.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/add-service.php';
 	}
 
 	/**
@@ -287,7 +287,7 @@ class SmartWoo_Dashboard_Controller {
 			$invoices		= SmartWoo_Invoice_Database::get_service_invoices( $args );
 		}
 
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/view-service.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/view-service.php';
 	}
 
 	/**
@@ -328,7 +328,7 @@ class SmartWoo_Dashboard_Controller {
 			}
 		}
 			
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/edit-service.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/edit-service.php';
 	}
 
 	/**
@@ -377,7 +377,7 @@ class SmartWoo_Dashboard_Controller {
 			$additional_details = apply_filters( 'smartwoo_additional_client_details', array(), $client->get_id() );
 		}
 
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/view-client.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/view-client.php';
 	}
 
 	/**
@@ -412,7 +412,7 @@ class SmartWoo_Dashboard_Controller {
 
 		}
 
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-assets.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/service-assets.php';
 
 	}
 
@@ -421,7 +421,7 @@ class SmartWoo_Dashboard_Controller {
 	 */
 	private static function service_stats_page() {
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/stats.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/stats.php';
 	}
 
 	/**
@@ -430,7 +430,7 @@ class SmartWoo_Dashboard_Controller {
 	private static function service_logs_page() {
 		smartwoo_set_document_title( 'Logs' );
 		$service_id = smartwoo_get_query_param( 'service_id' );
-		include_once SMARTWOO_PATH . 'templates/service-admin-temp/service-logs.php';
+		include_once SMARTWOO_PATH . 'templates/admin/dashboard/service-logs.php';
 	}
 
 	/**
