@@ -36,8 +36,9 @@ class SmartWoo_Invoice_Frontend_Template {
 		$status			= sanitize_key( get_query_var( 'status' ) );
 		smartwoo_set_document_title( ucfirst( $status ) . ' Invoices' );
 		$limit 			= smartwoo_get_query_param( 'limit', 10 );
-		$page 			= absint( get_query_var( 'paged', 1 ) );
-		$invoices		= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status );
+		$page 			= absint( max( 1, get_query_var( 'paged', 1 ) ) );
+		$user_id		= get_current_user_id();
+		$invoices		= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status, compact( 'page', 'limit', 'user_id' ) );
 		$all_inv_count	= SmartWoo_Invoice_Database::count_this_status( $status );
 		$total_pages 	= ceil( $all_inv_count / $limit );
 		$total_items_count = count( $invoices );
