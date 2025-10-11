@@ -70,10 +70,8 @@ final class SmartWoo {
 
         // Add Ajax actions.
         add_action( 'wp_ajax_smartwoo_cancel_or_optout', array( __CLASS__, 'cancel_or_optout' ) );
-        add_action( 'wp_ajax_nopriv_smartwoo_cancel_or_optout', array( __CLASS__, 'cancel_or_optout' ) );
         add_action( 'wp_ajax_smartwoo_asset_delete', array( 'SmartWoo_Service_Assets', 'ajax_delete' ) );
         add_action( 'wp_ajax_smartwoo_delete_service', 'smartwoo_delete_service' );
-        add_action( 'wp_ajax_nopriv_smartwoo_delete_service', 'smartwoo_delete_service' );
         add_action( 'wp_ajax_smartwoo_dashboard', array( $this, 'dashboard_ajax' ) );
         add_action( 'wp_ajax_smartwoo_dashboard_bulk_action', array( $this, 'dashboard_ajax_bulk_action' ) );
         add_action( 'wp_ajax_smartwoo_ajax_logout', array( __CLASS__, 'ajax_logout' ) );
@@ -127,7 +125,7 @@ final class SmartWoo {
         /**
          * Plugin support link.
          */
-        $support_url = apply_filters( 'smartwoo_support_url', 'https://callismart.com.ng/support-portal/' );
+        $support_url = apply_filters( 'smartwoo_support_url', 'https://support.callismart.com.ng/' );
 
         /**
          * Our github repository
@@ -137,7 +135,7 @@ final class SmartWoo {
         /**
          * Other Products URL
          */
-        $other_products = apply_filters( 'smartwoo_other_products', 'https://callismart.com.ng/shop/' );
+        $other_products = apply_filters( 'smartwoo_other_products', 'https://apps.callismart.com.ng/' );
 
         $smartwoo_row_meta = array(
             'smartwoo_pro'      => '<a href="' . esc_url( $smartwoo_pro_url ) . '" title="' . esc_attr__( 'Get Pro Version', 'smart-woo-service-invoicing' ) . '">' . esc_html__( 'Smart Woo Pro', 'smart-woo-service-invoicing' ) . '</a>',
@@ -1008,21 +1006,17 @@ final class SmartWoo {
             wp_die( -1, 401 );
         }
 
-        if ( ! is_user_logged_in() ) {
-            wp_die( -1, 403 );
-        }
-
-        $action 				= isset( $_POST['selected_action'] ) ? sanitize_key( $_POST['selected_action'] ) : '';
-        $ajax_service_id 		= isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
+        $action             = isset( $_POST['selected_action'] ) ? sanitize_key( $_POST['selected_action'] ) : '';
+        $ajax_service_id    = isset( $_POST['service_id'] ) ? sanitize_key( $_POST['service_id'] ) : '';
         
         if ( empty( $action) && empty( $ajax_service_id ) ) {
-            wp_die( -1, 406 );
+            wp_die( -1, 400 );
 
         }
 
         $service	= SmartWoo_Service_Database::get_service_by_id( sanitize_text_field( $ajax_service_id ) );
 
-        if ( ! $service || $service->get_user_id() !== get_current_user_id() ) {
+        if ( ! $service || ! $service->current_user_can_access() ) {
             wp_die( -1, 404 );
         }
         
