@@ -76,8 +76,11 @@ function smartwoo_pro_feature( $feature = '' ) {
     ?>
     <div class="sw-pro-sell">
         <div class="sw-default-overlay">
-            <h2>Unlock more features exclusively in Smart Woo Pro.</h2>
-            <ul>
+            <header class="smartwoo-pro-ad-header">
+                <img src="<?php echo esc_url( SMARTWOO_DIR_URL . 'assets/images/smart-woo-pro.png' ) ?>" alt="smart woo pro logo" height="82" width="82">
+                <h2>Unlock more features exclusively in Smart Woo Pro.</h2>
+            </header>
+            <ul id="smartwoo-pro-feature-list">
                 <li><strong>Advanced Stats</strong>: Gain detailed insights and visual stats on service subscription usage.</li>
                 <li><strong>Service Logs</strong>: Track detailed subscription activity logs.</li>
                 <li><strong>Invoice Logs</strong>: Manage invoices with detailed logging and tracking.</li>
