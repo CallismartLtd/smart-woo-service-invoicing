@@ -115,7 +115,7 @@ class SmartWoo_Invoice_Controller {
 		switch ( $tab ) {
 			case 'add-new-invoice':
 				$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
-				include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/add-invoice.php';
+				include_once SMARTWOO_PATH . 'templates/admin/invoices/add-invoice.php';
 				break;
 	
 			case 'edit-invoice':
@@ -161,7 +161,7 @@ class SmartWoo_Invoice_Controller {
 
 		$status = ''; // For template compatibility.
 		
-		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
+		include_once SMARTWOO_PATH . 'templates/admin/invoices/dashboard.php';
 	}
 
 	/**
@@ -180,7 +180,7 @@ class SmartWoo_Invoice_Controller {
 		$page_title = ucfirst( $status ) . ' Invoices';
 		smartwoo_set_document_title( $page_title );
 
-		$all_invoices	= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status );
+		$all_invoices	= SmartWoo_Invoice_Database::get_invoices_by_payment_status( $status, compact( 'page', 'limit' ) );
 		$all_inv_count 	= absint( SmartWoo_Invoice_Database::count_this_status( $status ) );
 		$total			= ceil( $all_inv_count / $limit );
 		$paged 			= smartwoo_get_query_param( 'paged', 1 );
@@ -194,7 +194,7 @@ class SmartWoo_Invoice_Controller {
 			'due'       => SmartWoo_Invoice_Database::count_this_status( 'due' ),
 		);
 
-		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/dashboard.php';
+		include_once SMARTWOO_PATH . 'templates/admin/invoices/dashboard.php';
 	}
 
 	/**
@@ -211,14 +211,14 @@ class SmartWoo_Invoice_Controller {
 
 		switch ( smartwoo_get_query_param( 'tab' ) ){
 			case 'related-service':
-				$page_file = SMARTWOO_PATH .'templates/invoice-admin-temp/view-related-services.php';
+				$page_file = SMARTWOO_PATH .'templates/admin/invoices/view-related-services.php';
 				break;
 			case 'log':
 				$feature = 'invoice logs';
 				$page_file = apply_filters( 'smartwoo_invoice_log_template', smartwoo_pro_feature_template() );
 				break;
 			default:
-				$page_file = SMARTWOO_PATH . 'templates/invoice-admin-temp/view-invoice.php';
+				$page_file = SMARTWOO_PATH . 'templates/admin/invoices/view-invoice.php';
 		}
 
 		file_exists( $page_file) ? include_once $page_file : '';
@@ -332,7 +332,7 @@ class SmartWoo_Invoice_Controller {
 
 		}
 
-		include_once SMARTWOO_PATH . 'templates/invoice-admin-temp/edit-invoice.php';
+		include_once SMARTWOO_PATH . 'templates/admin/invoices/edit-invoice.php';
 	}
 
 	/**
