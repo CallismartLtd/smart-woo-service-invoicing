@@ -321,4 +321,4 @@ You can access the source code for the Smart Woo Service Invoicing plugin on our
 
 We are committed to delivering a high-quality user experience and ensuring that our product is safe and bug-free. However, if you encounter any issues, we are dedicated to resolving them swiftly.
 
-For dedicated support, please visit our [support portal](https://callismart.com.ng/support-portal). For general inquiries, use the [WordPress Support Forum](https://wordpress.org/support/plugin/smart-woo-service-invoicing).
+For dedicated support, please visit our [support portal](https://support.callismart.com.ng/). For general inquiries, use the [WordPress Support Forum](https://wordpress.org/support/plugin/smart-woo-service-invoicing).
