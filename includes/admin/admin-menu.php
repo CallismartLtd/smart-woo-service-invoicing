@@ -42,6 +42,14 @@ class SmartWoo_Admin_Menu {
 	private $products_screen_id;
 
 	/**
+	 * The support screen
+	 * 
+	 * @since 2.5.1
+	 * @var string $support_screen_id
+	 */
+	private $support_screen_id;
+
+	/**
 	 * The Settings screen ID.
 	 * 
 	 * @var string $settings_screen_id
@@ -55,6 +63,8 @@ class SmartWoo_Admin_Menu {
 
 	/**
 	 * Instantiate a singleton instance of this class.
+	 * 
+	 * @return self
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -109,6 +119,15 @@ class SmartWoo_Admin_Menu {
 			'manage_options',
 			'sw-products',
 			array( 'SmartWoo_Product_Controller', 'menu_controller' )
+		);
+
+		$self->support_screen_id = add_submenu_page(
+			'sw-admin',
+			'Support',
+			'Support <span class="smartwoo-support-dot"></span>',
+			'manage_options',
+			'sw-support',
+			array( 'SmartWoo_Support_Controller', 'menu_controller' )
 		);
 
 		$self->settings_screen_id = add_submenu_page(
@@ -198,7 +217,7 @@ class SmartWoo_Admin_Menu {
 	public static function settings_guide() {
 		?>
 		<h2>Getting Started with Smart Woo Settings</h2>
-		<p>Welcome to the Smart Woo Settings! 🎉</p>
+		<p>Welcome to the Smart Woo Settings!</p>
 
 		<p>This is the command center where you set up the core details of your business, invoices, emails, and advanced preferences — everything needed to tailor the plugin to your workflow.</p>
 
