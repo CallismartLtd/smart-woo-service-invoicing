@@ -846,6 +846,14 @@ border-radius: 5px;
 	padding: 0;
 }
 
+.smartwoo-modal-content:has( iframe.smartwoo-support-checkout ) {
+	max-width: 900px;
+}
+
+.smartwoo-modal-body:has( iframe.smartwoo-support-checkout ) {
+	overflow-y: unset;
+}
+
 .smartwoo-modal-body .modal-status {
 	padding: 10px;
 }
