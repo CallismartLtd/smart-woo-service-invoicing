@@ -473,7 +473,7 @@ body .sw-admin-dash-nav ul li a:focus {
 
 #smartwoo-search-result {
     max-height: 0;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 5px;
     border-radius: 8px;
     border: 1px dotted transparent;
@@ -481,6 +481,7 @@ body .sw-admin-dash-nav ul li a:focus {
 }
 
 #smartwoo-search-result.has-content {
+    overflow-y: auto;
     max-height: 600px;
     border-color: #333;
 }
@@ -2407,4 +2408,82 @@ body .sw-admin-dash-nav ul li a:focus {
     line-height: 1.6;
     text-align: center;
     border-radius: 50%;
+}
+
+.smartwoo-support-layout {
+	display: flex;
+	gap: 10px;
+	margin: 10px auto;
+    justify-content: space-between;
+    max-width: 1000px;
+    border: dashed #dcdcde 1.5px;
+    border-radius: 6px;
+    padding: 10px 25px;
+
+}
+
+.smartwoo-support-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+    max-width: 60%;
+}
+
+.smartwoo-support-item {
+	display: flex;
+	align-items: flex-start;
+	padding: 12px;
+	border: 1px solid #dcdcde;
+    background-color: #fff;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: border-color .2s, background .2s;
+}
+
+.smartwoo-support-item:hover {
+	background: #f8f9fa;
+	border-color: #0073aa;
+}
+
+.smartwoo-support-item input {
+	margin-top: 4px;
+	margin-right: 10px;
+}
+
+.smartwoo-support-content h3 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.smartwoo-support-price {
+	color: #2271b1;
+	margin: 4px 0;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.smartwoo-support-summary {
+    max-width: 350px;
+    width: 35%;
+}
+
+.smartwoo-support-summary h2 {
+	margin-top: 0;
+}
+
+.smartwoo-support-summary-inner {
+	position: sticky;
+	top: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 10px;
+}
+
+.smartwoo-support-summary-inner h2 {
+    margin: 0;
 }
