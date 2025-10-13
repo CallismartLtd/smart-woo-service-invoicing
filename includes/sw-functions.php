@@ -1758,10 +1758,5 @@ function smartwoo_parse_user_agent( $user_agent_string ) {
  * @return string The safely JSON-encoded string for use in attributes.
  */
 function smartwoo_json_encode_attr( $data ) {
-	return esc_attr(
-		wp_json_encode(
-			$data,
-			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-		)
-	);
+	return wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 }
