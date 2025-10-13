@@ -13,6 +13,20 @@ defined( 'ABSPATH' ) || exit; // Prevents direct access.
  */
 class SmartWoo_Support_Controller {
 	/**
+	 * Callismart Tech Store URL
+	 * 
+	 * @var string $store_url
+	 */
+	private static $store_url = 'https://callismart.com.ng';
+
+	/**
+	 * Callismart Tech Support URL
+	 * 
+	 * @var string $support_url
+	 */
+	private static $support_url	= 'https://support.callismart.com.ng';
+
+	/**
 	 * Page controller
 	 */
 	public static function menu_controller() {
@@ -71,6 +85,8 @@ class SmartWoo_Support_Controller {
 	 */
 	private static function overview() {
 
+		$support_packages = self::get_support_products();
+
 		include_once SMARTWOO_PATH . 'templates/admin/support/overview.php';
 	}
 
@@ -105,83 +121,70 @@ class SmartWoo_Support_Controller {
 	}
 
 	/**
-	 * Get all registered email options.
-	 * 
-	 * @return array
+	 * Get Smart Woo support products.
+	 *
+	 * @return array|WP_Error $products
 	 */
-	private static function get_email_options() {
-		$defaults = array(
-			'smartwoo_new_invoice_mail'	=> array(
-				'title'			=> __( 'New Invoice Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_new_service_order'	=> array(
-				'title'			=> __( 'New Service Order Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Admin',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_service_processed_mail' => array(
-				'title'			=> __( 'Service Processed Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_payment_reminder_to_client' => array(
-				'title'			=> __( 'Payment Reminder Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_invoice_paid_mail' => array(
-				'title'			=> __( 'Invoice Paid Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_renewal_mail' => array(
-				'title'			=> __( 'Service Renewal Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_service_opt_out_mail' => array(
-				'title'			=> __( 'Service Opt-out Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_cancellation_mail_to_user' => array(
-				'title'			=> __( 'Service Cancellation Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
+	public static function get_support_products() {
+		// delete_transient( 'smartwoo_support_products' ); // For debugging
+		$products = get_transient( 'smartwoo_support_products' );
 
-			'smartwoo_service_expiration_mail' => array(
-				'title'			=> __( 'Service Expiration Email', 'smart-woo-service-invoicing' ),
-				'recipient'		=> 'Client',
-				'previewable'	=> true,
-				'editable'		=> true,
-			),
-			'smartwoo_service_expiration_mail_to_admin' => array(
-				'title'			=> __( 'Service Expiration Email to Admin', 'smart-woo-service-invoicing' ),
-				'recipient'		=> get_option( 'smartwoo_billing_email', '' ),
-				'previewable'	=> true,
-				'editable'		=> false,
-			),
-			'smartwoo_service_cancellation_mail_to_admin' => array(
-				'title'			=> __( 'Service Cancellation Email to Admin', 'smart-woo-service-invoicing' ),
-				'recipient'		=> get_option( 'smartwoo_billing_email', 'Admin' ),
-				'previewable'	=> true,
-				'editable'		=> false,
-			),
-		);
+		if ( false === $products ) {
+			$url          = trailingslashit( self::$store_url ) . 'wp-json/wc/store/v1/products?category=smart-woo-assist';
+			$request_args = array(
+				'timeout'   => 60,
+				'sslverify' => true,
+			);
 
-		$registered_options = apply_filters( 'smartwoo_email_options', $defaults );
+			$response = wp_remote_get( $url, $request_args );
 
-		return $registered_options;
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$body = wp_remote_retrieve_body( $response );
+
+			if ( empty( $body ) ) {
+				return new WP_Error( 'empty_response', __( 'Empty response from store.', 'smart-woo-service-invoicing' ) );
+			}
+
+			$data = json_decode( $body, true );
+
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				return new WP_Error( 'json_decode_error', __( 'Invalid JSON data from store.', 'smart-woo-service-invoicing' ) );
+			}
+
+			// Extract and normalize product data
+			$products = array();
+
+			foreach ( $data as $item ) {
+
+				$price_raw  = $item['prices']['price'] ?? 0;
+				$currency   = $item['prices']['currency_code'] ?? 'USD';
+				$minor_unit = $item['prices']['currency_minor_unit'] ?? 2;
+
+				// Convert to major units (e.g., cents → dollars)
+				$price_major = $price_raw / pow( 10, $minor_unit );
+
+				$products[] = array(
+					'id'			=> absint( $item['id'] ?? 0 ),
+					'name'			=> sanitize_text_field( $item['name'] ?? '' ),
+					'slug'			=> sanitize_title( $item['slug'] ?? '' ),
+					'description'	=> wp_kses_post( $item['description'] ?? '' ),
+					'short_description'	=> wp_kses_post( $item['short_description'] ?? '' ),
+					'price'				=> $price_major,
+					'price_html'		=> smartwoo_price( $price_major, array( 'currency' => $currency ) ),
+					'currency'			=> $currency,
+					// 'checkout_url'		=> esc_url( trailingslashit( self::$store_url ) . 'app-support-checkout/' . absint( $item['id'] ) . '/' ),
+					'checkout_url'		=> esc_url( trailingslashit( site_url( 'app-support-checkout/23' ) ) ),
+					'permalink'			=> esc_url( $item['permalink'] ?? '' ),
+				);
+			}
+
+			set_transient( 'smartwoo_support_products', $products, DAY_IN_SECONDS );
+		}
+
+		return $products;
 	}
+
 }
