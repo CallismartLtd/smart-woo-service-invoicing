@@ -68,7 +68,7 @@ defined( 'ABSPATH' ) || exit; ?>
             </div>
         </div>
 
-        <div class="smartwoo-modal-frame" data-section="modal">
+        <div class="smartwoo-modal-frame">
             <div class="smartwoo-modal-content">
                 <button class="smartwoo-modal-close-btn dashicons dashicons-dismiss" title="<?php esc_html_e( 'Close', 'smart-woo-service-invoicing' ); ?>"></button>
                 <div class="smartwoo-modal-heading">
