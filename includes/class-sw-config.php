@@ -191,6 +191,7 @@ class SmartWoo_Config{
         require_once SMARTWOO_PATH . 'includes/rest-api/class-sanitize.php';
         require_once SMARTWOO_PATH . 'includes/rest-api/class-validate.php';
         require_once SMARTWOO_PATH . 'includes/rest-api/adminDashboard.php';
+        require_once SMARTWOO_PATH . 'includes/admin/include/admin-inbox.php';
 
         /** Only load admin menu and subsequent files in admin page. */ 
         if ( is_admin() ) {
@@ -326,6 +327,7 @@ class SmartWoo_Config{
         
         wp_register_script( 'smartwoo-editor-ui', SMARTWOO_DIR_URL . 'assets/editor/js/editor-ui' . $suffix . '.js', array(), SMARTWOO_VER, array( 'in_footer' => true, 'strategy' => 'defer' ) );
         wp_register_script( 'smartwoo-service-asset-sript', SMARTWOO_DIR_URL . 'assets/js/smartwoo-service-asset-script' . $suffix . '.js', array(), SMARTWOO_VER, true );
+        wp_register_script( 'callismart-support', SMARTWOO_DIR_URL . 'assets/js/callismart-support' . $suffix . '.js', array(), SMARTWOO_VER, true );
 
         wp_enqueue_script( 'smartwoo-script' );
         wp_enqueue_script( 'smartwoo-service-asset-sript' );
