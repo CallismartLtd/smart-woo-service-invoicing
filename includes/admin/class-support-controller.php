@@ -52,6 +52,176 @@ class SmartWoo_Support_Controller {
 	}
 
 	/**
+	 * Register inbox-related AJAX actions.
+	 */
+	public static function register_ajax_hooks() {
+		add_action( 'wp_ajax_smartwoo_update_consent', array( __CLASS__, 'ajax_update_consent' ) );
+		add_action( 'wp_ajax_smartwoo_support_inbox_actions', array( __CLASS__, 'support_inbox_actions' ) );
+	}
+
+	/**
+	 * Update user consent.
+	 */
+	public static function ajax_update_consent() {
+		check_ajax_referer( 'smartwoo_inbox_nonce' );
+
+		$consent = smartwoo_get_post_param( 'consent', false );
+
+		$inbox = new \Callismart\SupportInbox();
+		$inbox->set_consent( $consent );
+
+		wp_send_json_success( array(
+			'message' => $consent
+				? __( 'Consent saved. You will now receive messages.', 'smart-woo-service-invoicing' )
+				: __( 'You have opted out of messages.', 'smart-woo-service-invoicing' ),
+		) );
+	}
+
+	/**
+	 * Handle all inbox-related AJAX actions (fetch, mark read/unread, delete, get, etc).
+	 *
+	 * Supports single or bulk operations.
+	 *
+	 * @since 0.0.6
+	 */
+	public static function support_inbox_actions() {
+		check_ajax_referer( 'smartwoo_inbox_nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array(
+				'message' => __( 'You are not allowed to perform this action.', 'smart-woo-service-invoicing' ),
+			) );
+		}
+
+		$action_type = smartwoo_get_post_param( 'action_type' );
+		$message_id  = smartwoo_get_post_param( 'message_id' );
+		$message_ids = isset( $_POST['message_ids'] ) ? (array) $_POST['message_ids'] : array();
+		$force       = ! empty( smartwoo_get_post_param( 'force' ) );
+
+		$valid_actions = array( 'fetch', 'get_message', 'read', 'unread', 'all_read', 'delete' );
+
+		if ( ! in_array( $action_type, $valid_actions, true ) ) {
+			wp_send_json_error( array(
+				'message' => __( 'Invalid inbox action type.', 'smart-woo-service-invoicing' ),
+			) );
+		}
+
+		$inbox  = new \Callismart\SupportInbox();
+		$result = false;
+
+		switch ( $action_type ) {
+
+			/**
+			 * Fetch messages (manual or forced).
+			 */
+			case 'fetch':
+				if ( ! $inbox->has_consent() ) {
+					wp_send_json_error( array(
+						'message' => __( 'You have not given consent to receive messages.', 'smart-woo-service-invoicing' ),
+					) );
+				}
+
+				$result = $inbox->maybe_fetch_messages( $force );
+
+				if ( is_wp_error( $result ) ) {
+					wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+				}
+
+				wp_send_json_success( array(
+					'message'  => __( 'Inbox updated successfully.', 'smart-woo-service-invoicing' ),
+					'messages' => $inbox->get_messages(),
+				) );
+				break;
+
+			/**
+			 * Get a specific message by ID.
+			 */
+			case 'get_message':
+				if ( empty( $message_id ) ) {
+					wp_send_json_error( array( 'message' => __( 'Message ID required.', 'smart-woo-service-invoicing' ) ) );
+				}
+
+				$messages = $inbox->get_messages();
+				if ( ! isset( $messages[ $message_id ] ) ) {
+					wp_send_json_error( array( 'message' => __( 'Message not found.', 'smart-woo-service-invoicing' ) ) );
+				}
+
+				wp_send_json_success( array(
+					'message' => __( 'Message retrieved successfully.', 'smart-woo-service-invoicing' ),
+					'data'    => $messages[ $message_id ],
+				) );
+				break;
+
+			/**
+			 * Mark single or multiple messages as read.
+			 */
+			case 'read':
+				if ( ! empty( $message_ids ) ) {
+					foreach ( $message_ids as $id ) {
+						$inbox->mark_as_read( sanitize_text_field( $id ) );
+					}
+					$result = true;
+				} elseif ( ! empty( $message_id ) ) {
+					$inbox->mark_as_read( $message_id );
+					$result = true;
+				} else {
+					wp_send_json_error( array( 'message' => __( 'No message ID(s) provided.', 'smart-woo-service-invoicing' ) ) );
+				}
+				break;
+
+			/**
+			 * Mark single or multiple messages as unread.
+			 */
+			case 'unread':
+				if ( ! empty( $message_ids ) ) {
+					foreach ( $message_ids as $id ) {
+						$inbox->mark_as_unread( sanitize_text_field( $id ) );
+					}
+					$result = true;
+				} elseif ( ! empty( $message_id ) ) {
+					$inbox->mark_as_unread( $message_id );
+					$result = true;
+				} else {
+					wp_send_json_error( array( 'message' => __( 'No message ID(s) provided.', 'smart-woo-service-invoicing' ) ) );
+				}
+				break;
+
+			/**
+			 * Mark all messages as read.
+			 */
+			case 'all_read':
+				$result = $inbox->mark_all_as_read();
+				break;
+
+			/**
+			 * Delete one or more messages.
+			 */
+			case 'delete':
+				if ( ! empty( $message_ids ) ) {
+					foreach ( $message_ids as $id ) {
+						$inbox->delete_message( sanitize_text_field( $id ) );
+					}
+					$result = true;
+				} elseif ( ! empty( $message_id ) ) {
+					$inbox->delete_message( $message_id );
+					$result = true;
+				} else {
+					wp_send_json_error( array( 'message' => __( 'No message ID(s) provided to delete.', 'smart-woo-service-invoicing' ) ) );
+				}
+				break;
+		}
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array(
+			'message'  => __( 'Action completed successfully.', 'smart-woo-service-invoicing' ),
+			'messages' => $inbox->get_messages(),
+		) );
+	}
+
+	/**
 	 * Print navigation header
 	 */
 	private static function print_header() {
@@ -75,7 +245,14 @@ class SmartWoo_Support_Controller {
 
 		);
 
-		$title		= ! empty( smartwoo_get_query_param( 'tab' ) ) ? 'Support' : 'Support Overview';
+		$tab   = smartwoo_get_query_param( 'tab', 'Support Overview' );
+		$title = ucwords( str_replace( '-', ' ', $tab ) );
+
+		// Check if "Support" is NOT at the start or end
+		if ( ! preg_match( '/^Support\b/i', $title ) && ! preg_match( '/\bSupport$/i', $title ) ) {
+			$title = 'Support ' . $title;
+		}
+		
 		SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $tabs, 'tab' );
 	
 	}
@@ -96,6 +273,13 @@ class SmartWoo_Support_Controller {
 	private static function inbox() {
 		smartwoo_set_document_title( 'Inbox | Smart Woo' );
 		
+		// Initialize inbox handler.
+		$inbox = new \Callismart\SupportInbox();
+
+		// Get stored messages and consent status.
+		$messages     = $inbox->get_messages();
+		$unread_count = count( $inbox->get_unread_messages() );
+		$has_consent  = $inbox->has_consent();
 
 		include_once SMARTWOO_PATH . 'templates/admin/support/inbox.php';
 		
@@ -186,5 +370,6 @@ class SmartWoo_Support_Controller {
 
 		return $products;
 	}
-
 }
+
+SmartWoo_Support_Controller::register_ajax_hooks();
