@@ -1307,9 +1307,9 @@ final class SmartWoo {
             /**
              * Fires when the status of a subscription becomes active
              * 
-             * @param SmartWoo_Service $service the service subscription object.
+             * @param SmartWoo_Service $expired_service the service subscription object.
              */
-            do_action( 'smartwoo_service_activated', $service );
+            do_action( 'smartwoo_service_activated', $expired_service );
             return true;
         }
 
