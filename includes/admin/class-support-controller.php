@@ -85,7 +85,9 @@ class SmartWoo_Support_Controller {
 	 * @since 0.0.6
 	 */
 	public static function support_inbox_actions() {
-		check_ajax_referer( 'smartwoo_inbox_nonce' );
+		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid CSRF token', 'smart-woo-service-invoicing' ) ), 401 );
+		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array(
