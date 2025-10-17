@@ -11,6 +11,7 @@
  * @since 1.0.0
  */
 namespace Callismart;
+use \WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
