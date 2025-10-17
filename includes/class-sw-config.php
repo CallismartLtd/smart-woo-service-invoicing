@@ -250,6 +250,7 @@ class SmartWoo_Config{
         wp_register_style( 'smartwoo-icon-style', $icon_styles, array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-editor-ui', $editor_ui, array(), SMARTWOO_VER, 'all' );
         wp_register_style( 'smartwoo-service-asset-style', $sub_assets, array(), SMARTWOO_VER, 'all' );
+        wp_register_style( 'callismart-support',  SMARTWOO_DIR_URL . 'assets/css/callismart-support' . $suffix . '.css', array(), SMARTWOO_VER, 'all' );
         
         if ( function_exists( 'smartwoo_is_frontend' ) && smartwoo_is_frontend() ) {
             wp_enqueue_style( 'smartwoo-style' );
@@ -269,6 +270,9 @@ class SmartWoo_Config{
                 wp_enqueue_style( 'smartwoo-jquery-timepicker' );
             }
 
+            if ( 'Support' === self::get_current_screen() ) {
+                wp_enqueue_style( 'callismart-support' );
+            }
             wp_enqueue_style( 'smartwoo-admin-utm-style' );
             wp_enqueue_style( 'smartwoo-admin-style' );
             wp_enqueue_style( 'smartwoo-invoice-style' );
@@ -363,6 +367,10 @@ class SmartWoo_Config{
                 wp_enqueue_script( 'smartwoo-jquery-timepicker' );
                 wp_enqueue_media();
                 wp_enqueue_editor();
+            }
+
+            if ( 'Support' === self::get_current_screen() ) {
+                wp_enqueue_script( 'callismart-support' );
             }
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $utils );
             wp_enqueue_script( 'smartwoo-admin-script' );
