@@ -18,11 +18,44 @@
 defined( 'ABSPATH' ) || exit; ?>
 
 <div class="smartwoo-admin-page-content">
-    
+    <?php if ( ! $has_consent ) : ?>
+        <div class="callismart-support-inbox-consent-container give-consent">
+            <p>
+                <?php
+                echo esc_html__(
+                    'Would you like to stay informed about new features, important updates, and exclusive offers for Smart Woo Service Invoicing?',
+                    'smart-woo-service-invoicing'
+                );
+                ?>
+            </p>
+            <p>
+                <?php
+                echo wp_kses_post(
+                    sprintf(
+                        /* translators: %1$s and %2$s are links to privacy policy and terms pages */
+                        __(
+                            'By giving consent, you agree that we (the official plugin developers) may send you relevant messages. No personal identifiable information is shared. Review our <a href="%1$s" target="_blank" rel="noopener">Privacy Policy</a> and <a href="%2$s" target="_blank" rel="noopener">Terms of Service</a> for details.',
+                            'smart-woo-service-invoicing'
+                        ),
+                        esc_url( 'https://callismart.com.ng/privacy-policy/' ),
+                        esc_url( 'https://callismart.com.ng/terms/' )
+                    )
+                );
+                ?>
+            </p>
+            <p>
+                <button class="button button-primary" id="callismart-consent-btn">
+                    <?php esc_html_e( 'Give Consent', 'smart-woo-service-invoicing' ); ?>
+                </button>
+            </p>
+        </div>
+    <?php endif; ?>
+
     <div class="callismart-app-support-inbox">
         <div id="loader"></div>
         <div class="callismart-app-support-inbox_left">
             <div class="callismart-app-support-inbox_left-header">
+                <span><?php esc_html_e( 'Messages', 'smart-woo-service-invoicing' ); ?></span>
                 <form class="callismart-app-support-inbox_left-header-form">
                     <select id="bulk-action-select" name="action_type">
                         <option value=""><?php esc_html_e( 'Bulk Actions', 'smart-woo-service-invoicing' ); ?></option>
@@ -77,7 +110,10 @@ defined( 'ABSPATH' ) || exit; ?>
                     </svg>
 
                 </li>
-                <li class="masterCheckBox"><button type="button" class="button"><?php esc_html_e( 'Select all', 'smart-woo-service-invoicing' ); ?></button></li>
+                <li class="masterCheckBox">
+                    <button type="button" class="button selectAll"><?php esc_html_e( 'Select all', 'smart-woo-service-invoicing' ); ?></button>
+                    <button type="button" class="button unSelectAll" disabled><?php esc_html_e( 'Unselect All', 'smart-woo-service-invoicing' ); ?></button>
+                </li>
                 <?php foreach ( $messages as $id => $data ) : ?>
                     <li id="message-id-<?php echo esc_attr( $id ); ?>" class="callismart-app-support_message<?php echo esc_attr( $data['read'] ?? false ? ' read' : ' unread' ) ?>" data-message-json="<?php echo esc_attr( smartwoo_json_encode_attr( $data ) ); ?>">
                         <input type="checkbox" id="<?php echo esc_attr( $id ); ?>" class="callismart-app-support-checkbox">
@@ -190,8 +226,33 @@ defined( 'ABSPATH' ) || exit; ?>
                     </text>
                 </svg>
             </div>
-
         </div>
     </div>
+
+    <?php if ( $has_consent ) : ?>
+        <div class="callismart-support-inbox-consent-container withdraw-consent">
+            <p>
+                <?php
+                echo esc_html__(
+                    'Congratulations on staying connected! You’ll now receive key Smart Woo Service Invoicing updates, feature announcements, and exclusive offers designed to help you get even more value from your plugin.',
+                    'smart-woo-service-invoicing'
+                );
+                ?>
+            </p>
+            <p>
+                <?php
+                echo esc_html__(
+                    'You can withdraw your consent at any time. We respect your privacy and never share personal data.',
+                    'smart-woo-service-invoicing'
+                );
+                ?>
+            </p>
+            <p>
+                <button class="button" id="callismart-withdraw-btn">
+                    <?php esc_html_e( 'Withdraw Consent', 'smart-woo-service-invoicing' ); ?>
+                </button>
+            </p>
+        </div>
+    <?php endif; ?>
 
 </div>

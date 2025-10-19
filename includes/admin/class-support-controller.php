@@ -55,26 +55,7 @@ class SmartWoo_Support_Controller {
 	 * Register inbox-related AJAX actions.
 	 */
 	public static function register_ajax_hooks() {
-		add_action( 'wp_ajax_smartwoo_update_consent', array( __CLASS__, 'ajax_update_consent' ) );
 		add_action( 'wp_ajax_smartwoo_support_inbox_actions', array( __CLASS__, 'support_inbox_actions' ) );
-	}
-
-	/**
-	 * Update user consent.
-	 */
-	public static function ajax_update_consent() {
-		check_ajax_referer( 'smartwoo_inbox_nonce' );
-
-		$consent = smartwoo_get_post_param( 'consent', false );
-
-		$inbox = new \Callismart\SupportInbox();
-		$inbox->set_consent( $consent );
-
-		wp_send_json_success( array(
-			'message' => $consent
-				? __( 'Consent saved. You will now receive messages.', 'smart-woo-service-invoicing' )
-				: __( 'You have opted out of messages.', 'smart-woo-service-invoicing' ),
-		) );
 	}
 
 	/**
@@ -100,7 +81,7 @@ class SmartWoo_Support_Controller {
 		$message_ids = isset( $_POST['message_ids'] ) ? (array) $_POST['message_ids'] : array();
 		$force       = ! empty( smartwoo_get_post_param( 'force' ) );
 
-		$valid_actions = array( 'fetch', 'get_message', 'read', 'unread', 'all_read', 'delete' );
+		$valid_actions = array( 'fetch', 'get_message', 'read', 'unread', 'all_read', 'delete', 'consent' );
 
 		if ( ! in_array( $action_type, $valid_actions, true ) ) {
 			wp_send_json_error( array(
@@ -112,6 +93,14 @@ class SmartWoo_Support_Controller {
 		$result = false;
 
 		switch ( $action_type ) {
+			case 'consent':
+				$consent = smartwoo_get_post_param( 'consent', false );
+				$inbox->set_consent( $consent );
+				wp_send_json_success( array(
+					'message' => $consent
+						? __( 'Consent saved. You will now receive messages.', 'smart-woo-service-invoicing' )
+						: __( 'You have opted out of messages.', 'smart-woo-service-invoicing' ),
+				) );
 
 			/**
 			 * Fetch messages (manual or forced).
@@ -312,7 +301,7 @@ class SmartWoo_Support_Controller {
 	 * @return array|WP_Error $products
 	 */
 	public static function get_support_products() {
-		// delete_transient( 'smartwoo_support_products' ); // For debugging
+		delete_transient( 'smartwoo_support_products' ); // For debugging
 		$products = get_transient( 'smartwoo_support_products' );
 
 		if ( false === $products ) {
@@ -361,8 +350,7 @@ class SmartWoo_Support_Controller {
 					'price'				=> $price_major,
 					'price_html'		=> smartwoo_price( $price_major, array( 'currency' => $currency ) ),
 					'currency'			=> $currency,
-					// 'checkout_url'		=> esc_url( trailingslashit( self::$store_url ) . 'app-support-checkout/' . absint( $item['id'] ) . '/' ),
-					'checkout_url'		=> esc_url( trailingslashit( site_url( 'app-support-checkout/23' ) ) ),
+					'checkout_url'		=> esc_url( trailingslashit( self::$store_url ) . 'app-support-checkout/' . absint( $item['id'] ) . '/' ),
 					'permalink'			=> esc_url( $item['permalink'] ?? '' ),
 				);
 			}

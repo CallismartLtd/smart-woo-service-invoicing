@@ -30,6 +30,11 @@ class SupportInbox {
 	protected static $option_key = 'smartwoo_inbox_data';
 
 	/**
+	 * Data source
+	 */
+	protected $data_source = 'https://apiv1.callismart.local/wp-json/smliser/v1/mock-inbox';
+
+	/**
 	 * Cached inbox data.
 	 *
 	 * @var array
@@ -273,7 +278,7 @@ class SupportInbox {
             );
         }
 
-        $endpoint = 'https://apiv1.callismart.local/wp-json/smliser/v1/mock-inbox';
+        $endpoint = $this->data_source;
 
         $response = wp_remote_get(
             esc_url_raw( $endpoint ),
@@ -312,9 +317,13 @@ class SupportInbox {
             );
         }
 
-        // Process and store messages.
         foreach ( $messages as $message ) {
+			
             if ( isset( $message['id'] ) ) {
+				if ( $this->has_message( $message['id'] ) ) {
+					continue;
+				}
+				
                 $this->save_message( $message );
             }
         }

@@ -1310,152 +1310,163 @@ document.addEventListener('DOMContentLoaded', () => {
     let proDiv                  = document.querySelector('.sw-dash-pro-sell-bg');
     let adminDashboardSwitcher  = document.querySelector( '#smartwoo-dashboard-switcher' );
 
-    const supportPage           = document.querySelector( '.smartwoo-support-layout' );
+    // const supportPage           = document.querySelector( '.smartwoo-support-layout' );
     
-    if ( supportPage ) {
+    // if ( supportPage ) {
 
-        const radios        = document.querySelectorAll( 'input[name="smartwoo_support_choice"]' );
-        const title         = document.getElementById( 'smartwoo-support-title' );
-        const shortDesc     = document.getElementById( 'smartwoo-support-short' );
-        const price         = document.getElementById( 'smartwoo-support-price' );
-        const checkoutBtn   = document.getElementById( 'smartwoo-support-checkout-btn' );
-        const modal         = document.querySelector( '.smartwoo-modal-frame' );
-        const modalContent  = modal.querySelector( '.smartwoo-modal-body' );
-        const closeBtn      = modal.querySelector( '.smartwoo-modal-close-btn' );
+    //     const radios        = document.querySelectorAll( 'input[name="smartwoo_support_choice"]' );
+    //     const title         = document.getElementById( 'smartwoo-support-title' );
+    //     const shortDesc     = document.getElementById( 'smartwoo-support-short' );
+    //     const price         = document.getElementById( 'smartwoo-support-price' );
+    //     const checkoutBtn   = document.getElementById( 'smartwoo-support-checkout-btn' );
+    //     const modal         = document.querySelector( '.smartwoo-modal-frame' );
+    //     const modalContent  = modal.querySelector( '.smartwoo-modal-body' );
+    //     const closeBtn      = modal.querySelector( '.smartwoo-modal-close-btn' );
 
-        let iframe              = null;
-        let spinner             = null;
-        let activeCheckoutURL   = null;
+    //     let iframe              = null;
+    //     let spinner             = null;
+    //     let activeCheckoutURL   = null;
 
-        /**
-         * Handle support product selection
-         */
-        radios.forEach( radio => {
-            radio.addEventListener( 'change', event => {
-                const currentItem = event.target.closest( '.smartwoo-support-item' );
-                if ( ! currentItem ) {
-                    return;
-                }
+    //     /**
+    //      * Handle support product selection
+    //      */
+    //     radios.forEach( radio => {
+    //         radio.addEventListener( 'change', event => {
+    //             const currentItem = event.target.closest( '.smartwoo-support-item' );
+    //             if ( ! currentItem ) {
+    //                 return;
+    //             }
 
-                let product = null;
-                try {
-                    product = JSON.parse( currentItem.getAttribute( 'data-product' ) );
-                } catch ( error ) {
-                    console.error( 'Invalid product data:', error );
-                    return;
-                }
+    //             let product = null;
+    //             try {
+    //                 product = JSON.parse( currentItem.getAttribute( 'data-product' ) );
+    //             } catch ( error ) {
+    //                 console.error( 'Invalid product data:', error );
+    //                 return;
+    //             }
 
-                if ( ! product ) {
-                    return;
-                }
+    //             if ( ! product ) {
+    //                 return;
+    //             }
 
-                title.textContent       = product.name || '';
-                shortDesc.innerHTML     = product.short_description || '';
-                price.innerHTML         = product.price_html || '';
-                checkoutBtn.dataset.url = product.checkout_url || '';
-            });
-        });
+    //             title.textContent       = product.name || '';
+    //             shortDesc.innerHTML     = product.short_description || '';
+    //             price.innerHTML         = product.price_html || '';
+    //             checkoutBtn.dataset.url = product.checkout_url || '';
+    //         });
+    //     });
 
-        /**
-         * Handle checkout button click
-         */
-        checkoutBtn.addEventListener( 'click', () => {
-            const checkoutURL = checkoutBtn.dataset.url;
-            if ( checkoutURL ) {
-                openCheckoutModal( checkoutURL );
-                activeCheckoutURL = checkoutURL;
-            } else {
-                activeCheckoutURL = null;
-            }
-        });
+    //     /**
+    //      * Handle checkout button click
+    //      */
+    //     checkoutBtn.addEventListener( 'click', () => {
+    //         const checkoutURL = checkoutBtn.dataset.url;
+    //         if ( checkoutURL ) {
+    //             openCheckoutModal( checkoutURL );
+    //             activeCheckoutURL = checkoutURL;
+    //         } else {
+    //             activeCheckoutURL = null;
+    //         }
+    //     });
 
-        /**
-         * Open checkout modal with iframe
-         *
-         * @param {string} url
-         */
-        function openCheckoutModal( url ) {
-            // Clean previous iframe if exists
-            if ( iframe ) {
-                iframe.remove();
-            }
+    //     /**
+    //      * Open checkout modal with iframe
+    //      *
+    //      * @param {string} url
+    //      */
+    //     function openCheckoutModal( url ) {
+    //         let sourceURL = url;
+    //         try {
+    //             sourceURL = new URL( url );
+                
+    //             sourceURL.searchParams.set( 'LSCWP_CTRL', 'before_optm' );
+    //             sourceURL.searchParams.set( 'utm', 'smartwoo_plugin' );
+    //         } catch( e ){
+    //             showNotification( e.message );
+    //             return;
+    //         }
+    //         // Clean previous iframe if exists
+    //         if ( iframe ) {
+    //             iframe.remove();
+    //         }
 
-            iframe              = document.createElement( 'iframe' );
-            const loading        = document.createElement( 'div' );
-            spinner              = smartWooAddSpinner( loading );
+    //         iframe          = document.createElement( 'iframe' );
+    //         const loading   = document.createElement( 'div' );
+    //         spinner         = smartWooAddSpinner( loading );
 
-            modalContent.innerHTML = '';
+    //         modalContent.innerHTML = '';
 
-            jQuery( modal ).fadeOut( 'fast', () => {
-                iframe.src              = url;
-                iframe.width            = '100%';
-                iframe.height           = '600';
-                iframe.frameBorder      = '0';
-                iframe.loading          = 'eager';
-                iframe.referrerPolicy   = 'no-referrer-when-downgrade';
-                iframe.allowFullscreen  = true;
-                iframe.className        = 'smartwoo-support-checkout';
-                iframe.style.display    = 'none';
+    //         jQuery( modal ).fadeOut( 'fast', () => {
+    //             iframe.src              = sourceURL;
+    //             iframe.width            = '100%';
+    //             iframe.height           = '500';
+    //             iframe.frameBorder      = '0';
+    //             iframe.loading          = 'eager';
+    //             iframe.referrerPolicy   = 'no-referrer-when-downgrade';
+    //             iframe.allowFullscreen  = true;
+    //             iframe.className        = 'smartwoo-support-checkout';
+    //             iframe.style.display    = 'none';
 
-                modalContent.appendChild( loading );
-                modalContent.appendChild( iframe );
+    //             modalContent.appendChild( loading );
+    //             modalContent.appendChild( iframe );
 
-                jQuery( modal ).fadeIn( 'slow' );
-            });
+    //             jQuery( modal ).fadeIn( 'slow' );
+    //         });
 
-            // Reveal iframe when loaded
-            iframe.addEventListener( 'load', () => {
-                loading.remove();
-                iframe.style.display = 'block';
-            });
-        }
+    //         // Reveal iframe when loaded
+    //         iframe.addEventListener( 'load', () => {
+    //             loading.remove();
+    //             iframe.style.display = 'block';
+    //             smartWooRemoveSpinner( spinner );
+    //         });
+    //     }
 
-        /**
-         * Close modal handler
-         */
-        function closeModal() {
-            jQuery( modal ).fadeOut( 'fast', () => {
-                modalContent.innerHTML = '';
-                iframe = null;
-                smartWooRemoveSpinner( spinner );
-            });
-        }
+    //     /**
+    //      * Close modal handler
+    //      */
+    //     function closeModal() {
+    //         jQuery( modal ).fadeOut( 'fast', () => {
+    //             modalContent.innerHTML = '';
+    //             iframe = null;
+    //             smartWooRemoveSpinner( spinner );
+    //         });
+    //     }
 
-        closeBtn.addEventListener( 'click', closeModal );
+    //     closeBtn.addEventListener( 'click', closeModal );
 
-        modal.addEventListener( 'click', event => {
-            if ( event.target === modal ) {
-                closeModal();
-            }
-        });
+    //     modal.addEventListener( 'click', event => {
+    //         if ( event.target === modal ) {
+    //             closeModal();
+    //         }
+    //     });
 
-        window.addEventListener( 'message', event => {
-            // Only handle our custom checkout event
-            if ( ! event.data || event.data.event !== 'callismart_checkout_complete' ) {
-                return;
-            }
+    //     window.addEventListener( 'message', event => {
+    //         // Only handle our custom checkout event
+    //         if ( ! event.data || event.data.event !== 'callismart_checkout_complete' ) {
+    //             return;
+    //         }
 
-            // Ensure iframe URL is set
-            if ( ! activeCheckoutURL ) {
-                console.warn( 'No active checkout URL set, ignoring message.' );
-                return;
-            }
+    //         // Ensure iframe URL is set
+    //         if ( ! activeCheckoutURL ) {
+    //             console.warn( 'No active checkout URL set, ignoring message.' );
+    //             return;
+    //         }
 
-            // Parse the URL to get its origin
-            const expectedOrigin = new URL( activeCheckoutURL ).origin;
+    //         // Parse the URL to get its origin
+    //         const expectedOrigin = new URL( activeCheckoutURL ).origin;
 
-            // Compare with the event origin
-            if ( event.origin !== expectedOrigin ) {
-                console.warn( 'Message origin mismatch:', event.origin, 'expected:', expectedOrigin );
-                return;
-            }
+    //         // Compare with the event origin
+    //         if ( event.origin !== expectedOrigin ) {
+    //             console.warn( 'Message origin mismatch:', event.origin, 'expected:', expectedOrigin );
+    //             return;
+    //         }
 
-            // ✅ Safe to process
-            console.log( 'Verified checkout message:', event.data );
+    //         // ✅ Safe to process
+    //         console.log( 'Verified checkout message:', event.data );
 
-        }, false );
+    //     }, false );
 
-    }
+    // }
 
     if ( adminDashboardSwitcher ) {
         adminDashboardSwitcher.addEventListener( 'click', ( e ) => {

@@ -854,6 +854,10 @@ border-radius: 5px;
 	overflow-y: unset;
 }
 
+.smartwoo-modal-body iframe {
+	height: 500px;
+}
+
 .smartwoo-modal-body .modal-status {
 	padding: 10px;
 }

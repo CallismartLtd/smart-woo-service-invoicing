@@ -45,6 +45,8 @@ class SmartWoo_Automation {
         self::unpaid_invoice_reminder();
         self::notify_on_expiry_day();
         self::auto_create_invoice();
+        $inbox  = new \Callismart\SupportInbox();
+        $inbox->maybe_fetch_messages( true );
         
     }
 

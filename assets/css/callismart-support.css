@@ -77,6 +77,18 @@
 }
 
 /** Support Inbox styles */
+.callismart-support-inbox-consent-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 0;
+    margin-left: 30px;
+    padding: 10px 15px;
+    background-color: #fff;
+    border-left: 4px solid #2563eb;
+    width: 1200px;
+    max-width: 90%;
+}
+
 .callismart-app-support-inbox {
     display: flex;
     flex-direction: row;
@@ -112,6 +124,12 @@
     gap: 10px;
     padding: 5px;
     flex-wrap: wrap;
+}
+
+.callismart-app-support-inbox_left-header span {
+    width: 100%;
+    font-size: 18px;
+    font-weight: 800;
 }
 
 .callismart-app-support-inbox_left-header-quick-actions,
@@ -165,7 +183,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    height: 82%;
+    height: 78%;
     overflow-y: auto;
     scrollbar-width: thin;
 }
