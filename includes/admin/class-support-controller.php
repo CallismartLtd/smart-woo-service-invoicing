@@ -56,6 +56,7 @@ class SmartWoo_Support_Controller {
 	 */
 	public static function register_ajax_hooks() {
 		add_action( 'wp_ajax_smartwoo_support_inbox_actions', array( __CLASS__, 'support_inbox_actions' ) );
+		add_action( 'wp_ajax_smartwoo_verify_support_order', array( __CLASS__, 'verify_support_order' ) );
 	}
 
 	/**
@@ -211,6 +212,93 @@ class SmartWoo_Support_Controller {
 			'messages' => $inbox->get_messages(),
 		) );
 	}
+
+	/**
+	 * Verify support order via remote API.
+	 */
+	public static function verify_support_order() {
+
+		if ( ! check_ajax_referer( 'smart_woo_nonce', 'security', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid CSRF token.', 'smart-woo-service-invoicing' ) ), 401 );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You are not allowed to perform this action.', 'smart-woo-service-invoicing' ) ) );
+		}
+
+		$order_id    = smartwoo_get_post_param( 'order_id' );
+		$order_key   = smartwoo_get_post_param( 'order_key' );
+		$order_token = smartwoo_get_post_param( 'token' );
+
+		if ( ! $order_id ) {
+			wp_send_json_error( array( 'message' => __( 'Order ID is missing.', 'smart-woo-service-invoicing' ) ) );
+		}
+		if ( ! $order_key ) {
+			wp_send_json_error( array( 'message' => __( 'Order key is missing.', 'smart-woo-service-invoicing' ) ) );
+		}
+		if ( ! $order_token ) {
+			wp_send_json_error( array( 'message' => __( 'Order token is missing.', 'smart-woo-service-invoicing' ) ) );
+		}
+
+		$parts = compact( 'order_id', 'order_key', 'order_token' );
+		$path  = 'app-store-verify-order/' . implode( '/', $parts );
+		$url   = esc_url_raw( trailingslashit( self::$store_url ) . $path . '/' );
+
+		$response = wp_remote_get( $url, array( 'timeout' => 60 ) );
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( array( 'message' => $response->get_error_message() ), $response->get_error_code() );
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$body          = wp_remote_retrieve_body( $response );
+
+		if ( empty( $body ) ) {
+			wp_send_json_error( array( 'message' => __( 'Empty response from order verification API.', 'smart-woo-service-invoicing' ) ), $response_code );
+		}
+
+		$data = json_decode( $body, true );
+		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid JSON data received from the remote server.', 'smart-woo-service-invoicing' ) ), 500 );
+		}
+
+		$order_details = sprintf(
+			'<ul>
+				<li>Status: %s</li>
+				<li>Order ID: %s</li>
+				<li>Additional Details:
+					<ul>
+						<li>HTTP Status: %s</li>
+						<li>Success: %s</li>
+						<li>API Message: %s</li>
+					</ul>
+				</li>
+			</ul>',
+			esc_html( $data['status'] ?? 'N/A' ),
+			esc_html( $data['order_id'] ?? 'N/A' ),
+			intval( $response_code ),
+			esc_html( wc_bool_to_string( $data['success'] ?? false ) ),
+			esc_html( $data['message'] ?? 'N/A' )
+		);
+
+		$inbox = new Callismart\SupportInbox();
+		$message = array(
+			'id'         => sprintf( 'msg_%s', sanitize_key( $data['order_key'] ?? 'order_no_key' ) ),
+			'subject'    => __( 'Smart Woo Support Order', 'smart-woo-service-invoicing' ),
+			'body'       => sprintf(
+				__( 'Dear %s,<br>Please find the details of your order below:<br>%s', 'smart-woo-service-invoicing' ),
+				esc_html( wp_get_current_user()->display_name ),
+				wp_kses_post( $order_details )
+			),
+			'created_at' => $data['created_at'] ?? current_time( 'mysql' ),
+			'read'       => false,
+		);
+
+		$inbox->save_message( $message );
+
+		wp_send_json( $data, $response_code );
+	}
+
 
 	/**
 	 * Print navigation header
