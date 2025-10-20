@@ -16,11 +16,6 @@ class CallismartSupport {
         this.serverConfig   = smartwoo_admin_vars;
         this._cacheElements();
         this._bindEvents();
-
-        // this.supportPage = document.querySelector( '.smartwoo-support-layout' );
-        // if ( this.supportPage ) {
-        //     // this._bindSupportPageEvents();
-        // }
     }
 
     /**
@@ -165,15 +160,38 @@ class CallismartSupport {
         });
     }
 
+    /**
+     * 
+     * @param {MessageEvent} event - Message event
+     * @returns 
+     */
     _handleCheckoutMessage( event ) {
-        if ( ! event.data || event.data.event !== 'callismart_checkout_complete' ) return;
+        if ( ! event.data || event.data.action !== 'callismart_checkout_complete' ) return;
         if ( ! this.activeCheckoutURL ) return;
 
         const expectedOrigin = new URL( this.activeCheckoutURL ).origin;
-        if ( event.origin !== expectedOrigin ) return;
+        if ( event.origin !== expectedOrigin ) {
+            console.warn( 'Unexpected event origin' );
+            return;
+        }
 
-        console.log( '✅ Verified checkout message:', event.data );
-        // You can optionally trigger a reload or show success notice here
+        const payload = new FormData;
+        payload.set( 'action', 'smartwoo_verify_support_order' );
+        payload.set( 'security', smartwoo_admin_vars.security );
+        payload.set( 'order_id', event.data.order_id );
+        payload.set( 'order_key', event.data.order_key );
+        payload.set( 'token', event.data.token );
+
+        fetch( smartwoo_admin_vars.ajax_url,
+            {
+                method: 'POST',
+                body: payload,
+                credentials: 'same-origin'
+            }
+        )
+        .then( response => response.json() )
+        .then( json => console.log( json ) );
+        
     }
 
 
