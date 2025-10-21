@@ -100,34 +100,40 @@ function smartwoo_pro_feature( $feature = '' ) {
     return ob_get_clean();
 }
 
-
 /**
  * Generate a UTM campaign URL for Smart Woo Pro purchase page links.
  *
- * @param string $utm_url The base URL to append UTM parameters to. If empty, defaults to the plugin's purchase page.
- * @return string The full UTM campaign URL with appended parameters.
+ * Builds a privacy-respecting UTM link that avoids sending identifiable
+ * user or site information (e.g., domain names).
+ *
+ * @param string $utm_url Optional. The base URL to append UTM parameters to.
+ *                        Defaults to the plugin’s purchase page.
+ * @return string The sanitized UTM campaign URL.
  */
 function smartwoo_utm_campaign_url( $utm_url = '' ) {
-    // Define the default URL using a filter for extensibility.
-    $default_url = esc_url_raw( apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/' ) );
 
-    // Validate and assign the base URL.
-    $utm_url = ! empty( $utm_url ) ? $utm_url : $default_url;
+	// Default SmartWoo Pro purchase page, filterable for flexibility.
+	$default_url = esc_url_raw(
+		apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/' )
+	);
 
-    // Define UTM parameters.
-    $utm_params = array(
-        'utm_source'    => defined( 'SMARTWOO' ) ? SMARTWOO : 'smartwoo',
-        'utm_medium'    => 'upgrade button',
-        'utm_campaign'  => 'pro-upgrade',
-        'plugin_version'=> defined( 'SMARTWOO_VER' ) ? SMARTWOO_VER : 'unknown',
-        'utm_referrer'  => site_url(),
-    );
+	// Use provided URL if valid, else fallback to default.
+	$utm_url = ! empty( $utm_url ) ? esc_url_raw( $utm_url ) : $default_url;
 
-    // Append UTM parameters to the URL.
-    $utm_url = add_query_arg( array_map( 'rawurlencode', $utm_params ), $utm_url );
+	// Define privacy-safe UTM parameters.
+	$utm_params = array(
+		'utm_source'   => 'smartwoo-plugin',
+		'utm_medium'   => 'admin-upgrade',
+		'utm_campaign' => 'pro-upgrade',
+		'utm_content'  => defined( 'SMARTWOO_VER' ) ? sanitize_text_field( SMARTWOO_VER ) : 'unknown',
+	);
 
-    return $utm_url . '#go-pro';
+	// Append query arguments securely.
+	$utm_url = add_query_arg( $utm_params, $utm_url );
+
+	return esc_url_raw( $utm_url . '#go-pro' );
 }
+
 
 
 /**
