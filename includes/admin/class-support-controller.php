@@ -373,7 +373,7 @@ class SmartWoo_Support_Controller {
 	 * Tools page
 	 */
 	private static function tools() {
-		include_once SMARTWOO_PATH . 'includes/admin/include/site-tools.php';
+		include_once SMARTWOO_PATH . 'includes/admin/include/diagnosis.php';
 		$report_json	= \SmartWoo\Diagnosis::get_report_json();
 		include_once SMARTWOO_PATH . 'templates/admin/support/tools.php';
 	}
