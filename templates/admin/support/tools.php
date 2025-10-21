@@ -43,7 +43,7 @@ function smartwoo_render_table_row( $key, $value ) {
 
 <div class="smartwoo-admin-page-content">
 	<div class="smartwoo-tools-section">
-		<h2><?php esc_html_e( 'SmartWoo System Diagnostics', 'smart-woo-service-invoicing' ); ?></h2>
+		<h2><?php esc_html_e( 'Smart Woo System Diagnostics', 'smart-woo-service-invoicing' ); ?></h2>
 		<p><?php esc_html_e( 'Copy and share this report when contacting support. It contains environment data only — no personal information.', 'smart-woo-service-invoicing' ); ?></p>
 
 		<?php if ( ! empty( $report ) && is_array( $report ) ) : ?>
