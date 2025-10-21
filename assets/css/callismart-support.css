@@ -272,7 +272,6 @@
     scrollbar-width: thin;
     scrollbar-color: #f1f1f1 #ffffff;
     padding: 2px 10px;
-    font-size: 1.5rem;
 }
 
 .callismart-app-support-inbox_right-message-body:has( svg ) {
@@ -325,4 +324,77 @@
     .callismart-app-support-inbox_right-message-body:not( :has( svg ) ) {
         height: 312px;
     }
+}
+
+/* ================
+   Callismart VIP Support Notice
+   ============================== */
+.smartwoo-tools-section,
+.callismart-vip-support {
+	padding: 20px;
+	background: #fff;
+	border-left: 4px solid #0073aa;
+	margin-top: 20px;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+.smartwoo-tools-section {
+    max-width: 90%;
+    margin: 0 auto;
+}
+#smartwoo-tools-json {
+    width: 100%;
+    margin: 0 auto;
+    border: solid 4px #dcdcde;
+}
+
+#smartwoo-tools-json:focus,
+#smartwoo-tools-json.h {
+    outline: none;
+    border: none;
+    box-shadow: 1px 1px 8px 5px rgba(0, 0, 0, 0.397);
+}
+
+.callismart-vip-support__title {
+	margin-top: 0;
+	font-size: 1.4em;
+	color: #23282d;
+	font-weight: 600;
+}
+
+.callismart-vip-support__text {
+	font-size: 15px;
+	color: #555;
+	line-height: 1.6;
+	margin-bottom: 1em;
+}
+
+.callismart-vip-support__cta {
+	margin-top: 15px;
+}
+
+.callismart-vip-support__button {
+	padding: 8px 20px;
+	font-size: 14px;
+	font-weight: 500;
+	border-radius: 3px;
+	text-transform: none;
+}
+
+/* Specific styling for PRO users */
+.callismart-vip-support--pro {
+	border-left-color: #46b450;
+}
+
+.callismart-vip-support--pro .callismart-vip-support__title {
+	color: #1d2327;
+}
+
+.callismart-vip-support--pro .callismart-vip-support__text {
+	color: #333;
+}
+
+/* Optional: Hover effect on VIP button */
+.callismart-vip-support__button:hover {
+	opacity: 0.9;
 }
