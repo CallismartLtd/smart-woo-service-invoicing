@@ -242,7 +242,8 @@ class SmartWoo_Support_Controller {
 
 		$parts = compact( 'order_id', 'order_key', 'order_token' );
 		$path  = 'app-store-verify-order/' . implode( '/', $parts );
-		$url   = esc_url_raw( trailingslashit( self::$store_url ) . $path . '/' );
+		// $url   = esc_url_raw( trailingslashit( self::$store_url ) . $path . '/' );
+
 
 		$response = wp_remote_get( $url, array( 'timeout' => 60 ) );
 
@@ -262,35 +263,36 @@ class SmartWoo_Support_Controller {
 			wp_send_json_error( array( 'message' => __( 'Invalid JSON data received from the remote server.', 'smart-woo-service-invoicing' ) ), 500 );
 		}
 
+		$order_data	= isset( $data['data'] ) ? array_map( 'wp_kses_post', wp_unslash( $data['data'] ) ) : [];
 		$order_details = sprintf(
 			'<ul>
-				<li>Status: %s</li>
-				<li>Order ID: %s</li>
+				<li>Status: <strong>%s</strong></li>
+				<li>Order ID: <strong>#%s</strong></li>
 				<li>Additional Details:
 					<ul>
-						<li>HTTP Status: %s</li>
-						<li>Success: %s</li>
+						<li>HTTP Status: <strong>%s</strong></li>
+						<li>Success: <strong>%s</strong></li>
 						<li>API Message: %s</li>
 					</ul>
 				</li>
 			</ul>',
-			esc_html( $data['status'] ?? 'N/A' ),
-			esc_html( $data['order_id'] ?? 'N/A' ),
+			esc_html( $order_data['status'] ?? 'N/A' ),
+			esc_html( $order_id ),
 			intval( $response_code ),
 			esc_html( wc_bool_to_string( $data['success'] ?? false ) ),
-			esc_html( $data['message'] ?? 'N/A' )
+			$order_data['message'] ?? 'N/A'
 		);
 
 		$inbox = new Callismart\SupportInbox();
 		$message = array(
-			'id'         => sprintf( 'msg_%s', sanitize_key( $data['order_key'] ?? 'order_no_key' ) ),
+			'id'         => sprintf( 'msg_%s', $order_key ),
 			'subject'    => __( 'Smart Woo Support Order', 'smart-woo-service-invoicing' ),
 			'body'       => sprintf(
-				__( 'Dear %s,<br>Please find the details of your order below:<br>%s', 'smart-woo-service-invoicing' ),
+				__( '<p>Dear %s,</p>Please find the details of your order below:<br>%s', 'smart-woo-service-invoicing' ),
 				esc_html( wp_get_current_user()->display_name ),
 				wp_kses_post( $order_details )
 			),
-			'created_at' => $data['created_at'] ?? current_time( 'mysql' ),
+			'created_at' => $order_data['created_at'] ?? current_time( 'mysql' ),
 			'read'       => false,
 		);
 
@@ -331,9 +333,8 @@ class SmartWoo_Support_Controller {
 		if ( ! preg_match( '/^Support\b/i', $title ) && ! preg_match( '/\bSupport$/i', $title ) ) {
 			$title = 'Support ' . $title;
 		}
-		
+		smartwoo_set_document_title( sprintf( '%s | Smart Woo', $title ) );
 		SmartWoo_Admin_Menu::print_mordern_submenu_nav( $title, $tabs, 'tab' );
-	
 	}
 
 	/**
@@ -349,9 +350,7 @@ class SmartWoo_Support_Controller {
 	/**
 	 * The inbox page
 	 */
-	private static function inbox() {
-		smartwoo_set_document_title( 'Inbox | Smart Woo' );
-		
+	private static function inbox() {		
 		// Initialize inbox handler.
 		$inbox = new \Callismart\SupportInbox();
 
@@ -361,16 +360,12 @@ class SmartWoo_Support_Controller {
 		$has_consent  = $inbox->has_consent();
 
 		include_once SMARTWOO_PATH . 'templates/admin/support/inbox.php';
-		
 	}
 
 	/**
 	 * VIP support page
 	 */
 	private static function vip_support() {
-		smartwoo_set_document_title( 'VIP Support | Smart Woo' );
-		
-
 		include_once SMARTWOO_PATH . 'templates/admin/support/vip-support.php';
 	}
 
@@ -378,8 +373,8 @@ class SmartWoo_Support_Controller {
 	 * Tools page
 	 */
 	private static function tools() {
-		
-
+		include_once SMARTWOO_PATH . 'includes/admin/include/site-tools.php';
+		$report_json	= \SmartWoo\Diagnosis::get_report_json();
 		include_once SMARTWOO_PATH . 'templates/admin/support/tools.php';
 	}
 
@@ -389,7 +384,6 @@ class SmartWoo_Support_Controller {
 	 * @return array|WP_Error $products
 	 */
 	public static function get_support_products() {
-		delete_transient( 'smartwoo_support_products' ); // For debugging
 		$products = get_transient( 'smartwoo_support_products' );
 
 		if ( false === $products ) {
