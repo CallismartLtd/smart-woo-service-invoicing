@@ -22,6 +22,10 @@ class Diagnosis {
 	 */
 	public static function get_system_report() {
 		global $wpdb;
+        
+        try {
+            include_once SMARTWOO_PATH . 'vendor/autoload.php';
+        } catch (\Throwable $th) {}
 
 		$theme   = wp_get_theme();
 		$plugins = get_plugins();
@@ -33,15 +37,15 @@ class Diagnosis {
 				'version'     => defined( 'SMARTWOO_VER' ) ? SMARTWOO_VER : 'unknown',
 				'basename'    => defined( 'SMARTWOO_PLUGIN_BASENAME' ) ? SMARTWOO_PLUGIN_BASENAME : 'unknown',
 				'upload_dir'  => defined( 'SMARTWOO_UPLOAD_DIR' ) ? SMARTWOO_UPLOAD_DIR : '',
-				'pro_active'  => class_exists( 'SmartWooPro' ),
-				'wp_debug'    => ( defined( 'WP_DEBUG' ) && WP_DEBUG ),
+				'pro_active'  => wc_bool_to_string( class_exists( 'SmartWooPro' ) ),
+				'wp_debug'    => wc_bool_to_string( defined( 'WP_DEBUG' ) && WP_DEBUG ),
 			),
 
 			'wordpress' => array(
 				'version'       => get_bloginfo( 'version' ),
 				'site_url'      => esc_url( site_url() ),
 				'admin_url'     => esc_url( admin_url() ),
-				'multisite'     => is_multisite(),
+				'multisite'     => wc_bool_to_string( is_multisite() ),
 				'language'      => get_locale(),
 				'active_theme'  => $theme->get( 'Name' ) . ' ' . $theme->get( 'Version' ),
 				'active_plugins'=> self::get_active_plugins( $plugins, $active ),
@@ -104,7 +108,7 @@ class Diagnosis {
 		return array(
 			'version'         => phpversion(),
 			'error_log'       => ini_get( 'error_log' ),
-			'display_errors'  => ini_get( 'display_errors' ),
+			'display_errors'  => wc_bool_to_string( ini_get( 'display_errors' ) ),
 			'extensions'      => get_loaded_extensions(),
 			'default_charset' => ini_get( 'default_charset' ),
 			'sapi'            => php_sapi_name(),
@@ -137,7 +141,7 @@ class Diagnosis {
 
 			$tables[ $const ] = array(
 				'name'   => $table,
-				'exists' => ( $exists === $table ),
+				'exists' => wc_bool_to_string( $exists === $table ),
 			);
 		}
 
@@ -172,11 +176,11 @@ class Diagnosis {
 	 */
 	private static function mpdf_environment() {
 		return array(
-			'installed'      => class_exists( '\Mpdf\Mpdf' ),
+			'installed'      => wc_bool_to_string( class_exists( '\Mpdf\Mpdf' ) ),
 			'required_exts'  => array( 'mbstring', 'gd', 'zlib' ),
 			'available_exts' => array_intersect( array( 'mbstring', 'gd', 'zlib' ), get_loaded_extensions() ),
 			'temp_dir'       => defined( '_MPDF_TEMP_PATH' ) ? _MPDF_TEMP_PATH : sys_get_temp_dir(),
-			'writable'       => is_writable( defined( '_MPDF_TEMP_PATH' ) ? _MPDF_TEMP_PATH : sys_get_temp_dir() ),
+			'writable'       => wc_bool_to_string( is_writable( defined( '_MPDF_TEMP_PATH' ) ? _MPDF_TEMP_PATH : sys_get_temp_dir() ) ),
 		);
 	}
 
@@ -185,12 +189,12 @@ class Diagnosis {
 	 */
 	private static function health_checks() {
 		return array(
-			'uploads_dir_writable' => defined( 'SMARTWOO_UPLOAD_DIR' ) && wp_is_writable( SMARTWOO_UPLOAD_DIR ),
-			'mpdf_ready'           => class_exists( '\Mpdf\Mpdf' ) && in_array( 'mbstring', get_loaded_extensions(), true ),
-			'curl_enabled'         => function_exists( 'curl_init' ),
-			'json_enabled'         => function_exists( 'json_encode' ),
-			'openssl_enabled'      => extension_loaded( 'openssl' ),
-			'php_version_ok'       => version_compare( PHP_VERSION, '8.0', '>=' ),
+			'uploads_dir_writable' => wc_bool_to_string( defined( 'SMARTWOO_UPLOAD_DIR' ) && wp_is_writable( SMARTWOO_UPLOAD_DIR ) ),
+			'mpdf_ready'           => wc_bool_to_string( class_exists( '\Mpdf\Mpdf' ) && in_array( 'mbstring', get_loaded_extensions(), true ) ),
+			'curl_enabled'         => wc_bool_to_string( function_exists( 'curl_init' ) ),
+			'json_enabled'         => wc_bool_to_string( function_exists( 'json_encode' ) ),
+			'openssl_enabled'      => wc_bool_to_string( extension_loaded( 'openssl' ) ),
+			'php_version_ok'       => wc_bool_to_string( version_compare( PHP_VERSION, '8.0', '>=' ) ),
 		);
 	}
 
