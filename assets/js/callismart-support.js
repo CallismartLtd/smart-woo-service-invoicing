@@ -68,6 +68,7 @@ class CallismartSupport {
         this.closeModalBtn?.addEventListener( 'click', this._closeModal.bind( this ) );
         this.modal?.addEventListener( 'click', e => e.target === this.modal && this._closeModal() );
         window?.addEventListener( 'message', e => this._handleCheckoutMessage( e ), false );
+        document.querySelector( '#smartwoo-copy-json' )?.addEventListener( 'click', this._copyEnvToClipboard.bind( this ) )
     }
 
     /**
@@ -145,7 +146,8 @@ class CallismartSupport {
         iframe.onload = () => {
             loading.remove();
             iframe.style.display = 'block';
-            smartWooRemoveSpinner( this.spinner )
+            smartWooRemoveSpinner( this.spinner );
+            iframe.contentWindow.postMessage({ action: 'callismart_support_init', appName: 'Smart Woo' }, sourceURL.origin );
         }
 
         this.iframe = iframe;
@@ -190,7 +192,15 @@ class CallismartSupport {
             }
         )
         .then( response => response.json() )
-        .then( json => console.log( json ) );
+        .then( result => {
+            let message = 'Order was not successful';
+            if ( result.success && result.data.is_valid ) {
+                message = 'Order was successful';
+            }
+
+            showNotification( `${message}, please check your support inbox for more information.`, 5000 )
+
+        });
         
     }
 
@@ -495,6 +505,32 @@ class CallismartSupport {
                 messageLi.classList.add( 'unread' );
             }
             
+            return;
+        }
+
+        const orderStatus   = event.target.closest( '#callismart-support-verify-order' );
+
+        if ( orderStatus ) {
+            const url = orderStatus.getAttribute( 'href' );
+
+            if ( url ) {
+                event.preventDefault();
+                this.showSpinner();
+                fetch( url, { credentials: 'include'})
+                .then( response => response.json() )
+                .then( result => {
+                    const message = 
+                        result?.data?.status ? `Order status "${result.data.status}"`
+                        : `Error: "${result?.data?.message ?? 'Unable to check order status'}"`
+
+                    showNotification( message, 5000 )
+
+                })
+                .catch( err => console.warn( err ) )
+                .finally( this.hideSpinner.bind(this) );
+
+                return;
+            }
         }
 
     }
@@ -734,6 +770,15 @@ class CallismartSupport {
         return past.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
+    /**
+     * Copy environment diagnosis to clipboard
+     */
+    _copyEnvToClipboard() {
+        const json = document.querySelector( '#smartwoo-tools-json' ).value;
+        navigator.clipboard.writeText(json)
+        .then( () => showNotification( 'System JSON report copied!' ) )
+        .catch( err => showNotification( err.message ) )
+    }
 
     /**
      * Show loading indicator
