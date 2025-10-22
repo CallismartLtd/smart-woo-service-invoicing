@@ -170,7 +170,7 @@ defined( 'ABSPATH' ) || exit;
                     <?php if ( empty( $service->get_date_created() ) || '0000-00-00' === $service->get_date_created() ) : ?>
                         <div class="sw-service-form-row">
                             <label for="smartwoo_update_creation_date"><?php esc_html_e( 'Date Created', 'smart-woo-service-invoicing' ); ?></label>
-                            <input type="text" id="smartwoo_update_creation_date" name="smartwoo_update_creation_date" value="" autocomplete="off" placeholder="Ends YYYY-MM-DD">	
+                            <input type="text" id="smartwoo_update_creation_date" name="smartwoo_update_creation_date" value="" autocomplete="off" placeholder="YYYY-MM-DD">	
                         </div>
                     <?php endif; ?>
 
