@@ -756,7 +756,7 @@ class AdminDashboard {
                 esc_html( $service->get_service_url() ),
                 __( 'Start Date', 'smart-woo-service-invoicing' ),
                 esc_html( smartwoo_check_and_format( $service->get_start_date(), true ) ),
-                __( 'Nex Payment Date', 'smart-woo-service-invoicing' ),
+                __( 'Next Payment Date', 'smart-woo-service-invoicing' ),
                 esc_html( smartwoo_check_and_format( $service->get_next_payment_date(), true ) ),
                 __( 'End Date', 'smart-woo-service-invoicing' ),
                 esc_html( smartwoo_check_and_format( $service->get_end_date(), true ) ),
