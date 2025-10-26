@@ -264,7 +264,7 @@
     gap: 5px;
 }
 .callismart-app-support-inbox_right-message-body:not( :has( svg ) ) {
-    background-color: #f1f1f1;
+    background-color: #FFFFFF;
     margin: 10px;
     height: 350px;
     border-radius: 8px;
