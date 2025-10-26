@@ -32,7 +32,7 @@ class SupportInbox {
 	/**
 	 * Data source
 	 */
-	protected $data_source = 'https://apiv1.callismart.local/wp-json/smliser/v1/mock-inbox';
+	protected $data_source = 'https://apiv1.callismart.com.ng/wp-json/smliser/v1/bulk-messages';
 
 	/**
 	 * Cached inbox data.
@@ -111,17 +111,16 @@ class SupportInbox {
 
 		$message_id = sanitize_text_field( $message['id'] );
 
-		$this->data['messages'][ $message_id ] = wp_parse_args(
-			$message,
-			array(
-				'id'         => $message_id,
-				'subject'    => '',
-				'body'       => '',
-				'created_at' => current_time( 'mysql' ),
-				'updated_at' => current_time( 'mysql' ),
-				'read'       => false,
-			)
+		$new_message = array(
+			'id'         => $message_id,
+			'subject'    => sanitize_text_field( $message['subject'] ?? '' ),
+			'body'       => wp_kses_post( html_entity_decode( $message['body'] ?? '', ENT_QUOTES | ENT_HTML5 ) ),
+			'created_at' => sanitize_text_field( $message['created_at'] ?? current_time( 'mysql' ) ),
+			'updated_at' => sanitize_text_field( $message['updated_at'] ?? current_time( 'mysql' ) ),
+			'read'       => isset( $message['read'] ) ? (bool) $message['read'] : false,
 		);
+
+		$this->data['messages'][ $message_id ] = $new_message;
 
 		return $this->save();
 	}
@@ -278,13 +277,14 @@ class SupportInbox {
             );
         }
 
-        $endpoint = $this->data_source;
+		$params		= http_build_query( [ 'slug' => ['smart-woo-pro', 'smart-woo-service-invoicing'], 'type' => ['plugin']] );
+        $endpoint	= $this->data_source . '?' . $params;
 
         $response = wp_remote_get(
             esc_url_raw( $endpoint ),
             array(
                 'timeout'   => 30,
-                'sslverify' => false, // Set to true in production.
+                'sslverify' => true,
             )
         );
 
