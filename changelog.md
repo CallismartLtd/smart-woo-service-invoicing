@@ -1,4 +1,14 @@
 ## Smart Woo Service Invoicing Changelog
+### 2.5.1 [2025-10-27]
+**Introduced**
+* A new support section in the admin area to provide easy access to Smart Woo plugin support services.
+* New support inbox feature, to simplify access to support products and services right from the admin area.
+
+**Improved**
+* Object caching for service subscriptions
+* Object caching for invoices.
+* Performance optimizations at automation models.
+* Aggressive subscription activity logging(pro).
 
 ### 2.5 [2025-10-06]
 **Fixed**
