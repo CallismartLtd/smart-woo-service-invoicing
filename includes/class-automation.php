@@ -121,7 +121,7 @@ class SmartWoo_Automation {
                             $order->save();
 
                         }
-                        $invoice->save();
+                        
                     } else if ( $client_payment_options['backup'] ) {
                         $invoice->set_payment_method( $client_payment_options['backup'] );
                         if ( $order = $invoice->get_order() ) {
@@ -129,8 +129,10 @@ class SmartWoo_Automation {
                             $order->save();
 
                         }
-                        $invoice->save();
                     }
+
+                    $invoice->set_meta( 'currency', get_woocommerce_currency() );
+                    $invoice->save();
 
                     /**
                      * Fires when an auto renewal invoice is created.
