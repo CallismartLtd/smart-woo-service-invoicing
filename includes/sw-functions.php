@@ -1760,3 +1760,91 @@ function smartwoo_parse_user_agent( $user_agent_string ) {
 function smartwoo_json_encode_attr( $data ) {
 	return wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 }
+
+/**
+ * Builds a portable, environment-aware user-agent string.
+ *
+ * Format:
+ * {prefix}/{version}; PHP/{php_version}; {environment}; {host}; key=value ...
+ *
+ * - No WordPress dependencies
+ * - Caller controls the prefix (e.g., SmartWoo, Smliser, Callismart, MyApp)
+ * - Works in WP, CLI, API scripts, and external PHP apps
+ * - Optional hostname obfuscation
+ * - Optional extra metadata
+ *
+ * @param array $args {
+ *     Optional arguments:
+ *
+ *     @type string $prefix     The UA product name; default "App".
+ *     @type string $version    App/plugin version.
+ *     @type bool   $obfuscate  Whether to obfuscate the host.
+ *     @type array  $extra      Extra attributes (key => value).
+ * }
+ *
+ * @return string
+ */
+function smartwoo_build_user_agent( $args = array() ) {
+    $defaults = array(
+        'prefix'    => 'SmartWoo',
+        'version'   => SMARTWOO_VER,
+        'obfuscate' => false,
+        'extra'     => array(),
+    );
+
+    $args = array_merge( $defaults, is_array( $args ) ? $args : array() );
+
+    // PHP version
+    $php_version = PHP_VERSION;
+
+    // Detect environment
+    if ( defined( 'WPINC' ) ) {
+        $environment = 'WordPress';
+    } elseif ( php_sapi_name() === 'cli' ) {
+        $environment = 'CLI';
+    } elseif ( isset( $_SERVER['SERVER_SOFTWARE'] ) ) {
+        $environment = $_SERVER['SERVER_SOFTWARE'];
+    } else {
+        $environment = 'UnknownEnv';
+    }
+
+    // Detect hostname
+    $host = 'unknown-host';
+
+    if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+        $host = $_SERVER['HTTP_HOST'];
+    } elseif ( isset( $_SERVER['SERVER_NAME'] ) ) {
+        $host = $_SERVER['SERVER_NAME'];
+    }
+
+    if ( $args['obfuscate'] ) {
+        $host = 'sha1:' . sha1( $host );
+    }
+
+    $parts = array(
+        $args['prefix'] . '/' . $args['version'],
+        'PHP/' . $php_version,
+        $environment,
+        $host,
+    );
+
+    foreach ( $args['extra'] as $key => $value ) {
+        $parts[] = $key . '=' . $value;
+    }
+
+    return implode( '; ', $parts );
+}
+/**
+ * Check if all values in an array are not empty.
+ *
+ * @param array $array The array to check.
+ * @return bool True if all values are not empty, false otherwise.
+ */
+function smartwoo_array_all_set( array $array ) {
+    foreach ( $array as $value ) {
+        if ( empty( $value ) ) {
+            return false;
+        }
+    }
+    return true;
+}
