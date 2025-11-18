@@ -114,7 +114,7 @@ function smartwoo_utm_campaign_url( $utm_url = '' ) {
 
 	// Default SmartWoo Pro purchase page, filterable for flexibility.
 	$default_url = esc_url_raw(
-		apply_filters( 'smartwoo_pro_purchase_page', 'https://callismart.com.ng/smart-woo-service-invoicing/' )
+		apply_filters( 'smartwoo_pro_purchase_page', smartwoo_get_callismart_tech_url( '/smart-woo-service-invoicing/' ) )
 	);
 
 	// Use provided URL if valid, else fallback to default.
@@ -193,7 +193,7 @@ function smartwoo_bug_report_container( $echo = true) {
 function smartwoo_help_container( $echo = true) {
 	$content = '<div class="sw-help-tab-content">
 		<p>We are committed to delivering a high-quality user experience and ensuring that our product is safe and bug-free. However, if you encounter any issues, we are dedicated to resolving them swiftly.</p>
-		<p>For dedicated support, please use our <a href="https://callismart.com.ng/support-portal/">support portal</a>. For general inquiries, use the community <a href="https://wordpress.org/support/plugin/smart-woo-service-invoicing/">Forum</a>.</p>
+		<p>For dedicated support, please use our <a href="' . smartwoo_get_callismart_tech_url( 'support-portal/' ) .'">support portal</a>. For general inquiries, use the community <a href="https://wordpress.org/support/plugin/smart-woo-service-invoicing/">Forum</a>.</p>
     </div>';
 	if ( $echo ) {
 		echo wp_kses_post( $content );

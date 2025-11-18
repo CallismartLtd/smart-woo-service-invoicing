@@ -37,8 +37,8 @@ defined( 'ABSPATH' ) || exit; ?>
                             'By giving consent, you agree that we (the official plugin developers) may send you relevant messages. No personal identifiable information is shared. Review our <a href="%1$s" target="_blank" rel="noopener">Privacy Policy</a> and <a href="%2$s" target="_blank" rel="noopener">Terms of Service</a> for details.',
                             'smart-woo-service-invoicing'
                         ),
-                        esc_url( 'https://callismart.com.ng/privacy-policy/' ),
-                        esc_url( 'https://callismart.com.ng/terms/' )
+                        esc_url( smartwoo_get_callismart_tech_url( 'privacy-policy/' ) ),
+                        esc_url( smartwoo_get_callismart_tech_url( 'terms' ) )
                     )
                 );
                 ?>

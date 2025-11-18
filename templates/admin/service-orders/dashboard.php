@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
         <div class="smartwoo-blank-state">
             <h1 class="dashicons dashicons-cart"></h1>
             <h2>When you receive a new service order, it will appear here.</h2>
-            <a href="<?php echo esc_url( 'https://callismart.com.ng/smart-woo-usage-guide/#managing-orders' ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing orders</a>
+            <a href="<?php echo esc_url( smartwoo_get_callismart_tech_url( 'smart-woo-usage-guide/#managing-orders' ) ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing orders</a>
         </div>
 
     <?php else: ?>

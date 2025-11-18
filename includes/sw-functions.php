@@ -384,7 +384,7 @@ function smartwoo_notice( $message, $dismisable = false ) {
 function smartwoo_error_notice( $messages, $dismisable = false ) {
 
 	if ( "" === $messages ) {
-		return $message; // message is required.
+		return ''; 
 	}
 	$class = ( true === $dismisable ) ? 'sw-error-notice  is-dismissible' : 'sw-error-notice';
 	$error = '<div class="' . esc_attr ( $class ) .'">';
@@ -1847,4 +1847,30 @@ function smartwoo_array_all_set( array $array ) {
         }
     }
     return true;
+}
+
+/**
+ * Build a URL to callismart.com.ng with optional path and query.
+ *
+ * @param string $path Optional path or partial URL.
+ * @return string
+ */
+function smartwoo_get_callismart_tech_url( $path = '' ) {
+
+	$base = 'https://callismart.com.ng';
+	$path = ltrim( $path, '/' );
+
+	if ( '' === $path ) {
+		return apply_filters( 'smartwoo_callismart_tech_url', $base );
+	}
+
+	$parts = explode( '?', $path, 2 );
+
+	$final = trailingslashit( $base ) . trailingslashit( $parts[0] );
+
+	if ( isset( $parts[1] ) ) {
+		$final .= '?' . $parts[1];
+	}
+
+	return apply_filters( 'smartwoo_callismart_tech_url', $final );
 }

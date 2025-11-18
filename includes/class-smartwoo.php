@@ -120,7 +120,7 @@ final class SmartWoo {
         /**
          * Smart Woo Pro URL
          */
-        $smartwoo_pro_url = apply_filters( 'smartwoopro_purchase_link', 'https://callismart.com.ng/smart-woo-service-invoicing/' );
+        $smartwoo_pro_url = apply_filters( 'smartwoopro_purchase_link', smartwoo_get_callismart_tech_url( 'smart-woo-service-invoicing/' ) );
 
         /**
          * Plugin support link.

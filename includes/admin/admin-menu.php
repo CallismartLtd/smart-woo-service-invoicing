@@ -231,7 +231,7 @@ class SmartWoo_Admin_Menu {
 
 		<p>Take a few minutes to walk through each tab and configure the options to match your business needs.</p>
 
-		<p>Need a step-by-step guide with screenshots? Visit the full documentation for this page <a href="https://callismart.com.ng/smart-woo-usage-guide/#configuring-settings" target="_blank" rel="noopener noreferrer">HERE</a>.</p>
+		<p>Need a step-by-step guide with screenshots? Visit the full documentation for this page <a href="<?php echo esc_attr( 'smart-woo-usage-guide/#configuring-settings' ); ?>" target="_blank" rel="noopener noreferrer">HERE</a>.</p>
 		<?php
 	}
 

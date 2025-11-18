@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
         <div class="smartwoo-blank-state">
             <h1 class="smartwoo-service-icon"></h1>
             <h2><?php echo esc_html( $not_found_text ) ?></h2>
-            <a href="<?php echo esc_url( 'https://callismart.com.ng/smart-woo-usage-guide/#managing-products' ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing products</a>
+            <a href="<?php echo esc_url( smartwoo_get_callismart_tech_url( 'smart-woo-usage-guide/#managing-products' ) ); ?>" class="smartwoo-div-button" target="_blank">Learn more about managing products</a>
         </div>
     <?php else : ?>
         <?php smartwoo_table_limit_field( $limit ); ?>

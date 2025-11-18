@@ -83,7 +83,7 @@ defined( 'ABSPATH' ) || exit; ?>
 				<h3>Step 3: All Set 🎉</h3>
 				<p><strong>Your service product is now live. Customers can order it directly from your store, and Smart Woo will handle everything — create invoices, set up reminders, and track usage.</strong></p>
 				<p>You can view and manage all your service orders from <a href="<?php echo esc_url( admin_url( 'admin.php?page=sw-service-orders' ) ); ?>" target="_blank">Service Orders</a> in the admin dashboard.</p>
-				<p>Need a complete usage guide? <a href="https://callismart.com.ng/smart-woo-usage-guide/" target="_blank">Click here to view the full documentation</a>.</p>
+				<p>Need a complete usage guide? <a href="<?php echo esc_url( smartwoo_get_callismart_tech_url( 'smart-woo-usage-guide/' ) ); ?>" target="_blank">Click here to view the full documentation</a>.</p>
 				<?php echo wp_kses_post( smartwoo_pro_feature() ); ?>
 			</div>
 		</div>
