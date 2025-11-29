@@ -153,8 +153,14 @@ class SmartWoo_Order {
         $self->service_name             = $self->order_item->get_meta( '_smartwoo_service_name' ) ? $self->order_item->get_meta( '_smartwoo_service_name' ) : $self->order_item->get_meta( 'Service Name' ) ;
         $self->invoice_id               = $self->order_item->get_meta( '_sw_invoice_id' );
         $self->service_url              = $self->order_item->get_meta( '_smartwoo_service_url' );
-        $self->date_created             = SmartWoo_Date_Helper::create_from( $date_created->__toString() )->set_timezone();
-        $self->date_paid                = SmartWoo_Date_Helper::create_from( $date_paid->__toString() )->set_timezone();
+        $self->date_created = $date_created
+            ? SmartWoo_Date_Helper::create_from( $date_created->__toString() )->set_timezone()
+            : null;
+
+        $self->date_paid = $date_paid
+            ? SmartWoo_Date_Helper::create_from( $date_paid->__toString() )->set_timezone()
+            : null;
+
         $self->billing_cycle            = is_a( $self->order_item->get_product(), SmartWoo_Product::class ) ? $self->order_item->get_product()->get_billing_cycle() : '';
         $self->user                     = new WC_Customer( $self->order->get_user_id() );
     }
@@ -564,6 +570,7 @@ class SmartWoo_Order {
     public function has_pending_item( WC_Order $parent ) {
         $has_pending_item = false;
         foreach( $parent->get_items() as $item ) {
+            
             if ( ! is_a( $item->get_product(), SmartWoo_Product::class ) ) {
                 continue;
             }

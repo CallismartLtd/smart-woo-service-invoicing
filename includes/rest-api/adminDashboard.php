@@ -587,7 +587,7 @@ class AdminDashboard {
                 esc_html__( 'Email', 'smart-woo-service-invoicing' ),
                 esc_html( $order->get_billing_email() ),
                 esc_html__( 'Phone', 'smart-woo-service-invoicing' ),
-                esc_html( $order->get_parent_order() ? $order->get_parent_order()->get_billing_phone() : $order->get_billing_phone() ),
+                esc_html( $order->get_parent_order() ? $order->get_parent_order()->get_billing_phone() : '' ),
                 esc_html__( 'Payment Method', 'smart-woo-service-invoicing' ),
                 esc_html( $order->get_payment_method_title() ),
                 esc_html( $order->get_transaction_id() ),
@@ -920,17 +920,17 @@ class AdminDashboard {
 
         // Start building the table.
         $table = sprintf(
-            '<table class="sw-table has-checkbox">
+            '<table class="sw-table">
                 <thead>
                     <tr>
-                        <th><input type="checkbox" id="%1$s" class="tableListMasterCheckbox"></th>
+                        <th>%1$s</th>
                         <th>%2$s</th>
                         <th>%3$s</th>
                         <th>%4$s</th>
                     </tr>
                 </thead>
                 <tbody>',
-            time(),
+            esc_html__( 'Type', 'smart-woo-service-invoicing' ),
             esc_html__( 'Public ID', 'smart-woo-service-invoicing' ),
             esc_html__( 'Date Created', 'smart-woo-service-invoicing' ),
             esc_html__( 'Status', 'smart-woo-service-invoicing' )
@@ -943,16 +943,16 @@ class AdminDashboard {
                 foreach ( $services as $service ) {
                     $table .= sprintf(
                         '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
-                            <td><input type="checkbox" id="service-%3$s" class="tableListCheckbox"></td>
+                            <td>%3$s</td>
                             <td>%4$s</td>
                             <td>%5$s</td>
                             <td>%6$s</td>
                         </tr>',
                         esc_url( $service->preview_url() ),
                         __( 'View subscription', 'smart-woo-service-invoicing' ),
-                        esc_attr( $service->get_id() ),
+                        __( 'Subscription', 'smart-woo-service-invoicing' ),
                         esc_html( $service->get_service_id() ),
-                        esc_html( $service->get_date_created() ),
+                        esc_html( smartwoo_check_and_format( $service->get_date_created(), true ) ),
                         self::capture_output( 'smartwoo_print_service_status', $service, [ 'dashboard-status' ] )
                     );
                 }
@@ -966,16 +966,16 @@ class AdminDashboard {
                 foreach ( $invoices as $invoice ) {
                     $table .= sprintf(
                         '<tr class="smartwoo-linked-table-row" data-url="%1$s" title="%2$s">
-                            <td><input type="checkbox" id="invoice-%3$s" class="tableListCheckbox"></td>
+                            <td>%3$s</td>
                             <td>%4$s</td>
                             <td>%5$s</td>
                             <td>%6$s</td>
                         </tr>',
                         esc_url( $invoice->preview_url( 'admin' ) ),
                         __( 'View invoice', 'smart-woo-service-invoicing' ),
-                        esc_attr( $invoice->get_id() ),
+                        __( 'Invoice', 'smart-woo-service-invoicing' ),
                         esc_html( $invoice->get_invoice_id() ),
-                        esc_html( $invoice->get_date_created() ),
+                        esc_html( \smartwoo_check_and_format( $invoice->get_date_created(), true ) ),
                         self::capture_output( 'smartwoo_print_invoice_status', $invoice, [ 'dashboard-status' ] )
                     );
                 }
@@ -988,14 +988,14 @@ class AdminDashboard {
             if ( $order ) {
                 $table .= sprintf(
                     '<tr>
-                        <td><input type="checkbox" id="order-%1$s" class="tableListCheckbox"></td>
+                        <td>%1$s</td>
                         <td>%2$s</td>
                         <td>%3$s</td>
                         <td><span class="smartwoo-status dashboard-status active">%4$s</span></td>
                     </tr>',
-                    esc_attr( $order->get_id() ),
+                    __( 'Order', 'smart-woo-service-invoicing' ),
                     esc_html( $order->get_id() ),
-                    esc_html( $order->get_date_created() ),
+                    esc_html( \smartwoo_check_and_format( $order->get_date_created(), true ) ),
                     $order->get_status()
                 );
             } else {

@@ -335,7 +335,6 @@ class SmartWoo_Config{
 
         wp_enqueue_script( 'smartwoo-script' );
         wp_enqueue_script( 'smartwoo-service-asset-sript' );
-        wp_enqueue_style( 'smartwoo-editor-ui' );
         
         wp_localize_script( 'smartwoo-script', 'smart_woo_vars', $utils );
         $invoice_page_id = absint( get_option( 'smartwoo_invoice_page_id', 0 ) );
@@ -383,7 +382,8 @@ class SmartWoo_Config{
      * @since 2.4.3
      */
     public static function enqueue_asset_editor() {
-        wp_enqueue_media();        
+        wp_enqueue_media();
+        wp_enqueue_style( 'smartwoo-editor-ui' );
         wp_enqueue_script( 'smartwoo-editor-ui' );
     }
 
