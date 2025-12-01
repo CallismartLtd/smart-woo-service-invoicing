@@ -571,7 +571,7 @@ class SmartWoo_Service {
 	 */
 	public function get_sign_up_fee() {
 		$product 	= wc_get_product( $this->get_product_id() );
-		$fee 		= ! empty( $product ) ? $product->get_sign_up_fee() : 0;
+		$fee 		= is_a( $product, SmartWoo_Product::class ) ? $product->get_sign_up_fee() : 0;
 		return $fee;
 	}
 
@@ -816,10 +816,18 @@ class SmartWoo_Service {
 	 * @since 2.0.0
 	 */
 	public function has_asset() {
+		static $has_asset;
+
+		if ( isset( $has_asset ) ) {
+			return $has_asset;
+		}
 		global $wpdb;
 		$query 	= $wpdb->prepare( "SELECT `service_id` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `service_id` = %s", $this->service_id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$result	= $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		return $result !== null;
+		
+		$has_asset = $result !== null;
+
+		return $has_asset;
 	}
 
 	/**
@@ -860,9 +868,9 @@ class SmartWoo_Service {
 	/**
 	 * Get the current client asset containers
 	 */
-	public function get_client_asset_containers() {
+	public function print_client_assets() {
 		if ( ! $this->has_asset() ) {
-			return '';
+			return;
 		}
 		$service				= $this;
 		$assets 				= $service->get_assets();
@@ -885,9 +893,7 @@ class SmartWoo_Service {
 			$additionals[] = $asset;
 		}
 
-		ob_start();
 		include_once SMARTWOO_PATH . 'templates/frontend/subscriptions/client-assets.php';
-		return ob_get_clean();
 	}
 
     /**
