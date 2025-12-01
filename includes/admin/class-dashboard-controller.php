@@ -390,8 +390,8 @@ class SmartWoo_Dashboard_Controller {
 
 		if ( $service ) {
 			smartwoo_set_document_title( $service->get_name() . ' Assets' );
-			$assets 		= $service->get_assets();
-			$total_assets	= count( $assets );
+			$assets					= $service->get_assets();
+			$total_assets			= count( $assets );
 			$downloadables			= array();
 			$additionals			= array();
 			$download_asset_object	= null;
@@ -626,8 +626,8 @@ class SmartWoo_Dashboard_Controller {
 	
 		$this->form_fields['additional_asset_types']["asset_type_ids"]		= isset( $_POST['asset_type_ids'] ) ? array_map( 'absint', wp_unslash( $_POST['asset_type_ids'] ) ) : array();
 		$this->form_fields['additional_asset_types']["asset_type_names"]	= isset( $_POST['additional_asset_types'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['additional_asset_types'] ) ) : array(); // This are the real asset names, just like downloads.
-		$this->form_fields['additional_asset_types']["asset_type_keys"]		= isset( $_POST['additiional_asset_names'] ) ? array_map( 'wp_kses_post', wp_unslash( $_POST['additiional_asset_names'] ) ) : array(); // This fields are the asset keys.
-		$this->form_fields['additional_asset_types']["asset_type_values"]	= isset( $_POST['additional_asset_values'] ) ? array_map( 'wp_kses_post', wp_unslash( $_POST['additional_asset_values'] ) ) : array(); // This field are the asset values.
+		$this->form_fields['additional_asset_types']["asset_type_keys"]		= isset( $_POST['additiional_asset_names'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['additiional_asset_names'] ) ) : array(); // This fields are the asset keys.
+		$this->form_fields['additional_asset_types']["asset_type_values"]	= isset( $_POST['additional_asset_values'] ) ? array_map( [__CLASS__, 'sanitize_editor_html'], wp_unslash( $_POST['additional_asset_values'] ) ) : array(); // This field are the asset values.
 		$this->form_fields['additional_asset_types']["access_limits"] 		= isset( $_POST['access_limits'] ) && is_array( $_POST['access_limits'] ) ? array_map( array( __CLASS__, 'min_minus_1' ), wp_unslash( $_POST['access_limits'] ) ) : array();
 
 		$this->form_fields['sw_service_id'] = isset( $_POST['sw_service_id'] ) ? sanitize_text_field( wp_unslash( $_POST['sw_service_id'] ) ) : '';
@@ -850,6 +850,17 @@ class SmartWoo_Dashboard_Controller {
 
 		wp_send_json_success();
 	}
+
+	/**
+	 * Sanitize HTML content based on allowed tags and attributes.
+	 *
+	 * @param string $html Raw HTML from the editor.
+	 * @return string Sanitized HTML.
+	 */
+	public static function sanitize_editor_html( $html ) {
+		return \SmartWoo_REST_API\SANITIZE::sanitize_editor_html( $html );
+	}
+
 
 }
 
