@@ -82,7 +82,7 @@ defined( 'ABSPATH' ) || exit;
                                 <?php echo esc_html( array_key_first( $asset->get_asset_data() ) ); ?>
                             </div>
                             <div class="sw-custom-asset-right">
-                                <?php echo wp_kses_post( do_shortcode( $asset->get_data( array_key_first( $asset->get_asset_data() ) ) ) ); ?>
+                                <?php echo smartwoo_escape_editor_content( do_shortcode( $asset->get_data( array_key_first( $asset->get_asset_data() ) ) ) ); /** phpcs:ignore  */ ?>
                             </div>
                         </div>
                     </div>
