@@ -539,8 +539,6 @@ function smartwoo_get_navbar( $title = '', $title_url = '' ) {
     return $nav_bar;
 }
 
-
-	
 /**
  * Define Helper callback function for the `wp_kses_allowed_html` filter
  * 
@@ -719,6 +717,130 @@ function smartwoo_allowed_form_html() {
 			'placeholder'	=> true
 		)
     ) );
+}
+
+/**
+ * Return the allowed HTML tags/attributes for SmartWoo editor content.
+ *
+ * @return array Allowed tags array compatible with wp_kses().
+ */
+function smartwoo_allowed_editor_tags() {
+    // Start from WP's post rules so we don't accidentally remove core allowed tags.
+    $allowed = wp_kses_allowed_html( 'post' );
+
+    // Global attributes we want to add to many tags.
+    $global_attrs = array(
+        'class'           => true,
+        'id'              => true,
+        'style'           => true, // allow inline styles (KSES will still sanitize CSS)
+        'title'           => true,
+        'data-*'          => true,
+        'aria-*'          => true,
+        'contenteditable' => true,
+        'draggable'       => true,
+    );
+
+    // Tags we want to ensure include the global attributes.
+    $extend_tags = array(
+        'div', 'span', 'p', 'section', 'article', 'img', 'video', 'audio',
+        'ul', 'ol', 'li', 'strong', 'em', 'i', 'b', 'pre', 'table', 'td',
+        'th', 'tr', 'thead', 'tbody', 'tfoot', 'a',
+    );
+
+    foreach ( $extend_tags as $tag ) {
+        if ( ! isset( $allowed[ $tag ] ) ) {
+            $allowed[ $tag ] = array();
+        }
+        // Merge but preserve existing keys.
+        $allowed[ $tag ] = array_merge( $allowed[ $tag ], $global_attrs );
+    }
+
+    // Images: ensure src/alt/title/width/height remain allowed.
+    $allowed['img'] = array_merge(
+        isset( $allowed['img'] ) ? $allowed['img'] : array(),
+        array(
+            'src'   => true,
+            'alt'   => true,
+            'title' => true,
+            'width' => true,
+            'height'=> true,
+        )
+    );
+	
+    $allowed['span'] = array_merge(
+        isset( $allowed['span'] ) ? $allowed['span'] : array(),
+        array(
+            'class'	=> true,
+            'id'	=> true,
+            'title' => true,
+            'style' => true,
+        )
+    );
+
+    // Media: ensure video/audio attributes.
+    $allowed['video'] = array_merge(
+        isset( $allowed['video'] ) ? $allowed['video'] : array(),
+        array(
+            'src'		=> true,
+            'poster'	=> true,
+            'controls'	=> true,
+            'autoplay'	=> true,
+            'loop'		=> true,
+            'muted'		=> true,
+            'preload'	=> true,
+        )
+    );
+
+    $allowed['audio'] = array_merge(
+        isset( $allowed['audio'] ) ? $allowed['audio'] : array(),
+        array(
+            'src'     => true,
+            'controls'=> true,
+            'autoplay'=> true,
+            'loop'    => true,
+            'muted'   => true,
+            'preload' => true,
+        )
+    );
+
+    $allowed['svg']  = array( '*' => true );
+    $allowed['path'] = array( '*' => true );
+    $allowed['g']    = array( '*' => true );
+    $allowed['use']  = array( '*' => true );
+
+    return $allowed;
+}
+
+/**
+ * Sanitize rich editor HTML for SmartWoo.
+ *
+ * @param string $html Raw HTML.
+ * @return string Safe HTML.
+ */
+function smartwoo_escape_editor_content( $html ) : string {
+    if ( ! is_string( $html ) ) {
+        return '';
+    }
+
+	// Allow inline display property in style attribute
+	add_filter( 'safe_style_css', 'smartwoo_allow_inline_display' );
+    // Use wp_kses() with the SmartWoo rules.
+    $content = wp_kses( $html, smartwoo_allowed_editor_tags() );
+	
+	// Remove the filter after use to avoid affecting other code.
+	remove_filter( 'safe_style_css', 'smartwoo_allow_inline_display' );
+	return $content;
+}
+
+/**
+ * Allow inline display property in style attribute
+ * 
+ * @param array $styles Array of allowed CSS styles.
+ * @return array Modified array of allowed CSS styles.
+ */
+function smartwoo_allow_inline_display( $styles ) {
+	$styles[] = 'display';
+	return $styles;
 }
 
 /**
