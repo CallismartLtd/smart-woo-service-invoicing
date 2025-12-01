@@ -5,6 +5,7 @@
  * @author Callistus
  * @package SmartWoo\templates
  * @since 2.0.0
+ * @var SmartWoo_Service $service The service object.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -82,7 +83,7 @@ defined( 'ABSPATH' ) || exit;
         <?php if( $service->has_asset() ) :?>
         <div class="smartwoo-front-assets-container" id="smartwoo-sub-assets">
             <h2 id="my-assets">Assets</h2>
-            <?php echo wp_kses_post( $service->get_client_asset_containers() );?>
+            <?php $service->print_client_assets();?>
         </div>
         <?php endif; ?>
     
