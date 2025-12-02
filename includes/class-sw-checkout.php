@@ -78,21 +78,23 @@ class SmartWoo_Checkout {
 		 * For new service orders, we create invoices for each item in the 
 		 * order that is a service product.
 		 */
-		foreach ( $order_items as $item_id => $item ) {
+		foreach ( $order_items as $item ) {
+			
 			// Handles smart woo products only.
-			if ( ! $item->get_product() || ! is_a( $item->get_product(), SmartWoo_Product::class )) {
+			$product	= is_a( $item, WC_Order_Item_Product::class ) ? $item->get_product() : null;
+
+			if ( ! is_a( $product, SmartWoo_Product::class ) ) {
 				$index++;
 				continue;
 			}
 
-			/**
-			 * @var SmartWoo_Invoice $invoice
-			 */
+			/** @var WC_Order_Item_Product $item */
+
 			$invoice = new SmartWoo_Invoice();
 
 			$invoice->set_invoice_id( smartwoo_generate_invoice_id() );
-			$invoice->set_product_id( $item->get_product_id() );
-			$invoice->set_amount( $item->get_product()->get_price() );
+			$invoice->set_product_id( $product->get_id() );
+			$invoice->set_amount( $product->get_price() );
 			$invoice->set_meta( 'product_quantity', $item->get_quantity() );
 			$invoice->set_total( $item->get_total() );
 			$invoice->set_status( 'unpaid' );
@@ -100,7 +102,14 @@ class SmartWoo_Checkout {
 			$invoice->set_user_id( $order->get_user_id() );
 
             if ( ! $order->get_user() ) { // We are dealing with a guest order.
-                $invoice->set_meta( 'is_guest_invoice', true );
+                $invoice->set_meta( 'is_guest_invoice', 'yes' );
+	
+				$invoice->set_meta( 'first_name', $order->get_billing_first_name() );
+				$invoice->set_meta( 'last_name', $order->get_billing_last_name() );
+				$invoice->set_meta( 'billing_email', $order->get_billing_email() );
+				$invoice->set_meta( 'billing_phone', $order->get_billing_phone() );
+				$invoice->set_meta( 'billing_company', $order->get_billing_company() );
+				$invoice->set_meta( 'billing_address', self::format_order_billing_addresses( $order ) );
             }
 
 			$invoice->set_billing_address( self::format_order_billing_addresses( $order ) );
