@@ -65,6 +65,12 @@ class SmartWoo_Setup_Wizard {
                                 'selected' => absint( get_option( 'smartwoo_service_page_id' ) )
                             ) );
                         ?>
+
+                        <label for="disable-guest-checkout">
+                            <?php esc_html_e( 'Disable Guest Checkout (recommended)', 'smart-woo-service-invoicing' ); ?>
+                            <?php smartwoo_help_tooltip( __( 'Disabling guest checkout ensures that all customers create an account before purchasing a service subscription. This is important for managing subscriptions effectively.', 'smart-woo-service-invoicing' ) ); ?>
+                        </label>
+                        <input type="checkbox" id="disable-guest-checkout" name="smartwoo_disable_guest_checkout" <?php checked( true ); ?> >
                     </div>
 
                     <div class="smartwoo-step step-2">
@@ -110,6 +116,9 @@ class SmartWoo_Setup_Wizard {
                         <em><?php esc_html_e( 'Step 4: Shop Appearance', 'smart-woo-service-invoicing' ); ?></em>
                         <label for="add-to-cart-text"><?php esc_html_e( 'Add to Cart Text', 'smart-woo-service-invoicing' ); ?> <?php smartwoo_help_tooltip( 'The "add to cart text" for all subscription products' ); ?></label>
                         <input type="text" id="add-to-cart-text" name="smartwoo_product_text_on_shop" value="<?php echo esc_attr( get_option( 'smartwoo_product_text_on_shop' ) ); ?>">
+
+                        <label for="conscent"><?php esc_html_e( 'Would you like to stay informed about new features, important updates, and exclusive offers for Smart Woo Service Invoicing?', 'smart-woo-service-invoicing' ); ?></label>
+                        <input type="checkbox" id="conscent" name="smartwoo_marketing_conscent" checked>
                     </div>
 
                     <div class="smartwoo-buttons">
@@ -149,12 +158,23 @@ class SmartWoo_Setup_Wizard {
 		);
 
 		foreach ( $fields as $field ) {
-			if ( isset( $_POST[ $field ] ) ) {
-				update_option( $field, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
+			if ( $value = smartwoo_get_post_param( $field ) ) {
+				update_option( $field, $value );
 			}
 		}
 
-		wp_redirect( isset( $_POST['return_url'] ) ? sanitize_url( wp_unslash( $_POST['return_url'] ) ) : admin_url( 'admin.php?page=sw-admin' ) );
+        // Handle guest checkout option.
+        if ( smartwoo_get_post_param( 'smartwoo_disable_guest_checkout' ) ) {
+            update_option( 'woocommerce_enable_guest_checkout', 'no' );
+        } else {
+            update_option( 'woocommerce_enable_guest_checkout', 'yes' );
+        }
+
+        // Handle marketing conscent.
+        $support    = new \Callismart\SupportInbox();
+        $support->set_consent( smartwoo_get_post_param( 'smartwoo_marketing_conscent', false ) );
+
+		wp_redirect( smartwoo_get_post_param( 'return_url', admin_url( 'admin.php?page=sw-options' ) ) );
 		exit;
 	}
 }
