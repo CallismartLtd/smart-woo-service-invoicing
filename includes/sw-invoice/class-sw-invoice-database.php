@@ -381,7 +381,7 @@ class SmartWoo_Invoice_Database {
 	public static function get_invoices_by_date_due( $date_due ) {
 		global $wpdb;
 
-		$cache_key	= self::get_cache_key( __METHOD__, [$due_date] );
+		$cache_key	= self::get_cache_key( __METHOD__, [$date_due] );
 		$invoices	= wp_cache_get( $cache_key, self::$cache_group );
 		if ( false === $invoices ) {
 			$invoices	= array();

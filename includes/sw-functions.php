@@ -1508,9 +1508,9 @@ function smartwoo_get_switch_toggle( array $args ) {
         'value'    => '1',
     );
 
-    $parsed_args = wp_parse_args( $args, $default_args );
-    $checked_attr  = $parsed_args['checked'] ? 'checked' : '';
-    $disabled_attr = $parsed_args['disabled'] ? 'disabled' : '';
+    $parsed_args	= wp_parse_args( $args, $default_args );
+    $checked_attr	= $parsed_args['checked'] ? 'checked' : '';
+    $disabled_attr	= $parsed_args['disabled'] ? 'disabled' : '';
     ?>
         <input
             type="checkbox"

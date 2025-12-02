@@ -492,7 +492,7 @@ class SmartWoo_Invoice {
 	/**
 	 * Get amount
 	 * 
-	 * @return float.
+	 * @return float
 	 */
 	public function get_amount() {
 		return $this->amount;
@@ -504,7 +504,7 @@ class SmartWoo_Invoice {
 	/**
 	 * Get fee
 	 * 
-	 * @return float.
+	 * @return float
 	 */
 	public function get_fee() {
 		return $this->fee;
