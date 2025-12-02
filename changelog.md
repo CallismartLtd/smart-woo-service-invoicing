@@ -1,4 +1,18 @@
 ## Smart Woo Service Invoicing Changelog
+
+### 2.5.2 [2025-12-2]
+**Fixed**
+* Auto-generated invoices now uses default site currency.
+* Broken audio and video player for subscription assets.
+* Recommended settings for guest checkout on a subscription system.
+* Secure asset editor content sanitization and escape functions.
+
+**Improved**
+* Guest invoice handling.
+* Guest checkout handling.
+* Subscription asset rendering.
+* Smart Woo security audit workflow.
+
 ### 2.5.1 [2025-10-27]
 **Introduced**
 * A new support section in the admin area to provide easy access to Smart Woo plugin support services.

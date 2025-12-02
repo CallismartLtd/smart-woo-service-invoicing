@@ -7,7 +7,7 @@
 **Contributors:** callismartltd
 **Tags:** subscription billing, automated invoicing, recurring payments, service billing, woocommerce invoicing
 **Requires at least:** 6.4
-**Tested up to:** 6.8.3
+**Tested up to:** 6.9
 **Requires WooCommerce:** 8.0
 **WooCommerce tested up to:** 10.3
 **Requires PHP:** 7.4
@@ -180,6 +180,19 @@ For release notes, upcoming features, and future updates, visit the [official re
 ---
 
 ## Changelog
+### 2.5.2 [2025-12-2]
+**Fixed**
+* Auto-generated invoices now uses default site currency.
+* Broken audio and video player for subscription assets.
+* Recommended settings for guest checkout on a subscription system.
+* Secure asset editor content sanitization and escape functions.
+
+**Improved**
+* Guest invoice handling.
+* Guest checkout handling.
+* Subscription asset rendering.
+* Smart Woo security audit workflow.
+
 ### 2.5.1 [2025-10-27]
 **Introduced**
 * A new support section in the admin area to provide easy access to Smart Woo plugin support services.
@@ -205,119 +218,6 @@ For release notes, upcoming features, and future updates, visit the [official re
 * Plugin security — a full security audit has been performed across the entire codebase.
 * Performance optimization, including request pagination, caching, and response limiting.
 * Activity logs now provide deeper insights into subscription and invoice activities.
-
-
-## 2.4.4 2025-09-11
-**Improved**
-* Performance optimization.
-* REST API response for WooCommerce product type query.
-* Support for the WooCommerce store API
-
-### 2.4.3 2025-08-18
-**New Feature**
-* Introduced a tinymce for subscription asset editor.
-* Image gallery builder in service subscription asset editor, supports: Hover Overlay, Masonry, Card Style and Grid gallery types.
-* Audio playlist builder for service subscription assets.
-* Video playlist builder for service subscription assets.
-* .
-
-**Improved**
-* Client Portal UI.
-* Order history replaces transaction history in the client portal.
-* Account Settings component replaces the old Settings and tools section in the client portal.
-* Full client account management without leaving the client portal.
-* The automation handler now rubost, now handles overdue invoices.
-* Performance optimization.
-
-**Fixed**
-* Infinite payment reminder emails sent even when invoice is overdue.
-* Theme styles conflict in the client portals.
-
-**Tested**
-* PHP 8.4+
-
-### 2.4.2 - 2025-07-02
-
-**Fixed**
-
-* WooCommerce on demand asset loading that caused some product search input to break.
-* Invoice portal dashboard bug.
-* Media library won't open.
-
-### 2.4.1 - 2025-06-25
-
-**Introduced**
-
-* New invoice editor: The invoice editor has been refactored to improve UX and seamless performance.
-
-**Improved**
-
-* Onboarding process: Introduced new setup wizard to enhance user experience during first-time installation.
-
-**Fixed**
-
-* Minor bug fixes and performance optimization.
-
-### 2.4.0 - 2025-05-31
-
-**Fixed**
-
-* Product page subscription banner price when product is on sale.
-
-**Improved**
-
-* Improved the dashboard subscription searches by refactoring the `SmartWoo_Service_Database::search()` method to support more secure and flexible LIKE queries, better pagination, and improved caching.
-* Search queries now properly use `$wpdb->esc_like()` combined with wildcards (`%`) to safely handle user-provided search terms.
-* The fast checkout feature UI & UX has been refactored.
-
-**Service Subscription Status Refactored**
-
-* The core logic for determining service subscription status has been encapsulated within the `SmartWoo_Service` class.
-* Introduced `SmartWoo_Service::get_effective_status()`, a new public method that provides the definitive service status, adhering to a strict precedence of explicit database overrides, cached values, and dynamically calculated date-based conditions.
-* Private helper methods (e.g., `is_active_condition()`, `is_due_for_renewal_condition()`, `is_in_grace_period_condition()`, `is_expired_condition()`) are now used internally by `get_effective_status()` for specific condition checks.
-* The global `smartwoo_service_status()` function has been simplified to delegate status determination to `SmartWoo_Service::get_effective_status()`.
-* Naming consistency for private status condition methods has been improved for better clarity.
-
-**Introduced**
-
-* A simplified subscription analysis and stats for non-techies.
-* New Admin UI for service subscription usage statistics template in Smart Woo Pro.
-* New Admin UI for service subscription and invoice log template in Smart Woo Pro.
-* Service migration email template in Smart Woo Pro.
-* Subscription refund email template in Smart Woo Pro.
-
-### 2.3.1 - 2025-04-23
-
-* Minor bug fix.
-
-### 2.3.0 - 2025-03-27
-
-* **New Admin UI**
-
-  * Admin dashicon changed to official Smart Woo icon.
-  * Invoice admin table now features bulk actions.
-  * The admin's service subscription view pages UI has been refactored to provide a comprehensive overview of a service subscription and an improved UX.
-  * The admin UI for viewing clients associated with a service subscription has been refactored for comprehensiveness and a modern look.
-
-* **Service Orders Refactored**
-
-  * Introduced the SmartWoo\_Order object.
-  * Service Order UI refactored and now features: bulk actions, order sorting by status, and order preview.
-
-* **Service Product UI**
-
-  * The service products admin page UI has been enhanced to feature: bulk actions, sorting by product status, and improved UX.
-  * The product creation and edit page UI has been improved to include nearly every option found in the WooCommerce product form.
-  * Product form now includes: Upsells, cross-sells, product gallery, visibility, status, and sale options.
-
-* **Fixed**
-
-  * Checkout invoices are now created for service orders made via the WooCommerce block API.
-  * Client invoice items are now responsive on mobile devices.
-
-* **Added**
-
-  * Fast checkout feature: Allows clients to configure products and proceed to the checkout page on the same page. Go to settings > advanced to configure the fast checkout feature.
 
 For detailed updates and changes, see the [Changelog](https://github.com/CallismartLtd/smart-woo-service-invoicing/blob/main/changelog.md).
 

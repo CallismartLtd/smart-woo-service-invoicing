@@ -7,7 +7,7 @@
  * Author URI: https://callismart.com.ng/callistus
  * Plugin URI: https://callismart.com.ng/smart-woo-service-invoicing
  * Requires at least: 6.4
- * Tested up to: 6.8.3
+ * Tested up to: 6.9
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  * WC requires at least: 8.0
