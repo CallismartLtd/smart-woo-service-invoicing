@@ -1996,3 +1996,13 @@ function smartwoo_get_callismart_tech_url( $path = '' ) {
 
 	return apply_filters( 'smartwoo_callismart_tech_url', $final );
 }
+
+/**
+ * Tells whether guest checkout is enabled.
+ * 
+ * @return bool
+ */
+function smartwoo_is_guest_checkout_enabled() : bool {
+	$option = get_option( 'woocommerce_enable_guest_checkout', 'no' );
+	return ( 'yes' === $option );
+}
