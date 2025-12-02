@@ -516,7 +516,7 @@ class SmartWoo_Invoice {
 	/**
 	 * Get payment status
 	 * 
-	 * @return string.
+	 * @return string
 	 */
 	public function get_status() {
 		return $this->payment_status;
@@ -965,7 +965,7 @@ class SmartWoo_Invoice {
 	 * @return bool True if it's guest invoice, false otherwise
 	 */
 	public function is_guest_invoice() {
-		return 'yes' === $this->get_meta( 'is_guest_invoice' );
+		return 'yes' === wc_bool_to_string( $this->get_meta( 'is_guest_invoice' ) );
 	}
 
 	/**

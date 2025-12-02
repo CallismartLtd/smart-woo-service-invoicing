@@ -808,7 +808,6 @@ class SmartWoo_Invoice_Database {
 					$updated++;
 				}
 
-				continue;
 			} elseif ( $wpdb->insert( $table_name, $data, $data_format ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$updated++;
 	

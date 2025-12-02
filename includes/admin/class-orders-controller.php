@@ -101,14 +101,13 @@ class SmartWoo_Orders_Controller {
             $service_name       = $order->get_service_name();
             $product_id         = $product ? $product->get_id() : '';
             $service_url        = $order->get_service_url();
-            $user_full_name     = $order->get_user() ? $order->get_user()->get_billing_first_name() . ' ' . $order->get_user()->get_billing_last_name() : '';
-            $user_id            = $order->get_user() ? $order->get_user()->get_id() : 0;
             $start_date         = $order->get_date_paid()->format( 'Y-m-d' );
             $billing_cycle     	= $order->get_billing_cycle();
             $end_date          	= date_i18n( 'Y-m-d', strtotime( $start_date . ' ' . SmartWoo_Date_Helper::get_billing_cycle_interval( $billing_cycle ) ) );
             $next_payment_date 	= date_i18n( 'Y-m-d', strtotime( $end_date . ' ' . smartwoo_get_global_nextpay() ) );
             $status            	= '';
-            $user               = get_userdata( $user_id );
+            $user               = $order->get_user();
+            $user_full_name     = $user ? $user->get_billing_first_name() . ' ' . $user->get_billing_last_name() : 'N/A';
             $downloadables      = $product->get_smartwoo_downloads();
 
             $status_options 	= array(

@@ -5,6 +5,10 @@
  * @author Callistus
  * @package SmartWoo\templates
  * @since 2.0.0
+ * @var SmartWoo_Order $order
+ * @var WC_Customer $user
+ * @var SmartWoo_Product $product
+ * @var array $downloadables
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -113,13 +117,13 @@ defined( 'ABSPATH' ) || exit;
 
             <div class="sw-service-form-right-container">
                 <div class="sw-service-client-info">
-                    <img src="<?php echo esc_url( get_avatar_url( $user_id ) ); ?>" loading="lazy" alt="avatar" width="92" height="92">
+                    <img src="<?php echo esc_url( get_avatar_url( $user->get_id() ) ); ?>" loading="lazy" alt="avatar" width="92" height="92">
                     <p class="sw-user-fullname"><strong>Full name</strong>: <?php echo esc_html( $user_full_name ) ?></p>
-                    <p class="sw-user-email"><strong>Email</strong>: <?php echo esc_html( $user->user_email ); ?></p>
+                    <p class="sw-user-email"><strong>Email</strong>: <?php echo esc_html( $user->get_email() ); ?></p>
                     <p id="spinner" style="text-align: center;"></p>
                 </div>
                 <?php smartwoo_dropdown_users( 
-                    $user->ID . '|' . $user->user_email, 
+                    $user->get_id() . '|' . $user->get_email(), 
                     array(
                         'class'		=> 'sw-service-user-dropdown',
                         'id'		=> 'smartwooServiceUserDropdown',

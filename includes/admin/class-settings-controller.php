@@ -155,6 +155,13 @@ class SmartWoo_Settings_Controller {
 				'missing'		=> empty( get_option( 'smartwoo_product_text_on_shop' ) ),
 				'url'			=> admin_url( 'admin.php?page=sw-options&tab=advanced' )
 			),
+
+			'smartwoo_guest_checkout_enabled' => array(
+				'title'			=> 'Guest Checkout',
+				'description'	=> __( 'Guest checkout option allows customers to purchase a service subscription without creating an account, this is not recommended for a subscription system.', 'smart-woo-service-invoicing' ),				
+				'missing'		=> smartwoo_is_guest_checkout_enabled(),
+				'url'			=> admin_url( 'admin.php?page=wc-settings&tab=account' )
+			),
 		
 		);
 

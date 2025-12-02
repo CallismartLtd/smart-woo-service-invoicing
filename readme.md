@@ -7,11 +7,11 @@
 **Contributors:** callismartltd
 **Tags:** subscription billing, automated invoicing, recurring payments, service billing, woocommerce invoicing
 **Requires at least:** 6.4
-**Tested up to:** 6.8
+**Tested up to:** 6.8.3
 **Requires WooCommerce:** 8.0
-**WooCommerce tested up to:** 9.9.5
+**WooCommerce tested up to:** 10.3
 **Requires PHP:** 7.4
-**Stable Tag:** 2.5
+**Stable Tag:** 2.5.2
 **License:** GPLv3
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 

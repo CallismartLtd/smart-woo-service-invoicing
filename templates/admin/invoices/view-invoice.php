@@ -5,6 +5,7 @@
  * @author Callistus
  * @package SmartWoo\Admin\Templates
  * @since 2.2.3
+ * @var SmartWoo_Invoice $invoice The invoice object.
  */
 
 defined( 'ABSPATH' ) || exit; // Prevent direct access.
