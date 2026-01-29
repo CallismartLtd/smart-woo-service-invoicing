@@ -726,10 +726,10 @@ class SmartWoo_Dashboard_Controller {
 			}
 		}
 
-		$raw_asset = array();
+		$file_asset = array();
 
 		if ( ! empty( $files ) ) {
-			$raw_asset = array(
+			$file_asset = array(
 				'asset_name'    => 'downloads',
 				'service_id'    => $service->get_service_id(),
 				'asset_data'    => $files,
@@ -740,7 +740,7 @@ class SmartWoo_Dashboard_Controller {
 			);
 		}
 
-		$obj	= SmartWoo_Service_Assets::convert_arrays( $raw_asset );
+		$obj	= SmartWoo_Service_Assets::convert_arrays( $file_asset );
 		if ( ! empty( $downloadable_assets['download_asset_type_id'] ) ) {
 			$obj->set_id( $downloadable_assets['download_asset_type_id'] );
 		}
@@ -751,7 +751,8 @@ class SmartWoo_Dashboard_Controller {
 			$obj->save();
 
 		}
-	
+
+		unset( $file_asset, $obj );
 
 		// Process additional assets types.
 		$additional_assets	= $form_fields['additional_asset_types'];
