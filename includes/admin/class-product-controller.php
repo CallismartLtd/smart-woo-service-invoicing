@@ -352,6 +352,10 @@ class SmartWoo_Product_Controller{
             if ( ! $product ) {
                 return new WP_Error( 'invalid_product', 'This product does not exists anymore' );
             }
+
+            if ( ! $product instanceof SmartWoo_Product ) {
+                return new WP_Error( 'invalid_product_type', 'This is not a Smart Woo Service Product' );
+            }
         } else {
             $product    = new SmartWoo_Product();
         }
