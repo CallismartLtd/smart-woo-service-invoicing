@@ -177,7 +177,8 @@ class SmartWoo_Mail {
 
         $body = apply_filters(
             'smartwoo_email_body',
-            '<body style="margin: 0; padding: 0; background-color: #f9f9f9; width: 100%">
+            '<body style="margin: 0 auto; padding: 0; background-color: #f9f9f9; width: 100%; max-width: 768px;">
+                 ' . self::print_styles() . '
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="80%" style="background-color: #f9f9f9; margin: 0 auto; padding: 0; border-collapse: collapse; width: 90%;">
                     <tr>
                         <td align="center" style="padding: 5px 0; background-color: #f1f1f1; border: 0;">
