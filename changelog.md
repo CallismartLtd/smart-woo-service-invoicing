@@ -1,5 +1,11 @@
 ## Smart Woo Service Invoicing Changelog
 
+### 2.5.3 [2026-01-29]
+**Fixed** 
+* Email template width on mobile devices.
+* Service Assets database table upgraded to allow much bigger asset sizes.
+* Minor bug fixes and performance optimizations.
+
 ### 2.5.2 [2025-12-2]
 **Fixed**
 * Auto-generated invoices now uses default site currency.

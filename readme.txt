@@ -4,9 +4,9 @@ Tags: subscription billing, automated invoicing, recurring payments, service bil
 Requires at least: 6.4
 Tested up to: 6.9
 Requires WooCommerce: 8.0
-WooCommerce tested up to: 10.3
+WooCommerce tested up to: 10.4
 Requires PHP: 7.4
-Stable Tag: 2.5.2
+Stable Tag: 2.5.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -157,6 +157,12 @@ For release notes, upcoming features, and future updates, visit the [official re
 
 
 == Changelog ==
+= 2.5.3 [2026-01-29] =
+**Fixed** 
+* Email template width on mobile devices.
+* Service Assets database table upgraded to allow much bigger asset sizes.
+* Minor bug fixes and performance optimizations.
+
 = 2.5.2 [2025-12-2] =
 **Fixed**
 * Auto-generated invoices now uses default site currency.
