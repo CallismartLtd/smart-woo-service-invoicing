@@ -302,7 +302,13 @@ function smartwoo_generate_service_id( $service_name ) {
  */
 function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
 	$end_date			= smartwoo_extract_only_date( $service->get_end_date() );
-	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $service->get_product(), $end_date ) );
+	$product			= $service->get_product();
+
+	if ( ! $product ) {
+		return $end_date;
+	}
+
+	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $product, $end_date ) );
 	$expiration_date	= $grace_period_date ?? $end_date;
 
 	return $expiration_date;
