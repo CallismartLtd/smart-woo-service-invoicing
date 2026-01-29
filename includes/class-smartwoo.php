@@ -288,9 +288,10 @@ final class SmartWoo {
             wp_die( esc_html( 'Service is not active, please renew it.', 'smart-woo-service-invoicing' ), 'Renewal Required', 403 );
         }
 
-        $asset_data = SmartWoo_Service_Assets::return_data( $asset_id, $obj );
+        $obj        = new SmartWoo_Service_Assets( absint( $asset_id ) );
+        $asset_data = SmartWoo_Service_Assets::return_data( $asset_id );
 
-        if ( ! is_array( $asset_data ) || empty( $asset_data ) ) {
+        if ( ! is_array( $asset_data ) || empty( $asset_data ) || ! ( $obj instanceof SmartWoo_Service_Assets ) ) {
             wp_die( __( 'Malformed asset data, please contact us if you need further assistance', 'smart-woo-service-invoicing' ), 'Invalid Asset', 403 );
         }
 
@@ -390,7 +391,7 @@ final class SmartWoo {
             if ( function_exists( 'finfo_open' ) ) {
                 $finfo     = finfo_open( FILEINFO_MIME_TYPE );
                 $mime_type = finfo_file( $finfo, $file );
-                finfo_close( $finfo );
+                // finfo_close( $finfo ); // Deprecated in PHP 8.0
             } elseif ( function_exists( 'mime_content_type' ) ) {
                 $mime_type = mime_content_type( $file );
             }
@@ -405,9 +406,6 @@ final class SmartWoo {
             if ( ! str_contains( $filename, '.' ) ) {
                 $filename = basename( $file );
             }
-
-            
-            
 
             // Set headers
             header( 'Content-Description: File Transfer' );
@@ -671,7 +669,7 @@ final class SmartWoo {
             $message        = $service_noun . " has been activated.";
             $field_value    = 'Active';
         } elseif ( 'Active (NR)' === $action ) {
-            $message        = $service_nounce . " has been activated but will not renew on next payment date";
+            $message        = $service_noun . " has been activated but will not renew on next payment date";
             $field_value    = 'Active (NR)';
         } elseif ( 'Suspended' === $action ) {
             $message        = $service_noun . " has been suspended.";
@@ -1166,7 +1164,7 @@ final class SmartWoo {
              * @param string $reason Reason for the failure.
              * @param SmartWoo_Service The service subscription object
              */
-            do_action( 'smartwoo_service_renewal_failed', 'Manual review required! The system could not mark the invoice "' . $invoice_id . '" associated with this renewal as paid.', $expired_service  );
+            do_action( 'smartwoo_service_renewal_failed', 'Manual review required! The system could not mark the invoice "' . $invoice_id . '" associated with this renewal as paid.', $service  );
             return false;
         }
 
@@ -1281,7 +1279,7 @@ final class SmartWoo {
         }
 
         $interval       = SmartWoo_Date_Helper::get_billing_cycle_interval( $expired_service->get_billing_cycle() );
-        $new_start_date =  $order ? $order->get_date_paid() : SmartWoo_Date_Helper::create_from_timestamp( time() );
+        $new_start_date =  $order && $order->get_date_paid() ? $order->get_date_paid() : SmartWoo_Date_Helper::create_from_timestamp( time() );
         
         $new_end_date           = SmartWoo_Date_Helper::create_from_timestamp( strtotime( $interval, $new_start_date->getTimestamp() ) );
         $new_next_payment_date  = SmartWoo_Date_Helper::calculate_next_payment_date( 
