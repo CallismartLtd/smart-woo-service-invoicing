@@ -553,8 +553,9 @@ class SmartWoo_Service {
 	 * 
 	 * @return SmartWoo_Product|false
 	 */
-	public function get_product() {
-		return wc_get_product( $this->get_product_id() );
+	public function get_product() : SmartWoo_Product|false {
+		$product = wc_get_product( $this->get_product_id() );
+		return $this->is_smartwoo_product( $product ) ? $product : false;
 	}
 
 	/** 
@@ -570,8 +571,7 @@ class SmartWoo_Service {
 	 * Get sign up fee
 	 */
 	public function get_sign_up_fee() {
-		$product 	= wc_get_product( $this->get_product_id() );
-		$fee 		= is_a( $product, SmartWoo_Product::class ) ? $product->get_sign_up_fee() : 0;
+		$fee 		= $this->get_product() ? $this->get_product()->get_sign_up_fee() : 0;
 		return $fee;
 	}
 
@@ -635,8 +635,8 @@ class SmartWoo_Service {
 	 * @since 2.0.0
 	 * @return bool
 	 */
-	public function is_smartwoo_product( $product ) {
-		return ( $product instanceof SmartWoo_Product ) ? true : false;
+	public function is_smartwoo_product( $product ): bool {
+		return ( $product instanceof SmartWoo_Product );
 	}
 
 	/**
@@ -645,7 +645,7 @@ class SmartWoo_Service {
 	 * @return string
 	 * @since 2.3.2
 	 */
-	public function get_renewal_status() {
+	public function get_renewal_status(): string {
 		$status = smartwoo_service_status( $this );
 
 		$label = 'ON';
@@ -665,7 +665,7 @@ class SmartWoo_Service {
 	 * @return bool True if yes, False otherwise.
 	 * @since 2.0.1
 	 */
-	public function current_user_can_access() {
+	public function current_user_can_access(): bool {
 		if ( empty( $this->user_id ) ) {
 			return false;
 		}
@@ -795,7 +795,7 @@ class SmartWoo_Service {
 	/**
 	 * Get all assets for a service subscription.
 	 * 
-	 * @return SmartWoo_Service_Asset[] $assets Array of SmartWoo_Service_Asset
+	 * @return SmartWoo_Service_Assets[] $assets Array of SmartWoo_Service_Asset
 	 * @since 2.0.0
 	 */
 	public function get_assets() { 
@@ -1005,8 +1005,7 @@ class SmartWoo_Service {
         $current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
         if ( $current_date >= $end_date ) {
-            $product_id        = $this->get_product_id();
-            $grace_period_date = smartwoo_get_grace_period_end_date( $product_id, $end_date );
+            $grace_period_date = smartwoo_get_grace_period_end_date( $this->get_product(), $end_date );
 
             return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
         }
