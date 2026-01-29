@@ -39,6 +39,9 @@ class SmartWoo_DB_Update extends SmartWoo_Install {
         '2.4.3' => array(
             'smartwoo_db_update_243_service_date_created',
             'smartwoo_243_clear_deprecated_cron_hooks'
+        ),
+        '2.5.3' => array(
+            'smartwoo_253_alter_assets_table_columns'
         )
     );
 

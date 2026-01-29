@@ -108,8 +108,8 @@ function smartwoo_db_schema() {
 		'asset_id mediumint(9) NOT NULL AUTO_INCREMENT',
 		'service_id varchar(255) NOT NULL',
 		'asset_name varchar(255) DEFAULT NULL',
-		'asset_data text DEFAULT NULL',
-		'asset_key varchar(255) NOT NULL',
+		'asset_data TEXT DEFAULT NULL',
+		'asset_key TEXT NOT NULL',
 		'is_external varchar(20) DEFAULT NULL', // added 2.0.1
 		'access_limit mediumint(9) DEFAULT NULL',
 		'expiry DATETIME DEFAULT NULL',
@@ -292,6 +292,43 @@ function smartwoo_db_update_243_service_date_created() {
 		
 		if ( ! $result  && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- False positive, WP_DEBUG status checked.
+		}
+	}
+}
+
+/**
+ * Modify asset_key to text type and asset data to longtext type in assets table
+ * 
+ * @since 2.5.3
+ */
+function smartwoo_253_alter_assets_table_columns() {
+	global $wpdb;
+	$table_name = SMARTWOO_ASSETS_TABLE;
+	$columns_to_modify = array(
+		'asset_key'  => 'TEXT NOT NULL',
+		'asset_data' => 'LONGTEXT DEFAULT NULL',
+	);
+
+	foreach ( $columns_to_modify as $column_name => $new_type ) {
+		// Check current column type
+		$current_column_type = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- False positive, query is prepared
+			$wpdb->prepare( 
+				"SELECT DATA_TYPE 
+				 FROM INFORMATION_SCHEMA.COLUMNS 
+				 WHERE TABLE_NAME = %s 
+				 AND COLUMN_NAME = %s",
+				$table_name,
+				$column_name
+			) 
+		);
+
+		// Only alter the column if it's not already of the desired type
+		if ( $current_column_type && strtolower( $current_column_type ) !== strtolower( explode( ' ', $new_type )[0] ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} MODIFY COLUMN {$column_name} {$new_type};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! empty( $wpdb->last_error ) ) {
+				error_log( "Database error modifying {$column_name}: " . $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 		}
 	}
 }
