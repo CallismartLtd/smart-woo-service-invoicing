@@ -12,9 +12,11 @@ defined( 'ABSPATH' ) || exit;
 class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 
     /**
-     * Email id
+     * Email ids
+     * 
+     * @var array $ids
      */
-    public static $id = array(
+    public static $ids = array(
         'smartwoo_cancellation_mail_to_user',
         'smartwoo_service_cancellation_mail_to_admin'
     );
@@ -33,6 +35,8 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
 
     /**
      * Static instance
+     * 
+     * @var static|string $instance
      */
     public static $instance = 'SmartWoo_Cancelled_Service_Mail';
 
@@ -156,7 +160,7 @@ class SmartWoo_Cancelled_Service_Mail extends SmartWoo_Service_Mails {
      * @param array $templates
      */
     public static function register_template( $templates ) {
-        foreach ( self::$id as $id ) {
+        foreach ( self::$ids as $id ) {
             $templates[$id] = __CLASS__;
         }
         return $templates;
