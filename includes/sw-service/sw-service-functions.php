@@ -189,8 +189,7 @@ function smartwoo_is_service_on_grace( SmartWoo_Service $service ) {
 	$current_date = smartwoo_extract_only_date( current_time( 'mysql' ) );
 
 	if ( $current_date >= $end_date ) {
-		$product_id			= $service->get_product_id();
-		$grace_period_date 	= smartwoo_get_grace_period_end_date( $product_id, $end_date );
+		$grace_period_date 	= smartwoo_get_grace_period_end_date( $service->get_product(), $end_date );
 
 		return ( ! empty( $grace_period_date ) && $current_date <= smartwoo_extract_only_date( $grace_period_date ) );
 	}
@@ -298,13 +297,12 @@ function smartwoo_generate_service_id( $service_name ) {
 /**
  * Get the expiration date for a service based on its end date and grace period.
  *
- * @param object $service The service object.
+ * @param SmartWoo_Service $service The service object.
  * @return string The calculated expiration date.
  */
 function smartwoo_get_service_expiration_date( SmartWoo_Service $service ) {
 	$end_date			= smartwoo_extract_only_date( $service->get_end_date() );
-	$product_id			= $service->get_product_id();
-	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $product_id, $end_date ) );
+	$grace_period_date	= smartwoo_extract_only_date( smartwoo_get_grace_period_end_date( $service->get_product(), $end_date ) );
 	$expiration_date	= $grace_period_date ?? $end_date;
 
 	return $expiration_date;
@@ -342,14 +340,12 @@ function smartwoo_get_service_price( SmartWoo_Service $service ) {
 /**
  * Get grace period information based on a Product ID and it's grace period settings.
  *
- * @param int    $product_id The ID of the Product.
+ * @param SmartWoo_Product $product The Smart Woo Product instance.
  * @param string $reference_date Reference date for calculating the grace period end date.
  * @return int|null Numeric representation of the grace period in hours, or null if not applicable.
  */
-function smartwoo_get_grace_period_end_date( $product_id, $reference_date ) {
-
+function smartwoo_get_grace_period_end_date( SmartWoo_Product $product, $reference_date ) {
 	$end_date = null;
-	$product = wc_get_product( $product_id );
 
 	// Get grace period from product metadata
 	$grace_period_number	= ! empty( $product ) ? $product->get_grace_period_number(): null;
