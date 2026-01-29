@@ -674,7 +674,7 @@ class SmartWoo_Service_Database {
 			$values[] = 'Active';
 			$values[] = '';
 
-		} elseif ( in_array( $parsed_args['status'] ) || '' === $parsed_args['status'] || 'due for renewal' === strtolower( $parsed_args['status'] ) ) {
+		} elseif ( in_array( $parsed_args['status'], array( 'due for renewal', 'renewal' ) ) || '' === $parsed_args['status'] || 'due for renewal' === strtolower( $parsed_args['status'] ) ) {
 			$where[] = "(
 				`status` = %s
 				OR ( (`status` IS NULL OR `status` = %s)
@@ -1091,7 +1091,7 @@ class SmartWoo_Service_Database {
 				return self::count_on_grace();
 
 			case 'expired':
-				return self::count_all_expired();
+				return self::count_expired();
 
 			case 'expiry-threshold':
 				return self::count_on_expiry_threshold();
