@@ -242,8 +242,7 @@ class SmartWoo_Support_Controller {
 
 		$parts = compact( 'order_id', 'order_key', 'order_token' );
 		$path  = 'app-store-verify-order/' . implode( '/', $parts );
-		// $url   = esc_url_raw( trailingslashit( self::$store_url ) . $path . '/' );
-
+		$url   = esc_url_raw( trailingslashit( self::$store_url ) . $path . '/' );
 
 		$response = wp_remote_get( $url, array( 'timeout' => 60 ) );
 
