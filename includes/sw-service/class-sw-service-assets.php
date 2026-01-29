@@ -362,10 +362,9 @@ class SmartWoo_Service_Assets {
      * Get asset data only
      * 
      * @param int $asset_id The asset ID to look.
-     * @param self|null $this_obj A reference of SmartWoo_Service_Assets Object or null. 
      * @return array Asset data if successful, empty array otherwise.
      */
-    public static function return_data( $asset_id, &$this_obj = null ) {
+    public static function return_data( $asset_id ) {
         global $wpdb;
         $query  = $wpdb->prepare(  
             "SELECT `asset_data`, `access_limit` FROM " . SMARTWOO_ASSETS_TABLE . " WHERE `asset_id` = %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -377,7 +376,6 @@ class SmartWoo_Service_Assets {
             return array();
         }
 
-        $this_obj  = new self( absint( $asset_id ) );
         return wp_unslash( maybe_unserialize( $result['asset_data'] ) );
         
     }
@@ -582,8 +580,8 @@ class SmartWoo_Service_Assets {
      * Reduce access limit when asset is accessed.
      */
     public function use_asset() {
-        if ( $this->access_limit !== null && $this->access_limit > 0 ) {
-            $this->access_limit--;
+        if ( $this->limit !== null && $this->limit > 0 ) {
+            $this->limit--;
             $this->save();
         }
     }
@@ -600,7 +598,7 @@ class SmartWoo_Service_Assets {
             return false;
         }
 
-        if ( $this->access_limit !== null && $this->access_limit <= 0 ) {
+        if ( $this->limit !== null && $this->limit <= 0 ) {
             return false;
         }
 
