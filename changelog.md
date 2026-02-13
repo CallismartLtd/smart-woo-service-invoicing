@@ -1,5 +1,9 @@
 ## Smart Woo Service Invoicing Changelog
 
+### 2.5.4 [2026-02-13]
+**Fixed**
+- Broken client portal when listing new order.
+
 ### 2.5.3 [2026-01-29]
 **Fixed** 
 * Email template width on mobile devices.

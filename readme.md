@@ -7,11 +7,11 @@
 **Contributors:** callismartltd
 **Tags:** subscription billing, automated invoicing, recurring payments, service billing, woocommerce invoicing
 **Requires at least:** 6.4
-**Tested up to:** 6.9
+**Tested up to:** 6.9.1
 **Requires WooCommerce:** 8.0
 **WooCommerce tested up to:** 10.4
 **Requires PHP:** 7.4
-**Stable Tag:** 2.5.3
+**Stable Tag:** 2.5.4
 **License:** GPLv3
 **License URI:** [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -180,6 +180,10 @@ For release notes, upcoming features, and future updates, visit the [official re
 ---
 
 ## Changelog
+### 2.5.4 [2026-02-13]
+**Fixed**
+- Broken client portal when listing new order.
+
 ### 2.5.3 [2026-01-29]
 **Fixed** 
 * Email template width on mobile devices.

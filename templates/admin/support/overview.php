@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit; ?>
     <em class="description"><?php esc_html_e( 'Choose a support package that fits your needs.', 'smart-woo-service-invoicing' ); ?></em>   
 
     <?php if ( empty( $support_packages ) || is_wp_error( $support_packages ) ) : ?>
-        <?php echo wp_kses_post( smartwoo_notice( __( 'No support packages are available at the moment. Please check back later.', 'smart-woo-service-invoicing' ) ) ); ?>
+        <?php echo wp_kses_post( smartwoo_notice( __( 'Support packages are not available at the moment. Please check back later.', 'smart-woo-service-invoicing' ) ) ); ?>
     
     <?php else : ?>
 
