@@ -304,18 +304,20 @@ class SupportInbox {
         if ( empty( $body ) ) {
             return new WP_Error(
                 'empty_response',
-                __( 'Empty response from the remote inbox API.', 'smart-woo-service-invoicing' )
+                __( 'No new messages for now.', 'smart-woo-service-invoicing' )
             );
         }
 
-        $messages = json_decode( $body, true );
+        $data = json_decode( $body, true );
 
-        if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $messages ) ) {
+        if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
             return new WP_Error(
                 'invalid_json',
-                __( 'Invalid JSON data received from the remote server.', 'smart-woo-service-invoicing' )
+                __( 'Something went wrong, please try again later.', 'smart-woo-service-invoicing' )
             );
         }
+
+		$messages	= $data['items'] ?? [];
 
         foreach ( $messages as $message ) {
 			
