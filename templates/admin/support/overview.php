@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit; ?>
 
 <div class="smartwoo-admin-page-content">
-    <em class="description"><?php esc_html_e( 'Choose a support package that fits your needs.', 'smart-woo-service-invoicing' ); ?></em>   
+    <em class="description" style="margin: 10px;"><?php esc_html_e( 'Choose a support package that fits your needs.', 'smart-woo-service-invoicing' ); ?></em>   
 
     <?php if ( empty( $support_packages ) || is_wp_error( $support_packages ) ) : ?>
         <?php echo wp_kses_post( smartwoo_notice( __( 'Support packages are not available at the moment. Please check back later.', 'smart-woo-service-invoicing' ) ) ); ?>
@@ -61,9 +61,17 @@ defined( 'ABSPATH' ) || exit; ?>
                         </table>
                     </div>
                 
-                    <button data-url="<?php echo esc_url( $support_packages[0]['checkout_url'] ); ?>" target="_blank" id="smartwoo-support-checkout-btn" class="button">
-                        <?php esc_html_e( 'Next', 'smart-woo-service-invoicing' ); ?>
-                </button>
+                    <form id="smartwoo-support-checkout">
+                        <label for="policy-agreed">
+                            <input type="checkbox" id="policy-agreed" required>
+                            By continuing you agree to our <a href="https://callismart.com.ng/terms/" target="_blank">terms</a> and <a href="https://callismart.com.ng/refund_returns/" target="_blank">return policy</a>
+                        </label>
+                        
+                        <button type="submit" data-url="<?php echo esc_url( $support_packages[0]['checkout_url'] ); ?>" id="smartwoo-support-checkout-btn" class="button">
+                            <?php esc_html_e( 'Checkout', 'smart-woo-service-invoicing' ); ?>
+                        </button>
+                    </form>
+
                 </div>
             </div>
         </div>

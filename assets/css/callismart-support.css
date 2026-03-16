@@ -75,6 +75,11 @@
 .smartwoo-support-summary-inner h2 {
     margin: 0;
 }
+#smartwoo-support-checkout {
+    display: flex;
+    gap: 10px;
+    align-items: center
+}
 
 /** Support Inbox styles */
 .callismart-support-inbox-consent-container {

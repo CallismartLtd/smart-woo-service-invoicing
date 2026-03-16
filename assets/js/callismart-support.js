@@ -33,14 +33,15 @@ class CallismartSupport {
         this.grantConsentBtn    = document.querySelector( '#callismart-consent-btn' );
         this.withdrawConsentBtn = document.querySelector( '#callismart-withdraw-btn' );
         
-        this.supportRadios   = document.querySelectorAll( 'input[name="smartwoo_support_choice"]' );
-        this.supportTitle    = document.querySelector( '#smartwoo-support-title' );
-        this.supportShort    = document.querySelector( '#smartwoo-support-short' );
-        this.supportPrice    = document.querySelector( '#smartwoo-support-price' );
-        this.checkoutBtn     = document.querySelector( '#smartwoo-support-checkout-btn' );
-        this.modal           = document.querySelector( '.smartwoo-modal-frame' );
-        this.modalContent    = this.modal?.querySelector( '.smartwoo-modal-body' );
-        this.closeModalBtn   = this.modal?.querySelector( '.smartwoo-modal-close-btn' );
+        this.supportRadios  = document.querySelectorAll( 'input[name="smartwoo_support_choice"]' );
+        this.supportTitle   = document.querySelector( '#smartwoo-support-title' );
+        this.supportShort   = document.querySelector( '#smartwoo-support-short' );
+        this.supportPrice   = document.querySelector( '#smartwoo-support-price' );
+        this.checkoutForm   = document.querySelector( '#smartwoo-support-checkout' );
+        this.checkoutBtn    = document.querySelector( '#smartwoo-support-checkout-btn' );
+        this.modal          = document.querySelector( '.smartwoo-modal-frame' );
+        this.modalContent   = this.modal?.querySelector( '.smartwoo-modal-body' );
+        this.closeModalBtn  = this.modal?.querySelector( '.smartwoo-modal-close-btn' );
 
         this.activeCheckoutURL = null;
         this.iframe            = null;
@@ -92,14 +93,33 @@ class CallismartSupport {
     /**
      * Handle support product checkout.
      * 
-     * @param {Event} event - The event object.
+     * @param {MouseEvent} event - The event object.
      */
-    _handleCheckoutAction() {
-        const url = this.checkoutBtn.dataset.url;
+    _handleCheckoutAction( event ) {
+        event.preventDefault()
+        const url           = this.checkoutBtn.dataset.url;
+        const form          = this.checkoutForm;
+        /** @type {HTMLInputElement} */
+        const agreeCheck    = form?.querySelector( '#policy-agreed' );
+        
+        if ( ! agreeCheck.checked ) {
+            agreeCheck.setCustomValidity( smartwoo_local.support.agreementText );
+            form.reportValidity();
+            form.addEventListener( 'change', this.removeCustomFormValidity.bind(this))
+            return;
+        }
         if ( url ) {
             this._openCheckoutModal( url );
             this.activeCheckoutURL = url;
         }        
+    }
+
+    /**
+     * Remove custom form validity.
+     */
+    removeCustomFormValidity() {
+        this.checkoutForm.querySelectorAll( 'input' )
+        .forEach( input => input.setCustomValidity( '' ) );
     }
 
     /**
@@ -276,7 +296,7 @@ class CallismartSupport {
     /**
      * Handle bulk selection form submission
      * 
-     * @param {Event} event
+     * @param {MouseEvent} event
      */
     async _submitForm( event ) {
         event.preventDefault();
@@ -285,7 +305,7 @@ class CallismartSupport {
         const bulkSelect    = form.querySelector( '#bulk-action-select' );
 
         if ( ! bulkSelect.value.trim() ) {
-            showNotification( 'Please select a bulk action', 5000 );
+            showNotification( 'Please select a bulk action.', 5000 );
             return;
         }
 
