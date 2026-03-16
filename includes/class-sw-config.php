@@ -539,31 +539,31 @@ class SmartWoo_Config{
     public function register_cron(  $schedules ) {
         /**Define a cron interval for 12 hours. */
         $schedules['smartwoo_12_hours'] = array(
-            'interval' => 12 * 60 * 60, // 12 hours in seconds
-            'display'  => __( 'SmartWoo twice Daily', 'smart-woo-service-invoicing' ),
+            'interval' => 12 * HOUR_IN_SECONDS, // 12 hours in seconds
+            'display'  => __( 'SmartWoo Twice Daily', 'smart-woo-service-invoicing' ),
         );
 
         /** Add a new cron schedule interval for once every two days (48 hours). */
         $schedules['smartwoo_once_every_two_days'] = array(
-            'interval' => 2 * 24 * 60 * 60,
-            'display'  => __( 'SmartWoo Once Every Two Days', 'smart-woo-service-invoicing' ),
+            'interval' => 2 * DAY_IN_SECONDS,
+            'display'  => __( 'Smart Woo 48 Hourly', 'smart-woo-service-invoicing' ),
         );
 
         /** Add a new cron schedule interval for once a day (every 24 hours). */
         $schedules['smartwoo_daily'] = array(
-            'interval' => 24 * 60 * 60,
-            'display'  => __( 'SmartWoo Daily', 'smart-woo-service-invoicing' ),
+            'interval' => DAY_IN_SECONDS,
+            'display'  => __( 'Smart Woo Daily', 'smart-woo-service-invoicing' ),
         );
         /** Add a new cron schedule interval for every 5 minutes. */
         $schedules['smartwoo_5_minutes'] = array(
-            'interval' => 5 * 60,
-            'display'  => __( 'SmartWoo Every 5 Minutes', 'smart-woo-service-invoicing' ),
+            'interval' => 5 * MINUTE_IN_SECONDS,
+            'display'  => __( 'Smart Woo 5 Minutely', 'smart-woo-service-invoicing' ),
         );
 
         /** Define a Smart Woo cron interval for every 5 hours. */
         $schedules['smartwoo_5_hours'] = array(
-            'interval' => 5 * 60 * 60,
-            'display'  => __( 'SmartWoo Every 5 Hours', 'smart-woo-service-invoicing' ),
+            'interval' => 5 * HOUR_IN_SECONDS,
+            'display'  => __( 'Smart Woo 5 Hourly', 'smart-woo-service-invoicing' ),
         );
 
         return  $schedules;
