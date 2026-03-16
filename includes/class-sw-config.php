@@ -320,7 +320,7 @@ class SmartWoo_Config{
             'editor_css_url'            => SMARTWOO_DIR_URL . 'assets/editor/css/smartwoo-editor-ui.css',
             'subscription_asset_url'    => SMARTWOO_DIR_URL . 'assets/css/subscription-assets' . $suffix . '.css',
             'charset'                   => get_bloginfo( 'charset' ),
-            'smartwoo_pro_is_installed' => SmartWoo::pro_is_installed()
+            'smartwoo_pro_is_installed' => SmartWoo::pro_is_installed(),
         );
 
         wp_register_script( 'smartwoo-script', SMARTWOO_DIR_URL . 'assets/js/smart-woo' . $suffix . '.js', array( 'jquery' ), SMARTWOO_VER, true );
@@ -368,12 +368,29 @@ class SmartWoo_Config{
                 wp_enqueue_editor();
             }
 
+            wp_localize_script( 'smartwoo-script', 'smartwoo_local', self::localized_js() );
+
             if ( 'Support' === self::get_current_screen() ) {
                 wp_enqueue_script( 'callismart-support' );
             }
             wp_localize_script( 'smartwoo-admin-script', 'smartwoo_admin_vars', $utils );
+            
             wp_enqueue_script( 'smartwoo-admin-script' );
         }
+    }
+
+    /**
+     * Smart Woo JavaScript translatable strings
+     * 
+     * @since 2.5.5
+     * @return array
+     */
+    private static function localized_js() : array {
+        return array(
+            'support' => array(
+                'agreementText' => __( 'Please agree before checkout', 'smart-woo-service-invoicing' )
+            )
+        );
     }
 
     /**
