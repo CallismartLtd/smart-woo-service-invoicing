@@ -2,7 +2,7 @@
 Contributors: callismartltd
 Tags: subscription billing, automated invoicing, recurring payments, service billing, woocommerce invoicing
 Requires at least: 6.4
-Tested up to: 6.9.1
+Tested up to: 7.0
 Requires WooCommerce: 8.0
 WooCommerce tested up to: 10.4
 Requires PHP: 7.4
